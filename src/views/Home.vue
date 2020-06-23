@@ -2,11 +2,14 @@
   <div class="home">
     <MbTabs />
     <div v-for="swatch in swatches" class="swatch" :class="[swatch]" :key="swatch">Aa</div>
+    <MbInput v-model="textTest" />
+    <MbInput v-model="textTest" label="Hi there!" type="password" />
   </div>
 </template>
 
 <script>
 // @ is an alias to /src
+import MbInput from '@/components/MbInput.vue';
 import MbTabs from '@/components/MbTabs.vue';
 
 export default {
@@ -28,8 +31,10 @@ export default {
       'warning',
       'warning-saturated',
     ],
+    textTest: '',
   }),
   components: {
+    MbInput,
     MbTabs,
   },
 };
