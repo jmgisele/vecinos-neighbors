@@ -1,5 +1,10 @@
 # mattrbld
 
+This is a Git-Based Headless CMS for the Browser. You can use it to create and
+edit content for JAM-Stack sites.
+
+It’s built with Vue.js.
+
 ## Project setup
 ```
 npm install
