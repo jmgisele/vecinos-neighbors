@@ -4,6 +4,9 @@ import './registerServiceWorker';
 import router from './router';
 import store from './store';
 
+import 'typeface-inter';
+import '@/assets/styles/base.styl';
+
 Vue.config.productionTip = false;
 Vue.config.devtools = false;
 
