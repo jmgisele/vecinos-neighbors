@@ -1,6 +1,6 @@
 <template lang="html">
-  <div class="tab-wrapper">
-    <transition-group class="tabs" ref="tabs" tag="ul" @after-leave="resetActiveTab">
+  <div class="tabs">
+    <transition-group ref="tabs" tag="ul" @after-leave="resetActiveTab">
       <li v-for="(tab, index) in tabs" :data-index="index" :key="tab" tabindex="0" @click.left="activateTab(index, $event)" @keyup.enter="activateTab(index, $event)" @keyup.space="activateTab(index, $event)" @click.right.prevent="removeTab(index)">{{tab}}</li>
     </transition-group>
     <div class="active-indicator" :style="{ transform: indicatorTransform }"></div>
@@ -71,7 +71,7 @@ export default {
 <style lang="stylus" scoped>
 @require '../assets/styles/colors'
 
-.tab-wrapper
+.tabs
   position: relative
   box-shadow: inset 0 -2px 0 0 $bg-secondary
   white-space: nowrap
@@ -85,7 +85,7 @@ export default {
   &::-webkit-scrollbar
     display: none
 
-  .tabs
+  > ul
     margin: 0
     width: 100%
     border-bottom: none
