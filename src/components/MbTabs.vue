@@ -1,7 +1,7 @@
 <template lang="html">
   <div class="tab-wrapper">
     <transition-group class="tabs" ref="tabs" tag="ul" @after-leave="resetActiveTab">
-      <li v-for="(tab, index) in tabs" :key="tab" tabindex="0" @click.left="activateTab(index, $event)" @keyup.enter="activateTab(index, $event)" @keyup.space="activateTab(index, $event)" @click.right.prevent="removeTab(index)">{{tab}}</li>
+      <li v-for="(tab, index) in tabs" :data-index="index" :key="tab" tabindex="0" @click.left="activateTab(index, $event)" @keyup.enter="activateTab(index, $event)" @keyup.space="activateTab(index, $event)" @click.right.prevent="removeTab(index)">{{tab}}</li>
     </transition-group>
     <div class="active-indicator" :style="{ transform: indicatorTransform }"></div>
   </div>
@@ -55,18 +55,11 @@ export default {
       if (index === this.tabs.length - 1) return;
       this.tabs.splice(index, 1);
     },
-    resetActiveTab(index) {
-      if (this.activeTab === index) {
-        this.activeTab = -1;
-        this.activeTab = Math.max(0, index - 1);
-      } else if (this.activeTab > this.tabs.length - 2) {
-        this.activeTab = -1;
-        this.activeTab = Math.max(0, this.tabs.length - 2);
-      } else {
-        const backup = this.activeTab;
-        this.activeTab = -1;
-        this.activeTab = backup;
-      }
+    resetActiveTab(el) {
+      const activeTabBackup = this.activeTab;
+      this.activeTab = -1;
+      if (el.dataset.index > activeTabBackup) this.activeTab = activeTabBackup;
+      else this.activeTab = Math.max(0, activeTabBackup - 1);
     },
     scrollTabIntoView(el) {
       el.scrollIntoView({ behavior: 'smooth', inline: 'center' });
@@ -87,6 +80,7 @@ export default {
   overflow-y: hidden
   scrollbar-width: none
   -ms-overflow-style: none
+  user-select: none
 
   &::-webkit-scrollbar
     display: none
