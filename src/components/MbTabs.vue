@@ -13,7 +13,7 @@ export default {
     text: '',
     caretTransform: '',
     activeTab: 0,
-    tabs: ['Frontmatter', 'Content', 'SEO', '+'],
+    tabs: ['Content', 'Metadata', 'SEO', '+'],
     previousTab: 0,
     idCounter: 1,
   }),
@@ -69,58 +69,22 @@ export default {
       }
     },
     scrollTabIntoView(el) {
-      el.scrollIntoView({ behavior: 'smooth' });
+      el.scrollIntoView({ behavior: 'smooth', inline: 'center' });
     },
   },
 };
 </script>
 
 <style lang="stylus" scoped>
-.tabs
-  list-style: none
-  border-bottom: 2px solid #f4f3ff
-  padding: 0
-
-  li
-    /* background-color: #f4f3ff */
-    display: inline-block
-    padding: 1rem 1.5rem
-    cursor: pointer
-    border-radius: 6px
-    position: relative
-
-    &:hover,
-    &:focus
-      background-color: #f4f3ff
-
-    &:focus
-      outline: none
-
-    &.origin-left::after
-        transform-origin: left
-
-    &.active::after
-      transform: none
-
-    &::after
-      content: ''
-      position: absolute
-      width: 100%
-      height: 2px
-      bottom: -2px
-      left: 0
-      border-radius: 1px
-      background-color: #6c5ce7
-      transform-origin: right
-      transition: transform 200ms ease
-      transform: scaleX(0)
+@require '../assets/styles/colors'
 
 .tab-wrapper
   position: relative
-  box-shadow: inset 0 -2px 0 0 #f4f3ff
+  box-shadow: inset 0 -2px 0 0 $bg-secondary
   white-space: nowrap
   max-width: 100%
   overflow-x: auto
+  overflow-y: hidden
   scrollbar-width: none
   -ms-overflow-style: none
 
@@ -131,21 +95,38 @@ export default {
     margin: 0
     width: 100%
     border-bottom: none
+    list-style: none
+    padding: 0
 
-    .v-enter-active,
-    .v-leave-active
-      transition: transform 200ms ease, opacity 200ms ease
+    li
+      display: inline-block
+      padding: 1rem 1.5rem
+      cursor: pointer
+      border-top-left-radius: 0.375rem
+      border-top-right-radius: @border-top-left-radius
+      position: relative
 
-      &.v-enter,
-      &.v-leave-to
-        transform: translateY(1rem)
-        opacity: 0
+      &:hover,
+      &:focus
+        background-color: $bg-secondary
+
+      &:focus
+        outline: none
+
+      &.v-enter-active,
+      &.v-leave-active
+        transition: transform 200ms ease, opacity 200ms ease
+
+        &.v-enter,
+        &.v-leave-to
+          transform: translateY(1rem)
+          opacity: 0
 
   .active-indicator
     position: absolute
     width: 10px
     height: 2px
-    background-color: #6c5ce7
+    background-color: $accent
     bottom: 0
     left: 0
     transform-origin: left
