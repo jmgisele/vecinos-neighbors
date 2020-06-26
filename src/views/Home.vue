@@ -1,7 +1,7 @@
 <template>
   <div class="home">
     <h1>Components</h1>
-    <MbTabs v-model="activeTab" :tabs="tabTest" show-add-option @add-tab="addTab" />
+    <MbTabs v-model="activeTab" :dark="dark" :tabs="tabTest" show-add-option @add-tab="addTab" />
     <transition mode="out-in">
       <section v-if="activeTabValue === 'design'" class="tab" key="design">
         <div class="swatches">
@@ -112,6 +112,9 @@ export default {
       if (lastTab.value.startsWith('untitled')) this.tabTest.pop();
     },
   },
+  props: {
+    dark: Boolean,
+  },
 };
 </script>
 
@@ -132,7 +135,6 @@ export default {
     max-width: calc(100% + 4rem)
     position: sticky
     top: 0
-    background-color: $bg
     z-index: 1
 
   .tab
