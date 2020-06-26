@@ -86,6 +86,7 @@ export default {
 
 <style lang="stylus" scoped>
 @require '../assets/styles/colors'
+@require '../assets/styles/corners'
 
 .tabs
   position: relative
@@ -114,7 +115,7 @@ export default {
         display: inline-block
         padding: 1rem 1.5rem
         cursor: pointer
-        border-top-left-radius: 0.375rem
+        border-top-left-radius: $radius-medium
         border-top-right-radius: @border-top-left-radius
         position: relative
         transition: background-color 200ms ease

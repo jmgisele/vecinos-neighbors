@@ -21,6 +21,7 @@ export default {
 
 <style lang="stylus" scoped>
 @require '../assets/styles/colors'
+@require '../assets/styles/corners'
 
 .input
   display: inline-block
@@ -47,7 +48,7 @@ export default {
     border: none
     // box-shadow: inset 0 0 0 1px darken($bg-secondary, 10)
     background-color: $bg-secondary
-    border-radius: 6px
+    border-radius: $radius-medium
     padding: 1rem
     transition: box-shadow 200ms ease
     text-overflow: ellipsis
