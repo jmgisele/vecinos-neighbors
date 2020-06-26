@@ -1,10 +1,14 @@
 <template lang="html">
   <div class="tabs">
-    <transition-group ref="tabs" tag="ul" @after-leave="resetActiveTab">
-      <li v-for="(tab, index) in tabs" :data-index="index" :key="tab.value || tab" tabindex="0" @click.left="activateTab($event, index)" @keyup.enter="activateTab($event, index)" @keyup.space="activateTab($event, index)">{{tab.label || tab}}</li>
-      <li v-if="showAddOption" key="mbTabsAddOption" tabindex="0" @click="addTab" @keyup.space="addTab" @keyup.enter="addTab">+</li>
-    </transition-group>
-    <div class="active-indicator" :style="{ transform: indicatorTransform }"></div>
+    <div class="scroll-wrapper" ref="scrollWrapper" @scroll.passive="toggleShadow">
+      <transition-group ref="tabs" tag="ul" @after-leave="resetActiveTab">
+        <li v-for="(tab, index) in tabs" :data-index="index" :key="tab.value || tab" tabindex="0" @click.left="activateTab($event, index)" @keyup.enter="activateTab($event, index)" @keyup.space="activateTab($event, index)">{{tab.label || tab}}</li>
+        <li v-if="showAddOption" key="mbTabsAddOption" tabindex="0" @click="addTab" @keyup.space="addTab" @keyup.enter="addTab">+</li>
+      </transition-group>
+      <div class="active-indicator" :style="{ transform: indicatorTransform }"></div>
+    </div>
+    <div class="shadow left" :class="{ visible: shadow.left }" />
+    <div class="shadow right" :class="{ visible: shadow.right }" />
   </div>
 </template>
 
@@ -13,6 +17,10 @@ export default {
   data() {
     return {
       mounted: false,
+      shadow: {
+        left: false,
+        right: false,
+      },
     };
   },
   computed: {
@@ -40,18 +48,37 @@ export default {
       const activeTabBackup = this.value;
       if (el.dataset.index > activeTabBackup) this.$emit('input', activeTabBackup);
       else this.$emit('input', Math.max(0, activeTabBackup - 1));
+
+      // the size of the wrapper changed so we should recalculate the shadows
+      this.toggleShadow();
     },
     scrollTabIntoView(el) {
       el.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
     },
+    toggleShadow() {
+      const hasHorizontalScrollbar = this.$refs.scrollWrapper.clientWidth < this.$refs.scrollWrapper.scrollWidth;
+
+      const scrolledFromLeft = this.$refs.scrollWrapper.offsetWidth + this.$refs.scrollWrapper.scrollLeft;
+
+      // Round using ceil to make sure it always disappears, even when the devicePixelRatio is off due to Chrome rounding
+      const scrolledToRight = Math.ceil(scrolledFromLeft) >= Math.ceil(this.$refs.scrollWrapper.scrollWidth);
+      const scrolledToLeft = this.$refs.scrollWrapper.scrollLeft === 0;
+
+      this.shadow.right = hasHorizontalScrollbar && !scrolledToRight;
+      this.shadow.left = hasHorizontalScrollbar && !scrolledToLeft;
+    },
   },
   mounted() {
+    this.toggleShadow();
     // needed so the active indicator can update its position
     this.mounted = true;
   },
   props: {
     showAddOption: Boolean,
-    tabs: Array,
+    tabs: {
+      type: Array,
+      default: () => [],
+    },
     value: Number,
   },
 };
@@ -65,54 +92,75 @@ export default {
   box-shadow: inset 0 -2px 0 0 $bg-secondary
   white-space: nowrap
   max-width: 100%
-  overflow-x: auto
-  overflow-y: hidden
-  scrollbar-width: none
-  -ms-overflow-style: none
   user-select: none
 
-  &::-webkit-scrollbar
-    display: none
+  .scroll-wrapper
+    position: relative
+    overflow-x: auto
+    overflow-y: hidden
+    scrollbar-width: none
+    -ms-overflow-style: none
 
-  > ul
-    margin: 0
-    width: 100%
-    border-bottom: none
-    list-style: none
-    padding: 0
+    &::-webkit-scrollbar
+      display: none
 
-    li
-      display: inline-block
-      padding: 1rem 1.5rem
-      cursor: pointer
-      border-top-left-radius: 0.375rem
-      border-top-right-radius: @border-top-left-radius
-      position: relative
-      transition: background-color 200ms ease
+    > ul
+      margin: 0
+      width: 100%
+      list-style: none
+      padding: 0
 
-      &:hover,
-      &:focus
-        background-color: $bg-secondary
+      li
+        display: inline-block
+        padding: 1rem 1.5rem
+        cursor: pointer
+        border-top-left-radius: 0.375rem
+        border-top-right-radius: @border-top-left-radius
+        position: relative
+        transition: background-color 200ms ease
 
-      &:focus
-        outline: none
+        &:hover,
+        &:focus
+          background-color: $bg-secondary
 
-      &.v-enter-active,
-      &.v-leave-active
-        transition: transform 200ms ease, opacity 200ms ease
+        &:focus
+          outline: none
 
-        &.v-enter,
-        &.v-leave-to
-          transform: translateY(1rem)
-          opacity: 0
+        &.v-enter-active,
+        &.v-leave-active
+          transition: transform 200ms ease, opacity 200ms ease
 
-  .active-indicator
+          &.v-enter,
+          &.v-leave-to
+            transform: translateY(1rem)
+            opacity: 0
+
+    .active-indicator
+      position: absolute
+      width: 10px
+      height: 2px
+      background-color: $accent
+      bottom: 0
+      left: 0
+      transform-origin: left
+      transition: transform 200ms ease
+
+  .shadow
     position: absolute
-    width: 10px
-    height: 2px
-    background-color: $accent
-    bottom: 0
-    left: 0
-    transform-origin: left
-    transition: transform 200ms ease
+    top: 0
+    bottom: 2px
+    pointer-events: none
+    opacity: 0
+    transition: opacity 200ms ease
+
+    &.visible
+      opacity: 1
+
+    &.left
+      left: 0
+      border-left: 2px dashed $accent-secondary
+
+    &.right
+      right: 0
+      border-right: 2px dashed $accent-secondary
 </style>
