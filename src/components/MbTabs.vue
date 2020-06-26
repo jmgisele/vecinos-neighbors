@@ -31,7 +31,7 @@ export default {
       if (!tabElement) return 'translateX(0) scaleX(0)';
 
       const translate = tabElement.offsetLeft;
-      const scale = tabElement.offsetWidth / 10; // 10 is the initial width of the active-indicator element in px
+      const scale = tabElement.offsetWidth / 100; // 100 is the initial width of the active-indicator element in px
       return `translateX(${translate}px) scaleX(${scale})`;
     },
   },
@@ -137,7 +137,7 @@ export default {
 
     .active-indicator
       position: absolute
-      width: 10px
+      width: 100px
       height: 2px
       background-color: $accent
       bottom: 0
