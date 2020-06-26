@@ -4,6 +4,7 @@ import './registerServiceWorker';
 import router from './router';
 import store from './store';
 
+import 'normalize.css';
 import 'typeface-inter';
 import '@/assets/styles/base.styl';
 
