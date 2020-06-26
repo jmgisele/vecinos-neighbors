@@ -1,4 +1,5 @@
 @require 'colors'
+@require 'corners'
 
 *
   box-sizing: border-box
@@ -7,6 +8,9 @@
   &::selection
     color: $bg
     background-color: $accent
+
+  &:focus
+    outline: none
 
 html
   margin: 0
@@ -19,6 +23,120 @@ html
     font-family: 'Inter', sans-serif
     font-feature-settings: 'zero' on, 'ss01' on, 'cv05' on
     font-size: 1rem
+    line-height: 1.5
+    hyphens: auto
+    overflow-wrap: break-word
+    word-wrap: break-word
 
     h1, h2, h3
       font-feature-settings: 'cv11' on, 'cv05' off, 'cv08' on
+
+    h1
+      margin-top: 4rem
+      margin-bottom: 2rem
+      font-size: 2rem
+
+      + h2
+        margin-top: 2rem
+
+    h2
+      margin-top: 3rem
+      margin-bottom: 1.5rem
+      font-size: 1.5rem
+
+      + h3
+        margin-top: 1.5rem
+
+    h3
+      margin-top: 2rem
+      margin-bottom: 1rem
+      font-size: 1.25rem
+
+    h4, h5, h6
+      margin-top: 1.5rem
+      margin-bottom: 1rem
+      font-size: 1rem
+
+    p
+      margin-top: 0
+      margin-bottom: 1rem
+
+    ol,
+    ul
+      margin-top: 0
+      margin-bottom: 1rem
+      margin-left: 1.5rem
+      padding-left: 0
+      list-style-position: inside
+
+    blockquote
+      margin-top: 0
+      margin-bottom: 1rem
+      margin-left: 1.5rem
+      padding-left: 1rem
+      position: relative
+
+      &::before
+        content: ''
+        display: block
+        background-color: $accent-secondary
+        position: absolute
+        width: 2px
+        height: 100%
+        left: 0
+
+      > footer
+        font-style: italic
+        color: $text-secondary
+
+        &::before
+          content: '– '
+
+    pre
+      margin: 2rem 0
+      padding: 1rem
+      background-color: $text
+      color: $bg
+      border-radius: $radius-large
+      overflow: auto
+      white-space: pre-wrap
+
+      code
+        display: inline
+        padding: 0
+        background-color: initial
+        white-space: pre-wrap
+
+    a
+      color: $accent
+      text-decoration: none
+      background-image: linear-gradient($accent-secondary, $accent-secondary)
+      background-position: 100% 100%
+      background-repeat: no-repeat
+      background-size: 0% 2px
+      transition: background-size 200ms ease
+
+      &:hover,
+      &:focus
+        background-position: 0% 100%
+        background-size: 100% 2px
+
+    code
+      display: inline-block
+      font-family: monospace
+      background-color: $bg-secondary
+      padding: 0.25rem 0.5rem
+      border-radius: $radius-medium
+
+    kbd
+      font-family: 'Inter', sans-serif
+      letter-spacing: 1px
+      display: inline-block
+      margin: 0 0.1rem
+      padding: 0rem 0.25rem
+      border-radius: $radius-small
+      border: 1px solid $text-tertiary
+      box-shadow: 0 1px 0 $text-tertiary, inset 0 0 0 1px $bg
+      background-color: $bg-secondary
+      text-shadow: 0 1px 0 $bg
+      font-size: 0.875rem

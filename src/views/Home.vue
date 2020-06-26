@@ -10,6 +10,39 @@
             <span>{{swatch}}</span>
           </div>
         </div>
+        <div class="typography">
+          <h1>This is a H1</h1>
+          <h2>Which will usually be followed by a H2</h2>
+          <p>And then some normal text. Which will look somewhat like this and be a bit wider than normal headlines, which really shouldn’t break the line if at all possible.</p>
+          <h2>Another H2</h2>
+          <h3>Which will in rarer cases be followed by an H3.</h3>
+          <p>Before there’s another paragraph of text.</p>
+          <p>Paragraphs are spaced well as well. And obviously they should be pleasant to read. I <em>thought</em> about increasing their size for legibility reasons, but I still feel like UI controls should stick to classic 16px base sizes, we’re not writing a webpage after all.</p>
+          <ul>
+            <li>There might also be lists</li>
+            <li>Both of the <strong>unordered</strong></li>
+            <li>And of the <strong>ordered</strong> kinds</li>
+          </ul>
+          <p>This is how an ordered list would look like after a paragraph:</p>
+          <ol>
+            <li>First Point</li>
+            <li>Second Point</li>
+            <li>And last but not least: Third Point</li>
+          </ol>
+          <p>There’s also the rare chance that Blockqoutes might be used. They would look as follows:</p>
+          <blockquote>
+            <p>This is a very ominous quote. I should make it longer so it is better visible. And perhaps also make it wrap the line.</p>
+            <footer>It can also quote someone.</footer>
+          </blockquote>
+          <p>There might also be, on rare occasions, <a href="#">Links</a>. They should stand out, but not too much.</p>
+          <p>Speaking of rare occasions, it wouldn’t hurt to style code blocks and inline code, would it? So this is what <code>inline code</code> looks like.</p>
+          <pre>
+            <code>And here</code>
+            <code>We have some more code in a block.</code>
+            <code>Without syntax highlighting, of course.</code>
+          </pre>
+          <p>And last, but not least (for now), we probably need a way to show keyboard shortcuts like <kbd>Ctrl</kbd> + <kbd>Alt</kbd> + <kbd>Enter</kbd>, too.</p>
+        </div>
       </section>
       <section v-else-if="activeTabValue === 'tabs'" class="tab" key="tabs">
         <p>The active tab is: {{activeTabValue}}</p>
@@ -89,8 +122,9 @@ export default {
 .home
   padding: 2rem
 
-  h1
+  > h1
     margin-top: 0
+    margin-bottom: 1rem
 
   .tabs
     margin-left: -2rem
@@ -185,4 +219,7 @@ export default {
 
         &.warning-saturated
           background-color: $warning-saturated
+
+    .typography
+      margin-top: 4rem
 </style>
