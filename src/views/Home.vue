@@ -1,9 +1,28 @@
 <template>
   <div class="home">
-    <MbTabs />
-    <div v-for="swatch in swatches" class="swatch" :class="[swatch]" :key="swatch">Aa</div>
-    <MbInput v-model="textTest" />
-    <MbInput v-model="textTest" label="Hi there!" type="password" />
+    <h1>Components</h1>
+    <MbTabs v-model="activeTab" :tabs="tabTest" show-add-option @add-tab="addTab" />
+    <transition mode="out-in">
+      <section v-if="activeTabValue === 'design'" class="tab" key="design">
+        <div class="swatches">
+          <div v-for="swatch in swatches" :key="swatch" class="swatch-wrapper">
+            <div class="swatch" :class="[swatch]">Aa</div>
+            <span>{{swatch}}</span>
+          </div>
+        </div>
+      </section>
+      <section v-else-if="activeTabValue === 'tabs'" class="tab" key="tabs">
+        <p>The active tab is: {{activeTabValue}}</p>
+        <button type="button" @click="removeTab">Delete Last Demo Tab</button>
+      </section>
+      <section v-else-if="activeTabValue === 'inputs'" class="tab" key="inputs">
+        <MbInput v-model="textTest" />
+        <MbInput v-model="textTest" label="Hi there!" type="password" />
+      </section>
+      <section v-else class="tab" key="exampleTab">
+        <p>This is just an empty test-tab.</p>
+      </section>
+    </transition>
   </div>
 </template>
 
@@ -14,90 +33,149 @@ import MbTabs from '@/components/MbTabs.vue';
 
 export default {
   name: 'Home',
-  data: () => ({
-    swatches: [
-      'accent',
-      'accent-secondary',
-      'text',
-      'text-secondary',
-      'text-tertiary',
-      'bg',
-      'bg-secondary',
-      'bg-tertiary',
-      'negative',
-      'negative-saturated',
-      'positive',
-      'positive-saturated',
-      'warning',
-      'warning-saturated',
-    ],
-    textTest: '',
-  }),
+  computed: {
+    activeTabValue() {
+      return this.tabTest[this.activeTab] && (this.tabTest[this.activeTab].value || this.tabTest[this.activeTab]);
+    },
+  },
+  data() {
+    return {
+      activeTab: 0,
+      idCounter: 0,
+      swatches: [
+        'accent',
+        'accent-secondary',
+        'text',
+        'text-secondary',
+        'text-tertiary',
+        'bg',
+        'bg-secondary',
+        'bg-tertiary',
+        'negative',
+        'negative-saturated',
+        'positive',
+        'positive-saturated',
+        'warning',
+        'warning-saturated',
+      ],
+      tabTest: [{ label: 'Styles and Colors', value: 'design' }, { label: 'Tabs', value: 'tabs' }, { label: 'Inputs', value: 'inputs' }],
+      textTest: '',
+    };
+  },
   components: {
     MbInput,
     MbTabs,
+  },
+  methods: {
+    addTab() {
+      this.idCounter += 1;
+      this.tabTest.push({ label: `Untitled-${this.idCounter}`, value: `untitled-${this.idCounter}` });
+      this.$nextTick(() => {
+        this.activeTab = this.tabTest.length - 1;
+      });
+    },
+    removeTab() {
+      const lastTab = this.tabTest[this.tabTest.length - 1];
+      if (lastTab.value.startsWith('untitled')) this.tabTest.pop();
+    },
   },
 };
 </script>
 
 <style lang="stylus" scoped>
+@require '../assets/styles/breakpoints'
 @require '../assets/styles/colors'
 
 .home
-  .swatch
-    display: inline-flex
-    width: 4rem
-    height: @width
-    border-radius: (@width / 2)rem
-    border: 1px solid $bg-tertiary
-    justify-content: center
-    align-items: center
-    margin: 1rem
+  padding: 2rem
 
-    &.accent
-      background-color: $accent
-      color: $bg
+  h1
+    margin-top: 0
 
-    &.accent-secondary
-      background-color: $accent-secondary
+  .tabs
+    margin-left: -2rem
+    margin-right: -2rem
+    max-width: calc(100% + 4rem)
 
-    &.text
-      background-color: $text
-      color: $bg
+  .tab
+    max-width: 40rem
+    margin: 0 auto
+    padding: 8rem 0
 
-    &.text-secondary
-      background-color: $text-secondary
+    &.v-enter-active,
+    &.v-leave-active
+      transition: opacity 200ms ease
 
-    &.text-tertiary
-      background-color: $text-tertiary
+      &.v-enter,
+      &.v-leave-to
+        opacity: 0
 
-    &.bg
-      background-color: $bg
+    .swatches
+      display: grid
+      grid-template-columns: repeat(2, 1fr)
 
-    &.bg-secondary
-      background-color: $bg-secondary
+      @media $mobile
+        display: block
 
-    &.bg-tertiary
-      background-color: $bg-tertiary
+    .swatch-wrapper
+      display: inline-block
 
-    &.negative
-      background-color: $negative
+      &:not(:last-child)
+        margin-bottom: 1rem
 
-    &.negative-saturated
-      background-color: $negative-saturated
-      color: $bg
+      .swatch
+        display: inline-flex
+        width: 4rem
+        height: @width
+        border-radius: (@width / 2)rem
+        border: 1px solid $bg-tertiary
+        justify-content: center
+        align-items: center
+        margin-right: 1rem
 
-    &.positive
-      background-color: $positive
+        &.accent
+          background-color: $accent
+          color: $bg
 
-    &.positive-saturated
-      background-color: $positive-saturated
-      color: $bg
+        &.accent-secondary
+          background-color: $accent-secondary
 
-    &.warning
-      background-color: $warning
+        &.text
+          background-color: $text
+          color: $bg
 
-    &.warning-saturated
-      background-color: $warning-saturated
+        &.text-secondary
+          background-color: $text-secondary
 
+        &.text-tertiary
+          background-color: $text-tertiary
+
+        &.bg
+          background-color: $bg
+
+        &.bg-secondary
+          background-color: $bg-secondary
+
+        &.bg-tertiary
+          background-color: $bg-tertiary
+
+        &.negative
+          background-color: $negative
+
+        &.negative-saturated
+          background-color: $negative-saturated
+          color: $bg
+
+        &.positive
+          background-color: $positive
+
+        &.positive-saturated
+          background-color: $positive-saturated
+          color: $bg
+
+        &.warning
+          background-color: $warning
+
+        &.warning-saturated
+          background-color: $warning-saturated
 </style>
