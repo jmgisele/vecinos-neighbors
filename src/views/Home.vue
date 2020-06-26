@@ -96,6 +96,10 @@ export default {
     margin-left: -2rem
     margin-right: -2rem
     max-width: calc(100% + 4rem)
+    position: sticky
+    top: 0
+    background-color: $bg
+    z-index: 1
 
   .tab
     max-width: 40rem
@@ -120,6 +124,9 @@ export default {
     .swatch-wrapper
       display: inline-block
 
+      @media $mobile
+        display: block
+
       &:not(:last-child)
         margin-bottom: 1rem
 
@@ -128,7 +135,7 @@ export default {
         width: 4rem
         height: @width
         border-radius: (@width / 2)rem
-        border: 1px solid $bg-tertiary
+        border: 1px solid $bg-secondary
         justify-content: center
         align-items: center
         margin-right: 1rem
