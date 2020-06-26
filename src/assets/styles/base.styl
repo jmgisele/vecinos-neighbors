@@ -27,6 +27,26 @@ html
     hyphens: auto
     overflow-wrap: break-word
     word-wrap: break-word
+    color: $text
+    background-color: $bg
+
+    &.dark
+      color: $text-dark
+      background-color: $bg-dark
+
+      blockquote footer
+        color: $text-secondary-dark
+
+      pre code
+        background-color: initial
+
+      code, kbd
+        background-color: $bg-secondary-dark
+
+      kbd
+        border-color: $text-tertiary-dark
+        box-shadow: 0 1px 0 $text-tertiary-dark, inset 0 0 0 1px $bg-dark
+        text-shadow: 0 1px 0 $bg-dark
 
     h1, h2, h3
       font-feature-settings: 'cv11' on, 'cv05' off, 'cv08' on

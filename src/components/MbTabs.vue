@@ -1,5 +1,5 @@
 <template lang="html">
-  <div class="tabs">
+  <div class="tabs" :class="{ dark }">
     <div class="scroll-wrapper" ref="scrollWrapper" @scroll.passive="toggleShadow">
       <transition-group ref="tabs" tag="ul" @after-leave="resetActiveTab">
         <li v-for="(tab, index) in tabs" :data-index="index" :key="tab.value || tab" tabindex="0" @click.left="activateTab($event, index)" @keyup.enter="activateTab($event, index)" @keyup.space="activateTab($event, index)">{{tab.label || tab}}</li>
@@ -74,6 +74,7 @@ export default {
     this.mounted = true;
   },
   props: {
+    dark: Boolean,
     showAddOption: Boolean,
     tabs: {
       type: Array,
@@ -90,10 +91,22 @@ export default {
 
 .tabs
   position: relative
+  color: $text
+  background-color: $bg
   box-shadow: inset 0 -2px 0 0 $bg-secondary
   white-space: nowrap
   max-width: 100%
   user-select: none
+
+  &.dark
+    color: $text-dark
+    background-color: $bg-dark
+    box-shadow: inset 0 -2px 0 0 $bg-secondary-dark
+
+    .scroll-wrapper > ul li
+      &:hover,
+      &:focus
+        background-color: $bg-secondary-dark
 
   .scroll-wrapper
     position: relative
