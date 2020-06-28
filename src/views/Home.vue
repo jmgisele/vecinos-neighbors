@@ -60,10 +60,6 @@
 </template>
 
 <script>
-// @ is an alias to /src
-import MbInput from '@/components/MbInput.vue';
-import MbTabs from '@/components/MbTabs.vue';
-
 export default {
   name: 'Home',
   computed: {
@@ -94,10 +90,6 @@ export default {
       tabTest: [{ label: 'Styles and Colors', value: 'design' }, { label: 'Tabs', value: 'tabs' }, { label: 'Inputs', value: 'inputs' }],
       textTest: '',
     };
-  },
-  components: {
-    MbInput,
-    MbTabs,
   },
   methods: {
     addTab() {
