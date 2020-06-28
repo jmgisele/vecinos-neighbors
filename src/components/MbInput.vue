@@ -48,7 +48,7 @@ export default {
     border: none
     // box-shadow: inset 0 0 0 1px darken($bg-secondary, 10)
     background-color: $bg-secondary
-    border-radius: $radius-medium
+    border-radius: $radius-m
     padding: 1rem
     transition: box-shadow 200ms ease
     text-overflow: ellipsis

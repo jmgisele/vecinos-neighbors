@@ -128,7 +128,7 @@ export default {
         display: inline-block
         padding: 1rem 1.5rem
         cursor: pointer
-        border-top-left-radius: $radius-medium
+        border-top-left-radius: $radius-m
         border-top-right-radius: @border-top-left-radius
         position: relative
         transition: background-color 200ms ease
