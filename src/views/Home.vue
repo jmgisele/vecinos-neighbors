@@ -46,11 +46,19 @@
       </section>
       <section v-else-if="activeTabValue === 'tabs'" class="tab" key="tabs">
         <p>The active tab is: {{activeTabValue}}</p>
-        <button type="button" @click="removeTab">Delete Last Demo Tab</button>
+        <MbButton :dark="dark" rounded type="negative" @click="removeTab">Delete Last Demo Tab</MbButton>
       </section>
       <section v-else-if="activeTabValue === 'inputs'" class="tab" key="inputs">
         <MbInput v-model="textTest" />
         <MbInput v-model="textTest" label="Hi there!" type="password" />
+      </section>
+      <section v-else-if="activeTabValue === 'buttons'" class="tab buttons" key="buttons">
+        <MbButton :dark="dark">Secondary Button</MbButton>
+        <MbButton :dark="dark" type="primary">Primary Button</MbButton>
+        <MbButton :dark="dark" rounded>Rounded Button</MbButton>
+        <MbButton :dark="dark" type="positive">Positive Button</MbButton>
+        <MbButton :dark="dark" type="negative">Negative Button</MbButton>
+        <MbButton :dark="dark" type="warning">Warning Button</MbButton>
       </section>
       <section v-else class="tab" key="exampleTab">
         <p>This is just an empty test-tab.</p>
@@ -87,7 +95,7 @@ export default {
         'warning',
         'warning-saturated',
       ],
-      tabTest: [{ label: 'Styles and Colors', value: 'design' }, { label: 'Tabs', value: 'tabs' }, { label: 'Inputs', value: 'inputs' }],
+      tabTest: [{ label: 'Styles and Colors', value: 'design' }, { label: 'Tabs', value: 'tabs' }, { label: 'Inputs', value: 'inputs' }, { label: 'Buttons', value: 'buttons' }],
       textTest: '',
     };
   },
@@ -216,4 +224,8 @@ export default {
 
     .typography
       margin-top: 4rem
+
+    &.buttons
+      .button
+        margin: 1rem
 </style>
