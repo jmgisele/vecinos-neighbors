@@ -48,7 +48,16 @@
         </div>
       </section>
       <section v-else-if="activeTabValue === 'tabs'" class="tab" key="tabs">
+        <h2>Tabs</h2>
+        <p>For a usage-example see the tab strip above.</p>
         <p>The active tab is: {{activeTabValue}}</p>
+        <h3>Props</h3>
+        <MbTable :data="props.tabs" />
+        <h3>Events</h3>
+        <MbTable :data="events.tabs" />
+        <h3>Notes</h3>
+        <p>If the <code>add-tab</code> prop is set to <code>true</code> the last tab will always contain a “Plus”-icon for adding a new tab.</p>
+        <p>Clicking this tab will <strong>not</strong> automatically create a new tab, it will only send an event, so the parent can handle tab creation as it sees fit.</p>
         <MbButton :dark="dark" rounded type="negative" @click="removeTab">Delete Last Demo Tab</MbButton>
       </section>
       <section v-else-if="activeTabValue === 'inputs'" class="tab" key="inputs">
@@ -101,6 +110,7 @@
       </section>
       <section v-else class="tab" key="exampleTab">
         <p>This is just an empty test-tab.</p>
+        <p>To delete it, click the button in the “<u @click="activeTab = tabs.findIndex((tab) => tab.value === 'tabs')">Tabs</u>”-tab.</p>
       </section>
     </transition>
   </div>
@@ -140,6 +150,11 @@ export default {
           ['Name', 'Data'],
           ['`click`', 'The browser click event'],
         ],
+        tabs: [
+          ['Name', 'Data'],
+          ['`add-tab`', ''],
+          ['`input`', 'The index of the new active tab'],
+        ],
         toggles: [
           ['Name', 'Data'],
           ['`input`', '`!value`'],
@@ -159,6 +174,13 @@ export default {
         icons: [
           ['Name', 'Type', 'Default'],
           ['`icon`', 'String', "`'mattrbld'`"],
+        ],
+        tabs: [
+          ['Name', 'Type', 'Default'],
+          ['`dark`', 'Boolean', '`false`'],
+          ['`showAddOption`', 'Boolean', '`false`'],
+          ['`tabs`', 'Array', '`[]`'],
+          ['`value`', 'Number', ''],
         ],
         toggles: [
           ['Name', 'Type', 'Default'],
@@ -186,10 +208,10 @@ export default {
       ],
       tabs: [
         { label: 'Styles and Colors', value: 'design' },
-        { label: 'Tabs', value: 'tabs' },
-        { label: 'Inputs', value: 'inputs' },
         { label: 'Buttons', value: 'buttons' },
         { label: 'Icons', value: 'icons' },
+        { label: 'Inputs', value: 'inputs' },
+        { label: 'Tabs', value: 'tabs' },
         { label: 'Toggles', value: 'toggles' },
       ],
       textTest: '',
