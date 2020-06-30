@@ -1,7 +1,7 @@
 <template>
   <div class="home">
     <h1>Components</h1>
-    <MbTabs v-model="activeTab" :dark="dark" :tabs="tabTest" show-add-option @add-tab="addTab" />
+    <MbTabs v-model="activeTab" :dark="dark" :tabs="tabs" show-add-option @add-tab="addTab" />
     <transition mode="out-in">
       <section v-if="activeTabValue === 'design'" class="tab" key="design">
         <div class="swatches">
@@ -61,9 +61,15 @@
         <MbButton :dark="dark" type="negative">Negative Button</MbButton>
         <MbButton :dark="dark" type="warning">Warning Button</MbButton>
         <h3>Props</h3>
-        <MbTable :data="buttonsProps" />
+        <MbTable :data="props.buttons" />
         <h3>Events</h3>
-        <MbTable :data="buttonsEvents" />
+        <MbTable :data="events.buttons" />
+      </section>
+      <section v-else-if="activeTabValue === 'icons'" class="tab icons" key="icons">
+        <h2>Icons</h2>
+        <MbIcon v-for="icon in availableIcons" :icon="icon" :key="icon" />
+        <h3>Props</h3>
+        <MbTable :data="props.icons" />
       </section>
       <section v-else class="tab" key="exampleTab">
         <p>This is just an empty test-tab.</p>
@@ -77,23 +83,37 @@ export default {
   name: 'Home',
   computed: {
     activeTabValue() {
-      return this.tabTest[this.activeTab] && (this.tabTest[this.activeTab].value || this.tabTest[this.activeTab]);
+      return this.tabs[this.activeTab] && (this.tabs[this.activeTab].value || this.tabs[this.activeTab]);
     },
   },
   data() {
     return {
       activeTab: 0,
-      buttonsEvents: [
-        ['Name', 'Data'],
-        ['`click`', 'The browser click event'],
+      availableIcons: [
+        'mattrbld',
+        'moon',
+        'plus',
+        'sun',
       ],
-      buttonsProps: [
-        ['Name', 'Type', 'Default', 'Allowed Values'],
-        ['`dark`', 'Boolean', '`false`', ''],
-        ['`rounded`', 'Boolean', '`false`', ''],
-        ['`type`', 'String', '', 'negative, positive, primary, warning'],
-      ],
+      events: {
+        buttons: [
+          ['Name', 'Data'],
+          ['`click`', 'The browser click event'],
+        ],
+      },
       idCounter: 0,
+      props: {
+        buttons: [
+          ['Name', 'Type', 'Default', 'Allowed Values'],
+          ['`dark`', 'Boolean', '`false`', ''],
+          ['`rounded`', 'Boolean', '`false`', ''],
+          ['`type`', 'String', '', 'negative, positive, primary, warning'],
+        ],
+        icons: [
+          ['Name', 'Type', 'Default'],
+          ['`icon`', 'String', "`'mattrbld'`"],
+        ],
+      },
       swatches: [
         'accent',
         'accent-secondary',
@@ -110,21 +130,27 @@ export default {
         'warning',
         'warning-saturated',
       ],
-      tabTest: [{ label: 'Styles and Colors', value: 'design' }, { label: 'Tabs', value: 'tabs' }, { label: 'Inputs', value: 'inputs' }, { label: 'Buttons', value: 'buttons' }],
+      tabs: [
+        { label: 'Styles and Colors', value: 'design' },
+        { label: 'Tabs', value: 'tabs' },
+        { label: 'Inputs', value: 'inputs' },
+        { label: 'Buttons', value: 'buttons' },
+        { label: 'Icons', value: 'icons' },
+      ],
       textTest: '',
     };
   },
   methods: {
     addTab() {
       this.idCounter += 1;
-      this.tabTest.push({ label: `Untitled-${this.idCounter}`, value: `untitled-${this.idCounter}` });
+      this.tabs.push({ label: `Untitled-${this.idCounter}`, value: `untitled-${this.idCounter}` });
       this.$nextTick(() => {
-        this.activeTab = this.tabTest.length - 1;
+        this.activeTab = this.tabs.length - 1;
       });
     },
     removeTab() {
-      const lastTab = this.tabTest[this.tabTest.length - 1];
-      if (lastTab.value.startsWith('untitled')) this.tabTest.pop();
+      const lastTab = this.tabs[this.tabs.length - 1];
+      if (lastTab.value.startsWith('untitled')) this.tabs.pop();
     },
   },
   props: {
@@ -249,4 +275,8 @@ export default {
     &.buttons
       .button
         margin: 1rem
+
+    &.icons
+      .icon
+        margin: 0.5rem
 </style>
