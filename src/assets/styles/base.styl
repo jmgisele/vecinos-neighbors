@@ -34,11 +34,25 @@ html
       color: $text-dark
       background-color: $bg-dark
 
+      *::selection
+        background-color: $accent-secondary
+
       blockquote footer
         color: $text-secondary-dark
 
       pre code
         background-color: initial
+
+      table
+        thead tr th
+          border-bottom: 2px solid $bg-secondary-dark
+
+        tbody tr
+          &:nth-child(even)
+            background-color: $bg-secondary-dark
+
+            code
+              background-color: $bg-tertiary-dark
 
       code, kbd
         background-color: $bg-secondary-dark
@@ -87,12 +101,11 @@ html
       margin-bottom: 1rem
       margin-left: 1.5rem
       padding-left: 0
-      list-style-position: inside
 
     blockquote
       margin-top: 0
       margin-bottom: 1rem
-      margin-left: 1.5rem
+      margin-left: 0.5rem
       padding-left: 1rem
       position: relative
 
@@ -126,6 +139,27 @@ html
         padding: 0
         background-color: initial
         white-space: pre-wrap
+
+    .table-wrapper
+      overflow-x: auto
+      margin-bottom: 2rem
+
+    table
+      width: 100%
+      border-collapse: collapse
+
+      th, td
+        padding: 1rem
+        vertical-align: baseline
+
+      thead tr th
+        white-space: nowrap
+        text-align: left
+        border-bottom: 2px solid $bg-secondary
+
+      tbody tr
+        &:nth-child(even)
+          background-color: $bg-tertiary
 
     a
       color: $accent

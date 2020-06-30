@@ -53,12 +53,17 @@
         <MbInput v-model="textTest" label="Hi there!" type="password" />
       </section>
       <section v-else-if="activeTabValue === 'buttons'" class="tab buttons" key="buttons">
+        <h2>Buttons</h2>
         <MbButton :dark="dark">Secondary Button</MbButton>
         <MbButton :dark="dark" type="primary">Primary Button</MbButton>
         <MbButton :dark="dark" rounded>Rounded Button</MbButton>
         <MbButton :dark="dark" type="positive">Positive Button</MbButton>
         <MbButton :dark="dark" type="negative">Negative Button</MbButton>
         <MbButton :dark="dark" type="warning">Warning Button</MbButton>
+        <h3>Props</h3>
+        <MbTable :data="buttonsProps" />
+        <h3>Events</h3>
+        <MbTable :data="buttonsEvents" />
       </section>
       <section v-else class="tab" key="exampleTab">
         <p>This is just an empty test-tab.</p>
@@ -78,6 +83,16 @@ export default {
   data() {
     return {
       activeTab: 0,
+      buttonsEvents: [
+        { Name: '`click`', Data: 'The browser click event' },
+      ],
+      buttonsProps: [
+        /* eslint-disable object-curly-newline */
+        { Name: '`dark`', Type: 'Boolean', Default: '`false`', 'Allowed Values': '' },
+        { Name: '`rounded`', Type: 'Boolean', Default: '`false`', 'Allowed Values': '' },
+        { Name: '`type`', Type: 'String', Default: '', 'Allowed Values': 'negative, positive, primary, warning' },
+        /* eslint-enable object-curly-newline */
+      ],
       idCounter: 0,
       swatches: [
         'accent',
@@ -149,6 +164,12 @@ export default {
       &.v-enter,
       &.v-leave-to
         opacity: 0
+
+    .table-wrapper
+      @media $mobile
+        padding: 0 2rem
+        margin-left: -2rem
+        margin-right: -2rem
 
     .swatches
       display: grid
