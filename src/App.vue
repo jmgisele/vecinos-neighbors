@@ -17,6 +17,12 @@ export default {
   created() {
     if (this.dark) document.body.classList.add('dark');
   },
+  watch: {
+    dark(newVal) {
+      if (newVal) document.body.classList.add('dark');
+      else document.body.classList.remove('dark');
+    },
+  },
 };
 </script>
 
