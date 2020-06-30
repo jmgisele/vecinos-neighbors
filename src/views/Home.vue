@@ -84,14 +84,14 @@ export default {
     return {
       activeTab: 0,
       buttonsEvents: [
-        { Name: '`click`', Data: 'The browser click event' },
+        ['Name', 'Data'],
+        ['`click`', 'The browser click event'],
       ],
       buttonsProps: [
-        /* eslint-disable object-curly-newline */
-        { Name: '`dark`', Type: 'Boolean', Default: '`false`', 'Allowed Values': '' },
-        { Name: '`rounded`', Type: 'Boolean', Default: '`false`', 'Allowed Values': '' },
-        { Name: '`type`', Type: 'String', Default: '', 'Allowed Values': 'negative, positive, primary, warning' },
-        /* eslint-enable object-curly-newline */
+        ['Name', 'Type', 'Default', 'Allowed Values'],
+        ['`dark`', 'Boolean', '`false`', ''],
+        ['`rounded`', 'Boolean', '`false`', ''],
+        ['`type`', 'String', '', 'negative, positive, primary, warning'],
       ],
       idCounter: 0,
       swatches: [
