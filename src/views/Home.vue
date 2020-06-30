@@ -1,6 +1,9 @@
 <template>
   <div class="home">
-    <h1>Components</h1>
+    <header>
+      <h1>Components</h1>
+      <MbToggle v-model="darkMode" :dark="dark" :icons="['sun', 'moon']" />
+    </header>
     <MbTabs v-model="activeTab" :dark="dark" :tabs="tabs" show-add-option @add-tab="addTab" />
     <transition mode="out-in">
       <section v-if="activeTabValue === 'design'" class="tab" key="design">
@@ -64,12 +67,28 @@
         <MbTable :data="props.buttons" />
         <h3>Events</h3>
         <MbTable :data="events.buttons" />
+        <h3>Notes</h3>
+        <p>Like with normal buttons, the text between the tags will be used as a label.</p>
+        <p>If no label is provided, the button will be styled as an icon button, so an icon should be provided.</p>
       </section>
       <section v-else-if="activeTabValue === 'icons'" class="tab icons" key="icons">
         <h2>Icons</h2>
         <MbIcon v-for="icon in availableIcons" :icon="icon" :key="icon" />
         <h3>Props</h3>
         <MbTable :data="props.icons" />
+      </section>
+      <section v-else-if="activeTabValue === 'toggles'" class="tab toggles" key="toggles">
+        <h2>Toggles</h2>
+        <MbToggle v-model="toggleTest" :dark="dark">With Label</MbToggle>
+        <MbToggle v-model="toggleTest" :dark="dark" />
+        <MbToggle v-model="toggleTest" :dark="dark" :icons="['sun', 'moon']" />
+        <h3>Props</h3>
+        <MbTable :data="props.toggles" />
+        <h3>Events</h3>
+        <MbTable :data="events.toggles" />
+        <h3>Notes</h3>
+        <p>Supplying text-content between the tags will enable a label for the toggle and make it stretch over the entire width.</p>
+        <p>If the <code>icons</code> prop is set, the array should contain two valid icon strings. The first will be used if <code>value === false</code> and the second if <code>value === true</code>.</p>
       </section>
       <section v-else class="tab" key="exampleTab">
         <p>This is just an empty test-tab.</p>
@@ -84,6 +103,18 @@ export default {
   computed: {
     activeTabValue() {
       return this.tabs[this.activeTab] && (this.tabs[this.activeTab].value || this.tabs[this.activeTab]);
+    },
+    darkMode: {
+      get() {
+        const { theme } = this.$store.state.user;
+        if (theme === 'dark') return true;
+        if (theme === 'light') return false;
+        return (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) || false;
+      },
+      set(v) {
+        if (v) this.$store.commit('setUserProperty', { key: 'theme', value: 'dark' });
+        else this.$store.commit('setUserProperty', { key: 'theme', value: 'light' });
+      },
     },
   },
   data() {
@@ -100,6 +131,10 @@ export default {
           ['Name', 'Data'],
           ['`click`', 'The browser click event'],
         ],
+        toggles: [
+          ['Name', 'Data'],
+          ['`input`', '`!value`'],
+        ],
       },
       idCounter: 0,
       props: {
@@ -112,6 +147,12 @@ export default {
         icons: [
           ['Name', 'Type', 'Default'],
           ['`icon`', 'String', "`'mattrbld'`"],
+        ],
+        toggles: [
+          ['Name', 'Type', 'Default'],
+          ['`dark`', 'Boolean', '`false`'],
+          ['`icons`', 'Array', ''],
+          ['`value`', 'Boolean', '`false`'],
         ],
       },
       swatches: [
@@ -136,8 +177,10 @@ export default {
         { label: 'Inputs', value: 'inputs' },
         { label: 'Buttons', value: 'buttons' },
         { label: 'Icons', value: 'icons' },
+        { label: 'Toggles', value: 'toggles' },
       ],
       textTest: '',
+      toggleTest: '',
     };
   },
   methods: {
@@ -166,9 +209,14 @@ export default {
 .home
   padding: 2rem
 
-  > h1
-    margin-top: 0
+  > header
+    display: flex
+    align-items: center
+    justify-content: space-between
     margin-bottom: 1rem
+
+    > h1
+      margin: 0
 
   .tabs
     margin-left: -2rem
@@ -279,4 +327,8 @@ export default {
     &.icons
       .icon
         margin: 0.5rem
+
+    &.toggles
+      .toggle
+        margin-bottom: 1rem
 </style>
