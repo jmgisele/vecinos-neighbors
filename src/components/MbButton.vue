@@ -1,11 +1,25 @@
 <template lang="html">
-  <button class="button" :class="[type, { dark, rounded }]" @click="$emit('click', $event)">{{ $slots.default[0].text }}</button>
+  <button class="button" :class="[type, { dark, disabled, rounded, icon, reversed: !iconFirst, 'no-label': !label }]" :disabled="disabled" @click="$emit('click', $event)">
+    <MbIcon v-if="icon" :icon="icon" />
+    {{ label }}
+  </button>
 </template>
 
 <script>
 export default {
+  computed: {
+    label() {
+      return this.$slots.default && this.$slots.default[0] && this.$slots.default[0].text;
+    },
+  },
   props: {
     dark: Boolean,
+    disabled: Boolean,
+    icon: String,
+    iconFirst: {
+      type: Boolean,
+      default: true,
+    },
     rounded: Boolean,
     type: {
       type: String,
@@ -49,6 +63,34 @@ export default {
 
     &:active
       background-color: $bg-secondary-dark
+
+  &.icon
+    display: inline-flex
+    align-items: center
+    padding-right: 2.5rem
+    padding-left: 1rem
+
+    &.reversed
+      flex-direction: row-reverse
+      padding-right: 1rem
+      padding-left: 2.5rem
+
+      .icon
+        margin-left: 1rem
+        margin-right: 0
+
+    &.no-label
+      padding-right: 1rem
+      padding-left: 1rem
+      border: none
+
+      .icon
+        margin: -0.1875rem
+
+    .icon
+      margin-right: 1rem
+      margin-top: -0.1875rem
+      margin-bottom: @margin-top
 
   &.primary
     background-color: $accent
@@ -110,6 +152,21 @@ export default {
 
     &::before
       border-color: @border-color
+
+  &.disabled
+    pointer-events: none
+    border: 1px dashed $text-tertiary
+    color: $text-tertiary
+
+    &.primary
+      background-color: $bg-secondary
+
+    &.dark
+      border-color: $text-tertiary-dark
+      color: @border-color
+
+      &.primary
+        background-color: $bg-secondary-dark
 
   &::before
     content: ''

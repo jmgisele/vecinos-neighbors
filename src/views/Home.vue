@@ -63,6 +63,14 @@
         <MbButton :dark="dark" type="positive">Positive Button</MbButton>
         <MbButton :dark="dark" type="negative">Negative Button</MbButton>
         <MbButton :dark="dark" type="warning">Warning Button</MbButton>
+        <MbButton :dark="dark" icon="mattrbld" :icon-first="false">Secondary Button</MbButton>
+        <MbButton :dark="dark" icon="mattrbld" rounded type="primary">Primary Button</MbButton>
+        <MbButton :dark="dark" icon="mattrbld" />
+        <MbButton :dark="dark" icon="mattrbld" rounded />
+        <MbButton :dark="dark" disabled icon="mattrbld" />
+        <MbButton :dark="dark" disabled icon="mattrbld" type="primary" />
+        <MbButton :dark="dark" disabled icon="mattrbld">Disabled Button</MbButton>
+        <MbButton :dark="dark" disabled icon="mattrbld" type="negative">Disabled Button</MbButton>
         <h3>Props</h3>
         <MbTable :data="props.buttons" />
         <h3>Events</h3>
@@ -141,6 +149,9 @@ export default {
         buttons: [
           ['Name', 'Type', 'Default', 'Allowed Values'],
           ['`dark`', 'Boolean', '`false`', ''],
+          ['`disabled`', 'Boolean', '`false`', ''],
+          ['`icon`', 'String', '', 'A valid icon name'],
+          ['`icon-first`', 'Boolean', '`true`', ''],
           ['`rounded`', 'Boolean', '`false`', ''],
           ['`type`', 'String', '', 'negative, positive, primary, warning'],
         ],
@@ -151,6 +162,7 @@ export default {
         toggles: [
           ['Name', 'Type', 'Default'],
           ['`dark`', 'Boolean', '`false`'],
+          ['`disabled`', 'Boolean', '`false`'],
           ['`icons`', 'Array', ''],
           ['`value`', 'Boolean', '`false`'],
         ],
