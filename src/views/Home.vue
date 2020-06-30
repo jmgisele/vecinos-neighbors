@@ -132,7 +132,8 @@ export default {
       },
       set(v) {
         if (v) this.$store.commit('setUserProperty', { key: 'theme', value: 'dark' });
-        else this.$store.commit('setUserProperty', { key: 'theme', value: 'light' });
+        else if ((window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches)) this.$store.commit('setUserProperty', { key: 'theme', value: 'light' });
+        else this.$store.commit('setUserProperty', { key: 'theme', value: 'auto' });
       },
     },
   },
