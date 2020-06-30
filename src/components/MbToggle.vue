@@ -1,5 +1,5 @@
 <template lang="html">
-  <label class="toggle" :class="{ active: value, dark, 'full-width': label }">
+  <label class="toggle" :class="{ active: value, dark, disabled, 'full-width': label }">
     <span v-if="label">{{ label }}</span>
     <button type="button" @click="$emit('input', !value)">
       <div class="icon-wrapper">
@@ -23,6 +23,7 @@ export default {
   },
   props: {
     dark: Boolean,
+    disabled: Boolean,
     icons: Array,
     value: Boolean,
   },
@@ -61,6 +62,27 @@ export default {
 
         &.v-leave-to
           transform: rotate(45deg)
+
+  &.disabled
+    pointer-events: none
+    color: $text-tertiary
+
+    &.dark
+      color: $text-tertiary-dark
+
+      button
+        border-color: @color
+
+        .icon-wrapper
+          background-color: @color
+
+    button
+      box-shadow: none
+      border: 1px dashed @color
+      padding: calc(0.25rem - 1px)
+
+      .icon-wrapper
+        background-color: @color
 
   span
     margin-right: auto

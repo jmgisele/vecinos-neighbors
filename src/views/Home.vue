@@ -88,6 +88,7 @@
       <section v-else-if="activeTabValue === 'toggles'" class="tab toggles" key="toggles">
         <h2>Toggles</h2>
         <MbToggle v-model="toggleTest" :dark="dark">With Label</MbToggle>
+        <MbToggle v-model="toggleTest" :dark="dark" disabled>Disabled</MbToggle>
         <MbToggle v-model="toggleTest" :dark="dark" />
         <MbToggle v-model="toggleTest" :dark="dark" :icons="['sun', 'moon']" />
         <h3>Props</h3>
