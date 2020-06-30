@@ -3,7 +3,7 @@
     <div class="scroll-wrapper" ref="scrollWrapper" @scroll.passive="toggleShadow">
       <transition-group ref="tabs" tag="ul" @after-leave="resetActiveTab">
         <li v-for="(tab, index) in tabs" :data-index="index" :key="tab.value || tab" tabindex="0" @click.left="activateTab($event, index)" @keyup.enter="activateTab($event, index)" @keyup.space="activateTab($event, index)">{{tab.label || tab}}</li>
-        <li v-if="showAddOption" key="mbTabsAddOption" tabindex="0" @click="addTab" @keyup.space="addTab" @keyup.enter="addTab">+</li>
+        <li v-if="showAddOption" class="add-option" key="mbTabsAddOption" tabindex="0" @click="addTab" @keyup.space="addTab" @keyup.enter="addTab"><MbIcon icon="plus" /></li>
       </transition-group>
       <div class="active-indicator" :style="{ transform: indicatorTransform }"></div>
     </div>
@@ -132,6 +132,9 @@ export default {
         border-top-right-radius: @border-top-left-radius
         position: relative
         transition: background-color 200ms ease
+
+        &.add-option
+          line-height: 0
 
         &:hover,
         &:focus
