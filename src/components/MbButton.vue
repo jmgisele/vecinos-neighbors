@@ -85,11 +85,11 @@ export default {
       border: none
 
       .icon
-        margin: -0.1875rem
+        margin: -0.1875rem // needed so the buttons keep the same height even with the icon
 
     .icon
       margin-right: 1rem
-      margin-top: -0.1875rem
+      margin-top: -0.1875rem // needed so the buttons keep the same height even with the icon
       margin-bottom: @margin-top
 
   &.primary
