@@ -74,6 +74,13 @@ export default {
     border-color: $positive
     color: $positive-saturated
 
+    &:hover,
+    &:focus
+      background-color: alpha($positive, 0.1)
+
+    &:active
+      background-color: alpha($positive, 0.15)
+
     &::before
       border-color: @border-color
 
@@ -81,11 +88,25 @@ export default {
     border-color: $negative
     color: $negative-saturated
 
+    &:hover,
+    &:focus
+      background-color: alpha($negative, 0.1)
+
+    &:active
+      background-color: alpha($negative, 0.15)
+
     &::before
       border-color: @border-color
 
   &.warning
     border-color: $warning-saturated
+
+    &:hover,
+    &:focus
+      background-color: alpha($warning, 0.1)
+
+    &:active
+      background-color: alpha($warning, 0.15)
 
     &::before
       border-color: @border-color
