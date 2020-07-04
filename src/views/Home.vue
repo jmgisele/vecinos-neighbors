@@ -200,6 +200,12 @@ export default {
         'bg',
         'bg-secondary',
         'bg-tertiary',
+        'text-dark',
+        'text-secondary-dark',
+        'text-tertiary-dark',
+        'bg-dark',
+        'bg-secondary-dark',
+        'bg-tertiary-dark',
         'negative',
         'negative-saturated',
         'positive',
@@ -326,12 +332,15 @@ export default {
 
         &.bg
           background-color: $bg
+          color: $text
 
         &.bg-secondary
           background-color: $bg-secondary
+          color: $text
 
         &.bg-tertiary
           background-color: $bg-tertiary
+          color: $text
 
         &.negative
           background-color: $negative
@@ -352,6 +361,30 @@ export default {
 
         &.warning-saturated
           background-color: $warning-saturated
+
+        &.text-dark
+          background-color: $text-dark
+          color: $text
+
+        &.text-secondary-dark
+          background-color: $text-secondary-dark
+          color: $text
+
+        &.text-tertiary-dark
+          background-color: $text-tertiary-dark
+          color: $text
+
+        &.bg-dark
+          background-color: $bg-dark
+          color: $text-dark
+
+        &.bg-secondary-dark
+          background-color: $bg-secondary-dark
+          color: $text-dark
+
+        &.bg-tertiary-dark
+          background-color: $bg-tertiary-dark
+          color: $text-dark
 
     .typography
       margin-top: 4rem
