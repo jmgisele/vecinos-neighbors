@@ -66,6 +66,7 @@
         <MbInput v-model="textTest" :dark="dark" icon="plus" label="With Icon" type="password" />
         <MbInput v-model="textTest" :dark="dark" placeholder="Just a placeholder" />
         <MbInput v-model="textTest" :dark="dark" label="Just a Label" />
+        <MbInput v-model="textTest" :dark="dark" disabled placeholder="mattrbld" label="Disabled" />
       </section>
       <section v-else-if="activeTabValue === 'buttons'" class="tab buttons" key="buttons">
         <h2>Buttons</h2>

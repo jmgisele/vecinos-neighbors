@@ -1,8 +1,8 @@
 <template lang="html">
-  <label class="input" :class="{ dark, dirty: error || value || placeholder, error, icon }">
+  <label class="input" :class="{ dark, disabled, dirty: error || value || placeholder, error, icon }">
     <MbIcon v-if="icon" :icon="error ? 'error' : icon" />
     <span v-if="error || label">{{error || label}}</span>
-    <input :placeholder="placeholder" :type="type" :value="value" @input="$emit('input', $event.target.value)">
+    <input :placeholder="placeholder" :type="type" :value="value" @blur="$emit('blur')" @focus="$emit('focus')" @input="$emit('input', $event.target.value)">
   </label>
 </template>
 
@@ -10,6 +10,7 @@
 export default {
   props: {
     dark: Boolean,
+    disabled: Boolean,
     error: String,
     icon: String,
     label: String,
@@ -38,6 +39,7 @@ export default {
   width: 16rem
   cursor: text
   margin-top: 1.5rem
+  border: 1px solid transparent
   transition: box-shadow 200ms ease
 
   &.dark
@@ -64,6 +66,24 @@ export default {
 
     > span
       color: $negative-saturated
+
+  &.disabled
+    pointer-events: none
+    background-color: transparent
+    border-style: dashed
+    border-color: $text-tertiary
+    color: $text-tertiary
+    box-shadow: none
+
+    &.dark
+      border-color: $text-tertiary-dark
+      color: $text-tertiary-dark
+
+    > span
+      color: inherit
+
+    > input::placeholder
+      color: inherit
 
   &:focus-within
     box-shadow: inset 0 0 0 2px $accent
@@ -102,7 +122,6 @@ export default {
     color: inherit
     border: none
     background-color: transparent
-    border-radius: $radius-m
     padding: 0
     height: 1.5rem
     text-overflow: ellipsis
