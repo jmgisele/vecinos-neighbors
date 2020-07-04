@@ -67,6 +67,10 @@
         <MbInput v-model="textTest" :dark="dark" placeholder="Just a placeholder" />
         <MbInput v-model="textTest" :dark="dark" label="Just a Label" />
         <MbInput v-model="textTest" :dark="dark" disabled placeholder="mattrbld" label="Disabled" />
+        <h3>Props</h3>
+        <MbTable :data="props.inputs" />
+        <h3>Events</h3>
+        <MbTable :data="events.inputs" />
       </section>
       <section v-else-if="activeTabValue === 'buttons'" class="tab buttons" key="buttons">
         <h2>Buttons</h2>
@@ -155,6 +159,12 @@ export default {
           ['Name', 'Data'],
           ['`click`', 'The browser click event'],
         ],
+        inputs: [
+          ['Name', 'Data'],
+          ['`blur`', ''],
+          ['`focus`', ''],
+          ['`input`', 'The new text content'],
+        ],
         tabs: [
           ['Name', 'Data'],
           ['`add-tab`', ''],
@@ -179,6 +189,16 @@ export default {
         icons: [
           ['Name', 'Type', 'Default'],
           ['`icon`', 'String', "`'mattrbld'`"],
+        ],
+        inputs: [
+          ['Name', 'Type', 'Default'],
+          ['`dark`', 'Boolean', '`false`'],
+          ['`disabled`', 'Boolean', '`false`'],
+          ['`error`', 'String', ''],
+          ['`icon`', 'String', ''],
+          ['`label`', 'String', ''],
+          ['`placeholder`', 'String', ''],
+          ['`type`', 'String', "`'text'`"],
         ],
         tabs: [
           ['Name', 'Type', 'Default'],
