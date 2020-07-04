@@ -1,13 +1,17 @@
 <template lang="html">
-  <label class="input" :class="{ dirty: value }">
-    <span v-if="label">{{label}}</span>
-    <input :placeholder="!label && placeholder" :type="type" :value="value" @input="$emit('input', $event.target.value)">
+  <label class="input" :class="{ dark, dirty: error || value || placeholder, error, icon }">
+    <MbIcon v-if="icon" :icon="error ? 'error' : icon" />
+    <span v-if="error || label">{{error || label}}</span>
+    <input :placeholder="placeholder" :type="type" :value="value" @input="$emit('input', $event.target.value)">
   </label>
 </template>
 
 <script>
 export default {
   props: {
+    dark: Boolean,
+    error: String,
+    icon: String,
     label: String,
     placeholder: String,
     type: {
@@ -24,41 +28,87 @@ export default {
 @require '../assets/styles/corners'
 
 .input
-  display: inline-block
-  overflow: hidden
+  display: inline-flex
+  vertical-align: middle
+  align-items: center
+  background-color: $bg-secondary
+  border-radius: $radius-m
+  padding: 1rem
+  position: relative
+  width: 16rem
+  cursor: text
+  margin-top: 1.5rem
+  transition: box-shadow 200ms ease
+
+  &.dark
+    background-color: $bg-secondary-dark
+
+    > span
+      color: $text-secondary-dark
+
+    > input
+      &::placeholder
+        color: $text-secondary-dark
+
+  &.icon
+    > span
+      left: 3rem
+      width: calc(100% - 4rem)
+
+  &.error
+    color: $negative-saturated
+    box-shadow: inset 0 0 0 2px $negative
+
+    &:focus-within
+      color: inherit
+
+    > span
+      color: $negative-saturated
+
+  &:focus-within
+    box-shadow: inset 0 0 0 2px $accent
 
   &:focus-within,
   &.dirty
     span
-      transform: none
+      transform: translate((-1rem + $radius-m), calc(-100% - 1.25rem)) scale(0.75)
+      width: calc(100% - (2 * $radius-m))
+
+    &.icon > span
+      width: calc(100% - 0.75rem)
+      transform: translate((-3rem + $radius-m), calc(-100% - 1.25rem)) scale(0.75)
+
+  > .icon
+    margin-right: 0.5rem
+    flex-shrink: 0
 
   > span
+    flex-shrink: 0
     display: block
     cursor: text
     user-select: none
-    margin-bottom: 0.5rem
-    font-size: 0.75rem
     color: $text-secondary
-    transform-origin: center left
-    transform: translate(1rem, 2.5rem) scale(1.34)
+    transform-origin: bottom left
+    position: absolute
+    white-space: nowrap
+    width: calc(100% - 1rem)
+    overflow: hidden
+    text-overflow: ellipsis
     transition: transform 200ms ease
 
   > input
+    width: 100%
     font-size: inherit
+    color: inherit
     border: none
-    // box-shadow: inset 0 0 0 1px darken($bg-secondary, 10)
-    background-color: $bg-secondary
+    background-color: transparent
     border-radius: $radius-m
-    padding: 1rem
-    transition: box-shadow 200ms ease
+    padding: 0
+    height: 1.5rem
     text-overflow: ellipsis
     caret-color: $accent
 
     &::placeholder
       color: $text-secondary
       opacity: 1
-
-    &:focus
-      box-shadow: inset 0 0 0 2px $accent
-      outline: none
 </style>

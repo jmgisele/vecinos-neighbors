@@ -60,9 +60,12 @@
         <p>Clicking this tab will <strong>not</strong> automatically create a new tab, it will only send an event, so the parent can handle tab creation as it sees fit.</p>
         <MbButton :dark="dark" rounded type="negative" @click="removeTab">Delete Last Demo Tab</MbButton>
       </section>
-      <section v-else-if="activeTabValue === 'inputs'" class="tab" key="inputs">
-        <MbInput v-model="textTest" />
-        <MbInput v-model="textTest" label="Hi there!" type="password" />
+      <section v-else-if="activeTabValue === 'inputs'" class="tab inputs" key="inputs">
+        <MbInput v-model="textTest" :dark="dark" label="Label" placeholder="Placeholder" />
+        <MbInput v-model="textTest" :dark="dark" error="With Error" label="Test" />
+        <MbInput v-model="textTest" :dark="dark" icon="plus" label="With Icon" type="password" />
+        <MbInput v-model="textTest" :dark="dark" placeholder="Just a placeholder" />
+        <MbInput v-model="textTest" :dark="dark" label="Just a Label" />
       </section>
       <section v-else-if="activeTabValue === 'buttons'" class="tab buttons" key="buttons">
         <h2>Buttons</h2>
@@ -400,4 +403,8 @@ export default {
     &.toggles
       .toggle
         margin-bottom: 1rem
+
+    &.inputs
+      .input
+        margin: 1rem
 </style>
