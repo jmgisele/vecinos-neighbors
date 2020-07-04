@@ -116,6 +116,17 @@
         <p>Supplying text-content between the tags will enable a label for the toggle and make it stretch over the entire width.</p>
         <p>If the <code>icons</code> prop is set, the array should contain two valid icon strings. The first will be used if <code>value === false</code> and the second if <code>value === true</code>.</p>
       </section>
+      <section v-else-if="activeTabValue === 'checkboxes'" class="tab checkboxes" key="checkboxes">
+        <p>The value is {{toggleTest}}</p>
+        <MbCheckbox v-model="toggleTest" :dark="dark">With Label</MbCheckbox>
+        <MbCheckbox v-model="toggleTest" :dark="dark" />
+        <h3>Props</h3>
+        <MbTable :data="props.checkboxes" />
+        <h3>Events</h3>
+        <MbTable :data="events.checkboxes" />
+        <h3>Notes</h3>
+        <p>Supplying text-content between the tags will enable a label for the checkbox and make it stretch over the entire width.</p>
+      </section>
       <section v-else class="tab" key="exampleTab">
         <p>This is just an empty test-tab.</p>
         <p>To delete it, click the button in the “<u @click="activeTab = tabs.findIndex((tab) => tab.value === 'tabs')">Tabs</u>”-tab.</p>
@@ -149,6 +160,8 @@ export default {
     return {
       activeTab: 0,
       availableIcons: [
+        'check',
+        'error',
         'mattrbld',
         'moon',
         'plus',
@@ -158,6 +171,10 @@ export default {
         buttons: [
           ['Name', 'Data'],
           ['`click`', 'The browser click event'],
+        ],
+        checkboxes: [
+          ['Name', 'Data'],
+          ['`input`', '`!value`'],
         ],
         inputs: [
           ['Name', 'Data'],
@@ -185,6 +202,12 @@ export default {
           ['`icon-first`', 'Boolean', '`true`', ''],
           ['`rounded`', 'Boolean', '`false`', ''],
           ['`type`', 'String', '', 'negative, positive, primary, warning'],
+        ],
+        checkboxes: [
+          ['Name', 'Type', 'Default'],
+          ['`dark`', 'Boolean', '`false`'],
+          ['`disabled`', 'Boolean', '`false`'],
+          ['`value`', 'Boolean', '`false`'],
         ],
         icons: [
           ['Name', 'Type', 'Default'],
@@ -244,9 +267,10 @@ export default {
         { label: 'Inputs', value: 'inputs' },
         { label: 'Tabs', value: 'tabs' },
         { label: 'Toggles', value: 'toggles' },
+        { label: 'Checkboxes', value: 'checkboxes' },
       ],
       textTest: '',
-      toggleTest: '',
+      toggleTest: false,
     };
   },
   methods: {
@@ -428,4 +452,8 @@ export default {
     &.inputs
       .input
         margin: 1rem
+
+    &.checkboxes
+      .checkbox
+        margin-bottom: 1rem
 </style>
