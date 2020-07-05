@@ -130,4 +130,5 @@ export default {
     &::placeholder
       color: $text-secondary
       opacity: 1
+      user-select: none
 </style>
