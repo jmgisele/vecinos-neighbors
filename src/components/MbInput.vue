@@ -141,6 +141,17 @@ export default {
     height: 1.5rem
     text-overflow: ellipsis
     caret-color: $accent
+    -moz-appearance: textfield
+
+    &::-webkit-outer-spin-button,
+    &::-webkit-inner-spin-button,
+    &::-webkit-clear-button,
+    &::-webkit-search-decoration,
+    &::-webkit-search-cancel-button,
+    &::-webkit-search-results-button,
+    &::-webkit-search-results-decoration
+      -webkit-appearance: none
+      margin: 0
 
     &::placeholder
       color: $text-secondary
