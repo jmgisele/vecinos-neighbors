@@ -229,6 +229,7 @@ export default {
           ['`error`', 'String', ''],
           ['`icon`', 'String', ''],
           ['`label`', 'String', ''],
+          ['`maxLen`', 'Number', ''],
           ['`placeholder`', 'String', ''],
           ['`type`', 'String', "`'text'`"],
         ],
