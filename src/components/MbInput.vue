@@ -1,19 +1,31 @@
 <template lang="html">
-  <label class="input" :class="{ dark, disabled, dirty: error || value || placeholder, error, icon }">
+  <label class="input" :class="{ dark, disabled, dirty: error || value || placeholder, error: error || maxLen && value.length > maxLen, icon }">
     <MbIcon v-if="icon" :icon="error ? 'error' : icon" />
-    <span v-if="error || label">{{error || label}}</span>
+    <span v-if="displayLabel" :class="{ right: !label && maxLen }">{{displayLabel}}</span>
     <input :placeholder="placeholder" :type="type" :value="value" @blur="$emit('blur')" @focus="$emit('focus')" @input="$emit('input', $event.target.value)">
   </label>
 </template>
 
 <script>
 export default {
+  computed: {
+    displayLabel() {
+      if (this.error) return this.error;
+      if (this.maxLen && this.type !== 'number' && (this.error || this.value || this.placeholder)) {
+        if (this.label) return `${this.label} (${this.value.length}/${this.maxLen})`;
+        return `(${this.value.length}/${this.maxLen})`;
+      }
+      if (this.label) return this.label;
+      return false;
+    },
+  },
   props: {
     dark: Boolean,
     disabled: Boolean,
     error: String,
     icon: String,
     label: String,
+    maxLen: Number,
     placeholder: String,
     type: {
       type: String,
@@ -92,10 +104,10 @@ export default {
   &.dirty
     span
       transform: translate((-1rem + $radius-m), calc(-100% - 1.25rem)) scale(0.75)
-      width: calc(100% - (2 * $radius-m))
+      width: 'calc(125% + 1rem - %s)' % (2 * $radius-m) // it’s scaled down by 0.75 and we can’t use stylus expressions in calc
 
     &.icon > span
-      width: calc(100% - 0.75rem)
+      width: 'calc(125% + 1rem - %s)' % (2 * $radius-m)
       transform: translate((-3rem + $radius-m), calc(-100% - 1.25rem)) scale(0.75)
 
   > .icon
@@ -111,10 +123,13 @@ export default {
     transform-origin: bottom left
     position: absolute
     white-space: nowrap
-    width: calc(100% - 1rem)
+    width: calc(100% - 2rem)
     overflow: hidden
     text-overflow: ellipsis
     transition: transform 200ms ease
+
+    &.right
+      text-align: right
 
   > input
     width: 100%
