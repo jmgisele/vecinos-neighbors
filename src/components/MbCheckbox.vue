@@ -1,6 +1,6 @@
 <template lang="html">
   <label class="checkbox" :class="{dark, disabled, 'full-width': label}">
-    <input type="checkbox" :checked="value" @change="$emit('input', $event.target.checked)">
+    <input type="checkbox" :checked="value" :disabled="disabled" @change="$emit('input', $event.target.checked)">
     <div class="visual-checkbox">
       <MbIcon icon="check" />
     </div>
@@ -41,6 +41,29 @@ export default {
     > input:focus:not(:checked) + .visual-checkbox
       background-color: $bg-secondary-dark
 
+  &.disabled
+    pointer-events: none
+    color: $text-tertiary
+
+    &.dark
+      color: $text-tertiary-dark
+
+      .visual-checkbox
+        border-color: @color
+
+      > input:checked + .visual-checkbox
+        background-color: $bg-secondary-dark
+        color: @color
+
+    .visual-checkbox
+      border: 1px dashed @color
+      box-shadow: none
+      padding: calc(0.25rem - 1px)
+
+    > input:checked + .visual-checkbox
+      background-color: $bg-secondary
+      color: @color
+
   &:hover
     .visual-checkbox
       background-color: $bg-secondary
@@ -73,6 +96,7 @@ export default {
     padding: 0.25rem
     line-height: 0
     box-shadow: inset 0 0 0 1px $accent
+    cursor: pointer
     transition: box-shadow 200ms ease, background-color 200ms ease
 
     .icon

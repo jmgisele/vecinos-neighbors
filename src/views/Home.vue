@@ -119,6 +119,7 @@
       <section v-else-if="activeTabValue === 'checkboxes'" class="tab checkboxes" key="checkboxes">
         <p>The value is {{toggleTest}}</p>
         <MbCheckbox v-model="toggleTest" :dark="dark">With Label</MbCheckbox>
+        <MbCheckbox v-model="toggleTest" :dark="dark" disabled>Disabled</MbCheckbox>
         <MbCheckbox v-model="toggleTest" :dark="dark" />
         <h3>Props</h3>
         <MbTable :data="props.checkboxes" />
