@@ -68,6 +68,8 @@
         <MbInput v-model="textTest" :dark="dark" icon="plus" label="With Icon" type="password" />
         <MbInput v-model="textTest" :dark="dark" placeholder="Just a placeholder" />
         <MbInput v-model="textTest" :dark="dark" label="Just a Label" />
+        <MbInput v-model="textTest" :dark="dark" label="Label and maximum length" :max-len="20" />
+        <MbInput v-model="textTest" :dark="dark" placeholder="Just maximum length" :max-len="10" />
         <MbInput v-model="textTest" :dark="dark" disabled placeholder="mattrbld" label="Disabled" />
         <h3>Props</h3>
         <MbTable :data="props.inputs" />
