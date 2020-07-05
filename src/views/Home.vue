@@ -7,6 +7,7 @@
     <MbTabs v-model="activeTab" :dark="dark" :tabs="tabs" show-add-option @add-tab="addTab" />
     <transition mode="out-in">
       <section v-if="activeTabValue === 'design'" class="tab" key="design">
+        <h2>Styles and Colors</h2>
         <div class="swatches">
           <div v-for="swatch in swatches" :key="swatch" class="swatch-wrapper">
             <div class="swatch" :class="[swatch]">Aa</div>
@@ -61,6 +62,7 @@
         <MbButton :dark="dark" rounded type="negative" @click="removeTab">Delete Last Demo Tab</MbButton>
       </section>
       <section v-else-if="activeTabValue === 'inputs'" class="tab inputs" key="inputs">
+        <h2>Inputs</h2>
         <MbInput v-model="textTest" :dark="dark" label="Label" placeholder="Placeholder" />
         <MbInput v-model="textTest" :dark="dark" error="With Error" label="Test" />
         <MbInput v-model="textTest" :dark="dark" icon="plus" label="With Icon" type="password" />
@@ -117,6 +119,7 @@
         <p>If the <code>icons</code> prop is set, the array should contain two valid icon strings. The first will be used if <code>value === false</code> and the second if <code>value === true</code>.</p>
       </section>
       <section v-else-if="activeTabValue === 'checkboxes'" class="tab checkboxes" key="checkboxes">
+        <h2>Checkboxes</h2>
         <p>The value is {{toggleTest}}</p>
         <MbCheckbox v-model="toggleTest" :dark="dark">With Label</MbCheckbox>
         <MbCheckbox v-model="toggleTest" :dark="dark" disabled>Disabled</MbCheckbox>
@@ -127,6 +130,9 @@
         <MbTable :data="events.checkboxes" />
         <h3>Notes</h3>
         <p>Supplying text-content between the tags will enable a label for the checkbox and make it stretch over the entire width.</p>
+      </section>
+      <section v-else-if="activeTabValue === 'textareas'" class="tab textareas" key="textareas">
+        <h2>Textareas</h2>
       </section>
       <section v-else class="tab" key="exampleTab">
         <p>This is just an empty test-tab.</p>
@@ -269,7 +275,9 @@ export default {
         { label: 'Tabs', value: 'tabs' },
         { label: 'Toggles', value: 'toggles' },
         { label: 'Checkboxes', value: 'checkboxes' },
+        { label: 'Textareas', value: 'textareas' },
       ],
+      editorTest: '',
       textTest: '',
       toggleTest: false,
     };
