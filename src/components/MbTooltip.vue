@@ -1,6 +1,6 @@
 <template lang="html">
   <transition>
-    <div v-show="visible" class="tooltip" :class="[ position || lastPosition]" :style="{ transform: `translate(${this.transform.x}px, ${this.transform.y}px)` }" v-html="message || lastMessage" />
+    <div v-show="visible" class="tooltip" :class="[ position || lastPosition, { transition }]" :style="{ transform: `translate(${this.transform.x}px, ${this.transform.y}px)` }" v-html="message || lastMessage" @transitionend="transition = false"/>
   </transition>
 </template>
 
@@ -21,6 +21,7 @@ export default {
         x: 0,
         y: 0,
       },
+      transition: false,
     };
   },
   methods: {
@@ -107,6 +108,10 @@ export default {
   watch: {
     message(nv, ov) {
       if (!nv) this.lastMessage = ov;
+      else {
+        this.$nextTick(this.update);
+        this.transition = true;
+      }
     },
     position(nv, ov) {
       if (!nv) this.lastPosition = ov;
@@ -137,6 +142,9 @@ export default {
   overflow: hidden
   text-overflow: ellipsis
   max-width: calc(100% - 1rem)
+
+  &.transition
+    transition: transform 200ms ease
 
   &.left
     clip-path: circle(141.42135624% at 100% 50%)
