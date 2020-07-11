@@ -2,7 +2,7 @@
   <label class="input" :class="{ dark, disabled, dirty: error || value || placeholder, error: error || maxLen && value.length > maxLen, icon }">
     <MbIcon v-if="icon" :icon="error ? 'error' : icon" />
     <span v-if="displayLabel" :class="{ right: !label && maxLen }">{{displayLabel}}</span>
-    <input :placeholder="placeholder" :type="type" :value="value" @blur="$emit('blur')" @focus="$emit('focus')" @input="$emit('input', $event.target.value)">
+    <input autocomplete="off" :placeholder="placeholder" :type="type" :value="value" @blur="$emit('blur')" @focus="$emit('focus')" @input="$emit('input', $event.target.value)">
   </label>
 </template>
 
