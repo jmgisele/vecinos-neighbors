@@ -1,10 +1,13 @@
 <template>
   <div id="app">
     <router-view :dark="dark" />
+    <MbTooltip :message="tooltip.message" :position="tooltip.position" :target="tooltip.target" />
   </div>
 </template>
 
 <script>
+import { hideTooltip } from '@/mixins/tooltipFunctions';
+
 export default {
   computed: {
     dark() {
@@ -13,9 +16,19 @@ export default {
       if (theme === 'light') return false;
       return (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) || false;
     },
+    tooltip() {
+      return this.$store.state.application.tooltip || {};
+    },
   },
   created() {
     if (this.dark) document.body.classList.add('dark');
+
+    window.addEventListener('scroll', this.handleScroll, { passive: true });
+  },
+  methods: {
+    handleScroll() {
+      if (this.$store.state.application.tooltip) hideTooltip();
+    },
   },
   watch: {
     dark(newVal) {

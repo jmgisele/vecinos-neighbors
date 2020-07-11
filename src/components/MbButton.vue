@@ -1,16 +1,25 @@
 <template lang="html">
-  <button class="button" :class="[type, { dark, disabled, rounded, icon, reversed: !iconFirst, 'no-label': !label }]" :disabled="disabled" @click="$emit('click', $event)">
+  <button class="button" :class="[type, { dark, disabled, rounded, icon, reversed: !iconFirst, 'no-label': !label }]" :disabled="disabled" @click="handleClick" @mouseenter="showTooltip(tooltip, $event.currentTarget)" @focus="showTooltip(tooltip, $event.currentTarget)">
     <MbIcon v-if="icon" :icon="icon" />
     {{ label }}
   </button>
 </template>
 
 <script>
+import { showTooltip, hideTooltip } from '@/mixins/tooltipFunctions';
+
 export default {
   computed: {
     label() {
       return this.$slots.default && this.$slots.default[0] && this.$slots.default[0].text;
     },
+  },
+  methods: {
+    handleClick(e) {
+      this.$emit('click', e);
+      hideTooltip(e);
+    },
+    showTooltip,
   },
   props: {
     dark: Boolean,
@@ -21,6 +30,7 @@ export default {
       default: true,
     },
     rounded: Boolean,
+    tooltip: [String, Object],
     type: {
       type: String,
       validator: (v) => ['negative', 'positive', 'primary', 'warning'].includes(v),
