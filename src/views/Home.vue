@@ -133,6 +133,12 @@
         <h3>Notes</h3>
         <p>Supplying text-content between the tags will enable a label for the checkbox and make it stretch over the entire width.</p>
       </section>
+      <section v-else-if="activeTabValue === 'tooltips'" class="tab tooltips" key="tooltips">
+        <h2>Tooltips</h2>
+        <p>Hover the new tab button or other buttons in “Buttons” to see a demo of the tooltips</p>
+        <h3>Props</h3>
+        <MbTable :data="props.tooltips" />
+      </section>
       <section v-else-if="activeTabValue === 'textareas'" class="tab textareas" key="textareas">
         <h2>Textareas</h2>
       </section>
@@ -210,6 +216,7 @@ export default {
           ['`icon`', 'String', '', 'A valid icon name'],
           ['`icon-first`', 'Boolean', '`true`', ''],
           ['`rounded`', 'Boolean', '`false`', ''],
+          ['`tooltip`', 'String / Object', '', ''],
           ['`type`', 'String', '', 'negative, positive, primary, warning'],
         ],
         checkboxes: [
@@ -247,6 +254,12 @@ export default {
           ['`icons`', 'Array', ''],
           ['`value`', 'Boolean', '`false`'],
         ],
+        tooltips: [
+          ['Name', 'Type', 'Allowed Values'],
+          ['`message`', 'String', ''],
+          ['`position`', 'String', 'top, left, right, bottom'],
+          ['`target`', 'HTMLElement', ''],
+        ],
       },
       swatches: [
         'accent',
@@ -278,6 +291,7 @@ export default {
         { label: 'Tabs', value: 'tabs' },
         { label: 'Toggles', value: 'toggles' },
         { label: 'Checkboxes', value: 'checkboxes' },
+        { label: 'Tooltips', value: 'tooltips' },
         { label: 'Textareas', value: 'textareas' },
       ],
       editorTest: '',
