@@ -1,0 +1,166 @@
+<template lang="html">
+  <transition>
+    <div v-show="visible" class="tooltip" :class="[ position || lastPosition]" :style="{ transform: `translate(${this.transform.x}px, ${this.transform.y}px)` }" v-html="message || lastMessage" />
+  </transition>
+</template>
+
+<script>
+export default {
+  computed: {
+    visible() {
+      if (this.message && this.target) return true;
+      return false;
+    },
+  },
+  data() {
+    return {
+      lastMessage: null,
+      lastPosition: null,
+      remBase: Number.parseInt(window.getComputedStyle(document.documentElement).fontSize, 10),
+      transform: {
+        x: 0,
+        y: 0,
+      },
+    };
+  },
+  methods: {
+    update() {
+      const rect = this.$el.getBoundingClientRect();
+      const targetRect = this.target.getBoundingClientRect();
+      const windowRect = { width: window.innerWidth, height: window.innerHeight };
+      const margin = 0.5 * this.remBase;
+
+      const leftX = Math.round(targetRect.left - margin - rect.width);
+      const leftY = Math.round(targetRect.top + targetRect.height / 2 - rect.height / 2);
+      const rightX = Math.round(targetRect.right + margin);
+      const rightY = leftY;
+      const topX = Math.max(Math.min(Math.round(targetRect.left + targetRect.width / 2 - rect.width / 2), windowRect.width - margin - rect.width), margin);
+      const topY = Math.round(targetRect.top - margin - rect.height);
+      const bottomX = topX;
+      const bottomY = Math.round(targetRect.bottom + margin);
+
+      const leftPossible = leftX >= margin;
+      const rightPossible = rightX + rect.width <= windowRect.width - margin;
+      const topPossible = topY >= margin;
+      const bottomPossible = bottomY + rect.height <= windowRect.height - margin;
+
+      switch (this.position) {
+        case 'left':
+          if (leftPossible) {
+            this.transform.x = leftX;
+            this.transform.y = leftY;
+          } else if (rightPossible) {
+            this.transform.x = rightX;
+            this.transform.y = rightY;
+          } else if (topPossible) {
+            this.transform.x = topX;
+            this.transform.y = topY;
+          } else {
+            this.transform.x = bottomX;
+            this.transform.y = bottomY;
+          }
+          return;
+        case 'right':
+          if (rightPossible) {
+            this.transform.x = rightX;
+            this.transform.y = rightY;
+          } else if (rightPossible) {
+            this.transform.x = leftX;
+            this.transform.y = leftY;
+          } else if (topPossible) {
+            this.transform.x = topX;
+            this.transform.y = topY;
+          } else {
+            this.transform.x = bottomX;
+            this.transform.y = bottomY;
+          }
+          return;
+        case 'top':
+          if (topPossible) {
+            this.transform.x = topX;
+            this.transform.y = topY;
+          } else {
+            this.transform.x = bottomX;
+            this.transform.y = bottomY;
+          }
+          return;
+        case 'bottom':
+        default:
+          if (bottomPossible) {
+            this.transform.x = bottomX;
+            this.transform.y = bottomY;
+          } else {
+            this.transform.x = topX;
+            this.transform.y = topY;
+          }
+      }
+    },
+  },
+  props: {
+    message: String,
+    position: {
+      type: String,
+      validator: (v) => ['top', 'left', 'right', 'bottom'].includes(v),
+    },
+    target: HTMLElement,
+  },
+  watch: {
+    message(nv, ov) {
+      if (!nv) this.lastMessage = ov;
+    },
+    position(nv, ov) {
+      if (!nv) this.lastPosition = ov;
+    },
+    visible(nv) {
+      if (nv) this.$nextTick(this.update);
+    },
+  },
+};
+</script>
+
+<style lang="stylus" scoped>
+@require '../assets/styles/colors'
+@require '../assets/styles/corners'
+
+.tooltip
+  position: fixed
+  top: 0
+  left: 0
+  background-color: alpha($bg-tertiary-dark, 0.8)
+  padding: 0.5rem 1rem
+  color: $text-dark
+  border-radius: $radius-m
+  pointer-events: none
+  clip-path: circle(100% at 50% 0%)
+  z-index: 9
+  white-space: nowrap
+  overflow: hidden
+  text-overflow: ellipsis
+  max-width: calc(100% - 1rem)
+
+  &.left
+    clip-path: circle(141.42135624% at 100% 50%)
+
+  &.right
+    clip-path: circle(141.42135624% at 0% 50%)
+
+  &.top
+    clip-path: circle(100% at 50% 100%)
+
+  &.v-enter-active,
+  &.v-leave-active
+    transition: clip-path 200ms ease
+
+    &.v-enter,
+    &.v-leave-to
+      clip-path: circle(0% at 50% 0%)
+
+      &.left
+        clip-path: circle(0% at 100% 50%)
+
+      &.right
+        clip-path: circle(0% at 0% 50%)
+
+      &.top
+        clip-path: circle(0% at 50% 100%)
+</style>
