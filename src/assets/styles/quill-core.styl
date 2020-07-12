@@ -2,7 +2,7 @@
 
 LIST_STYLE = decimal lower-alpha lower-roman
 LIST_STYLE_WIDTH = 1rem
-LIST_STYLE_MARGIN = 0.3rem
+LIST_STYLE_MARGIN = 0.5rem
 LIST_STYLE_OUTER_WIDTH = LIST_STYLE_MARGIN + LIST_STYLE_WIDTH
 MAX_INDENT = 9
 
@@ -61,6 +61,7 @@ resets(arr)
       margin-bottom: 0
 
   p
+    margin-top: 1rem
     margin-bottom: 0
 
     &:first-child,
@@ -76,7 +77,9 @@ resets(arr)
       margin-left: auto
 
   ol, ul
-    padding-left: 1rem
+    margin-left: 0
+    margin-top: 1rem
+
   ol > li, ul > li
     list-style-type: none
   ul > li::before
@@ -129,12 +132,12 @@ resets(arr)
   for num in (1..MAX_INDENT)
     .ql-indent-{num}:not(.ql-direction-rtl)
       padding-left: (2*num)rem
-      margin: 0.65rem
+      margin: 1rem 0
     li.ql-indent-{num}:not(.ql-direction-rtl)
-      padding-left: (2*num + LIST_STYLE_OUTER_WIDTH)em
+      padding-left: (1.5*num + LIST_STYLE_OUTER_WIDTH)em
     .ql-indent-{num}.ql-direction-rtl.ql-align-right
-      padding-right: (2*num)rem
-      margin: 0.65rem
+      padding-right: (1.5*num)rem
+      margin: 1rem 0
     li.ql-indent-{num}.ql-direction-rtl.ql-align-right
       padding-right: (2*num + LIST_STYLE_OUTER_WIDTH)rem
 
@@ -204,10 +207,10 @@ resets(arr)
   //     margin: 0
 
 .ql-editor.ql-blank::before
-  color: rgba(0,0,0,0.6)
+  // color: rgba(0,0,0,0.6)
   content: attr(data-placeholder)
-  font-style: italic
-  left: 15px
+  // font-style: italic
+  // left: 15px
   pointer-events: none
   position: absolute
-  right: 15px
+  // right: 15px

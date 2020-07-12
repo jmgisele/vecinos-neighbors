@@ -24,13 +24,21 @@
           <p>Paragraphs are spaced well as well. And obviously they should be pleasant to read. I <em>thought</em> about increasing their size for legibility reasons, but I still feel like UI controls should stick to classic 16px base sizes, we’re not writing a webpage after all.</p>
           <ul>
             <li>There might also be lists</li>
-            <li>Both of the <strong>unordered</strong></li>
+            <li>Both of the <strong>unordered</strong>
+              <ul>
+                <li>This is an indented bullet</li>
+              </ul>
+            </li>
             <li>And of the <strong>ordered</strong> kinds</li>
           </ul>
           <p>This is how an ordered list would look like after a paragraph:</p>
           <ol>
             <li>First Point</li>
-            <li>Second Point</li>
+            <li>Second Point
+              <ol>
+                <li>This is and indented numbered item</li>
+              </ol>
+            </li>
             <li>And last but not least: Third Point</li>
           </ol>
           <p>There’s also the rare chance that Blockqoutes might be used. They would look as follows:</p>
@@ -143,6 +151,7 @@
         <h2>Textareas</h2>
         <MbEditor v-model="editorTest" :dark="dark" label="Type something" :max-len="200" output-format="text" />
         <MbEditor v-model="editorTest" :dark="dark" label="Type some markdown" placeholder="Actually, html" :max-len="100" output-format="html" />
+        <div class="tester" v-html="editorTest" />
       </section>
       <section v-else class="tab" key="exampleTab">
         <p>This is just an empty test-tab.</p>

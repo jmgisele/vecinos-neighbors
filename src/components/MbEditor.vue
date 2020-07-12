@@ -153,7 +153,10 @@ export default {
     },
     value(newValue) {
       if (this.outputFormat === 'text' || this.raw) this.recalculateHeight(newValue);
-      if (this.outputFormat === 'html' && !this.focussed) this.quill.setContents(this.htmlToDelta(newValue), 'silent');
+      if (this.outputFormat === 'html' && !this.focussed) {
+        this.quill.setContents(this.htmlToDelta(newValue), 'silent');
+        this.contentLength = this.quill.getText().length;
+      }
     },
   },
 };
@@ -197,6 +200,13 @@ export default {
 
       .label
         color: $text-secondary-dark
+
+      .editor-wrapper .ql-editor
+        &.ql-blank::before
+          color: $text-secondary-dark
+
+        pre
+          background-color: $bg-tertiary-dark
 
       .autogrow-area textarea
         &::placeholder
@@ -254,6 +264,10 @@ export default {
 
       &.right
         text-align: right
+
+    .editor-wrapper .ql-editor
+      &.ql-blank::before
+        color: $text-secondary
 
     .autogrow-area
       position: relative
