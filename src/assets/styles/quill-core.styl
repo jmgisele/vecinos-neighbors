@@ -133,11 +133,17 @@ resets(arr)
     .ql-indent-{num}:not(.ql-direction-rtl)
       padding-left: (2*num)rem
       margin: 1rem 0
+
+      & + .ql-indent-{num}
+        margin-top: -1rem
     li.ql-indent-{num}:not(.ql-direction-rtl)
       padding-left: (1.5*num + LIST_STYLE_OUTER_WIDTH)em
     .ql-indent-{num}.ql-direction-rtl.ql-align-right
       padding-right: (1.5*num)rem
       margin: 1rem 0
+
+      & + .ql-indent-{num}
+        margin-top: -1rem
     li.ql-indent-{num}.ql-direction-rtl.ql-align-right
       padding-right: (2*num + LIST_STYLE_OUTER_WIDTH)rem
 
