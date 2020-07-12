@@ -5,7 +5,6 @@ import router from './router';
 import store from './store';
 
 import 'normalize.css';
-import 'highlight.js/styles/atom-one-dark.css';
 import 'typeface-inter';
 import '@/assets/styles/base.styl';
 

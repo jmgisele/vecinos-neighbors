@@ -15,8 +15,10 @@
 </template>
 
 <script>
-import hljs from 'highlight.js';
 import Quill from 'quill';
+
+import htmlToMarkdown from '@/mixins/htmlToMarkdown';
+import markdownToHtml from '@/mixins/markdownToHtml';
 
 export default {
   computed: {
@@ -51,10 +53,26 @@ export default {
 
       return delta;
     },
+    markdownToDelta(md) {
+      // turn br into custom linebreak, remove paragraphs around images (inserted by markdown it)
+      const html = markdownToHtml(md).replace(/<br>/g, '</p><p class="linebreak-true">').replace(/<p>\s*(<img .*>)\s*<\/p>/g, '$1').replace(/\n/g, '');
+
+      const delta = this.quill.clipboard.convert(html);
+
+      return delta;
+    },
     onTextChange() {
       const htmlContent = this.quill.root.innerHTML.replace(/<p><br><\/p>/g, '<p></p>');
       this.contentLength = this.quill.getText().length;
-      this.$emit('input', htmlContent);
+
+      if (this.outputFormat === 'markdown') {
+        const md = htmlToMarkdown(htmlContent);
+        console.log(md);
+        this.$emit('input', md);
+      } else if (this.outputFormat === 'html') {
+        this.$emit('input', markdownToHtml(htmlToMarkdown(htmlContent)));
+        // this.$emit('input', htmlContent); // simple no cleanup, better performance
+      }
     },
     recalculateHeight(value) {
       this.$refs.pre.innerText = value;
@@ -87,12 +105,6 @@ export default {
           },
           keyboard: {
             // bindings: this.keybindings,
-          },
-          syntax: {
-            highlight(text) {
-              const result = hljs.highlightAuto(text);
-              return result.value;
-            },
           },
         },
         placeholder: this.placeholder,
@@ -155,6 +167,10 @@ export default {
       if (this.outputFormat === 'text' || this.raw) this.recalculateHeight(newValue);
       if (this.outputFormat === 'html' && !this.focussed) {
         this.quill.setContents(this.htmlToDelta(newValue), 'silent');
+        this.contentLength = this.quill.getText().length;
+      }
+      if (this.outputFormat === 'markdown' && !this.focussed) {
+        this.quill.setContents(this.markdownToDelta(newValue), 'silent');
         this.contentLength = this.quill.getText().length;
       }
     },

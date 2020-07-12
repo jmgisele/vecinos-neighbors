@@ -150,7 +150,8 @@
       <section v-else-if="activeTabValue === 'textareas'" class="tab textareas" key="textareas">
         <h2>Textareas</h2>
         <MbEditor v-model="editorTest" :dark="dark" label="Type something" :max-len="200" output-format="text" />
-        <MbEditor v-model="editorTest" :dark="dark" label="Type some markdown" placeholder="Actually, html" :max-len="100" output-format="html" />
+        <MbEditor v-model="editorTest" :dark="dark" label="This will output HTML" output-format="html" />
+        <MbEditor v-model="editorTest" :dark="dark" label="This will output Markdown" output-format="markdown" />
         <div class="tester" v-html="editorTest" />
       </section>
       <section v-else class="tab" key="exampleTab">
