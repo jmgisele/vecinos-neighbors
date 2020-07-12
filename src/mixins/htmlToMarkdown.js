@@ -42,7 +42,8 @@ service.addRule('fencedCodeBlock', {
     const className = node.getAttribute('class') || '';
     const language = (className.match(/lang-(\S+)/) || [null, ''])[1];
 
-    return `\n\n${options.fence}${language}\n${node.textContent}\n${options.fence}\n\n`;
+    // we need to remove the last newline before the fence if there is one
+    return `\n\n${options.fence}${language}\n${node.textContent.replace(/\n+$/, '')}\n${options.fence}\n\n`;
   },
 });
 
