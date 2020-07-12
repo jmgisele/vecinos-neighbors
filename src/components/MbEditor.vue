@@ -47,15 +47,23 @@ export default {
   methods: {
     htmlToDelta(html) {
       // turn br into custom linebreak, remove paragraphs around images (inserted by markdown it)
-      const cleanHtml = html.replace(/<br>/g, '</p><p class="linebreak-true">').replace(/<p>\s*(<img .*>)\s*<\/p>/g, '$1').replace(/\n/g, '');
+      const cleanHtml = html
+        .replace(/<br>/g, '</p><p class="linebreak-true">') // turn br into custom linebreak
+        .replace(/<code>\s*([\s\S]*)\s*<\/code>/g, '$1') // remove <code> from <pre> (inserted by markdown it)
+        .replace(/\n(?![^<]*<\/pre>)/g, '') // remove all whitespace except inside pre
+        .replace(/\n(?=<\/pre>)/g, ''); // and the newline before the closing pre
 
       const delta = this.quill.clipboard.convert(cleanHtml);
 
       return delta;
     },
     markdownToDelta(md) {
-      // turn br into custom linebreak, remove paragraphs around images (inserted by markdown it)
-      const html = markdownToHtml(md).replace(/<br>/g, '</p><p class="linebreak-true">').replace(/<p>\s*(<img .*>)\s*<\/p>/g, '$1').replace(/\n/g, '');
+      const html = markdownToHtml(md)
+        .replace(/<br>/g, '</p><p class="linebreak-true">') // turn br into custom linebreak
+        .replace(/<p>\s*(<img .*>)\s*<\/p>/g, '$1') // remove paragraphs around images (inserted by markdown it)
+        .replace(/<code>\s*([\s\S]*)\s*<\/code>/g, '$1') // remove <code> from <pre> (inserted by markdown it)
+        .replace(/\n(?![^<]*<\/pre>)/g, '') // remove all whitespace except inside pre
+        .replace(/\n(?=<\/pre>)/g, ''); // and the newline before the closing pre
 
       const delta = this.quill.clipboard.convert(html);
 
@@ -67,9 +75,9 @@ export default {
 
       if (this.outputFormat === 'markdown') {
         const md = htmlToMarkdown(htmlContent);
-        console.log(md);
         this.$emit('input', md);
       } else if (this.outputFormat === 'html') {
+        console.log(htmlToMarkdown(htmlContent));
         this.$emit('input', markdownToHtml(htmlToMarkdown(htmlContent)));
         // this.$emit('input', htmlContent); // simple no cleanup, better performance
       }
@@ -121,8 +129,8 @@ export default {
       this.$nextTick();
       this.setUpQuill();
       if (this.value) {
-        // if (this.outputFormat === 'markdown') this.quill.setContents(this.markdownToDelta(this.value));
-        this.quill.setContents(this.htmlToDelta(this.value));
+        if (this.outputFormat === 'markdown') this.quill.setContents(this.markdownToDelta(this.value), 'silent');
+        if (this.outputFormat === 'html') this.quill.setContents(this.htmlToDelta(this.value), 'silent');
       }
     }
   },
@@ -162,16 +170,22 @@ export default {
   watch: {
     raw(nv) {
       if (nv) this.$nextTick(() => this.recalculateHeight(this.value));
+      else {
+        if (this.outputFormat === 'html') this.quill.setContents(this.htmlToDelta(this.value), 'silent');
+        if (this.outputFormat === 'markdown') this.quill.setContents(this.markdownToDelta(this.value), 'silent');
+
+        this.contentLength = this.quill.getLength();
+      }
     },
     value(newValue) {
       if (this.outputFormat === 'text' || this.raw) this.recalculateHeight(newValue);
-      if (this.outputFormat === 'html' && !this.focussed) {
+      if (this.outputFormat === 'html' && !this.focussed && !this.raw) {
         this.quill.setContents(this.htmlToDelta(newValue), 'silent');
-        this.contentLength = this.quill.getText().length;
+        this.contentLength = this.quill.getLength();
       }
-      if (this.outputFormat === 'markdown' && !this.focussed) {
+      if (this.outputFormat === 'markdown' && !this.focussed && !this.raw) {
         this.quill.setContents(this.markdownToDelta(newValue), 'silent');
-        this.contentLength = this.quill.getText().length;
+        this.contentLength = this.quill.getLength();
       }
     },
   },
