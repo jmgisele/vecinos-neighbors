@@ -77,7 +77,6 @@ export default {
         const md = htmlToMarkdown(htmlContent);
         this.$emit('input', md);
       } else if (this.outputFormat === 'html') {
-        console.log(htmlToMarkdown(htmlContent));
         this.$emit('input', markdownToHtml(htmlToMarkdown(htmlContent)));
         // this.$emit('input', htmlContent); // simple no cleanup, better performance
       }
