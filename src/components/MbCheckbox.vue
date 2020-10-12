@@ -30,6 +30,7 @@ export default {
 .checkbox
   position: relative
   user-select: none
+  cursor: pointer
 
   &.full-width
     display: flex
@@ -69,10 +70,11 @@ export default {
       background-color: $bg-secondary
 
   > input
-    opacity: 0
+    opacity: 0 // can’t be display: none because of focussing
     width: 1.5rem
     height: @width
     position: absolute
+    pointer-events: none
 
     &:focus + .visual-checkbox
       background-color: $bg-secondary
@@ -96,7 +98,6 @@ export default {
     padding: 0.25rem
     line-height: 0
     box-shadow: inset 0 0 0 1px $accent
-    cursor: pointer
     transition: box-shadow 200ms ease, background-color 200ms ease
 
     .icon
