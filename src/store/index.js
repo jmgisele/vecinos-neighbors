@@ -25,6 +25,11 @@ export default new Vuex.Store({
       state.user[key] = value;
     },
     showTooltip(state, tooltip) {
+      if (state.application.tooltipTimeout) { // clear any existing timeouts
+        window.clearTimeout(state.application.tooltipTimeout);
+        state.application.tooltipTimeout = null;
+      }
+
       if (!state.application.tooltip && (tooltip.timeout > 0 || typeof tooltip.timeout === 'undefined')) {
         state.application.tooltipTimeout = window.setTimeout(() => {
           state.application.tooltip = tooltip;
