@@ -65,7 +65,7 @@ export default {
           if (rightPossible) {
             this.transform.x = rightX;
             this.transform.y = rightY;
-          } else if (rightPossible) {
+          } else if (leftPossible) {
             this.transform.x = leftX;
             this.transform.y = leftY;
           } else if (topPossible) {
