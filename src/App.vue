@@ -1,8 +1,6 @@
 <template>
-  <div id="app">
-    <router-view :dark="dark" />
-    <MbTooltip :message="tooltip.message" :position="tooltip.position" :target="tooltip.target" />
-  </div>
+  <router-view :dark="dark" />
+  <MbTooltip :message="tooltip.message" :position="tooltip.position" :target="tooltip.target" />
 </template>
 
 <script>

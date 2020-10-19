@@ -6,14 +6,16 @@
 </template>
 
 <script>
+import getSlotTextContent from '@/assets/js/getSlotTextContent';
 import { showTooltip, hideTooltip } from '@/mixins/tooltipFunctions';
 
 export default {
   computed: {
     label() {
-      return this.$slots.default && this.$slots.default[0] && this.$slots.default[0].text;
+      return this.$slots.default && getSlotTextContent(this.$slots.default());
     },
   },
+  emits: ['click'],
   methods: {
     handleClick(e) {
       this.$emit('click', e);

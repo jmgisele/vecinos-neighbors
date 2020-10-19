@@ -201,22 +201,22 @@ export default {
         ],
         checkboxes: [
           ['Name', 'Data'],
-          ['`input`', '`!value`'],
+          ['`update:modelValue`', '`!value`'],
         ],
         inputs: [
           ['Name', 'Data'],
           ['`blur`', ''],
           ['`focus`', ''],
-          ['`input`', 'The new text content'],
+          ['`update:modelValue`', 'The new text content'],
         ],
         tabs: [
           ['Name', 'Data'],
           ['`add-tab`', ''],
-          ['`input`', 'The index of the new active tab'],
+          ['`update:modelValue`', 'The index of the new active tab'],
         ],
         toggles: [
           ['Name', 'Data'],
-          ['`input`', '`!value`'],
+          ['`update:modelValue`', '`!value`'],
         ],
       },
       idCounter: 0,
@@ -363,7 +363,7 @@ export default {
     &.v-leave-active
       transition: opacity 200ms ease
 
-      &.v-enter,
+      &.v-enter-from,
       &.v-leave-to
         opacity: 0
 

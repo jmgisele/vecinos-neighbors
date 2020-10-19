@@ -1,8 +1,8 @@
 <template lang="html">
-  <label class="input" :class="{ dark, disabled, dirty: error || value || placeholder, error: error || maxLen && value.length > maxLen, icon }">
+  <label class="input" :class="{ dark, disabled, dirty: error || modelValue || placeholder, error: error || maxLen && modelValue.length > maxLen, icon }">
     <MbIcon v-if="icon" :icon="error ? 'error' : icon" />
     <span v-if="displayLabel" :class="{ right: !label && maxLen }">{{displayLabel}}</span>
-    <input autocomplete="off" :placeholder="placeholder" :type="type" :value="value" @blur="$emit('blur')" @focus="$emit('focus')" @input="$emit('input', $event.target.value)">
+    <input autocomplete="off" :placeholder="placeholder" :type="type" :value="modelValue" @blur="$emit('blur')" @focus="$emit('focus')" @input="$emit('update:modelValue', $event.target.value)">
   </label>
 </template>
 
@@ -11,14 +11,15 @@ export default {
   computed: {
     displayLabel() {
       if (this.error) return this.error;
-      if (this.maxLen && this.type !== 'number' && (this.error || this.value || this.placeholder)) {
-        if (this.label) return `${this.label} (${this.value.length}/${this.maxLen})`;
-        return `(${this.value.length}/${this.maxLen})`;
+      if (this.maxLen && this.type !== 'number' && (this.error || this.modelValue || this.placeholder)) {
+        if (this.label) return `${this.label} (${this.modelValue.length}/${this.maxLen})`;
+        return `(${this.modelValue.length}/${this.maxLen})`;
       }
       if (this.label) return this.label;
       return false;
     },
   },
+  emits: ['blur', 'focus', 'update:modelValue'],
   props: {
     dark: Boolean,
     disabled: Boolean,
@@ -31,7 +32,7 @@ export default {
       type: String,
       default: 'text',
     },
-    value: [Number, String],
+    modelValue: [Number, String],
   },
 };
 </script>

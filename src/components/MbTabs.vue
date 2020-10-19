@@ -16,6 +16,18 @@
 import { showTooltip, hideTooltip } from '@/mixins/tooltipFunctions';
 
 export default {
+  computed: {
+    indicatorTransform() {
+      if (!this.mounted || !this.$refs.tabs) return 'translateX(0) scaleX(0)';
+
+      const tabElement = this.$refs.tabs.$el.children[this.modelValue];
+      if (!tabElement) return 'translateX(0) scaleX(0)';
+
+      const translate = tabElement.offsetLeft;
+      const scale = tabElement.offsetWidth / 100; // 100 is the initial width of the active-indicator element in px
+      return `translateX(${translate}px) scaleX(${scale})`;
+    },
+  },
   data() {
     return {
       mounted: false,
@@ -25,21 +37,10 @@ export default {
       },
     };
   },
-  computed: {
-    indicatorTransform() {
-      if (!this.mounted || !this.$refs.tabs) return 'translateX(0) scaleX(0)';
-
-      const tabElement = this.$refs.tabs.$el.children[this.value];
-      if (!tabElement) return 'translateX(0) scaleX(0)';
-
-      const translate = tabElement.offsetLeft;
-      const scale = tabElement.offsetWidth / 100; // 100 is the initial width of the active-indicator element in px
-      return `translateX(${translate}px) scaleX(${scale})`;
-    },
-  },
+  emits: ['add-tab', 'update:modelValue'],
   methods: {
     activateTab(e, index) {
-      this.$emit('input', index);
+      this.$emit('update:modelValue', index);
       this.scrollTabIntoView(e.currentTarget);
     },
     addTab() {
@@ -48,9 +49,9 @@ export default {
       this.$nextTick(() => this.scrollTabIntoView(this.$refs.tabs.$el.lastChild));
     },
     resetActiveTab(el) {
-      const activeTabBackup = this.value;
-      if (el.dataset.index > activeTabBackup) this.$emit('input', activeTabBackup);
-      else this.$emit('input', Math.max(0, activeTabBackup - 1));
+      const activeTabBackup = this.modelValue;
+      if (el.dataset.index > activeTabBackup) this.$emit('update:modelValue', activeTabBackup);
+      else this.$emit('update:modelValue', Math.max(0, activeTabBackup - 1));
 
       // the size of the wrapper changed so we should recalculate the shadows
       this.toggleShadow();
@@ -84,7 +85,7 @@ export default {
       type: Array,
       default: () => [],
     },
-    value: Number,
+    modelValue: Number,
   },
 };
 </script>
@@ -151,7 +152,7 @@ export default {
         &.v-leave-active
           transition: transform 200ms ease, opacity 200ms ease
 
-          &.v-enter,
+          &.v-enter-from,
           &.v-leave-to
             transform: translateY(1rem)
             opacity: 0

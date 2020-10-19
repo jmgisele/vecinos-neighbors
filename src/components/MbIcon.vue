@@ -36,11 +36,11 @@ export default {
   &.v-leave-active
     transition: transform 200ms ease, opacity 200ms ease
 
-    &.v-enter,
+    &.v-enter-from,
     &.v-leave-to
       opacity: 0
 
-    &.v-enter
+    &.v-enter-from
       transform: rotate(-45deg)
 
     &.v-leave-to

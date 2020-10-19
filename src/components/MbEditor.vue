@@ -3,36 +3,30 @@
     <div v-if="outputFormat !== 'text'" class="toolbar" :class="{ dark }">
       <MbToggle v-model="raw" :dark="dark">Show Raw</MbToggle>
     </div>
-    <label class="content-wrapper" :class="{ dark, disabled, dirty: error || value || placeholder, error: error || maxLen && overlength, raw }">
+    <label class="content-wrapper" :class="{ dark, disabled, dirty: error || modelValue || placeholder, error: error || maxLen && overlength, raw }">
       <span v-if="displayLabel" class="label" :class="{ right: !label && maxLen }">{{displayLabel}}</span>
       <div v-if="outputFormat === 'text' || raw" class="autogrow-area" ref="autogrow">
         <pre ref="pre"></pre>
-        <textarea autocomplete="off" :disabled="disabled" :placeholder="placeholder" ref="textarea" :value="value" @input="$emit('input', $event.target.value)"></textarea>
+        <textarea autocomplete="off" :disabled="disabled" :placeholder="placeholder" ref="textarea" :value="modelValue" @input="$emit('update:modelValue', $event.target.value)"></textarea>
       </div>
-      <div v-show="!raw && outputFormat !== 'text'" class="editor-wrapper" @focusin="focussed = true" @focusout="focussed = false" />
     </label>
   </div>
 </template>
 
 <script>
-import Quill from 'quill';
-
-import htmlToMarkdown from '@/mixins/htmlToMarkdown';
-import markdownToHtml from '@/mixins/markdownToHtml';
-
 export default {
   computed: {
     displayLabel() {
       if (this.error) return this.error;
-      if (this.maxLen && (this.error || this.value || this.placeholder)) {
-        if (this.label) return `${this.label} (${this.outputFormat === 'text' ? this.value.length : this.contentLength}/${this.maxLen})`;
-        return `(${this.outputFormat === 'text' ? this.value.length : this.contentLength}/${this.maxLen})`;
+      if (this.maxLen && (this.error || this.modelValue || this.placeholder)) {
+        if (this.label) return `${this.label} (${this.outputFormat === 'text' ? this.modelValue.length : this.contentLength}/${this.maxLen})`;
+        return `(${this.outputFormat === 'text' ? this.modelValue.length : this.contentLength}/${this.maxLen})`;
       }
       if (this.label) return this.label;
       return false;
     },
     overlength() {
-      if (this.outputFormat === 'text') return this.value.length > this.maxLen;
+      if (this.outputFormat === 'text') return this.modelValue.length > this.maxLen;
       return this.contentLength > this.maxLen;
     },
   },
@@ -40,98 +34,19 @@ export default {
     return {
       contentLength: 0,
       focussed: false,
-      quill: null,
       raw: false,
     };
   },
+  emits: ['update:modelValue'],
   methods: {
-    htmlToDelta(html) {
-      // turn br into custom linebreak, remove paragraphs around images (inserted by markdown it)
-      const cleanHtml = html
-        .replace(/<br>/g, '</p><p class="linebreak-true">') // turn br into custom linebreak
-        .replace(/<code>\s*([\s\S]*)\s*<\/code>/g, '$1') // remove <code> from <pre> (inserted by markdown it)
-        .replace(/\n(?![^<]*<\/pre>)/g, '') // remove all whitespace except inside pre
-        .replace(/\n(?=<\/pre>)/g, ''); // and the newline before the closing pre
-
-      const delta = this.quill.clipboard.convert(cleanHtml);
-
-      return delta;
-    },
-    markdownToDelta(md) {
-      const html = markdownToHtml(md)
-        .replace(/<br>/g, '</p><p class="linebreak-true">') // turn br into custom linebreak
-        .replace(/<p>\s*(<img .*>)\s*<\/p>/g, '$1') // remove paragraphs around images (inserted by markdown it)
-        .replace(/<code>\s*([\s\S]*)\s*<\/code>/g, '$1') // remove <code> from <pre> (inserted by markdown it)
-        .replace(/\n(?![^<]*<\/pre>)/g, '') // remove all whitespace except inside pre
-        .replace(/\n(?=<\/pre>)/g, ''); // and the newline before the closing pre
-
-      const delta = this.quill.clipboard.convert(html);
-
-      return delta;
-    },
-    onTextChange() {
-      const htmlContent = this.quill.root.innerHTML.replace(/<p><br><\/p>/g, '<p></p>');
-      this.contentLength = this.quill.getText().length;
-
-      if (this.outputFormat === 'markdown') {
-        const md = htmlToMarkdown(htmlContent);
-        this.$emit('input', md);
-      } else if (this.outputFormat === 'html') {
-        this.$emit('input', markdownToHtml(htmlToMarkdown(htmlContent)));
-        // this.$emit('input', htmlContent); // simple no cleanup, better performance
-      }
-    },
-    recalculateHeight(value) {
-      this.$refs.pre.innerText = value;
+    recalculateHeight(modelValue) {
+      this.$refs.pre.innerText = modelValue;
       this.$refs.pre.appendChild(document.createElement('BR'));
       this.$refs.autogrow.style.height = `${this.$refs.pre.offsetHeight}px`;
     },
-    setUpQuill() {
-      const editorElement = this.$el.querySelector('.editor-wrapper');
-      const scrollingContainer = this.scrollingContainer ? document.querySelector(this.scrollingContainer) || this.$el : this.$el;
-
-      this.quill = new Quill(editorElement, {
-        formats: this.formats,
-        modules: {
-          clipboard: {
-            matchVisual: false,
-            // matchers: [
-            //   ['h3', this.handleHeadingPaste],
-            //   ['h4', this.handleHeadingPaste],
-            //   ['h5', this.handleHeadingPaste],
-            //   ['h6', this.handleHeadingPaste],
-            //   ['p', this.handleParagraphPaste],
-            //   ['.changed-true', this.handleChangePaste],
-            //   ['.deleted-true', this.handleChangePaste],
-            //   ['.inserted-true', this.handleChangePaste],
-            //   [Node.TEXT_NODE, this.handleTextPaste],
-            // ],
-          },
-          history: {
-            userOnly: true,
-          },
-          keyboard: {
-            // bindings: this.keybindings,
-          },
-        },
-        placeholder: this.placeholder,
-        readOnly: this.disabled,
-        scrollingContainer,
-      });
-
-      this.quill.on('text-change', this.onTextChange);
-    },
   },
   mounted() {
-    if (this.outputFormat === 'text') this.recalculateHeight(this.value);
-    else {
-      this.$nextTick();
-      this.setUpQuill();
-      if (this.value) {
-        if (this.outputFormat === 'markdown') this.quill.setContents(this.markdownToDelta(this.value), 'silent');
-        if (this.outputFormat === 'html') this.quill.setContents(this.htmlToDelta(this.value), 'silent');
-      }
-    }
+    if (this.outputFormat === 'text') this.recalculateHeight(this.modelValue);
   },
   props: {
     dark: Boolean,
@@ -139,21 +54,6 @@ export default {
     error: String,
     formats: {
       type: Array,
-      default: () => [
-        'blockquote',
-        'bold',
-        'code',
-        'code-block',
-        'header',
-        'image',
-        'indent',
-        'italic',
-        'linebreak',
-        'link',
-        'list',
-        'strike',
-        'underline',
-      ],
     },
     label: String,
     maxLen: Number,
@@ -164,28 +64,14 @@ export default {
     },
     placeholder: String,
     scrollingContainer: String,
-    value: String,
+    modelValue: String,
   },
   watch: {
     raw(nv) {
-      if (nv) this.$nextTick(() => this.recalculateHeight(this.value));
-      else {
-        if (this.outputFormat === 'html') this.quill.setContents(this.htmlToDelta(this.value), 'silent');
-        if (this.outputFormat === 'markdown') this.quill.setContents(this.markdownToDelta(this.value), 'silent');
-
-        this.contentLength = this.quill.getLength();
-      }
+      if (nv) this.$nextTick(() => this.recalculateHeight(this.modelValue));
     },
-    value(newValue) {
+    modelValue(newValue) {
       if (this.outputFormat === 'text' || this.raw) this.recalculateHeight(newValue);
-      if (this.outputFormat === 'html' && !this.focussed && !this.raw) {
-        this.quill.setContents(this.htmlToDelta(newValue), 'silent');
-        this.contentLength = this.quill.getLength();
-      }
-      if (this.outputFormat === 'markdown' && !this.focussed && !this.raw) {
-        this.quill.setContents(this.markdownToDelta(newValue), 'silent');
-        this.contentLength = this.quill.getLength();
-      }
     },
   },
 };
@@ -194,7 +80,6 @@ export default {
 <style lang="stylus">
 @require '../assets/styles/colors'
 @require '../assets/styles/corners'
-@require '../assets/styles/quill-core'
 
 .editor
 

@@ -1,6 +1,6 @@
 <template lang="html">
   <label class="checkbox" :class="{dark, disabled, 'full-width': label}">
-    <input type="checkbox" :checked="value" :disabled="disabled" @change="$emit('input', $event.target.checked)">
+    <input type="checkbox" :checked="modelValue" :disabled="disabled" @change="$emit('update:modelValue', $event.target.checked)">
     <div class="visual-checkbox">
       <MbIcon icon="check" />
     </div>
@@ -9,16 +9,19 @@
 </template>
 
 <script>
+import getSlotTextContent from '@/assets/js/getSlotTextContent';
+
 export default {
   computed: {
     label() {
-      return this.$slots.default && this.$slots.default[0] && this.$slots.default[0].text;
+      return this.$slots.default && getSlotTextContent(this.$slots.default());
     },
   },
+  emits: ['update:modelValue'],
   props: {
     dark: Boolean,
     disabled: Boolean,
-    value: Boolean,
+    modelValue: Boolean,
   },
 };
 </script>

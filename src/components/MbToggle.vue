@@ -1,7 +1,7 @@
 <template lang="html">
-  <label class="toggle" :class="{ active: value, dark, disabled, 'full-width': label }">
+  <label class="toggle" :class="{ active: modelValue, dark, disabled, 'full-width': label }">
     <span v-if="label">{{ label }}</span>
-    <button type="button" @click="$emit('input', !value)">
+    <button type="button" @click="$emit('update:modelValue', !modelValue)">
       <div class="icon-wrapper">
         <MbIcon v-if="icon" :icon="icon" />
       </div>
@@ -10,22 +10,24 @@
 </template>
 
 <script>
+import getSlotTextContent from '@/assets/js/getSlotTextContent';
+
 export default {
   computed: {
     icon() {
       if (!this.icons || this.icons.length === 0) return false;
-      if (this.value) return this.icons[1];
+      if (this.modelValue) return this.icons[1];
       return this.icons[0];
     },
     label() {
-      return this.$slots.default && this.$slots.default[0] && this.$slots.default[0].text;
+      return this.$slots.default && getSlotTextContent(this.$slots.default());
     },
   },
   props: {
     dark: Boolean,
     disabled: Boolean,
     icons: Array,
-    value: Boolean,
+    modelValue: Boolean,
   },
 };
 </script>
@@ -57,7 +59,7 @@ export default {
       transform: translateX(1.5rem)
 
       .icon
-        &.v-enter
+        &.v-enter-from
           transform: rotate(-45deg)
 
         &.v-leave-to
@@ -123,7 +125,7 @@ export default {
       transition: transform 200ms ease, background-color 200ms ease
 
       .icon
-        &.v-enter
+        &.v-enter-from
           transform: rotate(45deg)
 
         &.v-leave-to

@@ -159,7 +159,7 @@ export default {
   &.v-leave-active
     transition: clip-path 200ms ease
 
-    &.v-enter,
+    &.v-enter-from,
     &.v-leave-to
       clip-path: circle(0% at 50% 0%)
 
