@@ -1,7 +1,7 @@
 <template lang="html">
   <teleport to="body">
     <transition>
-      <div v-show="target && visible" v-bind="$attrs" class="tooltip" :class="[ positionOverride || position || lastPosition, { transition }]" ref="body" :style="{ transform: `translate(${this.transform.x}px, ${this.transform.y}px)` }" v-html="message || lastMessage" @transitionend="transition = false"/>
+      <div v-show="target && visible" v-bind="$attrs" class="tooltip" :class="[ positionOverride || position || lastPosition]" ref="body" :style="{ transform: `translate(${this.transform.x}px, ${this.transform.y}px)` }" v-html="message || lastMessage" />
     </transition>
   </teleport>
 </template>
@@ -18,7 +18,6 @@ export default {
         x: 0,
         y: 0,
       },
-      transition: false,
     };
   },
   inheritAttrs: false, // because this technically qualifies as a fragment since it teleports
@@ -112,18 +111,14 @@ export default {
       validator: (v) => ['top', 'left', 'right', 'bottom'].includes(v),
     },
     visible: Boolean,
-    target: HTMLElement,
+    target: [HTMLElement, SVGSVGElement],
   },
   watch: {
     message(nv, ov) {
       if (!nv) this.lastMessage = ov;
-      else {
-        this.$nextTick(this.update);
-        this.transition = true;
-      }
     },
-    position(nv, ov) {
-      if (!nv) this.lastPosition = ov;
+    target(nv) {
+      if (nv) this.$nextTick(this.update);
     },
     visible(nv) {
       if (nv) this.$nextTick(this.update);
@@ -151,9 +146,6 @@ export default {
   overflow: hidden
   text-overflow: ellipsis
   max-width: calc(100% - 1rem)
-
-  &.transition
-    transition: transform 200ms ease
 
   &.left
     clip-path: circle(141.42135624% at 100% 50%)

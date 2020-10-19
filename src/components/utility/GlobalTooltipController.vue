@@ -66,6 +66,6 @@ export default {
 
 <style lang="stylus">
 .global-tooltip
-  transition: transform 100ms ease
+  transition: transform 200ms ease
   z-index: 1
 </style>
