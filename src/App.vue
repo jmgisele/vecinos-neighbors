@@ -1,12 +1,15 @@
 <template>
+  <GlobalTooltipController />
   <router-view :dark="dark" />
-  <MbTooltip :message="tooltip.message" :position="tooltip.position" :target="tooltip.target" />
 </template>
 
 <script>
-import { hideTooltip } from '@/mixins/tooltipFunctions';
+import GlobalTooltipController from '@/components/utility/GlobalTooltipController.vue';
 
 export default {
+  components: {
+    GlobalTooltipController,
+  },
   computed: {
     dark() {
       const { theme } = this.$store.state.user;
@@ -25,7 +28,7 @@ export default {
   },
   methods: {
     handleScroll() {
-      if (this.$store.state.application.tooltip) hideTooltip();
+      if (this.$store.state.application.tooltip) this.$store.commit('setTooltip', null);
     },
   },
   watch: {

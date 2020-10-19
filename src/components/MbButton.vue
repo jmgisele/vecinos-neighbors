@@ -1,5 +1,5 @@
 <template lang="html">
-  <button class="button" :class="[type, { dark, disabled, rounded, icon, reversed: !iconFirst, 'no-label': !label }]" :disabled="disabled" @click="handleClick" @mouseenter="showTooltip(tooltip, $event.currentTarget)" @focus="showTooltip(tooltip, $event.currentTarget)">
+  <button class="button" :class="[type, { dark, disabled, rounded, icon, reversed: !iconFirst, 'no-label': !label }]" :disabled="disabled" @click="handleClick" @mouseenter="handleTooltip" @focus="handleTooltip">
     <MbIcon v-if="icon" :icon="icon" />
     {{ label }}
   </button>
@@ -7,7 +7,6 @@
 
 <script>
 import getSlotTextContent from '@/assets/js/getSlotTextContent';
-import { showTooltip, hideTooltip } from '@/mixins/tooltipFunctions';
 
 export default {
   computed: {
@@ -19,9 +18,16 @@ export default {
   methods: {
     handleClick(e) {
       this.$emit('click', e);
-      hideTooltip(e);
     },
-    showTooltip,
+    handleTooltip(e) {
+      if (!this.tooltip) return;
+      const tooltip = {
+        target: e.currentTarget,
+      };
+      if (typeof this.tooltip === 'string') tooltip.message = this.tooltip;
+      else Object.assign(tooltip, this.tooltip);
+      this.$store.commit('setTooltip', tooltip);
+    },
   },
   props: {
     dark: Boolean,

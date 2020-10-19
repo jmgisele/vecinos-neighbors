@@ -1,21 +1,18 @@
 <template lang="html">
-  <transition>
-    <div v-show="visible" class="tooltip" :class="[ position || lastPosition, { transition }]" :style="{ transform: `translate(${this.transform.x}px, ${this.transform.y}px)` }" v-html="message || lastMessage" @transitionend="transition = false"/>
-  </transition>
+  <teleport to="body">
+    <transition>
+      <div v-show="target && visible" v-bind="$attrs" class="tooltip" :class="[ positionOverride || position || lastPosition, { transition }]" ref="body" :style="{ transform: `translate(${this.transform.x}px, ${this.transform.y}px)` }" v-html="message || lastMessage" @transitionend="transition = false"/>
+    </transition>
+  </teleport>
 </template>
 
 <script>
 export default {
-  computed: {
-    visible() {
-      if (this.message && this.target) return true;
-      return false;
-    },
-  },
   data() {
     return {
       lastMessage: null,
       lastPosition: null,
+      positionOverride: '',
       remBase: Number.parseInt(window.getComputedStyle(document.documentElement).fontSize, 10),
       transform: {
         x: 0,
@@ -24,9 +21,10 @@ export default {
       transition: false,
     };
   },
+  inheritAttrs: false, // because this technically qualifies as a fragment since it teleports
   methods: {
     update() {
-      const rect = this.$el.getBoundingClientRect();
+      const rect = this.$refs.body.getBoundingClientRect();
       const targetRect = this.target.getBoundingClientRect();
       const windowRect = { width: window.innerWidth, height: window.innerHeight };
       const margin = 0.5 * this.remBase;
@@ -45,6 +43,8 @@ export default {
       const topPossible = topY >= margin;
       const bottomPossible = bottomY + rect.height <= windowRect.height - margin;
 
+      this.positionOverride = '';
+
       switch (this.position) {
         case 'left':
           if (leftPossible) {
@@ -53,12 +53,15 @@ export default {
           } else if (rightPossible) {
             this.transform.x = rightX;
             this.transform.y = rightY;
+            this.positionOverride = 'right';
           } else if (topPossible) {
             this.transform.x = topX;
             this.transform.y = topY;
+            this.positionOverride = 'top';
           } else {
             this.transform.x = bottomX;
             this.transform.y = bottomY;
+            this.positionOverride = 'bottom';
           }
           return;
         case 'right':
@@ -68,31 +71,36 @@ export default {
           } else if (leftPossible) {
             this.transform.x = leftX;
             this.transform.y = leftY;
+            this.positionOverride = 'left';
           } else if (topPossible) {
             this.transform.x = topX;
             this.transform.y = topY;
+            this.positionOverride = 'top';
           } else {
             this.transform.x = bottomX;
             this.transform.y = bottomY;
+            this.positionOverride = 'bottom';
           }
           return;
         case 'top':
-          if (topPossible) {
+          if (topPossible || !bottomPossible) {
             this.transform.x = topX;
             this.transform.y = topY;
           } else {
             this.transform.x = bottomX;
             this.transform.y = bottomY;
+            this.positionOverride = 'bottom';
           }
           return;
         case 'bottom':
         default:
-          if (bottomPossible) {
+          if (bottomPossible || !topPossible) {
             this.transform.x = bottomX;
             this.transform.y = bottomY;
           } else {
             this.transform.x = topX;
             this.transform.y = topY;
+            this.positionOverride = 'top';
           }
       }
     },
@@ -103,6 +111,7 @@ export default {
       type: String,
       validator: (v) => ['top', 'left', 'right', 'bottom'].includes(v),
     },
+    visible: Boolean,
     target: HTMLElement,
   },
   watch: {
