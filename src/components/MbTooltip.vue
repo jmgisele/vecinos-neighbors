@@ -1,7 +1,7 @@
 <template lang="html">
   <teleport to="body">
     <transition>
-      <div v-show="target && visible" v-bind="$attrs" class="tooltip" :class="[ positionOverride || position || lastPosition]" ref="body" :style="{ transform: `translate(${this.transform.x}px, ${this.transform.y}px)` }" v-html="message || lastMessage" />
+      <div v-show="target && visible" v-bind="$attrs" class="tooltip" :class="[ positionOverride || position ]" ref="body" :style="{ transform: `translate(${this.transform.x}px, ${this.transform.y}px)` }" v-html="message || lastMessage" />
     </transition>
   </teleport>
 </template>
@@ -11,7 +11,6 @@ export default {
   data() {
     return {
       lastMessage: null,
-      lastPosition: null,
       positionOverride: '',
       remBase: Number.parseInt(window.getComputedStyle(document.documentElement).fontSize, 10),
       transform: {
