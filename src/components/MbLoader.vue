@@ -1,9 +1,11 @@
 <template lang="html">
   <div class="loader">
-    <div class="brick one" />
-    <div class="brick two" />
-    <div class="brick three" />
-    <div class="brick four" />
+    <div class="wall">
+      <div class="brick full" />
+      <div class="brick half" />
+      <div class="brick half" />
+      <div class="brick full" />
+    </div>
   </div>
 </template>
 
@@ -18,40 +20,137 @@ export default {
   align-items: center
   justify-content: center
 
-  .brick
+  .wall
     width: 2rem
-    height: 1rem
-    background-color: currentColor
-    opacity: 0
-    animation: fromTop 2000ms ease infinite
+    height: @width
+    display: flex
+    flex-wrap: wrap
+    justify-content: space-between
+    animation: turn 2500ms ease infinite
 
-    &:not(:first-child)
-      margin-left: -1rem
-
-    &:nth-child(even)
-      margin-bottom: 2rem
-
-    &.two, &.three
-      background-color: transparent
-      box-shadow: inset 0 0 0 2px currentColor
-
-    &.two
-      animation-delay: 500ms
-
-    &.three
-      animation-delay: 250ms
-
-    &.four
-      animation-delay: 750ms
-
-    @keyframes fromTop
-      5%
-        opacity: 0
-        transform: translateY(-1rem)
-      25%,
-      50%
-        opacity: 1
+    @keyframes turn
+      52.5%
+      80%
         transform: none
+        opacity: 1
+      90%
       100%
+        transform: rotate(-45deg)
         opacity: 0
+
+    .brick
+      height: 25%
+      width: 100%
+      box-shadow: inset 0 0 0 (1 / 16)rem currentColor, 0 0 0 (1 / 16)rem currentColor
+      position: relative
+      opacity: 0
+      animation: build 2500ms ease infinite
+
+      &:not(:last-child)
+        margin-bottom: 12.5%
+
+      &.half
+        width: 43.75%
+
+      &:nth-child(2)
+        animation-name: build-2
+
+        &::after
+          animation-name: fill-2
+
+      &:nth-child(3)
+        animation-name: build-3
+
+        &::after
+          animation-name: fill-3
+
+      &:nth-child(1)
+        animation-name: build-4
+
+        &::after
+          animation-name: fill
+
+      &::after
+        content: ''
+        display: block
+        background-color: currentColor
+        width: 100%
+        height: 100%
+        position: absolute
+        top: 0
+        left: 0
+        transform-origin: left
+        transform: scaleX(0)
+        animation: fill-4 2500ms ease infinite
+
+        @keyframes fill
+          0%
+          40%
+            transform: scaleX(0)
+          55%
+          100%
+            transform: none
+
+        @keyframes fill-2
+          0%
+          45%
+            transform: scaleX(0)
+          60%
+          100%
+            transform: none
+
+        @keyframes fill-3
+          0%
+          50%
+            transform: scaleX(0)
+          65%
+          100%
+            transform: none
+
+        @keyframes fill-4
+          0%
+          55%
+            transform: scaleX(0)
+          70%
+          100%
+            transform: none
+
+      @keyframes build
+        0%
+          opacity: 0
+          transform: translateY(-0.5rem)
+        15%
+        100%
+          opacity: 1
+          transform: none
+
+      @keyframes build-2
+        0%
+        10%
+          opacity: 0
+          transform: translateY(-0.5rem)
+        25%
+        100%
+          opacity: 1
+          transform: none
+
+      @keyframes build-3
+        0%
+        20%
+          opacity: 0
+          transform: translateY(-0.5rem)
+        35%
+        100%
+          opacity: 1
+          transform: none
+
+      @keyframes build-4
+        0%
+        30%
+          opacity: 0
+          transform: translateY(-0.5rem)
+        45%
+        100%
+          opacity: 1
+          transform: none
 </style>
