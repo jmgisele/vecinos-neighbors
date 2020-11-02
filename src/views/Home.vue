@@ -154,6 +154,10 @@
         <MbEditor v-model="editorTest" :dark="dark" label="This will output Markdown" output-format="markdown" />
         <div class="tester" v-html="editorTest" />
       </section>
+      <section v-else-if="activeTabValue === 'loaders'" class="tab loaders" key="loaders">
+        <h2>Loaders</h2>
+        <MbLoader />
+      </section>
       <section v-else class="tab" key="exampleTab">
         <p>This is just an empty test-tab.</p>
         <p>To delete it, click the button in the “<u @click="activeTab = tabs.findIndex((tab) => tab.value === 'tabs')">Tabs</u>”-tab.</p>
@@ -301,6 +305,7 @@ export default {
         { label: 'Checkboxes', value: 'checkboxes' },
         { label: 'Icons', value: 'icons' },
         { label: 'Inputs', value: 'inputs' },
+        { label: 'Loaders', value: 'loaders' },
         { label: 'Tabs', value: 'tabs' },
         { label: 'Textareas', value: 'textareas' },
         { label: 'Toggles', value: 'toggles' },
