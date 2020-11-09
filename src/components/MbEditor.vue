@@ -7,7 +7,7 @@
       <span v-if="displayLabel" class="label" :class="{ right: !label && maxLen }">{{displayLabel}}</span>
       <div v-if="outputFormat === 'text' || raw" class="autogrow-area" ref="autogrow">
         <pre ref="pre"></pre>
-        <textarea autocomplete="off" :disabled="disabled" :placeholder="placeholder" ref="textarea" :value="modelValue" @input="$emit('update:modelValue', $event.target.value)"></textarea>
+        <textarea autocomplete="off" :disabled="disabled" :placeholder="placeholder" ref="textarea" :value="cleanValue" @input="handleTextareaInput" @[preventEnter].enter.prevent></textarea>
       </div>
     </label>
   </div>
@@ -16,6 +16,10 @@
 <script>
 export default {
   computed: {
+    cleanValue() {
+      if (this.allowNewLines) return this.modelValue;
+      return this.modelValue.replace(/\n+/g, ' ');
+    },
     displayLabel() {
       if (this.error) return this.error;
       if (this.maxLen && (this.error || this.modelValue || this.placeholder)) {
@@ -29,6 +33,10 @@ export default {
       if (this.outputFormat === 'text') return this.modelValue.length > this.maxLen;
       return this.contentLength > this.maxLen;
     },
+    preventEnter() {
+      if (this.allowNewLines) return null;
+      return 'keydown';
+    },
   },
   data() {
     return {
@@ -39,6 +47,13 @@ export default {
   },
   emits: ['update:modelValue'],
   methods: {
+    handleTextareaInput(e) {
+      let newValue = e.target.value;
+
+      if (!this.allowNewLines) newValue = newValue.replace(/\n+/g, ' ');
+
+      this.$emit('update:modelValue', newValue);
+    },
     recalculateHeight(modelValue) {
       this.$refs.pre.innerText = modelValue;
       this.$refs.pre.appendChild(document.createElement('BR'));
@@ -46,9 +61,13 @@ export default {
     },
   },
   mounted() {
-    if (this.outputFormat === 'text') this.recalculateHeight(this.modelValue);
+    if (this.outputFormat === 'text') this.recalculateHeight(this.cleanValue);
   },
   props: {
+    allowNewLines: {
+      type: Boolean,
+      default: true,
+    },
     dark: Boolean,
     disabled: Boolean,
     error: String,
@@ -68,10 +87,13 @@ export default {
   },
   watch: {
     raw(nv) {
-      if (nv) this.$nextTick(() => this.recalculateHeight(this.modelValue));
+      if (nv) this.$nextTick(() => this.recalculateHeight(this.cleanValue));
     },
     modelValue(newValue) {
-      if (this.outputFormat === 'text' || this.raw) this.recalculateHeight(newValue);
+      if (this.outputFormat === 'text' || this.raw) {
+        if (this.allowNewLines) this.recalculateHeight(newValue);
+        else this.recalculateHeight(newValue.replace(/\n+/g, ' '));
+      }
     },
   },
 };
