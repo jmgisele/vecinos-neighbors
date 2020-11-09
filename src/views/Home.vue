@@ -87,19 +87,20 @@
       <section v-else-if="activeTabValue === 'buttons'" class="tab buttons" key="buttons">
         <h2>Buttons</h2>
         <MbButton :dark="dark">Secondary Button</MbButton>
-        <MbButton :dark="dark" :tooltip="{ message: 'Bold <kbd>Cmd</kbd> + <kbd>B</kbd> that is going to be really really long', timeout: 200, position: 'top' }" type="primary">Primary Button</MbButton>
-        <MbButton :dark="dark" rounded :tooltip="{ message: 'Hi there from <strong>left</strong>', timeout: 200, position: 'left' }">Rounded Button</MbButton>
-        <MbButton :dark="dark" :tooltip="{ message: 'Hi there from <strong>right</strong>', timeout: 200, position: 'right' }" type="positive">Positive Button</MbButton>
-        <MbButton :dark="dark" :tooltip="{ message: 'Hi there from <strong>bottom</strong>', timeout: 200, position: 'bottom' }" type="negative">Negative Button</MbButton>
-        <MbButton :dark="dark" type="warning">Warning Button</MbButton>
+        <MbButton :dark="dark" :loading="simulateLoading" :tooltip="{ message: 'Bold <kbd>Cmd</kbd> + <kbd>B</kbd> that is going to be really really long', timeout: 200, position: 'top' }" type="primary">Primary Button</MbButton>
+        <MbButton :dark="dark" :loading="simulateLoading" rounded :tooltip="{ message: 'Hi there from <strong>left</strong>', timeout: 200, position: 'left' }">Rounded Button</MbButton>
+        <MbButton :dark="dark" :loading="simulateLoading" :tooltip="{ message: 'Hi there from <strong>right</strong>', timeout: 200, position: 'right' }" type="positive">Positive Button</MbButton>
+        <MbButton :dark="dark" :loading="simulateLoading" :tooltip="{ message: 'Hi there from <strong>bottom</strong>', timeout: 200, position: 'bottom' }" type="negative">Negative Button</MbButton>
+        <MbButton :dark="dark" :loading="simulateLoading" type="warning">Warning Button</MbButton>
         <MbButton :dark="dark" icon="mattrbld" :icon-first="false">Secondary Button</MbButton>
         <MbButton :dark="dark" icon="mattrbld" rounded type="primary">Primary Button</MbButton>
         <MbButton :dark="dark" icon="mattrbld" />
         <MbButton :dark="dark" icon="mattrbld" rounded />
         <MbButton :dark="dark" disabled icon="mattrbld" />
-        <MbButton :dark="dark" disabled icon="mattrbld" type="primary" />
+        <MbButton :dark="dark" disabled icon="mattrbld" :loading="simulateLoading" type="primary" />
         <MbButton :dark="dark" disabled icon="mattrbld">Disabled Button</MbButton>
-        <MbButton :dark="dark" disabled icon="mattrbld" type="negative">Disabled Button</MbButton>
+        <MbButton :dark="dark" disabled icon="mattrbld" :loading="simulateLoading" type="negative">Disabled Button</MbButton>
+        <MbButton :dark="dark" @click="simulateLoading = !simulateLoading">{{ simulateLoading ? 'Stop' : 'Start' }} loading</MbButton>
         <h3>Props</h3>
         <MbTable :data="props.buttons" />
         <h3>Events</h3>
@@ -233,6 +234,7 @@ export default {
           ['`disabled`', 'Boolean', '`false`', ''],
           ['`icon`', 'String', '', 'A valid icon name'],
           ['`icon-first`', 'Boolean', '`true`', ''],
+          ['`loading`', 'Boolean', '`false`', ''],
           ['`rounded`', 'Boolean', '`false`', ''],
           ['`tooltip`', 'String / Object', '', ''],
           ['`type`', 'String', '', 'negative, positive, primary, warning'],
@@ -279,6 +281,7 @@ export default {
           ['`target`', 'HTMLElement', ''],
         ],
       },
+      simulateLoading: false,
       swatches: [
         'accent',
         'accent-secondary',
@@ -505,4 +508,8 @@ export default {
     &.textareas
       .editor
         margin-bottom: 3rem
+
+    &.loaders
+      .loader
+        margin-bottom: 4rem
 </style>

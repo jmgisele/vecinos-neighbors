@@ -1,7 +1,8 @@
 <template lang="html">
-  <button class="button" :class="[type, { dark, disabled, rounded, icon, reversed: !iconFirst, 'no-label': !label }]" :disabled="disabled" @click="handleClick" @mouseenter="handleTooltip" @focus="handleTooltip">
-    <MbIcon v-if="icon" :icon="icon" />
-    {{ label }}
+  <button class="button" :class="[type, { dark, disabled, loading, rounded, icon, reversed: !iconFirst, 'no-label': !label }]" :disabled="disabled || loading" @click="handleClick" @mouseenter="handleTooltip" @focus="handleTooltip">
+    <MbIcon v-if="icon" :class="{ invisible: loading }" :icon="icon" />
+    <span v-if="label" class="label" :class="{ invisible: loading }">{{ label }}</span>
+    <MbInlineLoader v-if="loading" />
   </button>
 </template>
 
@@ -37,6 +38,7 @@ export default {
       type: Boolean,
       default: true,
     },
+    loading: Boolean,
     rounded: Boolean,
     tooltip: [String, Object],
     type: {
@@ -61,6 +63,7 @@ export default {
   user-select: none
   white-space: nowrap
   position: relative
+  vertical-align: middle
   transition: background-color 200ms ease
 
   &:hover,
@@ -171,7 +174,8 @@ export default {
     &::before
       border-color: @border-color
 
-  &.disabled
+  &.disabled,
+  &.loading
     pointer-events: none
     border: 1px dashed $text-tertiary
     color: $text-tertiary
@@ -183,8 +187,14 @@ export default {
       border-color: $text-tertiary-dark
       color: @border-color
 
+      .inline-loader
+        color: $text-dark
+
       &.primary
         background-color: $bg-secondary-dark
+
+    .inline-loader
+      color: $text
 
   &::before
     content: ''
@@ -197,4 +207,18 @@ export default {
     opacity: 0
     border-radius: @border-radius
     transition: opacity 200ms ease
+
+  .label,
+  .icon
+    transition: opacity 200ms ease
+
+    &.invisible
+      opacity: 0
+
+  .inline-loader
+    position: absolute
+    top: 0
+    left: @top
+    right: @top
+    bottom: @top
 </style>
