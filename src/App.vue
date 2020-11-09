@@ -1,14 +1,17 @@
 <template>
+  <SvgSprite />
   <GlobalTooltipController />
   <router-view :dark="dark" />
 </template>
 
 <script>
 import GlobalTooltipController from '@/components/utility/GlobalTooltipController.vue';
+import SvgSprite from '@/components/utility/SvgSprite.vue';
 
 export default {
   components: {
     GlobalTooltipController,
+    SvgSprite,
   },
   computed: {
     dark() {
