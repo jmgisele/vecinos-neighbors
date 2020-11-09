@@ -26,46 +26,67 @@ export default {
     height: 100%
     box-shadow: inset 0 0 0 (1 / 16)rem currentColor, 0 0 0 (1 / 16)rem currentColor
 
+    &::after
+      content: ''
+      display: block
+      background-color: currentColor
+      width: 100%
+      height: 100%
+      position: absolute
+      top: 0
+      left: 0
+      transform-origin: left
+      transform: scaleX(0)
+
     &.left
-      animation: build-left 1s ease infinite
+      animation: build-left 1.5s ease infinite
 
       @keyframes build-left
         0%
-        50%
+          transform: translateY(calc(-100% - 0.25rem))
+          opacity: 0
+        25%
+        70%
           transform: none
+          opacity: 1
+        95%
         100%
-          transform: translateX(calc(-100% - 0.25rem))
+          transform: translateY(calc(100% + 0.5rem))
 
       &::after
-        content: ''
-        display: block
-        background-color: currentColor
-        width: 100%
-        height: 100%
-        position: absolute
-        top: 0
-        left: 0
-        transform-origin: left
-        transform: scaleX(0)
-        animation: fill-left 1s ease infinite
+        animation: fill-left 1.5s ease infinite
 
         @keyframes fill-left
           0%
-            transform: scalex(0)
           25%
+            transform: scalex(0)
+          50%
           100%
             transform: none
 
     &.right
-      animation: build-right 1s ease infinite
+      animation: build-right 1.5s ease infinite
 
       @keyframes build-right
         0%
+        5%
           transform: translateY(calc(-100% - 0.25rem))
           opacity: 0
-        50%
+        35%
+        75%
           transform: none
           opacity: 1
         100%
-          transform: translateX(calc(-100% - 0.25rem))
+          transform: translateY(calc(100% + 0.5rem))
+
+      &::after
+        animation fill-right 1.5s ease infinite
+
+        @keyframes fill-right
+          0%
+          40%
+            transform: scalex(0)
+          75%
+          100%
+            transform: none
 </style>
