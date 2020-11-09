@@ -158,6 +158,7 @@
       <section v-else-if="activeTabValue === 'loaders'" class="tab loaders" key="loaders">
         <h2>Loaders</h2>
         <MbLoader />
+        <MbInlineLoader />
       </section>
       <section v-else class="tab" key="exampleTab">
         <p>This is just an empty test-tab.</p>
