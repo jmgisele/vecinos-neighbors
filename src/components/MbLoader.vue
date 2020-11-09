@@ -35,7 +35,7 @@ export default {
         opacity: 1
       90%
       100%
-        transform: rotate(-45deg)
+        transform: translateY(0.5rem)
         opacity: 0
 
     .brick
