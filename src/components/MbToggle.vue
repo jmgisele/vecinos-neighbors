@@ -56,7 +56,7 @@ export default {
   &.active
     button .icon-wrapper
       background-color: $accent
-      transform: translateX(1.5rem)
+      transform: translateX(1rem)
 
       .icon
         &.v-enter-from
@@ -94,8 +94,8 @@ export default {
     display: flex
     flex-shrink: 0
     background-color: transparent
-    width: 4rem
-    height: 2.5rem
+    width: 3rem
+    height: 2rem
     padding: 0.25rem
     border: none
     border-radius: (@height / 2)
@@ -125,6 +125,10 @@ export default {
       transition: transform 200ms ease, background-color 200ms ease
 
       .icon
+        width: 100%
+        height: @width
+        display: block
+
         &.v-enter-from
           transform: rotate(45deg)
 
