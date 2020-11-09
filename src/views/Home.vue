@@ -149,7 +149,7 @@
         <MbTable :data="props.tooltips" />
       </section>
       <section v-else-if="activeTabValue === 'textareas'" class="tab textareas" key="textareas">
-        <h2>Textareas</h2>
+        <h2>Textareas / Editors</h2>
         <MbEditor v-model="editorTest" :dark="dark" label="Type something" :max-len="200" output-format="text" />
         <MbEditor v-model="editorTest" :allow-new-lines="false" :dark="dark" label="Type something (no returns)" :max-len="200" output-format="text" />
         <MbEditor v-model="editorTest" :dark="dark" label="This will output HTML" output-format="html" />
@@ -160,6 +160,8 @@
         <h2>Loaders</h2>
         <MbLoader />
         <MbInlineLoader />
+        <h3>Props</h3>
+        <p>Loaders don’t support any customization with props at the moment.</p>
       </section>
       <section v-else class="tab" key="exampleTab">
         <p>This is just an empty test-tab.</p>
@@ -510,6 +512,7 @@ export default {
         margin-bottom: 3rem
 
     &.loaders
-      .loader
+      .loader,
+      .inline-loader
         margin-bottom: 4rem
 </style>
