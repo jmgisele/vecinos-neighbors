@@ -87,7 +87,7 @@ export default {
       color: $text-dark
       background-color: $accent
 
-      .icon >>> path
+      .icon ::v-deep(path)
         stroke-dashoffset: 0
 
     &:checked:focus + .visual-checkbox
@@ -107,7 +107,7 @@ export default {
       width: 1rem
       height: @width
 
-      >>> path
+      ::v-deep(path)
         stroke-dasharray: 19.79899024963379
         stroke-dashoffset: @stroke-dasharray
         transition: stroke-dashoffset 100ms ease
