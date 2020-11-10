@@ -293,6 +293,7 @@ export default {
           ['`dark`', 'Boolean', '`false`'],
           ['`disabled`', 'Boolean', '`false`'],
           ['`icons`', 'Array', ''],
+          ['`tooltip`', 'String', ''],
           ['`value`', 'Boolean', '`false`'],
         ],
         tooltips: [

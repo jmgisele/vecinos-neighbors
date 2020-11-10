@@ -1,7 +1,7 @@
 <template lang="html">
   <label class="toggle" :class="{ active: modelValue, dark, disabled, 'full-width': label }">
     <span v-if="label">{{ label }}</span>
-    <button type="button" @click="$emit('update:modelValue', !modelValue)">
+    <button type="button" v-on="events">
       <div class="icon-wrapper">
         <MbIcon v-if="icon" :icon="icon" />
       </div>
@@ -14,6 +14,16 @@ import getSlotTextContent from '@/assets/js/getSlotTextContent';
 
 export default {
   computed: {
+    events() {
+      if (this.tooltip) {
+        return {
+          click: () => this.$emit('update:modelValue', !this.modelValue),
+          focus: this.handleTooltip,
+          mouseenter: this.handleTooltip,
+        };
+      }
+      return { click: () => this.$emit('update:modelValue', !this.modelValue) };
+    },
     icon() {
       if (!this.icons || this.icons.length === 0) return false;
       if (this.modelValue) return this.icons[1];
@@ -23,11 +33,17 @@ export default {
       return this.$slots.default && getSlotTextContent(this.$slots.default());
     },
   },
+  methods: {
+    handleTooltip(e) {
+      this.$store.commit('setTooltip', { message: this.tooltip, target: e.target });
+    },
+  },
   props: {
     dark: Boolean,
     disabled: Boolean,
     icons: Array,
     modelValue: Boolean,
+    tooltip: String,
   },
 };
 </script>
