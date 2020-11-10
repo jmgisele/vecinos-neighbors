@@ -1,9 +1,14 @@
 <template lang="html">
   <div class="editor" :class="{ dark, disabled }">
     <div v-if="outputFormat !== 'text'" class="toolbar" :class="{ dark }">
-      <MbToggle v-model="raw" :dark="dark">Show Raw</MbToggle>
+      <div class="scroll-wrapper" ref="toolbar" @scroll.passive="toggleToolbarScrollShadow">
+        <MbButton :dark="dark" icon="pencil" :tooltip="{ message: 'Future toolbar item', position: 'top' }" />
+        <MbToggle v-model="raw" :dark="dark" :icons="['text-alt', 'code']" tooltip="Toggle raw editing mode" />
+      </div>
+      <div class="shadow left" :class="{ visible: shadow.left }" />
+      <div class="shadow right" :class="{ visible: shadow.right }" />
     </div>
-    <label class="content-wrapper" :class="{ dark, disabled, dirty: error || modelValue || placeholder, error: error || maxLen && overlength, raw }">
+    <label class="content-wrapper" :class="{ dark, disabled, dirty: error || modelValue || placeholder, error: error || maxLen && overlength, raw, rich: outputFormat !== 'text' }">
       <span v-if="displayLabel" class="label" :class="{ right: !label && maxLen }">{{displayLabel}}</span>
       <div v-if="outputFormat === 'text' || raw" class="autogrow-area" ref="autogrow">
         <pre ref="pre"></pre>
@@ -43,6 +48,10 @@ export default {
       contentLength: 0,
       focussed: false,
       raw: false,
+      shadow: {
+        left: false,
+        right: false,
+      },
     };
   },
   emits: ['update:modelValue'],
@@ -59,9 +68,22 @@ export default {
       this.$refs.pre.appendChild(document.createElement('BR'));
       this.$refs.autogrow.style.height = `${this.$refs.pre.offsetHeight}px`;
     },
+    toggleToolbarScrollShadow() {
+      const hasHorizontalScrollbar = this.$refs.toolbar.clientWidth < this.$refs.toolbar.scrollWidth;
+
+      const scrolledFromLeft = this.$refs.toolbar.offsetWidth + this.$refs.toolbar.scrollLeft;
+
+      // Round using ceil to make sure it always disappears, even when the devicePixelRatio is off due to Chrome rounding
+      const scrolledToRight = Math.ceil(scrolledFromLeft) >= Math.ceil(this.$refs.toolbar.scrollWidth);
+      const scrolledToLeft = this.$refs.toolbar.scrollLeft === 0;
+
+      this.shadow.right = hasHorizontalScrollbar && !scrolledToRight;
+      this.shadow.left = hasHorizontalScrollbar && !scrolledToLeft;
+    },
   },
   mounted() {
     if (this.outputFormat === 'text') this.recalculateHeight(this.cleanValue);
+    else this.toggleToolbarScrollShadow();
   },
   props: {
     allowNewLines: {
@@ -106,15 +128,67 @@ export default {
 .editor
 
   .toolbar
-    padding: 0.5rem
-    background-color: $bg-secondary
+    background-color: $bg-tertiary
     border-radius: $radius-m
+    border-bottom-left-radius: 0
+    border-bottom-right-radius: 0
+    margin-top: 1.5rem
     position: sticky
-    top: 0
+    top: 0.5rem
+    overflow: hidden
     z-index: 1
 
     &.dark
-      background-color: $bg-secondary-dark
+      background-color: $bg-tertiary-dark
+
+    .scroll-wrapper
+      padding: 0.5rem
+      display: flex
+      overflow-x: auto
+      overflow-y: hidden
+      scrollbar-width: none
+      -ms-overflow-style: none
+
+      &::-webkit-scrollbar
+        display: none
+
+      &::after /* so the last item isn’t glued to the right */
+        content: ''
+        display: block
+        width: 0.5rem
+        flex-shrink: 0
+
+      .button.icon
+        padding: ((16 - 3) / 16)rem
+        margin-right: 0.5rem
+
+        &:hover
+          background-color: $bg-secondary
+
+          &.dark
+            background-color: $bg-secondary-dark
+
+      .toggle
+        margin-left: auto
+
+    .shadow
+      position: absolute
+      top: 0
+      bottom: 2px
+      pointer-events: none
+      opacity: 0
+      transition: opacity 200ms ease
+
+      &.visible
+        opacity: 1
+
+      &.left
+        left: 0
+        border-left: 2px dashed $accent-secondary
+
+      &.right
+        right: 0
+        border-right: 2px dashed $accent-secondary
 
   .content-wrapper
     display: block
@@ -130,6 +204,11 @@ export default {
     &.raw
       .autogrow-area
         font-family: monospace
+
+    &.rich
+      border-top-left-radius: 0
+      border-top-right-radius: 0
+      margin-top: 0
 
     &.dark
       background-color: $bg-secondary-dark
@@ -184,6 +263,9 @@ export default {
       .label
         transform: translate((-1rem + $radius-m), calc(-100% - 1.25rem)) scale(0.75)
         width: 'calc(125% + 1rem - %s)' % (2 * $radius-m) // it’s scaled down by 0.75 and we can’t use stylus expressions in calc
+
+      &.rich .label
+        transform: translate((-1rem + $radius-m), calc(-6.5rem)) scale(0.75)
 
     .label
       display: block
