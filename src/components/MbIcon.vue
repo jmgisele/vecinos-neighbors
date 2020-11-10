@@ -1,7 +1,7 @@
 <template lang="html">
   <transition mode="out-in">
     <svg class="icon" viewBox="0 0 24 24" fill="none" :key="icon" xmlns="http://www.w3.org/2000/svg">
-      <use :key="icon" :xlink:href="`#mb_${icon}`" />
+      <use :xlink:href="`#mb_${icon}`" />
     </svg>
   </transition>
 </template>
