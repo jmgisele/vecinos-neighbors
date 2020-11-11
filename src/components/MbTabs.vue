@@ -1,15 +1,13 @@
 <template lang="html">
-  <div class="tabs" :class="{ dark }">
-    <div class="scroll-wrapper" ref="scrollWrapper" @scroll.passive="toggleShadow">
+  <MbScroller class="tabs" :class="{ dark }" ref="scroller">
+    <div class="scroll-wrapper">
       <transition-group ref="tabs" tag="ul" @after-leave="resetActiveTab">
         <li v-for="(tab, index) in tabs" :data-index="index" :key="tab.value || tab" tabindex="0" @click.left="activateTab($event, index)" @keyup.enter="activateTab($event, index)" @keyup.space="activateTab($event, index)">{{tab.label || tab}}</li>
         <li v-if="showAddOption" class="add-option" key="mbTabsAddOption" tabindex="0" @click="addTab" @keyup.space="addTab" @keyup.enter="addTab" @mouseenter="handleTooltip" @focus="handleTooltip"><MbIcon icon="plus" /></li>
       </transition-group>
       <div class="active-indicator" :style="{ transform: indicatorTransform }"></div>
     </div>
-    <div class="shadow left" :class="{ visible: shadow.left }" />
-    <div class="shadow right" :class="{ visible: shadow.right }" />
-  </div>
+  </MbScroller>
 </template>
 
 <script>
@@ -29,10 +27,6 @@ export default {
   data() {
     return {
       mounted: false,
-      shadow: {
-        left: false,
-        right: false,
-      },
     };
   },
   emits: ['add-tab', 'update:modelValue'],
@@ -54,26 +48,13 @@ export default {
       else this.$emit('update:modelValue', Math.max(0, activeTabBackup - 1));
 
       // the size of the wrapper changed so we should recalculate the shadows
-      this.toggleShadow();
+      this.$refs.scroller.toggleScrollShadows();
     },
     scrollTabIntoView(el) {
       el.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
     },
-    toggleShadow() {
-      const hasHorizontalScrollbar = this.$refs.scrollWrapper.clientWidth < this.$refs.scrollWrapper.scrollWidth;
-
-      const scrolledFromLeft = this.$refs.scrollWrapper.offsetWidth + this.$refs.scrollWrapper.scrollLeft;
-
-      // Round using ceil to make sure it always disappears, even when the devicePixelRatio is off due to Chrome rounding
-      const scrolledToRight = Math.ceil(scrolledFromLeft) >= Math.ceil(this.$refs.scrollWrapper.scrollWidth);
-      const scrolledToLeft = this.$refs.scrollWrapper.scrollLeft === 0;
-
-      this.shadow.right = hasHorizontalScrollbar && !scrolledToRight;
-      this.shadow.left = hasHorizontalScrollbar && !scrolledToLeft;
-    },
   },
   mounted() {
-    this.toggleShadow();
     // needed so the active indicator can update its position
     this.mounted = true;
   },
@@ -114,13 +95,6 @@ export default {
 
   .scroll-wrapper
     position: relative
-    overflow-x: auto
-    overflow-y: hidden
-    scrollbar-width: none
-    -ms-overflow-style: none
-
-    &::-webkit-scrollbar
-      display: none
 
     > ul
       margin: 0
@@ -166,22 +140,6 @@ export default {
       transform-origin: left
       transition: transform 200ms ease
 
-  .shadow
-    position: absolute
-    top: 0
+  ::v-deep(.shadow)
     bottom: 2px
-    pointer-events: none
-    opacity: 0
-    transition: opacity 200ms ease
-
-    &.visible
-      opacity: 1
-
-    &.left
-      left: 0
-      border-left: 2px dashed $accent-secondary
-
-    &.right
-      right: 0
-      border-right: 2px dashed $accent-secondary
 </style>

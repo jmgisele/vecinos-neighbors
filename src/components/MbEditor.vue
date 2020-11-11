@@ -1,12 +1,12 @@
 <template lang="html">
   <div class="editor" :class="{ dark, disabled }">
     <div v-if="outputFormat !== 'text'" class="toolbar" :class="{ dark }">
-      <div class="scroll-wrapper" ref="toolbar" @scroll.passive="toggleToolbarScrollShadow">
-        <MbButton :dark="dark" icon="pencil" :tooltip="{ message: 'Future toolbar item', position: 'top' }" />
-        <MbToggle v-model="raw" :dark="dark" :icons="['text-alt', 'code']" tooltip="Toggle raw editing mode" />
-      </div>
-      <div class="shadow left" :class="{ visible: shadow.left }" />
-      <div class="shadow right" :class="{ visible: shadow.right }" />
+      <MbScroller>
+        <div class="scroll-wrapper">
+          <MbButton :dark="dark" icon="pencil" :tooltip="{ message: 'Future toolbar item', position: 'top' }" />
+          <MbToggle v-model="raw" :dark="dark" :icons="['text-alt', 'code']" tooltip="Toggle raw editing mode" />
+        </div>
+      </MbScroller>
     </div>
     <label class="content-wrapper" :class="{ dark, disabled, dirty: error || modelValue || placeholder, error: error || maxLen && overlength, raw, rich: outputFormat !== 'text' }">
       <span v-if="displayLabel" class="label" :class="{ right: !label && maxLen }">{{displayLabel}}</span>
@@ -48,10 +48,6 @@ export default {
       contentLength: 0,
       focussed: false,
       raw: false,
-      shadow: {
-        left: false,
-        right: false,
-      },
     };
   },
   emits: ['update:modelValue'],
@@ -68,22 +64,9 @@ export default {
       this.$refs.pre.appendChild(document.createElement('BR'));
       this.$refs.autogrow.style.height = `${this.$refs.pre.offsetHeight}px`;
     },
-    toggleToolbarScrollShadow() {
-      const hasHorizontalScrollbar = this.$refs.toolbar.clientWidth < this.$refs.toolbar.scrollWidth;
-
-      const scrolledFromLeft = this.$refs.toolbar.offsetWidth + this.$refs.toolbar.scrollLeft;
-
-      // Round using ceil to make sure it always disappears, even when the devicePixelRatio is off due to Chrome rounding
-      const scrolledToRight = Math.ceil(scrolledFromLeft) >= Math.ceil(this.$refs.toolbar.scrollWidth);
-      const scrolledToLeft = this.$refs.toolbar.scrollLeft === 0;
-
-      this.shadow.right = hasHorizontalScrollbar && !scrolledToRight;
-      this.shadow.left = hasHorizontalScrollbar && !scrolledToLeft;
-    },
   },
   mounted() {
     if (this.outputFormat === 'text') this.recalculateHeight(this.cleanValue);
-    else this.toggleToolbarScrollShadow();
   },
   props: {
     allowNewLines: {
@@ -144,13 +127,6 @@ export default {
     .scroll-wrapper
       padding: 0.5rem
       display: flex
-      overflow-x: auto
-      overflow-y: hidden
-      scrollbar-width: none
-      -ms-overflow-style: none
-
-      &::-webkit-scrollbar
-        display: none
 
       &::after /* so the last item isn’t glued to the right */
         content: ''
@@ -170,25 +146,6 @@ export default {
 
       .toggle
         margin-left: auto
-
-    .shadow
-      position: absolute
-      top: 0
-      bottom: 2px
-      pointer-events: none
-      opacity: 0
-      transition: opacity 200ms ease
-
-      &.visible
-        opacity: 1
-
-      &.left
-        left: 0
-        border-left: 2px dashed $accent-secondary
-
-      &.right
-        right: 0
-        border-right: 2px dashed $accent-secondary
 
   .content-wrapper
     display: block

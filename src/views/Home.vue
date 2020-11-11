@@ -163,6 +163,33 @@
         <h3>Props</h3>
         <p>Loaders don’t support any customization with props at the moment.</p>
       </section>
+      <section v-else-if="activeTabValue === 'scrollers'" class="tab scrollers" key="scrollers">
+        <h2>Scrollers</h2>
+        <p>Scrollers are used to hide scrollbars, but still leave indicators that there’s more content to be scrolled to, like in overflowing editor toolbars and tab bars.</p>
+        <MbScroller class="horiz">
+          <ul>
+            <li>First Item</li>
+            <li>Second Item</li>
+            <li>Third Item</li>
+            <li>Fourth Item</li>
+            <li>Fifth Item</li>
+            <li>Sixth Item</li>
+            <li>Seventh Item</li>
+          </ul>
+        </MbScroller>
+        <MbScroller class="vert" direction="vertical">
+          <ul>
+            <li>First Item</li>
+            <li>Second Item</li>
+            <li>Third Item</li>
+            <li>Fourth Item</li>
+            <li>Fifth Item</li>
+            <li>Sixth Item</li>
+          </ul>
+        </MbScroller>
+        <h2>Props</h2>
+        <MbTable :data="props.scrollers" />
+      </section>
       <section v-else class="tab" key="exampleTab">
         <p>This is just an empty test-tab.</p>
         <p>To delete it, click the button in the “<u @click="activeTab = tabs.findIndex((tab) => tab.value === 'tabs')">Tabs</u>”-tab.</p>
@@ -281,6 +308,10 @@ export default {
           ['`placeholder`', 'String', ''],
           ['`type`', 'String', "`'text'`"],
         ],
+        scrollers: [
+          ['Name', 'Type', 'Default', 'Allowed Values'],
+          ['`direction`', 'String', "`'horizontal'`", 'horizontal, vertical'],
+        ],
         tabs: [
           ['Name', 'Type', 'Default'],
           ['`dark`', 'Boolean', '`false`'],
@@ -333,6 +364,7 @@ export default {
         { label: 'Icons', value: 'icons' },
         { label: 'Inputs', value: 'inputs' },
         { label: 'Loaders', value: 'loaders' },
+        { label: 'Scrollers', value: 'scrollers' },
         { label: 'Tabs', value: 'tabs' },
         { label: 'Textareas', value: 'textareas' },
         { label: 'Toggles', value: 'toggles' },
@@ -535,4 +567,18 @@ export default {
       .loader,
       .inline-loader
         margin-bottom: 4rem
+
+    &.scrollers
+      .horiz ul
+        display: flex
+        list-style: none
+        padding: 0
+        margin: 0
+
+        li
+          margin-right: 1rem
+          flex-shrink: 0
+
+      .vert
+        max-height: 8rem
 </style>
