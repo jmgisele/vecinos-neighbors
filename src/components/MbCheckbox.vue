@@ -87,7 +87,7 @@ export default {
       color: $text-dark
       background-color: $accent
 
-      .icon ::v-deep(path)
+      .icon
         stroke-dashoffset: 0
 
     &:checked:focus + .visual-checkbox
@@ -106,13 +106,11 @@ export default {
     .icon
       width: 1rem
       height: @width
-
-      ::v-deep(path)
-        stroke-dasharray: 19.79899024963379
-        stroke-dashoffset: @stroke-dasharray
-        transition: stroke-dashoffset 100ms ease
-        transition-delay: 100ms
-        stroke-width: 3
+      stroke-dasharray: 19.79899024963379
+      stroke-dashoffset: @stroke-dasharray
+      transition: stroke-dashoffset 100ms ease
+      transition-delay: 100ms
+      stroke-width: 3
 
   > span
     margin-left: 0.5rem
