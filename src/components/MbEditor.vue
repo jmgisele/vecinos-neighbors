@@ -244,11 +244,9 @@ export default {
         color: $text-secondary-dark
 
       .editor-wrapper
-        ::placeholder
-          color: $text-secondary-dark
-
-        pre
-          background-color: $bg-tertiary-dark
+        .ProseMirror
+          pre
+            background-color: $bg-tertiary-dark
 
       .autogrow-area textarea
         &::placeholder
@@ -311,9 +309,6 @@ export default {
         text-align: right
 
     .editor-wrapper
-      ::placeholder
-        color: $text-secondary
-
       .ProseMirror // adapted from prosemirror-view/style/prosemirror.css
         position: relative
         word-wrap: break-word
@@ -331,6 +326,10 @@ export default {
         pre
           white-space: pre-wrap
 
+        hr
+          background-color: $accent-secondary
+          width: 30%
+
         li
           position: relative
 
@@ -346,7 +345,8 @@ export default {
               pointer-events: none
 
         .ProseMirror-selectednode
-          outline: 2px solid $accent
+          outline: 0.125rem solid $accent
+          outline-offset: 0.25rem
 
         .ProseMirror-hideselection *::selection
           background: transparent
