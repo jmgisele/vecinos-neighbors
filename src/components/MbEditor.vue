@@ -3,7 +3,7 @@
     <div v-if="outputFormat !== 'text'" class="toolbar" :class="{ dark }">
       <MbScroller>
         <div class="scroll-wrapper">
-          <MbButton :dark="dark" icon="pencil" :tooltip="{ message: 'Future toolbar item', position: 'top' }" />
+          <MbButton :dark="dark" icon="pencil" :tooltip="{ message: 'Future toolbar item', position: 'top' }" @click="getContentString" />
           <MbToggle v-model="raw" :dark="dark" :icons="['text-alt', 'code']" tooltip="Toggle raw editing mode" />
         </div>
       </MbScroller>
@@ -14,11 +14,21 @@
         <pre ref="pre"></pre>
         <textarea autocomplete="off" :disabled="disabled" :placeholder="placeholder" ref="textarea" :value="cleanValue" @input="handleTextareaInput" @[preventEnter].enter.prevent></textarea>
       </div>
+      <div v-else class="editor-wrapper" ref="editor" />
     </label>
   </div>
 </template>
 
 <script>
+import { schema } from 'prosemirror-schema-basic';
+import { EditorState } from 'prosemirror-state';
+import { EditorView } from 'prosemirror-view';
+import { undo, redo, history } from 'prosemirror-history';
+import { baseKeymap } from 'prosemirror-commands';
+import { keymap } from 'prosemirror-keymap';
+import { DOMParser, DOMSerializer } from 'prosemirror-model';
+import { throttle } from 'lodash-es';
+
 export default {
   computed: {
     cleanValue() {
@@ -48,10 +58,24 @@ export default {
       contentLength: 0,
       focussed: false,
       raw: false,
+      renderDiv: null,
     };
   },
   emits: ['update:modelValue'],
   methods: {
+    getContentString() {
+      if (this.outputFormat === 'html') {
+        if (!this.renderDiv) this.renderDiv = document.createElement('div');
+        const htmlFragment = DOMSerializer.fromSchema(schema).serializeFragment(this.editorState.doc);
+        this.renderDiv.appendChild(htmlFragment);
+        const result = this.renderDiv.innerHTML;
+        this.renderDiv.innerHTML = ''; // clean up the render div since it’s being reused
+        // this.contentLength = this.editorState.doc.textContent.length; // less accurate, but probably more performant
+        this.contentLength = this.editorState.doc.textBetween(0, this.editorState.doc.content.size, '\n').length;
+        return result;
+      }
+      return this.modelValue; // if it’s text
+    },
     handleTextareaInput(e) {
       let newValue = e.target.value;
 
@@ -64,9 +88,42 @@ export default {
       this.$refs.pre.appendChild(document.createElement('BR'));
       this.$refs.autogrow.style.height = `${this.$refs.pre.offsetHeight}px`;
     },
+    reInitializeProseMirror() {
+      let initialContent;
+      if (this.outputFormat === 'html') {
+        if (!this.renderDiv) this.renderDiv = document.createElement('div');
+        this.renderDiv.innerHTML = this.modelValue;
+        initialContent = DOMParser.fromSchema(schema).parse(this.renderDiv);
+        this.renderDiv.innerHTML = ''; // clean up the render div since it’s being reused
+      }
+      const vm = this; // so we have a reference to the view-model
+      vm.editorState = EditorState.create({ // doesn’t need to be reactive, is immutable
+        doc: initialContent,
+        plugins: [
+          history(),
+          keymap({ 'Mod-z': undo, 'Mod-y': redo }),
+          keymap(baseKeymap),
+        ],
+        schema,
+      });
+      vm.editorView = new EditorView(vm.$refs.editor, { // doesn’t need to be reactive, is immutable
+        dispatchTransaction(transaction) {
+          vm.editorState = vm.editorView.state.apply(transaction);
+          vm.editorView.updateState(vm.editorState);
+          vm.throttledUpdate();
+        },
+        scrollMargin: 128,
+        scrollThreshold: 64,
+        state: vm.editorState,
+      });
+    },
+    throttledUpdate: throttle(function update() {
+      this.$emit('update:modelValue', this.getContentString());
+    }, 500),
   },
   mounted() {
     if (this.outputFormat === 'text') this.recalculateHeight(this.cleanValue);
+    else this.reInitializeProseMirror();
   },
   props: {
     allowNewLines: {
@@ -93,11 +150,24 @@ export default {
   watch: {
     raw(nv) {
       if (nv) this.$nextTick(() => this.recalculateHeight(this.cleanValue));
+      else this.$nextTick(this.reInitializeProseMirror);
     },
     modelValue(newValue) {
       if (this.outputFormat === 'text' || this.raw) {
         if (this.allowNewLines) this.recalculateHeight(newValue);
         else this.recalculateHeight(newValue.replace(/\n+/g, ' '));
+      } else if (this.outputFormat === 'html' && !this.editorView.hasFocus()) {
+        if (!this.renderDiv) this.renderDiv = document.createElement('div');
+        this.renderDiv.innerHTML = this.modelValue;
+        const newContent = DOMParser.fromSchema(schema).parse(this.renderDiv);
+        this.renderDiv.innerHTML = ''; // clean up the render div since it’s being reused
+        // Create a new EditorState based on the settings of the one initially created
+        this.editorState = EditorState.create({
+          doc: newContent,
+          plugins: this.editorView.state.plugins,
+          schema: this.editorView.state.schema,
+        });
+        this.editorView.updateState(this.editorState);
       }
     },
   },
@@ -173,8 +243,8 @@ export default {
       .label
         color: $text-secondary-dark
 
-      .editor-wrapper .ql-editor
-        &.ql-blank::before
+      .editor-wrapper
+        ::placeholder
           color: $text-secondary-dark
 
         pre
@@ -240,9 +310,47 @@ export default {
       &.right
         text-align: right
 
-    .editor-wrapper .ql-editor
-      &.ql-blank::before
+    .editor-wrapper
+      ::placeholder
         color: $text-secondary
+
+      .ProseMirror // adapted from prosemirror-view/style/prosemirror.css
+        position: relative
+        word-wrap: break-word
+        white-space: pre-wrap
+        white-space: break-spaces
+        // font-variant-ligatures: none // ligatures were disabled because Chrome couldn’t select inbetween them, but it seems fixed now
+        // font-feature-settings: "liga" 0; /* the above doesn't seem to work in Edge */
+
+        :first-child
+          margin-top: 0
+
+        :last-child
+          margin-bottom: 0
+
+        pre
+          white-space: pre-wrap
+
+        li
+          position: relative
+
+          &.ProseMirror-selectednode
+            outline: none
+
+            &::after
+              content: ''
+              position: absolute
+              left: -32px
+              right: -2px; top: -2px; bottom: -2px
+              border: 2px solid #8cf
+              pointer-events: none
+
+        .ProseMirror-selectednode
+          outline: 2px solid $accent
+
+        .ProseMirror-hideselection *::selection
+          background: transparent
+          caret-color: transparent
 
     .autogrow-area
       position: relative
