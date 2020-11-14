@@ -27,9 +27,14 @@ import { undo, redo, history } from 'prosemirror-history';
 import { baseKeymap } from 'prosemirror-commands';
 import { keymap } from 'prosemirror-keymap';
 import { DOMParser, DOMSerializer } from 'prosemirror-model';
+import { dropCursor } from 'prosemirror-dropcursor';
+import { gapCursor } from 'prosemirror-gapcursor';
 import { throttle } from 'lodash-es';
 
 export default {
+  beforeUnmount() {
+    if (this.outputFormat !== 'text' && !this.raw) this.destroyProseMirror();
+  },
   computed: {
     cleanValue() {
       if (this.allowNewLines) return this.modelValue;
@@ -63,6 +68,11 @@ export default {
   },
   emits: ['update:modelValue'],
   methods: {
+    destroyProseMirror() {
+      this.editorView.destroy();
+      this.editorView = null;
+      this.editorState = null;
+    },
     getContentString() {
       if (this.outputFormat === 'html') {
         if (!this.renderDiv) this.renderDiv = document.createElement('div');
@@ -100,6 +110,8 @@ export default {
       vm.editorState = EditorState.create({ // doesn’t need to be reactive, is immutable
         doc: initialContent,
         plugins: [
+          dropCursor({ class: 'dropcursor', width: 2 }),
+          gapCursor(),
           history(),
           keymap({ 'Mod-z': undo, 'Mod-y': redo }),
           keymap(baseKeymap),
@@ -149,8 +161,10 @@ export default {
   },
   watch: {
     raw(nv) {
-      if (nv) this.$nextTick(() => this.recalculateHeight(this.cleanValue));
-      else this.$nextTick(this.reInitializeProseMirror);
+      if (nv) {
+        this.destroyProseMirror();
+        this.$nextTick(() => this.recalculateHeight(this.cleanValue));
+      } else this.$nextTick(this.reInitializeProseMirror);
     },
     modelValue(newValue) {
       if (this.outputFormat === 'text' || this.raw) {
@@ -309,6 +323,10 @@ export default {
       &.right
         text-align: right
 
+    .dropcursor
+      background-color: $accent !important // to override the style-attribute
+      border-radius: 1px
+
     .editor-wrapper
       .ProseMirror // adapted from prosemirror-view/style/prosemirror.css
         position: relative
@@ -318,11 +336,41 @@ export default {
         // font-variant-ligatures: none // ligatures were disabled because Chrome couldn’t select inbetween them, but it seems fixed now
         // font-feature-settings: "liga" 0; /* the above doesn't seem to work in Edge */
 
+        &.ProseMirror-focused
+          .ProseMirror-gapcursor
+            display: block
+
+        &.ProseMirror-hideselection
+          caret-color: transparent
+
+          *::selection
+            background-color: transparent
+
         :first-child
           margin-top: 0
 
         :last-child
           margin-bottom: 0
+
+        .ProseMirror-gapcursor // adapted from prosemirror-gapcursor/style/gapcursor.css
+          display: none
+          pointer-events: none
+          position: absolute
+
+          &::after
+            content: ""
+            display: block
+            position: absolute
+            top: -0.125rem
+            width: 1.5rem
+            height: 0.125rem
+            background-color: $accent
+            border-radius: (1 / 16)rem
+            animation: ProseMirror-cursor-blink 1.1s steps(2, start) infinite
+
+            @keyframes ProseMirror-cursor-blink
+              to
+                visibility: hidden
 
         pre
           white-space: pre-wrap
@@ -331,6 +379,7 @@ export default {
             background-color: transparent
 
         hr
+          cursor: pointer
           background-color: $accent-secondary
           width: 30%
 
@@ -354,10 +403,6 @@ export default {
         .ProseMirror-selectednode
           outline: 0.125rem solid $accent
           outline-offset: 0.25rem
-
-        .ProseMirror-hideselection *::selection
-          background: transparent
-          caret-color: transparent
 
     .autogrow-area
       position: relative
