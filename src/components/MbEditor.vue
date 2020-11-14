@@ -245,7 +245,8 @@ export default {
 
       .editor-wrapper
         .ProseMirror
-          pre
+          pre,
+          code
             background-color: $bg-tertiary-dark
 
       .autogrow-area textarea
@@ -326,9 +327,15 @@ export default {
         pre
           white-space: pre-wrap
 
+          code
+            background-color: transparent
+
         hr
           background-color: $accent-secondary
           width: 30%
+
+        code
+          background-color: $bg
 
         li
           position: relative
