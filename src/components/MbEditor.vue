@@ -145,8 +145,10 @@ export default {
     dark: Boolean,
     disabled: Boolean,
     error: String,
+    formatOptions: Object,
     formats: {
-      type: Array,
+      type: Object,
+      default: () => ({ block: ['blockquote', 'codeBlock', 'heading', 'hr', 'orderedList', 'unorderedList'], inline: ['br', 'code', 'em', 'link', 'strike', 'strong'] }),
     },
     label: String,
     maxLen: Number,
