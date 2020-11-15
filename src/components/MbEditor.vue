@@ -20,16 +20,19 @@
 </template>
 
 <script>
-import { schema } from 'prosemirror-schema-basic';
-import { EditorState } from 'prosemirror-state';
-import { EditorView } from 'prosemirror-view';
-import { undo, redo, history } from 'prosemirror-history';
 import { baseKeymap } from 'prosemirror-commands';
-import { keymap } from 'prosemirror-keymap';
 import { DOMParser, DOMSerializer } from 'prosemirror-model';
 import { dropCursor } from 'prosemirror-dropcursor';
+import { EditorState } from 'prosemirror-state';
+import { EditorView } from 'prosemirror-view';
 import { gapCursor } from 'prosemirror-gapcursor';
+import { keymap } from 'prosemirror-keymap';
 import { throttle } from 'lodash-es';
+import { undo, redo, history } from 'prosemirror-history';
+
+// import { schema } from 'prosemirror-schema-basic';
+
+import generateSchema from '../assets/js/generateSchema';
 
 export default {
   beforeUnmount() {
@@ -76,7 +79,7 @@ export default {
     getContentString() {
       if (this.outputFormat === 'html') {
         if (!this.renderDiv) this.renderDiv = document.createElement('div');
-        const htmlFragment = DOMSerializer.fromSchema(schema).serializeFragment(this.editorState.doc);
+        const htmlFragment = DOMSerializer.fromSchema(this.editorView.state.schema).serializeFragment(this.editorState.doc);
         this.renderDiv.appendChild(htmlFragment);
         const result = this.renderDiv.innerHTML;
         this.renderDiv.innerHTML = ''; // clean up the render div since it’s being reused
@@ -100,6 +103,7 @@ export default {
     },
     reInitializeProseMirror() {
       let initialContent;
+      const schema = generateSchema(this.formats, this.formatOptions);
       if (this.outputFormat === 'html') {
         if (!this.renderDiv) this.renderDiv = document.createElement('div');
         this.renderDiv.innerHTML = this.modelValue;
@@ -175,7 +179,7 @@ export default {
       } else if (this.outputFormat === 'html' && !this.editorView.hasFocus()) {
         if (!this.renderDiv) this.renderDiv = document.createElement('div');
         this.renderDiv.innerHTML = this.modelValue;
-        const newContent = DOMParser.fromSchema(schema).parse(this.renderDiv);
+        const newContent = DOMParser.fromSchema(this.editorView.state.schema).parse(this.renderDiv);
         this.renderDiv.innerHTML = ''; // clean up the render div since it’s being reused
         // Create a new EditorState based on the settings of the one initially created
         this.editorState = EditorState.create({
