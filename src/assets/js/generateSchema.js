@@ -178,13 +178,34 @@ export default function generateSchema(
       marks.link = {
         attrs: {
           href: {},
-          title: { default: null },
           rel: { default: 'nofollow noindex noreferrer' },
           target: { default: '_blank' },
+          title: { default: null },
         },
         inclusive: false,
-        parseDOM: [{ tag: 'a' }],
-        toDOM() { return ['a', {}, 0]; },
+        parseDOM: [{
+          tag: 'a',
+          getAttrs(dom) {
+            return {
+              href: dom.getAttribute('href'),
+              rel: dom.getAttribute('rel'),
+              target: dom.getAttribute('target'),
+              title: dom.getAttribute('title'),
+            };
+          },
+        }],
+        toDOM(node) {
+          const {
+            href, rel, target, title,
+          } = node.attrs;
+          return [
+            'a',
+            {
+              href, rel, target, title,
+            },
+            0,
+          ];
+        },
       };
     }
     // Strike
