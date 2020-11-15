@@ -23,7 +23,7 @@
     "prosemirror-view": "^1.16.1",
     "register-service-worker": "^1.7.1",
     "vue": "^3.0.2",
-    "vue-router": "^4.0.0-rc.2",
+    "vue-router": "^4.0.0-rc.3",
     "vuex": "^4.0.0-rc.1"
   },
   "devDependencies": {
