@@ -177,11 +177,13 @@ export default function generateSchema(
     }
     // Link
     if (inlineFormats.indexOf('link') > -1) {
+      const relDefault = 'nofollow noopener noreferrer';
+      const targetDefault = '_blank';
       marks.link = {
         attrs: {
           href: {},
-          rel: { default: 'nofollow noindex noreferrer' },
-          target: { default: '_blank' },
+          rel: { default: relDefault },
+          target: { default: targetDefault },
           title: { default: null },
         },
         inclusive: false,
@@ -190,8 +192,8 @@ export default function generateSchema(
           getAttrs(dom) {
             return {
               href: dom.getAttribute('href'),
-              rel: dom.getAttribute('rel'),
-              target: dom.getAttribute('target'),
+              rel: dom.getAttribute('rel') || relDefault,
+              target: dom.getAttribute('target') || targetDefault,
               title: dom.getAttribute('title'),
             };
           },
