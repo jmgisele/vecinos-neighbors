@@ -352,10 +352,10 @@ export default {
           *::selection
             background-color: transparent
 
-        :first-child
+        > :first-child
           margin-top: 0
 
-        :last-child
+        > :last-child
           margin-bottom: 0
 
         .ProseMirror-gapcursor // adapted from prosemirror-gapcursor/style/gapcursor.css
