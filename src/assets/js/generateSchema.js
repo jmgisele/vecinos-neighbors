@@ -9,7 +9,9 @@ export default function generateSchema(
   const { inline: inlineFormats, block: blockFormats } = formats;
   const allowBlocks = blockFormats && (Array.isArray(blockFormats) || blockFormats === true);
   const nodes = {
-    doc: allowBlocks ? 'block+' : 'inline*',
+    doc: {
+      content: allowBlocks ? 'block+' : 'inline*',
+    },
     text: {
       group: 'inline',
     },
@@ -40,10 +42,10 @@ export default function generateSchema(
 
         if (options.allowQuoteFooters) {
           nodes.quoteFooter = {
-            content: 'text+',
+            content: 'text*',
             parseDOM: [{ tag: 'blockquote footer' }],
             toDOM() {
-              return ['blockquote', ['footer', 0]];
+              return ['footer', 0];
             },
           };
         }
@@ -59,7 +61,7 @@ export default function generateSchema(
         };
       }
       // Headings
-      if (blockFormats.indexOf('headings') > -1) {
+      if (blockFormats.indexOf('heading') > -1) {
         // Using Math.min / max in case passed values aren’t valid HTML
         for (let i = Math.max(options.minHeading, 1); i <= Math.min(options.maxHeading, 6); i += 1) {
           const parseDOM = [{ tag: `h${i}` }];
