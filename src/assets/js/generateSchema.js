@@ -1,0 +1,216 @@
+import { Schema } from 'prosemirror-model';
+
+export default function generateSchema(
+  formats,
+  options = {
+    minHeading: 1, maxHeading: 6, allowQuoteFooters: true, allowNestedLists: true,
+  },
+) {
+  const { inline: inlineFormats, block: blockFormats } = formats;
+  const allowBlocks = blockFormats && (Array.isArray(blockFormats) || blockFormats === true);
+  const nodes = {
+    doc: allowBlocks ? 'block+' : 'inline*',
+    text: {
+      group: 'inline',
+    },
+  };
+  const marks = {};
+
+  if (allowBlocks) {
+    nodes.paragraph = {
+      content: 'inline*',
+      group: 'block',
+      parseDOM: [{ tag: 'p' }],
+      toDOM() {
+        return ['p', 0];
+      },
+    };
+
+    if (Array.isArray(blockFormats)) {
+      // Blockqoutes
+      if (blockFormats.indexOf('blockquote') > -1) {
+        nodes.blockquote = {
+          content: options.allowQuoteFooters ? 'block+ quoteFooter?' : 'block+',
+          group: 'block',
+          parseDOM: [{ tag: 'blockquote' }],
+          toDOM() {
+            return ['blockquote', 0];
+          },
+        };
+
+        if (options.allowQuoteFooters) {
+          nodes.quoteFooter = {
+            content: 'text+',
+            parseDOM: [{ tag: 'blockquote footer' }],
+            toDOM() {
+              return ['blockquote', ['footer', 0]];
+            },
+          };
+        }
+      }
+      // Horizontal Rule
+      if (blockFormats.indexOf('hr') > -1) {
+        nodes.horizontalRule = {
+          group: 'block',
+          parseDOM: [{ tag: 'hr' }],
+          toDOM() {
+            return ['hr'];
+          },
+        };
+      }
+      // Headings
+      if (blockFormats.indexOf('headings') > -1) {
+        // Using Math.min / max in case passed values aren’t valid HTML
+        for (let i = Math.max(options.minHeading, 1); i <= Math.min(options.maxHeading, 6); i += 1) {
+          const parseDOM = [{ tag: `h${i}` }];
+
+          if (i === options.minHeading && i !== 1) {
+            for (let j = 1; j < options.minHeading; j += 1) parseDOM.push({ tag: `h${j}` });
+          }
+
+          if (i === options.maxHeading && i !== 6) {
+            for (let j = options.maxHeading + 1; j <= 6; j += 1) parseDOM.push({ tag: `h${j}` });
+          }
+
+          nodes[`heading${i}`] = {
+            content: 'inline',
+            group: 'block',
+            defining: true,
+            parseDOM,
+            toDOM() {
+              return [`h${i}`, 0];
+            },
+          };
+        }
+      }
+      // Code Blocks
+      if (blockFormats.indexOf('codeBlock') > -1) {
+        nodes.codeBlock = {
+          attrs: { lang: { default: '' } },
+          code: true,
+          content: 'text*',
+          defining: true,
+          group: 'block',
+          marks: '',
+          parseDOM: [{
+            tag: 'pre',
+            preserveWhitespace: 'full',
+            getAttrs(dom) {
+              const codeEl = dom.querySelector('code');
+              return { lang: (codeEl && (codeEl.getAttribute('class') || codeEl.getAttribute('data-lang'))) || dom.getAttribute('data-lang') || '' };
+            },
+          }],
+          toDom(node) {
+            return ['pre', ['code', node.attrs.lang ? { class: node.attrs.lang } : {}, 0]];
+          },
+        };
+      }
+      // Ordered Lists
+      if (blockFormats.indexOf('orderedList') > -1) {
+        nodes.orderedList = {
+          attrs: { order: { default: 1 } },
+          content: 'listItem+',
+          group: 'block',
+          parseDOM: [{
+            tag: 'ol',
+            getAttrs(dom) {
+              return { order: dom.hasAttribute('start') ? +dom.getAttribute('start') : 1 };
+            },
+          }],
+          toDOM(node) {
+            return node.attrs.order === 1 ? ['ol', 0] : ['ol', { start: node.attrs.order }, 0];
+          },
+        };
+      }
+      // Unordered Lists
+      if (blockFormats.indexOf('unorderedList') > -1) {
+        nodes.unorderedList = {
+          content: 'listItem+',
+          group: 'block',
+          parseDOM: [{ tag: 'ul' }],
+          toDom() { return ['ul', 0]; },
+        };
+      }
+      // List Item
+      if (blockFormats.indexOf('orderedList') > -1 || blockFormats.indexOf('unorderedList') > -1) {
+        nodes.listItem = {
+          content: options.allowNestedLists ? 'paragraph (orderedList | unorderedList)*' : 'paragraph',
+          defining: true,
+          parseDOM: [{ tag: 'li' }],
+          toDOM() { return ['li', 0]; },
+        };
+      }
+    }
+  }
+
+  if (Array.isArray(inlineFormats)) {
+    // Breaks
+    if (inlineFormats.indexOf('br') > -1) {
+      nodes.br = {
+        group: 'inline',
+        inline: true,
+        selectable: false,
+        parseDOM: [{ tag: 'br' }],
+        toDOM() { return ['br']; },
+      };
+    }
+    // Marks
+    // Code
+    if (inlineFormats.indexOf('code') > -1) {
+      marks.code = {
+        parseDOM: [{ tag: 'code' }],
+        toDOM() { return ['code', 0]; },
+      };
+    }
+    // Emphasis
+    if (inlineFormats.indexOf('em') > -1) {
+      marks.em = {
+        parseDOM: [
+          { tag: 'em' },
+          { tag: 'i' },
+          { style: 'font-style=italic' },
+        ],
+        toDOM() { return ['em', 0]; },
+      };
+    }
+    // Link
+    if (inlineFormats.indexOf('link') > -1) {
+      marks.link = {
+        attrs: {
+          href: {},
+          title: { default: null },
+          rel: { default: 'nofollow noindex noreferrer' },
+          target: { default: '_blank' },
+        },
+        inclusive: false,
+        parseDOM: [{ tag: 'a' }],
+        toDOM() { return ['a', {}, 0]; },
+      };
+    }
+    // Strike
+    if (inlineFormats.indexOf('strike') > -1) {
+      marks.strike = {
+        parseDOM: [
+          { tag: 's' },
+          { tag: 'strike' },
+          { style: 'text-decoration=line-through' },
+        ],
+        toDOM() { return ['s', 0]; },
+      };
+    }
+    // Strong
+    if (inlineFormats.indexOf('strong') > -1) {
+      marks.strong = {
+        parseDOM: [
+          { tag: 'strong' },
+          // Taken from Schema-Basic (works around Google Docs Bug)
+          { tag: 'b', getAttrs(dom) { return dom.style.fontWeight !== 'normal' && null; } }, // && null is so we don’t get any attributes, but still match
+          { style: 'font-weight', getAttrs(value) { return /^(bold(er)?|[5-9]\d{2,})$/.test(value) && null; } }, // && null is so we don’t get any attributes, but still match
+        ],
+        toDOM() { return ['strong', 0]; },
+      };
+    }
+  }
+
+  return new Schema({ nodes, marks });
+}
