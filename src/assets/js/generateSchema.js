@@ -102,7 +102,7 @@ export default function generateSchema(
               return { lang: (codeEl && (codeEl.getAttribute('class') || codeEl.getAttribute('data-lang'))) || dom.getAttribute('data-lang') || '' };
             },
           }],
-          toDom(node) {
+          toDOM(node) {
             return ['pre', ['code', node.attrs.lang ? { class: node.attrs.lang } : {}, 0]];
           },
         };
