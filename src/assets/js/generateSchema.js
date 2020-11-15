@@ -130,7 +130,7 @@ export default function generateSchema(
           content: 'listItem+',
           group: 'block',
           parseDOM: [{ tag: 'ul' }],
-          toDom() { return ['ul', 0]; },
+          toDOM() { return ['ul', 0]; },
         };
       }
       // List Item
