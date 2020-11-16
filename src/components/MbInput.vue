@@ -62,6 +62,7 @@ export default {
       color: $text-secondary-dark
 
     > input
+      caret-color: currentColor
       &::placeholder
         color: $text-secondary-dark
 

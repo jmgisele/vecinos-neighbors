@@ -302,7 +302,12 @@ export default {
           code
             background-color: $bg-tertiary-dark
 
+      .fake-caret
+        background-color: currentColor
+
       .autogrow-area textarea
+        caret-color: currentColor
+
         &::placeholder
           color: $text-secondary-dark
 
