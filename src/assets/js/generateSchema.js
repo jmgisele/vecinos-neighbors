@@ -32,7 +32,7 @@ export default function generateSchema(
       // Blockqoutes
       if (blockFormats.indexOf('blockquote') > -1) {
         nodes.blockquote = {
-          content: options.allowQuoteFooters ? 'block+ quoteFooter?' : 'block+',
+          content: options.allowQuoteFooters ? 'block+ (block* | quoteFooter?)' : 'block+',
           group: 'block',
           parseDOM: [{ tag: 'blockquote' }],
           toDOM() {
