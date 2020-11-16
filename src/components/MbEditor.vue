@@ -27,7 +27,7 @@ import { EditorState } from 'prosemirror-state';
 import { EditorView } from 'prosemirror-view';
 import { gapCursor } from 'prosemirror-gapcursor';
 import { keymap } from 'prosemirror-keymap';
-import { throttle } from 'lodash-es';
+import { isEqual, throttle } from 'lodash-es';
 import { undo, redo, history } from 'prosemirror-history';
 
 // import { schema } from 'prosemirror-schema-basic';
@@ -172,11 +172,13 @@ export default {
         this.$nextTick(() => this.recalculateHeight(this.cleanValue));
       } else this.$nextTick(this.reInitializeProseMirror);
     },
-    formats() {
+    formats(nv, ov) {
+      if (isEqual(nv, ov)) return; // for some reason these watchers fire after every input, so we avoid reinitialising if nothing changed
       this.destroyProseMirror();
       this.reInitializeProseMirror();
     },
-    formatOptions() {
+    formatOptions(nv, ov) {
+      if (isEqual(nv, ov)) return; // for some reason these watchers fire after every input, so we avoid reinitialising if nothing changed
       this.destroyProseMirror();
       this.reInitializeProseMirror();
     },
