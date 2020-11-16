@@ -14,7 +14,10 @@
         <pre ref="pre"></pre>
         <textarea autocomplete="off" :disabled="disabled" :placeholder="placeholder" ref="textarea" :value="cleanValue" @input="handleTextareaInput" @[preventEnter].enter.prevent></textarea>
       </div>
-      <div v-else class="editor-wrapper" ref="editor" />
+      <template v-else>
+        <div class="editor-wrapper" ref="editor" />
+        <div v-show="caretVisible" class="fake-caret" :style="{ height: caretHeight, transform: caretTransform }" />
+      </template>
     </label>
   </div>
 </template>
@@ -63,6 +66,9 @@ export default {
   },
   data() {
     return {
+      caretHeight: '',
+      caretTransform: '',
+      caretVisible: false,
       contentLength: 0,
       focussed: false,
       raw: false,
@@ -88,6 +94,17 @@ export default {
         return result;
       }
       return this.modelValue; // if it’s text
+    },
+    handleSelectionChange(newSelection) {
+      if (newSelection.empty) {
+        const selectionRect = this.editorView.coordsAtPos(newSelection.from, 1);
+        const editorRect = this.$refs.editor.getBoundingClientRect();
+        const caretHeight = selectionRect.bottom - selectionRect.top;
+
+        this.caretVisible = true;
+        if (caretHeight !== this.caretHeight) this.caretHeight = `${caretHeight}px`;
+        this.caretTransform = `translate(${selectionRect.left - editorRect.left}px, ${selectionRect.top - editorRect.top}px)`;
+      } else this.caretVisible = false;
     },
     handleTextareaInput(e) {
       let newValue = e.target.value;
@@ -124,9 +141,15 @@ export default {
       });
       vm.editorView = new EditorView(vm.$refs.editor, { // doesn’t need to be reactive, is immutable
         dispatchTransaction(transaction) {
+          const oldSelection = vm.editorState.selection;
           vm.editorState = vm.editorView.state.apply(transaction);
           vm.editorView.updateState(vm.editorState);
           if (transaction.docChanged) vm.debouncedUpdate();
+          if (!oldSelection.eq(vm.editorState.selection)) vm.handleSelectionChange(vm.editorState.selection);
+        },
+        handleDOMEvents: {
+          blur: () => { vm.caretVisible = false; },
+          focus: (view) => { vm.handleSelectionChange(view.state.selection); },
         },
         scrollMargin: 128,
         scrollThreshold: 64,
@@ -351,6 +374,7 @@ export default {
         white-space: break-spaces
         // font-variant-ligatures: none // ligatures were disabled because Chrome couldn’t select inbetween them, but it seems fixed now
         // font-feature-settings: "liga" 0; /* the above doesn't seem to work in Edge */
+        caret-color: transparent
 
         &.ProseMirror-focused
           .ProseMirror-gapcursor
@@ -423,6 +447,26 @@ export default {
           &::selection
             color: inherit
 
+    .fake-caret
+      width: 0.125rem
+      min-height: 1em
+      border-radius: (1 / 16)rem
+      background-color: $accent
+      position: absolute
+      top: 1rem
+      left: 1rem
+      pointer-events: none
+      transition: transform 100ms ease-out
+      animation: blink 1s ease infinite
+
+      @keyframes blink
+        0%
+          opacity: 0
+        50%
+          opacity: 1
+        100%
+          opacity: 0
+
     .autogrow-area
       position: relative
       width: 100%
@@ -451,6 +495,7 @@ export default {
         width: 100%
         height: 100%
         resize: none
+        caret-color: $accent
 
         &::placeholder
           color: $text-secondary
