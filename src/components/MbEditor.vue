@@ -126,7 +126,7 @@ export default {
         dispatchTransaction(transaction) {
           vm.editorState = vm.editorView.state.apply(transaction);
           vm.editorView.updateState(vm.editorState);
-          vm.debouncedUpdate();
+          if (transaction.docChanged) vm.debouncedUpdate();
         },
         scrollMargin: 128,
         scrollThreshold: 64,
