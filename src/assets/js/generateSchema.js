@@ -75,7 +75,7 @@ export default function generateSchema(
           }
 
           nodes[`heading${i}`] = {
-            content: 'inline',
+            content: 'inline*',
             group: 'block',
             defining: true,
             parseDOM,
