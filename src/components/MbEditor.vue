@@ -3,7 +3,8 @@
     <div v-if="outputFormat !== 'text'" class="toolbar" :class="{ dark }">
       <MbScroller>
         <div class="scroll-wrapper">
-          <MbButton :dark="dark" :disabled="disabled" icon="pencil" :tooltip="{ message: 'Future toolbar item', position: 'top' }" @click="$emit('update:modelValue', 'Test')" />
+          <!-- Todo: generate action items from schema -->
+          <MbButton :dark="dark" :disabled="disabled" icon="pencil" :type="activeMarks.includes('strong') ? 'primary' : null" :tooltip="{ message: 'Toggle Bold', position: 'top' }" @click="setMark(editorState.schema.marks.strong)" />
           <MbToggle v-model="raw" :dark="dark" :disabled="disabled" :icons="['text-alt', 'code']" tooltip="Toggle raw editing mode" />
         </div>
       </MbScroller>
@@ -23,7 +24,7 @@
 </template>
 
 <script>
-import { baseKeymap } from 'prosemirror-commands';
+import { baseKeymap, toggleMark } from 'prosemirror-commands';
 import { DOMParser, DOMSerializer } from 'prosemirror-model';
 import { dropCursor } from 'prosemirror-dropcursor';
 import { EditorState } from 'prosemirror-state';
@@ -66,6 +67,7 @@ export default {
   },
   data() {
     return {
+      activeMarks: [],
       caretHeight: '',
       caretTransform: '',
       caretVisible: false,
@@ -96,6 +98,7 @@ export default {
       return this.modelValue; // if it’s text
     },
     handleSelectionChange(newSelection) {
+      // Update fake caret
       if (newSelection.empty) {
         const selectionRect = this.editorView.coordsAtPos(newSelection.from, 1);
         const editorRect = this.$refs.editor.getBoundingClientRect();
@@ -105,6 +108,21 @@ export default {
         if (caretHeight !== this.caretHeight) this.caretHeight = `${caretHeight}px`;
         this.caretTransform = `translate(${selectionRect.left - editorRect.left}px, ${selectionRect.top - editorRect.top}px)`;
       } else this.caretVisible = false;
+      // Update active Marks
+      if (newSelection.empty) {
+        this.activeMarks = Object.keys(this.editorState.schema.marks).reduce((marks, name) => {
+          const currentMark = this.editorState.schema.marks[name];
+          if (currentMark.isInSet(this.editorState.storedMarks || newSelection.$from.marks())) marks.push(name);
+          return marks;
+        }, []);
+      } else {
+        this.activeMarks = Object.keys(this.editorState.schema.marks).reduce((marks, name) => {
+          if (this.editorState.doc.rangeHasMark(newSelection.from, newSelection.to, this.editorState.schema.marks[name])) {
+            marks.push(name);
+          }
+          return marks;
+        }, []);
+      }
     },
     handleTextareaInput(e) {
       let newValue = e.target.value;
@@ -155,6 +173,10 @@ export default {
         scrollThreshold: 64,
         state: vm.editorState,
       });
+    },
+    setMark(type, attrs) {
+      toggleMark(type, attrs)(this.editorState, this.editorView.dispatch);
+      this.editorView.focus();
     },
     debouncedUpdate: debounce(function update() {
       this.$emit('update:modelValue', this.getContentString());
@@ -261,7 +283,7 @@ export default {
         padding: ((16 - 3) / 16)rem
         margin-right: 0.5rem
 
-        &:hover
+        &:not(.primary):hover
           background-color: $bg-secondary
 
           &.dark
