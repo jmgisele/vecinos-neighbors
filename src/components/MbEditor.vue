@@ -3,7 +3,7 @@
     <div v-if="outputFormat !== 'text'" class="toolbar" :class="{ dark }">
       <MbScroller>
         <div class="scroll-wrapper">
-          <MbButton :dark="dark" icon="pencil" :tooltip="{ message: 'Future toolbar item', position: 'top' }" @click="getContentString" />
+          <MbButton :dark="dark" icon="pencil" :tooltip="{ message: 'Future toolbar item', position: 'top' }" @click="$emit('update:modelValue', 'Test')" />
           <MbToggle v-model="raw" :dark="dark" :icons="['text-alt', 'code']" tooltip="Toggle raw editing mode" />
         </div>
       </MbScroller>
@@ -173,12 +173,12 @@ export default {
       } else this.$nextTick(this.reInitializeProseMirror);
     },
     formats(nv, ov) {
-      if (isEqual(nv, ov)) return; // for some reason these watchers fire after every input, so we avoid reinitialising if nothing changed
+      if (isEqual(nv, ov)) return; // for some reason these watchers fire after every $emit('update:modelValue'), so we avoid reinitialising if nothing changed
       this.destroyProseMirror();
       this.reInitializeProseMirror();
     },
     formatOptions(nv, ov) {
-      if (isEqual(nv, ov)) return; // for some reason these watchers fire after every input, so we avoid reinitialising if nothing changed
+      if (isEqual(nv, ov)) return; // for some reason these watchers fire after every $emit('update:modelValue'), so we avoid reinitialising if nothing changed
       this.destroyProseMirror();
       this.reInitializeProseMirror();
     },
