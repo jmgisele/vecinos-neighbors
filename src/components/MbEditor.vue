@@ -172,6 +172,14 @@ export default {
         this.$nextTick(() => this.recalculateHeight(this.cleanValue));
       } else this.$nextTick(this.reInitializeProseMirror);
     },
+    formats() {
+      this.destroyProseMirror();
+      this.reInitializeProseMirror();
+    },
+    formatOptions() {
+      this.destroyProseMirror();
+      this.reInitializeProseMirror();
+    },
     modelValue(newValue) {
       if (this.outputFormat === 'text' || this.raw) {
         if (this.allowNewLines) this.recalculateHeight(newValue);
