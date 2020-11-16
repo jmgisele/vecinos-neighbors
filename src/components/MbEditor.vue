@@ -449,7 +449,8 @@ export default {
           outline: 0.125rem solid $accent
           outline-offset: 0.25rem
 
-          &::selection
+          &::selection,
+          ::selection
             color: inherit
 
     .fake-caret
