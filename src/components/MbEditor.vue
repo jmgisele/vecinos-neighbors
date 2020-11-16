@@ -420,6 +420,9 @@ export default {
           outline: 0.125rem solid $accent
           outline-offset: 0.25rem
 
+          &::selection
+            color: inherit
+
     .autogrow-area
       position: relative
       width: 100%
