@@ -27,7 +27,7 @@ import { EditorState } from 'prosemirror-state';
 import { EditorView } from 'prosemirror-view';
 import { gapCursor } from 'prosemirror-gapcursor';
 import { keymap } from 'prosemirror-keymap';
-import { isEqual, throttle } from 'lodash-es';
+import { isEqual, debounce } from 'lodash-es';
 import { undo, redo, history } from 'prosemirror-history';
 
 // import { schema } from 'prosemirror-schema-basic';
@@ -126,14 +126,14 @@ export default {
         dispatchTransaction(transaction) {
           vm.editorState = vm.editorView.state.apply(transaction);
           vm.editorView.updateState(vm.editorState);
-          vm.throttledUpdate();
+          vm.debouncedUpdate();
         },
         scrollMargin: 128,
         scrollThreshold: 64,
         state: vm.editorState,
       });
     },
-    throttledUpdate: throttle(function update() {
+    debouncedUpdate: debounce(function update() {
       this.$emit('update:modelValue', this.getContentString());
     }, 500),
   },
