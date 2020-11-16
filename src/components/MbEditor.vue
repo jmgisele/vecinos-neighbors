@@ -3,8 +3,8 @@
     <div v-if="outputFormat !== 'text'" class="toolbar" :class="{ dark }">
       <MbScroller>
         <div class="scroll-wrapper">
-          <MbButton :dark="dark" icon="pencil" :tooltip="{ message: 'Future toolbar item', position: 'top' }" @click="$emit('update:modelValue', 'Test')" />
-          <MbToggle v-model="raw" :dark="dark" :icons="['text-alt', 'code']" tooltip="Toggle raw editing mode" />
+          <MbButton :dark="dark" :disabled="disabled" icon="pencil" :tooltip="{ message: 'Future toolbar item', position: 'top' }" @click="$emit('update:modelValue', 'Test')" />
+          <MbToggle v-model="raw" :dark="dark" :disabled="disabled" :icons="['text-alt', 'code']" tooltip="Toggle raw editing mode" />
         </div>
       </MbScroller>
     </div>
