@@ -3,8 +3,7 @@
     <div v-if="outputFormat !== 'text'" class="toolbar" :class="{ dark }">
       <MbScroller>
         <div class="scroll-wrapper">
-          <!-- Todo: generate action items from schema -->
-          <MbButton :dark="dark" :disabled="disabled" icon="pencil" :type="activeMarks.includes('strong') ? 'primary' : null" :tooltip="{ message: 'Toggle Bold', position: 'top' }" @click="setMark(editorState.schema.marks.strong)" />
+          <MbButton v-for="action in toolbarActions" :dark="dark" :disabled="disabled" :icon="action.icon" :key="action.name" :type="activeMarks.includes(action.name) ? 'primary' : null" :tooltip="{ message: action.tooltip, position: 'top' }" @click="action.action" />
           <MbToggle v-if="allowRaw" v-model="raw" :dark="dark" :disabled="disabled" :icons="['text-alt', 'code']" tooltip="Toggle raw editing mode" />
         </div>
       </MbScroller>
@@ -33,8 +32,6 @@ import { gapCursor } from 'prosemirror-gapcursor';
 import { keymap } from 'prosemirror-keymap';
 import { isEqual, debounce } from 'lodash-es';
 import { undo, redo, history } from 'prosemirror-history';
-
-// import { schema } from 'prosemirror-schema-basic';
 
 import generateSchema from '../assets/js/generateSchema';
 
@@ -75,6 +72,7 @@ export default {
       focussed: false,
       raw: false,
       renderDiv: null,
+      toolbarActions: [],
     };
   },
   emits: ['update:modelValue'],
@@ -83,6 +81,61 @@ export default {
       this.editorView.destroy();
       this.editorView = null;
       this.editorState = null;
+    },
+    generateActions(schema) {
+      if (this.outputFormat === 'text') return [];
+      const actions = [];
+      let type;
+
+      /* eslint-disable no-cond-assign */
+      // Reason: it’s very convenient to check if a type exists in a schema this way
+      if (type = schema.marks.strong) {
+        const strong = type;
+        actions.push({
+          action: () => this.setMark(strong),
+          name: 'strong',
+          icon: 'bold',
+          tooltip: 'Toggle bold',
+        });
+      }
+      if (type = schema.marks.em) {
+        const em = type;
+        actions.push({
+          action: () => this.setMark(em),
+          name: 'em',
+          icon: 'italic',
+          tooltip: 'Toggle italics',
+        });
+      }
+      if (type = schema.marks.strike) {
+        const strike = type;
+        actions.push({
+          action: () => this.setMark(strike),
+          name: 'strike',
+          icon: 'strikethrough',
+          tooltip: 'Toggle strikethrough',
+        });
+      }
+      if (type = schema.marks.code) {
+        const code = type;
+        actions.push({
+          action: () => this.setMark(code),
+          name: 'code',
+          icon: 'inline-code',
+          tooltip: 'Toggle code font',
+        });
+      }
+      if (type = schema.marks.link) {
+        // const link = type;
+        actions.push({
+          action: () => console.log('Todo: implement link modal'),
+          name: 'link',
+          icon: 'link',
+          tooltip: 'Insert link',
+        });
+      }
+
+      return actions.filter((action) => action);
     },
     getContentString() {
       if (this.outputFormat === 'html') {
@@ -139,6 +192,7 @@ export default {
     reInitializeProseMirror() {
       let initialContent;
       const schema = generateSchema(this.formats, this.formatOptions);
+      this.toolbarActions = this.generateActions(schema);
       if (this.outputFormat === 'html') {
         if (!this.renderDiv) this.renderDiv = document.createElement('div');
         this.renderDiv.innerHTML = this.modelValue;
@@ -152,7 +206,7 @@ export default {
           dropCursor({ class: 'dropcursor', width: 2 }),
           gapCursor(),
           history(),
-          keymap({ 'Mod-z': undo, 'Mod-y': redo }),
+          keymap({ 'Mod-z': undo, 'Mod-y': redo, 'Mod-Z': redo }),
           keymap(baseKeymap),
         ],
         schema,
