@@ -1,5 +1,5 @@
 <template lang="html">
-  <MbTooltip class="global-tooltip" :message="tooltip.message" :position="tooltip.position" :target="tooltip.target" :visible="tooltip && showTooltip" />
+  <MbTooltip class="global-tooltip" :message="cachedTooltip.message" :position="cachedTooltip.position" :target="cachedTooltip.target" :visible="cachedTooltip && showTooltip" />
 </template>
 
 <script>
@@ -15,6 +15,7 @@ export default {
   },
   data() {
     return {
+      cachedTooltip: {},
       lastTarget: null,
       showTooltip: false,
       tooltipTimeout: null,
@@ -38,10 +39,12 @@ export default {
       }
 
       window.setTimeout(() => { // if there’s already a new tooltip in the pipeline, don’t hide and show again
+        if (this.lastTarget) this.cachedTooltip = { ...this.tooltip }; // we need this to prevent flashing at the new position
         if (!this.lastTarget) this.showTooltip = false;
       }, 0);
     },
     show() {
+      this.cachedTooltip = { ...this.tooltip }; // we need this to prevent flashing at the new position
       this.showTooltip = true;
     },
   },
