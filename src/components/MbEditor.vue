@@ -5,7 +5,7 @@
         <div class="scroll-wrapper">
           <!-- Todo: generate action items from schema -->
           <MbButton :dark="dark" :disabled="disabled" icon="pencil" :type="activeMarks.includes('strong') ? 'primary' : null" :tooltip="{ message: 'Toggle Bold', position: 'top' }" @click="setMark(editorState.schema.marks.strong)" />
-          <MbToggle v-model="raw" :dark="dark" :disabled="disabled" :icons="['text-alt', 'code']" tooltip="Toggle raw editing mode" />
+          <MbToggle v-if="allowRaw" v-model="raw" :dark="dark" :disabled="disabled" :icons="['text-alt', 'code']" tooltip="Toggle raw editing mode" />
         </div>
       </MbScroller>
     </div>
@@ -191,6 +191,7 @@ export default {
       type: Boolean,
       default: true,
     },
+    allowRaw: Boolean,
     dark: Boolean,
     disabled: Boolean,
     error: String,
