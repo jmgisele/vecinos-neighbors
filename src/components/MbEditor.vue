@@ -32,8 +32,9 @@ import { EditorView } from 'prosemirror-view';
 import { gapCursor } from 'prosemirror-gapcursor';
 import { keymap } from 'prosemirror-keymap';
 import { isEqual, debounce } from 'lodash-es';
-import { undo, redo, history } from 'prosemirror-history';
+import { history } from 'prosemirror-history';
 
+import generateKeymap from '../assets/js/generateKeymap';
 import generateSchema from '../assets/js/generateSchema';
 
 export default {
@@ -129,7 +130,7 @@ export default {
       if (type = schema.marks.link) {
         // const link = type;
         actions.push({
-          action: () => console.log('Todo: implement link modal'),
+          action: this.openLinkModal,
           name: 'link',
           icon: 'link',
           tooltip: 'Insert link',
@@ -186,6 +187,10 @@ export default {
 
       this.$emit('update:modelValue', newValue);
     },
+    openLinkModal() {
+      console.log('todo: add link modal');
+      return true; // mark the event as handled
+    },
     recalculateHeight(modelValue) {
       this.$refs.pre.innerText = modelValue;
       this.$refs.pre.appendChild(document.createElement('BR'));
@@ -208,18 +213,17 @@ export default {
           dropCursor({ class: 'dropcursor', width: 2 }),
           gapCursor(),
           history(),
-          keymap({ 'Mod-z': undo, 'Mod-y': redo, 'Mod-Z': redo }),
+          keymap(generateKeymap(schema, vm)),
           keymap(baseKeymap),
         ],
         schema,
       });
       vm.editorView = new EditorView(vm.$refs.editor, { // doesn’t need to be reactive, is immutable
         dispatchTransaction(transaction) {
-          const oldSelection = vm.editorState.selection;
           vm.editorState = vm.editorView.state.apply(transaction);
           vm.editorView.updateState(vm.editorState);
           if (transaction.docChanged) vm.debouncedUpdate();
-          if (!oldSelection.eq(vm.editorState.selection)) vm.handleSelectionChange(vm.editorState.selection);
+          vm.handleSelectionChange(vm.editorState.selection);
         },
         handleDOMEvents: {
           blur: () => { vm.caretVisible = false; },
