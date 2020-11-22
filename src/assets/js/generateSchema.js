@@ -43,6 +43,7 @@ export default function generateSchema(
         if (options.allowQuoteFooters) {
           nodes.quoteFooter = {
             content: 'text*',
+            defining: true,
             parseDOM: [{ tag: 'blockquote footer' }],
             toDOM() {
               return ['footer', 0];
