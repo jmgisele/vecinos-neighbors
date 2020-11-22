@@ -135,6 +135,7 @@ export default {
           tooltip: 'Insert link',
         });
       }
+      /* eslint-enable no-cond-assign */
 
       return actions.filter((action) => action);
     },
