@@ -8,7 +8,7 @@
         </div>
       </MbScroller>
     </div>
-    <label class="content-wrapper" :class="{ dark, disabled, dirty: error || modelValue || placeholder, error: error || maxLen && overlength, raw, rich: outputFormat !== 'text' }" @click="outputFormat !== 'text' && !editorView.hasFocus() ? editorView.focus() : null">
+    <label class="content-wrapper" :class="{ dark, disabled, dirty: error || modelValue || placeholder, error: error || maxLen && overlength, raw, rich: outputFormat !== 'text' }" @click="outputFormat !== 'text' && !raw && !editorView.hasFocus() ? editorView.focus() : null">
       <span v-if="displayLabel" class="label" :class="{ right: !label && maxLen }">{{displayLabel}}</span>
       <div v-if="outputFormat === 'text' || raw" class="autogrow-area" ref="autogrow">
         <pre ref="pre"></pre>
