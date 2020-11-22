@@ -468,10 +468,12 @@ export default {
           *::selection
             background-color: transparent
 
-        > :first-child
+        > :first-child,
+        > :first-child :first-child
           margin-top: 0
 
-        > :last-child
+        > :last-child,
+        > :last-child :last-child
           margin-bottom: 0
 
         .ProseMirror-gapcursor // adapted from prosemirror-gapcursor/style/gapcursor.css
@@ -519,7 +521,7 @@ export default {
               position: absolute
               left: -32px
               right: -2px; top: -2px; bottom: -2px
-              border: 2px solid #8cf
+              border: 2px solid $accent
               pointer-events: none
 
         .ProseMirror-selectednode
