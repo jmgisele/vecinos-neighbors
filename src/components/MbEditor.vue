@@ -3,6 +3,7 @@
     <div v-if="outputFormat !== 'text'" class="toolbar" :class="{ dark }">
       <MbScroller>
         <div class="scroll-wrapper">
+          <MbButton class="paragraph-type" :dark="dark" :disabled="disabled" icon="chevron-down" :icon-first="false" :tooltip="{ message: 'Todo: Paragraph type', position: 'top'}">Paragraph</MbButton>
           <MbButton v-for="action in toolbarActions" :dark="dark" :disabled="disabled" :icon="action.icon" :key="action.name" :type="activeMarks.includes(action.name) ? 'primary' : null" :tooltip="{ message: action.tooltip, position: 'top' }" @click="action.action" />
           <MbToggle v-if="allowRaw" v-model="raw" :dark="dark" :disabled="disabled" :icons="['text-alt', 'code']" tooltip="Toggle raw editing mode" />
         </div>
@@ -333,6 +334,9 @@ export default {
         display: block
         width: 0.5rem
         flex-shrink: 0
+
+      .button.paragraph-type
+        border: none
 
       .button.icon
         padding: ((16 - 3) / 16)rem
