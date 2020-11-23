@@ -218,7 +218,7 @@ export default {
         ],
         schema,
       });
-      vm.editorView = new EditorView(vm.$refs.editor, { // doesn’t need to be reactive, is immutable
+      vm.editorView = new EditorView({ mount: vm.$refs.editor }, { // doesn’t need to be reactive, is immutable
         dispatchTransaction(transaction) {
           vm.editorState = vm.editorView.state.apply(transaction);
           vm.editorView.updateState(vm.editorState);
@@ -457,89 +457,86 @@ export default {
       background-color: $accent !important // to override the style-attribute
       border-radius: 1px
 
-    .editor-wrapper
-      .ProseMirror // adapted from prosemirror-view/style/prosemirror.css
-        position: relative
-        word-wrap: break-word
-        white-space: pre-wrap
-        white-space: break-spaces
-        // font-variant-ligatures: none // ligatures were disabled because Chrome couldn’t select inbetween them, but it seems fixed now
-        // font-feature-settings: "liga" 0; /* the above doesn't seem to work in Edge */
+    .editor-wrapper.ProseMirror // adapted from prosemirror-view/style/prosemirror.css
+      position: relative
+      word-wrap: break-word
+      white-space: pre-wrap
+      white-space: break-spaces
+      // font-variant-ligatures: none // ligatures were disabled because Chrome couldn’t select inbetween them, but it seems fixed now
+      // font-feature-settings: "liga" 0; /* the above doesn't seem to work in Edge */
+      caret-color: transparent
+
+      &.ProseMirror-focused
+        .ProseMirror-gapcursor
+          display: block
+
+      &.ProseMirror-hideselection
         caret-color: transparent
 
-        &.ProseMirror-focused
-          .ProseMirror-gapcursor
-            display: block
+        *::selection
+          background-color: transparent
 
-        &.ProseMirror-hideselection
-          caret-color: transparent
+      > :first-child,
+      > :first-child :first-child
+        margin-top: 0
 
-          *::selection
-            background-color: transparent
+      > :last-child
+        margin-bottom: 0
 
-        > :first-child,
-        > :first-child :first-child
-          margin-top: 0
+      .ProseMirror-gapcursor // adapted from prosemirror-gapcursor/style/gapcursor.css
+        display: none
+        pointer-events: none
+        position: absolute
 
-        > :last-child,
-        > :last-child :last-child
-          margin-bottom: 0
-
-        .ProseMirror-gapcursor // adapted from prosemirror-gapcursor/style/gapcursor.css
-          display: none
-          pointer-events: none
+        &::after
+          content: ""
+          display: block
           position: absolute
+          top: -0.125rem
+          width: 1.5rem
+          height: 0.125rem
+          background-color: $accent
+          border-radius: (1 / 16)rem
+          animation: blink 1s ease infinite
 
-          &::after
-            content: ""
-            display: block
-            position: absolute
-            top: -0.125rem
-            width: 1.5rem
-            height: 0.125rem
-            background-color: $accent
-            border-radius: (1 / 16)rem
-            animation: ProseMirror-cursor-blink 1.1s steps(2, start) infinite
-
-            @keyframes ProseMirror-cursor-blink
-              to
-                visibility: hidden
-
-        pre
-          white-space: pre-wrap
-
-          code
-            background-color: transparent
-
-        hr
-          cursor: pointer
-          background-color: $accent-secondary
-          width: 30%
+      pre
+        white-space: pre-wrap
 
         code
-          background-color: $bg
+          background-color: transparent
 
-        li
-          position: relative
+      hr
+        cursor: pointer
+        background-color: $accent-secondary
+        width: 30%
 
-          &.ProseMirror-selectednode
-            outline: none
+      code
+        background-color: $bg
 
-            &::after
-              content: ''
-              position: absolute
-              left: -32px
-              right: -2px; top: -2px; bottom: -2px
-              border: 2px solid $accent
-              pointer-events: none
+      li
+        position: relative
 
-        .ProseMirror-selectednode
-          outline: 0.125rem solid $accent
-          outline-offset: 0.25rem
+        &.ProseMirror-selectednode
+          outline: none
 
-          &::selection,
-          ::selection
-            color: inherit
+          &::after
+            content: ''
+            position: absolute
+            left: -32px
+            right: -2px; top: -2px; bottom: -2px
+            border: 2px solid $accent
+            pointer-events: none
+
+      .ProseMirror-selectednode
+        outline: 0.125rem solid $accent
+        outline-offset: 0.25rem
+
+        &::selection,
+        ::selection
+          color: inherit
+
+    .editor-wrapper.ProseMirror-hideselection + .fake-caret
+      display: none
 
     .fake-caret
       width: 0.125rem
