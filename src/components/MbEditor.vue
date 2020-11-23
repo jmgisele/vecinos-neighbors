@@ -213,7 +213,8 @@ export default {
       this.toolbarActions = this.generateActions(schema);
       if (this.outputFormat === 'html') {
         if (!this.renderDiv) this.renderDiv = document.createElement('div');
-        this.renderDiv.innerHTML = this.modelValue;
+        if (this.formats.block) this.renderDiv.innerHTML = this.modelValue;
+        else this.renderDiv.innerHTML = this.modelValue.replace(/<\/[^>]*>\s*<[^>]*>/g, ' ');
         initialContent = DOMParser.fromSchema(schema).parse(this.renderDiv);
         this.renderDiv.innerHTML = ''; // clean up the render div since it’s being reused
       }
@@ -250,8 +251,7 @@ export default {
         state: vm.editorState,
         transformPastedHTML(html) {
           if (vm.formats.block) return html;
-          // return html.replace(/(\s*<.*?>\s*)+/g, ' ').trim(); // HACK: removes allowed marks too
-          return formatHTML(html);
+          return html.replace(/<\/[^>]*>\s*<[^>]*>/g, ' '); // replaces ending and starting tags with a space
         },
         transformPastedText(text) {
           if (vm.formats.block) return text;
@@ -319,7 +319,8 @@ export default {
         else this.recalculateHeight(newValue.replace(/\n+/g, ' '));
       } else if (this.outputFormat === 'html' && !this.editorView.hasFocus()) {
         if (!this.renderDiv) this.renderDiv = document.createElement('div');
-        this.renderDiv.innerHTML = this.modelValue;
+        if (this.formats.blocks) this.renderDiv.innerHTML = newValue;
+        else this.renderDiv.innerHTML = newValue.replace(/<\/[^>]*>\s*<[^>]*>/g, ' '); // replaces ending and starting tags with a space so we don’t get characters sticking together
         const newContent = DOMParser.fromSchema(this.editorView.state.schema).parse(this.renderDiv);
         this.renderDiv.innerHTML = ''; // clean up the render div since it’s being reused
         // Create a new EditorState based on the settings of the one initially created
