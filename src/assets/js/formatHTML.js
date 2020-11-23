@@ -17,5 +17,5 @@ export default function formatHTML(html) {
     if (element.match(/^<?\w[^>]*[^/]$/)) indent += tab;
   });
 
-  return result.substring(1, result.length - 3);
+  return result.substring(1, result.length - 2);
 }
