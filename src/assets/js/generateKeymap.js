@@ -23,8 +23,8 @@ function insertHr(state, dispatch) {
 function exitQuoteFooter(state, dispatch) {
   const { $anchor, $head } = state.selection;
   if ($head.parent.type !== state.schema.nodes.quoteFooter || $anchor.parent.type !== state.schema.nodes.quoteFooter) return false;
-  const above = $head.node(-2); // -2 because we need to get outside the blockquote
-  const after = $head.indexAfter(-2); // -2 because we need to get outside the blockquote
+  const above = $head.node(-2); // -2 because we need to get outside the blockquote (negative values are interpreted as current depth + value
+  const after = $head.indexAfter(-2); // -2 because we need to get outside the blockquote (negative values are interpreted as current depth + value
   const type = state.schema.nodes.paragraph;
   if (!above.canReplaceWith(after, after, type)) return false;
   if (dispatch) {
@@ -32,6 +32,15 @@ function exitQuoteFooter(state, dispatch) {
     const tr = state.tr.replaceWith(pos, pos, type.createAndFill());
     tr.setSelection(Selection.near(tr.doc.resolve(pos), 1));
     dispatch(tr.scrollIntoView());
+  }
+  return true;
+}
+
+function clearFormatsIfEmpty(state, dispatch) {
+  const { empty, $head } = state.selection;
+  if (!empty || $head.pos !== 1 || $head.parent.type === state.schema.nodes.paragraph) return false;
+  if (dispatch) {
+    dispatch(state.tr.setBlockType($head.pos, $head.pos, state.schema.nodes.paragraph).removeMark($head.pos, $head.pos));
   }
   return true;
 }
@@ -44,6 +53,8 @@ export default function generateKeymap(schema, vm) {
   bindings['Mod-z'] = undo;
   bindings['Mod-y'] = redo;
   bindings['Mod-Z'] = redo;
+
+  bindings.Backspace = clearFormatsIfEmpty;
 
   /* eslint-disable no-cond-assign */
   // marks
