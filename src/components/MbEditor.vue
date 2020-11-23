@@ -238,6 +238,14 @@ export default {
         scrollMargin: 128,
         scrollThreshold: 64,
         state: vm.editorState,
+        transformPastedHTML(html) {
+          if (vm.formats.block) return html;
+          return html.replace(/(\s*<.*?>\s*)+/g, ' ').trim(); // HACK: removes allowed marks too
+        },
+        transformPastedText(text) {
+          if (vm.formats.block) return text;
+          return text.replace(/\n+/g, ' ');
+        },
       });
     },
     setMark(type, attrs) {
