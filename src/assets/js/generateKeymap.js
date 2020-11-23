@@ -38,9 +38,15 @@ function exitQuoteFooter(state, dispatch) {
 
 function clearFormatsIfEmpty(state, dispatch) {
   const { empty, $head } = state.selection;
-  if (!empty || $head.pos !== 1 || $head.parent.type === state.schema.nodes.paragraph) return false;
+  if (!empty) return false;
+  const isInline = !state.schema.nodes.paragraph;
+  if (
+    (!isInline && $head.pos !== 1)
+    || (isInline && $head.pos !== 0)
+  ) return false; // regular editor
   if (dispatch) {
-    dispatch(state.tr.setBlockType($head.pos, $head.pos, state.schema.nodes.paragraph).removeMark($head.pos, $head.pos));
+    if (state.schema.nodes.paragraph) dispatch(state.tr.setBlockType($head.pos, $head.pos, state.schema.nodes.paragraph).removeMark($head.pos, $head.pos).setStoredMarks([]).scrollIntoView());
+    else dispatch(state.tr.removeMark($head.pos, $head.pos).setStoredMarks([]).scrollIntoView());
   }
   return true;
 }
