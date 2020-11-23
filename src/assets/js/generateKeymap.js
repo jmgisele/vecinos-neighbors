@@ -117,7 +117,8 @@ export default function generateKeymap(schema, vm) {
 
     if (type = schema.nodes.quoteFooter) {
       bindings['Mod-f'] = setBlockType(type);
-      bindings.Enter = exitQuoteFooter;
+      if (!bindings.Enter) bindings.Enter = exitQuoteFooter;
+      else bindings.Enter = chainCommands(bindings.Enter, exitQuoteFooter);
     }
   }
 
