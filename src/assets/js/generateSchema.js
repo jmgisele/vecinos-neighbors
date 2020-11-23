@@ -137,7 +137,7 @@ export default function generateSchema(
       // List Item
       if (blockFormats.indexOf('orderedList') > -1 || blockFormats.indexOf('unorderedList') > -1) {
         nodes.listItem = {
-          content: options.allowNestedLists ? 'paragraph (orderedList | unorderedList)*' : 'paragraph',
+          content: options.allowNestedLists ? 'paragraph (paragraph | orderedList | unorderedList)*' : 'paragraph',
           defining: true,
           parseDOM: [{ tag: 'li' }],
           toDOM() { return ['li', 0]; },
