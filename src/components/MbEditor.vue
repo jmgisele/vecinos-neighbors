@@ -5,6 +5,7 @@
         <div class="scroll-wrapper">
           <MbButton v-if="formats.block" class="paragraph-type" :dark="dark" :disabled="disabled || raw" icon="chevron-down" :icon-first="false" :tooltip="{ message: 'Todo: Paragraph type', position: 'top'}">{{activeParagraphType}}</MbButton>
           <MbButton v-for="action in toolbarActions" :dark="dark" :disabled="disabled || raw" :icon="action.icon" :key="action.name" :type="activeMarks.includes(action.name) ? 'primary' : null" :tooltip="{ message: action.tooltip, position: 'top' }" @click="action.action" />
+          <MbButton v-show="raw" :dark="dark" :disabled="disabled && raw" icon="text" :tooltip="{ message: 'Clean up code', position: 'top' }" @click="prettifyCode" />
           <MbToggle v-if="allowRaw" v-model="raw" :dark="dark" :disabled="disabled" :icons="['text-alt', 'code']" tooltip="Toggle raw editing mode" />
         </div>
       </MbScroller>
@@ -37,6 +38,7 @@ import { keymap } from 'prosemirror-keymap';
 
 import generateKeymap from '../assets/js/generateKeymap';
 import generateSchema from '../assets/js/generateSchema';
+import formatHTML from '../assets/js/formatHTML';
 
 export default {
   beforeUnmount() {
@@ -196,6 +198,10 @@ export default {
       console.log('todo: add link modal');
       return true; // mark the event as handled
     },
+    prettifyCode() {
+      if (this.outputFormat !== 'html') return;
+      this.$emit('update:modelValue', formatHTML(this.modelValue));
+    },
     recalculateHeight(modelValue) {
       this.$refs.pre.innerText = modelValue;
       this.$refs.pre.appendChild(document.createElement('BR'));
@@ -244,7 +250,8 @@ export default {
         state: vm.editorState,
         transformPastedHTML(html) {
           if (vm.formats.block) return html;
-          return html.replace(/(\s*<.*?>\s*)+/g, ' ').trim(); // HACK: removes allowed marks too
+          // return html.replace(/(\s*<.*?>\s*)+/g, ' ').trim(); // HACK: removes allowed marks too
+          return formatHTML(html);
         },
         transformPastedText(text) {
           if (vm.formats.block) return text;
