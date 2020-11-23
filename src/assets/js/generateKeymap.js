@@ -76,7 +76,7 @@ export default function generateKeymap(schema, vm) {
     const commandChain = chainCommands(exitCode, exitQuoteFooter, insertBreak);
     bindings['Mod-Enter'] = commandChain;
     bindings['Shift-Enter'] = commandChain;
-    if (mac) bindings['Ctrl+Enter'] = commandChain;
+    if (mac) bindings['Ctrl-Enter'] = commandChain;
   }
 
   // horizontal rules
