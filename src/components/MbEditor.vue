@@ -3,8 +3,8 @@
     <div v-if="outputFormat !== 'text'" class="toolbar" :class="{ dark }">
       <MbScroller>
         <div class="scroll-wrapper">
-          <MbButton class="paragraph-type" :dark="dark" :disabled="disabled" icon="chevron-down" :icon-first="false" :tooltip="{ message: 'Todo: Paragraph type', position: 'top'}">Paragraph</MbButton>
-          <MbButton v-for="action in toolbarActions" :dark="dark" :disabled="disabled" :icon="action.icon" :key="action.name" :type="activeMarks.includes(action.name) ? 'primary' : null" :tooltip="{ message: action.tooltip, position: 'top' }" @click="action.action" />
+          <MbButton v-if="formats.block" class="paragraph-type" :dark="dark" :disabled="disabled || raw" icon="chevron-down" :icon-first="false" :tooltip="{ message: 'Todo: Paragraph type', position: 'top'}">{{activeParagraphType}}</MbButton>
+          <MbButton v-for="action in toolbarActions" :dark="dark" :disabled="disabled || raw" :icon="action.icon" :key="action.name" :type="activeMarks.includes(action.name) ? 'primary' : null" :tooltip="{ message: action.tooltip, position: 'top' }" @click="action.action" />
           <MbToggle v-if="allowRaw" v-model="raw" :dark="dark" :disabled="disabled" :icons="['text-alt', 'code']" tooltip="Toggle raw editing mode" />
         </div>
       </MbScroller>
@@ -68,6 +68,7 @@ export default {
   data() {
     return {
       activeMarks: [],
+      activeParagraphType: 'Paragraph',
       caretHeight: '',
       caretTransform: '',
       caretVisible: false,
@@ -181,6 +182,8 @@ export default {
           return marks;
         }, []);
       }
+      // Update active node type
+      this.activeParagraphType = newSelection.node ? newSelection.node.type.name : newSelection.$from.parent.type.name;
     },
     handleTextareaInput(e) {
       let newValue = e.target.value;
@@ -208,6 +211,7 @@ export default {
         initialContent = DOMParser.fromSchema(schema).parse(this.renderDiv);
         this.renderDiv.innerHTML = ''; // clean up the render div since it’s being reused
       }
+      if (initialContent && initialContent.childCount > 0 && (initialContent.firstChild.content.size > 0 || !initialContent.firstChild.isTextblock)) this.showPlaceholder = false;
       const vm = this; // so we have a reference to the view-model
       vm.editorState = EditorState.create({ // doesn’t need to be reactive, is immutable
         doc: initialContent,
@@ -226,7 +230,7 @@ export default {
           vm.editorView.updateState(vm.editorState);
           if (transaction.docChanged) {
             if (transaction.doc.childCount > 0 && vm.showPlaceholder) vm.showPlaceholder = false;
-            if ((transaction.doc.childCount === 0 || (transaction.doc.childCount === 1 && transaction.doc.firstChild.content.size === 0)) && !vm.showPlaceholder) vm.showPlaceholder = true;
+            if (transaction.doc.childCount === 1 && transaction.doc.firstChild.content.size === 0 && !vm.showPlaceholder) vm.showPlaceholder = true;
             vm.debouncedUpdate();
           }
           vm.handleSelectionChange(vm.editorState.selection);
@@ -318,6 +322,8 @@ export default {
           schema: this.editorView.state.schema,
         });
         this.editorView.updateState(this.editorState);
+        if (newValue && this.showPlaceholder) this.showPlaceholder = false;
+        if (!newValue && !this.showPlaceholder) this.showPlaceholder = true;
       }
     },
   },
@@ -396,11 +402,13 @@ export default {
       .label
         color: $text-secondary-dark
 
-      .editor-wrapper
-        .ProseMirror
-          pre,
-          code
-            background-color: $bg-tertiary-dark
+      .editor-wrapper.ProseMirror
+        pre,
+        code
+          background-color: $bg-tertiary-dark
+
+      .placeholder
+        color: $text-secondary-dark
 
       .fake-caret
         background-color: currentColor
@@ -494,7 +502,8 @@ export default {
       > :first-child :first-child
         margin-top: 0
 
-      > :last-child
+      > :last-child,
+      > :last-child > :last-child
         margin-bottom: 0
 
       .ProseMirror-gapcursor // adapted from prosemirror-gapcursor/style/gapcursor.css
@@ -554,7 +563,7 @@ export default {
 
     .placeholder
       color: $text-secondary
-      pointer-events: 0
+      pointer-events: none
       margin: 0
       position: absolute
       top: 1rem
