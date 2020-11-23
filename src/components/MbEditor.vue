@@ -17,6 +17,7 @@
       </div>
       <template v-else>
         <div class="editor-wrapper" ref="editor" />
+        <div v-if="placeholder && showPlaceholder" class="placeholder">{{placeholder}}</div>
         <div v-show="caretVisible" class="fake-caret" :style="{ height: caretHeight, transform: caretTransform }" />
       </template>
     </label>
@@ -30,9 +31,9 @@ import { dropCursor } from 'prosemirror-dropcursor';
 import { EditorState } from 'prosemirror-state';
 import { EditorView } from 'prosemirror-view';
 import { gapCursor } from 'prosemirror-gapcursor';
-import { keymap } from 'prosemirror-keymap';
-import { isEqual, debounce } from 'lodash-es';
 import { history } from 'prosemirror-history';
+import { isEqual, debounce } from 'lodash-es';
+import { keymap } from 'prosemirror-keymap';
 
 import generateKeymap from '../assets/js/generateKeymap';
 import generateSchema from '../assets/js/generateSchema';
@@ -74,6 +75,7 @@ export default {
       focussed: false,
       raw: false,
       renderDiv: null,
+      showPlaceholder: true,
       toolbarActions: [],
     };
   },
@@ -222,7 +224,11 @@ export default {
         dispatchTransaction(transaction) {
           vm.editorState = vm.editorView.state.apply(transaction);
           vm.editorView.updateState(vm.editorState);
-          if (transaction.docChanged) vm.debouncedUpdate();
+          if (transaction.docChanged) {
+            if (transaction.doc.childCount > 0 && vm.showPlaceholder) vm.showPlaceholder = false;
+            if ((transaction.doc.childCount === 0 || (transaction.doc.childCount === 1 && transaction.doc.firstChild.content.size === 0)) && !vm.showPlaceholder) vm.showPlaceholder = true;
+            vm.debouncedUpdate();
+          }
           vm.handleSelectionChange(vm.editorState.selection);
         },
         handleDOMEvents: {
@@ -537,6 +543,14 @@ export default {
 
     .editor-wrapper.ProseMirror-hideselection + .fake-caret
       display: none
+
+    .placeholder
+      color: $text-secondary
+      pointer-events: 0
+      margin: 0
+      position: absolute
+      top: 1rem
+      left: 1rem
 
     .fake-caret
       width: 0.125rem
