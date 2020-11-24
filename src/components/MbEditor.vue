@@ -18,7 +18,7 @@
       </div>
       <template v-else>
         <div class="editor-wrapper" ref="editor" />
-        <div v-if="placeholder && showPlaceholder" class="placeholder">{{placeholder}}</div>
+        <div v-if="placeholder && showPlaceholder" class="placeholder" :class="[ placeholderFormatting ]">{{placeholder}}</div>
         <div v-show="caretVisible" class="fake-caret" :style="{ height: caretHeight, transform: caretTransform }" />
       </template>
     </label>
@@ -61,6 +61,14 @@ export default {
     overlength() {
       if (this.outputFormat === 'text') return this.modelValue.length > this.maxLen;
       return this.contentLength > this.maxLen;
+    },
+    placeholderFormatting() {
+      if (this.activeParagraphType.startsWith('heading')) {
+        const level = this.activeParagraphType.slice(-1);
+        return `h${level}`;
+      }
+      if (this.activeParagraphType === 'codeBlock') return 'code';
+      return '';
     },
     preventEnter() {
       if (this.allowNewLines) return null;
@@ -237,7 +245,7 @@ export default {
           vm.editorView.updateState(vm.editorState);
           if (transaction.docChanged) {
             if (transaction.doc.childCount > 0 && vm.showPlaceholder) vm.showPlaceholder = false;
-            if (transaction.doc.childCount === 1 && transaction.doc.firstChild.content.size === 0 && !vm.showPlaceholder) vm.showPlaceholder = true;
+            if (transaction.doc.childCount === 1 && transaction.doc.firstChild.content.size === 0 && transaction.doc.firstChild.isTextblock && !vm.showPlaceholder) vm.showPlaceholder = true;
             vm.debouncedUpdate();
           }
           vm.handleSelectionChange(vm.editorState.selection);
@@ -576,6 +584,15 @@ export default {
       position: absolute
       top: 1rem
       left: 1rem
+
+      &.h1, &.h2, &.h3, &.h4, &.h5, &.h6
+        font-weight: bold
+
+      &.code
+        font-family: monospace
+        color: $text-secondary-dark
+        top: 2rem
+        left: 2rem
 
     .fake-caret
       width: 0.125rem
