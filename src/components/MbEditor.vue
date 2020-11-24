@@ -33,9 +33,11 @@ import { EditorState } from 'prosemirror-state';
 import { EditorView } from 'prosemirror-view';
 import { gapCursor } from 'prosemirror-gapcursor';
 import { history } from 'prosemirror-history';
+import { inputRules } from 'prosemirror-inputrules';
 import { isEqual, debounce } from 'lodash-es';
 import { keymap } from 'prosemirror-keymap';
 
+import generateInputRules from '../assets/js/generateInputRules';
 import generateKeymap from '../assets/js/generateKeymap';
 import generateSchema from '../assets/js/generateSchema';
 import formatHTML from '../assets/js/formatHTML';
@@ -231,6 +233,7 @@ export default {
       vm.editorState = EditorState.create({ // doesn’t need to be reactive, is immutable
         doc: initialContent,
         plugins: [
+          inputRules({ rules: generateInputRules(schema, vm.inputRuleOptions) }),
           dropCursor({ class: 'dropcursor', width: 2 }),
           gapCursor(),
           history(),
@@ -293,6 +296,7 @@ export default {
       type: Object,
       default: () => ({ block: ['blockquote', 'codeBlock', 'heading', 'hr', 'orderedList', 'unorderedList'], inline: ['br', 'code', 'em', 'link', 'strike', 'strong'] }),
     },
+    inputRuleOptions: Object,
     label: String,
     maxLen: Number,
     outputFormat: {

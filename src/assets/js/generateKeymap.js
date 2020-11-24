@@ -9,6 +9,7 @@ import {
 } from 'prosemirror-schema-list';
 
 import { undo, redo } from 'prosemirror-history';
+import { undoInputRule } from 'prosemirror-inputrules';
 
 function insertBreak(state, dispatch) {
   dispatch(state.tr.replaceSelectionWith(state.schema.nodes.br.create()).scrollIntoView());
@@ -60,7 +61,7 @@ export default function generateKeymap(schema, vm) {
   bindings['Mod-y'] = redo;
   bindings['Mod-Z'] = redo;
 
-  bindings.Backspace = clearFormatsIfEmpty;
+  bindings.Backspace = chainCommands(undoInputRule, clearFormatsIfEmpty);
 
   /* eslint-disable no-cond-assign */
   // marks
