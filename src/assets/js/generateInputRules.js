@@ -8,6 +8,7 @@ export default function generateInputRules(schema, userOptions = {}) {
     ellipsis: true,
     minHeading: 1,
     maxHeading: 6,
+    noDoubleSpace: true,
   };
   const options = { ...defaults, ...userOptions };
 
@@ -33,6 +34,9 @@ export default function generateInputRules(schema, userOptions = {}) {
 
   // ellipsis
   if (options.ellipsis) rules.push(new InputRule(/\.\.\.$/, '…'));
+
+  // prevent double spaces
+  if (options.noDoubleSpace) rules.push(new InputRule(/ {2,}$/, ' '));
 
   let type;
 
