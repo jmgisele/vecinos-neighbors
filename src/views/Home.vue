@@ -153,7 +153,7 @@
         <MbEditor v-model="editorTest" :dark="dark" label="Type something" :max-len="200" output-format="text" />
         <MbEditor v-model="editorTest" :allow-new-lines="false" :dark="dark" label="Type something (no returns)" output-format="text" />
         <MbEditor v-model="editorTest" allow-raw :dark="dark" label="This will output HTML" output-format="html" placeholder="Your Text…" />
-        <MbEditor v-model="editorTest" :dark="dark" :formats="{ inline: ['em', 'strike'], block: false }" :format-options="{ allowNestedLists: false, allowQuoteFooters: false, minHeading: 2, maxHeading: 4 }" label="HTML with limited formats" :max-len="200" output-format="html" />
+        <MbEditor v-model="editorTest" :dark="dark" :formats="{ inline: ['em', 'strike'], block: false }" :format-options="{ allowNestedLists: false, allowQuoteFooters: false, minHeading: 2, maxHeading: 4 }" :input-rule-options="{ autoquotes: '»«›‹'}" label="HTML with limited formats" :max-len="200" output-format="html" />
         <MbEditor v-model="editorTest" allow-raw :dark="dark" disabled label="This will output Markdown" output-format="markdown" />
         <div class="tester" v-html="editorTest" />
       </section>
