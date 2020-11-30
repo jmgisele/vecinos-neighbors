@@ -16,7 +16,7 @@ function insertBreak(state, dispatch) {
   return true;
 }
 
-function insertHr(state, dispatch) {
+export function insertHr(state, dispatch) {
   dispatch(state.tr.replaceSelectionWith(state.schema.nodes.horizontalRule.create()).scrollIntoView());
   return true;
 }
