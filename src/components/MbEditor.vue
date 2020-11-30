@@ -102,6 +102,7 @@ export default {
     generateActions(schema) {
       if (this.outputFormat === 'text') return [];
       const actions = [];
+      const mac = typeof navigator !== 'undefined' ? /Mac/.test(navigator.platform) : false;
       let type;
 
       /* eslint-disable no-cond-assign */
@@ -112,7 +113,7 @@ export default {
           action: () => this.setMark(strong),
           name: 'strong',
           icon: 'bold',
-          tooltip: 'Toggle bold',
+          tooltip: `Toggle bold <kbd>${mac ? '⌘' : 'Ctrl'}</kbd>+<kbd>B</kbd>`,
         });
       }
       if (type = schema.marks.em) {
@@ -121,7 +122,7 @@ export default {
           action: () => this.setMark(em),
           name: 'em',
           icon: 'italic',
-          tooltip: 'Toggle italics',
+          tooltip: `Toggle italics <kbd>${mac ? '⌘' : 'Ctrl'}</kbd>+<kbd>I</kbd>`,
         });
       }
       if (type = schema.marks.strike) {
@@ -130,7 +131,7 @@ export default {
           action: () => this.setMark(strike),
           name: 'strike',
           icon: 'strikethrough',
-          tooltip: 'Toggle strikethrough',
+          tooltip: `Toggle strikethrough <kbd>${mac ? '⌘' : 'Ctrl'}</kbd>+<kbd>S</kbd>`,
         });
       }
       if (type = schema.marks.code) {
@@ -139,7 +140,7 @@ export default {
           action: () => this.setMark(code),
           name: 'code',
           icon: 'inline-code',
-          tooltip: 'Toggle code font',
+          tooltip: `Toggle code font <kbd>${mac ? '⌘' : 'Ctrl'}</kbd>+<kbd>Shift</kbd>+<kbd>C</kbd>`,
         });
       }
       if (type = schema.marks.link) {
@@ -148,7 +149,7 @@ export default {
           action: this.openLinkModal,
           name: 'link',
           icon: 'link',
-          tooltip: 'Insert link',
+          tooltip: `Insert link <kbd>${mac ? '⌘' : 'Ctrl'}</kbd>+<kbd>K</kbd>`,
         });
       }
       /* eslint-enable no-cond-assign */
