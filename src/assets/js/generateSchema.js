@@ -100,11 +100,11 @@ export default function generateSchema(
             preserveWhitespace: 'full',
             getAttrs(dom) {
               const codeEl = dom.querySelector('code');
-              return { lang: (codeEl && (codeEl.getAttribute('class') || codeEl.getAttribute('data-lang'))) || dom.getAttribute('data-lang') || '' };
+              return { lang: (codeEl && ((codeEl.getAttribute('class') && codeEl.getAttribute('class').replace(/lang(uage)?-/, '')) || codeEl.getAttribute('data-lang'))) || dom.getAttribute('data-lang') || '' };
             },
           }],
           toDOM(node) {
-            return ['pre', ['code', node.attrs.lang ? { class: node.attrs.lang } : {}, 0]];
+            return ['pre', node.attrs.lang ? { 'data-lang': node.attrs.lang } : {}, ['code', node.attrs.lang ? { class: `language-${node.attrs.lang}` } : {}, 0]];
           },
         };
       }
