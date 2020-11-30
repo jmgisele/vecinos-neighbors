@@ -208,6 +208,13 @@ export default {
     border-radius: @border-radius
     transition: opacity 200ms ease
 
+  .label
+    overflow: hidden
+    text-overflow: ellipsis
+
+  .icon
+    flex-shrink: 0
+
   .label,
   .icon
     transition: opacity 200ms ease
