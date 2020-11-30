@@ -1,7 +1,7 @@
 <template lang="html">
   <teleport to="body">
     <transition>
-      <div v-show="visible" v-bind="$attrs" class="popover" :class="{ 'center-x': centerX, 'center-y': centerY, dark, right: fromRight, transition }" ref="el" :style="{ left, top }">
+      <div v-show="visible" v-bind="$attrs" class="popover" :class="{ dark, right: fromRight, transition }" ref="el" :style="{ left, top, transformOrigin }">
         <header v-if="$slots.header">
           <slot name="header" />
         </header>
@@ -27,6 +27,7 @@ export default {
       left: '0px',
       top: '0px',
       transition: false,
+      transformOrigin: null,
     };
   },
   inheritAttrs: false, // because this technically qualifies as a fragment since it teleports
@@ -72,6 +73,11 @@ export default {
 
       if (top <= margin) top = margin;
 
+      const xOffset = this.x - left;
+      const yOffset = this.y - top;
+
+      this.transformOrigin = `${xOffset}px ${yOffset}px`;
+
       this.left = `${left}px`;
       this.top = `${top}px`;
     },
@@ -116,11 +122,13 @@ export default {
 .popover
   position: fixed
   max-width: calc(100% - 1rem)
+  max-height: calc(100% - 1rem)
   background-color: $bg
   border-radius: $radius-l
   border: 1px solid $bg-secondary
   box-shadow: 0 0.75rem 2rem 0 alpha($bg-dark, .18)
-  overflow: hidden
+  overflow-x: hidden
+  overflow-y: auto
   z-index: 1
 
   &.dark
@@ -134,21 +142,6 @@ export default {
   &.v-leave-active
     transform-origin: top left
     transition: opacity 150ms ease, transform 150ms cubic-bezier(0.215, 0.610, 0.355, 1.000)
-
-    &.center-x
-      transform-origin: top center
-
-    &.center-y
-      transform-origin: center left
-
-    &.center-x.center-y
-      transform-origin: center
-
-    &.right:not(.center-x)
-      transform-origin: top right
-
-      &.center-y
-        transform-origin: center right
 
     &.v-enter-from,
     &.v-leave-to
