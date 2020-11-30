@@ -4,7 +4,7 @@
       <MbScroller>
         <div class="scroll-wrapper">
           <MbButton v-if="formats.block" class="paragraph-type" :dark="dark" :disabled="disabled || raw" icon="chevron-down" :icon-first="false" :tooltip="{ message: 'Todo: Paragraph type', position: 'top'}">{{activeParagraphType}}</MbButton>
-          <MbButton v-for="action in toolbarActions" :dark="dark" :disabled="disabled || raw" :icon="action.icon" :key="action.name" :type="activeMarks.includes(action.name) ? 'primary' : null" :tooltip="{ message: action.tooltip, position: 'top' }" @click="action.action" />
+          <MbButton v-for="action in toolbarActions" :class="{ 'space-next': action.spaceNext }" :dark="dark" :disabled="disabledActions[action.name] || disabled || raw" :icon="action.icon" :key="action.name" :type="activeMarks.includes(action.name) ? 'primary' : null" :tooltip="{ message: action.tooltip, position: 'top' }" @click="action.action" />
           <MbButton v-show="raw" :dark="dark" :disabled="disabled && raw" icon="text" :tooltip="{ message: 'Clean up code', position: 'top' }" @click="prettifyCode" />
           <MbToggle v-if="allowRaw" v-model="raw" :dark="dark" :disabled="disabled" :icons="['text-alt', 'code']" tooltip="Toggle raw editing mode" />
         </div>
@@ -26,7 +26,7 @@
 </template>
 
 <script>
-import { baseKeymap, toggleMark } from 'prosemirror-commands';
+import { baseKeymap, toggleMark, wrapIn } from 'prosemirror-commands';
 import { DOMParser, DOMSerializer } from 'prosemirror-model';
 import { dropCursor } from 'prosemirror-dropcursor';
 import { EditorState } from 'prosemirror-state';
@@ -36,9 +36,10 @@ import { history } from 'prosemirror-history';
 import { inputRules } from 'prosemirror-inputrules';
 import { isEqual, debounce } from 'lodash-es';
 import { keymap } from 'prosemirror-keymap';
+import { wrapInList } from 'prosemirror-schema-list';
 
 import generateInputRules from '../assets/js/generateInputRules';
-import generateKeymap from '../assets/js/generateKeymap';
+import generateKeymap, { insertHr } from '../assets/js/generateKeymap';
 import generateSchema from '../assets/js/generateSchema';
 import formatHTML from '../assets/js/formatHTML';
 
@@ -50,6 +51,27 @@ export default {
     cleanValue() {
       if (this.allowNewLines) return this.modelValue;
       return this.modelValue.replace(/\n+/g, ' ');
+    },
+    disabledActions() {
+      if (this.activeParagraphType === 'codeBlock') {
+        return {
+          code: true,
+          em: true,
+          link: true,
+          ol: true,
+          strike: true,
+          strong: true,
+          ul: true,
+        };
+      }
+      if (this.activeParentType === 'listItem') {
+        return {
+          ol: true,
+          ul: true,
+          blockquote: true,
+        };
+      }
+      return {};
     },
     displayLabel() {
       if (this.error) return this.error;
@@ -81,6 +103,7 @@ export default {
     return {
       activeMarks: [],
       activeParagraphType: 'Paragraph',
+      activeParentType: null,
       caretHeight: '',
       caretTransform: '',
       caretVisible: false,
@@ -149,7 +172,43 @@ export default {
           action: this.openLinkModal,
           name: 'link',
           icon: 'link',
+          spaceNext: true,
           tooltip: `Insert link <kbd>${mac ? '⌘' : 'Ctrl'}</kbd>+<kbd>K</kbd>`,
+        });
+      }
+      if (type = schema.nodes.horizontalRule) {
+        actions.push({
+          action: this.insertHr,
+          name: 'hr',
+          icon: 'add-separator',
+          tooltip: `Insert separator <kbd>${mac ? '⌘' : 'Ctrl'}</kbd>+<kbd>_</kbd>`,
+        });
+      }
+      if (type = schema.nodes.unorderedList) {
+        const ul = type;
+        actions.push({
+          action: () => this.insertList(ul),
+          name: 'ul',
+          icon: 'bullet-list',
+          tooltip: `Format as bullet list <kbd>${mac ? '⌘' : 'Ctrl'}</kbd>+<kbd>Shift</kbd>+<kbd>8</kbd>`,
+        });
+      }
+      if (type = schema.nodes.orderedList) {
+        const ol = type;
+        actions.push({
+          action: () => this.insertList(ol),
+          name: 'ol',
+          icon: 'number-list',
+          tooltip: `Format as numbered list <kbd>${mac ? '⌘' : 'Ctrl'}</kbd>+<kbd>Shift</kbd>+<kbd>9</kbd>`,
+        });
+      }
+      if (type = schema.nodes.blockquote) {
+        actions.push({
+          action: this.insertBlockquote,
+          name: 'blockquote',
+          icon: 'blockquote',
+          spaceNext: true,
+          tooltip: `Format as quote <kbd>${mac ? '⌘' : 'Ctrl'}</kbd>+<kbd>&gt;</kbd>`,
         });
       }
       /* eslint-enable no-cond-assign */
@@ -197,6 +256,7 @@ export default {
       }
       // Update active node type
       this.activeParagraphType = newSelection.node ? newSelection.node.type.name : newSelection.$from.parent.type.name;
+      this.activeParentType = newSelection.$from.node(-1)?.type.name;
     },
     handleTextareaInput(e) {
       let newValue = e.target.value;
@@ -204,6 +264,18 @@ export default {
       if (!this.allowNewLines) newValue = newValue.replace(/\n+/g, ' ');
 
       this.$emit('update:modelValue', newValue);
+    },
+    insertBlockquote() {
+      wrapIn(this.editorState.schema.nodes.blockquote)(this.editorState, this.editorView.dispatch);
+      this.editorView.focus();
+    },
+    insertHr() {
+      insertHr(this.editorState, this.editorView.dispatch);
+      this.editorView.focus();
+    },
+    insertList(type) {
+      wrapInList(type)(this.editorState, this.editorView.dispatch);
+      this.editorView.focus();
     },
     openLinkModal() {
       console.log('todo: add link modal');
@@ -393,6 +465,9 @@ export default {
 
           &.dark
             background-color: $bg-secondary-dark
+
+        &.space-next
+          margin-right: 1rem
 
       .toggle
         margin-left: auto
