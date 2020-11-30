@@ -1,11 +1,11 @@
 <template lang="html">
   <teleport to="body">
     <transition>
-      <div v-show="visible" v-bind="$attrs" class="popover" :class="{ 'center-x': centerX, 'center-y': centerY, dark, right: fromRight, transition }" ref="el" :style="{ left, top, }">
+      <div v-show="visible" v-bind="$attrs" class="popover" :class="{ 'center-x': centerX, 'center-y': centerY, dark, right: fromRight, transition }" ref="el" :style="{ left, top }">
         <header v-if="$slots.header">
           <slot name="header" />
         </header>
-        <div class="content">
+        <div class="content" :class="{ 'no-padding': noContentPadding }">
           <slot />
         </div>
         <footer v-if="$slots.footer">
@@ -81,6 +81,7 @@ export default {
     centerY: Boolean,
     dark: Boolean,
     fromRight: Boolean,
+    noContentPadding: Boolean,
     visible: Boolean,
     x: {
       type: Number,
@@ -120,6 +121,7 @@ export default {
   border: 1px solid $bg-secondary
   box-shadow: 0 0.75rem 2rem 0 alpha($bg-dark, .18)
   overflow: hidden
+  z-index: 1
 
   &.dark
     background-color: $bg-secondary-dark
@@ -169,7 +171,7 @@ export default {
     padding: 1rem
     padding-bottom: 0
 
-  .content
+  .content:not(.no-padding)
     padding: 1rem
 
   footer
