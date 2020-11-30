@@ -154,6 +154,20 @@ html
       ::selection
         background-color: $accent-secondary
 
+      &[data-lang]
+        position: relative
+        padding-top: 2rem
+
+        &::before
+          content: attr(data-lang)
+          color: $text-tertiary-dark
+          position: absolute;
+          display: block
+          top: 0.5rem
+          right: 1rem
+          font-family: 'Inter', sans-serif
+          font-size: 0.75rem
+
       code
         display: inline
         padding: 0
