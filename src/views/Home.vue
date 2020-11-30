@@ -191,6 +191,33 @@
         <h2>Props</h2>
         <MbTable :data="props.scrollers" />
       </section>
+      <section v-else-if="activeTabValue === 'popovers'" class="tab popovers" key="popovers">
+        <h2>Popovers</h2>
+        <p>Popovers form a basic building block for any sort of content that needs to be displayed over other content.</p>
+        <MbToggle v-model="centerPopover" :dark="dark">Center Popover</MbToggle>
+        <MbToggle v-model="popoverFromRight" :dark="dark">Open Popover from Right</MbToggle>
+        <MbButton :dark="dark" type="primary" @click="popover = { x: $event.clientX, y: $event.clientY }">Open Popover</MbButton>
+        <MbPopover :center-x="centerPopover" :center-y="centerPopover" :dark="dark" :from-right="popoverFromRight" :visible="Boolean(popover)" :x="popover && popover.x" :y="popover && popover.y" @close="popover = null">
+          <template #header>
+            <h3>Hello! Looooooooooooooooong</h3>
+          </template>
+          <p>Hello there!</p>
+          <MbPopover :center-x="centerPopover" :center-y="centerPopover" :dark="dark" :from-right="popoverFromRight" :visible="Boolean(popover2)" :x="popover2 && popover2.x" :y="popover2 && popover2.y" @close="popover2 = null">
+            <h3>Here’s another one!</h3>
+            <p>Cool, right?</p>
+          </MbPopover>
+          <template #footer>
+            <MbButton :dark="dark" @click="popover = null">Cancel</MbButton>
+            <MbButton :dark="dark" type="primary" @click="popover2 = { x: $event.clientX, y: $event.clientY }">Add</MbButton>
+          </template>
+        </MbPopover>
+        <h3>Props</h3>
+        <MbTable :data="props.popovers" />
+        <h3>Events</h3>
+        <MbTable :data="events.popovers" />
+        <h3>Slots</h3>
+        <MbTable :data="slots.popovers" />
+      </section>
       <section v-else class="tab" key="exampleTab">
         <p>This is just an empty test-tab.</p>
         <p>To delete it, click the button in the “<u @click="activeTab = tabs.findIndex((tab) => tab.value === 'tabs')">Tabs</u>”-tab.</p>
@@ -263,6 +290,7 @@ export default {
         'trash',
         'warning',
       ],
+      centerPopover: false,
       events: {
         buttons: [
           ['Name', 'Data'],
@@ -278,6 +306,10 @@ export default {
           ['`focus`', ''],
           ['`update:modelValue`', 'The new text content'],
         ],
+        popovers: [
+          ['Name', 'Data'],
+          ['`close`', ''],
+        ],
         tabs: [
           ['Name', 'Data'],
           ['`add-tab`', ''],
@@ -289,6 +321,9 @@ export default {
         ],
       },
       idCounter: 0,
+      popover: null,
+      popover2: null,
+      popoverFromRight: false,
       props: {
         buttons: [
           ['Name', 'Type', 'Default', 'Allowed Values'],
@@ -322,6 +357,16 @@ export default {
           ['`placeholder`', 'String', ''],
           ['`type`', 'String', "`'text'`"],
         ],
+        popovers: [
+          ['Name', 'Type', 'Default'],
+          ['`centerX`', 'Boolean', '`false`'],
+          ['`centerY`', 'Boolean', '`false`'],
+          ['`dark`', 'Boolean', '`false`'],
+          ['`fromRight`', 'Boolean', '`false`'],
+          ['`visible`', 'Boolean', '`false`'],
+          ['`x`', 'Number', '`0`'],
+          ['`y`', 'Number', '`0`'],
+        ],
         scrollers: [
           ['Name', 'Type', 'Default', 'Allowed Values'],
           ['`direction`', 'String', "`'horizontal'`", 'horizontal, vertical'],
@@ -349,6 +394,13 @@ export default {
         ],
       },
       simulateLoading: false,
+      slots: {
+        popovers: [
+          ['Name', 'Default Content'],
+          ['header', ''],
+          ['footer', ''],
+        ],
+      },
       swatches: [
         'accent',
         'accent-secondary',
@@ -378,6 +430,7 @@ export default {
         { label: 'Icons', value: 'icons' },
         { label: 'Inputs', value: 'inputs' },
         { label: 'Loaders', value: 'loaders' },
+        { label: 'Popovers', value: 'popovers' },
         { label: 'Scrollers', value: 'scrollers' },
         { label: 'Tabs', value: 'tabs' },
         { label: 'Textareas', value: 'textareas' },
@@ -595,4 +648,8 @@ export default {
 
       .vert
         max-height: 8rem
+
+    &.popovers
+      .toggle
+        margin-bottom: 1rem
 </style>
