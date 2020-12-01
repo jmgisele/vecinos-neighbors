@@ -3,8 +3,11 @@
     {{currentOption}}
   </MbButton>
   <MbPopover center-x class="item-wrapper" :dark="dark" no-content-padding ref="popover" :style="{ width: `${popoverWidth}px` }" :visible="active" :x="position.x" :y="position.y" @close="deactivate">
+    <template v-if="filterable" #header>
+      <MbInput v-model="filter" :dark="dark" icon="error" placeholder="Filter Items" />
+    </template>
     <ul class="items" :class="{ dark }">
-      <li v-for="option in options" :class="{ disabled: option.disabled }" :key="option.value" :tabindex="option.disabled ? -1 : 0" @click="selectOption(option.value)" @keyup.enter="selectOption(option.value)" @keyup.space="selectOption(option.value)">{{option.label || option.value}}</li>
+      <li v-for="option in filteredOptions" :class="{ disabled: option.disabled }" :key="option.value" :tabindex="option.disabled ? -1 : 0" @click="selectOption(option.value)" @keyup.enter="selectOption(option.value)" @keyup.space="selectOption(option.value)">{{option.label || option.value}}</li>
     </ul>
   </MbPopover>
 </template>
@@ -21,10 +24,15 @@ export default {
       if (!activeOption) return this.modelValue;
       return activeOption.label || activeOption.value;
     },
+    filteredOptions() {
+      if (!this.filter) return this.options;
+      return this.options.filter((option) => (option.label && option.label.toLowerCase().includes(this.filter.toLowerCase())) || String(option.value).toLowerCase().includes(this.filter.toLowerCase()));
+    },
   },
   data() {
     return {
       active: false,
+      filter: '',
       popoverWidth: 0,
       position: {
         x: 0,
@@ -33,11 +41,11 @@ export default {
     };
   },
   emits: ['update:modelValue'],
-  inheritAttrs: false,
   methods: {
     activate() {
       const buttonRect = this.$refs.button.$el.getBoundingClientRect();
       const remBase = Number.parseInt(window.getComputedStyle(document.documentElement).fontSize, 10);
+      this.filter = '';
       this.position.x = buttonRect.left + buttonRect.width / 2;
       this.position.y = Math.round(buttonRect.top);
       this.popoverWidth = buttonRect.width + remBase;
@@ -45,7 +53,7 @@ export default {
       window.addEventListener('scroll', this.deactivate, { capture: true });
     },
     deactivate(e) {
-      if (e && e.target === this.$refs.popover.$refs.el) return; // hacky but needed since it’s teleporting
+      if (e && (e.target === this.$refs.popover.$refs.el || this.$refs.popover.$refs.el.contains(e.target))) return; // hacky but needed since it’s teleporting
       this.active = false;
       window.removeEventListener('scroll', this.deactivate, { capture: true });
     },
@@ -57,6 +65,7 @@ export default {
   props: {
     dark: Boolean,
     disabled: Boolean,
+    filterable: Boolean,
     options: {
       type: Array,
       required: true,
@@ -81,38 +90,55 @@ export default {
   &.icon.reversed
     padding-left: 1rem
 
+  &.placeholder
+    ::v-deep(.label)
+      color: $text-secondary
+
+    &.dark
+      ::v-deep(.label)
+        color: $text-secondary-dark
+
   ::v-deep(.label)
     margin-right: auto
 
-.items
-  list-style: none
-  user-select: none
-  padding: 0.5rem
-  margin: 0
+.item-wrapper
+  .input
+    margin: 0.5rem
+    margin-bottom: 0
+    width: calc(100% - 1rem)
 
-  &.dark
+    &.dark
+      background-color: $bg-tertiary-dark
+
+  .items
+    list-style: none
+    user-select: none
+    padding: 0.5rem
+    margin: 0
+
+    &.dark
+      li
+        &.disabled
+          color: $text-tertiary-dark
+
+        &:hover,
+        &:focus
+          background-color: $bg-tertiary-dark
+
     li
+      padding: 0.75rem 1rem
+      white-space: nowrap
+      overflow: hidden
+      text-overflow: ellipsis
+      cursor: pointer
+      border-radius: $radius-m
+      transition: background-color 200ms ease
+
       &.disabled
-        color: $text-tertiary-dark
+        pointer-events: none
+        color: $text-tertiary
 
       &:hover,
       &:focus
-        background-color: $bg-tertiary-dark
-
-  li
-    padding: 0.75rem 1rem
-    white-space: nowrap
-    overflow: hidden
-    text-overflow: ellipsis
-    cursor: pointer
-    border-radius: $radius-m
-    transition: background-color 200ms ease
-
-    &.disabled
-      pointer-events: none
-      color: $text-tertiary
-
-    &:hover,
-    &:focus
-      background-color: $bg-secondary
+        background-color: $bg-secondary
 </style>
