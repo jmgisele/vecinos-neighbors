@@ -4,7 +4,8 @@
       <MbScroller>
         <div class="scroll-wrapper">
           <MbSelect v-if="formats.block" class="paragraph-type" :dark="dark" :disabled="cleanActiveParagraphType === 'Document Block' || disabled || raw" :model-value="cleanActiveParagraphType" :options="paragraphTypes" :tooltip="{ message: 'Paragraph type', position: 'top'}" @update:model-value="setParagraphType" />
-          <MbButton v-for="action in toolbarActions" :class="{ 'space-next': action.spaceNext }" :dark="dark" :disabled="disabledActions[action.name] || disabled || raw" :icon="action.icon" :key="action.name" :type="activeMarks.includes(action.name) ? 'primary' : null" :tooltip="{ message: action.tooltip, position: 'top' }" @click="action.action" />
+          <MbSelect v-if="activeParagraphType === 'codeBlock'" class="paragraph-type" :dark="dark" :disabled="disabled || raw" :model-value="activeCodeLang" :options="codeLangs" placeholder="No Language" :tooltip="{ message: 'Code Block Language', position: 'top' }" @update:model-value="setCodeBlockLang" />
+          <MbButton v-for="action in toolbarActions.filter((a) => !disabledActions[a.name])" :class="{ 'space-next': action.spaceNext }" :dark="dark" :disabled="disabledActions[action.name] || disabled || raw" :icon="action.icon" :key="action.name" :type="activeMarks.includes(action.name) ? 'primary' : null" :tooltip="{ message: action.tooltip, position: 'top' }" @click="action.action" />
           <MbButton v-show="raw" :dark="dark" :disabled="disabled && raw" icon="text" :tooltip="{ message: 'Clean up code', position: 'top' }" @click="prettifyCode" />
           <MbToggle v-if="allowRaw" v-model="raw" :dark="dark" :disabled="disabled" :icons="['text-alt', 'code']" tooltip="Toggle raw editing mode" />
         </div>
@@ -155,7 +156,7 @@ export default {
   data() {
     return {
       activeMarks: [],
-      activeCodeLang: '',
+      activeCodeLang: null,
       activeParagraphType: 'paragraph',
       activeParentType: null,
       caretHeight: '',
@@ -315,7 +316,7 @@ export default {
       this.activeParagraphType = newSelection.node ? newSelection.node.type.name : newSelection.$from.parent.type.name;
       this.activeParentType = newSelection.$from.node(-1)?.type.name;
 
-      if (this.activeParagraphType === 'codeBlock') this.activeCodeLang = newSelection.node ? newSelection.node.attrs.lang : newSelection.$from.parent.attrs.lang;
+      if (this.activeParagraphType === 'codeBlock') this.activeCodeLang = newSelection.node ? newSelection.node.attrs.lang || null : newSelection.$from.parent.attrs.lang || null;
     },
     handleTextareaInput(e) {
       let newValue = e.target.value;
@@ -402,6 +403,10 @@ export default {
         },
       });
     },
+    setCodeBlockLang(lang) {
+      setBlockType(this.editorState.schema.nodes.codeBlock, { lang })(this.editorState, this.editorView.dispatch);
+      this.editorView.focus();
+    },
     setMark(type, attrs) {
       toggleMark(type, attrs)(this.editorState, this.editorView.dispatch);
       this.editorView.focus();
@@ -421,6 +426,10 @@ export default {
       default: true,
     },
     allowRaw: Boolean,
+    codeLangs: {
+      type: Array,
+      default: () => ['html', 'css', 'javascript', 'markdown'],
+    },
     dark: Boolean,
     disabled: Boolean,
     error: String,
@@ -759,7 +768,8 @@ export default {
       transition: transform 100ms ease-out
       animation: blink 1s ease infinite
 
-      &.code
+      &.code,
+      &.code-lang
         background-color: $text-dark
 
       @keyframes blink
