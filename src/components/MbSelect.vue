@@ -4,7 +4,7 @@
   </MbButton>
   <MbPopover center-x class="item-wrapper" :dark="dark" no-content-padding ref="popover" :style="{ width: `${popoverWidth}px` }" :visible="active" :x="position.x" :y="position.y" @close="deactivate">
     <template v-if="filterable" #header>
-      <MbInput v-model="filter" :dark="dark" icon="error" placeholder="Filter Items" />
+      <MbInput v-model="filter" :dark="dark" icon="search" placeholder="Filter Items" />
     </template>
     <ul class="items" :class="{ dark }">
       <li v-for="option in filteredOptions" :class="{ disabled: option.disabled }" :key="option.value" :tabindex="option.disabled ? -1 : 0" @click="selectOption(option.value)" @keyup.enter="selectOption(option.value)" @keyup.space="selectOption(option.value)">{{option.label || option.value}}</li>
@@ -106,6 +106,7 @@ export default {
     margin: 0.5rem
     margin-bottom: 0
     width: calc(100% - 1rem)
+    padding: 0.75rem
 
     &.dark
       background-color: $bg-tertiary-dark
