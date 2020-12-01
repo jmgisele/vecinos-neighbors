@@ -218,6 +218,13 @@
         <h3>Slots</h3>
         <MbTable :data="slots.popovers" />
       </section>
+      <section v-else-if="activeTabValue === 'selects'" class="tab selects" key="selects">
+        <h2>Select Boxes</h2>
+        <p>The selected value is: {{selectTest}}</p>
+        <MbSelect v-model="selectTest" :dark="dark" :options="selectOptions" />
+        <MbSelect v-model="selectTest" :dark="dark" filterable :options="selectOptions" />
+        <MbSelect v-model="selectTest" :dark="dark" disabled :options="selectOptions" />
+      </section>
       <section v-else class="tab" key="exampleTab">
         <p>This is just an empty test-tab.</p>
         <p>To delete it, click the button in the “<u @click="activeTab = tabs.findIndex((tab) => tab.value === 'tabs')">Tabs</u>”-tab.</p>
@@ -363,6 +370,7 @@ export default {
           ['`centerY`', 'Boolean', '`false`'],
           ['`dark`', 'Boolean', '`false`'],
           ['`fromRight`', 'Boolean', '`false`'],
+          ['`noContentPadding`', 'Boolean', '`false`'],
           ['`visible`', 'Boolean', '`false`'],
           ['`x`', 'Number', '`0`'],
           ['`y`', 'Number', '`0`'],
@@ -393,6 +401,61 @@ export default {
           ['`target`', 'HTMLElement', ''],
         ],
       },
+      selectTest: null,
+      selectOptions: [
+        {
+          label: 'Test',
+          value: 'foo',
+        },
+        {
+          label: 'Nothing',
+          value: null,
+        },
+        {
+          value: 'bar',
+        },
+        {
+          value: 'bar1',
+        },
+        {
+          value: 'bar2',
+        },
+        {
+          value: 'bar3',
+        },
+        {
+          value: 'bar31',
+        },
+        {
+          value: 'bar32',
+        },
+        {
+          value: 'bar33',
+        },
+        {
+          value: 'bar34',
+        },
+        {
+          value: 'bar35',
+        },
+        {
+          value: 'bar36',
+        },
+        {
+          value: 'bar37',
+        },
+        {
+          value: 'bar38',
+        },
+        {
+          value: 'bar39',
+        },
+        {
+          disabled: true,
+          label: 'This is disabled',
+          value: 'disabled',
+        },
+      ],
       simulateLoading: false,
       slots: {
         popovers: [
@@ -432,6 +495,7 @@ export default {
         { label: 'Loaders', value: 'loaders' },
         { label: 'Popovers', value: 'popovers' },
         { label: 'Scrollers', value: 'scrollers' },
+        { label: 'Select Boxes', value: 'selects' },
         { label: 'Tabs', value: 'tabs' },
         { label: 'Textareas', value: 'textareas' },
         { label: 'Toggles', value: 'toggles' },
@@ -652,4 +716,8 @@ export default {
     &.popovers
       .toggle
         margin-bottom: 1rem
+
+    &.selects
+      ::v-deep(.select)
+        margin: 1rem
 </style>
