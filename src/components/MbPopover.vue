@@ -2,7 +2,7 @@
   <teleport to="body">
     <transition>
       <div v-show="visible" v-bind="$attrs" class="popover" :class="{ dark, right: fromRight, transition }" ref="el" :style="{ left, top, transformOrigin }">
-        <header v-if="$slots.header">
+        <header v-if="$slots.header" :class="{ 'no-padding': noContentPadding }">
           <slot name="header" />
         </header>
         <div class="content" :class="{ 'no-padding': noContentPadding }">
@@ -115,6 +115,19 @@ export default {
 };
 </script>
 
+<style lang="stylus">
+// so we can overwrite from the outside
+.popover
+  header,
+  .content,
+  footer
+    > :first-child
+      margin-top: 0
+
+    > :last-child
+      margin-bottom: 0
+</style>
+
 <style lang="stylus" scoped>
 @require '../assets/styles/colors'
 @require '../assets/styles/corners'
@@ -127,8 +140,9 @@ export default {
   border-radius: $radius-l
   border: 1px solid $bg-secondary
   box-shadow: 0 0.75rem 2rem 0 alpha($bg-dark, .18)
-  overflow-x: hidden
-  overflow-y: auto
+  overflow: hidden
+  display: flex
+  flex-direction: column
   z-index: 1
 
   &.dark
@@ -151,27 +165,25 @@ export default {
   &.v-leave-active
     transition-timing-function: cubic-bezier(0.645, 0.045, 0.355, 1.000)
 
-  header,
-  .content,
-  footer
-    > :first-child
-      margin-top: 0
-
-    > :last-child
-      margin-bottom: 0
-
   header
-    padding: 1rem
-    padding-bottom: 0
+    flex-shrink: 0
 
-  .content:not(.no-padding)
-    padding: 1rem
+    &:not(.no-padding)
+      padding: 1rem
+      padding-bottom: 0
+
+  .content
+    overflow-x: hidden
+    overflow-y: auto
+
+    &:not(.no-padding)
+      padding: 1rem
 
   footer
     display: flex
-    // justify-content: flex-end
     padding: 0.5rem
     background-color: $bg-secondary
+    flex-shrink: 0
 
     ::v-deep(.button)
       width: 100%
