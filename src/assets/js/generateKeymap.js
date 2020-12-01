@@ -105,8 +105,11 @@ export default function generateKeymap(schema, vm) {
   // lists
   if (type = schema.nodes.listItem) {
     bindings.Enter = splitListItem(type);
-    bindings.Tab = sinkListItem(type);
-    bindings['Shift-Tab'] = liftListItem(type);
+
+    if (vm.formatOptions.allowNestedLists) {
+      bindings.Tab = sinkListItem(type);
+      bindings['Shift-Tab'] = liftListItem(type);
+    }
   }
 
   if (type = schema.nodes.orderedList) {
