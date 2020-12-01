@@ -193,8 +193,8 @@ export default function generateSchema(
           getAttrs(dom) {
             return {
               href: dom.getAttribute('href'),
-              rel: dom.getAttribute('rel') || relDefault,
-              target: dom.getAttribute('target') || targetDefault,
+              rel: dom.getAttribute('rel'),
+              target: dom.getAttribute('target'),
               title: dom.getAttribute('title'),
             };
           },
