@@ -141,7 +141,10 @@ export default {
         const level = this.activeParagraphType.slice(-1);
         return `h${level}`;
       }
-      if (this.activeParagraphType === 'codeBlock') return 'code';
+      if (this.activeParagraphType === 'codeBlock') {
+        if (this.activeCodeLang) return 'code-lang';
+        return 'code';
+      }
       return '';
     },
     preventEnter() {
@@ -152,6 +155,7 @@ export default {
   data() {
     return {
       activeMarks: [],
+      activeCodeLang: '',
       activeParagraphType: 'paragraph',
       activeParentType: null,
       caretHeight: '',
@@ -310,6 +314,8 @@ export default {
       // Update active node type
       this.activeParagraphType = newSelection.node ? newSelection.node.type.name : newSelection.$from.parent.type.name;
       this.activeParentType = newSelection.$from.node(-1)?.type.name;
+
+      if (this.activeParagraphType === 'codeBlock') this.activeCodeLang = newSelection.node ? newSelection.node.attrs.lang : newSelection.$from.parent.attrs.lang;
     },
     handleTextareaInput(e) {
       let newValue = e.target.value;
@@ -487,7 +493,6 @@ export default {
 @require '../assets/styles/corners'
 
 .editor
-
   .toolbar
     background-color: $bg-tertiary
     border-radius: $radius-m
@@ -732,11 +737,15 @@ export default {
       &.h1, &.h2, &.h3, &.h4, &.h5, &.h6
         font-weight: bold
 
-      &.code
+      &.code,
+      &.code-lang
         font-family: monospace
         color: $text-secondary-dark
         top: 2rem
         left: 2rem
+
+      &.code-lang
+        top: 3rem
 
     .fake-caret
       width: 0.125rem
