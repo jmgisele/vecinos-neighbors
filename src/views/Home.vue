@@ -398,6 +398,7 @@ export default {
           ['`modelValue`', 'Any', '`null`', ''],
           ['`placeholder`', 'String', "`'Select something…'`", ''],
           ['`rounded`', 'Boolean', '`false`', ''],
+          ['`tooltip`', 'String / Object', '', ''],
         ],
         tabs: [
           ['Name', 'Type', 'Default'],
@@ -469,6 +470,9 @@ export default {
         },
         {
           value: 'bar39',
+        },
+        {
+          value: 'absolutely crazily long and stuff',
         },
         {
           disabled: true,
