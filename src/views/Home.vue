@@ -364,6 +364,7 @@ export default {
         ],
         inputs: [
           ['Name', 'Type', 'Default'],
+          ['`autofocus`', 'Boolean', '`false`'],
           ['`dark`', 'Boolean', '`false`'],
           ['`disabled`', 'Boolean', '`false`'],
           ['`error`', 'String', ''],
