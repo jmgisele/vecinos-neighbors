@@ -50,6 +50,7 @@ export default {
   padding: 1rem
   position: relative
   width: 16rem
+  max-width: 100%
   cursor: text
   margin-top: 1.5rem
   border: 1px solid transparent
