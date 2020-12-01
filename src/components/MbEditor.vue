@@ -5,7 +5,7 @@
         <div class="scroll-wrapper">
           <MbSelect v-if="formats.block" class="paragraph-type" :dark="dark" :disabled="cleanActiveParagraphType === 'Document Block' || disabled || raw" :model-value="cleanActiveParagraphType" :options="paragraphTypes" :tooltip="{ message: 'Paragraph type', position: 'top'}" @update:model-value="setParagraphType" />
           <MbSelect v-if="activeParagraphType === 'codeBlock'" class="paragraph-type" :dark="dark" :disabled="disabled || raw" :model-value="activeCodeLang" :options="codeLangs" placeholder="No Language" :tooltip="{ message: 'Code Block Language', position: 'top' }" @update:model-value="setCodeBlockLang" />
-          <MbButton v-for="action in toolbarActions.filter((a) => !disabledActions[a.name])" :class="{ 'space-next': action.spaceNext }" :dark="dark" :disabled="disabledActions[action.name] || disabled || raw" :icon="action.icon" :key="action.name" :type="activeMarks.includes(action.name) ? 'primary' : null" :tooltip="{ message: action.tooltip, position: 'top' }" @click="action.action" />
+          <MbButton v-for="action in visibleToolbarActions" :class="{ 'space-next': action.spaceNext }" :dark="dark" :disabled="disabledActions[action.name] || disabled || raw" :icon="action.icon" :key="action.name" :type="activeMarks.includes(action.name) ? 'primary' : null" :tooltip="{ message: action.tooltip, position: 'top' }" @click="action.action" />
           <MbButton v-show="raw" :dark="dark" :disabled="disabled && raw" icon="text" :tooltip="{ message: 'Clean up code', position: 'top' }" @click="prettifyCode" />
           <MbToggle v-if="allowRaw" v-model="raw" :dark="dark" :disabled="disabled" :icons="['text-alt', 'code']" tooltip="Toggle raw editing mode" />
         </div>
@@ -23,6 +23,20 @@
         <div v-show="caretVisible" class="fake-caret" :class="[ placeholderFormatting ]" :style="{ height: caretHeight, transform: caretTransform }" />
       </template>
     </label>
+    <MbPopover class="add-link" center-x :dark="dark" :visible="linkPopover.visible" :x="linkPopover.x" :y="linkPopover.y" @close="closeLinkPopover" @keyup.esc="closeLinkPopover">
+      <template #header>
+        <h3>{{linkPopover.editing ? 'Edit' : 'Add'}} Link</h3>
+      </template>
+      <MbInput v-model="linkPopover.href" :dark="dark" icon="link" label="Link URL" ref="linkHref" />
+      <MbInput v-model="linkPopover.title" :dark="dark" icon="text" label="Link Title (optional)" />
+      <MbToggle v-model="linkPopover.newTab" :dark="dark">Open link in a new tab</MbToggle>
+      <MbToggle v-show="linkPopover.newTab" v-model="linkPopover.nofollow" :dark="dark">Include “nofollow” hint</MbToggle>
+      <template #footer>
+        <MbButton :dark="dark" @click="closeLinkPopover">Cancel</MbButton>
+        <MbButton v-show="linkPopover.editing" :dark="dark" type="negative" @click="removeLink">Remove Link</MbButton>
+        <MbButton :dark="dark" :disabled="!linkPopover.href" type="primary" @click="addLink">{{linkPopover.editing ? 'Save' : 'Add'}}</MbButton>
+      </template>
+    </MbPopover>
   </div>
 </template>
 
@@ -32,7 +46,7 @@ import {
 } from 'prosemirror-commands';
 import { DOMParser, DOMSerializer } from 'prosemirror-model';
 import { dropCursor } from 'prosemirror-dropcursor';
-import { EditorState } from 'prosemirror-state';
+import { EditorState, TextSelection } from 'prosemirror-state';
 import { EditorView } from 'prosemirror-view';
 import { gapCursor } from 'prosemirror-gapcursor';
 import { history } from 'prosemirror-history';
@@ -152,6 +166,9 @@ export default {
       if (this.allowNewLines) return null;
       return 'keydown';
     },
+    visibleToolbarActions() {
+      return this.toolbarActions.filter((a) => !this.disabledActions[a.name]);
+    },
   },
   data() {
     return {
@@ -164,6 +181,16 @@ export default {
       caretVisible: false,
       contentLength: 0,
       focussed: false,
+      linkPopover: {
+        editing: false,
+        href: '',
+        newTab: false,
+        nofollow: true,
+        title: '',
+        visible: false,
+        x: 0,
+        y: 0,
+      },
       raw: false,
       renderDiv: null,
       showPlaceholder: true,
@@ -172,6 +199,40 @@ export default {
   },
   emits: ['update:modelValue'],
   methods: {
+    addLink() {
+      const {
+        href, newTab, nofollow, title,
+      } = this.linkPopover;
+      const attrs = {
+        href,
+        rel: null,
+        target: newTab ? '_blank' : null,
+        title: title || null,
+      };
+
+      if (newTab) {
+        if (nofollow) attrs.rel = 'nofollow noopener noreferrer';
+        else attrs.rel = 'noreferrer noopener';
+      }
+
+      const linkType = this.editorState.schema.marks.link;
+      if (this.activeMarks.includes('link')) this.setMark(linkType); // toggle it off, hacky
+      this.setMark(linkType, attrs);
+      this.closeLinkPopover();
+    },
+    closeLinkPopover() {
+      this.linkPopover = {
+        editing: false,
+        href: '',
+        newTab: false,
+        nofollow: true,
+        title: '',
+        visible: false,
+        x: 0,
+        y: 0,
+      };
+      this.editorView.focus();
+    },
     debouncedUpdate: debounce(function update() {
       this.$emit('update:modelValue', this.getContentString());
     }, 500),
@@ -227,7 +288,7 @@ export default {
       if (type = schema.marks.link) {
         // const link = type;
         actions.push({
-          action: this.openLinkModal,
+          action: this.openLinkPopover,
           name: 'link',
           icon: 'link',
           spaceNext: true,
@@ -314,7 +375,7 @@ export default {
       }
       // Update active node type
       this.activeParagraphType = newSelection.node ? newSelection.node.type.name : newSelection.$from.parent.type.name;
-      this.activeParentType = newSelection.$from.node(-1)?.type.name;
+      this.activeParentType = newSelection.$from.node(-1) && newSelection.$from.node(-1).type.name;
 
       if (this.activeParagraphType === 'codeBlock') this.activeCodeLang = newSelection.node ? newSelection.node.attrs.lang || null : newSelection.$from.parent.attrs.lang || null;
     },
@@ -337,8 +398,60 @@ export default {
       wrapInList(type)(this.editorState, this.editorView.dispatch);
       this.editorView.focus();
     },
-    openLinkModal() {
-      console.log('todo: add link modal');
+    openLinkPopover() {
+      const { doc, schema } = this.editorState;
+      let { selection } = this.editorState;
+      if (!this.activeMarks.includes('link') && (!selection || selection.empty || selection.node)) return false;
+
+      if (this.activeMarks.includes('link')) {
+        const $pos = selection.$from;
+        const { parent, parentOffset } = $pos;
+        const start = parent.childAfter(parentOffset);
+
+        if (start.node && start.node.marks.find((mark) => mark.type === schema.marks.link)) {
+          let startIndex = $pos.index();
+          let startPos = $pos.start() + start.offset;
+          let endIndex = startIndex + 1;
+          let endPos = startPos + start.node.nodeSize;
+
+          while (startIndex > 0 && schema.marks.link.isInSet(parent.child(startIndex - 1).marks)) {
+            startIndex -= 1;
+            startPos -= parent.child(startIndex).nodeSize;
+          }
+
+          while (endIndex < parent.childCount && schema.marks.link.isInSet(parent.child(endIndex).marks)) {
+            endPos += parent.child(endIndex).nodeSize;
+            endIndex += 1;
+          }
+
+          const $anchor = doc.resolve(startPos);
+          const $head = doc.resolve(endPos);
+          const newSelection = new TextSelection($anchor, $head);
+
+          this.editorView.dispatch(this.editorState.tr.setSelection(newSelection));
+          selection = this.editorState.selection; // update the selection to the newest value after the transaction
+          const {
+            href, rel, target, title,
+          } = selection.$from.parent.childAfter(selection.$from.parentOffset).node.marks.find((mark) => mark.type === schema.marks.link).attrs;
+
+          this.linkPopover.editing = true;
+          this.linkPopover.href = href;
+          this.linkPopover.title = title || '';
+          if (target === '_blank') this.linkPopover.newTab = true;
+          else this.linkPopover.newTab = false;
+          if (rel && rel.includes('nofollow')) this.linkPopover.nofollow = true;
+          else this.linkPopover.nofollow = false;
+        }
+      }
+
+      const start = this.editorView.coordsAtPos(selection.from);
+      const end = this.editorView.coordsAtPos(selection.to);
+      const { bottom } = end;
+      const left = Math.max((start.left + end.left) / 2, start.left + 3);
+      this.linkPopover.x = left;
+      this.linkPopover.y = bottom + 0.5 * Number.parseInt(window.getComputedStyle(document.documentElement).fontSize, 10);
+      this.linkPopover.visible = true;
+      this.$nextTick(() => this.$refs.linkHref.$refs.input.focus());
       return true; // mark the event as handled
     },
     prettifyCode() {
@@ -402,6 +515,10 @@ export default {
           return text.replace(/\n+/g, ' ');
         },
       });
+    },
+    removeLink() {
+      this.setMark(this.editorState.schema.marks.link);
+      this.closeLinkPopover();
     },
     setCodeBlockLang(lang) {
       setBlockType(this.editorState.schema.nodes.codeBlock, { lang })(this.editorState, this.editorView.dispatch);
@@ -821,4 +938,12 @@ export default {
         left: @top
         right: @top
         visibility: hidden
+
+.popover.add-link
+  .input
+    width: 100%
+    display: flex
+
+  .toggle
+    margin-top: 1rem
 </style>

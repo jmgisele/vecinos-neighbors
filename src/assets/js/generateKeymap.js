@@ -75,8 +75,8 @@ export default function generateKeymap(schema, vm) {
   }
 
   if (type = schema.marks.link) {
-    bindings['Mod-k'] = vm.openLinkModal;
-    bindings['Mod-K'] = vm.openLinkModal;
+    bindings['Mod-k'] = vm.openLinkPopover;
+    bindings['Mod-K'] = vm.openLinkPopover;
   }
 
   if (type = schema.marks.strike) {
