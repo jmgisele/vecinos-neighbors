@@ -3,7 +3,7 @@
     <div v-if="outputFormat !== 'text'" class="toolbar" :class="{ dark }">
       <MbScroller>
         <div class="scroll-wrapper">
-          <MbButton v-if="formats.block" class="paragraph-type" :dark="dark" :disabled="disabled || raw" icon="chevron-down" :icon-first="false" :tooltip="{ message: 'Todo: Paragraph type', position: 'top'}">{{activeParagraphType}}</MbButton>
+          <MbSelect v-if="formats.block" class="paragraph-type" :dark="dark" :disabled="cleanActiveParagraphType === 'Document Block' || disabled || raw" :model-value="cleanActiveParagraphType" :options="paragraphTypes" :tooltip="{ message: 'Paragraph type', position: 'top'}" @update:model-value="setParagraphType" />
           <MbButton v-for="action in toolbarActions" :class="{ 'space-next': action.spaceNext }" :dark="dark" :disabled="disabledActions[action.name] || disabled || raw" :icon="action.icon" :key="action.name" :type="activeMarks.includes(action.name) ? 'primary' : null" :tooltip="{ message: action.tooltip, position: 'top' }" @click="action.action" />
           <MbButton v-show="raw" :dark="dark" :disabled="disabled && raw" icon="text" :tooltip="{ message: 'Clean up code', position: 'top' }" @click="prettifyCode" />
           <MbToggle v-if="allowRaw" v-model="raw" :dark="dark" :disabled="disabled" :icons="['text-alt', 'code']" tooltip="Toggle raw editing mode" />
@@ -26,7 +26,9 @@
 </template>
 
 <script>
-import { baseKeymap, toggleMark, wrapIn } from 'prosemirror-commands';
+import {
+  baseKeymap, setBlockType, toggleMark, wrapIn,
+} from 'prosemirror-commands';
 import { DOMParser, DOMSerializer } from 'prosemirror-model';
 import { dropCursor } from 'prosemirror-dropcursor';
 import { EditorState } from 'prosemirror-state';
@@ -48,6 +50,13 @@ export default {
     if (this.outputFormat !== 'text' && !this.raw) this.destroyProseMirror();
   },
   computed: {
+    cleanActiveParagraphType() {
+      if (
+        ['paragraph', 'codeBlock', 'quoteFooter'].includes(this.activeParagraphType)
+        || this.activeParagraphType.includes('heading')
+      ) return this.activeParagraphType;
+      return 'Document Block';
+    },
     cleanValue() {
       if (this.allowNewLines) return this.modelValue;
       return this.modelValue.replace(/\n+/g, ' ');
@@ -64,11 +73,17 @@ export default {
           ul: true,
         };
       }
-      if (this.activeParentType === 'listItem') {
+      if (this.activeParentType === 'listItem' || this.activeParagraphType === 'listItem' || this.activeParagraphType === 'quoteFooter') {
         return {
           ol: true,
           ul: true,
           blockquote: true,
+        };
+      }
+      if (['blockquote', 'orderedList', 'unorderedList'].includes(this.activeParagraphType)) {
+        return {
+          ol: true,
+          ul: true,
         };
       }
       return {};
@@ -86,6 +101,41 @@ export default {
       if (this.outputFormat === 'text') return this.modelValue.length > this.maxLen;
       return this.contentLength > this.maxLen;
     },
+    paragraphTypes() {
+      const types = [
+        {
+          label: 'Paragraph',
+          value: 'paragraph',
+        },
+      ];
+
+      if (this.activeParentType === 'listItem') return types; // lists don’t allow for block content
+
+      if (this.formats.block && this.formats.block.includes('heading')) {
+        for (let i = Math.max(1, this.formatOptions.minHeading); i <= Math.min(6, this.formatOptions.maxHeading); i += 1) {
+          types.push({
+            label: `Heading ${i}`,
+            value: `heading${i}`,
+          });
+        }
+      }
+
+      if (this.formats.block && this.formats.block.includes('codeBlock')) {
+        types.push({
+          label: 'Code Block',
+          value: 'codeBlock',
+        });
+      }
+
+      if (this.formats.block && this.formats.block.includes('blockquote') && this.formatOptions.allowQuoteFooters && this.activeParentType === 'blockquote') {
+        types.push({
+          label: 'Quote Footer',
+          value: 'quoteFooter',
+        });
+      }
+
+      return types;
+    },
     placeholderFormatting() {
       if (this.activeParagraphType.startsWith('heading')) {
         const level = this.activeParagraphType.slice(-1);
@@ -102,7 +152,7 @@ export default {
   data() {
     return {
       activeMarks: [],
-      activeParagraphType: 'Paragraph',
+      activeParagraphType: 'paragraph',
       activeParentType: null,
       caretHeight: '',
       caretTransform: '',
@@ -117,6 +167,9 @@ export default {
   },
   emits: ['update:modelValue'],
   methods: {
+    debouncedUpdate: debounce(function update() {
+      this.$emit('update:modelValue', this.getContentString());
+    }, 500),
     destroyProseMirror() {
       this.editorView.destroy();
       this.editorView = null;
@@ -347,9 +400,10 @@ export default {
       toggleMark(type, attrs)(this.editorState, this.editorView.dispatch);
       this.editorView.focus();
     },
-    debouncedUpdate: debounce(function update() {
-      this.$emit('update:modelValue', this.getContentString());
-    }, 500),
+    setParagraphType(typeName) {
+      setBlockType(this.editorState.schema.nodes[typeName])(this.editorState, this.editorView.dispatch);
+      this.editorView.focus();
+    },
   },
   mounted() {
     if (this.outputFormat === 'text') this.recalculateHeight(this.cleanValue);
@@ -364,7 +418,12 @@ export default {
     dark: Boolean,
     disabled: Boolean,
     error: String,
-    formatOptions: Object,
+    formatOptions: {
+      type: Object,
+      default: () => ({
+        minHeading: 1, maxHeading: 6, allowQuoteFooters: true, allowNestedLists: true,
+      }),
+    },
     formats: {
       type: Object,
       default: () => ({ block: ['blockquote', 'codeBlock', 'heading', 'hr', 'orderedList', 'unorderedList'], inline: ['br', 'code', 'em', 'link', 'strike', 'strong'] }),
@@ -455,6 +514,11 @@ export default {
 
       .button.paragraph-type
         border: none
+        min-width: (96 / 16)rem
+        flex-shrink: 0
+
+        &::before
+          border: none
 
       .button.icon
         padding: ((16 - 3) / 16)rem
