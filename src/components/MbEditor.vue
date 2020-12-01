@@ -19,7 +19,7 @@
       <template v-else>
         <div class="editor-wrapper" ref="editor" />
         <div v-if="placeholder && showPlaceholder" class="placeholder" :class="[ placeholderFormatting ]">{{placeholder}}</div>
-        <div v-show="caretVisible" class="fake-caret" :style="{ height: caretHeight, transform: caretTransform }" />
+        <div v-show="caretVisible" class="fake-caret" :class="[ placeholderFormatting ]" :style="{ height: caretHeight, transform: caretTransform }" />
       </template>
     </label>
   </div>
@@ -758,6 +758,9 @@ export default {
       pointer-events: none
       transition: transform 100ms ease-out
       animation: blink 1s ease infinite
+
+      &.code
+        background-color: $text-dark
 
       @keyframes blink
         0%
