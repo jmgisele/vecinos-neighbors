@@ -224,6 +224,10 @@
         <MbSelect v-model="selectTest" :dark="dark" :options="selectOptions" />
         <MbSelect v-model="selectTest" :dark="dark" filterable :options="selectOptions" />
         <MbSelect v-model="selectTest" :dark="dark" disabled :options="selectOptions" />
+        <h3>Props</h3>
+        <MbTable :data="props.selects" />
+        <h3>Events</h3>
+        <MbTable :data="events.selects" />
       </section>
       <section v-else class="tab" key="exampleTab">
         <p>This is just an empty test-tab.</p>
@@ -290,6 +294,7 @@ export default {
         'plus',
         'replace',
         'save',
+        'search',
         'strikethrough',
         'sun',
         'text-alt',
@@ -316,6 +321,10 @@ export default {
         popovers: [
           ['Name', 'Data'],
           ['`close`', ''],
+        ],
+        selects: [
+          ['Name', 'Data'],
+          ['`update:modelValue`', 'The value of the selected option'],
         ],
         tabs: [
           ['Name', 'Data'],
@@ -347,7 +356,7 @@ export default {
           ['Name', 'Type', 'Default'],
           ['`dark`', 'Boolean', '`false`'],
           ['`disabled`', 'Boolean', '`false`'],
-          ['`value`', 'Boolean', '`false`'],
+          ['`modelValue`', 'Boolean', '`false`'],
         ],
         icons: [
           ['Name', 'Type', 'Default'],
@@ -361,6 +370,7 @@ export default {
           ['`icon`', 'String', ''],
           ['`label`', 'String', ''],
           ['`maxLen`', 'Number', ''],
+          ['`modelValue`', 'String', "`''`"],
           ['`placeholder`', 'String', ''],
           ['`type`', 'String', "`'text'`"],
         ],
@@ -379,20 +389,30 @@ export default {
           ['Name', 'Type', 'Default', 'Allowed Values'],
           ['`direction`', 'String', "`'horizontal'`", 'horizontal, vertical'],
         ],
+        selects: [
+          ['Name', 'Type', 'Default', 'Notes'],
+          ['`dark`', 'Boolean', '`false`', ''],
+          ['`disabled`', 'Boolean', '`false`', ''],
+          ['`filterable`', 'Boolean', '`false`', ''],
+          ['`options`', 'Array', '`false`', 'Should be an array of objects like { label: String, value: Any, disabled: Boolean }'],
+          ['`modelValue`', 'Any', '`null`', ''],
+          ['`placeholder`', 'String', "`'Select something…'`", ''],
+          ['`rounded`', 'Boolean', '`false`', ''],
+        ],
         tabs: [
           ['Name', 'Type', 'Default'],
           ['`dark`', 'Boolean', '`false`'],
+          ['`modelValue`', 'Number', ''],
           ['`showAddOption`', 'Boolean', '`false`'],
           ['`tabs`', 'Array', '`[]`'],
-          ['`value`', 'Number', ''],
         ],
         toggles: [
           ['Name', 'Type', 'Default'],
           ['`dark`', 'Boolean', '`false`'],
           ['`disabled`', 'Boolean', '`false`'],
           ['`icons`', 'Array', ''],
+          ['`modelValue`', 'Boolean', '`false`'],
           ['`tooltip`', 'String', ''],
-          ['`value`', 'Boolean', '`false`'],
         ],
         tooltips: [
           ['Name', 'Type', 'Allowed Values'],
