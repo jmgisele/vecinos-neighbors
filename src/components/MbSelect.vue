@@ -7,7 +7,7 @@
       <MbInput v-model="filter" :dark="dark" icon="search" placeholder="Filter Items" />
     </template>
     <ul class="items" :class="{ dark }">
-      <li v-for="option in filteredOptions" :class="{ active: option.value ? option.value === modelValue : option === modelValue, disabled: option.disabled }" :key="option.value" :tabindex="option.disabled ? -1 : 0" @click="selectOption(option.value || option)" @keyup.enter="selectOption(option.value || option)" @keyup.space="selectOption(option.value || option)">{{option.label || option.value || option}}</li>
+      <li v-for="option in filteredOptions" :class="{ active: option.value ? option.value === modelValue : option === modelValue, disabled: option.disabled }" :key="option.value" :tabindex="option.disabled ? -1 : 0" @click="selectOption(typeof option.value !== 'undefined' ? option.value : option)" @keyup.enter="selectOption(option.value || option)" @keyup.space="selectOption(option.value || option)">{{option.label || option.value || option}}</li>
     </ul>
   </MbPopover>
 </template>
