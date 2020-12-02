@@ -945,6 +945,9 @@ export default {
     width: 100%
     display: flex
 
+    &.dark
+      background-color: $bg-tertiary-dark
+
   .toggle
     margin-top: 1rem
 </style>
