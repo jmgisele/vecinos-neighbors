@@ -563,14 +563,13 @@ export default {
     inputRuleOptions: Object,
     label: String,
     maxLen: Number,
+    modelValue: String,
     outputFormat: {
       type: String,
       default: 'text',
       validator: (v) => ['text', 'markdown', 'html'].includes(v),
     },
     placeholder: String,
-    scrollingContainer: String,
-    modelValue: String,
   },
   watch: {
     raw(nv) {

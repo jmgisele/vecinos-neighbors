@@ -156,6 +156,10 @@
         <MbEditor v-model="editorTest" :dark="dark" :formats="{ inline: ['em', 'strike'], block: false }" :format-options="{ allowNestedLists: false, allowQuoteFooters: false, minHeading: 2, maxHeading: 4 }" :input-rule-options="{ autoquotes: '»«›‹'}" label="HTML with limited formats" :max-len="200" output-format="html" />
         <MbEditor v-model="editorTest" allow-raw :dark="dark" disabled label="This will output Markdown" output-format="markdown" />
         <div class="tester" v-html="editorTest" />
+        <h3>Props</h3>
+        <MbTable :data="props.textareas" />
+        <h3>Events</h3>
+        <MbTable :data="events.textareas" />
       </section>
       <section v-else-if="activeTabValue === 'loaders'" class="tab loaders" key="loaders">
         <h2>Loaders</h2>
@@ -331,6 +335,10 @@ export default {
           ['`add-tab`', ''],
           ['`update:modelValue`', 'The index of the new active tab'],
         ],
+        textareas: [
+          ['Name', 'Data'],
+          ['`update:modelValue`', 'The new content in the specified output format'],
+        ],
         toggles: [
           ['Name', 'Data'],
           ['`update:modelValue`', '`!value`'],
@@ -407,6 +415,23 @@ export default {
           ['`modelValue`', 'Number', ''],
           ['`showAddOption`', 'Boolean', '`false`'],
           ['`tabs`', 'Array', '`[]`'],
+        ],
+        textareas: [
+          ['Name', 'Type', 'Default', 'Notes'],
+          ['`allowNewLines`', 'Boolean', '`true`', 'Ignored if outputFormat !== \'text\', use formats in that case'],
+          ['`allowNewLines`', 'Boolean', '`false`', 'Allow raw code editing when outputFormat !== \'text\''],
+          ['`codeLangs`', 'Array', "`['html', 'css', 'javascript', 'markdown']`", 'What code langauges should be available when formatting code blocks'],
+          ['`dark`', 'Boolean', '`false`', ''],
+          ['`disabled`', 'Boolean', '`false`', ''],
+          ['`error`', 'String', '`\'\'`', ''],
+          ['`formatOptions`', 'Object', '`{ minHeading: 1, maxHeading: 6, allowQuoteFooters: true, allowNestedLists: true }`', ''],
+          ['`formats`', 'Object', "`{ block: ['blockquote', 'codeBlock', 'heading', 'hr', 'orderedList', 'unorderedList'], inline: ['br', 'code', 'em', 'link', 'strike', 'strong'] }`", 'List of allowed formats for non-text editors. Set block to false to get an inline-only editor.'],
+          ['`inputRuleOptions`', 'Object', "`{ autoquotes: '“”‘’', dashes: true, ellipsis: true, minHeading: 1, maxHeading: 6, noDoubleSpace: true, }`", 'Configuration for input rules.'],
+          ['`label`', 'String', '', ''],
+          ['`maxLen`', 'Number', '', ''],
+          ['`modelValue`', 'String', '', 'Will be either text / html / markdown depending on outputFormat'],
+          ['`outputFormat`', 'String', '', 'Allowed values: text, html, markdown'],
+          ['`placeholder`', 'String', '', ''],
         ],
         toggles: [
           ['Name', 'Type', 'Default'],
