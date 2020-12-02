@@ -881,6 +881,7 @@ export default {
       position: absolute
       top: 1rem
       left: 1rem
+      margin: 0
       pointer-events: none
       transition: transform 100ms ease-out
       animation: blink 1s ease infinite
