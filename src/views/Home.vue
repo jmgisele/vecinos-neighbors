@@ -233,6 +233,19 @@
         <h3>Events</h3>
         <MbTable :data="events.selects" />
       </section>
+      <section v-else-if="activeTabValue === 'radios'" class="tab radios" key="radios">
+        <h2>Radio Groups</h2>
+        <p>The selected value is: {{radioTest}}</p>
+        <MbRadioGroup v-model="radioTest" :dark="dark" inline :options="['Administrator', 'Editor', 'Developer', 'Writer', 'Cheesemaker', 'Chessplayer']" />
+        <MbRadioGroup v-model="radioTest" :dark="dark" :options="[{ label: 'Administrator Label', value: 'Administrator' }, { label: 'Editor Label', value: 'Editor' }, { label: 'Developer Label', value: 'Developer' }]" />
+        <h3>Props</h3>
+        <MbTable :data="props.radios" />
+        <h3>Events</h3>
+        <MbTable :data="events.radios" />
+        <h3>Notes</h3>
+        <p>The <code>options</code>-array can either be an array of values like strings, or an array of objects in the following format:</p>
+        <p><code>{ label: 'Option Label', value: optionValue }</code></p>
+      </section>
       <section v-else class="tab" key="exampleTab">
         <p>This is just an empty test-tab.</p>
         <p>To delete it, click the button in the “<u @click="activeTab = tabs.findIndex((tab) => tab.value === 'tabs')">Tabs</u>”-tab.</p>
@@ -326,6 +339,10 @@ export default {
           ['Name', 'Data'],
           ['`close`', ''],
         ],
+        radios: [
+          ['Name', 'Data'],
+          ['`update:modelValue`', 'The value of the selected option'],
+        ],
         selects: [
           ['Name', 'Data'],
           ['`update:modelValue`', 'The value of the selected option'],
@@ -394,6 +411,13 @@ export default {
           ['`x`', 'Number', '`0`'],
           ['`y`', 'Number', '`0`'],
         ],
+        radios: [
+          ['Name', 'Type', 'Default'],
+          ['`dark`', 'Boolean', '`false`'],
+          ['`inline`', 'Boolean', '`false`'],
+          ['`modelValue`', 'Any', '`undefined`'],
+          ['`options`', 'Array', '`undefined`'],
+        ],
         scrollers: [
           ['Name', 'Type', 'Default', 'Allowed Values'],
           ['`direction`', 'String', "`'horizontal'`", 'horizontal, vertical'],
@@ -448,6 +472,7 @@ export default {
           ['`target`', 'HTMLElement', ''],
         ],
       },
+      radioTest: null,
       selectTest: null,
       selectOptions: [
         {
@@ -544,6 +569,7 @@ export default {
         { label: 'Inputs', value: 'inputs' },
         { label: 'Loaders', value: 'loaders' },
         { label: 'Popovers', value: 'popovers' },
+        { label: 'Radio Groups', value: 'radios' },
         { label: 'Scrollers', value: 'scrollers' },
         { label: 'Select Boxes', value: 'selects' },
         { label: 'Tabs', value: 'tabs' },
@@ -770,4 +796,8 @@ export default {
     &.selects
       ::v-deep(.select)
         margin: 1rem
+
+    &.radios
+      .radio-group
+        margin-bottom: 1.5rem
 </style>
