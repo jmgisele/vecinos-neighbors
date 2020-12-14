@@ -2,7 +2,7 @@
   <teleport to="body">
     <div class="centerer">
       <transition>
-        <div v-show="visible" v-bind="$attrs" class="modal" :class="{dark}" ref="el" :style="{ opacity, pointerEvents, transform }">
+        <div v-show="visible" v-bind="$attrs" class="modal" :class="{dark, darkened: nextModal }" ref="el" :style="{ opacity, pointerEvents, transform }">
           <header v-if="title">
             <h2 class="h3">{{title}}</h2>
           </header>
@@ -30,7 +30,7 @@ export default {
       return null;
     },
     opacity() {
-      if (this.modalIndex < this.$store.state.application.openModals.length - 2) return 0;
+      if (this.visible && this.modalIndex < this.$store.state.application.openModals.length - 2) return 0;
       return null;
     },
   },
@@ -50,7 +50,8 @@ export default {
       const margin = 2 * remBase;
       if (this.mobile) {
         const yDelta = (nextModalRect.height - ownRect.height * 0.8);
-        this.transform = `translateY(-${yDelta + margin}px) scale(0.8)`;
+        if (yDelta > 0) this.transform = `translateY(-${yDelta + margin}px) scale(0.8)`;
+        else this.transform = 'scale(0.8)';
       } else {
         const yDelta = (nextModalRect.height * 1.25 - ownRect.height * 0.8) / 2;
         this.transform = `translateY(${yDelta + margin}px) scale(0.8)`;
@@ -109,23 +110,34 @@ export default {
   overflow: hidden
   padding: (32 / 16)rem
   pointer-events: auto // needed to revert the pointer-events: none from the parent
-  transition: transform 200ms ease, opacity 200ms ease
+  transition: transform 200ms ease, opacity 200ms ease, background-color 200ms ease
 
   @media $mobile
     align-self: flex-end;
     width: 100%
     border-bottom-left-radius: 0
     border-bottom-right-radius: 0
-    transition-duration: 150ms
+    transition-duration: 250ms
+    box-shadow: 0 -0.75rem 2rem 0 alpha($bg-dark, .18)
     transform-origin: bottom
+
+  &.darkened
+    background-color: $bg-secondary
 
   &.dark
     background-color: $bg-secondary-dark
     border-color: $bg-tertiary-dark
 
+    &.darkened
+      background-color: $bg-dark
+      border-color: $bg-secondary-dark
+
   &.v-enter-active,
   &.v-leave-active
     transition: opacity 150ms ease, transform 150ms cubic-bezier(0.215, 0.610, 0.355, 1.000)
+
+    @media $mobile
+      transition-duration: 250ms
 
     &.v-enter-from,
     &.v-leave-to
