@@ -6,9 +6,12 @@
           <header v-if="title">
             <h2 class="h3">{{title}}</h2>
           </header>
-          <div class="body">
+          <div class="body" :class="{ padded: paddedBody, 'no-footer': !$slots.actions }">
             <slot />
           </div>
+          <footer v-if="$slots.actions">
+            <slot name="actions" />
+          </footer>
         </div>
       </transition>
     </div>
@@ -61,6 +64,10 @@ export default {
   },
   props: {
     dark: Boolean,
+    paddedBody: {
+      type: Boolean,
+      default: true,
+    },
     title: String,
     visible: Boolean,
   },
@@ -101,20 +108,22 @@ export default {
   z-index: 1
 
 .modal
-  max-width: 40rem
-  max-height: 90vh
+  width: 40rem
+  max-width: 100%
+  max-height: 70vh
+  display: flex
+  flex-direction: column
   background-color: $bg
   border-radius: $radius-xl
   border: 1px solid $bg-secondary
   box-shadow: 0 0.75rem 2rem 0 alpha($bg-dark, .18)
   overflow: hidden
-  padding: (32 / 16)rem
   pointer-events: auto // needed to revert the pointer-events: none from the parent
   transition: transform 200ms ease, opacity 200ms ease, background-color 200ms ease
 
   @media $mobile
-    align-self: flex-end;
-    width: 100%
+    align-self: flex-end
+    max-height: 90vh
     border-bottom-left-radius: 0
     border-bottom-right-radius: 0
     transition-duration: 250ms
@@ -152,9 +161,36 @@ export default {
     transition-timing-function: cubic-bezier(0.645, 0.045, 0.355, 1.000)
 
   header
+    flex-shrink: 0
     text-align: center
-    margin-bottom: 2rem
+    padding: (32 / 16)rem
+
+    @media $mobile
+      padding: 1rem
 
     .h3
       margin: 0
+
+  .body
+    overflow-y: auto
+
+    &.padded
+      padding: 0 (32 / 16)rem
+
+      @media $mobile
+        padding: 0 1rem
+
+    &.no-footer
+      padding-bottom: (32 / 16)rem
+
+      @media $mobile
+        padding-bottom: 1rem
+
+  footer
+    flex-shrink: 0
+    padding: (32 / 16)rem
+    text-align: right
+
+    @media $mobile
+      padding: 1rem
 </style>

@@ -253,20 +253,43 @@
         <MbModal :dark="dark" title="Test Modal" :visible="modalVisible" @close="modalVisible = false">
           <p>This is a testing modal.</p>
           <p>The document is in <code>{{$store.state.application.mobile ? 'mobile' : 'desktop'}}</code> mode.</p>
-          <MbButton :dark="dark" @click="modalVisible = false">Close Me</MbButton>
-          <MbButton :dark="dark" type="primary" @click="modalVisible2 = true">Open Nested</MbButton>
+          <template #actions>
+            <MbButton :dark="dark" @click="modalVisible = false">Close Me</MbButton>
+            <MbButton :dark="dark" type="primary" @click="modalVisible2 = true">Open Nested</MbButton>
+          </template>
           <MbModal :dark="dark" title="Nested Modal" :visible="modalVisible2" @close="modalVisible2 = false">
             <p>This is a nested modal for testing purposes.</p>
             <p>This is a nested modal for testing purposes.</p>
             <p>This is a nested modal for testing purposes.</p>
             <p>This is a nested modal for testing purposes.</p>
-            <MbButton :dark="dark" type="primary" @click="modalVisible3 = true">Open Nested</MbButton>
+            <p>This is a nested modal for testing purposes.</p>
+            <p>This is a nested modal for testing purposes.</p>
+            <p>This is a nested modal for testing purposes.</p>
+            <p>This is a nested modal for testing purposes.</p>
+            <p>This is a nested modal for testing purposes.</p>
+            <p>This is a nested modal for testing purposes.</p>
+            <p>This is a nested modal for testing purposes.</p>
+            <p>This is a nested modal for testing purposes.</p>
+            <p>This is a nested modal for testing purposes.</p>
+            <p>This is a nested modal for testing purposes.</p>
+            <p>This is a nested modal for testing purposes.</p>
+            <p>This is a nested modal for testing purposes.</p>
+            <p>This is a nested modal for testing purposes.</p>
+            <p>This is a nested modal for testing purposes.</p>
+            <p>This is a nested modal for testing purposes.</p>
+            <p>This is a nested modal for testing purposes.</p>
+            <p>This is a nested modal for testing purposes.</p>
+            <template #actions>
+              <MbButton :dark="dark" type="primary" @click="modalVisible3 = true">Open Nested</MbButton>
+            </template>
             <MbModal :dark="dark" title="Second Nested Modal" :visible="modalVisible3" @close="modalVisible3 = false">
               <p>This is a nested modal for testing purposes.</p>
               <p>This is a nested modal for testing purposes.</p>
               <p>This is a nested modal for testing purposes.</p>
               <p>This is a nested modal for testing purposes.</p>
-              <MbButton :dark="dark" type="primary" @click="modalVisible4 = true">Open Nested</MbButton>
+              <template #actions>
+                <MbButton :dark="dark" type="primary" @click="modalVisible4 = true">Open Nested</MbButton>
+              </template>
               <MbModal :dark="dark" title="Third Nested Modal" :visible="modalVisible4" @close="modalVisible4 = false">
                 <p>This is a nested modal for testing purposes.</p>
               </MbModal>
