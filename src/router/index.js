@@ -1,4 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router';
+import Store from '../store';
 import Home from '../views/Home.vue';
 
 const routes = [
@@ -20,6 +21,14 @@ const routes = [
 const router = createRouter({
   history: createWebHistory(process.env.BASE_URL),
   routes,
+});
+
+router.beforeEach(() => {
+  if (Store.state.application.openModals.length > 0) {
+    Store.commit('closeTopmostModal');
+    return false;
+  }
+  return true;
 });
 
 export default router;
