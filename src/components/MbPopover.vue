@@ -30,6 +30,7 @@ export default {
       transformOrigin: null,
     };
   },
+  emits: ['close'],
   inheritAttrs: false, // because this technically qualifies as a fragment since it teleports
   mounted() {
     if (this.visible) {
