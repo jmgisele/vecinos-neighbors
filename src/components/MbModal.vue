@@ -46,10 +46,10 @@ export default {
     return {
       maxSwipeDistance: 0,
       pointerEvents: null,
+      previousModalTransform: null,
       startY: 0,
       swiping: false,
       transform: null,
-      prevTransform: null,
     };
   },
   emits: ['close'],
@@ -62,7 +62,7 @@ export default {
       this.swiping = false;
       if (this.previousModal) {
         this.previousModal.style.removeProperty('transition');
-        this.previousModal.style.transform = `translateY(${this.prevTransform}px) scale(0.8)`;
+        this.previousModal.style.transform = `translateY(${this.previousModalTransform}px) scale(0.8)`; // restore original transform
       }
 
       if (distance > this.maxSwipeDistance / 2 || distance > window.innerHeight / 3) {
@@ -77,7 +77,8 @@ export default {
       this.swiping = true;
       if (this.previousModal) {
         this.previousModal.style.transition = 'none';
-        this.prevTransform = Number.parseInt(window.getComputedStyle(this.previousModal).transform.match(/matrix.*\((.+)\)/)[1].split(', ')[5], 10);
+        // Based on: https://zellwk.com/blog/css-translate-values-in-javascript/ only works because we translate before we scale
+        this.previousModalTransform = Number.parseInt(window.getComputedStyle(this.previousModal).transform.match(/matrix.*\((.+)\)/)[1].split(', ')[5], 10);
       }
     },
     swipeUpdate(e) {
@@ -86,7 +87,7 @@ export default {
       const distance = currentY - this.startY;
       if (distance > 0 && e.cancelable) e.preventDefault();
       this.transform = `translateY(${Math.max(distance, 0)}px)`;
-      if (this.previousModal) this.previousModal.style.transform = `translateY(${this.prevTransform - this.prevTransform * (Math.max(distance, 0) / this.maxSwipeDistance)}px) scale(${0.8 + 0.2 * (Math.max(distance, 0) / this.maxSwipeDistance)})`;
+      if (this.previousModal) this.previousModal.style.transform = `translateY(${this.previousModalTransform - this.previousModalTransform * (Math.max(distance, 0) / this.maxSwipeDistance)}px) scale(${0.8 + 0.2 * (Math.max(distance, 0) / this.maxSwipeDistance)})`;
     },
     updateOffsets() {
       const nextModalRect = this.nextModal.getBoundingClientRect();
