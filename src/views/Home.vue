@@ -248,6 +248,7 @@
       </section>
       <section v-else-if="activeTabValue === 'modals'" class="tab modals" key="modals">
         <h2>Modals</h2>
+        <p>Modals get displayed over every other piece of content. They put the user in a new mode. They can also be stacked.</p>
         <p>Click the button below to open a modal.</p>
         <MbButton :dark="dark" type="primary" @click="modalVisible = true">Open Modal</MbButton>
         <MbModal :dark="dark" title="Test Modal" :visible="modalVisible" @close="modalVisible = false">
@@ -296,6 +297,10 @@
             </MbModal>
           </MbModal>
         </MbModal>
+        <h3>Props</h3>
+        <MbTable :data="props.modals" />
+        <h3>Events</h3>
+        <MbTable :data="events.modals" />
       </section>
       <section v-else class="tab" key="exampleTab">
         <p>This is just an empty test-tab.</p>
@@ -386,6 +391,10 @@ export default {
           ['`focus`', ''],
           ['`update:modelValue`', 'The new text content'],
         ],
+        modals: [
+          ['Name', 'Data'],
+          ['`close`', ''],
+        ],
         popovers: [
           ['Name', 'Data'],
           ['`close`', ''],
@@ -454,6 +463,13 @@ export default {
           ['`modelValue`', 'String', "`''`"],
           ['`placeholder`', 'String', ''],
           ['`type`', 'String', "`'text'`"],
+        ],
+        modals: [
+          ['Name', 'Type', 'Default'],
+          ['`dark`', 'Boolean', '`false`'],
+          ['`paddedBody`', 'Boolean', '`true`'],
+          ['`title`', 'String', '`\'\'`'],
+          ['`visible`', 'Boolean', '`false`'],
         ],
         popovers: [
           ['Name', 'Type', 'Default'],
