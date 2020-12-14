@@ -2,15 +2,18 @@
   <SvgSprite />
   <GlobalTooltipController />
   <router-view :dark="dark" />
+  <ModalOverlay :dark="dark" />
 </template>
 
 <script>
 import GlobalTooltipController from '@/components/utility/GlobalTooltipController.vue';
+import ModalOverlay from '@/components/utility/ModalOverlay.vue';
 import SvgSprite from '@/components/utility/SvgSprite.vue';
 
 export default {
   components: {
     GlobalTooltipController,
+    ModalOverlay,
     SvgSprite,
   },
   computed: {

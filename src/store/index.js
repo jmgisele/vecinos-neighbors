@@ -3,6 +3,7 @@ import { createStore } from 'vuex';
 export default createStore({
   state: {
     application: {
+      openModals: [],
       mobile: false,
       tooltip: null,
     },
@@ -11,6 +12,15 @@ export default createStore({
     },
   },
   mutations: {
+    addOpenModal(state, modalEl) {
+      state.application.openModals.push(modalEl);
+    },
+    closeModal(state, index) {
+      state.application.openModals.splice(index, 1);
+    },
+    closeTopmostModal(state) {
+      state.application.openModals.pop();
+    },
     setMobile(state, value) {
       state.application.mobile = value;
     },

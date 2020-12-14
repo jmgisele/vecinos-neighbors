@@ -246,6 +246,34 @@
         <p>The <code>options</code>-array can either be an array of values like strings, or an array of objects in the following format:</p>
         <p><code>{ label: 'Option Label', value: optionValue }</code></p>
       </section>
+      <section v-else-if="activeTabValue === 'modals'" class="tab modals" key="modals">
+        <h2>Modals</h2>
+        <p>Click the button below to open a modal.</p>
+        <MbButton :dark="dark" type="primary" @click="modalVisible = true">Open Modal</MbButton>
+        <MbModal :dark="dark" title="Test Modal" :visible="modalVisible" @close="modalVisible = false">
+          <p>This is a testing modal.</p>
+          <p>The document is in <code>{{$store.state.application.mobile ? 'mobile' : 'desktop'}}</code> mode.</p>
+          <MbButton :dark="dark" @click="modalVisible = false">Close Me</MbButton>
+          <MbButton :dark="dark" type="primary" @click="modalVisible2 = true">Open Nested</MbButton>
+          <MbModal :dark="dark" title="Nested Modal" :visible="modalVisible2" @close="modalVisible2 = false">
+            <p>This is a nested modal for testing purposes.</p>
+            <p>This is a nested modal for testing purposes.</p>
+            <p>This is a nested modal for testing purposes.</p>
+            <p>This is a nested modal for testing purposes.</p>
+            <MbButton :dark="dark" type="primary" @click="modalVisible3 = true">Open Nested</MbButton>
+            <MbModal :dark="dark" title="Second Nested Modal" :visible="modalVisible3" @close="modalVisible3 = false">
+              <p>This is a nested modal for testing purposes.</p>
+              <p>This is a nested modal for testing purposes.</p>
+              <p>This is a nested modal for testing purposes.</p>
+              <p>This is a nested modal for testing purposes.</p>
+              <MbButton :dark="dark" type="primary" @click="modalVisible4 = true">Open Nested</MbButton>
+              <MbModal :dark="dark" title="Third Nested Modal" :visible="modalVisible4" @close="modalVisible4 = false">
+                <p>This is a nested modal for testing purposes.</p>
+              </MbModal>
+            </MbModal>
+          </MbModal>
+        </MbModal>
+      </section>
       <section v-else class="tab" key="exampleTab">
         <p>This is just an empty test-tab.</p>
         <p>To delete it, click the button in the “<u @click="activeTab = tabs.findIndex((tab) => tab.value === 'tabs')">Tabs</u>”-tab.</p>
@@ -362,6 +390,10 @@ export default {
         ],
       },
       idCounter: 0,
+      modalVisible: false,
+      modalVisible2: false,
+      modalVisible3: false,
+      modalVisible4: false,
       popover: null,
       popover2: null,
       popoverFromRight: false,
@@ -568,6 +600,7 @@ export default {
         { label: 'Icons', value: 'icons' },
         { label: 'Inputs', value: 'inputs' },
         { label: 'Loaders', value: 'loaders' },
+        { label: 'Modals', value: 'modals' },
         { label: 'Popovers', value: 'popovers' },
         { label: 'Radio Groups', value: 'radios' },
         { label: 'Scrollers', value: 'scrollers' },
