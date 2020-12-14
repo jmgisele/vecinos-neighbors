@@ -3,6 +3,7 @@ import { createStore } from 'vuex';
 export default createStore({
   state: {
     application: {
+      mobile: false,
       tooltip: null,
     },
     user: {
@@ -10,6 +11,9 @@ export default createStore({
     },
   },
   mutations: {
+    setMobile(state, value) {
+      state.application.mobile = value;
+    },
     setUserProperty(state, { key, value }) {
       state.user[key] = value;
     },

@@ -30,7 +30,13 @@ export default {
     if (this.dark) document.body.classList.add('dark');
 
     window.addEventListener('scroll', this.handleScroll, { passive: true });
-    if (window.matchMedia) window.matchMedia('(prefers-color-scheme: dark)').addListener(() => { this.forceRecompute += 1; });
+    if (window.matchMedia) {
+      const mobileQuery = window.matchMedia('(max-width: 40rem)');
+      if (mobileQuery.matches) this.$store.commit('setMobile', true);
+
+      window.matchMedia('(prefers-color-scheme: dark)').addListener(() => { this.forceRecompute += 1; });
+      mobileQuery.addListener((e) => this.$store.commit('setMobile', e.matches));
+    }
   },
   data() {
     return {
