@@ -304,6 +304,24 @@
         <h3>Slots</h3>
         <MbTable :data="slots.modals" />
       </section>
+      <section v-else-if="activeTabValue === 'progress-bars'" class="tab progress-bars">
+        <h3>Progress Bars</h3>
+        <MbProgress :colors="['accent']" :dark="dark" indetermined />
+        <MbProgress :dark="dark" label="70%" :progress="0.7" />
+        <MbProgress :colors="['positive', 'warning', 'negative']" :dark="dark" label="This is a really long label to prove a point" :progress="0.6" />
+        <h3>Props</h3>
+        <MbTable :data="props.progressBars" />
+        <h3>Note</h3>
+        <p>The colours passed in the <code>colors</code> prop should be one of the following:</p>
+        <ul>
+          <li><code>accent</code></li>
+          <li><code>negative</code></li>
+          <li><code>positive</code></li>
+          <li><code>warning</code></li>
+        </ul>
+        <p>They correspond to the saturated variants of the same name. The default color (when none are given) is <code>positive</code></p>
+        <p>If the array contains more than one item, the bar will be that color based on the progress.</p>
+      </section>
       <section v-else class="tab" key="exampleTab">
         <p>This is just an empty test-tab.</p>
         <p>To delete it, click the button in the “<u @click="activeTab = tabs.findIndex((tab) => tab.value === 'tabs')">Tabs</u>”-tab.</p>
@@ -484,6 +502,14 @@ export default {
           ['`x`', 'Number', '`0`'],
           ['`y`', 'Number', '`0`'],
         ],
+        progressBars: [
+          ['Name', 'Type', 'Default'],
+          ['`colors`', 'Array', '`undefined`'],
+          ['`dark`', 'Boolean', '`false`'],
+          ['`indetermined`', 'Boolean', '`false`'],
+          ['`label`', 'String', '`\'\'`'],
+          ['`progress`', 'Number', '`0`'],
+        ],
         radios: [
           ['Name', 'Type', 'Default'],
           ['`dark`', 'Boolean', '`false`'],
@@ -647,6 +673,7 @@ export default {
         { label: 'Loaders', value: 'loaders' },
         { label: 'Modals', value: 'modals' },
         { label: 'Popovers', value: 'popovers' },
+        { label: 'Progress Bars', value: 'progress-bars' },
         { label: 'Radio Groups', value: 'radios' },
         { label: 'Scrollers', value: 'scrollers' },
         { label: 'Select Boxes', value: 'selects' },
