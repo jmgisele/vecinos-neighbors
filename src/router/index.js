@@ -1,12 +1,28 @@
 import { createRouter, createWebHistory } from 'vue-router';
 import Store from '../store';
 import Home from '../views/Home.vue';
+import Onboarding from '../views/Onboarding.vue';
 
 const routes = [
   {
     path: '/',
     name: 'Home',
     component: Home,
+    meta: {
+      title: 'Projects',
+    },
+  },
+  {
+    path: '/onboarding',
+    name: 'Onboarding',
+    component: Onboarding,
+    meta: {
+      title: 'Welcome',
+    },
+    beforeEnter: () => {
+      if (Store.state.user.onboardingComplete) return { path: '/' };
+      return true;
+    },
   },
   // {
   //   path: '/about',
@@ -23,12 +39,20 @@ const router = createRouter({
   routes,
 });
 
-router.beforeEach(() => {
+router.beforeEach((to) => {
   if (Store.state.application.openModals.length > 0) {
     Store.commit('closeTopmostModal');
     return false;
   }
+
+  if (to.name !== 'Onboarding' && !Store.state.user.onboardingComplete) return { name: 'Onboarding' };
   return true;
+});
+
+router.afterEach((to) => {
+  const nearestRouteWithTitle = to.matched.slice().reverse().find((route) => route.meta && route.meta.title);
+  if (nearestRouteWithTitle) document.title = `${nearestRouteWithTitle.meta.title} | Mattrbld`;
+  else document.title = 'Mattrbld';
 });
 
 export default router;
