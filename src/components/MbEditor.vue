@@ -77,31 +77,27 @@ export default {
       return this.modelValue.replace(/\n+/g, ' ');
     },
     disabledActions() {
+      const disabled = {};
+      if (this.selectionEmpty && !this.activeMarks.includes('link')) disabled.link = true;
       if (this.activeParagraphType === 'codeBlock') {
-        return {
-          code: true,
-          em: true,
-          link: true,
-          ol: true,
-          strike: true,
-          strong: true,
-          ul: true,
-        };
+        disabled.code = true;
+        disabled.em = true;
+        disabled.link = true;
+        disabled.ol = true;
+        disabled.strike = true;
+        disabled.strong = true;
+        disabled.ul = true;
       }
       if (this.activeParentType === 'listItem' || this.activeParagraphType === 'listItem' || this.activeParagraphType === 'quoteFooter') {
-        return {
-          ol: true,
-          ul: true,
-          blockquote: true,
-        };
+        disabled.ol = true;
+        disabled.ul = true;
+        disabled.blockquote = true;
       }
       if (['blockquote', 'orderedList', 'unorderedList'].includes(this.activeParagraphType)) {
-        return {
-          ol: true,
-          ul: true,
-        };
+        disabled.ol = true;
+        disabled.ul = true;
       }
-      return {};
+      return disabled;
     },
     displayLabel() {
       if (this.error) return this.error;
@@ -193,6 +189,7 @@ export default {
       },
       raw: false,
       renderDiv: null,
+      selectionEmpty: true,
       showPlaceholder: true,
       toolbarActions: [],
     };
@@ -376,6 +373,9 @@ export default {
       // Update active node type
       this.activeParagraphType = newSelection.node ? newSelection.node.type.name : newSelection.$from.parent.type.name;
       this.activeParentType = newSelection.$from.node(-1) && newSelection.$from.node(-1).type.name;
+
+      // Update selection length
+      this.selectionEmpty = newSelection.empty;
 
       if (this.activeParagraphType === 'codeBlock') this.activeCodeLang = newSelection.node ? newSelection.node.attrs.lang || null : newSelection.$from.parent.attrs.lang || null;
     },
