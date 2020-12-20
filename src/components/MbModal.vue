@@ -166,7 +166,7 @@ export default {
   touch-action: pan-y
 
   &.transition
-    transition: transform 200ms ease, opacity 200ms ease, background-color 200ms ease, border-radius 200ms ease
+    transition: transform 200ms ease, opacity 200ms ease
 
   @media $mobile
     align-self: flex-end
@@ -184,13 +184,16 @@ export default {
     border-bottom-left-radius: $radius-xl
     border-bottom-right-radius: $radius-xl
 
+    *
+      opacity: 0.3
+
   &.dark
-    background-color: $bg-secondary-dark
-    border-color: $bg-tertiary-dark
+    background-color: $bg-dark
+    border-color: $bg-secondary-dark
 
     &.darkened
-      background-color: $bg-dark
-      border-color: $bg-secondary-dark
+      background-color: mix(black, $bg-dark, 20)
+      border-color: $bg-dark
 
   &.v-enter-active,
   &.v-leave-active

@@ -83,7 +83,4 @@ export default {
 
   @media $mobile
     width: 100%
-
-  &.dark
-    background-color: $bg-dark
 </style>
