@@ -176,6 +176,7 @@ export default {
   .content
     overflow-x: hidden
     overflow-y: auto
+    background-color: inherit
 
     &:not(.no-padding)
       padding: 1rem

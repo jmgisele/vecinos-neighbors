@@ -224,6 +224,7 @@ export default {
 
   .body
     overflow-y: auto
+    background-color: inherit
 
     &.padded
       padding: 0 (32 / 16)rem
