@@ -45,7 +45,7 @@ router.beforeEach((to) => {
     return false;
   }
 
-  if (to.name !== 'Onboarding' && !Store.state.user.onboardingComplete) return { name: 'Onboarding' };
+  if (to.name !== 'Onboarding' && !Store.state.user.onboardingComplete) return { name: 'Onboarding', replace: true };
   return true;
 });
 
