@@ -13,12 +13,13 @@
         <div v-if="currentSlide === 0" class="slide">
           <h1>Welcome to Mattrbld!</h1>
           <p class="blurb">Mattrbld is the CMS that works in your browser. Let’s get started by importing your first project.</p>
-          <MbInput v-model.trim="repoURL" autofocus :dark="dark" :error="errors.repoURL" icon="link" label="Project Repository URL" @blur="validate('repoURL')" />
+          <MbInput v-model="repoURL" :autofocus="!$store.state.application.mobile" :dark="dark" :error="errors.repoURL" icon="link" label="Project Repository URL" @blur="validate('repoURL')" />
           <label>
             <span>Repository branch:</span>
             <!-- Todo: should be fetched via listServerRefs after the repoURL has been validated -->
             <MbSelect v-model="repoBranch" :dark="dark" :disabled="Boolean(!repoURL || errors.repoURL)" :options="repoBranches" />
           </label>
+          <!-- Todo: add sign-into-git modal in case repo needs auth -->
           <footer>
             <MbButton :dark="dark" :disabled="Boolean(!repoURL || errors.repoURL)" type="primary" @click="importProject">Import Project</MbButton>
           </footer>
@@ -31,8 +32,8 @@
         <div v-else-if="currentSlide === 1" class="slide">
           <h1>Great!</h1>
           <p class="blurb">While the project is being imported, let’s set up your local user. This data will be used to let your collaborators know who you are.</p>
-          <MbInput v-model.trim="userName" autofocus :dark="dark" :error="errors.userName" icon="user" label="Full Name" @blur="validate('userName')" />
-          <MbInput v-model.trim="userEmail" :dark="dark" :error="errors.userEmail" icon="mail" label="E-Mail Address" @blur="validate('userEmail')" />
+          <MbInput v-model="userName" :autofocus="!$store.state.application.mobile" :dark="dark" :error="errors.userName" icon="user" label="Full Name" @blur="validate('userName')" />
+          <MbInput v-model="userEmail" :dark="dark" :error="errors.userEmail" icon="mail" label="E-Mail Address" type="email" @blur="validate('userEmail')" />
           <h2>What’s your typical role in projects?</h2>
           <p>This can be overridden on a project-by-project basis.</p>
           <MbRadioGroup v-model="userRole" :dark="dark" :options="roleOptions" />
@@ -198,6 +199,11 @@ export default {
   props: {
     dark: Boolean,
   },
+  watch: {
+    currentSlide() {
+      window.scrollTo({ top: 0, left: 0, behavior: 'smooth' });
+    },
+  },
 };
 </script>
 
@@ -228,8 +234,15 @@ export default {
           .hint
             background-color: $warning-saturated
 
+  @media $mobile
+    display: block
+
   > section
     width: 50%
+
+    @media $mobile
+      width: 100%
+      min-height: 50vh
 
     &.animation
       background-color: $bg-secondary
@@ -247,11 +260,24 @@ export default {
       display: flex
       flex-direction: column
 
+      @media $mobile
+        padding: 2rem
+
+        .button
+          width: 100%
+
       header
         margin-left: auto
 
+        @media $mobile
+          margin-left: 0
+          margin-bottom: 2rem
+
         .progress
           transition: opacity 200ms ease
+
+          @media $mobile
+            width: 100%
 
           &.faded
             opacity: 0
@@ -268,9 +294,15 @@ export default {
             opacity: 0
             transform: translateX(4rem)
 
+            @media $mobile
+              transform: none
+
           &.v-leave-to
             opacity: 0
             transform: translateX(-4rem)
+
+            @media $mobile
+              transform: none
 
         h1
           margin-top: 0
@@ -278,8 +310,14 @@ export default {
         h2
           margin-top: 4rem
 
+          @media $mobile
+            margin-top: 2rem
+
         .blurb
           margin-bottom: 4rem
+
+          @media $mobile
+            margin-bottom: 2rem
 
         .input
           width: 100%
@@ -292,13 +330,23 @@ export default {
           &.dark::v-deep(.fake-radio)::after
             background-color: $bg-secondary-dark
 
-        label
+        label:not(.input)
           display: flex
           align-items: center
           margin-bottom: 2rem
 
+          @media $mobile
+            display: block
+
+            ::v-deep(.select) // needed because it’s a fragment element I guess?
+              width: 100%
+
           span
             margin-right: auto
+
+            @media $mobile
+              display: block
+              margin-bottom: 1rem
 
         img
           display: block
@@ -316,6 +364,10 @@ export default {
 
           .button:first-child
             margin-right: 1rem
+
+            @media $mobile
+              margin-right: 0
+              margin-bottom: 1rem
 
         footer
           text-align: right
