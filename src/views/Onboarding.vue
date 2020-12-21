@@ -53,6 +53,18 @@
             <MbButton :dark="dark" type="primary" @click="completeSetup">Save Avatar</MbButton>
           </footer>
         </div>
+        <div v-else-if="currentSlide === 3" class="slide">
+          <h1>Just a moment…</h1>
+          <p>We’re finishing the import of your project. This shouldn’t take long.</p>
+        </div>
+        <div v-else-if="currentSlide === 4" class="slide">
+          <h1>You’re all set!</h1>
+          <p>Your project has been imported successfully and is now ready to be set up to work with Mattrbld.</p>
+          <!-- Todo: distinguish between projects that have already been set up with mattrbld once and ones which weren’t -->
+          <footer>
+            <MbButton :dark="dark" type="primary" @click="$router.push({ name: 'project', params: { name: repoURL.split('/').slice(-1)[0].slice(0, -4) }})">Start Editing</MbButton>
+          </footer>
+        </div>
       </transition>
     </section>
   </div>
@@ -69,7 +81,7 @@ export default {
   computed: {
     cloneLabel() {
       if (!this.cloneStep) return '';
-      if (this.cloneStep === 'finishing') return 'Done';
+      if (this.cloneStep === 'done') return 'Done';
       if (this.cloneStep === 'initialising') return 'Initialising';
       return `${this.cloneStep[0].toUpperCase()}${this.cloneStep.slice(1)}: ${(this.cloneProgress * 100).toFixed(2)}%`;
     },
@@ -123,7 +135,7 @@ export default {
     completeSetup() {
       // TODO: Save the avatar uri as blob somewhere along with the rest of the configuration data
       // TODO: advance to waiting slide if we’re not done cloning, otherwise complete onboarding
-      if (!this.cloneStep === 'finishing') this.currentSlide += 1;
+      if (this.cloneStep !== 'done') this.currentSlide += 1;
       else this.currentSlide += 2;
     },
     createUser() {
@@ -139,7 +151,7 @@ export default {
         this.cloneProgress += progress;
         window.setTimeout(this.fakeClone, Math.random() * 5000 + 1000);
       } else {
-        this.cloneStep = 'finishing';
+        this.cloneStep = 'done';
         this.cloneProgress = 1;
         window.setTimeout(() => {
           if (this.currentSlide === 3) this.currentSlide = 4;
