@@ -41,10 +41,14 @@
           </footer>
         </div>
         <div v-else-if="currentSlide === 2" class="slide">
+          <AvatarUploader ref="uploader" @ready="handleAvatarReady" />
           <h1>Almost there!</h1>
           <p class="blurb">You can add an avatar to your profile so your collaborators know at a glance who made those great changes—or use the one we generated for you, your choice.</p>
           <img :src="userAvatar" alt="Avatar could not be loaded">
-          <MbButton class="centered" :dark="dark" icon-first icon="upload">Upload Image</MbButton>
+          <div class="avatar-buttons">
+            <MbButton v-show="avatarUploaded" :dark="dark" icon-first icon="trash" type="negative" @click="regenerateAvatar">Remove Image</MbButton>
+            <MbButton :dark="dark" icon-first :icon="avatarUploaded ? 'replace' : 'upload'" @click="$refs.uploader.$el.click()">{{ avatarUploaded ? 'Replace Image' : 'Upload Image' }}</MbButton>
+          </div>
           <footer>
             <MbButton :dark="dark" type="primary" @click="completeSetup">Save Avatar</MbButton>
           </footer>
@@ -56,8 +60,12 @@
 
 <script>
 import generateAvatar from '../assets/js/generateAvatar';
+import AvatarUploader from '../components/utility/AvatarUploader.vue';
 
 export default {
+  components: {
+    AvatarUploader,
+  },
   computed: {
     cloneLabel() {
       if (!this.cloneStep) return '';
@@ -71,6 +79,7 @@ export default {
   },
   data() {
     return {
+      avatarUploaded: false,
       cloneProgress: 0,
       cloneStep: '',
       currentSlide: 0,
@@ -97,6 +106,12 @@ export default {
         {
           icon: 'image',
         },
+        {
+          icon: 'mattrbld',
+        },
+        {
+          icon: 'mattrbld',
+        },
       ],
       userAvatar: '',
       userEmail: '',
@@ -106,7 +121,10 @@ export default {
   },
   methods: {
     completeSetup() {
+      // TODO: Save the avatar uri as blob somewhere along with the rest of the configuration data
       // TODO: advance to waiting slide if we’re not done cloning, otherwise complete onboarding
+      if (!this.cloneStep === 'finishing') this.currentSlide += 1;
+      else this.currentSlide += 2;
     },
     createUser() {
       // TODO: Create a user file with basic configuration defaults
@@ -128,6 +146,10 @@ export default {
         }, Math.random() * 5000 + 1000);
       }
     },
+    handleAvatarReady(avatar) {
+      this.userAvatar = avatar;
+      this.avatarUploaded = true;
+    },
     importProject() {
       // TODO: actually clone the repo and ask for credentials if needed, need to figure out how to link up the modal for that with the onAuth callback
       this.currentSlide += 1;
@@ -138,6 +160,7 @@ export default {
       const split = this.userName.split(' ');
       const initials = `${split[0][0]}${split[split.length - 1][0]}`.toUpperCase();
       this.userAvatar = generateAvatar(initials, '#A29BFE', '#6c5ce7', 'light', this.userEmail);
+      if (this.avatarUploaded) this.avatarUploaded = false;
     },
     validate(field) {
       let error = '';
@@ -267,19 +290,20 @@ export default {
 
         img
           display: block
-          width: (120 / 16)rem
+          width: (92 / 16)rem
           height: @width
           border-radius: 50%
-          box-shadow: 0 0 0 0.25rem $bg-tertiary-dark, inset 0 0 0 0.25rem $bg-tertiary-dark
+          box-shadow: 0 0 0 0.125rem $bg-tertiary-dark, inset 0 0 0 0.125rem $bg-tertiary-dark
           margin-bottom: 2rem
           margin-left: auto
           margin-right: auto
 
-        .button.centered
-          display: flex
-          margin-left: auto
-          margin-right: auto
+        .avatar-buttons
+          text-align: center
           margin-bottom: 4rem
+
+          .button:first-child
+            margin-right: 1rem
 
         footer
           text-align: right
