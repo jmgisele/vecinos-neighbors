@@ -1,6 +1,7 @@
-function between(min, max) {
-  return Math.floor(Math.random() * (max - min + 1) + min);
-}
+// function between(min, max) {
+//   return Math.floor(Math.random() * (max - min + 1) + min);
+// }
+import SeededRNG from './SeededRNG';
 
 function fgColor(color, force) {
   // calculate text color based on background
@@ -22,7 +23,7 @@ function fgColor(color, force) {
 
 function rotatedGradient(ctx, x1, y1, x2, y2, index) {
   const points = ['tl', 'tr', 'bl', 'br'];
-  const from = index ? points[index] : points[Math.floor(Math.random() * points.length)];
+  const from = typeof index === 'number' ? points[Math.abs(index) % points.length] : points[Math.floor(Math.random() * points.length)];
 
   switch (from) {
     case 'tl':
@@ -38,7 +39,8 @@ function rotatedGradient(ctx, x1, y1, x2, y2, index) {
   }
 }
 
-export default (initials, color, color2, textColor) => {
+export default (initials, color, color2, textColor, seed = 'Mattrbld rocks!') => {
+  const rng = new SeededRNG(seed);
   const weight = '700';
   const fontFamily = '"Inter", sans-serif';
   const size = 128;
@@ -55,7 +57,7 @@ export default (initials, color, color2, textColor) => {
   bg.addColorStop(1, color2);
 
   const elements = ['square', 'diamond', 'circle'];
-  const element = elements[Math.floor(Math.random() * elements.length)];
+  const element = elements[Math.floor(rng.random() * elements.length)];
 
   c.width = size;
   c.height = size;
@@ -70,9 +72,9 @@ export default (initials, color, color2, textColor) => {
 
   for (let i = 0; i < 3; i += 1) {
     ctx.beginPath();
-    const radius = between(40, 96) + 8 * i;
-    const elX = between(-radius / 2, size - radius / 2) + 8 * i;
-    const elY = between(-radius / 2, size - radius / 2) + 8 * i;
+    const radius = Math.floor(rng.random(40, 96)) + 8 * i;
+    const elX = Math.floor(rng.random(-radius / 2, size - radius / 2)) + 8 * i;
+    const elY = Math.floor(rng.random(-radius / 2, size - radius / 2)) + 8 * i;
 
     if (element === 'square') {
       const elementGradient = rotatedGradient(ctx, elX, elY, elX + radius, elY + radius, i);

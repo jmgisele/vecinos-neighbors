@@ -110,9 +110,7 @@ export default {
     },
     createUser() {
       // TODO: Create a user file with basic configuration defaults
-      const split = this.userName.split(' ');
-      const initials = `${split[0][0]}${split[split.length - 1][0]}`.toUpperCase();
-      this.userAvatar = generateAvatar(initials, '#A29BFE', 'light');
+      this.regenerateAvatar();
       this.currentSlide += 1;
     },
     fakeClone() {
@@ -135,6 +133,11 @@ export default {
       this.currentSlide += 1;
       this.cloneStep = 'initialising';
       window.setTimeout(this.fakeClone, Math.random() * 5000 + 1000);
+    },
+    regenerateAvatar() {
+      const split = this.userName.split(' ');
+      const initials = `${split[0][0]}${split[split.length - 1][0]}`.toUpperCase();
+      this.userAvatar = generateAvatar(initials, '#A29BFE', '#6c5ce7', 'light', this.userEmail);
     },
     validate(field) {
       let error = '';
