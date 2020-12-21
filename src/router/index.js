@@ -40,7 +40,7 @@ const router = createRouter({
 });
 
 router.beforeEach((to) => {
-  if (Store.state.application.openModals.length > 0) {
+  if (Store.state.application.openModals.length !== 0) {
     Store.commit('closeTopmostModal');
     return false;
   }
