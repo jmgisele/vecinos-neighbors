@@ -20,7 +20,7 @@ const routes = [
       title: 'Welcome',
     },
     beforeEnter: () => {
-      if (Store.state.user.onboardingComplete) return { path: '/' };
+      if (Store.state.application.activeUser) return { name: 'Home' };
       return true;
     },
   },
@@ -39,13 +39,23 @@ const router = createRouter({
   routes,
 });
 
-router.beforeEach((to) => {
+router.beforeEach(async (to) => {
   if (Store.state.application.openModals.length !== 0) {
     Store.commit('closeTopmostModal');
     return false;
   }
 
-  if (to.name !== 'Onboarding' && !Store.state.user.onboardingComplete) return { name: 'Onboarding', replace: true };
+  // Initialise App if it hasn’t yet
+  if (!Store.state.application.initialised) {
+    console.log('initialising');
+    try {
+      await Store.dispatch('initialiseApplication');
+    } catch (err) {
+      Store.commit('addToast', { message: err.message, type: 'error' });
+    }
+  }
+
+  if (to.name !== 'Onboarding' && !Store.state.application.activeUser) return { name: 'Onboarding', replace: true };
   return true;
 });
 
