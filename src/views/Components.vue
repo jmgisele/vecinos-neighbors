@@ -380,6 +380,7 @@ export default {
         'image',
         'inline-code',
         'italic',
+        'key',
         'link',
         'mail',
         'mattrbld',
