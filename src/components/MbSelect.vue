@@ -1,5 +1,5 @@
 <template lang="html">
-  <MbButton v-bind="$attrs" class="select" :class="{ placeholder: modelValue === null }" :dark="dark" :disabled="disabled" icon="chevron-down" :icon-first="false" ref="button" :rounded="rounded" :tooltip="tooltip" @click="activate">
+  <MbButton v-bind="$attrs" class="select" :class="{ placeholder: modelValue === null }" :dark="dark" :disabled="disabled" icon="chevron-down" :icon-first="false" :loading="loading" ref="button" :rounded="rounded" :tooltip="tooltip" @click="activate">
     {{currentOption}}
   </MbButton>
   <MbPopover center-x class="item-wrapper" :dark="dark" no-content-padding ref="popover" :style="{ width: `${popoverWidth}px` }" :visible="active" :x="position.x" :y="position.y" @close="deactivate">
@@ -70,6 +70,7 @@ export default {
       type: Array,
       required: true,
     },
+    loading: Boolean,
     modelValue: {},
     placeholder: {
       type: String,
