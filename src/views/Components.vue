@@ -497,6 +497,7 @@ export default {
           ['Name', 'Type', 'Default'],
           ['`dark`', 'Boolean', '`false`'],
           ['`paddedBody`', 'Boolean', '`true`'],
+          ['`slim`', 'Boolean', '`false`'],
           ['`title`', 'String', '`\'\'`'],
           ['`visible`', 'Boolean', '`false`'],
         ],

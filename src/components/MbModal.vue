@@ -1,8 +1,8 @@
 <template lang="html">
   <teleport to="body">
-    <div class="centerer">
+    <div class="centerer" :style="{ zIndex: modalIndex + 2 }"><!-- +2 so it doesn’t slip under the modal overlay when modalIndex === -1 -->
       <transition>
-        <div v-show="visible" v-bind="$attrs" class="modal" :class="{dark, darkened: nextModal, transition: !swiping, swiping }" ref="el" :style="{ opacity, pointerEvents, transform }" @touchstart="swipeStart" @touchmove="swipeUpdate" @touchend="swipeEnd">
+        <div v-show="visible" v-bind="$attrs" class="modal" :class="{dark, darkened: nextModal, transition: !swiping, slim, swiping }" ref="el" :style="{ opacity, pointerEvents, transform }" @touchstart="swipeStart" @touchmove="swipeUpdate" @touchend="swipeEnd">
           <header v-if="title">
             <h2 class="h3">{{title}}</h2>
           </header>
@@ -105,12 +105,19 @@ export default {
       this.pointerEvents = 'none';
     },
   },
+  mounted() {
+    if (this.visible) { // needs to be during mounted so $refs.el is defined
+      this.transform = null;
+      this.$store.commit('addOpenModal', this.$refs.el);
+    }
+  },
   props: {
     dark: Boolean,
     paddedBody: {
       type: Boolean,
       default: true,
     },
+    slim: Boolean,
     title: String,
     visible: Boolean,
   },
@@ -164,9 +171,13 @@ export default {
   overflow: hidden
   pointer-events: auto // needed to revert the pointer-events: none from the parent
   touch-action: pan-y
+  user-select: none
 
   &.transition
     transition: transform 200ms ease, opacity 200ms ease
+
+  &.slim
+    width: (488 / 16)rem
 
   @media $mobile
     align-self: flex-end
@@ -227,6 +238,7 @@ export default {
 
   .body
     overflow-y: auto
+    overflow-x: hidden
     background-color: inherit
 
     &.padded
