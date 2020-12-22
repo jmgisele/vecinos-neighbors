@@ -246,6 +246,9 @@ export default {
     padding: (32 / 16)rem
     text-align: right
 
+    ::v-deep(.button):not(:last-child)
+      margin-right: 1rem
+
     @media $mobile
       padding: 1rem
 </style>
