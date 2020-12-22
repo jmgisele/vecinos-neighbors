@@ -37,7 +37,7 @@
               For small scale, private projects, the provided proxy server may be
               used. However, if you plan on using Mattrbld commercially, or use
               it with very large sites, please host your own instance. Learn more
-              about how <a href="https://github.com/isomorphic-git/cors-proxy" rel="noopener noreferrer nofollow">here</a>.
+              about how <a href="https://github.com/isomorphic-git/cors-proxy" rel="noopener noreferrer nofollow" target="_blank">here</a>.
             </p>
           </MbModal>
         </div>
@@ -403,6 +403,7 @@ export default {
           @media $mobile
             position: static
             margin-top: 2rem
+            text-align: right
 
         .hint
           margin-top: 4rem
