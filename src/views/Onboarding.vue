@@ -28,6 +28,18 @@
             the URL and Branch selected, clicking “Import Project” will only create
             a mock-project for demonstrational purposes.
           </p>
+          <p class="advanced-settings" @click="showAdvancedSettings = true">Advanced Settings</p>
+          <MbModal class="advanced-settings-modal" :dark="dark" title="Advanced Settings" :visible="showAdvancedSettings" @close="showAdvancedSettings = false">
+            <h3>CORS Proxy Server</h3>
+            <MbInput v-model="corsProxy" :dark="dark" :error="errors.corsProxy" label="Proxy URL" placeholder="https://cors.isomorphic-git.org" @blur="validate('corsProxy')" />
+            <p>Unfortunately, for the time being, most Git-Providers don’t support requests made from browsers. To circumvent that limitation, a proxy server is used.</p>
+            <p>
+              For small scale, private projects, the provided proxy server may be
+              used. However, if you plan on using Mattrbld commercially, or use
+              it with very large sites, please host your own instance. Learn more
+              about how <a href="https://github.com/isomorphic-git/cors-proxy" rel="noopener noreferrer nofollow">here</a>.
+            </p>
+          </MbModal>
         </div>
         <div v-else-if="currentSlide === 1" class="slide">
           <h1>Great!</h1>
@@ -95,6 +107,7 @@ export default {
       avatarUploaded: false,
       cloneProgress: 0,
       cloneStep: '',
+      corsProxy: 'https://cors.isomorphic-git.org', // TODO: replace with our own before launch!
       currentSlide: 0,
       errors: {
         repoURL: '',
@@ -109,6 +122,7 @@ export default {
         { label: 'Developer', value: 'dev' },
         { label: 'Content Editor', value: 'editor' },
       ],
+      showAdvancedSettings: false,
       steps: [
         {
           icon: 'mattrbld',
@@ -178,6 +192,10 @@ export default {
     validate(field) {
       let error = '';
       switch (field) {
+        case 'corsProxy':
+          if (!this.corsProxy) error = 'A proxy server url is required';
+          else if (!this.corsProxy.startsWith('https://')) error = 'The proxy server has to be reachable over HTTPS for security reasons';
+          break;
         case 'repoURL':
           // just checks if we’re using http(s) and it ends with .git
           if (!/https?:\/\/.*\.git$/.test(this.repoURL)) error = 'Invalid URL, only https URLs ending in .git are supported';
@@ -259,6 +277,7 @@ export default {
       padding: 4rem
       display: flex
       flex-direction: column
+      position: relative
 
       @media $mobile
         padding: 2rem
@@ -373,10 +392,30 @@ export default {
           text-align: right
           margin-top: 2rem
 
+        .advanced-settings
+          position: absolute
+          bottom: 2rem
+          right: 2rem
+          cursor: pointer
+          color: $accent
+          margin: 0
+
+          @media $mobile
+            position: static
+            margin-top: 2rem
+
         .hint
           margin-top: 4rem
           padding: 1.5rem
           border-radius: $radius-l
           background-color: $warning
           color: $text
+
+.advanced-settings-modal
+  h3
+    margin-top: 0
+
+  .input
+    width: 100%
+    margin-bottom: 1rem
 </style>
