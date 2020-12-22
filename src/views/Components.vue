@@ -536,7 +536,7 @@ export default {
           ['`loading`', 'Boolean', '`false`', ''],
           ['`modelValue`', 'Any', '`null`', ''],
           ['`options`', 'Array', '`false`', 'Should be an array of objects like { label: String, value: Any, disabled: Boolean }'],
-          ['`placeholder`', 'String', "`'Select something…'`", ''],
+          ['`placeholder`', 'String', "`'Select something…'`", 'Will only be shown if modelValue === null'],
           ['`rounded`', 'Boolean', '`false`', ''],
           ['`tooltip`', 'String / Object', '', ''],
         ],
