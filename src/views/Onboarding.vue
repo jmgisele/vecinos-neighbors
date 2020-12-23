@@ -21,7 +21,7 @@
           <!-- Todo: add sign-into-git modal in case repo needs auth -->
           <GitLoginModal :dark="dark" :message="gitLoginMessage" :visible="showGitLoginModal" @cancel="credentialPromise('cancel')" @submit="credentialPromise" />
           <footer>
-            <MbButton :dark="dark" :disabled="Boolean(!repoURL || errors.repoURL)" type="primary" @click="importProject">Import Project</MbButton>
+            <MbButton :dark="dark" :disabled="Boolean(!repoURL || errors.repoURL || loadingBranches || !repoBranch)" type="primary" @click="importProject">Import Project</MbButton>
           </footer>
           <p class="hint">
             <strong>Note:</strong> this is a very early prototype. Regardless of
@@ -198,7 +198,7 @@ export default {
     async handleRepoInput() {
       this.validate('repoURL');
 
-      if (!this.errors.repoURL) {
+      if (!this.errors.repoURL) { // we should also check if the url changed at all
         this.loadingBranches = true;
         this.repoBranches = [];
         this.repoBranch = null;
@@ -243,16 +243,17 @@ export default {
           if (err.code === 'UserCanceledError') {
             this.credentials = null;
             this.errors.repoURL = 'You might not have access to this repository';
+          } else if (err.code === 'HttpError' && err.data && err.data.statusCode === 404) {
+            this.errors.repoURL = 'This repository doesn’t seem to exist';
           } else {
-            console.log(err.code);
-            this.$store.commit('addToast', { message: `Error during branch fetch: ${err.message}`, type: 'error' });
+            this.$store.commit('addToast', { message: `Something went wrong while fetching branches: ${err.message}`, type: 'error' });
           }
         }
         this.loadingBranches = false;
       }
     },
     async importProject() {
-      // TODO: actually clone the repo and ask for credentials if needed, need to figure out how to link up the modal for that with the onAuth callback
+      // TODO: actually clone the repo and ask for credentials if needed
       // const credentials = await this.openGitLoginModal();
       // this.showGitLoginModal = false;
       // await this.$nextTick(); // so the modal can close
@@ -278,8 +279,10 @@ export default {
           else if (!this.corsProxy.startsWith('https://')) error = 'The proxy server has to be reachable over HTTPS for security reasons';
           break;
         case 'repoURL':
+          if (!this.repoURL) error = 'A repository URL is required';
+          // repoURLs with invalid tlds never return, either we filter those out (difficult), or we file a bug, or we implement a timeout in the clone / listServerRefs functions
           // just checks if we’re using http(s) and it ends with .git
-          if (!/https?:\/\/.*\.git$/.test(this.repoURL)) error = 'Invalid URL, only https URLs ending in .git are supported';
+          else if (!/https?:\/\/.*\.git$/.test(this.repoURL)) error = 'Invalid URL, only https URLs ending in .git are supported';
           break;
         case 'userEmail':
           if (!this.userEmail) error = 'An email address is required';
