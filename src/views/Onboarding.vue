@@ -199,11 +199,13 @@ export default {
       this.validate('repoURL');
 
       if (!this.errors.repoURL) {
-        // fetch the branches and show sign-in modal if needed
+        this.loadingBranches = true;
+        this.repoBranches = [];
+        this.repoBranch = null;
         try {
-          this.loadingBranches = true;
           const refs = await listServerRefs({
             corsProxy: this.corsProxy,
+            // forPush: true, // we can use this to determine whether we’ll be able to push to the repo or certain branches early
             http,
             onAuth: async () => {
               this.gitLoginMessage = `This repository seems to be private. Please log into your <strong>${this.gitProvider}</strong> account to confirm that you may perform this action.`;
@@ -237,13 +239,16 @@ export default {
           if (this.repoBranches.includes('main')) this.repoBranch = 'main';
           else if (this.repoBranches.includes('master')) this.repoBranch = 'master';
           else [this.repoBranch] = this.repoBranches;
-
-          this.loadingBranches = false;
         } catch (err) {
           if (err.code === 'UserCanceledError') {
             this.credentials = null;
-          } else throw err;
+            this.errors.repoURL = 'You might not have access to this repository';
+          } else {
+            console.log(err.code);
+            this.$store.commit('addToast', { message: `Error during branch fetch: ${err.message}`, type: 'error' });
+          }
         }
+        this.loadingBranches = false;
       }
     },
     async importProject() {
