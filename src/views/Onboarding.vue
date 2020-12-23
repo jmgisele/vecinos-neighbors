@@ -16,11 +16,10 @@
           <MbInput v-model="repoURL" :autofocus="!$store.state.application.mobile" :dark="dark" :error="errors.repoURL" icon="repo" label="Project Repository URL" @blur="handleRepoInput" />
           <div class="label">
             <span>Repository branch:</span>
-            <!-- Todo: should be fetched via listServerRefs after the repoURL has been validated -->
-            <MbSelect v-model="repoBranch" :dark="dark" :disabled="Boolean(!repoURL || errors.repoURL)" :loading="loadingBranches" :options="repoBranches" placeholder="Select a branch…" />
+            <MbSelect v-model="repoBranch" :dark="dark" :disabled="Boolean(!repoURL || errors.repoURL || repoBranches.length === 0)" :loading="loadingBranches" :options="repoBranches" placeholder="Select a branch…" />
           </div>
           <!-- Todo: add sign-into-git modal in case repo needs auth -->
-          <GitLoginModal :dark="dark" :message="`This repository seems to be private. Please log into your <strong>${gitProvider}</strong> account to confirm that you may perform this action.`" :visible="showGitLoginModal" @cancel="credentialPromise('cancel')" @submit="credentialPromise" />
+          <GitLoginModal :dark="dark" :message="gitLoginMessage" :visible="showGitLoginModal" @cancel="credentialPromise('cancel')" @submit="credentialPromise" />
           <footer>
             <MbButton :dark="dark" :disabled="Boolean(!repoURL || errors.repoURL)" type="primary" @click="importProject">Import Project</MbButton>
           </footer>
@@ -85,6 +84,9 @@
 </template>
 
 <script>
+import { listServerRefs } from 'isomorphic-git';
+import http from 'isomorphic-git/http/web/index.cjs';
+
 import generateAvatar from '../assets/js/generateAvatar';
 import AvatarUploader from '../components/utility/AvatarUploader.vue';
 import GitLoginModal from '../components/utility/GitLoginModal.vue';
@@ -117,18 +119,21 @@ export default {
       avatarUploaded: false,
       cloneProgress: 0,
       cloneStep: '',
-      corsProxy: 'https://cors.isomorphic-git.org', // TODO: replace with our own before launch!
+      corsProxy: 'http://localhost:9999', // Requires a cors buster running on 9999 (is this safe?)
+      // corsProxy: 'https://cors.isomorphic-git.org', // TODO: replace with our own before launch!
       credentialPromise: null,
+      credentials: null,
       currentSlide: 0,
       errors: {
         repoURL: '',
         userEmail: '',
         userName: '',
       },
+      gitLoginMessage: `This repository seems to be private. Please log into your <strong>${this.gitProvider}</strong> account to confirm that you may perform this action.`,
       loadingBranches: false,
       repoURL: '',
       repoBranch: null,
-      repoBranches: ['master', 'dev', 'production'],
+      repoBranches: [],
       roleOptions: [
         { label: 'Project Owner', value: 'owner' },
         { label: 'Developer', value: 'dev' },
@@ -190,11 +195,55 @@ export default {
       this.userAvatar = avatar;
       this.avatarUploaded = true;
     },
-    handleRepoInput() {
+    async handleRepoInput() {
       this.validate('repoURL');
 
       if (!this.errors.repoURL) {
         // fetch the branches and show sign-in modal if needed
+        try {
+          this.loadingBranches = true;
+          const refs = await listServerRefs({
+            corsProxy: this.corsProxy,
+            http,
+            onAuth: async () => {
+              this.gitLoginMessage = `This repository seems to be private. Please log into your <strong>${this.gitProvider}</strong> account to confirm that you may perform this action.`;
+              this.credentials = await this.openGitLoginModal();
+              this.showGitLoginModal = false;
+
+              if (this.credentials === 'cancel') return { cancel: true };
+              return { username: this.credentials.user, password: this.credentials.password };
+            },
+            onAuthFailure: async () => {
+              this.gitLoginMessage = 'Sorry, that didn’t work. This might mean that you don’t have access to this repository, or that you typed the wrong username / password combination. Please try again.';
+              this.credentials = await this.openGitLoginModal();
+              this.showGitLoginModal = false;
+
+              if (this.credentials === 'cancel') return { cancel: true };
+              return { username: this.credentials.user, password: this.credentials.password };
+            },
+            onAuthSuccess: () => {
+              if (this.credentials.savePassword) {
+                // WARNING: This might be insecure considering XSS attacks, but it’s the only way I know to store the credentials so they survive a reload (and storing them in Vuex probably is just as unsafe)
+                // window.sessionStorage.set('username', this.credentials.user);
+                // window.sessionStorage.set('password', this.credentials.password);
+              }
+            },
+            prefix: 'refs/heads/',
+            url: this.repoURL,
+          });
+          this.repoBranches = refs.map((ref) => ref.ref.replace('refs/heads/', ''));
+
+          // TODO: find a way to extract the default branch?
+          if (this.repoBranches.includes('main')) this.repoBranch = 'main';
+          else if (this.repoBranches.includes('master')) this.repoBranch = 'master';
+          else [this.repoBranch] = this.repoBranches;
+
+          this.loadingBranches = false;
+        } catch (err) {
+          if (err.code === 'UserCanceledError') {
+            this.credentials = null;
+          } else throw err;
+        }
       }
     },
     async importProject() {
