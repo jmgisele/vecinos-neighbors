@@ -13,13 +13,14 @@
         <div v-if="currentSlide === 0" class="slide">
           <h1>Welcome to Mattrbld!</h1>
           <p class="blurb">Mattrbld is the CMS that works in your browser. Let’s get started by importing your first project.</p>
-          <MbInput v-model="repoURL" :autofocus="!$store.state.application.mobile" :dark="dark" :error="errors.repoURL" icon="link" label="Project Repository URL" @blur="validate('repoURL')" />
-          <label>
+          <MbInput v-model="repoURL" :autofocus="!$store.state.application.mobile" :dark="dark" :error="errors.repoURL" icon="repo" label="Project Repository URL" @blur="handleRepoInput" />
+          <div class="label">
             <span>Repository branch:</span>
             <!-- Todo: should be fetched via listServerRefs after the repoURL has been validated -->
-            <MbSelect v-model="repoBranch" :dark="dark" :disabled="Boolean(!repoURL || errors.repoURL)" :options="repoBranches" />
-          </label>
+            <MbSelect v-model="repoBranch" :dark="dark" :disabled="Boolean(!repoURL || errors.repoURL)" :loading="loadingBranches" :options="repoBranches" placeholder="Select a branch…" />
+          </div>
           <!-- Todo: add sign-into-git modal in case repo needs auth -->
+          <GitLoginModal :dark="dark" :message="`This repository seems to be private. Please log into your <strong>${gitProvider}</strong> account to confirm that you may perform this action.`" :visible="showGitLoginModal" @cancel="credentialPromise('cancel')" @submit="credentialPromise" />
           <footer>
             <MbButton :dark="dark" :disabled="Boolean(!repoURL || errors.repoURL)" type="primary" @click="importProject">Import Project</MbButton>
           </footer>
@@ -45,7 +46,7 @@
           <h1>Great!</h1>
           <p class="blurb">While the project is being imported, let’s set up your local user. This data will be used to let your collaborators know who you are.</p>
           <MbInput v-model="userName" :autofocus="!$store.state.application.mobile" :dark="dark" :error="errors.userName" icon="user" label="Full Name" @blur="validate('userName')" />
-          <MbInput v-model="userEmail" :dark="dark" :error="errors.userEmail" icon="mail" label="E-Mail Address" type="email" @blur="validate('userEmail')" />
+          <MbInput v-model="userEmail" :dark="dark" :error="errors.userEmail" icon="mail" label="Email Address" type="email" @blur="validate('userEmail')" />
           <h2>What’s your typical role in projects?</h2>
           <p>This can be overridden on a project-by-project basis.</p>
           <MbRadioGroup v-model="userRole" :dark="dark" :options="roleOptions" />
@@ -60,7 +61,7 @@
           <img :src="userAvatar" alt="Avatar could not be loaded">
           <div class="avatar-buttons">
             <MbButton v-show="avatarUploaded" :dark="dark" icon-first icon="trash" type="negative" @click="regenerateAvatar">Remove Image</MbButton>
-            <MbButton :dark="dark" icon-first :icon="avatarUploaded ? 'replace' : 'upload'" @click="$refs.uploader.$el.click()">{{ avatarUploaded ? 'Replace Image' : 'Upload Image' }}</MbButton>
+            <MbButton :dark="dark" icon-first :icon="avatarUploaded ? 'replace-alt' : 'upload'" @click="$refs.uploader.$el.click()">{{ avatarUploaded ? 'Replace Image' : 'Upload Image' }}</MbButton>
           </div>
           <footer>
             <MbButton :dark="dark" type="primary" @click="completeSetup">Save Avatar</MbButton>
@@ -86,10 +87,12 @@
 <script>
 import generateAvatar from '../assets/js/generateAvatar';
 import AvatarUploader from '../components/utility/AvatarUploader.vue';
+import GitLoginModal from '../components/utility/GitLoginModal.vue';
 
 export default {
   components: {
     AvatarUploader,
+    GitLoginModal,
   },
   computed: {
     cloneLabel() {
@@ -101,6 +104,13 @@ export default {
     currentStep() {
       return this.steps[this.currentSlide];
     },
+    gitProvider() {
+      try {
+        return new URL(this.repoURL).hostname;
+      } catch (err) {
+        return 'Git';
+      }
+    },
   },
   data() {
     return {
@@ -108,14 +118,16 @@ export default {
       cloneProgress: 0,
       cloneStep: '',
       corsProxy: 'https://cors.isomorphic-git.org', // TODO: replace with our own before launch!
+      credentialPromise: null,
       currentSlide: 0,
       errors: {
         repoURL: '',
         userEmail: '',
         userName: '',
       },
+      loadingBranches: false,
       repoURL: '',
-      repoBranch: 'master',
+      repoBranch: null,
       repoBranches: ['master', 'dev', 'production'],
       roleOptions: [
         { label: 'Project Owner', value: 'owner' },
@@ -123,6 +135,7 @@ export default {
         { label: 'Content Editor', value: 'editor' },
       ],
       showAdvancedSettings: false,
+      showGitLoginModal: false,
       steps: [
         {
           icon: 'mattrbld',
@@ -177,11 +190,25 @@ export default {
       this.userAvatar = avatar;
       this.avatarUploaded = true;
     },
-    importProject() {
+    handleRepoInput() {
+      this.validate('repoURL');
+
+      if (!this.errors.repoURL) {
+        // fetch the branches and show sign-in modal if needed
+      }
+    },
+    async importProject() {
       // TODO: actually clone the repo and ask for credentials if needed, need to figure out how to link up the modal for that with the onAuth callback
+      // const credentials = await this.openGitLoginModal();
+      // this.showGitLoginModal = false;
+      // await this.$nextTick(); // so the modal can close
       this.currentSlide += 1;
       this.cloneStep = 'initialising';
       window.setTimeout(this.fakeClone, Math.random() * 5000 + 1000);
+    },
+    openGitLoginModal() {
+      this.showGitLoginModal = true;
+      return new Promise((resolve) => { this.credentialPromise = resolve; });
     },
     regenerateAvatar() {
       const split = this.userName.split(' ');
@@ -233,6 +260,7 @@ export default {
 .onboarding
   display: flex
   min-height: 100vh
+  user-select: none
 
   &.dark
     > section
@@ -349,7 +377,7 @@ export default {
           &.dark::v-deep(.fake-radio)::after
             background-color: $bg-secondary-dark
 
-        label:not(.input)
+        .label
           display: flex
           align-items: center
           margin-bottom: 2rem
