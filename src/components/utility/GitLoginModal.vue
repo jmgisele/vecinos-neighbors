@@ -28,9 +28,12 @@ export default {
   },
   methods: {
     handleCancel() {
+      this.user = '';
+      this.password = '';
       this.$emit('cancel');
     },
     handleSubmit() {
+      this.password = '';
       this.$emit('submit', { user: this.user, password: this.password, savePassword: this.savePassword });
     },
   },
