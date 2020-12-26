@@ -130,6 +130,7 @@ export default {
         userName: '',
       },
       gitLoginMessage: `This repository seems to be private. Please log into your <strong>${this.gitProvider}</strong> account to confirm that you may perform this action.`,
+      lastRepoURL: '',
       loadingBranches: false,
       repoURL: '',
       repoBranch: null,
@@ -167,6 +168,7 @@ export default {
   methods: {
     completeSetup() {
       // TODO: Save the avatar uri as blob somewhere along with the rest of the configuration data
+      // TODO: Set local git config (isomorphic-git only supports local configs for the moment)
       // TODO: advance to waiting slide if we’re not done cloning, otherwise complete onboarding
       if (this.cloneStep !== 'done') this.currentSlide += 1;
       else this.currentSlide += 2;
@@ -198,14 +200,14 @@ export default {
     async handleRepoInput() {
       this.validate('repoURL');
 
-      if (!this.errors.repoURL) { // we should also check if the url changed at all
+      if (!this.errors.repoURL && this.repoURL !== this.lastRepoURL) { // we should also check if the url changed at all
         this.loadingBranches = true;
         this.repoBranches = [];
         this.repoBranch = null;
         try {
           const refs = await listServerRefs({
             corsProxy: this.corsProxy,
-            // forPush: true, // we can use this to determine whether we’ll be able to push to the repo or certain branches early
+            // forPush: true, // we can use this to determine whether we’ll be able to push to the repo or certain branches early (also means that we have to show the login modal as soon as we blur)
             http,
             onAuth: async () => {
               this.gitLoginMessage = `This repository seems to be private. Please log into your <strong>${this.gitProvider}</strong> account to confirm that you may perform this action.`;
@@ -246,11 +248,13 @@ export default {
           } else if (err.code === 'HttpError' && err.data && err.data.statusCode === 404) {
             this.errors.repoURL = 'This repository doesn’t seem to exist';
           } else {
+            console.log(err);
             this.$store.commit('addToast', { message: `Something went wrong while fetching branches: ${err.message}`, type: 'error' });
           }
         }
         this.loadingBranches = false;
       }
+      this.lastRepoURL = this.repoURL;
     },
     async importProject() {
       // TODO: actually clone the repo and ask for credentials if needed
