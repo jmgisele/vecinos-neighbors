@@ -259,8 +259,8 @@ export default {
           }
         }
         this.loadingBranches = false;
+        this.lastRepoURL = this.repoURL;
       }
-      this.lastRepoURL = this.repoURL;
     },
     async importProject() {
       // TODO: actually clone the repo and ask for credentials if needed
