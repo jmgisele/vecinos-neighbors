@@ -210,8 +210,8 @@ export default {
             // forPush: true, // we can use this to determine whether we’ll be able to push to the repo or certain branches early (also means that we have to show the login modal as soon as we blur)
             http,
             onAuth: async () => {
-              if (this.$store.user.gitAuth) {
-                const { user, password } = this.$store.user.gitAuth;
+              if (this.$store.state.user.gitAuth) {
+                const { user, password } = this.$store.state.user.gitAuth;
                 return { username: user, password };
               }
               this.gitLoginMessage = `This repository seems to be private. Please log into your <strong>${this.gitProvider}</strong> account to confirm that you may perform this action.`;
@@ -221,7 +221,7 @@ export default {
               return { username: this.credentials.user, password: this.credentials.password };
             },
             onAuthFailure: async () => {
-              if (this.$store.user.gitAuth) this.$store.commit('setUserProperty', { key: 'gitAuth', value: null });
+              if (this.$store.state.user.gitAuth) this.$store.commit('setUserProperty', { key: 'gitAuth', value: null });
               this.gitLoginMessage = 'Sorry, that didn’t work. This might mean that you don’t have access to this repository, or that you typed the wrong username / password combination. Please try again.';
               this.credentials = await this.openGitLoginModal();
               this.showGitLoginModal = false;
@@ -244,6 +244,8 @@ export default {
           if (this.repoBranches.includes('main')) this.repoBranch = 'main';
           else if (this.repoBranches.includes('master')) this.repoBranch = 'master';
           else [this.repoBranch] = this.repoBranches;
+
+          this.lastRepoURL = this.repoURL;
         } catch (err) {
           if (err.code === 'UserCanceledError') {
             this.credentials = null;
@@ -259,7 +261,6 @@ export default {
           }
         }
         this.loadingBranches = false;
-        this.lastRepoURL = this.repoURL;
       }
     },
     async importProject() {
