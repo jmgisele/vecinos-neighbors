@@ -12,6 +12,7 @@ export default createStore({
       tooltip: null,
     },
     user: {
+      gitAuth: null,
       theme: 'auto',
     },
   },

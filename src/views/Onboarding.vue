@@ -210,14 +210,18 @@ export default {
             // forPush: true, // we can use this to determine whether we’ll be able to push to the repo or certain branches early (also means that we have to show the login modal as soon as we blur)
             http,
             onAuth: async () => {
+              if (this.$store.user.gitAuth) {
+                const { user, password } = this.$store.user.gitAuth;
+                return { username: user, password };
+              }
               this.gitLoginMessage = `This repository seems to be private. Please log into your <strong>${this.gitProvider}</strong> account to confirm that you may perform this action.`;
               this.credentials = await this.openGitLoginModal();
               this.showGitLoginModal = false;
-
               if (this.credentials === 'cancel') return { cancel: true };
               return { username: this.credentials.user, password: this.credentials.password };
             },
             onAuthFailure: async () => {
+              if (this.$store.user.gitAuth) this.$store.commit('setUserProperty', { key: 'gitAuth', value: null });
               this.gitLoginMessage = 'Sorry, that didn’t work. This might mean that you don’t have access to this repository, or that you typed the wrong username / password combination. Please try again.';
               this.credentials = await this.openGitLoginModal();
               this.showGitLoginModal = false;
@@ -227,9 +231,8 @@ export default {
             },
             onAuthSuccess: () => {
               if (this.credentials.savePassword) {
-                // WARNING: This might be insecure considering XSS attacks, but it’s the only way I know to store the credentials so they survive a reload (and storing them in Vuex probably is just as unsafe)
-                // window.sessionStorage.set('username', this.credentials.user);
-                // window.sessionStorage.set('password', this.credentials.password);
+                // WARNING: This might be insecure considering XSS attacks (then again, if there’s a XSS, we probably are screwed anyway)
+                this.$store.commit('setUserProperty', { key: 'gitAuth', value: { password: this.credentials.password, user: this.credentials.user } });
               }
             },
             prefix: 'refs/heads/',
