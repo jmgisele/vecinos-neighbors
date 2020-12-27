@@ -28,7 +28,6 @@ export default {
   },
   methods: {
     handleCancel() {
-      this.user = '';
       this.password = '';
       this.$emit('cancel');
     },
