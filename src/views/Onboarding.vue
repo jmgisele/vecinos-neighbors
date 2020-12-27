@@ -250,8 +250,11 @@ export default {
             this.errors.repoURL = 'You might not have access to this repository';
           } else if (err.code === 'HttpError' && err.data && err.data.statusCode === 404) {
             this.errors.repoURL = 'This repository doesn’t seem to exist';
+          } else if (err.name === 'TypeError' && err.message === 'Failed to fetch') { // This is probably not the best way to catch these errors, but there’s hardly any information in that object
+            this.errors.repoURL = 'This repository could not be fetched';
+            this.$store.commit('addToast', { message: 'Could not fetch the repository, please check your network connection and the proxy server settings under ‘Advanced Settings’', type: 'error' });
           } else {
-            console.log(err);
+            console.log(JSON.stringify(err, null, 2), `Code: ${err.code}, Msg: ${err.message}, Name: ${err.name}, Data: ${err.data}`);
             this.$store.commit('addToast', { message: `Something went wrong while fetching branches: ${err.message}`, type: 'error' });
           }
         }
