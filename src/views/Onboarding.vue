@@ -7,7 +7,7 @@
     </section>
     <section class="steps">
       <header>
-        <MbProgress :class="{ faded: !cloneStep }" :dark="dark" :indetermined="cloneStep === 'initialising'" :label="cloneLabel" :progress="cloneProgress" />
+        <MbProgress :class="{ faded: !cloneStep }" :dark="dark" :indetermined="!cloneProgress" :label="cloneLabel" :progress="cloneProgress" />
       </header>
       <transition mode="out-in">
         <div v-if="currentSlide === 0" class="slide">
@@ -23,11 +23,6 @@
           <footer>
             <MbButton :dark="dark" :disabled="Boolean(!repoURL || errors.repoURL || loadingBranches || !repoBranch)" type="primary" @click="importProject">Import Project</MbButton>
           </footer>
-          <p class="hint">
-            <strong>Note:</strong> this is a very early prototype. Regardless of
-            the URL and Branch selected, clicking “Import Project” will only create
-            a mock-project for demonstrational purposes.
-          </p>
           <p class="advanced-settings" @click="showAdvancedSettings = true">Advanced Settings</p>
           <MbModal class="advanced-settings-modal" :dark="dark" title="Advanced Settings" :visible="showAdvancedSettings" @close="showAdvancedSettings = false">
             <h3>CORS Proxy Server</h3>
@@ -75,7 +70,7 @@
           <p>Your project has been imported successfully and is now ready to be set up to work with Mattrbld.</p>
           <!-- Todo: distinguish between projects that have already been set up with mattrbld once and ones which weren’t -->
           <footer>
-            <MbButton :dark="dark" type="primary" @click="$router.push({ name: 'project', params: { name: repoURL.split('/').slice(-1)[0].slice(0, -4) }})">Start Editing</MbButton>
+            <MbButton :dark="dark" type="primary" @click="openProject">Start Editing</MbButton>
           </footer>
         </div>
       </transition>
@@ -84,11 +79,12 @@
 </template>
 
 <script>
-import { listServerRefs } from 'isomorphic-git';
+import { clone, listServerRefs, setConfig } from 'isomorphic-git';
 import http from 'isomorphic-git/http/web/index.cjs';
 
 import generateAvatar from '../assets/js/generateAvatar';
 import TimeoutError from '../assets/js/TimeoutError';
+import fs, { PlainFS } from '../fs';
 
 import AvatarUploader from '../components/utility/AvatarUploader.vue';
 import GitLoginModal from '../components/utility/GitLoginModal.vue';
@@ -173,30 +169,16 @@ export default {
   methods: {
     completeSetup() {
       // TODO: Save the avatar uri as blob somewhere along with the rest of the configuration data
-      // TODO: Set local git config (isomorphic-git only supports local configs for the moment)
       // TODO: advance to waiting slide if we’re not done cloning, otherwise complete onboarding
       if (this.cloneStep !== 'done') this.currentSlide += 1;
       else this.currentSlide += 2;
     },
     createUser() {
       // TODO: Create a user file with basic configuration defaults
+      // create /users and the userEmail.json file including the project being cloned as one of theirs
+      // create /mattrbld.conf with the new user as the active user
       this.regenerateAvatar();
       this.currentSlide += 1;
-    },
-    fakeClone() {
-      if (this.cloneStep === 'initialising') this.cloneStep = 'cloning';
-      const progress = Math.max(Math.random() - 0.5, 0.1);
-
-      if (this.cloneProgress + progress < 1) {
-        this.cloneProgress += progress;
-        window.setTimeout(this.fakeClone, Math.random() * 5000 + 1000);
-      } else {
-        this.cloneStep = 'done';
-        this.cloneProgress = 1;
-        window.setTimeout(() => {
-          if (this.currentSlide === 3) this.currentSlide = 4;
-        }, Math.random() * 5000 + 1000);
-      }
     },
     handleAvatarReady(avatar) {
       this.userAvatar = avatar;
@@ -262,13 +244,12 @@ export default {
           if (err.code === 'UserCanceledError') {
             this.credentials = null;
             this.errors.repoURL = 'You might not have access to this repository';
-          } else if (err.code === 'HttpError' && err.data && err.data.statusCode === 404) {
+          } else if (err.code === 'HttpError' && err.data && err.data.statusCode === 404) { // there might also be a 403 error if we have read- but not write-access, but that only matters if we have forPush active
             this.errors.repoURL = 'This repository doesn’t seem to exist';
           } else if (err instanceof TimeoutError || (err.name === 'TypeError' && err.message === 'Failed to fetch')) { // This is probably not the best way to catch these errors, but there’s hardly any information in that object
             this.errors.repoURL = 'This repository doesn’t exist or is refusing connections';
             this.$store.commit('addToast', { message: 'Could not fetch the repository, please check your network connection and the proxy server settings under ‘Advanced Settings’', type: 'error' });
           } else {
-            console.log(JSON.stringify(err, null, 2), `Code: ${err.code}, Msg: ${err.message}, Name: ${err.name}, Data: ${err.data}`);
             this.$store.commit('addToast', { message: `Something went wrong while fetching branches: ${err.message}`, type: 'error' });
           }
         }
@@ -277,17 +258,69 @@ export default {
       }
     },
     async importProject() {
-      // TODO: actually clone the repo and ask for credentials if needed
-      // const credentials = await this.openGitLoginModal();
-      // this.showGitLoginModal = false;
-      // await this.$nextTick(); // so the modal can close
-      this.currentSlide += 1;
-      this.cloneStep = 'initialising';
-      window.setTimeout(this.fakeClone, Math.random() * 5000 + 1000);
+      this.validate(this.repoURL);
+
+      if (this.repoURL && !this.errors.repoURL && this.repoBranch) {
+        // Create a projects folder and one to clone into based on the repoURL (naive implementation, but should work considering we’re forcing the URL to be a HTTP one)
+        const folderName = this.repoURL.split('/').slice(-1)[0].replace('.git', '');
+        try {
+          await fs.mkdir('/projects');
+          await fs.mkdir(`/projects/${folderName}`);
+        } catch (err) {
+          this.$store.commit('addToast', { message: `Something went wrong while creating the folder structure: ${err.message}`, type: 'error' });
+          return; // abort
+        }
+        // Start cloning the repo and advance to the next slide (no await since we want to progress to the next slide)
+        clone({
+          fs: PlainFS,
+          http,
+          onAuth: () => ({ username: this.credentials.user, password: this.credentials.password }), // we still have credentials from listing the branches
+          onProgress: (progress) => {
+            this.cloneStep = progress.phase;
+            if (progress.total) this.cloneProgress = progress.loaded / progress.total;
+            else this.cloneProgress = 0;
+          },
+          dir: `/projects/${folderName}`,
+          corsProxy: this.corsProxy,
+          url: this.repoURL,
+          ref: this.repoBranch,
+          singleBranch: true,
+          depth: 5,
+        })
+          .then(() => { this.cloneStep = 'done'; })
+          .catch((err) => {
+            // If cloning fails, reset everything and start anew
+            this.$store.commit('addToast', { message: `Something went wrong while cloning the project: ${err.message}`, type: 'error' });
+            // TODO: wipe the file system or rimraf /projects and remove mattrbld.conf if it exists
+            this.currentSlide = 0;
+          });
+        this.currentSlide += 1;
+      }
     },
     openGitLoginModal() {
       this.showGitLoginModal = true;
       return new Promise((resolve) => { this.credentialPromise = resolve; });
+    },
+    async openProject() {
+      const projectName = this.repoURL.split('/').slice(-1)[0].replace('.git', '');
+      try { // we’re setting the config here, because we know we’re done cloning
+        await setConfig({
+          fs: PlainFS,
+          dir: `/projects/${projectName}`,
+          path: 'user.name',
+          value: this.userName,
+        });
+        await setConfig({
+          fs: PlainFS,
+          dir: `/projects/${projectName}`,
+          path: 'user.email',
+          value: this.userEmail,
+        });
+      } catch (err) {
+        // TODO: figure out a way to clean this up in case something goes wrong, if the config isn’t set other operations will fail in the future
+        this.$store.commit('addToast', { message: `Something went wrong while setting the project configuration: ${err.message}`, type: 'error' });
+      }
+      this.$router.push({ name: 'project', params: { name: projectName } });
     },
     regenerateAvatar() {
       const split = this.userName.split(' ');
@@ -512,13 +545,6 @@ export default {
             position: static
             margin-top: 2rem
             text-align: right
-
-        .hint
-          margin-top: 4rem
-          padding: 1.5rem
-          border-radius: $radius-l
-          background-color: $warning
-          color: $text
 
 .advanced-settings-modal
   h3
