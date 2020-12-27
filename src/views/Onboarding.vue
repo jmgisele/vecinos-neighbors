@@ -13,7 +13,7 @@
         <div v-if="currentSlide === 0" class="slide">
           <h1>Welcome to Mattrbld!</h1>
           <p class="blurb">Mattrbld is the CMS that works in your browser. Let’s get started by importing your first project.</p>
-          <MbInput v-model="repoURL" :autofocus="!$store.state.application.mobile" :dark="dark" :error="errors.repoURL" icon="repo" label="Project Repository URL" @blur="handleRepoInput" />
+          <MbInput v-model="repoURL" :autofocus="!isMobile" :dark="dark" :error="errors.repoURL" icon="repo" label="Project Repository URL" @blur="handleRepoInput" />
           <div class="label">
             <span>Repository branch:</span>
             <MbSelect v-model="repoBranch" :dark="dark" :disabled="Boolean(!repoURL || errors.repoURL || repoBranches.length === 0)" :loading="loadingBranches" :options="repoBranches" placeholder="Select a branch…" />
@@ -44,7 +44,7 @@
         <div v-else-if="currentSlide === 1" class="slide">
           <h1>Great!</h1>
           <p class="blurb">While the project is being imported, let’s set up your local user. This data will be used to let your collaborators know who you are.</p>
-          <MbInput v-model="userName" :autofocus="!$store.state.application.mobile" :dark="dark" :error="errors.userName" icon="user" label="Full Name" @blur="validate('userName')" />
+          <MbInput v-model="userName" :autofocus="!isMobile" :dark="dark" :error="errors.userName" icon="user" label="Full Name" @blur="validate('userName')" />
           <MbInput v-model="userEmail" :dark="dark" :error="errors.userEmail" icon="mail" label="Email Address" type="email" @blur="validate('userEmail')" />
           <h2>What’s your typical role in projects?</h2>
           <p>This can be overridden on a project-by-project basis.</p>
@@ -88,6 +88,8 @@ import { listServerRefs } from 'isomorphic-git';
 import http from 'isomorphic-git/http/web/index.cjs';
 
 import generateAvatar from '../assets/js/generateAvatar';
+import TimeoutError from '../assets/js/TimeoutError';
+
 import AvatarUploader from '../components/utility/AvatarUploader.vue';
 import GitLoginModal from '../components/utility/GitLoginModal.vue';
 
@@ -112,6 +114,9 @@ export default {
       } catch (err) {
         return 'Git';
       }
+    },
+    isMobile() {
+      return this.$store.state.application.mobile;
     },
   },
   data() {
@@ -200,44 +205,51 @@ export default {
     async handleRepoInput() {
       this.validate('repoURL');
 
-      if (!this.errors.repoURL && this.repoURL !== this.lastRepoURL) { // we should also check if the url changed at all
+      if (!this.errors.repoURL && this.repoURL !== this.lastRepoURL) {
         this.loadingBranches = true;
         this.repoBranches = [];
         this.repoBranch = null;
+        let timeout = null;
         try {
-          const refs = await listServerRefs({
-            corsProxy: this.corsProxy,
-            // forPush: true, // we can use this to determine whether we’ll be able to push to the repo or certain branches early (also means that we have to show the login modal as soon as we blur)
-            http,
-            onAuth: async () => {
-              if (this.$store.state.user.gitAuth) {
-                const { user, password } = this.$store.state.user.gitAuth;
-                return { username: user, password };
-              }
-              this.gitLoginMessage = `This repository seems to be private. Please log into your <strong>${this.gitProvider}</strong> account to confirm that you may perform this action.`;
-              this.credentials = await this.openGitLoginModal();
-              this.showGitLoginModal = false;
-              if (this.credentials === 'cancel') return { cancel: true };
-              return { username: this.credentials.user, password: this.credentials.password };
-            },
-            onAuthFailure: async () => {
-              if (this.$store.state.user.gitAuth) this.$store.commit('setUserProperty', { key: 'gitAuth', value: null });
-              this.gitLoginMessage = 'Sorry, that didn’t work. This might mean that you don’t have access to this repository, or that you typed the wrong username / password combination. Please try again.';
-              this.credentials = await this.openGitLoginModal();
-              this.showGitLoginModal = false;
+          const refs = await Promise.race([ // we’re racing against a timeout because the proxy sometimes silently fails to relay and we’d be waiting forever otherwise
+            listServerRefs({
+              corsProxy: this.corsProxy,
+              // forPush: true, // we can use this to determine whether we’ll be able to push to the repo or certain branches early (also means that we have to show the login modal as soon as we blur)
+              http,
+              onAuth: async () => {
+                window.clearTimeout(timeout); // we have connected successfully, we don’t need the timeout anymore
+                if (this.$store.state.user.gitAuth) {
+                  const { user, password } = this.$store.state.user.gitAuth;
+                  return { username: user, password };
+                }
+                this.gitLoginMessage = `This repository seems to be private. Please log into your <strong>${this.gitProvider}</strong> account to confirm that you may perform this action.`;
+                this.credentials = await this.openGitLoginModal();
+                this.showGitLoginModal = false;
+                if (this.credentials === 'cancel') return { cancel: true };
+                return { username: this.credentials.user, password: this.credentials.password };
+              },
+              onAuthFailure: async () => {
+                if (this.$store.state.user.gitAuth) this.$store.commit('setUserProperty', { key: 'gitAuth', value: null });
+                this.gitLoginMessage = 'Sorry, that didn’t work. This might mean that you don’t have access to this repository, or that you typed the wrong username / password combination. Please try again.';
+                this.credentials = await this.openGitLoginModal();
+                this.showGitLoginModal = false;
 
-              if (this.credentials === 'cancel') return { cancel: true };
-              return { username: this.credentials.user, password: this.credentials.password };
-            },
-            onAuthSuccess: () => {
-              if (this.credentials.savePassword) {
-                // WARNING: This might be insecure considering XSS attacks (then again, if there’s a XSS, we probably are screwed anyway)
-                this.$store.commit('setUserProperty', { key: 'gitAuth', value: { password: this.credentials.password, user: this.credentials.user } });
-              }
-            },
-            prefix: 'refs/heads/',
-            url: this.repoURL,
-          });
+                if (this.credentials === 'cancel') return { cancel: true };
+                return { username: this.credentials.user, password: this.credentials.password };
+              },
+              onAuthSuccess: () => {
+                if (this.credentials.savePassword) {
+                  // WARNING: This might be insecure considering XSS attacks (then again, if there’s a XSS, we probably are screwed anyway)
+                  this.$store.commit('setUserProperty', { key: 'gitAuth', value: { password: this.credentials.password, user: this.credentials.user } });
+                }
+              },
+              prefix: 'refs/heads/',
+              url: this.repoURL,
+            }),
+            new Promise((resolve, reject) => {
+              timeout = window.setTimeout(() => reject(new TimeoutError('Connection timed out')), this.isMobile ? 10000 : 5000); // a 10s timeout might be too much here generally speaking, but on mobile it could be necessary
+            }),
+          ]);
           this.repoBranches = refs.map((ref) => ref.ref.replace('refs/heads/', ''));
 
           // TODO: find a way to extract the default branch?
@@ -252,14 +264,15 @@ export default {
             this.errors.repoURL = 'You might not have access to this repository';
           } else if (err.code === 'HttpError' && err.data && err.data.statusCode === 404) {
             this.errors.repoURL = 'This repository doesn’t seem to exist';
-          } else if (err.name === 'TypeError' && err.message === 'Failed to fetch') { // This is probably not the best way to catch these errors, but there’s hardly any information in that object
-            this.errors.repoURL = 'This repository could not be fetched';
+          } else if (err instanceof TimeoutError || (err.name === 'TypeError' && err.message === 'Failed to fetch')) { // This is probably not the best way to catch these errors, but there’s hardly any information in that object
+            this.errors.repoURL = 'This repository doesn’t exist or is refusing connections';
             this.$store.commit('addToast', { message: 'Could not fetch the repository, please check your network connection and the proxy server settings under ‘Advanced Settings’', type: 'error' });
           } else {
             console.log(JSON.stringify(err, null, 2), `Code: ${err.code}, Msg: ${err.message}, Name: ${err.name}, Data: ${err.data}`);
             this.$store.commit('addToast', { message: `Something went wrong while fetching branches: ${err.message}`, type: 'error' });
           }
         }
+        window.clearTimeout(timeout); // clear the timeout for consistency
         this.loadingBranches = false;
       }
     },
@@ -291,7 +304,6 @@ export default {
           break;
         case 'repoURL':
           if (!this.repoURL) error = 'A repository URL is required';
-          // repoURLs with invalid tlds never return, either we filter those out (difficult), or we file a bug, or we implement a timeout in the clone / listServerRefs functions
           // just checks if we’re using http(s) and it ends with .git
           else if (!/https?:\/\/.*\.git$/.test(this.repoURL)) error = 'Invalid URL, only https URLs ending in .git are supported';
           break;
