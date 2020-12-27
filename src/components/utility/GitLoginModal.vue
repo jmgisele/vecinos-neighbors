@@ -28,12 +28,12 @@ export default {
   },
   methods: {
     handleCancel() {
-      this.password = '';
       this.$emit('cancel');
+      this.password = '';
     },
     handleSubmit() {
-      this.password = '';
       this.$emit('submit', { user: this.user, password: this.password, savePassword: this.savePassword });
+      this.password = '';
     },
   },
   props: {
