@@ -5,8 +5,8 @@ import router from './router';
 import store from './store';
 
 import 'normalize.css';
-import 'fontsource-inter';
-import 'fontsource-inter/700.css';
+import '@fontsource/inter';
+import '@fontsource/inter/700.css';
 
 import './assets/styles/base.styl';
 
