@@ -133,6 +133,7 @@ export default {
       gitLoginMessage: `This repository seems to be private. Please log into your <strong>${this.gitProvider}</strong> account to confirm that you may perform this action.`,
       lastRepoURL: '',
       loadingBranches: false,
+      projectName: '',
       repoURL: '',
       repoBranch: null,
       repoBranches: [],
@@ -262,10 +263,10 @@ export default {
 
       if (this.repoURL && !this.errors.repoURL && this.repoBranch) {
         // Create a projects folder and one to clone into based on the repoURL (naive implementation, but should work considering we’re forcing the URL to be a HTTP one)
-        const folderName = this.repoURL.split('/').slice(-1)[0].replace('.git', '');
+        this.projectName = this.repoURL.split('/').slice(-1)[0].replace('.git', '');
         try {
           await fs.mkdir('/projects');
-          await fs.mkdir(`/projects/${folderName}`);
+          await fs.mkdir(`/projects/${this.projectName}`);
         } catch (err) {
           this.$store.commit('addToast', { message: `Something went wrong while creating the folder structure: ${err.message}`, type: 'error' });
           return; // abort
@@ -280,7 +281,7 @@ export default {
             if (progress.total) this.cloneProgress = progress.loaded / progress.total;
             else this.cloneProgress = 0;
           },
-          dir: `/projects/${folderName}`,
+          dir: `/projects/${this.projectName}`,
           corsProxy: this.corsProxy,
           url: this.repoURL,
           ref: this.repoBranch,
@@ -302,17 +303,16 @@ export default {
       return new Promise((resolve) => { this.credentialPromise = resolve; });
     },
     async openProject() {
-      const projectName = this.repoURL.split('/').slice(-1)[0].replace('.git', '');
       try { // we’re setting the config here, because we know we’re done cloning
         await setConfig({
           fs: PlainFS,
-          dir: `/projects/${projectName}`,
+          dir: `/projects/${this.projectName}`,
           path: 'user.name',
           value: this.userName,
         });
         await setConfig({
           fs: PlainFS,
-          dir: `/projects/${projectName}`,
+          dir: `/projects/${this.projectName}`,
           path: 'user.email',
           value: this.userEmail,
         });
@@ -320,7 +320,7 @@ export default {
         // TODO: figure out a way to clean this up in case something goes wrong, if the config isn’t set other operations will fail in the future
         this.$store.commit('addToast', { message: `Something went wrong while setting the project configuration: ${err.message}`, type: 'error' });
       }
-      this.$router.push({ name: 'project', params: { name: projectName } });
+      this.$router.push({ name: 'project', params: { name: this.projectName } });
     },
     regenerateAvatar() {
       const split = this.userName.split(' ');
