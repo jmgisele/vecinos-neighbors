@@ -27,7 +27,7 @@
     "prosemirror-view": "^1.16.5",
     "register-service-worker": "^1.7.2",
     "vue": "^3.0.4",
-    "vue-router": "^4.0.1",
+    "vue-router": "^4.0.2",
     "vuex": "^4.0.0-rc.2"
   },
   "devDependencies": {
@@ -42,7 +42,7 @@
     "babel-eslint": "^10.1.0",
     "eslint": "^6.7.2",
     "eslint-plugin-import": "^2.20.2",
-    "eslint-plugin-vue": "^7.3.0",
+    "eslint-plugin-vue": "^7.4.0",
     "image-minimizer-webpack-plugin": "^1.0.0",
     "imagemin-svgo": "^8.0.0",
     "raw-loader": "^4.0.2",
