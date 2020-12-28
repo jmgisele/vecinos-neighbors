@@ -10,6 +10,7 @@
   "dependencies": {
     "@fontsource/inter": "^4.0.1",
     "@isomorphic-git/lightning-fs": "^4.4.1",
+    "@sindresorhus/slugify": "^1.1.0",
     "core-js": "^3.8.1",
     "isomorphic-git": "^1.8.0",
     "lodash-es": "^4.17.20",
