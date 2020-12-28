@@ -149,6 +149,7 @@ export default {
     overflow: hidden
     text-overflow: ellipsis
     transition: transform 200ms ease
+    pointer-events: none
 
     &.right
       text-align: right
