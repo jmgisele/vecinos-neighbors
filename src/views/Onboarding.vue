@@ -81,6 +81,7 @@
 <script>
 import { clone, listServerRefs, setConfig } from 'isomorphic-git';
 import http from 'isomorphic-git/http/web/index.cjs';
+import slugify from '@sindresorhus/slugify';
 
 import generateAvatar from '../assets/js/generateAvatar';
 import TimeoutError from '../assets/js/TimeoutError';
@@ -163,23 +164,42 @@ export default {
       ],
       userAvatar: '',
       userEmail: '',
+      userId: '',
       userName: '',
       userRole: '',
     };
   },
   methods: {
-    completeSetup() {
+    async completeSetup() {
       // TODO: Save the avatar uri as blob somewhere along with the rest of the configuration data
-      // TODO: advance to waiting slide if we’re not done cloning, otherwise complete onboarding
+      try {
+        const config = {
+          activeUser: this.userId,
+          corsProxy: this.corsProxy,
+          initialised: true,
+        };
+        await fs.writeFile('/mattrbld.conf', JSON.stringify(config), 'utf8');
+      } catch (err) {
+        this.$store.commit('addToast', { message: `Something went wrong while saving the configuration: ${err.message}`, type: 'error' });
+      }
       if (this.cloneStep !== 'done') this.currentSlide += 1;
       else this.currentSlide += 2;
     },
-    createUser() {
-      // TODO: Create a user file with basic configuration defaults
-      // create /users and the userEmail.json file including the project being cloned as one of theirs
-      // create /mattrbld.conf with the new user as the active user
-      this.regenerateAvatar();
-      this.currentSlide += 1;
+    async createUser() {
+      try {
+        this.userId = slugify(this.userEmail.trim()); // WARNING: this could lead to collisions if there’s two very similar email addresses (foo-bar@exmaple.com foo.bar@example.com), but since we have a low amount of local users, I think it’s negligible
+        const user = {
+          email: this.userEmail.trim(),
+          name: this.userName.trim().toLowerCase(),
+          projects: [this.projectName],
+        };
+        await fs.mkdir('/users');
+        await fs.writeFile(`/users/${this.userId}.json`, JSON.stringify(user), 'utf8');
+        this.regenerateAvatar();
+        this.currentSlide += 1;
+      } catch (err) {
+        this.$store.commit('addToast', { message: `Something went wrong while creating the user: ${err.message}`, type: 'error' });
+      }
     },
     handleAvatarReady(avatar) {
       this.userAvatar = avatar;
@@ -308,13 +328,13 @@ export default {
           fs: PlainFS,
           dir: `/projects/${this.projectName}`,
           path: 'user.name',
-          value: this.userName,
+          value: this.userName.trim(),
         });
         await setConfig({
           fs: PlainFS,
           dir: `/projects/${this.projectName}`,
           path: 'user.email',
-          value: this.userEmail,
+          value: this.userEmail.trim(),
         });
       } catch (err) {
         // TODO: figure out a way to clean this up in case something goes wrong, if the config isn’t set other operations will fail in the future
