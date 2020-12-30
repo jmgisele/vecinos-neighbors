@@ -129,6 +129,9 @@ export default {
         &:focus
           background-color: $bg-tertiary-dark
 
+          &.active
+            color: $text-dark
+
     li
       padding: 0.75rem 1rem
       white-space: nowrap
@@ -137,6 +140,9 @@ export default {
       cursor: pointer
       border-radius: $radius-m
       transition: background-color 200ms ease
+
+      &:not(:last-child)
+        margin-bottom: 0.5rem
 
       &.active
         background-color: $accent
@@ -151,6 +157,6 @@ export default {
         background-color: $bg-secondary
 
         &.active
-          color: $accent
+          color: $text
           box-shadow: inset 0 0 0 (2 / 16)rem $accent
 </style>
