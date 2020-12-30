@@ -395,6 +395,8 @@ export default {
         'repo',
         'save',
         'search',
+        'settings',
+        'settings-alt',
         'strikethrough',
         'sun',
         'text-alt',
