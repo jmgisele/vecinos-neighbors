@@ -34,6 +34,8 @@ export default createStore({
       if (toast.timeout && toast.timeout > 1000) timeout = toast.timeout;
       if (toast.type === 'error') timeout = 0;
 
+      if (state.application.toasts.length > 5) state.application.toasts.pop();
+
       state.application.toasts.push({
         id: toast.id || Math.random().toString(36).substr(2, 9),
         ...toast,
