@@ -82,6 +82,8 @@ import { clone, listServerRefs, setConfig } from 'isomorphic-git';
 import http from 'isomorphic-git/http/web/index.cjs';
 import slugify from '@sindresorhus/slugify';
 
+import availableRoles from '../data/availableRoles';
+
 import generateAvatar from '../assets/js/generateAvatar';
 import TimeoutError from '../assets/js/TimeoutError';
 import fs, { PlainFS } from '../fs';
@@ -138,11 +140,7 @@ export default {
       repoURL: '',
       repoBranch: null,
       repoBranches: [],
-      roleOptions: [
-        { label: 'Project Owner', value: 'owner' },
-        { label: 'Developer', value: 'dev' },
-        { label: 'Content Editor', value: 'editor' },
-      ],
+      roleOptions: availableRoles,
       showAdvancedSettings: false,
       showGitLoginModal: false,
       steps: [

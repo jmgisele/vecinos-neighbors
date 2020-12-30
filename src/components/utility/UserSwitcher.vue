@@ -23,6 +23,8 @@
 <script>
 import fs from '../../fs';
 
+import availableRoles from '../../data/availableRoles';
+
 export default {
   beforeUnmount() {
     this.users.forEach((user) => {
@@ -56,6 +58,7 @@ export default {
         x: 0,
         y: 0,
       },
+      roleOptions: availableRoles,
       users: [],
     };
   },
