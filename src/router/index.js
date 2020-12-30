@@ -24,14 +24,35 @@ const routes = [
       return true;
     },
   },
-  // {
-  //   path: '/about',
-  //   name: 'About',
-  //   // route level code-splitting
-  //   // this generates a separate chunk (about.[hash].js) for this route
-  //   // which is lazy-loaded when the route is visited.
-  //   component: () => import(/* webpackChunkName: "about" */ '../views/About.vue'),
-  // },
+  {
+    path: '/project/:id',
+    name: 'Project',
+    // route level code-splitting
+    // this generates a separate chunk (about.[hash].js) for this route
+    // which is lazy-loaded when the route is visited.
+    component: () => import(/* webpackChunkName: "project" */ '../views/Project.vue'),
+    meta: {
+      title: 'Project',
+    },
+    children: [
+      {
+        name: 'Project.Dashboard',
+        path: '', // this sub-route will be loaded when we enter the parent route
+        component: () => import(/* webpackChunkName: "project" */ '../views/ProjectDashboard.vue'),
+        meta: {
+          title: 'Project Dashboard',
+        },
+      },
+      {
+        name: 'Project.Settings',
+        path: 'settings',
+        component: () => import(/* webpackChunkName: "project" */ '../views/ProjectSettings.vue'),
+        meta: {
+          title: 'Project Settings',
+        },
+      },
+    ],
+  },
 ];
 
 const router = createRouter({
@@ -47,7 +68,6 @@ router.beforeEach(async (to) => {
 
   // Initialise App if it hasn’t yet
   if (!Store.state.application.initialised) {
-    console.log('initialising');
     try {
       await Store.dispatch('initialiseApplication');
     } catch (err) {
@@ -60,8 +80,7 @@ router.beforeEach(async (to) => {
 });
 
 router.afterEach((to) => {
-  const nearestRouteWithTitle = to.matched.slice().reverse().find((route) => route.meta && route.meta.title);
-  if (nearestRouteWithTitle) document.title = `${nearestRouteWithTitle.meta.title} | Mattrbld`;
+  if (to.meta && to.meta.title) document.title = `${to.meta.title} | Mattrbld`;
   else document.title = 'Mattrbld';
 });
 
