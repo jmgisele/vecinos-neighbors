@@ -18,7 +18,6 @@
             <span>Repository branch:</span>
             <MbSelect v-model="repoBranch" :dark="dark" :disabled="Boolean(!repoURL || errors.repoURL || repoBranches.length === 0)" :loading="loadingBranches" :options="repoBranches" placeholder="Select a branch…" />
           </div>
-          <!-- Todo: add sign-into-git modal in case repo needs auth -->
           <GitLoginModal :dark="dark" :message="gitLoginMessage" :visible="showGitLoginModal" @cancel="credentialPromise('cancel')" @submit="credentialPromise" />
           <footer>
             <MbButton :dark="dark" :disabled="Boolean(!repoURL || errors.repoURL || loadingBranches || !repoBranch)" type="primary" @click="importProject">Import Project</MbButton>
@@ -67,10 +66,10 @@
         </div>
         <div v-else-if="currentSlide === 4" class="slide">
           <h1>You’re all set!</h1>
-          <p>Your project has been imported successfully and is now ready to be set up to work with Mattrbld.</p>
-          <!-- Todo: distinguish between projects that have already been set up with mattrbld once and ones which weren’t -->
+          <p v-if="isMattrbldProject">Your project has been imported successfully and is ready to be edited.</p>
+          <p v-else>Your project has been imported successfully and is now ready to be set up to work with Mattrbld.</p>
           <footer>
-            <MbButton :dark="dark" type="primary" @click="openProject">Start Editing</MbButton>
+            <MbButton :dark="dark" type="primary" @click="openProject">Start {{ isMattrbldProject ? 'Editing' : 'Setup' }}</MbButton>
           </footer>
         </div>
       </transition>
@@ -132,6 +131,7 @@ export default {
         userName: '',
       },
       gitLoginMessage: `This repository seems to be private. Please log into your <strong>${this.gitProvider}</strong> account to confirm that you may perform this action.`,
+      isMattrbldProject: false,
       lastRepoURL: '',
       loadingBranches: false,
       projectName: '',
@@ -317,7 +317,15 @@ export default {
           singleBranch: true,
           depth: 5,
         })
-          .then(() => { this.cloneStep = 'done'; })
+          .then(() => {
+            fs.stat(`/projects/${this.projectName}/.mattrbld`)
+              .then((stat) => {
+                if (stat.isDirectory()) this.isMattrbldProject = true;
+                else this.isMattrbldProject = false;
+              })
+              .catch(() => { this.isMattrbldProject = false; }); // if it doesn’t exist the project hasn’t been configured yet
+            this.cloneStep = 'done';
+          })
           .catch((err) => {
             // If cloning fails, reset everything and start anew
             this.$store.commit('addToast', { message: `Something went wrong while cloning the project: ${err.message}`, type: 'error' });
@@ -345,11 +353,12 @@ export default {
           path: 'user.email',
           value: this.userEmail.trim(),
         });
+        if (this.isMattrbldProject) this.$router.push({ name: 'project', params: { name: this.projectName } }); // go to project dashboard
+        else this.$router.push({ name: 'project.settings', params: { name: this.projectName } }); // go to project settings / will only work if we have a child route with such a name
       } catch (err) {
         // TODO: figure out a way to clean this up in case something goes wrong, if the config isn’t set other operations will fail in the future
         this.$store.commit('addToast', { message: `Something went wrong while setting the project configuration: ${err.message}`, type: 'error' });
       }
-      this.$router.push({ name: 'project', params: { name: this.projectName } });
     },
     regenerateAvatar() {
       const split = this.userName.split(' ');
