@@ -53,6 +53,12 @@ export default {
         id: null,
         name: '',
       },
+      newUser: {
+        avatar: null,
+        email: null,
+        name: '',
+        role: '',
+      },
       popover: {
         show: false,
         x: 0,
@@ -69,6 +75,11 @@ export default {
       this.popover.y = elRect.top;
       if (this.users.length === 0) await this.fetchUsers();
       this.popover.show = true;
+    },
+    async createUser() {
+      // create a new user file based on the data in this.newUser (minus avatar) and an empty projects array
+      // push that new user into the users array
+      // make them the active user?
     },
     async fetchActiveUser() {
       const activeUserAvatarData = await fs.readFile(`/users/${this.$store.state.application.activeUser}.jpg`);
