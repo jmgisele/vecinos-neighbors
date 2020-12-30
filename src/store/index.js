@@ -5,6 +5,7 @@ export default createStore({
   state: {
     application: {
       activeUser: null,
+      corsProxy: null,
       initialised: false,
       openModals: [],
       mobile: false,
@@ -12,7 +13,11 @@ export default createStore({
       tooltip: null,
     },
     user: {
+      email: null,
       gitAuth: null,
+      name: null,
+      projects: [],
+      role: null,
       theme: 'auto',
     },
   },
@@ -56,6 +61,9 @@ export default createStore({
     setMobile(state, value) {
       state.application.mobile = value;
     },
+    setUserData(state, data) {
+      state.user = data;
+    },
     setUserProperty(state, { key, value }) {
       state.user[key] = value;
     },
@@ -67,11 +75,18 @@ export default createStore({
     async initialiseApplication({ commit, state }) {
       try {
         const jsonString = await fs.readFile('/mattrbld.conf', 'utf8');
-        console.log(jsonString);
         commit('setAppData', {
           ...state.application,
           ...JSON.parse(jsonString),
         });
+
+        if (state.application.activeUser) { // load the active user
+          const userJsonString = await fs.readFile(`/users/${state.application.activeUser}.json`, 'utf8');
+          commit('setUserData', {
+            ...state.user,
+            ...JSON.parse(userJsonString),
+          });
+        }
       } catch (err) {
         if (err.code !== 'ENOENT') throw err;
         else commit('setAppProperty', { key: 'initialised', value: true }); // if the file doesn’t exist, we’re doing a cold start with default state
