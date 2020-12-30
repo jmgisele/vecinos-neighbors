@@ -116,5 +116,5 @@ export default (initials, color, color2, textColor, seed = 'Mattrbld rocks!') =>
   ctx.fillStyle = fg;
   ctx.fillText(initials, x, y + offset);
 
-  return c.toDataURL('image/jpeg', 1);
+  return c.toDataURL('image/jpeg', 0.45);
 };
