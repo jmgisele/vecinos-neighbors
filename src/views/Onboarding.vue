@@ -175,8 +175,8 @@ export default {
         // Save the avatar uri as Uint8Array along with the rest of the user configuration data
         // Based on https://stackoverflow.com/questions/12168909/blob-from-dataurl
         const byteString = window.atob(this.userAvatar.split(',')[1]);
-        const arrayBuffer = Uint8Array.from(byteString, (ch) => ch.charCodeAt(0)).buffer;
-        await fs.writeFile(`/users/${this.userId}.jpg`, arrayBuffer, 'utf8'); // we know it’s a image/jpeg because we converted it ourselves in AvatarUploader / generateAvatar
+        const avatarData = Uint8Array.from(byteString, (ch) => ch.charCodeAt(0));
+        await fs.writeFile(`/users/${this.userId}.jpg`, avatarData, 'utf8'); // we know it’s a image/jpeg because we converted it ourselves in AvatarUploader / generateAvatar
       } catch (err) {
         this.$store.commit('addToast', { message: `Something went wrong while saving the user avatar: ${err.message}`, type: 'error' });
         return; // abort
@@ -201,6 +201,7 @@ export default {
           email: this.userEmail.trim(),
           name: this.userName.trim().toLowerCase(),
           projects: [this.projectName],
+          role: this.userRole,
         };
         await fs.mkdir('/users');
         await fs.writeFile(`/users/${this.userId}.json`, JSON.stringify(user), 'utf8');
@@ -353,8 +354,8 @@ export default {
           path: 'user.email',
           value: this.userEmail.trim(),
         });
-        if (this.isMattrbldProject) this.$router.push({ name: 'Project', params: { name: this.projectName } }); // go to project dashboard
-        else this.$router.push({ name: 'Project.Settings', params: { name: this.projectName } }); // go to project settings / will only work if we have a child route with such a name
+        if (this.isMattrbldProject) this.$router.push({ name: 'Project', params: { id: this.projectName } }); // go to project dashboard
+        else this.$router.push({ name: 'Project.Settings', params: { id: this.projectName } }); // go to project settings / will only work if we have a child route with such a name
       } catch (err) {
         // TODO: figure out a way to clean this up in case something goes wrong, if the config isn’t set other operations will fail in the future
         this.$store.commit('addToast', { message: `Something went wrong while setting the project configuration: ${err.message}`, type: 'error' });
