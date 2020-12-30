@@ -1,6 +1,8 @@
 import { createStore } from 'vuex';
 import fs from '../fs';
 
+const persistentAppProperties = ['activeUser', 'corsProxy', 'initialised'];
+
 export default createStore({
   state: {
     application: {
@@ -90,6 +92,16 @@ export default createStore({
       } catch (err) {
         if (err.code !== 'ENOENT') throw err;
         else commit('setAppProperty', { key: 'initialised', value: true }); // if the file doesn’t exist, we’re doing a cold start with default state
+      }
+    },
+    async saveAppData({ commit, state }) {
+      try {
+        const appData = {};
+
+        persistentAppProperties.forEach((prop) => { appData[prop] = state.application[prop]; });
+        await fs.writeFile('/mattrbld.conf', JSON.stringify(appData), 'utf8');
+      } catch (err) {
+        commit('addToast', { message: `Something went wrong while saving the app configuration: ${err.message}`, type: 'error' });
       }
     },
   },
