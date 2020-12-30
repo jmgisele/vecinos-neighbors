@@ -106,6 +106,15 @@ export default createStore({
         commit('addToast', { message: `Something went wrong while saving the app configuration: ${err.message}`, type: 'error' });
       }
     },
+    async saveUser({ commit, state }) {
+      try {
+        const userData = { ...state.user };
+        delete userData.gitAuth;
+        await fs.writeFile(`/users/${state.application.activeUser}.json`, JSON.stringify(userData), 'utf8');
+      } catch (err) {
+        commit('addToast', { message: `Something went wrong while saving the active user: ${err.message}`, type: 'error' });
+      }
+    },
   },
   modules: {
   },
