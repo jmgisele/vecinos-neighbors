@@ -130,6 +130,7 @@ export default {
 </style>
 
 <style lang="stylus" scoped>
+@require '../assets/styles/breakpoints'
 @require '../assets/styles/colors'
 @require '../assets/styles/corners'
 
@@ -144,7 +145,7 @@ export default {
   overflow: hidden
   display: flex
   flex-direction: column
-  z-index: 1
+  z-index: 100 // HACK: this is a hack that’s needed because of the modal z-indexes so modals don’t cover popovers
 
   &.dark
     background-color: $bg-secondary-dark
@@ -189,6 +190,9 @@ export default {
 
     ::v-deep(.button)
       width: 100%
+
+      @media $mobile
+        min-width: 0
 
       &:not(:last-child)
         margin-right: 0.5rem
