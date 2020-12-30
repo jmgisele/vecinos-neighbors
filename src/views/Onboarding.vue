@@ -171,7 +171,16 @@ export default {
   },
   methods: {
     async completeSetup() {
-      // TODO: Save the avatar uri as blob somewhere along with the rest of the configuration data
+      try {
+        // Save the avatar uri as Uint8Array along with the rest of the user configuration data
+        // Based on https://stackoverflow.com/questions/12168909/blob-from-dataurl
+        const byteString = window.atob(this.userAvatar.split(',')[1]);
+        const arrayBuffer = Uint8Array.from(byteString, (ch) => ch.charCodeAt(0)).buffer;
+        await fs.writeFile(`/users/${this.userId}.jpg`, arrayBuffer, 'utf8'); // we know it’s a image/jpeg because we converted it ourselves in AvatarUploader / generateAvatar
+      } catch (err) {
+        this.$store.commit('addToast', { message: `Something went wrong while saving the user avatar: ${err.message}`, type: 'error' });
+        return; // abort
+      }
       try {
         const config = {
           activeUser: this.userId,
@@ -179,11 +188,11 @@ export default {
           initialised: true,
         };
         await fs.writeFile('/mattrbld.conf', JSON.stringify(config), 'utf8');
+        if (this.cloneStep !== 'done') this.currentSlide += 1;
+        else this.currentSlide += 2;
       } catch (err) {
         this.$store.commit('addToast', { message: `Something went wrong while saving the configuration: ${err.message}`, type: 'error' });
       }
-      if (this.cloneStep !== 'done') this.currentSlide += 1;
-      else this.currentSlide += 2;
     },
     async createUser() {
       try {
