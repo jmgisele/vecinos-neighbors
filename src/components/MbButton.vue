@@ -211,6 +211,7 @@ export default {
   .label
     overflow: hidden
     text-overflow: ellipsis
+    width: 100%
 
   .icon
     flex-shrink: 0
