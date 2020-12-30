@@ -102,6 +102,7 @@ export default {
 
   ::v-deep(.label)
     margin-right: auto
+    width: auto
 
 .item-wrapper
   .input
