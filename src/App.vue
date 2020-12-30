@@ -1,6 +1,11 @@
 <template>
   <SvgSprite />
   <GlobalTooltipController />
+  <header id="appHeader">
+    <MbButton v-if="$route.meta.showBack" :dark="dark" icon="chevron-left" rounded tooltip="Back" @click="$router.back" />
+    <p v-if="$route.meta.label && !isMobile" class="h3">{{$route.meta.label}}</p>
+    <UserSwitcher :dark="dark" />
+  </header>
   <router-view :dark="dark" />
   <ModalOverlay :dark="dark" />
   <MbModal id="componentsModal" :dark="dark" :padded-body="false" :visible="showComponentsModal" @close="showComponentsModal = false">
@@ -13,6 +18,7 @@ import GlobalTooltipController from '@/components/utility/GlobalTooltipControlle
 import Components from '@/views/Components.vue';
 import ModalOverlay from '@/components/utility/ModalOverlay.vue';
 import SvgSprite from '@/components/utility/SvgSprite.vue';
+import UserSwitcher from '@/components/utility/UserSwitcher.vue';
 
 export default {
   components: {
@@ -20,6 +26,7 @@ export default {
     Components,
     ModalOverlay,
     SvgSprite,
+    UserSwitcher,
   },
   computed: {
     dark() {
@@ -29,6 +36,9 @@ export default {
       if (theme === 'dark') return true;
       if (theme === 'light') return false;
       return (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) || false;
+    },
+    isMobile() {
+      return this.$store.state.application.mobile;
     },
     tooltip() {
       return this.$store.state.application.tooltip || {};
@@ -77,6 +87,24 @@ export default {
 <style lang="stylus">
 @require './assets/styles/breakpoints'
 @require './assets/styles/colors'
+
+#appHeader
+  padding: 2rem
+  display: flex
+  align-items: center
+
+  @media $mobile
+    padding: 1rem
+
+  .button
+    margin-right: 1rem
+
+  .h3
+    margin: 0
+    margin-right: 2rem
+
+  .user-switcher
+    margin-left: auto
 
 #componentsModal
   width: 80vw
