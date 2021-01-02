@@ -117,6 +117,7 @@ export default {
 
     .label-text
       margin-right: 1rem
+      width: 100%
 
     .fake-radio
       width: 1.5rem
@@ -125,6 +126,7 @@ export default {
       background-color: $accent
       margin-left: auto
       position: relative
+      flex-shrink: 0
 
       &::after
         content: ''
