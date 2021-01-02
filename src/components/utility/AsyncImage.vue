@@ -42,6 +42,7 @@ export default {
 .async-image
   position: relative
   overflow: hidden
+  flex-shrink: 0
 
   img,
   .placeholder
