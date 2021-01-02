@@ -136,21 +136,6 @@ export default {
       if (this.users.length === 0) await this.fetchUsers();
       this.popover.show = true;
     },
-    handleUserSettingsClose() {
-      this.showUserSettings = false;
-      this.avatarUploaded = false;
-      this.newUserData = {
-        avatar: null,
-        email: null,
-        name: null,
-        role: null,
-      };
-      this.theme = this.previousTheme;
-      this.previousTheme = null;
-      this.errors = {
-        userName: '',
-        userEmail: '',
-      };
     checkAvatarRegeneration() {
       if (!this.avatarUploaded && !this.formErrors) this.regenerateAvatar();
     },
@@ -202,6 +187,22 @@ export default {
     handleAvatarReady(avatar) {
       this.newUserData.avatar = avatar;
       this.avatarUploaded = true;
+    },
+    handleUserSettingsClose() {
+      this.showUserSettings = false;
+      this.avatarUploaded = false;
+      this.newUserData = {
+        avatar: null,
+        email: null,
+        name: null,
+        role: null,
+      };
+      this.theme = this.previousTheme;
+      this.previousTheme = null;
+      this.errors = {
+        userName: '',
+        userEmail: '',
+      };
     },
     openUserSettings() {
       this.popover.show = false;
