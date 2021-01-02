@@ -1,7 +1,7 @@
 <template>
   <SvgSprite />
   <GlobalTooltipController />
-  <header id="appHeader">
+  <header v-if="!$route.meta.hideAppHeader" id="appHeader">
     <MbButton v-if="$route.meta.showBack" :dark="dark" icon="chevron-left" rounded tooltip="Back" @click="$router.back" />
     <p v-if="$route.meta.label && !isMobile" class="h3">{{$route.meta.label}}</p>
     <UserSwitcher :dark="dark" />

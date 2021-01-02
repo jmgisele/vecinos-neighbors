@@ -18,6 +18,7 @@ const routes = [
     component: Onboarding,
     meta: {
       title: 'Welcome',
+      hideAppHeader: true,
     },
     beforeEnter: () => {
       if (Store.state.application.activeUser) return { name: 'Home' };
