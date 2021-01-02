@@ -208,7 +208,7 @@ export default {
       this.avatarUploaded = true;
     },
     handleUserSettingsClose() {
-      this.showUserSettings = false;
+      if (this.showUserSettings) this.showUserSettings = false;
       this.avatarUploaded = false;
       this.newUserData = {
         avatar: null,
