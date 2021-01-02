@@ -111,8 +111,10 @@ export default createStore({
         const userData = { ...state.user };
         delete userData.gitAuth;
         await fs.writeFile(`/users/${state.application.activeUser}.json`, JSON.stringify(userData), 'utf8');
+        return true;
       } catch (err) {
         commit('addToast', { message: `Something went wrong while saving the active user: ${err.message}`, type: 'error' });
+        return false;
       }
     },
   },
