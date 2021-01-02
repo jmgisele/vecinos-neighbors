@@ -16,7 +16,7 @@
         <MbButton :dark="dark" icon="plus" type="positive" @click="showAddUser = true; popover.show = false">{{ isMobile ? 'Add' : 'Add User' }}</MbButton>
       </template>
     </MbPopover>
-    <MbModal class="settings-modal" :dark="dark" slim title="User Settings" :visible="showUserSettings" @close="handleUserSettingsClose">
+    <MbModal class="settings-modal" :dark="dark" slim title="User Settings" :visible="showUserSettings" @close="handleSettingsModalClose">
       <p class="h3">Interface</p>
       <div class="row">
         <p>Color theme:</p>
@@ -31,7 +31,7 @@
       <MbInput v-model="newUserData.name" class="name" :dark="dark" :error="errors.userName" icon="user" label="Full Name" @blur="validate('userName'); checkAvatarRegeneration()" />
       <MbInput v-model="newUserData.email" :dark="dark" :error="errors.userEmail" icon="mail" label="Email Address" type="email" @blur="validate('userEmail'); checkAvatarRegeneration()" />
       <div class="row">
-        <p>Typical role:</p>
+        <p>Default role:</p>
         <MbSelect v-model="newUserData.role" :dark="dark" inline :options="roleOptions" />
       </div>
       <p class="h3">Avatar</p>
@@ -46,12 +46,32 @@
         <MbButton :dark="dark" :disabled="formErrors" type="primary" @click="saveUser">Save</MbButton>
       </template>
     </MbModal>
-    <MbModal class="settings-modal" :dark="dark" slim title="Add New User" :visible="showAddUser" @close="showAddUser = false">
+    <MbModal class="settings-modal" :dark="dark" slim title="Add New User" :visible="showAddUser" @close="handleSettingsModalClose">
+      <p>You can create additional local users in case this device is used by multiple people, or to separate your personal projects from your work.</p>
+      <p class="h3">Default Details</p>
+      <MbInput v-model="newUserData.name" :autofocus="!isMobile" :dark="dark" :error="errors.userName" icon="user" label="Full Name" @blur="validate('userName'); checkAvatarRegeneration()" />
+      <MbInput v-model="newUserData.email" :dark="dark" :error="errors.userEmail" icon="mail" label="Email Address" type="email" @blur="validate('userEmail'); checkAvatarRegeneration()" />
+      <div class="row">
+        <p>Default role:</p>
+        <MbSelect v-model="newUserData.role" :dark="dark" inline :options="roleOptions" placeholder="Select a role…" />
+      </div>
+      <p class="h3">Avatar</p>
+      <div class="row avatar">
+        <AsyncImage :src="newUserData.avatar" :alt="`${newUserData.name}’s avatar`" />
+        <MbButton v-show="avatarUploaded" :dark="dark" :disabled="formErrors" icon-first icon="trash" type="negative" @click="regenerateAvatar">Remove</MbButton>
+        <MbButton :dark="dark" icon-first :icon="avatarUploaded ? 'replace-alt' : 'upload'" @click="$refs.uploader.$el.click()">{{ avatarUploaded ? 'Replace' : 'Upload' }}</MbButton>
+      </div>
+      <template #actions>
+        <MbButton :dark="dark" @click="showAddUser = false">Cancel</MbButton>
+        <MbButton :dark="dark" :disabled="formErrors" type="primary" @click="createUser">Create</MbButton>
+      </template>
     </MbModal>
   </button>
 </template>
 
 <script>
+import slugify from '@sindresorhus/slugify';
+
 import fs from '../../fs';
 
 import availableRoles from '../../data/availableRoles';
@@ -158,12 +178,38 @@ export default {
       this.popover.show = true;
     },
     checkAvatarRegeneration() {
-      if (!this.avatarUploaded && !this.formErrors) this.regenerateAvatar();
+      if (!this.avatarUploaded && !this.formErrors && this.newUserData.name && this.newUserData.email) this.regenerateAvatar();
     },
     async createUser() {
-      // create a new user file based on the data in this.newUserData (minus avatar) and an empty projects array
-      // push that new user into the users array
-      // make them the active user?
+      try {
+        const newUserId = slugify(this.newUserData.email.trim()); // WARNING: this could lead to collisions if there’s two very similar email addresses (foo-bar@exmaple.com foo.bar@example.com), but since we have a low amount of local users, I think it’s negligible
+        const alreadyExists = await this.idExists(newUserId);
+
+        if (alreadyExists) { // we could also add a randomly generated string to the end of the id and  let it pass
+          this.$store.commit('addToast', { message: 'A user with this (or a similar) email address already exists on this device. Please try a different one.', type: 'negative' });
+          return;
+        }
+
+        const byteString = window.atob(this.newUserData.avatar.split(',')[1]);
+        const avatarData = Uint8Array.from(byteString, (ch) => ch.charCodeAt(0));
+        const user = {
+          email: this.newUserData.email.trim(),
+          name: this.newUserData.name.trim().toLowerCase(),
+          projects: [],
+          role: this.newUserData.role,
+        };
+        await fs.writeFile(`/users/${newUserId}.json`, JSON.stringify(user), 'utf8');
+        await fs.writeFile(`/users/${newUserId}.jpg`, avatarData, 'utf8'); // we know it’s a image/jpeg because we converted it ourselves in AvatarUploader / generateAvatar
+        this.users.push({
+          ...user,
+          avatar: URL.createObjectURL(new Blob([avatarData], { type: 'image/jpeg' })),
+          id: newUserId,
+        });
+        this.setActiveUser(newUserId);
+        this.showAddUser = false;
+      } catch (err) {
+        this.$store.commit('addToast', { message: `Something went wrong while creating the user: ${err.message}`, type: 'error' });
+      }
     },
     async fetchActiveUser() {
       const activeUserAvatarData = await fs.readFile(`/users/${this.$store.state.application.activeUser}.jpg`);
@@ -209,8 +255,9 @@ export default {
       this.newUserData.avatar = avatar;
       this.avatarUploaded = true;
     },
-    handleUserSettingsClose() {
+    handleSettingsModalClose() {
       if (this.showUserSettings) this.showUserSettings = false;
+      if (this.showAddUser) this.showAddUser = false;
       this.avatarUploaded = false;
       this.newUserData = {
         avatar: null,
@@ -218,14 +265,27 @@ export default {
         name: null,
         role: null,
       };
-      this.scale = this.previousScale;
-      this.theme = this.previousTheme;
-      this.previousScale = null;
-      this.previousTheme = null;
+      if (this.previousScale) {
+        this.scale = this.previousScale;
+        this.previousScale = null;
+      }
+      if (this.previousTheme) {
+        this.theme = this.previousTheme;
+        this.previousTheme = null;
+      }
       this.errors = {
         userName: '',
         userEmail: '',
       };
+    },
+    async idExists(id) {
+      try {
+        await fs.stat(`/users/${id}.json`);
+        return true;
+      } catch (err) {
+        if (err.code === 'ENOENT' || err.code === 'ENOTDIR') return false;
+        throw err;
+      }
     },
     openUserSettings() {
       this.popover.show = false;
@@ -295,6 +355,7 @@ export default {
         ...user,
         gitAuth: null,
         theme: user.theme || 'auto',
+        uiScale: user.uiScale || 'auto',
       };
       this.$store.commit('setUserData', userData);
       this.$store.commit('setAppProperty', { key: 'activeUser', value: id });
@@ -374,6 +435,7 @@ export default {
       &:hover,
       &:focus
         background-color: $bg-tertiary-dark
+        color: $text-dark
 
         &.active
           color: $text-dark
@@ -445,8 +507,9 @@ export default {
           margin-right: 0
 
 .settings-modal
-  p.h3
-    font-size: 1rem
+  p
+    &.h3
+      font-size: 1rem
 
     &:first-child
       margin-top: 0
