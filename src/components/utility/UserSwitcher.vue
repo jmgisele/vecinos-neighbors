@@ -12,23 +12,34 @@
         </div>
       </div>
       <template #footer>
-        <MbButton :dark="dark" icon="settings" @click="showUserSettings = true; popover.show = false">{{ isMobile ? 'Settings' : 'User Settings' }}</MbButton>
+        <MbButton :dark="dark" icon="settings" @click="openUserSettings">{{ isMobile ? 'Settings' : 'User Settings' }}</MbButton>
         <MbButton :dark="dark" icon="plus" type="positive" @click="showAddUser = true; popover.show = false">{{ isMobile ? 'Add' : 'Add User' }}</MbButton>
       </template>
     </MbPopover>
-    <MbModal class="settings-modal" :dark="dark" title="User Settings" :visible="showUserSettings" @close="showUserSettings = false">
+    <MbModal class="settings-modal" :dark="dark" slim title="User Settings" :visible="showUserSettings" @close="handleUserSettingsClose">
       <h3>Interface</h3>
-      <p>Color theme:</p>
-      <MbRadioGroup v-model="theme" :dark="dark" inline :options="themeOptions" />
+      <div class="row">
+        <p>Color theme:</p>
+        <MbSelect v-model="theme" :dark="dark" inline :options="themeOptions" />
+      </div>
       <h3>Default Details</h3>
       <p>These settings are used as defaults when you join a project, but can be overridden on a per-project basis.</p>
-      <MbInput v-model="activeUser.name" class="name" :dark="dark" :error="errors.userName" icon="user" label="Full Name" @blur="validate('userName')" />
-      <MbInput v-model="activeUser.email" :dark="dark" :error="errors.userEmail" icon="mail" label="Email Address" type="email" @blur="validate('userEmail')" />
-      <p>Typical role:</p>
-      <MbRadioGroup v-model="activeUser.role" :dark="dark" inline :options="roleOptions" />
+      <MbInput v-model="newUserData.name" class="name" :dark="dark" :error="errors.userName" icon="user" label="Full Name" @blur="validate('userName')" />
+      <MbInput v-model="newUserData.email" :dark="dark" :error="errors.userEmail" icon="mail" label="Email Address" type="email" @blur="validate('userEmail')" />
+      <div class="row">
+        <p>Typical role:</p>
+        <MbSelect v-model="newUserData.role" :dark="dark" inline :options="roleOptions" />
+      </div>
+      <p>Avatar:</p>
+      <div class="row avatar">
+        <AvatarUploader ref="uploader" @ready="handleAvatarReady" />
+        <img :src="newUserData.avatar" :alt="`${newUserData.name}’s avatar`">
+        <MbButton v-show="avatarUploaded" :dark="dark" :disabled="formErrors" icon-first icon="trash" type="negative" @click="regenerateAvatar">Remove</MbButton>
+        <MbButton :dark="dark" icon-first :icon="avatarUploaded ? 'replace-alt' : 'upload'" @click="$refs.uploader.$el.click()">{{ avatarUploaded ? 'Replace' : 'Upload' }}</MbButton>
+      </div>
       <template #actions>
         <MbButton :dark="dark" @click="showUserSettings = false">Cancel</MbButton>
-        <MbButton :dark="dark" type="primary">Save</MbButton>
+        <MbButton :dark="dark" :disabled="formErrors" type="primary" @click="saveUser">Save</MbButton>
       </template>
     </MbModal>
     <MbModal class="settings-modal" :dark="dark" title="Add New User" :visible="showAddUser" @close="showAddUser = false">
@@ -40,6 +51,9 @@
 import fs from '../../fs';
 
 import availableRoles from '../../data/availableRoles';
+import generateAvatar from '../../assets/js/generateAvatar';
+
+import AvatarUploader from './AvatarUploader.vue';
 
 export default {
   beforeUnmount() {
@@ -47,9 +61,15 @@ export default {
       URL.revokeObjectURL(user.avatar);
     });
   },
+  components: {
+    AvatarUploader,
+  },
   computed: {
     currentActiveUser() {
       return this.$store.state.application.activeUser;
+    },
+    formErrors() {
+      return Object.values(this.errors).some((error) => error);
     },
     isMobile() {
       return this.$store.state.application.mobile;
@@ -71,6 +91,7 @@ export default {
   },
   data() {
     return {
+      avatarUploaded: false,
       activeUser: {
         avatar: null,
         email: '',
@@ -82,17 +103,18 @@ export default {
         userName: '',
         userEmail: '',
       },
-      newUser: {
+      newUserData: {
         avatar: null,
         email: null,
-        name: '',
-        role: '',
+        name: null,
+        role: null,
       },
       popover: {
         show: false,
         x: 0,
         y: 0,
       },
+      previousTheme: null,
       roleOptions: availableRoles,
       showAddUser: false,
       showUserSettings: false,
@@ -112,8 +134,24 @@ export default {
       if (this.users.length === 0) await this.fetchUsers();
       this.popover.show = true;
     },
+    handleUserSettingsClose() {
+      this.showUserSettings = false;
+      this.avatarUploaded = false;
+      this.newUserData = {
+        avatar: null,
+        email: null,
+        name: null,
+        role: null,
+      };
+      this.theme = this.previousTheme;
+      this.previousTheme = null;
+      this.errors = {
+        userName: '',
+        userEmail: '',
+      };
+    },
     async createUser() {
-      // create a new user file based on the data in this.newUser (minus avatar) and an empty projects array
+      // create a new user file based on the data in this.newUserData (minus avatar) and an empty projects array
       // push that new user into the users array
       // make them the active user?
     },
@@ -157,6 +195,67 @@ export default {
         this.$store.commit('addToast', { message: `Something went wrong while fetching all users: ${err.message}`, type: 'error' });
       }
     },
+    handleAvatarReady(avatar) {
+      this.newUserData.avatar = avatar;
+      this.avatarUploaded = true;
+    },
+    openUserSettings() {
+      this.popover.show = false;
+      this.avatarUploaded = true; // even if they have a generated avatar, it’s still uploaded
+      this.previousTheme = this.theme;
+      this.newUserData = {
+        avatar: this.activeUser.avatar,
+        email: this.activeUser.email,
+        name: this.activeUser.name,
+        role: this.activeUser.role,
+      };
+      this.showUserSettings = true;
+    },
+    regenerateAvatar() {
+      const split = this.newUserData.name.split(' ');
+      const initials = `${split[0][0]}${split[split.length - 1][0]}`.toUpperCase();
+      this.newUserData.avatar = generateAvatar(initials, '#A29BFE', '#6c5ce7', 'light', this.newUserData.email);
+      if (this.avatarUploaded) this.avatarUploaded = false;
+    },
+    async saveUser() {
+      if (!this.newUserData.avatar.startsWith('blob:')) { // we got a new avatar
+        URL.revokeObjectURL(this.activeUser.avatar);
+        try {
+          // Save the avatar uri as Uint8Array along with the rest of the user configuration data
+          // Based on https://stackoverflow.com/questions/12168909/blob-from-dataurl
+          const byteString = window.atob(this.newUserData.avatar.split(',')[1]);
+          const avatarData = Uint8Array.from(byteString, (ch) => ch.charCodeAt(0));
+          await fs.writeFile(`/users/${this.activeUser.id}.jpg`, avatarData, 'utf8'); // we know it’s a image/jpeg because we converted it ourselves in AvatarUploader / generateAvatar
+          const newAvatarURL = URL.createObjectURL(new Blob([avatarData], { type: 'image/jpeg' }));
+          const userIndex = this.users.findIndex((existingUser) => existingUser.id === this.activeUser.id);
+          this.activeUser.avatar = newAvatarURL;
+          if (userIndex > -1) this.users[userIndex].avatar = newAvatarURL;
+        } catch (err) {
+          this.$store.commit('addToast', { message: `Something went wrong while saving the user avatar: ${err.message}`, type: 'error' });
+          return; // abort
+        }
+      }
+
+      const { email, name, role } = this.newUserData;
+
+      this.$store.commit('setUserData', {
+        ...this.$store.state.user,
+        email,
+        name,
+        role,
+        theme: this.theme,
+      });
+
+      const success = await this.$store.dispatch('saveUser');
+
+      if (success) {
+        this.activeUser.email = email;
+        this.activeUser.name = name;
+        this.activeUser.role = role;
+        this.previousTheme = this.theme; // so it doesn’t get overwritten
+        this.showUserSettings = false;
+      }
+    },
     setActiveUser(id) {
       this.popover.show = false;
       if (id === this.currentActiveUsert) return;
@@ -174,12 +273,12 @@ export default {
       let error = '';
       switch (field) {
         case 'userEmail':
-          if (!this.activeUser.email) error = 'An email address is required';
-          else if (!/^([a-z0-9_.+-]+)@([\da-z.-]+)\.([a-z.]{2,6})$/.test(this.activeUser.email)) error = 'Invalid address'; // Regex source: https://graphcms.com/user-guides/working-with/field-validations
+          if (!this.newUserData.email) error = 'An email address is required';
+          else if (!/^([a-z0-9_.+-]+)@([\da-z.-]+)\.([a-z.]{2,6})$/.test(this.newUserData.email)) error = 'Invalid address'; // Regex source: https://graphcms.com/user-guides/working-with/field-validations
           break;
         case 'userName':
-          if (!this.activeUser.name) error = 'A name is required';
-          else if (!this.activeUser.name.includes(' ')) error = 'Please use your full name';
+          if (!this.newUserData.name) error = 'A name is required';
+          else if (!this.newUserData.name.includes(' ')) error = 'Please use your full name';
           break;
         default:
           // no op
@@ -320,20 +419,42 @@ export default {
   h3:first-child
     margin-top: 0
 
-  .input
-    width: calc(50% - 0.5rem)
+  .row
+    display: flex
+    align-items: center
 
-    @media $mobile
-      width: 100%
+    &.avatar
+      @media $mobile
+        flex-wrap: wrap
 
-    &.name
+        .button:last-child
+          margin-left: auto
+
+    p
+      margin: 0
+      margin-right: auto
+
+    img
+      width: 4rem
+      height: @width
+      border-radius: 50%
+      margin-right: 1rem
+
+      + .button
+        margin-left: auto
+
+    .button:not(:last-child)
       margin-right: 1rem
 
       @media $mobile
         margin-right: 0
         margin-bottom: 0.5rem
 
-      &::v-deep(input)
+  .input
+    width: 100%
+    margin-bottom: 1rem
+
+    &.name::v-deep(input)
         text-transform: capitalize
 
   .radio-group.inline
