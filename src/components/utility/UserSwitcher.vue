@@ -12,11 +12,27 @@
         </div>
       </div>
       <template #footer>
-        <MbButton :dark="dark" icon="settings">{{ isMobile ? 'Settings' : 'User Settings' }}</MbButton>
-        <MbButton :dark="dark" icon="plus" type="positive">{{ isMobile ? 'Add' : 'Add User' }}</MbButton>
+        <MbButton :dark="dark" icon="settings" @click="showUserSettings = true; popover.show = false">{{ isMobile ? 'Settings' : 'User Settings' }}</MbButton>
+        <MbButton :dark="dark" icon="plus" type="positive" @click="showAddUser = true; popover.show = false">{{ isMobile ? 'Add' : 'Add User' }}</MbButton>
       </template>
     </MbPopover>
-    <!-- Todo: add user settings modal & add user modal -->
+    <MbModal class="settings-modal" :dark="dark" title="User Settings" :visible="showUserSettings" @close="showUserSettings = false">
+      <h3>Interface</h3>
+      <p>Color theme:</p>
+      <MbRadioGroup v-model="theme" :dark="dark" inline :options="themeOptions" />
+      <h3>Default Details</h3>
+      <p>These settings are used as defaults when you join a project, but can be overridden on a per-project basis.</p>
+      <MbInput v-model="activeUser.name" class="name" :dark="dark" :error="errors.userName" icon="user" label="Full Name" @blur="validate('userName')" />
+      <MbInput v-model="activeUser.email" :dark="dark" :error="errors.userEmail" icon="mail" label="Email Address" type="email" @blur="validate('userEmail')" />
+      <p>Typical role:</p>
+      <MbRadioGroup v-model="activeUser.role" :dark="dark" inline :options="roleOptions" />
+      <template #actions>
+        <MbButton :dark="dark" @click="showUserSettings = false">Cancel</MbButton>
+        <MbButton :dark="dark" type="primary">Save</MbButton>
+      </template>
+    </MbModal>
+    <MbModal class="settings-modal" :dark="dark" title="Add New User" :visible="showAddUser" @close="showAddUser = false">
+    </MbModal>
   </button>
 </template>
 
@@ -38,6 +54,14 @@ export default {
     isMobile() {
       return this.$store.state.application.mobile;
     },
+    theme: {
+      get() {
+        return this.$store.state.user.theme;
+      },
+      set(value) {
+        this.$store.commit('setUserProperty', { key: 'theme', value });
+      },
+    },
   },
   created() {
     if (this.currentActiveUser) {
@@ -52,6 +76,11 @@ export default {
         email: '',
         id: null,
         name: '',
+        role: '',
+      },
+      errors: {
+        userName: '',
+        userEmail: '',
       },
       newUser: {
         avatar: null,
@@ -65,6 +94,13 @@ export default {
         y: 0,
       },
       roleOptions: availableRoles,
+      showAddUser: false,
+      showUserSettings: false,
+      themeOptions: [
+        { label: 'OS Default', value: 'auto' },
+        { label: 'Light', value: 'light' },
+        { label: 'Dark', value: 'dark' },
+      ],
       users: [],
     };
   },
@@ -86,6 +122,7 @@ export default {
       this.activeUser.avatar = URL.createObjectURL(new Blob([activeUserAvatarData], { type: 'image/jpeg' }));
       this.activeUser.email = this.$store.state.user.email;
       this.activeUser.name = this.$store.state.user.name;
+      this.activeUser.role = this.$store.state.user.role;
       this.activeUser.id = this.currentActiveUser;
     },
     async fetchUsers() {
@@ -121,6 +158,7 @@ export default {
       }
     },
     setActiveUser(id) {
+      this.popover.show = false;
       if (id === this.currentActiveUsert) return;
       const user = this.users.find((existingUser) => existingUser.id === id);
       const userData = {
@@ -131,6 +169,22 @@ export default {
       this.$store.commit('setUserData', userData);
       this.$store.commit('setAppProperty', { key: 'activeUser', value: id });
       this.$store.dispatch('saveAppData');
+    },
+    validate(field) {
+      let error = '';
+      switch (field) {
+        case 'userEmail':
+          if (!this.activeUser.email) error = 'An email address is required';
+          else if (!/^([a-z0-9_.+-]+)@([\da-z.-]+)\.([a-z.]{2,6})$/.test(this.activeUser.email)) error = 'Invalid address'; // Regex source: https://graphcms.com/user-guides/working-with/field-validations
+          break;
+        case 'userName':
+          if (!this.activeUser.name) error = 'A name is required';
+          else if (!this.activeUser.name.includes(' ')) error = 'Please use your full name';
+          break;
+        default:
+          // no op
+      }
+      this.errors[field] = error;
     },
   },
   props: {
@@ -261,4 +315,30 @@ export default {
           color: $text-secondary
           margin-left: auto
           margin-right: 0
+
+.settings-modal
+  h3:first-child
+    margin-top: 0
+
+  .input
+    width: calc(50% - 0.5rem)
+
+    @media $mobile
+      width: 100%
+
+    &.name
+      margin-right: 1rem
+
+      @media $mobile
+        margin-right: 0
+        margin-bottom: 0.5rem
+
+      &::v-deep(input)
+        text-transform: capitalize
+
+  .radio-group.inline
+    margin-bottom: 0
+
+    &::v-deep(label)
+      flex-grow: 1
 </style>
