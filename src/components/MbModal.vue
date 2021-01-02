@@ -2,7 +2,7 @@
   <teleport to="body">
     <div class="centerer" :style="{ zIndex: modalIndex + 2 }"><!-- +2 so it doesn’t slip under the modal overlay when modalIndex === -1 -->
       <transition>
-        <div v-show="visible" v-bind="$attrs" class="modal" :class="{dark, darkened: nextModal, transition: !swiping, slim, swiping }" ref="el" :style="{ opacity, pointerEvents, transform }" @touchstart="swipeStart" @touchmove="swipeUpdate" @touchend="swipeEnd">
+        <div v-show="visible" v-bind="$attrs" class="modal" :class="{dark, darkened: nextModal, transition: !swiping, slim, swiping }" ref="el" :style="{ opacity, pointerEvents, transform }" tabindex="-1" @touchstart="swipeStart" @touchmove="swipeUpdate" @touchend="swipeEnd">
           <header v-if="title">
             <h2 class="h3">{{title}}</h2>
           </header>
@@ -135,6 +135,7 @@ export default {
       if (nv) {
         this.transform = null;
         this.$store.commit('addOpenModal', this.$refs.el);
+        this.$nextTick(() => this.$refs.el.focus());
       } else if (this.modalIndex >= 0) this.$store.commit('closeModal', this.modalIndex);
     },
   },
@@ -172,6 +173,9 @@ export default {
   pointer-events: auto // needed to revert the pointer-events: none from the parent
   touch-action: pan-y
   user-select: none
+
+  &:focus
+    background-color: red
 
   &.transition
     transition: transform 200ms ease, opacity 200ms ease

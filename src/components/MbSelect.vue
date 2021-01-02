@@ -55,6 +55,7 @@ export default {
     deactivate(e) {
       if (e && (e.target === this.$refs.popover.$refs.el || this.$refs.popover.$refs.el.contains(e.target))) return; // hacky but needed since it’s teleporting
       this.active = false;
+      this.$refs.button.$el.focus();
       window.removeEventListener('scroll', this.deactivate, { capture: true });
     },
     selectOption(value) {

@@ -1,7 +1,7 @@
 <template lang="html">
   <teleport to="body">
     <transition>
-      <div v-show="visible" v-bind="$attrs" class="popover" :class="{ dark, right: fromRight, transition }" ref="el" :style="{ left, top, transformOrigin }">
+      <div v-show="visible" v-bind="$attrs" class="popover" :class="{ dark, right: fromRight, transition }" ref="el" :style="{ left, top, transformOrigin }" tabindex="-1" @keyup.esc="close">
         <header v-if="$slots.header" :class="{ 'no-padding': noContentPadding }">
           <slot name="header" />
         </header>
@@ -42,7 +42,7 @@ export default {
   methods: {
     close(e) {
       if (e.type === 'click' && this.visible && !this.$refs.el.contains(e.target)) this.$emit('close');
-      if (e.type === 'resize' && this.visible) this.$emit('close');
+      if ((e.type === 'resize' || e.type === 'keyup') && this.visible) this.$emit('close');
     },
     update() {
       const { height, width } = this.$refs.el.getBoundingClientRect();
@@ -81,6 +81,8 @@ export default {
 
       this.left = `${left}px`;
       this.top = `${top}px`;
+
+      this.$refs.el.focus();
     },
   },
   props: {
