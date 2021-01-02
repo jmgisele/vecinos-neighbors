@@ -26,6 +26,8 @@
       <p>These settings are used as defaults when you join a project, but can be overridden on a per-project basis.</p>
       <MbInput v-model="newUserData.name" class="name" :dark="dark" :error="errors.userName" icon="user" label="Full Name" @blur="validate('userName')" />
       <MbInput v-model="newUserData.email" :dark="dark" :error="errors.userEmail" icon="mail" label="Email Address" type="email" @blur="validate('userEmail')" />
+      <MbInput v-model="newUserData.name" class="name" :dark="dark" :error="errors.userName" icon="user" label="Full Name" @blur="validate('userName'); checkAvatarRegeneration()" />
+      <MbInput v-model="newUserData.email" :dark="dark" :error="errors.userEmail" icon="mail" label="Email Address" type="email" @blur="validate('userEmail'); checkAvatarRegeneration()" />
       <div class="row">
         <p>Typical role:</p>
         <MbSelect v-model="newUserData.role" :dark="dark" inline :options="roleOptions" />
@@ -149,6 +151,8 @@ export default {
         userName: '',
         userEmail: '',
       };
+    checkAvatarRegeneration() {
+      if (!this.avatarUploaded && !this.formErrors) this.regenerateAvatar();
     },
     async createUser() {
       // create a new user file based on the data in this.newUserData (minus avatar) and an empty projects array
