@@ -84,11 +84,15 @@ export default {
 </script>
 
 <style lang="stylus" scoped>
+@require '../assets/styles/breakpoints'
 @require '../assets/styles/colors'
 @require '../assets/styles/corners'
 
 .select
   min-width: (192 / 16)rem
+
+  @media $mobile
+    min-width: (128 / 16)rem
 
   &.icon.reversed
     padding-left: 1rem
