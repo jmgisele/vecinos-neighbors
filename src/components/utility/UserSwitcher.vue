@@ -1,11 +1,11 @@
 <template lang="html">
   <button class="user-switcher" :class="{dark}" @click="activatePopover">
     <span v-if="!isMobile" class="name">{{activeUser.name}}</span>
-    <img draggable="false" :src="activeUser.avatar" :alt="`${activeUser.name}’s Avatar`">
+    <AsyncImage draggable="false" :src="activeUser.avatar" :alt="`${activeUser.name}’s Avatar`" />
     <MbPopover class="user-popover" :dark="dark" from-right no-content-padding :visible="popover.show" :x="popover.x" :y="popover.y" @close="popover.show = false">
       <div class="users">
         <div v-for="user in users" class="user" :class="{ active: currentActiveUser === user.id }" :key="user.id" tabindex="0" @click="setActiveUser(user.id)" @keyup.enter="setActiveUser(user.id)" @keyup.space="setActiveUser(user.id)">
-          <img :src="user.avatar" :alt="`${user.name}’s avatar`">
+          <AsyncImage :src="user.avatar" :alt="`${user.name}’s avatar`" />
           <span v-if="!isMobile">{{user.name}}</span>
           <span v-else>{{user.name.split(' ')[0]}}</span>
           <span class="email">({{user.email}})</span>
@@ -37,7 +37,7 @@
       <p class="h3">Avatar</p>
       <div class="row avatar">
         <AvatarUploader ref="uploader" @ready="handleAvatarReady" />
-        <img :src="newUserData.avatar" :alt="`${newUserData.name}’s avatar`">
+        <AsyncImage :src="newUserData.avatar" :alt="`${newUserData.name}’s avatar`" />
         <MbButton v-show="avatarUploaded" :dark="dark" :disabled="formErrors" icon-first icon="trash" type="negative" @click="regenerateAvatar">Remove</MbButton>
         <MbButton :dark="dark" icon-first :icon="avatarUploaded ? 'replace-alt' : 'upload'" @click="$refs.uploader.$el.click()">{{ avatarUploaded ? 'Replace' : 'Upload' }}</MbButton>
       </div>
@@ -57,6 +57,7 @@ import fs from '../../fs';
 import availableRoles from '../../data/availableRoles';
 import generateAvatar from '../../assets/js/generateAvatar';
 
+import AsyncImage from './AsyncImage.vue';
 import AvatarUploader from './AvatarUploader.vue';
 
 export default {
@@ -66,6 +67,7 @@ export default {
     });
   },
   components: {
+    AsyncImage,
     AvatarUploader,
   },
   computed: {
@@ -360,8 +362,7 @@ export default {
     text-transform: capitalize
     margin-right: 1rem
 
-  img
-    display: block
+  .async-image
     width: (48 / 16)rem
     height: @width
     border-radius: 50%
@@ -403,7 +404,7 @@ export default {
         background-color: $accent
         color: $text-dark
 
-        img
+        .async-image
           box-shadow: 0 0 0 2px $text-dark, inset 0 0 0 2px $text-dark
 
         .email
@@ -420,8 +421,7 @@ export default {
           .email
             color: $text-secondary
 
-      img
-        display: block
+      .async-image
         width: 2rem
         height: @width
         margin-right: 1rem
@@ -470,7 +470,7 @@ export default {
       margin: 0
       margin-right: auto
 
-    img
+    .async-image
       width: 4rem
       height: @width
       border-radius: 50%
