@@ -17,22 +17,20 @@
       </template>
     </MbPopover>
     <MbModal class="settings-modal" :dark="dark" slim title="User Settings" :visible="showUserSettings" @close="handleUserSettingsClose">
-      <h3>Interface</h3>
+      <p class="h3">Interface</p>
       <div class="row">
         <p>Color theme:</p>
         <MbSelect v-model="theme" :dark="dark" inline :options="themeOptions" />
       </div>
-      <h3>Default Details</h3>
+      <p class="h3">Default Details</p>
       <p>These settings are used as defaults when you join a project, but can be overridden on a per-project basis.</p>
-      <MbInput v-model="newUserData.name" class="name" :dark="dark" :error="errors.userName" icon="user" label="Full Name" @blur="validate('userName')" />
-      <MbInput v-model="newUserData.email" :dark="dark" :error="errors.userEmail" icon="mail" label="Email Address" type="email" @blur="validate('userEmail')" />
       <MbInput v-model="newUserData.name" class="name" :dark="dark" :error="errors.userName" icon="user" label="Full Name" @blur="validate('userName'); checkAvatarRegeneration()" />
       <MbInput v-model="newUserData.email" :dark="dark" :error="errors.userEmail" icon="mail" label="Email Address" type="email" @blur="validate('userEmail'); checkAvatarRegeneration()" />
       <div class="row">
         <p>Typical role:</p>
         <MbSelect v-model="newUserData.role" :dark="dark" inline :options="roleOptions" />
       </div>
-      <p>Avatar:</p>
+      <p class="h3">Avatar</p>
       <div class="row avatar">
         <AvatarUploader ref="uploader" @ready="handleAvatarReady" />
         <img :src="newUserData.avatar" :alt="`${newUserData.name}’s avatar`">
@@ -44,7 +42,7 @@
         <MbButton :dark="dark" :disabled="formErrors" type="primary" @click="saveUser">Save</MbButton>
       </template>
     </MbModal>
-    <MbModal class="settings-modal" :dark="dark" title="Add New User" :visible="showAddUser" @close="showAddUser = false">
+    <MbModal class="settings-modal" :dark="dark" slim title="Add New User" :visible="showAddUser" @close="showAddUser = false">
     </MbModal>
   </button>
 </template>
@@ -421,12 +419,19 @@ export default {
           margin-right: 0
 
 .settings-modal
-  h3:first-child
-    margin-top: 0
+  p.h3
+    font-size: 1rem
+
+    &:first-child
+      margin-top: 0
 
   .row
     display: flex
     align-items: center
+    margin: 1.5rem 0
+
+    &:last-child
+      margin-bottom: 0
 
     &.avatar
       @media $mobile
@@ -443,10 +448,10 @@ export default {
       width: 4rem
       height: @width
       border-radius: 50%
-      margin-right: 1rem
+      margin-right: auto
 
       + .button
-        margin-left: auto
+        margin-left: 1rem
 
     .button:not(:last-child)
       margin-right: 1rem
@@ -459,7 +464,10 @@ export default {
     width: 100%
     margin-bottom: 1rem
 
-    &.name::v-deep(input)
+    &.name
+      margin-top: 2rem
+
+      &::v-deep(input)
         text-transform: capitalize
 
   .radio-group.inline
