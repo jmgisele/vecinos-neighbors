@@ -174,9 +174,6 @@ export default {
   touch-action: pan-y
   user-select: none
 
-  &:focus
-    background-color: red
-
   &.transition
     transition: transform 200ms ease, opacity 200ms ease
 
