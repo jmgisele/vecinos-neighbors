@@ -40,6 +40,9 @@ export default {
     isMobile() {
       return this.$store.state.application.mobile;
     },
+    scale() {
+      return this.$store.state.user.uiScale;
+    },
     tooltip() {
       return this.$store.state.application.tooltip || {};
     },
@@ -79,6 +82,10 @@ export default {
     dark(newVal) {
       if (newVal) document.body.classList.add('dark');
       else document.body.classList.remove('dark');
+    },
+    scale(newVal) {
+      if (typeof newVal === 'number' && newVal !== 'auto') document.documentElement.style.fontSize = `${16 * newVal}px`;
+      else document.documentElement.style.removeProperty('font-size');
     },
   },
 };

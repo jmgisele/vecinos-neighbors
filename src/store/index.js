@@ -21,6 +21,7 @@ export default createStore({
       projects: [],
       role: null,
       theme: 'auto',
+      uiScale: 'auto',
     },
   },
   mutations: {

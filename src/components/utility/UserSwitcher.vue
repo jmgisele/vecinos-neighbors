@@ -22,6 +22,10 @@
         <p>Color theme:</p>
         <MbSelect v-model="theme" :dark="dark" inline :options="themeOptions" />
       </div>
+      <div class="row">
+        <p>UI scaling:</p>
+        <MbSelect v-model="scale" :dark="dark" inline :options="scaleOptions" />
+      </div>
       <p class="h3">Default Details</p>
       <p>These settings are used as defaults when you join a project, but can be overridden on a per-project basis.</p>
       <MbInput v-model="newUserData.name" class="name" :dark="dark" :error="errors.userName" icon="user" label="Full Name" @blur="validate('userName'); checkAvatarRegeneration()" />
@@ -82,6 +86,14 @@ export default {
         this.$store.commit('setUserProperty', { key: 'theme', value });
       },
     },
+    scale: {
+      get() {
+        return this.$store.state.user.uiScale;
+      },
+      set(value) {
+        this.$store.commit('setUserProperty', { key: 'uiScale', value });
+      },
+    },
   },
   created() {
     if (this.currentActiveUser) {
@@ -114,8 +126,17 @@ export default {
         x: 0,
         y: 0,
       },
+      previousScale: null,
       previousTheme: null,
       roleOptions: availableRoles,
+      scaleOptions: [
+        { label: 'OS Default', value: 'auto' },
+        { label: '100%', value: 1 },
+        { label: '125%', value: 1.25 },
+        { label: '150%', value: 1.5 },
+        { label: '175%', value: 1.75 },
+        { label: '200%', value: 2 },
+      ],
       showAddUser: false,
       showUserSettings: false,
       themeOptions: [
@@ -195,7 +216,9 @@ export default {
         name: null,
         role: null,
       };
+      this.scale = this.previousScale;
       this.theme = this.previousTheme;
+      this.previousScale = null;
       this.previousTheme = null;
       this.errors = {
         userName: '',
@@ -205,6 +228,7 @@ export default {
     openUserSettings() {
       this.popover.show = false;
       this.avatarUploaded = true; // even if they have a generated avatar, it’s still uploaded
+      this.previousScale = this.scale;
       this.previousTheme = this.theme;
       this.newUserData = {
         avatar: this.activeUser.avatar,
@@ -247,6 +271,7 @@ export default {
         name,
         role,
         theme: this.theme,
+        uiScale: this.scale,
       });
 
       const success = await this.$store.dispatch('saveUser');
@@ -255,6 +280,7 @@ export default {
         this.activeUser.email = email;
         this.activeUser.name = name;
         this.activeUser.role = role;
+        this.previousScale = this.scale; // so it doesn’t get overwritten
         this.previousTheme = this.theme; // so it doesn’t get overwritten
         this.showUserSettings = false;
       }
