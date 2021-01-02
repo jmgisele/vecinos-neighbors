@@ -222,7 +222,7 @@ export default {
         color: $text-dark
 
         img
-          box-shadow: 0 0 0 2px $text-dark
+          box-shadow: 0 0 0 2px $text-dark, inset 0 0 0 2px $text-dark
 
         .email
           color: $text-secondary-dark
