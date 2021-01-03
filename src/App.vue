@@ -8,6 +8,7 @@
   </header>
   <router-view :dark="dark" />
   <ModalOverlay :dark="dark" />
+  <Snackbar :dark="dark" />
   <MbModal id="componentsModal" :dark="dark" :padded-body="false" :visible="showComponentsModal" @close="showComponentsModal = false">
     <Components :dark="dark" />
   </MbModal>
@@ -17,6 +18,7 @@
 import GlobalTooltipController from './components/utility/GlobalTooltipController.vue';
 import Components from './views/Components.vue';
 import ModalOverlay from './components/utility/ModalOverlay.vue';
+import Snackbar from './components/utility/Snackbar.vue';
 import SvgSprite from './components/utility/SvgSprite.vue';
 import UserSwitcher from './components/utility/UserSwitcher.vue';
 
@@ -25,6 +27,7 @@ export default {
     GlobalTooltipController,
     Components,
     ModalOverlay,
+    Snackbar,
     SvgSprite,
     UserSwitcher,
   },
