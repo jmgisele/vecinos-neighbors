@@ -29,13 +29,12 @@ export default createStore({
       state.application.openModals.push(modalEl);
     },
     addToast(state, toast) {
-      console.log('adding toast with message', toast.message); // only for debugging while toasts arent displayed
-      let timeout = 500;
+      let timeout = 5000;
 
       if (toast.timeout && toast.timeout > 1000) timeout = toast.timeout;
-      if (toast.type === 'error') timeout = 0;
+      if (toast.type === 'error' || toast.timeout === 0 || toast.timeout === false || toast.permanent) timeout = 0;
 
-      if (state.application.toasts.length > 5) state.application.toasts.pop();
+      if (state.application.toasts.length > 5) state.application.toasts.shift();
 
       state.application.toasts.push({
         id: toast.id || Math.random().toString(36).substr(2, 9),
