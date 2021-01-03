@@ -206,6 +206,7 @@ export default {
         };
         await fs.mkdir('/users');
         await fs.writeFile(`/users/${this.userId}.json`, JSON.stringify(user), 'utf8');
+        this.$store.commit('setUserData', { ...this.$store.state.user, ...user });
         this.regenerateAvatar();
         this.currentSlide += 1;
       } catch (err) {
