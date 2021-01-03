@@ -103,8 +103,10 @@ export default createStore({
 
         persistentAppProperties.forEach((prop) => { appData[prop] = state.application[prop]; });
         await fs.writeFile('/mattrbld.conf', JSON.stringify(appData), 'utf8');
+        return true;
       } catch (err) {
         commit('addToast', { message: `Something went wrong while saving the app configuration: ${err.message}`, type: 'error' });
+        return false;
       }
     },
     async saveUser({ commit, state }) {
