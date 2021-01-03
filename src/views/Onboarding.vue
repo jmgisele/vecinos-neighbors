@@ -185,9 +185,12 @@ export default {
           corsProxy: this.corsProxy,
           initialised: true,
         };
-        await fs.writeFile('/mattrbld.conf', JSON.stringify(config), 'utf8');
-        if (this.cloneStep !== 'done') this.currentSlide += 1;
-        else this.currentSlide += 2;
+        this.$store.commit('setAppData', { ...this.$store.state.application, ...config });
+        const saved = await this.$store.dispatch('saveAppData');
+        if (saved) {
+          if (this.cloneStep !== 'done') this.currentSlide += 1;
+          else this.currentSlide += 2;
+        }
       } catch (err) {
         this.$store.commit('addToast', { message: `Something went wrong while saving the configuration: ${err.message}`, type: 'error' });
       }
