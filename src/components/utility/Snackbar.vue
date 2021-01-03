@@ -1,5 +1,5 @@
 <template lang="html">
-  <transition-group class="snackbar" tag="div">
+  <transition-group class="snackbar" duration="600" tag="div">
     <Toast v-for="toast in toasts" :dark="dark" :key="toast.id" :toast="toast" />
   </transition-group>
 </template>
@@ -45,7 +45,11 @@ export default {
     &.v-enter-active,
     &.v-leave-active,
     &.v-move
-      transition: opacity 200ms ease, transform  250ms cubic-bezier(0.215, 0.610, 0.355, 1.000)
+      transition: opacity 200ms ease, transform 250ms ease
+
+      &::before
+        transition: transform 200ms ease
+        transition-delay: 150ms
 
       &.v-enter-from,
       &.v-leave-to
@@ -55,10 +59,22 @@ export default {
         @media $mobile
           transform: translateY(100%)
 
+        &::before
+          transform: scaleY(0)
+
       &.v-leave-to
+        transform: translateX(1rem) scale(0.8)
+
         @media $mobile
           transform: translate(1rem, calc(-100% - 1rem)) scale(0.8)
 
     &.v-leave-active
       position: absolute
+      transform: translateX(1rem)
+
+      @media $mobile
+        transform: translate(1rem, calc(-100% - 1rem))
+
+      &::before
+        transition-delay: 0ms
 </style>

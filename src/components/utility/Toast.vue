@@ -1,5 +1,5 @@
 <template lang="html">
-  <div class="toast" :class="[toast.type, { dark }]" :key="toast.id">
+  <div class="toast" :class="[toast.type, { dark, 'no-footer': toast.permanent && !toast.action }]" :key="toast.id">
     <p>{{toast.message}}</p>
     <footer>
       <MbButton v-if="toast.action" :dark="dark" rounded :type="toast.type" @click="handleAction">{{toast.actionLabel || 'Action'}}</MbButton>
@@ -58,6 +58,13 @@ export default {
 
     &:first-child
       margin-top: auto
+
+    &.no-footer
+      &::before
+        margin-bottom: 0
+
+      p
+        margin-bottom: 0
 
   &.dark
     background-color: $bg-secondary-dark
