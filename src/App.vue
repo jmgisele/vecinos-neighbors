@@ -14,11 +14,11 @@
 </template>
 
 <script>
-import GlobalTooltipController from '@/components/utility/GlobalTooltipController.vue';
-import Components from '@/views/Components.vue';
-import ModalOverlay from '@/components/utility/ModalOverlay.vue';
-import SvgSprite from '@/components/utility/SvgSprite.vue';
-import UserSwitcher from '@/components/utility/UserSwitcher.vue';
+import GlobalTooltipController from './components/utility/GlobalTooltipController.vue';
+import Components from './views/Components.vue';
+import ModalOverlay from './components/utility/ModalOverlay.vue';
+import SvgSprite from './components/utility/SvgSprite.vue';
+import UserSwitcher from './components/utility/UserSwitcher.vue';
 
 export default {
   components: {
