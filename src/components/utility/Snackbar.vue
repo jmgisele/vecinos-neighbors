@@ -13,7 +13,7 @@ export default {
   },
   computed: {
     toasts() {
-      // if (this.$store.state.application.mobile) return this.$store.state.application.toasts;
+      if (this.$store.state.application.mobile) return this.$store.state.application.toasts;
       return [...this.$store.state.application.toasts].reverse();
     },
   },
