@@ -1,6 +1,9 @@
 import { createRouter, createWebHistory } from 'vue-router';
 import Store from '../store';
+
+import GeneralError from '../views/GeneralError.vue';
 import Home from '../views/Home.vue';
+import NotFound from '../views/NotFound.vue';
 import Onboarding from '../views/Onboarding.vue';
 
 const routes = [
@@ -10,6 +13,25 @@ const routes = [
     component: Home,
     meta: {
       title: 'Projects',
+    },
+  },
+  {
+    path: '/general-error',
+    name: 'Error',
+    component: GeneralError,
+    meta: {
+      title: 'Something went wrong',
+      hideAppHeader: true,
+    },
+    props: true,
+  },
+  {
+    path: '/:pathMatch(.*)*',
+    name: 'NotFound',
+    component: NotFound,
+    meta: {
+      title: '404',
+      hideAppHeader: true,
     },
   },
   {
@@ -72,17 +94,31 @@ router.beforeEach(async (to) => {
     try {
       await Store.dispatch('initialiseApplication');
     } catch (err) {
-      Store.commit('addToast', { message: err.message, type: 'error' });
+      // We pretend we initialised, so we can move to the error route
+      Store.commit('setAppProperty', { key: 'initialised', value: true });
+      return {
+        name: 'Error',
+        params: {
+          code: err.code,
+          message: err.message,
+          name: err.name,
+          stage: 'init',
+        },
+      };
     }
   }
 
-  if (to.name !== 'Onboarding' && !Store.state.application.activeUser) return { name: 'Onboarding', replace: true };
+  if (to.name !== 'Error' && to.name !== 'Onboarding' && !Store.state.application.activeUser) return { name: 'Onboarding', replace: true };
   return true;
 });
 
 router.afterEach((to) => {
   if (to.meta && to.meta.title) document.title = `${to.meta.title} | Mattrbld`;
   else document.title = 'Mattrbld';
+});
+
+router.onError((err) => {
+  router.push({ name: 'Error', params: { error: err } });
 });
 
 export default router;
