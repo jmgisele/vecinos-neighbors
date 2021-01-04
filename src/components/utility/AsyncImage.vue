@@ -1,6 +1,6 @@
 <template lang="html">
   <div class="async-image">
-    <img :src="src" :alt="alt" @load="handleLoad">
+    <img draggable="false" :src="src" :alt="alt" @load="handleLoad">
     <transition>
       <div v-show="!loaded" class="placeholder" :style="{ backgroundColor: placeholderColor }">
         <MbLoader v-if="showLoader" />
