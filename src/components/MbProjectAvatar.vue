@@ -93,7 +93,7 @@ export default {
         ctx.font = '700 24px "Inter", sans-serif';
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
-        ctx.fillStyle = '#fff';
+        ctx.fillStyle = tinycolor(color).isLight() ? 'rgba(0,0,0,0.5)' : 'rgba(255,255,255,0.75)';
         ctx.fillText(this.projectName, width / 2, height / 2 + 4);
       }
 
