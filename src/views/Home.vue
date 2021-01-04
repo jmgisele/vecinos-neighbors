@@ -5,7 +5,7 @@
       <MbProgress v-if="usedQuota !== false && !isMobile" :colors="['positive', 'warning', 'negative']" :dark="dark" :label="`Storage used: ≈ ${(usedQuota * 100).toFixed(2)}%`" :progress="usedQuota" />
     </header>
     <main>
-      <MbButton :dark="dark" type="primary" @click="$store.commit('addToast', { message: `Toast ${tc} lorem ipsum dolor sicet numquam dolor ipsut`, timeout: false }); tc++">Add toast</MbButton>
+      <MbButton :dark="dark" type="primary" @click="addToast">Add toast</MbButton>
       <button class="add-project" :class="{dark}">
         <div class="icon-wrapper">
           <MbIcon icon="download" />
@@ -44,6 +44,12 @@ export default {
     };
   },
   methods: {
+    addToast() {
+      const types = ['positive', 'negative', 'default', 'warning'];
+      const type = types[Math.floor(Math.random() * types.length)];
+      this.$store.commit('addToast', { message: `Toast ${this.tc} lorem ipsum dolor sicet numquam dolor ipsut`, timeout: false, type });
+      this.tc += 1;
+    },
   },
   props: {
     dark: Boolean,
