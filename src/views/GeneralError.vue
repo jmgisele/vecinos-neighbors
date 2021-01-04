@@ -5,7 +5,7 @@
       <h1>We’re sorry…</h1>
       <p v-if="!initError">Something went wrong. See the error code below for more information:</p>
       <p v-else>Mattrbld could not be initialised properly. See the error code below for more information:</p>
-      <pre>{{message}}</pre>
+      <pre>{{`Name: ${name}\nCode: ${code}\nMessage: ${message}`}}</pre>
       <MbButton v-if="!initError" :dark="dark" type="primary" @click="$router.replace('/')">Go back</MbButton>
     </div>
     <div v-else class="wrapper">
@@ -68,6 +68,10 @@ export default {
 
   h1
     margin-top: 2rem
+
+  h1,
+  p
+    user-select: none
 
   .button
     margin-top: 2rem
