@@ -1,9 +1,9 @@
 <template lang="html">
-  <button class="project-card" :class="{dark}" @contextmenu.prevent="openMenu">
+  <button class="project-card" :class="{dark}" @click="handleClick" @contextmenu.prevent="openMenu">
     <MbProjectAvatar :avatar="avatar" :project-id="id" :project-name="name" />
     <footer>
       <span>{{name}}</span>
-      <MbButton :dark="dark" icon="more-vertical" rounded @click="openMenu" />
+      <MbButton :dark="dark" icon="more-vertical" ref="menuButton" rounded @click="openMenu" />
     </footer>
     <MbContextMenu class="options" :dark="dark" :from-right="popover.fromRight" :options="options" :show="popover.show" :target="popover.target" :x="popover.x" :y="popover.y" @close="popover.show = false" />
   </button>
@@ -15,12 +15,22 @@ export default {
     return {
       options: [
         {
+          action: () => this.$router.push({ name: 'Project', params: { id: this.id } }),
           icon: 'open',
           label: 'Open',
         },
         {
+          action: () => {
+            const routeData = this.$router.resolve({ name: 'Project', params: { id: this.id } });
+            window.open(routeData.href, '_blank');
+          },
           icon: 'open-new-window',
-          label: 'Open in new tab',
+          label: 'Open in new window',
+        },
+        {
+          action: () => this.$router.push({ name: 'Project.Settings', params: { id: this.id } }),
+          icon: 'settings',
+          label: 'Project settings',
         },
         {
           icon: 'trash',
@@ -36,7 +46,12 @@ export default {
       },
     };
   },
+  emits: ['click'],
   methods: {
+    handleClick(e) {
+      if (e.target === this.$refs.menuButton.$el || this.$refs.menuButton.$el.contains(e.target)) return;
+      this.$emit('click', e);
+    },
     openMenu(e) {
       if (e.type === 'contextmenu') {
         this.popover.x = e.clientX;
@@ -110,8 +125,8 @@ export default {
     width: 100%
     display: flex
     align-items: center
+    padding: 0.5rem
     padding-left: 1rem
-    padding-right: 0.5rem
 
     span
       margin-right: 1rem
