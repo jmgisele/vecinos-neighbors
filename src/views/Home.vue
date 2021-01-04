@@ -5,10 +5,7 @@
       <MbProgress v-if="usedQuota !== false && !isMobile" :colors="['positive', 'warning', 'negative']" :dark="dark" :label="`Storage used: ≈ ${(usedQuota * 100).toFixed(2)}%`" :progress="usedQuota" />
     </header>
       <main>
-        <div v-for="project in projects" class="project-card" :key="project.name">
-          <MbProjectAvatar :avatar="project.avatar" :project-id="project.id" />
-          {{project.name}}
-        </div>
+        <MbProjectCard v-for="project in projects" :avatar="project.avatar" :dark="dark" :id="project.id" :key="project.id" :name="project.name" :updated-at="project.updatedAt" />
         <button class="add-project" :class="{dark}">
           <div class="icon-wrapper">
             <MbIcon icon="download" />
@@ -49,12 +46,16 @@ export default {
     if (this.usedQuota > 0.9) this.$store.commit('addToast', { message: 'You might be running out of storage soon. Please free up some space by removing old projects to ensure that everything can run smoothly', timeout: false, type: 'warning' });
     if (this.usedQuota === false) this.$store.commit('addToast', { message: 'We could not estimate how much storage Mattrbld is using on your device. Please be aware that you might have to periodically remove old projects to free some space', timeout: false, type: 'warning' });
 
+    for (let i = 0; i < 10; i += 1) {
+      const id = Math.random().toString(36).substr(2, 9);
+      this.projects.push({ id, updatedAt: Date.now(), name: id });
+    }
     this.fetchProjects();
   },
   data() {
     return {
       loaded: false,
-      projects: [],
+      projects: [{ id: 'simple', updatedAt: new Date('2020-12-14').valueOf(), name: 'Cheese Cake' }],
       tc: 0,
       usedQuota: 0,
     };
