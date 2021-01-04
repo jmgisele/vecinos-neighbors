@@ -24,9 +24,12 @@ export default {
         const estimate = await navigator.storage.estimate();
         this.usedQuota = estimate.usage / estimate.quota;
       } catch (err) {
-        this.usedQuota = false; // probably should tell the user that there’s an issue with the quota
+        this.usedQuota = false;
       }
-    } else this.usedQuota = false; // probably should tell the user that there’s an issue with the quota
+    } else this.usedQuota = false;
+
+    if (this.usedQuota > 0.9) this.$store.commit('addToast', { message: 'You might be running out of storage soon. Please free up some space by removing old projects to ensure that everything can run smoothly', timeout: false, type: 'warning' });
+    if (this.usedQuota === false) this.$store.commit('addToast', { message: 'We could not estimate how much storage Mattrbld is using on your device. Please be aware that you might have to periodically remove old projects to free some space', timeout: false, type: 'warning' });
   },
   data() {
     return {
