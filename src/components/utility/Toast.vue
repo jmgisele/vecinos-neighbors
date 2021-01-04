@@ -45,7 +45,7 @@ export default {
   padding: 1rem
   border-radius: $radius-l
   background-color: $bg
-  box-shadow: 0 0.75rem 2rem 0 alpha($bg-dark, .18)
+  box-shadow: 0 0.75rem 2rem 0 alpha($bg-dark, .18), inset 0 0 0 0.125rem $bg-tertiary
   display: flex
   align-items: center
   max-width: 40rem
