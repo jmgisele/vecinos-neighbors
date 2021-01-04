@@ -1,18 +1,11 @@
 <template lang="html">
-  <button class="project-card" :class="{dark}">
+  <button class="project-card" :class="{dark}" @contextmenu.prevent="openMenu">
     <MbProjectAvatar :avatar="avatar" :project-id="id" :project-name="name" />
     <footer>
       <span>{{name}}</span>
       <MbButton :dark="dark" icon="more-vertical" rounded @click="openMenu" />
     </footer>
-    <MbPopover class="options" :dark="dark" from-right no-content-padding :visible="popover.show" :x="popover.x" :y="popover.y" @close="popover.show = false">
-      <ul class="wrapper">
-        <li v-for="(option, index) in options" :class="{dark}" :key="index" tabindex="0" @click="option.action">
-          <MbIcon v-if="option.icon" :icon="option.icon" />
-          <span>{{option.label}}</span>
-        </li>
-      </ul>
-    </MbPopover>
+    <MbContextMenu class="options" :dark="dark" :from-right="popover.fromRight" :options="options" :show="popover.show" :target="popover.target" :x="popover.x" :y="popover.y" @close="popover.show = false" />
   </button>
 </template>
 
@@ -26,16 +19,18 @@ export default {
           label: 'Open',
         },
         {
-          icon: 'plus',
+          icon: 'open-new-window',
           label: 'Open in new tab',
         },
         {
           icon: 'trash',
           label: 'Delete',
+          type: 'negative',
         },
       ],
       popover: {
         show: false,
+        target: null,
         x: 0,
         y: 0,
       },
@@ -43,9 +38,17 @@ export default {
   },
   methods: {
     openMenu(e) {
-      const rect = e.target.getBoundingClientRect();
-      this.popover.x = rect.right;
-      this.popover.y = rect.top;
+      if (e.type === 'contextmenu') {
+        this.popover.x = e.clientX;
+        this.popover.y = e.clientY;
+        this.popover.fromRight = false;
+      } else {
+        const rect = e.target.getBoundingClientRect();
+        this.popover.fromRight = true;
+        this.popover.x = rect.right;
+        this.popover.y = rect.top;
+      }
+      this.popover.target = e.currentTarget;
       this.popover.show = true;
     },
   },
@@ -115,35 +118,4 @@ export default {
 
     .button
       margin-left: auto
-
-.options
-  user-select: none
-
-  .wrapper
-    list-style: none
-    padding: 0.5rem
-    margin: 0
-
-    li
-      display: flex
-      align-items: center
-      width: 100%
-      padding: 0.75rem 1rem
-      cursor: pointer
-      border-radius: $radius-m
-
-      &.dark
-        &:hover,
-        &:focus
-          background-color: $bg-tertiary-dark
-
-      &:not(:last-child)
-        margin-bottom: 0.5rem
-
-      &:hover,
-      &:focus
-        background-color: $bg-secondary
-
-      .icon
-        margin-right: 1rem
 </style>
