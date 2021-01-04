@@ -357,7 +357,7 @@ export default {
           value: this.userEmail.trim(),
         });
         if (this.isMattrbldProject) this.$router.push({ name: 'Project', params: { id: this.projectName } }); // go to project dashboard
-        else this.$router.push({ name: 'Project.Settings', params: { id: this.projectName } }); // go to project settings / will only work if we have a child route with such a name
+        else this.$router.push({ name: 'Project.Settings', params: { id: this.projectName }, query: { tab: 'users' } }); // go to project settings / will only work if we have a child route with such a name
       } catch (err) {
         // TODO: figure out a way to clean this up in case something goes wrong, if the config isn’t set other operations will fail in the future
         this.$store.commit('addToast', { message: `Something went wrong while setting the project configuration: ${err.message}`, type: 'error' });
