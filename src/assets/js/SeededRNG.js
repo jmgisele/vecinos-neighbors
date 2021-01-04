@@ -22,6 +22,7 @@ export default class SeededRNG {
   random(min = 0, max = 1) {
     this.seed = (this.seed * 9301 + 49297) % 233280;
     const randomNumber = this.seed / (233280.0);
-    return randomNumber * (max - min + 1) + min;
+    const range = max - min;
+    return randomNumber * range + min;
   }
 }
