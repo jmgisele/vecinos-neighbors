@@ -4,19 +4,30 @@
       <h1>Your Projects</h1>
       <MbProgress v-if="usedQuota !== false && !isMobile" :colors="['positive', 'warning', 'negative']" :dark="dark" :label="`Storage used: ≈ ${(usedQuota * 100).toFixed(2)}%`" :progress="usedQuota" />
     </header>
-    <main>
-      <MbButton :dark="dark" type="primary" @click="addToast">Add toast</MbButton>
-      <button class="add-project" :class="{dark}">
-        <div class="icon-wrapper">
-          <MbIcon icon="download" />
+      <main>
+        <div v-for="project in projects" class="project-card" :key="project.name">
+          {{project.name}}
         </div>
-        <span>Import Project</span>
-      </button>
-    </main>
+        <button class="add-project" :class="{dark}">
+          <div class="icon-wrapper">
+            <MbIcon icon="download" />
+          </div>
+          <span>Import Project</span>
+        </button>
+        <MbButton :dark="dark" type="primary" @click="addToast">Add toast</MbButton>
+        <transition>
+          <div v-show="!loaded" class="loader-wrapper">
+            <MbLoader />
+            <p>Loading Projects…</p>
+          </div>
+        </transition>
+      </main>
   </div>
 </template>
 
 <script>
+import fs from '../fs';
+
 export default {
   name: 'Home',
   computed: {
@@ -36,9 +47,13 @@ export default {
 
     if (this.usedQuota > 0.9) this.$store.commit('addToast', { message: 'You might be running out of storage soon. Please free up some space by removing old projects to ensure that everything can run smoothly', timeout: false, type: 'warning' });
     if (this.usedQuota === false) this.$store.commit('addToast', { message: 'We could not estimate how much storage Mattrbld is using on your device. Please be aware that you might have to periodically remove old projects to free some space', timeout: false, type: 'warning' });
+
+    this.fetchProjects();
   },
   data() {
     return {
+      loaded: false,
+      projects: [],
       tc: 0,
       usedQuota: 0,
     };
@@ -49,6 +64,22 @@ export default {
       const type = types[Math.floor(Math.random() * types.length)];
       this.$store.commit('addToast', { message: `Toast ${this.tc} lorem ipsum dolor sicet numquam dolor ipsut`, timeout: false, type });
       this.tc += 1;
+    },
+    async fetchProjects() {
+      try {
+        const projects = await fs.readdir('/projects');
+        const promises = [];
+        projects.forEach((project) => promises.push(fs.readFile(`/projects/${project}/.mattrbld/config.json`, 'utf8')));
+        const jsonData = await Promise.allSettled(promises);
+
+        jsonData.forEach((dataset, index) => {
+          if (dataset.status === 'rejected') this.projects.push({ name: projects[index] });
+          else this.projects.push(JSON.parse(dataset.value));
+        });
+      } catch (err) {
+        this.$store.commit('addToast', { message: `Something went wrong while fetching the projects: ${err.message}`, type: 'error' });
+      }
+      this.loaded = true;
     },
   },
   props: {
@@ -64,7 +95,8 @@ export default {
 
 .home
   &.dark
-    main
+    main,
+    main .loader-wrapper
       background-color: $bg-secondary-dark
 
   header
@@ -84,6 +116,7 @@ export default {
       margin-left: auto
 
   main
+    position: relative
     background-color: $bg-secondary
     height: "calc(100vh - %s)" % (196 / 16)rem
     overflow-x: hidden
@@ -144,4 +177,24 @@ export default {
         .icon
           width: 2rem
           height: @width
+
+    .loader-wrapper
+      background-color: $bg-secondary
+      position: absolute
+      top: 0
+      left: 0
+      width: 100%
+      height: 100%
+      display: flex
+      justify-content: center
+      align-items: center
+      flex-direction: column
+
+      &.v-enter-active,
+      &.v-leave-active
+        transition: opacity 500ms ease
+
+        &.v-enter-from,
+        &.v-leave-to
+          opacity: 0
 </style>
