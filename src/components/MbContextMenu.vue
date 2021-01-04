@@ -1,7 +1,7 @@
 <template lang="html">
   <MbPopover class="context-menu" :dark="dark" :from-right="fromRight" no-content-padding :visible="show" :x="x" :y="y" @close="close">
     <ul class="wrapper">
-      <li v-for="(option, index) in options" :class="[option.type, {dark}]" :key="index" tabindex="0" @click="handleAction(option.action)">
+      <li v-for="(option, index) in options" :class="[option.type, {dark, disabled: option.disabled}]" :key="index" tabindex="0" @click="handleAction(option.action)">
         <MbIcon v-if="option.icon" :icon="option.icon" />
         <span>{{option.label}}</span>
       </li>
@@ -72,10 +72,17 @@ export default {
       &.warning
         color: $warning-saturated
 
+      &.disabled
+        pointer-events: none
+        color: $text-tertiary
+
       &.dark
         &:hover,
         &:focus
           background-color: $bg-tertiary-dark
+
+        &.disabled
+          color: $text-tertiary-dark
 
       &:not(:last-child)
         margin-bottom: 0.5rem
