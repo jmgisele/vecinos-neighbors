@@ -6,6 +6,7 @@
     </header>
       <main>
         <div v-for="project in projects" class="project-card" :key="project.name">
+          <MbProjectAvatar :avatar="project.avatar" :project-id="project.id" />
           {{project.name}}
         </div>
         <button class="add-project" :class="{dark}">
@@ -68,14 +69,27 @@ export default {
     async fetchProjects() {
       try {
         const projects = await fs.readdir('/projects');
-        const promises = [];
-        projects.forEach((project) => promises.push(fs.readFile(`/projects/${project}/.mattrbld/config.json`, 'utf8')));
-        const jsonData = await Promise.allSettled(promises);
+        const jsonPromises = [];
+        const statPromises = [];
+        projects.forEach((project) => {
+          jsonPromises.push(fs.readFile(`/projects/${project}/.mattrbld/config.json`, 'utf8'));
+          statPromises.push(fs.stat(`/projects/${project}`));
+        });
+        const jsonData = await Promise.allSettled(jsonPromises);
+        const stats = await Promise.allSettled(statPromises);
 
         jsonData.forEach((dataset, index) => {
-          if (dataset.status === 'rejected') this.projects.push({ name: projects[index] });
-          else this.projects.push(JSON.parse(dataset.value));
+          let project;
+          if (dataset.status === 'rejected') project = { id: projects[index], name: projects[index] };
+          else project = { ...JSON.parse(dataset.value), id: projects[index] };
+
+          if (stats[index].status === 'rejected') project.updatedAt = -1;
+          else project.updatedAt = stats[index].value.mtimeMs;
+
+          this.projects.push(project);
         });
+
+        this.projects.sort((a, b) => b.updatedAt - a.updatedAt); // last modified first
       } catch (err) {
         this.$store.commit('addToast', { message: `Something went wrong while fetching the projects: ${err.message}`, type: 'error' });
       }
