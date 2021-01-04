@@ -45,7 +45,14 @@ export default {
   padding: 1rem
   border-radius: $radius-l
   background-color: $bg
-  box-shadow: 0 0.75rem 2rem 0 alpha($bg-dark, .18), inset 0 0 0 0.125rem $bg-tertiary
+  box-shadow:
+    0 1.3px 2.2px -12px alpha($bg-dark,.017),
+    0 3.2px 5.3px -12px alpha($bg-dark,.024),
+    0 6px 10px -12px alpha($bg-dark,.03),
+    0 10.7px 17.9px -12px alpha($bg-dark,.036),
+    0 20.1px 33.4px -12px alpha($bg-dark,.043),
+    0 48px 80px -12px alpha($bg-dark,.06),
+    inset 0 0 0 0.0625rem $accent-secondary
   display: flex
   align-items: center
   max-width: 40rem
@@ -68,7 +75,7 @@ export default {
 
   &.dark
     background-color: $bg-secondary-dark
-    box-shadow: inset 0 0 0 0.0625rem $bg-tertiary-dark
+    box-shadow: inset 0 0 0 0.0625rem mix($accent-secondary, $bg-tertiary-dark, 25)
 
   &::before
     display: block
@@ -83,17 +90,53 @@ export default {
     @media $mobile
       margin-bottom: 1rem
 
-  &.negative::before
-    background-color: $negative-saturated
+  &.negative
+    box-shadow:
+      0 1.3px 2.2px -12px alpha($bg-dark,.017),
+      0 3.2px 5.3px -12px alpha($bg-dark,.024),
+      0 6px 10px -12px alpha($bg-dark,.03),
+      0 10.7px 17.9px -12px alpha($bg-dark,.036),
+      0 20.1px 33.4px -12px alpha($bg-dark,.043),
+      0 48px 80px -12px alpha($bg-dark,.06),
+      inset 0 0 0 0.0625rem $negative-saturated
 
-  &.positive::before
-    background-color: $positive-saturated
+    &.dark
+      box-shadow: inset 0 0 0 0.0625rem mix($negative-saturated, $bg-tertiary-dark, 25)
 
-  &.warning::before
-    background-color: $warning-saturated
+    &::before
+      background-color: $negative-saturated
 
-    @media $mobile
-      margin-bottom: 1rem
+  &.positive
+    box-shadow:
+      0 1.3px 2.2px -12px alpha($bg-dark,.017),
+      0 3.2px 5.3px -12px alpha($bg-dark,.024),
+      0 6px 10px -12px alpha($bg-dark,.03),
+      0 10.7px 17.9px -12px alpha($bg-dark,.036),
+      0 20.1px 33.4px -12px alpha($bg-dark,.043),
+      0 48px 80px -12px alpha($bg-dark,.06),
+      inset 0 0 0 0.0625rem $positive-saturated
+
+    &.dark
+      box-shadow: inset 0 0 0 0.0625rem mix($positive-saturated, $bg-tertiary-dark, 25)
+
+    &::before
+      background-color: $positive-saturated
+
+  &.warning
+    box-shadow:
+      0 1.3px 2.2px -12px alpha($bg-dark,.017),
+      0 3.2px 5.3px -12px alpha($bg-dark,.024),
+      0 6px 10px -12px alpha($bg-dark,.03),
+      0 10.7px 17.9px -12px alpha($bg-dark,.036),
+      0 20.1px 33.4px -12px alpha($bg-dark,.043),
+      0 48px 80px -12px alpha($bg-dark,.06),
+      inset 0 0 0 0.0625rem $warning-saturated
+
+    &.dark
+      box-shadow: inset 0 0 0 0.0625rem mix($warning-saturated, $bg-tertiary-dark, 25)
+
+    &::before
+      background-color: $warning-saturated
 
   p
     margin: 0
