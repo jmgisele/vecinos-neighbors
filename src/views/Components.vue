@@ -322,6 +322,19 @@
         <p>They correspond to the saturated variants of the same name. The default color (when none are given) is <code>positive</code></p>
         <p>If the array contains more than one item, the bar will be that color based on the progress.</p>
       </section>
+      <section v-else-if="activeTabValue === 'context-menus'" class="tab context-menus" @contextmenu.prevent="contextMenu.show = true; contextMenu.x = $event.clientX; contextMenu.y = $event.clientY">
+        <h3>Context Menus</h3>
+        <p>Press <kbd>RMB</kbd> anywhere here to open a context menu.</p>
+        <MbContextMenu :dark="dark" :options="[{ label: 'Hi there', icon: 'plus', type: 'positive' }, { label: 'Not so good', type: 'warning' }]" :show="contextMenu.show" :x="contextMenu.x" :y="contextMenu.y" @close="contextMenu.show = false" />
+        <h3>Props</h3>
+        <MbTable :data="props.contextMenus" />
+        <h3>Events</h3>
+        <MbTable :data="events.contextMenus" />
+        <h3>Notes</h3>
+        <p>The <code>options</code> array should consist of objects with the following properties:</p>
+        <pre>{{'{\n  action: Function (required),\n  label: String (required),\n  icon: String,\n  type: String,\n  disabled: Boolean,\n}'}}</pre>
+        <p>If a <code>target</code> is provided, it will be focussed if the context menu gets closed.</p>
+      </section>
       <section v-else class="tab" key="exampleTab">
         <p>This is just an empty test-tab.</p>
         <p>To delete it, click the button in the “<u @click="activeTab = tabs.findIndex((tab) => tab.value === 'tabs')">Tabs</u>”-tab.</p>
@@ -409,6 +422,11 @@ export default {
         'warning',
       ],
       centerPopover: false,
+      contextMenu: {
+        show: false,
+        x: 0,
+        y: 0,
+      },
       events: {
         buttons: [
           ['Name', 'Data'],
@@ -417,6 +435,10 @@ export default {
         checkboxes: [
           ['Name', 'Data'],
           ['`update:modelValue`', '`!value`'],
+        ],
+        contextMenus: [
+          ['Name', 'Data'],
+          ['`close:modelValue`', ''],
         ],
         inputs: [
           ['Name', 'Data'],
@@ -479,6 +501,16 @@ export default {
           ['`dark`', 'Boolean', '`false`'],
           ['`disabled`', 'Boolean', '`false`'],
           ['`modelValue`', 'Boolean', '`false`'],
+        ],
+        contextMenus: [
+          ['Name', 'Type', 'Default'],
+          ['`dark`', 'Boolean', '`false`'],
+          ['`fromRight`', 'Boolean', '`false`'],
+          ['`options`', 'Array', '`[]`'],
+          ['`show`', 'Boolean', '`false`'],
+          ['`target`', 'HTMLElement', ''],
+          ['`x`', 'Number', '`0`'],
+          ['`y`', 'Number', '`0`'],
         ],
         icons: [
           ['Name', 'Type', 'Default'],
@@ -683,6 +715,7 @@ export default {
         { label: 'Styles and Colors', value: 'design' },
         { label: 'Buttons', value: 'buttons' },
         { label: 'Checkboxes', value: 'checkboxes' },
+        { label: 'Context Menus', value: 'context-menus' },
         { label: 'Icons', value: 'icons' },
         { label: 'Inputs', value: 'inputs' },
         { label: 'Loaders', value: 'loaders' },
