@@ -1,11 +1,10 @@
 <template>
-  <div class="home">
+  <div class="home" :class="{dark}">
     <header>
       <h1>Your Projects</h1>
       <MbProgress v-if="usedQuota !== false && !isMobile" :colors="['positive', 'warning', 'negative']" :dark="dark" :label="`Storage used: ≈ ${(usedQuota * 100).toFixed(2)}%`" :progress="usedQuota" />
     </header>
     <main>
-
       <MbButton :dark="dark" type="primary" @click="$store.commit('addToast', { message: `Toast ${tc} lorem ipsum dolor sicet numquam dolor ipsut`, timeout: false }); tc++">Add toast</MbButton>
     </main>
   </div>
@@ -48,6 +47,10 @@ export default {
 @require '../assets/styles/colors'
 
 .home
+  &.dark
+    main
+      background-color: $bg-secondary-dark
+
   header
     display: flex
     align-items: center
@@ -69,7 +72,9 @@ export default {
     height: "calc(100vh - %s)" % (196 / 16)rem
     overflow-x: hidden
     overflow-y: auto
+    padding: 2rem
 
     @media $mobile
       height: "calc(100vh - %s)" % (144 / 16)rem
+      padding: 1rem
 </style>
