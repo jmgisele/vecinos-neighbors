@@ -3,13 +3,52 @@
     <MbProjectAvatar :avatar="avatar" :project-id="id" :project-name="name" />
     <footer>
       <span>{{name}}</span>
-      <MbButton :dark="dark" icon="more-vertical" rounded />
+      <MbButton :dark="dark" icon="more-vertical" rounded @click="openMenu" />
     </footer>
+    <MbPopover class="options" :dark="dark" from-right no-content-padding :visible="popover.show" :x="popover.x" :y="popover.y" @close="popover.show = false">
+      <ul class="wrapper">
+        <li v-for="(option, index) in options" :class="{dark}" :key="index" tabindex="0" @click="option.action">
+          <MbIcon v-if="option.icon" :icon="option.icon" />
+          <span>{{option.label}}</span>
+        </li>
+      </ul>
+    </MbPopover>
   </button>
 </template>
 
 <script>
 export default {
+  data() {
+    return {
+      options: [
+        {
+          icon: 'open',
+          label: 'Open',
+        },
+        {
+          icon: 'plus',
+          label: 'Open in new tab',
+        },
+        {
+          icon: 'trash',
+          label: 'Delete',
+        },
+      ],
+      popover: {
+        show: false,
+        x: 0,
+        y: 0,
+      },
+    };
+  },
+  methods: {
+    openMenu(e) {
+      const rect = e.target.getBoundingClientRect();
+      this.popover.x = rect.right;
+      this.popover.y = rect.top;
+      this.popover.show = true;
+    },
+  },
   props: {
     avatar: String,
     dark: Boolean,
@@ -25,6 +64,7 @@ export default {
 @require '../assets/styles/corners'
 
 .project-card
+  user-select: none
   border: none
   box-shadow: inset 0 0 0 0.0625rem $accent
   border-radius: $radius-m
@@ -75,4 +115,35 @@ export default {
 
     .button
       margin-left: auto
+
+.options
+  user-select: none
+
+  .wrapper
+    list-style: none
+    padding: 0.5rem
+    margin: 0
+
+    li
+      display: flex
+      align-items: center
+      width: 100%
+      padding: 0.75rem 1rem
+      cursor: pointer
+      border-radius: $radius-m
+
+      &.dark
+        &:hover,
+        &:focus
+          background-color: $bg-tertiary-dark
+
+      &:not(:last-child)
+        margin-bottom: 0.5rem
+
+      &:hover,
+      &:focus
+        background-color: $bg-secondary
+
+      .icon
+        margin-right: 1rem
 </style>
