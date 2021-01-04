@@ -160,6 +160,7 @@ export default {
         margin-bottom: 1rem
 
     .add-project
+      position: relative
       background-color: $bg
       border: none
       color: inherit
@@ -187,12 +188,25 @@ export default {
       &:hover
         background-color: $bg-secondary
 
-      &:focus
-        box-shadow: inset 0 0 0 0.125rem $accent
+      &:focus::before
+          opacity: 1
 
       &:active
         background-color: $bg-tertiary
         transform: translateY(2px)
+
+      &::before
+        content: ''
+        position: absolute
+        top: 0px
+        left: @top
+        right: @top
+        bottom: @top
+        border: 2px solid $accent
+        opacity: 0
+        border-radius: @border-radius
+        pointer-events: none
+        transition: opacity 200ms ease
 
       .icon-wrapper
         padding: 1rem

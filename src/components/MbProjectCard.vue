@@ -3,7 +3,7 @@
     <MbProjectAvatar :avatar="avatar" :project-id="id" :project-name="name" />
     <footer>
       <span>{{name}}</span>
-      <MbButton :dark="dark" icon="more-vertical" ref="menuButton" rounded @click="openMenu" />
+      <MbButton :dark="dark" icon="more-vertical" ref="menuButton" rounded tooltip="More" @click="openMenu" />
     </footer>
     <MbContextMenu class="options" :dark="dark" :from-right="popover.fromRight" :options="options" :show="popover.show" :target="popover.target" :x="popover.x" :y="popover.y" @close="popover.show = false" />
   </button>
@@ -82,9 +82,10 @@ export default {
 @require '../assets/styles/corners'
 
 .project-card
+  position: relative
   user-select: none
   border: none
-  box-shadow: inset 0 0 0 0.0625rem $accent
+  box-shadow: inset 0 0 0 0.0625rem $bg
   border-radius: $radius-m
   padding: 0
   background-color: $bg
@@ -96,6 +97,7 @@ export default {
   transition: background-color 200ms ease
 
   &.dark
+    box-shadow: inset 0 0 0 0.0625rem $bg-tertiary-dark
     background-color: $bg-tertiary-dark
 
     &:focus,
@@ -109,16 +111,36 @@ export default {
   &:hover
     background-color: $bg-secondary
 
-  &:focus
-    box-shadow: inset 0 0 0 0.125rem $accent
+    .project-avatar::v-deep(img)
+      transform: scale(1.2)
+
+  &:focus::before
+      opacity: 1
 
   &:active
     background-color: $bg-tertiary
     transform: translateY(2px)
 
+  &::before
+    content: ''
+    position: absolute
+    top: 0px
+    left: @top
+    right: @top
+    bottom: @top
+    border: 2px solid $accent
+    opacity: 0
+    border-radius: @border-radius
+    z-index: 1
+    pointer-events: none
+    transition: opacity 200ms ease
+
   .project-avatar
     border-bottom-left-radius: $radius-m
     border-bottom-right-radius: $radius-m
+
+    &::v-deep(img)
+      transition: transform 350ms ease
 
   footer
     height: 100%
