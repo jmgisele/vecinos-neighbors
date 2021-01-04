@@ -388,6 +388,8 @@ export default {
         'more-horizontal',
         'more-vertical',
         'number-list',
+        'open',
+        'open-new-window',
         'pencil',
         'plus',
         'replace-alt',
