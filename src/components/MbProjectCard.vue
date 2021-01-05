@@ -12,7 +12,7 @@
       <p>This project has local changes that haven’t been published yet. Are you sure you want to permanently delete it?</p>
       <template #actions>
         <MbButton :dark="dark" @click="showDeleteWarning = false">Cancel</MbButton>
-        <MbButton :dark="dark" type="negative" @click="deleteProject(true); showDeleteWarning = false">Delete Project</MbButton>
+        <MbButton :dark="dark" type="negative" @click="deleteProject(true)">Delete Project</MbButton>
       </template>
     </MbModal>
     <MbContextMenu class="options" :dark="dark" :from-right="popover.fromRight" :options="options" :show="popover.show" :target="popover.target" :x="popover.x" :y="popover.y" @close="popover.show = false" />
@@ -74,10 +74,35 @@ export default {
         this.showDeleteWarning = true;
         return;
       }
-      // soft delete the project and show a toast to undo it
-      this.$store.commit('addToast', { message: 'Todo: implement project deletion', type: 'warning' });
-      // after a timeout actually delete the project from the device by removing it from the user’s projects and deleting the project folder if no other user uses this project
-      this.$emit('deleted');
+      if (this.showDeleteWarning) {
+        this.showDeleteWarning = false;
+        await new Promise((res) => window.setTimeout(res, this.$store.state.application.mobile ? 250 : 150)); // HACK: Allow the modal close animation to play before proceeding
+      }
+
+      const timeout = 5000;
+      const timeoutId = window.setTimeout(async () => {
+        try {
+          // TODO: actually delete the project from the device by removing it from the user’s projects and deleting the project folder if no other user uses this project
+          this.$store.commit('addToast', { message: 'Todo: implement project deletion', type: 'warning' });
+          this.$emit('deleted');
+        } catch (err) {
+          this.$store.commit('addToast', { message: `Something went wrong while deleting the project: ${err.message}`, type: 'error' });
+        } finally {
+          this.$store.commit('removeFromSoftDeleted', this.id);
+        }
+      }, timeout);
+
+      this.$store.commit('addToSoftDeleted', this.id);
+      this.$store.commit('addToast', {
+        action: () => {
+          window.clearTimeout(timeoutId);
+          this.$store.commit('removeFromSoftDeleted', this.id);
+        },
+        actionLabel: 'Undo',
+        message: `${this.name} ${this.localChanges ? 'and all unpublished changes were' : 'was'} deleted`,
+        timeout: timeout - 200, // just to be sure
+        type: 'warning',
+      });
     },
     handleClick(e) {
       if (e.target === this.$refs.menuButton.$el || this.$refs.menuButton.$el.contains(e.target)) return;
