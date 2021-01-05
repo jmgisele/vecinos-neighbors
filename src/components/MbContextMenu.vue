@@ -62,6 +62,7 @@ export default {
       padding: 0.75rem 1rem
       cursor: pointer
       border-radius: $radius-m
+      white-space: nowrap
 
       &.negative
         color: $negative-saturated
@@ -93,4 +94,10 @@ export default {
 
       .icon
         margin-right: 1rem
+        flex-shrink: 0
+
+      span
+        max-width: 100%
+        overflow: hidden
+        text-overflow: ellipsis
 </style>
