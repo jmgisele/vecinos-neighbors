@@ -5,7 +5,7 @@
       <MbProgress v-if="usedQuota !== false && !isMobile" :colors="['positive', 'warning', 'negative']" :dark="dark" :label="`Storage used: ≈ ${(usedQuota * 100).toFixed(2)}%`" :progress="usedQuota" />
     </header>
       <main>
-        <MbProjectCard v-for="project in projects" :avatar="project.avatar" :dark="dark" :id="project.id" :key="project.id" :name="project.name" :updated-at="project.updatedAt" @click="openProject(project.id)" />
+        <MbProjectCard v-for="project in projects" :avatar="project.avatar" :dark="dark" :id="project.id" :key="project.id" :local-changes="project.localChanges" :name="project.name" :updated-at="project.updatedAt" @click="openProject(project.id)" />
         <button class="add-project" :class="{dark}">
           <div class="icon-wrapper">
             <MbIcon icon="download" />
@@ -55,7 +55,7 @@ export default {
   data() {
     return {
       loaded: false,
-      projects: [{ id: 'simple', updatedAt: new Date('2020-12-14').valueOf(), name: 'Cheese Cake' }],
+      projects: [{ id: 'simple', updatedAt: new Date('2020-12-14').valueOf(), name: 'Strawberry Slush', localChanges: true }], // eslint-disable-line object-curly-newline
       tc: 0,
       usedQuota: 0,
     };
@@ -80,12 +80,15 @@ export default {
         const stats = await Promise.allSettled(statPromises);
 
         jsonData.forEach((dataset, index) => {
+          const id = projects[index];
           let project;
-          if (dataset.status === 'rejected') project = { id: projects[index], name: projects[index] };
-          else project = { ...JSON.parse(dataset.value), id: projects[index] };
+          if (dataset.status === 'rejected') project = { id, name: id };
+          else project = { ...JSON.parse(dataset.value), id };
 
           if (stats[index].status === 'rejected') project.updatedAt = -1;
           else project.updatedAt = stats[index].value.mtimeMs;
+
+          project.localChanges = this.$store.state.application.locallyChangedProjects.includes(id);
 
           this.projects.push(project);
         });
