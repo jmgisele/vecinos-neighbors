@@ -123,7 +123,7 @@ export default {
   },
   watch: {
     modalIndex(nv) {
-      if (nv < 0) this.$emit('close');
+      if (nv < 0 && this.visible) this.$emit('close');
     },
     nextModal(nv) {
       if (!nv) {
