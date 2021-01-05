@@ -1,7 +1,7 @@
 import { createStore } from 'vuex';
 import fs from '../fs';
 
-const persistentAppProperties = ['activeUser', 'corsProxy', 'initialised'];
+const persistentAppProperties = ['activeUser', 'corsProxy', 'initialised', 'locallyChangedProjects'];
 
 export default createStore({
   state: {
@@ -9,6 +9,7 @@ export default createStore({
       activeUser: null,
       corsProxy: null,
       initialised: false,
+      locallyChangedProjects: [],
       openModals: [],
       mobile: false,
       toasts: [],
@@ -25,6 +26,9 @@ export default createStore({
     },
   },
   mutations: {
+    addLocallyChangedProject(state, id) {
+      if (!state.application.locallyChangedProjects.includes(id)) state.application.locallyChangedProjects.push('id');
+    },
     addOpenModal(state, modalEl) {
       state.application.openModals.push(modalEl);
     },
@@ -51,6 +55,10 @@ export default createStore({
     },
     closeTopmostModal(state) {
       state.application.openModals.pop();
+    },
+    removeLocallyChangedProject(state, id) {
+      const index = state.application.locallyChangedProjects.indexOf(id);
+      if (index > -1) state.application.locallyChangedProjects.splice(index, 1);
     },
     removeToast(state, id) {
       const index = state.application.toasts.findIndex((toast) => toast.id === id);
