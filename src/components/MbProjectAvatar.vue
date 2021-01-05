@@ -1,5 +1,5 @@
 <template lang="html">
-  <AsyncImage :alt="projectId" class="project-avatar" :placeholder-color="projectColor" :src="projectAvatar" />
+  <AsyncImage :alt="projectId" class="project-avatar" :placeholder-color="projectColor" :src="projectAvatar" @load="handleLoad" />
 </template>
 
 <script>
@@ -98,6 +98,9 @@ export default {
       }
 
       this.generatedAvatar = canvas.toDataURL('image/jpeg', 0.92);
+    },
+    handleLoad() {
+      if (this.avatar) URL.revokeObjectURL(this.avatar); // we get passed an ObjectURL and don’t need it anymore after we displayed the image
     },
   },
   props: {
