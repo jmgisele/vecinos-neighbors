@@ -1,3 +1,4 @@
+// Adapted from somewhere on the internet a long time ago (maybe this: https://stackoverflow.com/questions/33716998/)
 export default class SeededRNG {
   constructor(seed = 1) {
     if (typeof seed !== 'number') this.seed = SeededRNG.seedFromString(seed);
