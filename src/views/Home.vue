@@ -70,12 +70,15 @@ export default {
     async fetchProjects() {
       try {
         const projects = await fs.readdir('/projects');
+        const avatarPromises = [];
         const jsonPromises = [];
         const statPromises = [];
         projects.forEach((project) => {
+          avatarPromises.push(fs.readFile(`/projects/${project}/.mattrbld/avatar.jpg`, 'utf8'));
           jsonPromises.push(fs.readFile(`/projects/${project}/.mattrbld/config.json`, 'utf8'));
           statPromises.push(fs.stat(`/projects/${project}`));
         });
+        const avatars = await Promise.allSettled(avatarPromises);
         const jsonData = await Promise.allSettled(jsonPromises);
         const stats = await Promise.allSettled(statPromises);
 
@@ -87,6 +90,10 @@ export default {
 
           if (stats[index].status === 'rejected') project.updatedAt = -1;
           else project.updatedAt = stats[index].value.mtimeMs;
+
+          if (avatars[index].status !== 'rejected') {
+            project.avatar = URL.createObjectURL(new Blob([avatars[index].value], { type: 'image/jpeg' })); // revoking is handled by the ProjectAvatar component
+          }
 
           project.localChanges = this.$store.state.application.locallyChangedProjects.includes(id);
 
