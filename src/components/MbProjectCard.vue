@@ -3,11 +3,18 @@
     <MbProjectAvatar :avatar="avatar" :project-id="id" :project-name="name" />
     <footer>
       <div>
-        <p>{{name}}</p>
+        <p><span v-show="localChanges" class="local-changes-indicator"/>{{name}}</p>
         <p class="meta">Edited {{formattedUpdatedAt}}</p>
       </div>
       <MbButton :dark="dark" icon="more-vertical" ref="menuButton" rounded tooltip="More" @click="openMenu" />
     </footer>
+    <MbModal :dark="dark" :visible="showDeleteWarning" @close="showDeleteWarning = false">
+      <p>This project has local changes that haven’t been published yet. Are you sure you want to permanently delete it?</p>
+      <template #actions>
+        <MbButton :dark="dark" @click="showDeleteWarning = false">Cancel</MbButton>
+        <MbButton :dark="dark" type="negative" @click="deleteProject(true); showDeleteWarning = false">Delete Project</MbButton>
+      </template>
+    </MbModal>
     <MbContextMenu class="options" :dark="dark" :from-right="popover.fromRight" :options="options" :show="popover.show" :target="popover.target" :x="popover.x" :y="popover.y" @close="popover.show = false" />
   </button>
 </template>
@@ -57,15 +64,19 @@ export default {
         x: 0,
         y: 0,
       },
+      showDeleteWarning: false,
     };
   },
   emits: ['click'],
   methods: {
-    async deleteProject() {
+    async deleteProject(force) {
+      if (this.localChanges && !force) {
+        this.showDeleteWarning = true;
+        return;
+      }
       // soft delete the project and show a toast to undo it
-      // maybe warn the user if there are unpublished changes?
-      // after a timeout actually delete the project from the device by removing it from the user’s projects and deleting the project folder if no other user uses this project
       this.$store.commit('addToast', { message: 'Todo: implement project deletion', type: 'warning' });
+      // after a timeout actually delete the project from the device by removing it from the user’s projects and deleting the project folder if no other user uses this project
     },
     handleClick(e) {
       if (e.target === this.$refs.menuButton.$el || this.$refs.menuButton.$el.contains(e.target)) return;
@@ -90,6 +101,7 @@ export default {
     avatar: String,
     dark: Boolean,
     id: String,
+    localChanges: Boolean,
     name: String,
     updatedAt: Number,
   },
@@ -183,6 +195,16 @@ export default {
           font-size: 0.875rem
           margin-top: 0.5rem
           color: $text-secondary
+
+        .local-changes-indicator
+          width: 0.5rem
+          height: @width
+          border-radius: 50%
+          background-color: $warning-saturated
+          display: inline-block
+          margin-right: 0.5rem
+          margin-top: (5 / 16)rem
+          vertical-align: top
 
     .button
       margin-left: auto
