@@ -5,7 +5,7 @@
       <MbProgress v-if="usedQuota !== false && !isMobile" :colors="['positive', 'warning', 'negative']" :dark="dark" :label="`Storage used: ≈ ${(usedQuota * 100).toFixed(2)}%`" :progress="usedQuota" />
     </header>
       <main>
-        <MbProjectCard v-for="project in projects" :avatar="project.avatar" :dark="dark" :id="project.id" :key="project.id" :local-changes="project.localChanges" :name="project.name" :updated-at="project.updatedAt" @click="openProject(project.id)" @deleted="removeProject(project.id)" />
+        <MbProjectCard v-for="project in projectsWithoutSoftDeleted" :avatar="project.avatar" :dark="dark" :id="project.id" :key="project.id" :local-changes="project.localChanges" :name="project.name" :updated-at="project.updatedAt" @click="openProject(project.id)" @deleted="removeProject(project.id)" />
         <button class="add-project" :class="{dark}">
           <div class="icon-wrapper">
             <MbIcon icon="download" />
@@ -31,6 +31,9 @@ export default {
   computed: {
     isMobile() {
       return this.$store.state.application.mobile;
+    },
+    projectsWithoutSoftDeleted() {
+      return this.projects.filter((project) => !this.$store.getters.isSoftDeleted(project.id));
     },
   },
   async created() {
