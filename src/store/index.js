@@ -12,6 +12,7 @@ export default createStore({
       locallyChangedProjects: [],
       openModals: [],
       mobile: false,
+      softDeleted: [],
       toasts: [],
       tooltip: null,
     },
@@ -23,6 +24,11 @@ export default createStore({
       role: null,
       theme: 'auto',
       uiScale: 'auto',
+    },
+  },
+  getters: {
+    isSoftDeleted(state) {
+      return (id) => state.application.softDeleted.includes(id);
     },
   },
   mutations: {
@@ -47,6 +53,9 @@ export default createStore({
         type: toast.type === 'error' ? 'negative' : toast.type, // error toasts are negative toasts that don’t disappear
       });
     },
+    addToSoftDeleted(state, id) {
+      if (!state.application.softDeleted.includes(id)) state.application.softDeleted.push(id);
+    },
     clearToasts(state) {
       state.application.toasts = [];
     },
@@ -55,6 +64,10 @@ export default createStore({
     },
     closeTopmostModal(state) {
       state.application.openModals.pop();
+    },
+    removeFromSoftDeleted(state, id) {
+      const index = state.application.softDeleted.indexOf(id);
+      if (index > -1) state.application.softDeleted.splice(index, 1);
     },
     removeLocallyChangedProject(state, id) {
       const index = state.application.locallyChangedProjects.indexOf(id);
