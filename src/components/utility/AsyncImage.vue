@@ -16,6 +16,7 @@ export default {
       loaded: false,
     };
   },
+  emits: ['load'],
   methods: {
     handleLoad(e) {
       this.loaded = true;
