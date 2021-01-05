@@ -12,7 +12,10 @@
 <script>
 export default {
   beforeUnmount() {
-    if (this.show) window.removeEventListener('contextmenu', this.close, { capture: true });
+    if (this.show) {
+      window.removeEventListener('contextmenu', this.close, { capture: true });
+      window.removeEventListener('scroll', this.close, { capture: true });
+    }
   },
   emits: ['close'],
   methods: {
@@ -36,8 +39,13 @@ export default {
   },
   watch: {
     show(nv) {
-      if (nv) window.addEventListener('contextmenu', this.close, { capture: true });
-      else window.removeEventListener('contextmenu', this.close, { capture: true });
+      if (nv) {
+        window.addEventListener('contextmenu', this.close, { capture: true });
+        window.addEventListener('scroll', this.close, { capture: true });
+      } else {
+        window.removeEventListener('contextmenu', this.close, { capture: true });
+        window.removeEventListener('scroll', this.close, { capture: true });
+      }
     },
   },
 };
