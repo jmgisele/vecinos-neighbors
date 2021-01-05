@@ -67,7 +67,7 @@ export default {
       showDeleteWarning: false,
     };
   },
-  emits: ['click'],
+  emits: ['click', 'deleted'],
   methods: {
     async deleteProject(force) {
       if (this.localChanges && !force) {
@@ -77,6 +77,7 @@ export default {
       // soft delete the project and show a toast to undo it
       this.$store.commit('addToast', { message: 'Todo: implement project deletion', type: 'warning' });
       // after a timeout actually delete the project from the device by removing it from the user’s projects and deleting the project folder if no other user uses this project
+      this.$emit('deleted');
     },
     handleClick(e) {
       if (e.target === this.$refs.menuButton.$el || this.$refs.menuButton.$el.contains(e.target)) return;

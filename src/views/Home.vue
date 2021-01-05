@@ -5,7 +5,7 @@
       <MbProgress v-if="usedQuota !== false && !isMobile" :colors="['positive', 'warning', 'negative']" :dark="dark" :label="`Storage used: ≈ ${(usedQuota * 100).toFixed(2)}%`" :progress="usedQuota" />
     </header>
       <main>
-        <MbProjectCard v-for="project in projects" :avatar="project.avatar" :dark="dark" :id="project.id" :key="project.id" :local-changes="project.localChanges" :name="project.name" :updated-at="project.updatedAt" @click="openProject(project.id)" />
+        <MbProjectCard v-for="project in projects" :avatar="project.avatar" :dark="dark" :id="project.id" :key="project.id" :local-changes="project.localChanges" :name="project.name" :updated-at="project.updatedAt" @click="openProject(project.id)" @deleted="removeProject(project.id)" />
         <button class="add-project" :class="{dark}">
           <div class="icon-wrapper">
             <MbIcon icon="download" />
@@ -106,8 +106,15 @@ export default {
       }
       this.loaded = true;
     },
+    importProject() {
+      // clone project and update the storage bar
+    },
     openProject(id) {
       this.$router.push({ name: 'Project', params: { id } });
+    },
+    removeProject(id) {
+      // remove it from the array and update the storage bar
+      console.log('deleted', id);
     },
   },
   props: {
