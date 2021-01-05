@@ -37,17 +37,9 @@ export default {
     },
   },
   async created() {
-    if (navigator.storage && navigator.storage.estimate) {
-      try {
-        const estimate = await navigator.storage.estimate();
-        this.usedQuota = estimate.usage / estimate.quota;
-      } catch (err) {
-        this.usedQuota = false;
-      }
-    } else this.usedQuota = false;
+    await this.refreshStorageQuota();
 
     if (this.usedQuota > 0.9) this.$store.commit('addToast', { message: 'You might be running out of storage soon. Please free up some space by removing old projects to ensure that everything can run smoothly', timeout: false, type: 'warning' });
-    if (this.usedQuota === false) this.$store.commit('addToast', { message: 'We could not estimate how much storage Mattrbld is using on your device. Please be aware that you might have to periodically remove old projects to free some space', timeout: false, type: 'warning' });
 
     for (let i = 0; i < 10; i += 1) {
       const id = Math.random().toString(36).substr(2, 9);
@@ -109,6 +101,14 @@ export default {
       }
       this.loaded = true;
     },
+    async refreshStorageQuota() {
+      try {
+        const estimate = await navigator.storage.estimate();
+        this.usedQuota = estimate.usage / estimate.quota;
+      } catch (err) {
+        this.$store.commit('addToast', { message: 'We could not estimate how much storage Mattrbld is using on your device. Please be aware that you might have to periodically remove old projects to free some space', timeout: false, type: 'warning' });
+      }
+    },
     importProject() {
       // clone project and update the storage bar
     },
@@ -116,8 +116,11 @@ export default {
       this.$router.push({ name: 'Project', params: { id } });
     },
     removeProject(id) {
-      // remove it from the array and update the storage bar
-      console.log('deleted', id);
+      const index = this.projects.findIndex((project) => project.id === id);
+      if (index > -1) {
+        this.projects.splice(index, 1);
+        this.refreshStorageQuota();
+      }
     },
   },
   props: {
