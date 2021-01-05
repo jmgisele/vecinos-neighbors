@@ -44,7 +44,7 @@
     "babel-eslint": "^10.1.0",
     "eslint": "^7.17.0",
     "eslint-plugin-import": "^2.20.2",
-    "eslint-plugin-vue": "^7.4.0",
+    "eslint-plugin-vue": "^7.4.1",
     "image-minimizer-webpack-plugin": "^1.0.0",
     "imagemin-svgo": "^8.0.0",
     "raw-loader": "^4.0.2",
