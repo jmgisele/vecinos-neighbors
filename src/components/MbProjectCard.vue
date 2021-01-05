@@ -4,7 +4,7 @@
     <footer>
       <div>
         <p>{{name}}</p>
-        <p class="meta">Last edited: {{formattedUpdatedAt}}</p>
+        <p class="meta">Edited {{formattedUpdatedAt}}</p>
       </div>
       <MbButton :dark="dark" icon="more-vertical" ref="menuButton" rounded tooltip="More" @click="openMenu" />
     </footer>
@@ -18,7 +18,9 @@ import { formatDistanceToNowStrict } from 'date-fns';
 export default {
   computed: {
     formattedUpdatedAt() {
-      return formatDistanceToNowStrict(this.updatedAt, { addSuffix: true });
+      const distance = formatDistanceToNowStrict(this.updatedAt, { addSuffix: true });
+      if (distance !== '0 seconds ago') return distance;
+      return 'just now';
     },
   },
   data() {
