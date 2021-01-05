@@ -33,6 +33,7 @@ export default {
           label: 'Project settings',
         },
         {
+          action: this.deleteProject,
           icon: 'trash',
           label: 'Delete',
           type: 'negative',
@@ -48,6 +49,12 @@ export default {
   },
   emits: ['click'],
   methods: {
+    async deleteProject() {
+      // soft delete the project and show a toast to undo it
+      // maybe warn the user if there are unpublished changes?
+      // after a timeout actually delete the project from the device by removing it from the user’s projects and deleting the project folder if no other user uses this project
+      this.$store.commit('addToast', { message: 'Todo: implement project deletion', type: 'warning' });
+    },
     handleClick(e) {
       if (e.target === this.$refs.menuButton.$el || this.$refs.menuButton.$el.contains(e.target)) return;
       this.$emit('click', e);
