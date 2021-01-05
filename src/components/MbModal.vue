@@ -6,7 +6,7 @@
           <header v-if="title">
             <h2 class="h3">{{title}}</h2>
           </header>
-          <div class="body" :class="{ padded: paddedBody, 'no-footer': !$slots.actions }" ref="body">
+          <div class="body" :class="{ padded: paddedBody, 'no-header': !title && paddedBody, 'no-footer': !$slots.actions && paddedBody }" ref="body">
             <slot />
           </div>
           <footer v-if="$slots.actions">
@@ -247,6 +247,12 @@ export default {
 
       @media $mobile
         padding: 0 1rem
+
+    &.no-header
+      padding-top: (32 / 16)rem
+
+      @media $mobile
+        padding-bottom: 1rem
 
     &.no-footer
       padding-bottom: (32 / 16)rem
