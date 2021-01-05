@@ -2,7 +2,10 @@
   <button class="project-card" :class="{dark}" @click="handleClick" @contextmenu.prevent="openMenu">
     <MbProjectAvatar :avatar="avatar" :project-id="id" :project-name="name" />
     <footer>
-      <span>{{name}}</span>
+      <div>
+        <p>{{name}}</p>
+        <p class="meta">Last edited: {{formattedUpdatedAt}}</p>
+      </div>
       <MbButton :dark="dark" icon="more-vertical" ref="menuButton" rounded tooltip="More" @click="openMenu" />
     </footer>
     <MbContextMenu class="options" :dark="dark" :from-right="popover.fromRight" :options="options" :show="popover.show" :target="popover.target" :x="popover.x" :y="popover.y" @close="popover.show = false" />
@@ -10,7 +13,14 @@
 </template>
 
 <script>
+import { formatDistanceToNowStrict } from 'date-fns';
+
 export default {
+  computed: {
+    formattedUpdatedAt() {
+      return formatDistanceToNowStrict(this.updatedAt, { addSuffix: true });
+    },
+  },
   data() {
     return {
       options: [
@@ -114,6 +124,9 @@ export default {
     &:active
       background-color: $bg-dark
 
+    footer div p.meta
+      color: $text-secondary-dark
+
   &:focus,
   &:hover
     background-color: $bg-secondary
@@ -157,8 +170,17 @@ export default {
     padding: 0.5rem
     padding-left: 1rem
 
-    span
+    div
       margin-right: 1rem
+      text-align: left
+
+      p
+        margin: 0
+
+        &.meta
+          font-size: 0.875rem
+          margin-top: 0.5rem
+          color: $text-secondary
 
     .button
       margin-left: auto

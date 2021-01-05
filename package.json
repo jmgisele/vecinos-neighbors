@@ -12,6 +12,7 @@
     "@isomorphic-git/lightning-fs": "^4.4.1",
     "@sindresorhus/slugify": "^1.1.0",
     "core-js": "^3.8.2",
+    "date-fns": "^2.16.1",
     "isomorphic-git": "^1.8.0",
     "lodash-es": "^4.17.20",
     "normalize.css": "^8.0.1",
