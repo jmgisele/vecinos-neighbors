@@ -30,8 +30,8 @@ export default {
     src: String,
   },
   watch: {
-    src(nv) {
-      if (nv) this.loaded = false;
+    src() {
+      this.loaded = false;
     },
   },
 };
