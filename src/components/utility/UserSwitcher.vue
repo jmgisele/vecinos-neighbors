@@ -339,6 +339,16 @@ export default {
       const success = await this.$store.dispatch('saveUser');
 
       if (success) {
+        const index = this.users.findIndex((user) => user.id === this.activeUser.id);
+        this.users[index] = {
+          ...this.users[index],
+          avatar: this.activeUser.avatar,
+          email,
+          name,
+          role,
+          theme: this.theme,
+          uiScale: this.scale,
+        };
         this.activeUser.email = email;
         this.activeUser.name = name;
         this.activeUser.role = role;
