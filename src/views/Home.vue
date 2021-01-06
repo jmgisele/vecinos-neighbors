@@ -4,22 +4,24 @@
       <h1>Your Projects</h1>
       <MbProgress v-if="usedQuota !== false && !isMobile" :colors="['positive', 'warning', 'negative']" :dark="dark" :label="`Storage used: ≈ ${(usedQuota * 100).toFixed(2)}%`" :progress="usedQuota" />
     </header>
-      <main>
+    <main>
+      <transition-group class="grid" tag="div" @before-leave="setGridPosition">
         <MbProjectCard v-for="project in projectsWithoutSoftDeleted" :avatar="project.avatar" :dark="dark" :id="project.id" :key="project.id" :local-changes="project.localChanges" :name="project.name" :updated-at="project.updatedAt" @click="openProject(project.id)" @deleted="removeProject(project.id)" />
-        <button class="add-project" :class="{dark}">
+        <button class="add-project-button" :class="{dark}" key="addProjectButton" @click="showImportProject = true">
           <div class="icon-wrapper">
             <MbIcon icon="download" />
           </div>
           <span>Import Project</span>
         </button>
-        <MbButton :dark="dark" type="primary" @click="addToast">Add toast</MbButton>
-        <transition>
-          <div v-show="!loaded" class="loader-wrapper">
-            <MbLoader />
-            <p>Loading Projects…</p>
-          </div>
-        </transition>
-      </main>
+        <MbButton :dark="dark" key="addToastButton" type="primary" @click="addToast">Add toast</MbButton>
+      </transition-group>
+      <transition>
+        <div v-show="!loaded" class="loader-wrapper">
+          <MbLoader />
+          <p>Loading Projects…</p>
+        </div>
+      </transition>
+    </main>
   </div>
 </template>
 
@@ -51,6 +53,7 @@ export default {
     return {
       loaded: false,
       projects: [{ id: 'simple', updatedAt: new Date('2020-12-14').valueOf(), name: 'Strawberry Slush', localChanges: true }], // eslint-disable-line object-curly-newline
+      showImportProject: false,
       tc: 0,
       usedQuota: 0,
     };
@@ -76,6 +79,7 @@ export default {
         const avatars = await Promise.allSettled(avatarPromises);
         const jsonData = await Promise.allSettled(jsonPromises);
         const stats = await Promise.allSettled(statPromises);
+        const loadedProjects = [];
 
         jsonData.forEach((dataset, index) => {
           const id = projects[index];
@@ -92,10 +96,12 @@ export default {
 
           project.localChanges = this.$store.state.application.locallyChangedProjects.includes(id);
 
-          this.projects.push(project);
+          loadedProjects.push(project);
         });
 
-        this.projects.sort((a, b) => b.updatedAt - a.updatedAt); // last modified first
+        loadedProjects.sort((a, b) => b.updatedAt - a.updatedAt); // last modified first
+        // this.projects = loadedProjects;
+        this.projects = [...this.projects, ...loadedProjects]; // only needed while the demo projects exist
       } catch (err) {
         this.$store.commit('addToast', { message: `Something went wrong while fetching the projects: ${err.message}`, type: 'error' });
       }
@@ -121,6 +127,13 @@ export default {
         this.projects.splice(index, 1);
         this.refreshStorageQuota();
       }
+    },
+    setGridPosition(el) {
+      el.style.setProperty('top', `${el.offsetTop}px`);
+      el.style.setProperty('left', `${el.offsetLeft}px`);
+      el.style.setProperty('width', `${el.offsetWidth}px`);
+      el.style.setProperty('height', `${el.offsetHeight}px`);
+      el.style.setProperty('position', 'absolute');
     },
   },
   props: {
@@ -163,84 +176,98 @@ export default {
     overflow-x: hidden
     overflow-y: auto
     padding: 2rem
-    display: grid
-    grid-template-columns: repeat(auto-fill, (320 / 16)rem)
-    grid-auto-rows: (246 / 16)rem
-    grid-gap: 2rem
-    justify-content: center
 
     @media $mobile
-      display: block
       height: "calc(100vh - %s)" % (144 / 16)rem
       padding: 1rem
 
-      .project-card,
-      .add-project
-        width: 100%
-        max-width: (320 / 16)rem
-        margin-left: auto
-        margin-right: auto
-        margin-bottom: 1rem
-
-    .add-project
-      position: relative
-      background-color: $bg
-      border: none
-      color: inherit
-      padding: 2rem
-      display: flex
-      align-items: center
+    .grid
+      display: grid
+      grid-template-columns: repeat(auto-fill, (320 / 16)rem)
+      grid-auto-rows: (246 / 16)rem
+      grid-gap: 2rem
       justify-content: center
-      flex-direction: column
-      border-radius: $radius-m
-      box-shadow: inset 0 0 0 0.0625rem $accent
-      cursor: pointer
-      transition: background-color 200ms ease
 
-      &.dark
-        background-color: $bg-tertiary-dark
+      @media $mobile
+        display: block
+
+        .project-card,
+        .add-project-button
+          width: 100%
+          max-width: (320 / 16)rem
+          margin-left: auto
+          margin-right: auto
+          margin-bottom: 1rem
+
+      .add-project-button
+        position: relative
+        background-color: $bg
+        border: none
+        color: inherit
+        padding: 2rem
+        display: flex
+        align-items: center
+        justify-content: center
+        flex-direction: column
+        border-radius: $radius-m
+        box-shadow: inset 0 0 0 0.0625rem $accent
+        cursor: pointer
+        transition: background-color 200ms ease
+
+        &.dark
+          background-color: $bg-tertiary-dark
+
+          &:focus,
+          &:hover
+            background-color: $bg-secondary-dark
+
+          &:active
+            background-color: $bg-dark
 
         &:focus,
         &:hover
-          background-color: $bg-secondary-dark
+          background-color: $bg-secondary
+
+        &:focus::before
+            opacity: 1
 
         &:active
-          background-color: $bg-dark
+          background-color: $bg-tertiary
+          transform: translateY(2px)
 
-      &:focus,
-      &:hover
-        background-color: $bg-secondary
+        &::before
+          content: ''
+          position: absolute
+          top: 0px
+          left: @top
+          right: @top
+          bottom: @top
+          border: 2px solid $accent
+          opacity: 0
+          border-radius: @border-radius
+          pointer-events: none
+          transition: opacity 200ms ease
 
-      &:focus::before
-          opacity: 1
+        .icon-wrapper
+          padding: 1rem
+          border-radius: 50%
+          background-color: $accent-secondary
+          margin-bottom: 1rem
+          color: $text-dark
 
-      &:active
-        background-color: $bg-tertiary
-        transform: translateY(2px)
+          .icon
+            width: 2rem
+            height: @width
 
-      &::before
-        content: ''
-        position: absolute
-        top: 0px
-        left: @top
-        right: @top
-        bottom: @top
-        border: 2px solid $accent
-        opacity: 0
-        border-radius: @border-radius
-        pointer-events: none
-        transition: opacity 200ms ease
+      .v-enter-active,
+      .v-leave-active,
+      .v-move
+        transition: transform 350ms ease, opacity 350ms ease
 
-      .icon-wrapper
-        padding: 1rem
-        border-radius: 50%
-        background-color: $accent-secondary
-        margin-bottom: 1rem
-        color: $text-dark
-
-        .icon
-          width: 2rem
-          height: @width
+        &.v-enter-from,
+        &.v-leave-to
+          transform: scale(0.8)
+          opacity: 0
 
     .loader-wrapper
       background-color: $bg-secondary
