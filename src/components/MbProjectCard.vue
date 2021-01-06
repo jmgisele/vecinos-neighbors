@@ -213,9 +213,13 @@ export default {
     div
       margin-right: 1rem
       text-align: left
+      overflow: hidden
 
       p
         margin: 0
+        white-space: nowrap
+        overflow: hidden
+        text-overflow: ellipsis
 
         &.meta
           font-size: 0.875rem
