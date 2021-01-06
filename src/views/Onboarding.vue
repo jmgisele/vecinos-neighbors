@@ -85,6 +85,7 @@ import slugify from '@sindresorhus/slugify';
 import availableRoles from '../data/availableRoles';
 
 import generateAvatar from '../assets/js/generateAvatar';
+import isMattrbldProject from '../assets/js/isMattrbldProject';
 import TimeoutError from '../assets/js/TimeoutError';
 import fs, { PlainFS } from '../fs';
 
@@ -100,7 +101,6 @@ export default {
     cloneLabel() {
       if (!this.cloneStep) return '';
       if (this.cloneStep === 'done') return 'Done';
-      if (this.cloneStep === 'initialising') return 'Initialising';
       return `${this.cloneStep[0].toUpperCase()}${this.cloneStep.slice(1)}: ${(this.cloneProgress * 100).toFixed(2)}%`;
     },
     currentStep() {
@@ -128,6 +128,7 @@ export default {
       credentials: null,
       currentSlide: 0,
       errors: {
+        corsProxy: '',
         repoURL: '',
         userEmail: '',
         userName: '',
@@ -321,10 +322,9 @@ export default {
           depth: 5,
         })
           .then(() => {
-            fs.stat(`/projects/${this.projectName}/.mattrbld`)
-              .then((stat) => {
-                if (stat.isDirectory()) this.isMattrbldProject = true;
-                else this.isMattrbldProject = false;
+            isMattrbldProject(`/projects/${this.projectName}/.mattrbld`)
+              .then((result) => {
+                this.isMattrbldProject = result;
               })
               .catch(() => { this.isMattrbldProject = false; }); // if it doesn’t exist the project hasn’t been configured yet
             this.cloneStep = 'done';
@@ -357,7 +357,7 @@ export default {
           value: this.userEmail.trim(),
         });
         if (this.isMattrbldProject) this.$router.push({ name: 'Project', params: { id: this.projectName } }); // go to project dashboard
-        else this.$router.push({ name: 'Project.Settings', params: { id: this.projectName }, query: { tab: 'users' } }); // go to project settings / will only work if we have a child route with such a name
+        else this.$router.push({ name: 'Project.Settings', params: { id: this.projectName }, query: { tab: 'users' } }); // go to project settings
       } catch (err) {
         // TODO: figure out a way to clean this up in case something goes wrong, if the config isn’t set other operations will fail in the future
         this.$store.commit('addToast', { message: `Something went wrong while setting the project configuration: ${err.message}`, type: 'error' });
@@ -378,6 +378,8 @@ export default {
           break;
         case 'repoURL':
           if (!this.repoURL) error = 'A repository URL is required';
+          else if (!this.repoURL.startsWith('http')) error = 'URL has to be a http(s) URL';
+          else if (!this.repoURL.endsWith('.git')) error = 'URL has to end with .git';
           // just checks if we’re using http(s) and it ends with .git
           else if (!/https?:\/\/.*\.git$/.test(this.repoURL)) error = 'Invalid URL, only https URLs ending in .git are supported';
           break;
