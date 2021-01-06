@@ -42,7 +42,7 @@
         <MbButton :dark="dark" icon-first :icon="avatarUploaded ? 'replace-alt' : 'upload'" @click="$refs.uploader.$el.click()">{{ avatarUploaded ? 'Replace' : 'Upload' }}</MbButton>
       </div>
       <template #actions>
-        <MbButton :dark="dark" @click="showUserSettings = false">Cancel</MbButton>
+        <MbButton :dark="dark" @click="handleSettingsModalClose">Cancel</MbButton>
         <MbButton :dark="dark" :disabled="formErrors" type="primary" @click="saveUser">Save</MbButton>
       </template>
     </MbModal>
@@ -62,7 +62,7 @@
         <MbButton :dark="dark" icon-first :icon="avatarUploaded ? 'replace-alt' : 'upload'" @click="$refs.uploader.$el.click()">{{ avatarUploaded ? 'Replace' : 'Upload' }}</MbButton>
       </div>
       <template #actions>
-        <MbButton :dark="dark" @click="showAddUser = false">Cancel</MbButton>
+        <MbButton :dark="dark" @click="handleSettingsModalClose">Cancel</MbButton>
         <MbButton :dark="dark" :disabled="formErrors" type="primary" @click="createUser">Create</MbButton>
       </template>
     </MbModal>
@@ -206,7 +206,7 @@ export default {
           id: newUserId,
         });
         this.setActiveUser(newUserId);
-        this.showAddUser = false;
+        this.handleSettingsModalClose();
       } catch (err) {
         this.$store.commit('addToast', { message: `Something went wrong while creating the user: ${err.message}`, type: 'error' });
       }
@@ -344,7 +344,7 @@ export default {
         this.activeUser.role = role;
         this.previousScale = this.scale; // so it doesn’t get overwritten
         this.previousTheme = this.theme; // so it doesn’t get overwritten
-        this.showUserSettings = false;
+        this.handleSettingsModalClose();
       }
     },
     setActiveUser(id) {
