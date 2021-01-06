@@ -296,7 +296,7 @@ export default {
 
       if (this.repoURL && !this.errors.repoURL && this.repoBranch) {
         // Create a projects folder and one to clone into based on the repoURL (naive implementation, but should work considering we’re forcing the URL to be a HTTP one)
-        this.projectName = this.repoURL.split('/').slice(-1)[0].replace('.git', '');
+        this.projectName = this.repoURL.split('/').slice(-1)[0].replace(/\.git$/, '');
         try {
           await fs.mkdir('/projects');
           await fs.mkdir(`/projects/${this.projectName}`);

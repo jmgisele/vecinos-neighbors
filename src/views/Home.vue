@@ -277,7 +277,7 @@ export default {
           if (!saved) return; // abort
         }
         // Generate Project Name (naive implementation, but should work considering we’re forcing the URL to be a HTTP one)
-        let projectId = this.repoURL.split('/').slice(-1)[0].replace('.git', '');
+        let projectId = this.repoURL.split('/').slice(-1)[0].replace(/\.git$/, '');
         const exists = await this.projectExists(projectId);
         // If a project with that filename exists, but it’s not the same
         if (exists && !exists.remote) projectId = `${projectId}-${Math.random().toString(36).substr(2, 9)}`; // add a pseudo-random suffix to make the id unique, could technically still cause collisions, but that’s so unlikely it’s negligible
