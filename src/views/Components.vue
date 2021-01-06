@@ -111,7 +111,7 @@
       </section>
       <section v-else-if="activeTabValue === 'icons'" class="tab icons" key="icons">
         <h2>Icons</h2>
-        <MbIcon v-for="icon in availableIcons" :icon="icon" :key="icon" />
+        <MbIcon v-for="icon in availableIcons" :icon="icon" :key="icon" @mouseenter="$store.commit('setTooltip', { message: icon, target: $event.currentTarget })" />
         <h3>Props</h3>
         <MbTable :data="props.icons" />
       </section>
