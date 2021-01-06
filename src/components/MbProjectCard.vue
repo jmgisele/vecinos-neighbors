@@ -35,7 +35,7 @@ export default {
       options: [
         {
           action: () => this.$router.push({ name: 'Project', params: { id: this.id } }),
-          icon: 'open',
+          icon: 'folder-open',
           label: 'Open',
         },
         {
