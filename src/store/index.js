@@ -38,6 +38,9 @@ export default createStore({
     addOpenModal(state, modalEl) {
       state.application.openModals.push(modalEl);
     },
+    addProjectToActiveUser(state, id) {
+      state.user.projects.push(id);
+    },
     addToast(state, toast) {
       let timeout = 5000;
 
@@ -72,6 +75,10 @@ export default createStore({
     removeLocallyChangedProject(state, id) {
       const index = state.application.locallyChangedProjects.indexOf(id);
       if (index > -1) state.application.locallyChangedProjects.splice(index, 1);
+    },
+    removeProjectFromActiveUser(state, id) {
+      const index = state.user.projects.indexOf(id);
+      if (index > -1) state.user.projects.splice(index, 1);
     },
     removeToast(state, id) {
       const index = state.application.toasts.findIndex((toast) => toast.id === id);
