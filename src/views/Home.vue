@@ -13,7 +13,6 @@
           </div>
           <span>Import Project</span>
         </button>
-        <MbButton :dark="dark" key="addToastButton" type="primary" @click="addToast">Add toast</MbButton>
       </transition-group>
       <transition>
         <div v-show="!loaded" class="loader-wrapper">
@@ -67,6 +66,9 @@ export default {
     GitLoginModal,
   },
   computed: {
+    activeUser() {
+      return this.$store.state.application.activeUser;
+    },
     cloneLabel() {
       if (!this.cloneStep) return 'Initialising';
       if (this.cloneStep === 'done') return 'Done';
@@ -125,25 +127,31 @@ export default {
       showAdvancedSettings: false,
       showGitLoginModal: false,
       showImportProject: false,
-      tc: 0,
       usedQuota: 0,
     };
   },
   methods: {
-    addToast() {
-      const types = ['positive', 'negative', 'default', 'warning'];
-      const type = types[Math.floor(Math.random() * types.length)];
-      this.$store.commit('addToast', { message: `Toast ${this.tc} lorem ipsum dolor sicet numquam dolor ipsut`, timeout: false, type });
-      this.tc += 1;
-    },
     cancelProjectImport(clear) {
       if (this.importing) this.$store.commit('addToast', { message: 'Your project is still being imported in the background', type: 'warning' });
       else if (clear) {
-        // reset
+        this.corsProxy = this.$store.state.application.corsProxy;
+        this.credentials = null;
+        this.errors = {
+          corsProxy: '',
+          repoURL: '',
+        };
+        this.lastRepoURL = '';
+        this.loadingBranches = false;
+        this.overwriteCorsProxy = false;
+        this.repoURL = '';
+        this.repoBranch = null;
+        this.repoBranches = [];
+        this.showAdvancedSettings = false;
       }
       this.showImportProject = false;
     },
     async fetchProjects() {
+      this.loaded = false;
       try {
         const { projects } = this.$store.state.user;
         const avatarPromises = [];
@@ -419,7 +427,13 @@ export default {
     dark: Boolean,
   },
   watch: {
-    // TODO: clear and re-fetch projects when active user changes
+    activeUser(nv, ov) {
+      if (nv && nv !== ov) {
+        this.projects = [];
+        this.credentials = null;
+        this.fetchProjects();
+      }
+    },
   },
 };
 </script>
