@@ -647,9 +647,6 @@ export default {
         min-width: (96 / 16)rem
         flex-shrink: 0
 
-        &::before
-          border: none
-
       .button.icon
         padding: ((16 - 3) / 16)rem
         margin-right: 0.5rem
