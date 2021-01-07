@@ -523,6 +523,7 @@ export default {
           ['`modelValue`', 'Any', '`null`', ''],
           ['`options`', 'Array', '`false`', 'Should be an array of objects like { label: String, value: Any, disabled: Boolean }'],
           ['`placeholder`', 'String', "`'Select something…'`", 'Will only be shown if modelValue === null'],
+          ['`refocus`', 'Boolean', '`true`', 'By default the button toggling the popover gets refocussed after the popover closes, but if this causes issues (like in the editor toolbar), this prop can be used to deactivated that behaviour'],
           ['`rounded`', 'Boolean', '`false`', ''],
           ['`tooltip`', 'String / Object', '', ''],
         ],
