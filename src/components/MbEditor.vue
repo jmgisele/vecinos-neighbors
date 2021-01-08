@@ -347,7 +347,7 @@ export default {
     handleSelectionChange(newSelection) {
       // Update fake caret
       if (newSelection.empty) {
-        const selectionRect = this.editorView.coordsAtPos(newSelection.from, 0);
+        const selectionRect = this.editorView.coordsAtPos(newSelection.from, 1);
         const editorRect = this.$refs.editor.getBoundingClientRect();
         const caretHeight = selectionRect.bottom - selectionRect.top;
 
