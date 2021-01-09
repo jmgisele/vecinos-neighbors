@@ -3,7 +3,8 @@
     <ul class="wrapper">
       <li v-for="(option, index) in options" :class="[option.type, {dark, disabled: option.disabled}]" :key="index" tabindex="0" @click="handleAction(option.action)">
         <MbIcon v-if="option.icon" :icon="option.icon" />
-        <span>{{option.label}}</span>
+        <span :class="{ hinted: option.shortcut }">{{option.label}}</span>
+        <span v-if="option.shortcut" class="hint"><span v-for="(key, index) in option.shortcut" :key="index"><kbd>{{key}}</kbd>{{index < option.shortcut.length - 1 ? '+' : ''}}</span></span><!-- eslint-disable-line -->
       </li>
     </ul>
   </MbPopover>
@@ -108,4 +109,10 @@ export default {
         max-width: 100%
         overflow: hidden
         text-overflow: ellipsis
+
+        &.hinted
+          margin-right: 1rem
+
+        &.hint
+          margin-left: auto
 </style>

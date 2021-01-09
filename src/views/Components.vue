@@ -325,14 +325,14 @@
       <section v-else-if="activeTabValue === 'context-menus'" class="tab context-menus" @contextmenu.prevent="contextMenu.show = true; contextMenu.x = $event.clientX; contextMenu.y = $event.clientY">
         <h3>Context Menus</h3>
         <p>Press <kbd>RMB</kbd> anywhere here to open a context menu.</p>
-        <MbContextMenu :dark="dark" :options="[{ label: 'Hi there', icon: 'plus', type: 'positive' }, { label: 'Not so good', type: 'warning' }]" :show="contextMenu.show" :x="contextMenu.x" :y="contextMenu.y" @close="contextMenu.show = false" />
+        <MbContextMenu :dark="dark" :options="[{ label: 'Hi there', icon: 'plus', type: 'positive' }, { label: 'Not so good', type: 'warning', disabled: true, shortcut: ['ctrl', 'q'] }, { label: 'Test', shortcut: ['ctrl', 'alt', 'C'] }]" :show="contextMenu.show" :x="contextMenu.x" :y="contextMenu.y" @close="contextMenu.show = false" />
         <h3>Props</h3>
         <MbTable :data="props.contextMenus" />
         <h3>Events</h3>
         <MbTable :data="events.contextMenus" />
         <h3>Notes</h3>
         <p>The <code>options</code> array should consist of objects with the following properties:</p>
-        <pre>{{'{\n  action: Function (required),\n  label: String (required),\n  icon: String,\n  type: String,\n  disabled: Boolean,\n}'}}</pre>
+        <pre>{{'{\n  action: Function (required),\n  label: String (required),\n  icon: String,\n  type: String,\n  disabled: Boolean,\n  shortcut: Array // for displaying keyboard shortcuts\n}'}}</pre>
         <p>If a <code>target</code> is provided, it will be focussed if the context menu gets closed.</p>
       </section>
       <section v-else class="tab" key="exampleTab">
