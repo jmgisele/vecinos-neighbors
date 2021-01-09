@@ -1,6 +1,8 @@
 import { createStore } from 'vuex';
 import fs from '../fs';
 
+import observers from './observers';
+
 const persistentAppProperties = ['activeUser', 'corsProxy', 'initialised', 'locallyChangedProjects'];
 
 export default createStore({
@@ -149,5 +151,6 @@ export default createStore({
     },
   },
   modules: {
+    observers,
   },
 });
