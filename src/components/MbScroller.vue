@@ -10,8 +10,13 @@
 
 <script>
 export default {
+  beforeUnmount() {
+    this.$store.commit('observers/removeResizeListener', this.$refs.scrollArea);
+    this.observer.disconnect();
+  },
   data() {
     return {
+      observer: null,
       shadow: {
         start: false,
         end: false,
@@ -47,6 +52,12 @@ export default {
   },
   mounted() {
     this.toggleScrollShadows();
+    this.$store.commit('observers/addResizeListener', { el: this.$refs.scrollArea, cb: this.toggleScrollShadows });
+
+    if ('MutationObserver' in window) {
+      this.observer = new MutationObserver(this.toggleScrollShadows);
+      this.observer.observe(this.$refs.scrollArea, { childList: true, subtree: true });
+    } else console.warn('Mutation Observers are not supported in this browser / context');
   },
   props: {
     direction: {
