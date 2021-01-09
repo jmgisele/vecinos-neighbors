@@ -21,6 +21,7 @@ export default {
   beforeUnmount() {
     window.removeEventListener('resize', this.close);
     window.removeEventListener('click', this.close);
+    this.$store.commit('observers/removeResizeListener', this.$refs.el);
   },
   data() {
     return {
@@ -37,6 +38,7 @@ export default {
       this.update();
       window.addEventListener('resize', this.close);
       window.addEventListener('click', this.close);
+      this.$store.commit('observers/addResizeListener', { el: this.$refs.el, cb: this.update });
     }
   },
   methods: {
@@ -44,14 +46,14 @@ export default {
       if (e.type === 'click' && this.visible && !this.$refs.el.contains(e.target)) this.$emit('close');
       if ((e.type === 'resize' || e.type === 'keyup') && this.visible) this.$emit('close');
     },
-    update() {
-      const { height, width } = this.$refs.el.getBoundingClientRect();
+    update(width, height) {
+      const { height: rectHeight, width: rectWidth } = this.$refs.el.getBoundingClientRect(); // could probably only be asked conditionally if width/height are undefined
       const wWidth = window.innerWidth;
       const wHeight = window.innerHeight;
       const remBase = Number.parseInt(window.getComputedStyle(document.documentElement).fontSize, 10);
       const margin = 0.5 * remBase;
-      const realWidth = Math.min(width * 1.25, wWidth - 2 * margin); // needs to be scaled up since its size is 0.8 on enter
-      const realHeight = Math.min(height * 1.25, wHeight - 2 * margin); // needs to be scaled up since its size is 0.8 on enter
+      const realWidth = Math.min(width || (rectWidth * 1.25), wWidth - 2 * margin); // needs to be scaled up since its size is 0.8 on enter, but not if the sizes come from the resize observer
+      const realHeight = Math.min(height || (rectHeight * 1.25), wHeight - 2 * margin); // needs to be scaled up since its size is 0.8 on enter, but not if the sizes come from the resize observer
       let left = 0;
       let top = 0;
 
@@ -82,7 +84,7 @@ export default {
       this.left = `${left}px`;
       this.top = `${top}px`;
 
-      this.$refs.el.focus();
+      if (!document.activeElement || (document.activeElement !== this.$refs.el && !this.$refs.el.contains(document.activeElement))) this.$refs.el.focus();
     },
   },
   props: {
@@ -104,14 +106,15 @@ export default {
   watch: {
     visible(nv) {
       if (nv) {
-        this.$nextTick(this.update);
         window.setTimeout(() => {
           window.addEventListener('resize', this.close);
           window.addEventListener('click', this.close);
+          this.$store.commit('observers/addResizeListener', { el: this.$refs.el, cb: this.update }); // will update the popover since it transitions from size 0 to actual size once v-show === true
         }, 0);
       } else {
         window.removeEventListener('resize', this.close);
         window.removeEventListener('click', this.close);
+        this.$store.commit('observers/removeResizeListener', this.$refs.el);
       }
     },
   },
