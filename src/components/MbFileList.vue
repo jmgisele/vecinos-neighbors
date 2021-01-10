@@ -2,7 +2,7 @@
   <div class="file-list" :class="{ dark }">
     <header>
       <nav>
-        <MbButton :disabled="currentPath === root" icon="chevron-left" rounded @click="back" />
+        <MbButton :dark="dark" :disabled="currentPath === root" icon="chevron-left" rounded @click="back" />
         <p class="breadcrumb">
           <template v-for="(step, index) in breadcrumb" :key="index">
             <span class="step" :class="{ active: index === breadcrumb.length - 1 }" @click="jumpTo(index)">{{step}}</span>
@@ -18,24 +18,33 @@
         <MbButton v-if="action && (action.label || action.icon) && action.callback" :dark="dark" :icon="action.icon" :icon-first="action.iconFirst !== false" :loading="action.loading" :tooltip="action.tooltip" :type="action.type" @click="action.callback">{{action.label}}</MbButton>
       </div>
     </header>
-    <p class="h3">Folders</p>
-    <MbScroller>
-      <button v-for="folder in filteredFolders" class="folder" :key="folder.name" @click="openFolder(folder.name)">
-        <MbIcon icon="folder"  />
-        {{folder.name}}
-      </button>
+    <MbScroller class="folder-wrapper">
+      <div v-for="folder in filteredFolders" class="folder" :class="{ 'no-actions': fileActions.length === 0 }" :key="folder.name" tabindex="0" @click="openFolder(folder.name, $event)" @contextmenu.prevent="openMenu($event, joinPath(currentPath, folder.name))">
+        <header>
+          <MbIcon icon="folder"  />
+          <MbButton v-if="fileActions.length > 0" :dark="dark" icon="more-vertical" rounded tooltip="More" @click="openMenu($event, joinPath(currentPath, folder.name))" />
+        </header>
+        <p>{{folder.name}}</p>
+        <p class="meta">{{formattedUpdatedAt(folder.updatedAt)}}</p>
+      </div>
     </MbScroller>
-    <p class="h3">Files</p>
-    <ul>
-      <li v-for="file in filteredFiles" class="file" :key="file.name">
+    <p v-if="foldersFirst" class="h3">Files</p>
+    <ul v-show="files.length > 0" class="files">
+      <li v-for="file in filteredFiles" class="file" :class="{ 'no-actions': fileActions.length === 0 }" :key="file.name" tabindex="0" @click="file.isFolder ? openFolder(file.name, $event) : handleFileClick(file.name, $event)" @contextmenu.prevent="openMenu($event, joinPath(currentPath, file.name))">
         <MbIcon :icon="file.isFolder ? 'folder' : imageRegExp.test(file.name) ? 'image' : 'document'" />
-        {{file.name}}
+        <span>{{file.name}}</span>
+        <span class="meta">{{formattedUpdatedAt(file.updatedAt)}}</span>
+        <MbButton v-if="fileActions.length > 0" :dark="dark" icon="more-vertical" rounded tooltip="More" @click="openMenu($event, joinPath(currentPath, file.name))" />
       </li>
     </ul>
+    <p v-show="files.length === 0" class="empty-state">{{ foldersFirst ? 'There are no files in this directory' : 'There is nothing in this directory' }}</p>
+    <MbContextMenu class="options" :dark="dark" :from-right="popover.fromRight" :options="modifiedFileActions" :show="popover.show" :target="popover.target" :x="popover.x" :y="popover.y" @close="popover.show = false" />
   </div>
 </template>
 
 <script>
+import { formatDistanceToNowStrict } from 'date-fns';
+
 import fs from '../fs';
 
 export default {
@@ -53,6 +62,17 @@ export default {
     filteredFolders() {
       return this.folders.filter((folder) => folder.name.includes(this.searchTerm));
     },
+    modifiedFileActions() { // we need to pass the current filepath to the callback
+      const actions = [];
+
+      if (this.fileActions.length === 0) return this.fileActions;
+
+      this.fileActions.forEach((action) => {
+        actions.push({ ...action, action: () => action.action(this.currentFile) });
+      });
+
+      return actions;
+    },
     showBack() {
       return this.currentPath !== this.root;
     },
@@ -64,11 +84,18 @@ export default {
   },
   data() {
     return {
+      currentFile: null,
       currentPath: null,
       files: [],
       folders: [],
       imageRegExp: /\.(gif|jpg|jpeg|tiff|png|webp|svg)$/i,
       loading: false,
+      popover: {
+        show: false,
+        target: null,
+        x: 0,
+        y: 0,
+      },
       searchTerm: '',
       sortBy: null,
       sortOptions: [
@@ -84,6 +111,7 @@ export default {
       reverseOrder: false,
     };
   },
+  emits: ['fileclick'],
   methods: {
     back() {
       if (this.currentPath === this.root) return;
@@ -143,6 +171,15 @@ export default {
         this.$store.commit('addToast', { message: `Something went wrong while reading files: ${err.message}`, type: 'error' });
       }
     },
+    formattedUpdatedAt(updatedAt) {
+      const distance = formatDistanceToNowStrict(updatedAt, { addSuffix: true });
+      if (distance !== '0 seconds ago') return distance;
+      return 'just now';
+    },
+    handleFileClick(name, e) {
+      if (e.target.classList.contains('button')) return; // buttons have a ::before that covers them completely, so this is enough
+      this.$emit('fileclick', this.joinPath(this.currentPath, name));
+    },
     joinPath(...parts) { // taken from https://github.com/isomorphic-git/lightning-fs/blob/main/src/path.js
       if (parts.length === 0) return '';
       let path = parts.join('/');
@@ -159,8 +196,25 @@ export default {
       else newPath = split.slice(0, split.length - (3 - index)); // no need for +1 since split.length includes that
       this.currentPath = `/${newPath.join('/')}`;
     },
-    openFolder(name) {
+    openFolder(name, e) {
+      if (e.target.classList.contains('button')) return; // buttons have a ::before that covers them completely, so this is enough
       this.currentPath = this.joinPath(this.currentPath, name);
+    },
+    openMenu(e, path) {
+      if (this.popover.show) return; // close it first
+      this.currentFile = path;
+      if (e.type === 'contextmenu') {
+        this.popover.x = e.clientX;
+        this.popover.y = e.clientY;
+        this.popover.fromRight = false;
+      } else {
+        const rect = e.target.getBoundingClientRect();
+        this.popover.fromRight = true;
+        this.popover.x = rect.right;
+        this.popover.y = rect.top;
+      }
+      this.popover.target = e.currentTarget;
+      this.popover.show = true;
     },
     sortEntities(type) {
       if (!type || !['files', 'folders'].includes(type)) {
@@ -224,19 +278,47 @@ export default {
 
 <style lang="stylus" scoped>
 @require '../assets/styles/colors'
+@require '../assets/styles/corners'
 
 .file-list
   user-select: none
 
   &.dark
     header
-      > .breadcrumb
+      nav > .breadcrumb
         color: $text-secondary-dark
         span
           &.step:hover
             color: $text-dark
 
+    .folder-wrapper .folder
+      background-color: $bg-secondary-dark
+
+      &:hover
+        background-color: $bg-tertiary-dark
+
+      p.meta
+        color: $text-secondary-dark
+
+    .files li
+      background-color: $bg-secondary-dark
+
+      &:hover
+        background-color: $bg-tertiary-dark
+
+      span.meta
+        color: $text-secondary-dark
+
+    .empty-state
+      color: $text-secondary-dark
+
+    .folder-wrapper .folder,
+    .files li
+      &:active
+        background-color: $bg-dark
+
   header
+    margin-bottom: 1rem
     nav
       display: flex
       align-items: center
@@ -258,11 +340,11 @@ export default {
             cursor: pointer
             transition: color 200ms ease
 
-            &:hover
-              color: $text
-
             &.active
               color: $accent
+
+            &:hover
+              color: $text
 
           &.separator
             margin: 0 0.5rem
@@ -299,4 +381,127 @@ export default {
         &::before
           border-top-left-radius: 0
           border-bottom-left-radius: 0
+
+  .folder-wrapper
+    &::v-deep(.scroll-area)
+      display: flex
+      scroll-snap-type: x mandatory
+      padding-bottom: 0.125rem
+
+    .folder
+      border: none
+      background-color: $bg-secondary
+      border-radius: $radius-m
+      align-items: center
+      padding-left: 1rem
+      padding-top: 0.5rem
+      padding-right: 0.5rem
+      padding-bottom: 1rem
+      white-space: nowrap
+      cursor: pointer
+      min-width: (192 / 16)rem
+      scroll-snap-align: center
+      transition: background-color 200ms ease
+
+      &:not(:last-child)
+        margin-right: 1rem
+
+      &.no-actions
+        padding-top: (0.5rem + (9 / 16))rem
+
+      &:hover
+        background-color: $bg-tertiary
+
+      header
+        display: flex
+        align-items: center
+
+        .icon:not(.button)
+          margin-right: 1rem
+          width: 2rem
+          height: @width
+          margin-right: auto
+          color: $accent
+
+      p
+        margin-bottom: 0
+        margin-right: 3rem
+        font-weight: 700
+
+        &.meta
+          font-weight: 400
+          margin-top: 0
+          margin-bottom: 0
+          font-size: 0.875rem
+          color: $text-secondary
+
+  > p.h3
+    font-size: 1rem
+
+  .files
+    list-style: none
+    padding: 0
+    margin: 1.5rem 0
+
+    li
+      background-color: $bg-secondary
+      padding: 0.5rem
+      padding-left: 1rem
+      border-radius: $radius-m
+      display: flex
+      align-items: center
+      cursor: pointer
+      transition: background-color 200ms ease
+
+      &:hover
+        background-color: $bg-tertiary
+
+      &.no-actions
+        padding-top: (0.5rem + (13 / 16))rem
+        padding-bottom: @padding-top
+        padding-right: (0.5rem + (13 / 16))rem
+
+      &:not(:last-child)
+        margin-bottom: 1rem
+
+      .icon:not(.button)
+        margin-right: 1rem
+
+      span
+        &.meta
+          margin-left: auto
+          font-size: 0.875rem
+          color: $text-secondary
+
+      .button
+        margin-left: 1rem
+
+  .empty-state
+    color: $text-secondary
+    margin-bottom: 0
+
+  .folder-wrapper .folder,
+  .files li
+    position: relative
+
+    &:focus::before
+      opacity: 1
+
+    &:active
+      transform: translateY(0.125rem)
+      background-color: $bg
+
+    &::before
+      content: ''
+      position: absolute
+      top: 0px
+      left: @top
+      right: @top
+      bottom: @top
+      border: 2px solid $accent
+      opacity: 0
+      border-radius: $radius-m
+      z-index: 1
+      pointer-events: none
+      transition: opacity 200ms ease
 </style>

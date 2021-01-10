@@ -338,10 +338,11 @@
       <section v-else-if="activeTabValue === 'file-lists'" class="tab file-lists">
         <h3>File Lists</h3>
         <p>This component is a fully fledged file browser that can display the contents of a folder and offers the ability for custom actions on the files.</p>
-        <MbFileList :dark="dark" root="/projects" show-hidden :action="{ callback: () => $store.commit('addToast', { message: 'Hi there!'}), label: 'Show toast'}" />
+        <MbFileList :dark="dark" :file-actions="[{ action: showFileToast, icon: 'folder-open', label: 'Open' }, { disabled: true, icon: 'arrow-right', label: 'Move' }, { action: showFileToast, icon: 'trash', label: 'Delete', type: 'negative' }]" :folders-first="true" :folders-only="false" show-hidden :action="{ callback: () => $store.commit('addToast', { message: 'Hi there!'}), label: 'Add', icon: 'plus', type: 'positive'}" @fileclick="showFileToast" />
         <h3>Props</h3>
         <MbTable :data="props.fileLists" />
         <h3>Events</h3>
+        <MbTable :data="events.fileLists" />
         <h3>Notes</h3>
       </section>
       <section v-else class="tab" key="exampleTab">
@@ -394,7 +395,11 @@ export default {
         ],
         contextMenus: [
           ['Name', 'Data'],
-          ['`close:modelValue`', ''],
+          ['`close`', ''],
+        ],
+        fileLists: [
+          ['Name', 'Data'],
+          ['`fileclick`', 'The full path of the clicked file'],
         ],
         inputs: [
           ['Name', 'Data'],
@@ -472,7 +477,7 @@ export default {
           ['Name', 'Type', 'Default', 'Notes'],
           ['`action`', 'Object', '', 'Takes Button Props and a Label and Callback, will be shown at the top right as a primary action such as "create new"'],
           ['`dark`', 'Boolean', '`false`', ''],
-          ['`fileActions`', 'Array', '`[]`', 'Takes objects with Button props and a callback, which will be called with the file’s path'],
+          ['`fileActions`', 'Array', '`[]`', 'Takes objects with Context-Menu options including an action, which will be called with the file’s path'],
           ['`filterable`', 'Boolean', '`true`', ''],
           ['`foldersFirst`', 'Boolean', '`true`', ''],
           ['`foldersOnly`', 'Boolean', '`false`', ''],
@@ -716,6 +721,9 @@ export default {
     removeTab() {
       const lastTab = this.tabs[this.tabs.length - 1];
       if (lastTab.value.startsWith('untitled')) this.tabs.pop();
+    },
+    showFileToast(path) {
+      this.$store.commit('addToast', { message: `Clicked on file: ${path}` });
     },
   },
   props: {
