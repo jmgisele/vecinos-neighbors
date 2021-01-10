@@ -338,7 +338,7 @@
       <section v-else-if="activeTabValue === 'file-lists'" class="tab file-lists">
         <h3>File Lists</h3>
         <p>This component is a fully fledged file browser that can display the contents of a folder and offers the ability for custom actions on the files.</p>
-        <MbFileList />
+        <MbFileList :dark="dark" root="/projects" show-hidden :action="{ callback: () => $store.commit('addToast', { message: 'Hi there!'}), label: 'Show toast'}" />
         <h3>Props</h3>
         <MbTable :data="props.fileLists" />
         <h3>Events</h3>
@@ -472,7 +472,7 @@ export default {
           ['Name', 'Type', 'Default', 'Notes'],
           ['`action`', 'Object', '', 'Takes Button Props and a Label and Callback, will be shown at the top right as a primary action such as "create new"'],
           ['`dark`', 'Boolean', '`false`', ''],
-          ['`fileActions`', 'Array', '`[]`', ''],
+          ['`fileActions`', 'Array', '`[]`', 'Takes objects with Button props and a callback, which will be called with the file’s path'],
           ['`filterable`', 'Boolean', '`true`', ''],
           ['`foldersFirst`', 'Boolean', '`true`', ''],
           ['`foldersOnly`', 'Boolean', '`false`', ''],
