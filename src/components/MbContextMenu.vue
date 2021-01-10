@@ -1,7 +1,7 @@
 <template lang="html">
-  <MbPopover class="context-menu" :dark="dark" :from-right="fromRight" no-content-padding :visible="show" :x="x" :y="y" @close="close">
-    <ul class="wrapper">
-      <li v-for="(option, index) in options" :class="[option.type, {dark, disabled: option.disabled}]" :key="index" tabindex="0" @click="handleAction(option.action)">
+  <MbPopover class="context-menu" :dark="dark" :from-right="fromRight" no-content-padding :visible="show" :x="x" :y="y" @close="close" @keyup.arrow-down="focus(1)" @keyup.arrow-up="focus(-1)">
+    <ul class="wrapper" ref="list" tabindex="-1">
+      <li v-for="(option, index) in options" :class="[option.type, {dark, disabled: option.disabled}]" :key="index" :tabindex="option.disabled ? -1 : 0" @click="handleAction(option.action)" @keyup.space.enter="handleAction(option.action)" @mouseenter="handleMouseenter($event, index)" @mouseleave="handleMouseleave">
         <MbIcon v-if="option.icon" :icon="option.icon" />
         <span :class="{ hinted: option.shortcut }">{{option.label}}</span>
         <span v-if="option.shortcut" class="hint"><span v-for="(key, index) in option.shortcut" :key="index"><kbd>{{key}}</kbd>{{index < option.shortcut.length - 1 ? '+' : ''}}</span></span><!-- eslint-disable-line -->
@@ -18,6 +18,11 @@ export default {
       window.removeEventListener('scroll', this.close);
     }
   },
+  data() {
+    return {
+      currentlySelected: -1,
+    };
+  },
   emits: ['close'],
   methods: {
     close(e) {
@@ -25,9 +30,37 @@ export default {
       this.$emit('close');
       if (this.target) this.target.focus();
     },
+    focus(direction) {
+      const elements = this.$refs.list.querySelectorAll('li:not(.disabled)');
+      if (elements.length === 0) return;
+
+      if (direction < 0) { // focus previous
+        if (this.currentlySelected > 0) this.currentlySelected -= 1;
+        else this.currentlySelected = elements.length - 1;
+      } else { // focus next
+        // eslint-disable-next-line no-lonely-if
+        if (this.currentlySelected < elements.length - 1) this.currentlySelected += 1;
+        else this.currentlySelected = 0;
+      }
+
+      elements[this.currentlySelected].focus();
+    },
     handleAction(action) {
       if (typeof action === 'function') action();
       this.close();
+    },
+    handleMouseenter(e, index) {
+      if (this.show) {
+        e.currentTarget.focus();
+        this.currentlySelected = index;
+      }
+    },
+    handleMouseleave(e) {
+      if (this.show && document.activeElement) {
+        document.activeElement.blur();
+        e.currentTarget.parentElement.focus();
+        this.currentlySelected = -1;
+      }
     },
   },
   props: {
@@ -74,6 +107,7 @@ export default {
       cursor: pointer
       border-radius: $radius-m
       white-space: nowrap
+      transition: background-color 200ms ease
 
       &.negative
         color: $negative-saturated

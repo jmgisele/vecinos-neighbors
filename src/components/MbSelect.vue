@@ -2,12 +2,14 @@
   <MbButton v-bind="$attrs" class="select" :class="{ placeholder: modelValue === null }" :dark="dark" :disabled="disabled" icon="chevron-down" :icon-first="false" :loading="loading" ref="button" :rounded="rounded" :tooltip="tooltip" @click="activate">
     {{currentOption}}
   </MbButton>
-  <MbPopover center-x class="item-wrapper" :dark="dark" no-content-padding ref="popover" :style="{ width: `${popoverWidth}px` }" :visible="active" :x="position.x" :y="position.y" @close="deactivate">
+  <MbPopover center-x class="item-wrapper" :dark="dark" no-content-padding ref="popover" :style="{ width: `${popoverWidth}px` }" :visible="active" :x="position.x" :y="position.y" @close="deactivate" @keyup.arrow-down="focus(1)" @keyup.arrow-up="focus(-1)">
     <template v-if="filterable" #header>
       <MbInput v-model="filter" :dark="dark" icon="search" placeholder="Filter Items" />
     </template>
-    <ul class="items" :class="{ dark }">
-      <li v-for="option in filteredOptions" :class="{ active: option.value ? option.value === modelValue : option === modelValue, disabled: option.disabled }" :key="option.value" :tabindex="option.disabled ? -1 : 0" @click="selectOption(typeof option.value !== 'undefined' ? option.value : option)" @keyup.enter="selectOption(option.value || option)" @keyup.space="selectOption(option.value || option)">{{option.label || option.value || option}}</li>
+    <ul class="items" :class="{ dark }" ref="list" tabindex="-1">
+      <li v-for="(option, index) in filteredOptions" :class="{ active: option.value ? option.value === modelValue : option === modelValue, disabled: option.disabled }" :key="option.value" :tabindex="option.disabled ? -1 : 0" @click="selectOption(typeof option.value !== 'undefined' ? option.value : option)" @keyup.space.enter="selectOption(option.value || option)" @mouseenter="handleMouseenter($event, index)" @mouseleave="handleMouseleave">
+        {{option.label || option.value || option}}
+      </li>
     </ul>
   </MbPopover>
 </template>
@@ -32,6 +34,7 @@ export default {
   data() {
     return {
       active: false,
+      currentlySelected: -1,
       filter: '',
       popoverWidth: 0,
       position: {
@@ -57,6 +60,32 @@ export default {
       this.active = false;
       if (this.refocus) this.$refs.button.$el.focus();
       window.removeEventListener('scroll', this.deactivate, { capture: true });
+    },
+    focus(direction) {
+      const elements = this.$refs.list.querySelectorAll('li:not(.disabled)');
+      if (elements.length === 0) return;
+
+      if (direction < 0) { // focus previous
+        if (this.currentlySelected > 0) this.currentlySelected -= 1;
+        else this.currentlySelected = elements.length - 1;
+      } else { // focus next
+        // eslint-disable-next-line no-lonely-if
+        if (this.currentlySelected < elements.length - 1) this.currentlySelected += 1;
+        else this.currentlySelected = 0;
+      }
+
+      elements[this.currentlySelected].focus();
+    },
+    handleMouseenter(e, index) {
+      if (this.active) {
+        if (this.$refs.list.contains(document.activeElement)) this.$refs.list.focus();
+        this.currentlySelected = index;
+      }
+    },
+    handleMouseleave() {
+      if (this.active) {
+        this.currentlySelected = -1;
+      }
     },
     selectOption(value) {
       this.$emit('update:modelValue', value);
