@@ -9,7 +9,7 @@
       <MbButton :dark="dark" icon="more-vertical" ref="menuButton" rounded tooltip="More" @click="openMenu" />
     </footer>
     <MbModal :dark="dark" :visible="showDeleteWarning" @close="showDeleteWarning = false">
-      <p>This project has local changes that haven’t been published yet. Are you sure you want to permanently delete it?</p>
+      <p>This project has <strong>local changes that haven’t been published</strong> yet. Are you sure you want to <strong>permanently delete</strong> it?</p>
       <template #actions>
         <MbButton :dark="dark" @click="showDeleteWarning = false">Cancel</MbButton>
         <MbButton :dark="dark" type="negative" @click="deleteProject(true)">Delete Project</MbButton>
