@@ -51,7 +51,7 @@ export default {
   computed: {
     breadcrumb() {
       const rootName = this.root.split('/').slice(-1)[0] || 'Root';
-      const steps = this.currentPath.replace(this.root, '').split('/').slice(1);
+      const steps = this.currentPath.replace(this.root, '').split('/').slice(1); // FIXME: If the root is / the breadcrumb shows one action too little, likely because of the slice 1
 
       if (steps.length === 0) return [rootName];
       return [rootName, ...steps].slice(-4); // so it doesn’t get too long
