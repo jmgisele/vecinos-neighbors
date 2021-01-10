@@ -115,7 +115,7 @@ export default {
       transition: background-color 200ms ease
 
       &.icon
-        padding-left: 3.5rem
+        padding-left: 3.75rem
 
       &.negative
         color: $negative-saturated
@@ -149,7 +149,7 @@ export default {
         background-color: $bg-secondary
 
       .icon
-        margin-right: 1rem
+        margin-right: 0.75rem
         flex-shrink: 0
 
       span
