@@ -3,7 +3,7 @@ import fs from '../fs';
 
 import observers from './observers';
 
-const persistentAppProperties = ['activeUser', 'corsProxy', 'initialised', 'locallyChangedProjects'];
+const persistentAppProperties = ['activeUser', 'corsProxy', 'initialised', 'locallyChangedFiles'];
 
 export default createStore({
   state: {
@@ -11,7 +11,7 @@ export default createStore({
       activeUser: null,
       corsProxy: null,
       initialised: false,
-      locallyChangedProjects: [],
+      locallyChangedFiles: [],
       openModals: [],
       mobile: false,
       softDeleted: [],
@@ -29,13 +29,16 @@ export default createStore({
     },
   },
   getters: {
+    hasLocalChanges(state) {
+      return (path) => state.application.locallyChangedFiles.some((filepath) => filepath.startsWith(path));
+    },
     isSoftDeleted(state) {
       return (id) => state.application.softDeleted.includes(id);
     },
   },
   mutations: {
-    addLocallyChangedProject(state, id) {
-      if (!state.application.locallyChangedProjects.includes(id)) state.application.locallyChangedProjects.push('id');
+    addLocallyChangedFile(state, path) {
+      if (!state.application.locallyChangedFiles.includes(path)) state.application.locallyChangedFiles.push(path);
     },
     addOpenModal(state, modalEl) {
       state.application.openModals.push(modalEl);
@@ -74,9 +77,9 @@ export default createStore({
       const index = state.application.softDeleted.indexOf(id);
       if (index > -1) state.application.softDeleted.splice(index, 1);
     },
-    removeLocallyChangedProject(state, id) {
-      const index = state.application.locallyChangedProjects.indexOf(id);
-      if (index > -1) state.application.locallyChangedProjects.splice(index, 1);
+    removeLocallyChangedFile(state, path) {
+      const index = state.application.locallyChangedFiles.indexOf(path);
+      if (index > -1) state.application.locallyChangedFiles.splice(index, 1);
     },
     removeProjectFromActiveUser(state, id) {
       const index = state.user.projects.indexOf(id);

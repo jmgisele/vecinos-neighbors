@@ -180,7 +180,7 @@ export default {
             project.avatar = URL.createObjectURL(new Blob([avatars[index].value], { type: 'image/jpeg' })); // revoking is handled by the ProjectAvatar component
           }
 
-          project.localChanges = this.$store.state.application.locallyChangedProjects.includes(id);
+          project.localChanges = this.$store.getters.hasLocalChanges(`/projects/${id}`);
 
           loadedProjects.push(project);
         });
