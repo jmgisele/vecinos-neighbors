@@ -89,7 +89,7 @@ export default {
       return this.$store.state.application.mobile;
     },
     projectsWithoutSoftDeleted() {
-      return this.projects.filter((project) => !this.$store.getters.isSoftDeleted(project.id));
+      return this.projects.filter((project) => !this.$store.getters.isSoftDeleted(`/projects/${project.id}`));
     },
   },
   async created() {

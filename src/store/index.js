@@ -33,7 +33,7 @@ export default createStore({
       return (path) => state.application.locallyChangedFiles.some((filepath) => filepath.startsWith(path));
     },
     isSoftDeleted(state) {
-      return (id) => state.application.softDeleted.includes(id);
+      return (path) => state.application.softDeleted.includes(path);
     },
   },
   mutations: {
@@ -61,8 +61,8 @@ export default createStore({
         type: toast.type === 'error' ? 'negative' : toast.type, // error toasts are negative toasts that don’t disappear
       });
     },
-    addToSoftDeleted(state, id) {
-      if (!state.application.softDeleted.includes(id)) state.application.softDeleted.push(id);
+    addToSoftDeleted(state, path) {
+      if (!state.application.softDeleted.includes(path)) state.application.softDeleted.push(path);
     },
     clearToasts(state) {
       state.application.toasts = [];
@@ -73,8 +73,8 @@ export default createStore({
     closeTopmostModal(state) {
       state.application.openModals.pop();
     },
-    removeFromSoftDeleted(state, id) {
-      const index = state.application.softDeleted.indexOf(id);
+    removeFromSoftDeleted(state, path) {
+      const index = state.application.softDeleted.indexOf(path);
       if (index > -1) state.application.softDeleted.splice(index, 1);
     },
     removeLocallyChangedFile(state, path) {

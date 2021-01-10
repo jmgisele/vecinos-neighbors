@@ -88,15 +88,15 @@ export default {
         } catch (err) {
           this.$store.commit('addToast', { message: `Something went wrong while deleting the project: ${err.message}`, type: 'error' });
         } finally {
-          this.$store.commit('removeFromSoftDeleted', this.id);
+          this.$store.commit('removeFromSoftDeleted', `/projects/${this.id}`);
         }
       }, timeout);
 
-      this.$store.commit('addToSoftDeleted', this.id);
+      this.$store.commit('addToSoftDeleted', `/projects/${this.id}`);
       this.$store.commit('addToast', {
         action: () => {
           window.clearTimeout(timeoutId);
-          this.$store.commit('removeFromSoftDeleted', this.id);
+          this.$store.commit('removeFromSoftDeleted', `/projects/${this.id}`);
         },
         actionLabel: 'Undo',
         message: `${this.name} ${this.localChanges ? 'and all unpublished changes were' : 'was'} deleted`,
