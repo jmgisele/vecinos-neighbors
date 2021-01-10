@@ -335,6 +335,15 @@
         <pre>{{'{\n  action: Function (required),\n  label: String (required),\n  icon: String,\n  type: String,\n  disabled: Boolean,\n  shortcut: Array // for displaying keyboard shortcuts\n}'}}</pre>
         <p>If a <code>target</code> is provided, it will be focussed if the context menu gets closed.</p>
       </section>
+      <section v-else-if="activeTabValue === 'file-lists'" class="tab file-lists">
+        <h3>File Lists</h3>
+        <p>This component is a fully fledged file browser that can display the contents of a folder and offers the ability for custom actions on the files.</p>
+        <MbFileList />
+        <h3>Props</h3>
+        <MbTable :data="props.fileLists" />
+        <h3>Events</h3>
+        <h3>Notes</h3>
+      </section>
       <section v-else class="tab" key="exampleTab">
         <p>This is just an empty test-tab.</p>
         <p>To delete it, click the button in the “<u @click="activeTab = tabs.findIndex((tab) => tab.value === 'tabs')">Tabs</u>”-tab.</p>
@@ -458,6 +467,18 @@ export default {
           ['`target`', 'HTMLElement', ''],
           ['`x`', 'Number', '`0`'],
           ['`y`', 'Number', '`0`'],
+        ],
+        fileLists: [
+          ['Name', 'Type', 'Default', 'Notes'],
+          ['`action`', 'Object', '', 'Takes Button Props and a Label and Callback, will be shown at the top right as a primary action such as "create new"'],
+          ['`dark`', 'Boolean', '`false`', ''],
+          ['`fileActions`', 'Array', '`[]`', ''],
+          ['`filterable`', 'Boolean', '`true`', ''],
+          ['`foldersFirst`', 'Boolean', '`true`', ''],
+          ['`foldersOnly`', 'Boolean', '`false`', ''],
+          ['`initialSortBy`', 'String', '`name+`', 'Allowed values: name+, name-, edited+, edited-'],
+          ['`root`', 'String', '`/`', 'The root folder to start in, will not allow going higher than that'],
+          ['`showHidden`', 'Boolean', '`false`', ''],
         ],
         icons: [
           ['Name', 'Type', 'Default'],
@@ -664,6 +685,7 @@ export default {
         { label: 'Buttons', value: 'buttons' },
         { label: 'Checkboxes', value: 'checkboxes' },
         { label: 'Context Menus', value: 'context-menus' },
+        { label: 'File Lists', value: 'file-lists' },
         { label: 'Icons', value: 'icons' },
         { label: 'Inputs', value: 'inputs' },
         { label: 'Loaders', value: 'loaders' },
