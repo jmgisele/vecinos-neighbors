@@ -4,7 +4,11 @@
       <li v-for="(option, index) in options" :class="[option.type, {dark, disabled: option.disabled, icon: withIcons && !option.icon}]" :key="index" :tabindex="option.disabled ? -1 : 0" @click="handleAction(option.action)" @keyup.space.enter="handleAction(option.action)" @mouseenter="handleMouseenter($event, index)" @mouseleave="handleMouseleave">
         <MbIcon v-if="option.icon" :icon="option.icon" />
         <span :class="{ hinted: option.shortcut }">{{option.label}}</span>
-        <span v-if="option.shortcut" class="hint"><span v-for="(key, index) in option.shortcut" :key="index"><kbd>{{key}}</kbd>{{index < option.shortcut.length - 1 ? '+' : ''}}</span></span><!-- eslint-disable-line -->
+        <span v-if="option.shortcut" class="hint">
+          <template v-for="(key, index) in option.shortcut" :key="index">
+            <kbd>{{key}}</kbd>{{ index !== option.shortcut.length - 1 ? '+' : '' }}
+          </template>
+        </span>
       </li>
     </ul>
   </MbPopover>
