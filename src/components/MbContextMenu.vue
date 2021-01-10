@@ -42,7 +42,7 @@ export default {
   watch: {
     show(nv) {
       if (nv) {
-        window.setTimeout(() => {
+        window.setTimeout(() => { // so it doesn’t immediately close again
           window.addEventListener('contextmenu', this.close);
           window.addEventListener('scroll', this.close);
         }, 0);
