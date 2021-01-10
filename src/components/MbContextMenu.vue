@@ -14,13 +14,14 @@
 export default {
   beforeUnmount() {
     if (this.show) {
-      window.removeEventListener('contextmenu', this.close, { capture: true });
-      window.removeEventListener('scroll', this.close, { capture: true });
+      window.removeEventListener('contextmenu', this.close);
+      window.removeEventListener('scroll', this.close);
     }
   },
   emits: ['close'],
   methods: {
-    close() {
+    close(e) {
+      if (e) e.preventDefault();
       this.$emit('close');
       if (this.target) this.target.focus();
     },
@@ -41,11 +42,13 @@ export default {
   watch: {
     show(nv) {
       if (nv) {
-        window.addEventListener('contextmenu', this.close, { capture: true });
-        window.addEventListener('scroll', this.close, { capture: true });
+        window.setTimeout(() => {
+          window.addEventListener('contextmenu', this.close);
+          window.addEventListener('scroll', this.close);
+        }, 0);
       } else {
-        window.removeEventListener('contextmenu', this.close, { capture: true });
-        window.removeEventListener('scroll', this.close, { capture: true });
+        window.removeEventListener('contextmenu', this.close);
+        window.removeEventListener('scroll', this.close);
       }
     },
   },
@@ -57,12 +60,11 @@ export default {
 @require '../assets/styles/corners'
 
 .context-menu
-  user-select: none
-
   .wrapper
     list-style: none
     padding: 0.5rem
     margin: 0
+    user-select: none
 
     li
       display: flex
