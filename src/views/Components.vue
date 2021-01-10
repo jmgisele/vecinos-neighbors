@@ -325,7 +325,7 @@
       <section v-else-if="activeTabValue === 'context-menus'" class="tab context-menus" @contextmenu.prevent="contextMenu.show = true; contextMenu.x = $event.clientX; contextMenu.y = $event.clientY">
         <h3>Context Menus</h3>
         <p>Press <kbd>RMB</kbd> anywhere here to open a context menu.</p>
-        <MbContextMenu :dark="dark" :options="[{ label: 'Hi there', icon: 'plus', type: 'positive' }, { label: 'Not so good', type: 'warning', disabled: true, shortcut: ['ctrl', 'q'] }, { label: 'Test', shortcut: ['ctrl', 'alt', 'C'] }]" :show="contextMenu.show" :x="contextMenu.x" :y="contextMenu.y" @close="contextMenu.show = false" />
+        <MbContextMenu :dark="dark" :options="[{ label: 'Hi there', icon: 'plus', type: 'positive' }, { label: 'Not so good', type: 'warning', disabled: true, shortcut: ['ctrl', 'q'] }, { icon: 'arrow-right', label: 'Test', shortcut: ['ctrl', 'alt', 'C'] }]" :show="contextMenu.show" :x="contextMenu.x" :y="contextMenu.y" @close="contextMenu.show = false" />
         <h3>Props</h3>
         <MbTable :data="props.contextMenus" />
         <h3>Events</h3>

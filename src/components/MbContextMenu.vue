@@ -1,7 +1,7 @@
 <template lang="html">
   <MbPopover class="context-menu" :dark="dark" :from-right="fromRight" no-content-padding :visible="show" :x="x" :y="y" @close="close" @keyup.arrow-down="focus(1)" @keyup.arrow-up="focus(-1)">
     <ul class="wrapper" ref="list" tabindex="-1">
-      <li v-for="(option, index) in options" :class="[option.type, {dark, disabled: option.disabled}]" :key="index" :tabindex="option.disabled ? -1 : 0" @click="handleAction(option.action)" @keyup.space.enter="handleAction(option.action)" @mouseenter="handleMouseenter($event, index)" @mouseleave="handleMouseleave">
+      <li v-for="(option, index) in options" :class="[option.type, {dark, disabled: option.disabled, icon: withIcons && !option.icon}]" :key="index" :tabindex="option.disabled ? -1 : 0" @click="handleAction(option.action)" @keyup.space.enter="handleAction(option.action)" @mouseenter="handleMouseenter($event, index)" @mouseleave="handleMouseleave">
         <MbIcon v-if="option.icon" :icon="option.icon" />
         <span :class="{ hinted: option.shortcut }">{{option.label}}</span>
         <span v-if="option.shortcut" class="hint"><span v-for="(key, index) in option.shortcut" :key="index"><kbd>{{key}}</kbd>{{index < option.shortcut.length - 1 ? '+' : ''}}</span></span><!-- eslint-disable-line -->
@@ -17,6 +17,11 @@ export default {
       window.removeEventListener('contextmenu', this.close);
       window.removeEventListener('scroll', this.close);
     }
+  },
+  computed: {
+    withIcons() {
+      return this.options.some((option) => option.icon);
+    },
   },
   data() {
     return {
@@ -109,6 +114,9 @@ export default {
       white-space: nowrap
       transition: background-color 200ms ease
 
+      &.icon
+        padding-left: 3.5rem
+
       &.negative
         color: $negative-saturated
 
@@ -121,6 +129,9 @@ export default {
       &.disabled
         pointer-events: none
         color: $text-tertiary
+
+        span.hint kbd
+          opacity: 0.38
 
       &.dark
         &:hover,
