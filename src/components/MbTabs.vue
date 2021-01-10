@@ -1,5 +1,5 @@
 <template lang="html">
-  <MbScroller class="tabs" :class="{ dark }" ref="scroller">
+  <MbScroller class="tabs" :class="{ dark }">
     <div class="scroll-wrapper">
       <transition-group ref="tabs" tag="ul" @after-leave="resetActiveTab">
         <li v-for="(tab, index) in tabs" :data-index="index" :key="tab.value || tab" tabindex="0" @click.left="activateTab($event, index)" @keyup.enter="activateTab($event, index)" @keyup.space="activateTab($event, index)">{{tab.label || tab}}</li>
@@ -46,9 +46,6 @@ export default {
       const activeTabBackup = this.modelValue;
       if (el.dataset.index > activeTabBackup) this.$emit('update:modelValue', activeTabBackup);
       else this.$emit('update:modelValue', Math.max(0, activeTabBackup - 1));
-
-      // the size of the wrapper changed so we should recalculate the shadows
-      this.$refs.scroller.toggleScrollShadows();
     },
     scrollTabIntoView(el) {
       el.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
