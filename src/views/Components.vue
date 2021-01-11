@@ -338,12 +338,11 @@
       <section v-else-if="activeTabValue === 'file-lists'" class="tab file-lists">
         <h3>File Lists</h3>
         <p>This component is a fully fledged file browser that can display the contents of a folder and offers the ability for custom actions on the files.</p>
-        <MbFileList :dark="dark" :file-actions="[{ action: showFileToast, icon: 'folder-open', label: 'Open', foldersOnly: true }, { disabled: true, icon: 'arrow-right', label: 'Move' }, { action: showFileToast, icon: 'trash', label: 'Delete', type: 'negative', filesOnly: true }]" :folders-first="true" :folders-only="false" root="/" show-hidden :action="{ callback: () => $store.commit('addToast', { message: 'Hi there!'}), label: 'Add', icon: 'plus', type: 'positive'}" @fileclick="showFileToast" />
+        <MbFileList :dark="dark" :file-actions="[{ action: showFileToast, icon: 'folder-open', label: 'Open', foldersOnly: true }, { disabled: true, icon: 'arrow-right', label: 'Move', foldersOnly: true }, { action: showFileToast, icon: 'trash', label: 'Delete', type: 'negative', filesOnly: true }]" :folders-first="true" :folders-only="false" root="/" show-hidden :action="{ callback: () => $store.commit('addToast', { message: 'Hi there!'}), label: 'Add', icon: 'plus', type: 'positive'}" @fileclick="showFileToast" />
         <h3>Props</h3>
         <MbTable :data="props.fileLists" />
         <h3>Events</h3>
         <MbTable :data="events.fileLists" />
-        <h3>Notes</h3>
       </section>
       <section v-else class="tab" key="exampleTab">
         <p>This is just an empty test-tab.</p>
@@ -477,11 +476,12 @@ export default {
           ['Name', 'Type', 'Default', 'Notes'],
           ['`action`', 'Object', '', 'Takes Button Props and a Label and Callback, will be shown at the top right as a primary action such as "create new" and "move here" (called with currentPath)'],
           ['`dark`', 'Boolean', '`false`', ''],
-          ['`fileActions`', 'Array', '`[]`', 'Takes objects with Context-Menu options including an action, which will be called with the file’s path. If filesOnly / foldersOnly are specified for an action, it will only show up in the respective type’s menu'],
+          ['`fileActions`', 'Array', '`[]`', 'Takes objects with Context-Menu options including an action, which will be called with the file’s path. If filesOnly / foldersOnly are specified for an action, it will only show up in the respective type’s menu. If there’s only one, it’ll be displayed instead of the overflow menu'],
           ['`filterable`', 'Boolean', '`true`', ''],
           ['`foldersFirst`', 'Boolean', '`true`', ''],
           ['`foldersOnly`', 'Boolean', '`false`', ''],
-          ['`initialSortBy`', 'String', '`name+`', 'Allowed values: name+, name-, edited+, edited-'],
+          ['`initialSortBy`', 'String', "`'name'`", 'Allowed values: name, edited'],
+          ['`initialReverseSortOrder`', 'Boolean', '`false`', 'If true, the entities will be sorted in descending order initially'],
           ['`root`', 'String', '`/`', 'The root folder to start in, will not allow going higher than that'],
           ['`showHidden`', 'Boolean', '`false`', ''],
         ],
