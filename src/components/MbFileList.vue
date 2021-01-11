@@ -18,19 +18,21 @@
         <MbButton v-if="action && (action.label || action.icon) && action.callback" :dark="dark" :icon="action.icon" :icon-first="action.iconFirst !== false" :loading="action.loading" :tooltip="action.tooltip" :type="action.type" @click="action.callback">{{action.label}}</MbButton>
       </div>
     </header>
-    <MbScroller class="folder-wrapper">
-      <div v-for="folder in filteredFolders" class="folder" :class="{ 'no-actions': modifiedFolderActions.length === 0 }" :key="folder.name" tabindex="0" @click="openFolder(folder.name, $event)" @contextmenu.prevent="openMenu($event, joinPath(currentPath, folder.name), true)">
-        <header>
-          <MbIcon icon="folder"  />
-          <MbButton v-if="modifiedFolderActions.length > 1" :dark="dark" icon="more-vertical" rounded tooltip="More" @click="openMenu($event, joinPath(currentPath, folder.name), true)" />
-          <MbButton v-else-if="modifiedFolderActions.length === 1" :dark="dark" :icon="modifiedFolderActions[0].icon" rounded :tooltip="modifiedFolderActions[0].label" :type="modifiedFolderActions[0].type" @click="executeAction(modifiedFolderActions[0].action, joinPath(currentPath, folder.name))" />
-        </header>
-        <p><span v-show="folder.localChanges" class="local-changes-indicator"/>{{folder.name}}</p>
-        <p class="meta">{{formattedUpdatedAt(folder.updatedAt)}}</p>
-      </div>
+    <MbScroller>
+      <transition-group class="folder-wrapper" tag="div">
+        <div v-for="folder in filteredFolders" class="folder" :class="{ 'no-actions': modifiedFolderActions.length === 0 }" :key="folder.name" tabindex="0" @click="openFolder(folder.name, $event)" @contextmenu.prevent="openMenu($event, joinPath(currentPath, folder.name), true)">
+          <header>
+            <MbIcon icon="folder"  />
+            <MbButton v-if="modifiedFolderActions.length > 1" :dark="dark" icon="more-vertical" rounded tooltip="More" @click="openMenu($event, joinPath(currentPath, folder.name), true)" />
+            <MbButton v-else-if="modifiedFolderActions.length === 1" :dark="dark" :icon="modifiedFolderActions[0].icon" rounded :tooltip="modifiedFolderActions[0].label" :type="modifiedFolderActions[0].type" @click="executeAction(modifiedFolderActions[0].action, joinPath(currentPath, folder.name))" />
+          </header>
+          <p><span v-show="folder.localChanges" class="local-changes-indicator"/>{{folder.name}}</p>
+          <p class="meta">{{formattedUpdatedAt(folder.updatedAt)}}</p>
+        </div>
+      </transition-group>
     </MbScroller>
     <p v-if="foldersFirst" class="h3">Files</p>
-    <ul v-show="files.length > 0" class="files">
+    <transition-group v-show="filteredFiles.length > 0" class="files" tag="ul">
       <li v-for="file in filteredFiles" class="file" :class="{ 'no-actions': modifiedFileActions.length === 0 }" :key="file.name" tabindex="0" @click="file.isFolder ? openFolder(file.name, $event) : handleFileClick(file.name, $event)" @contextmenu.prevent="openMenu($event, joinPath(currentPath, file.name), file.isFolder)">
         <MbIcon :icon="file.isFolder ? 'folder' : imageRegExp.test(file.name) ? 'image' : 'document'" />
         <span v-show="file.localChanges" class="local-changes-indicator"/>
@@ -39,8 +41,8 @@
         <MbButton v-if="modifiedFileActions.length > 1" :dark="dark" icon="more-vertical" rounded tooltip="More" @click="openMenu($event, joinPath(currentPath, file.name), file.isFolder)" />
         <MbButton v-else-if="modifiedFileActions.length === 1" :dark="dark" :icon="modifiedFileActions[0].icon" rounded :tooltip="modifiedFileActions[0].label" :type="modifiedFileActions[0].type" @click="executeAction(modifiedFileActions[0].action, joinPath(currentPath, file.name))" />
       </li>
-    </ul>
-    <p v-show="files.length === 0" class="empty-state">{{ foldersFirst ? 'There are no files in this directory' : 'There is nothing in this directory' }}</p>
+    </transition-group>
+    <p v-show="filteredFiles.length === 0" class="empty-state">{{ foldersFirst ? 'There are no files in this directory' : 'There is nothing in this directory' }}</p>
     <MbContextMenu class="options" :dark="dark" :from-right="popover.fromRight" :options="popover.isFolder ? modifiedFolderActions : modifiedFileActions" :show="popover.show" :target="popover.target" :x="popover.x" :y="popover.y" @close="popover.show = false" />
   </div>
 </template>
@@ -409,10 +411,10 @@ export default {
           border-bottom-left-radius: 0
 
   .folder-wrapper
-    &::v-deep(.scroll-area)
-      display: flex
-      scroll-snap-type: x mandatory
-      padding-bottom: 0.125rem
+    display: flex
+    scroll-snap-type: x mandatory
+    padding-bottom: 0.125rem
+    position: relative
 
     .folder
       border: none
@@ -428,6 +430,18 @@ export default {
       min-width: (192 / 16)rem
       scroll-snap-align: center
       transition: background-color 200ms ease
+
+      &.v-enter-active,
+      &.v-leave-active,
+      &.v-move
+        transition: opacity 200ms ease, transform 350ms ease
+
+        &.v-enter-from,
+        &.v-leave-to
+          opacity: 0
+
+      &.v-leave-active
+        position: absolute
 
       &:not(:last-child)
         margin-right: 1rem
@@ -472,6 +486,7 @@ export default {
     list-style: none
     padding: 0
     margin: 1.5rem 0
+    position: relative
 
     li
       background-color: $bg-secondary
@@ -482,6 +497,19 @@ export default {
       align-items: center
       cursor: pointer
       transition: background-color 200ms ease
+
+      &.v-enter-active,
+      &.v-leave-active,
+      &.v-move
+        transition: opacity 200ms ease, transform 350ms ease
+
+        &.v-enter-from,
+        &.v-leave-to
+          opacity: 0
+
+      &.v-leave-active
+        position: absolute
+        width: 100%
 
       &:hover
         background-color: $bg-tertiary
