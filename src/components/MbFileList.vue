@@ -19,10 +19,11 @@
       </div>
     </header>
     <MbScroller class="folder-wrapper">
-      <div v-for="folder in filteredFolders" class="folder" :class="{ 'no-actions': fileActions.length === 0 }" :key="folder.name" tabindex="0" @click="openFolder(folder.name, $event)" @contextmenu.prevent="openMenu($event, joinPath(currentPath, folder.name), true)">
+      <div v-for="folder in filteredFolders" class="folder" :class="{ 'no-actions': modifiedFolderActions.length === 0 }" :key="folder.name" tabindex="0" @click="openFolder(folder.name, $event)" @contextmenu.prevent="openMenu($event, joinPath(currentPath, folder.name), true)">
         <header>
           <MbIcon icon="folder"  />
-          <MbButton v-if="fileActions.length > 0" :dark="dark" icon="more-vertical" rounded tooltip="More" @click="openMenu($event, joinPath(currentPath, folder.name), true)" />
+          <MbButton v-if="modifiedFolderActions.length > 1" :dark="dark" icon="more-vertical" rounded tooltip="More" @click="openMenu($event, joinPath(currentPath, folder.name), true)" />
+          <MbButton v-else-if="modifiedFolderActions.length === 1" :dark="dark" :icon="modifiedFolderActions[0].icon" rounded :tooltip="modifiedFolderActions[0].label" :type="modifiedFolderActions[0].type" @click="executeAction(modifiedFolderActions[0].action, joinPath(currentPath, folder.name))" />
         </header>
         <p><span v-show="folder.localChanges" class="local-changes-indicator"/>{{folder.name}}</p>
         <p class="meta">{{formattedUpdatedAt(folder.updatedAt)}}</p>
@@ -30,12 +31,13 @@
     </MbScroller>
     <p v-if="foldersFirst" class="h3">Files</p>
     <ul v-show="files.length > 0" class="files">
-      <li v-for="file in filteredFiles" class="file" :class="{ 'no-actions': fileActions.length === 0 }" :key="file.name" tabindex="0" @click="file.isFolder ? openFolder(file.name, $event) : handleFileClick(file.name, $event)" @contextmenu.prevent="openMenu($event, joinPath(currentPath, file.name), file.isFolder)">
+      <li v-for="file in filteredFiles" class="file" :class="{ 'no-actions': modifiedFileActions.length === 0 }" :key="file.name" tabindex="0" @click="file.isFolder ? openFolder(file.name, $event) : handleFileClick(file.name, $event)" @contextmenu.prevent="openMenu($event, joinPath(currentPath, file.name), file.isFolder)">
         <MbIcon :icon="file.isFolder ? 'folder' : imageRegExp.test(file.name) ? 'image' : 'document'" />
         <span v-show="file.localChanges" class="local-changes-indicator"/>
         <span>{{file.name}}</span>
         <span class="meta">{{formattedUpdatedAt(file.updatedAt)}}</span>
-        <MbButton v-if="fileActions.length > 0" :dark="dark" icon="more-vertical" rounded tooltip="More" @click="openMenu($event, joinPath(currentPath, file.name), file.isFolder)" />
+        <MbButton v-if="modifiedFileActions.length > 1" :dark="dark" icon="more-vertical" rounded tooltip="More" @click="openMenu($event, joinPath(currentPath, file.name), file.isFolder)" />
+        <MbButton v-else-if="modifiedFileActions.length === 1" :dark="dark" :icon="modifiedFileActions[0].icon" rounded :tooltip="modifiedFileActions[0].label" :type="modifiedFileActions[0].type" @click="executeAction(modifiedFileActions[0].action, joinPath(currentPath, file.name))" />
       </li>
     </ul>
     <p v-show="files.length === 0" class="empty-state">{{ foldersFirst ? 'There are no files in this directory' : 'There is nothing in this directory' }}</p>
@@ -135,6 +137,10 @@ export default {
       const newPath = this.currentPath.substring(0, this.currentPath.lastIndexOf('/'));
       this.currentPath = newPath || '/';
     },
+    executeAction(action, path) {
+      this.currentFile = path;
+      action();
+    },
     async fetchData() {
       try {
         const contents = await fs.readdir(this.currentPath);
@@ -220,7 +226,7 @@ export default {
       this.currentPath = this.joinPath(this.currentPath, name);
     },
     openMenu(e, path, isFolder) {
-      if (this.popover.show) return; // close it first
+      if (this.popover.show || (isFolder && this.modifiedFolderActions.length < 1) || (!isFolder && this.modifiedFileActions.length < 1)) return; // close it first or abort if there’s nothing to display
       this.currentFile = path;
       if (e.type === 'contextmenu') {
         this.popover.x = e.clientX;
