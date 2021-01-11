@@ -11,7 +11,7 @@
         </p>
       </nav>
       <div class="actions">
-        <MbInput v-if="filterable" v-model="searchTerm" :dark="dark" icon="search" label="Search current directory" type="search" />
+        <MbInput v-if="filterable" :dark="dark" icon="search" label="Search current directory" type="search" :model-value="searchTerm" @update:model-value="debouncedSearch" />
         <span class="select-label">Sort by:</span>
         <MbSelect v-model="sortBy" :dark="dark" :options="sortOptions" @update:model-value="sortEntities" />
         <MbButton :dark="dark" :icon="reverseOrder ? 'arrow-up' : 'arrow-down'" :tooltip="{ position: 'right', message: reverseOrder ? 'Descending' : 'Ascending' }" @click="reverseOrder = !reverseOrder; sortEntities()"/>
@@ -141,6 +141,9 @@ export default {
       const newPath = this.currentPath.substring(0, this.currentPath.lastIndexOf('/'));
       this.currentPath = newPath || '/';
     },
+    debouncedSearch: debounce(function (v) { // eslint-disable-line func-names
+      this.searchTerm = v;
+    }, 250),
     executeAction(action, path) {
       this.currentFile = path;
       action();
