@@ -1,5 +1,5 @@
 <template lang="html">
-  <transition mode="out-in">
+  <transition mode="out-in" :name="transition">
     <svg class="icon" viewBox="0 0 24 24" fill="none" :key="icon" xmlns="http://www.w3.org/2000/svg">
       <use :xlink:href="`#mb_${icon}`" />
     </svg>
@@ -8,11 +8,18 @@
 
 <script>
 export default {
+  computed: {
+    transition() {
+      if (this.noTransition) return '';
+      return 'swirl';
+    },
+  },
   props: {
     icon: {
       type: String,
       default: 'mattrbld',
     },
+    noTransition: Boolean,
   },
 };
 </script>
@@ -27,18 +34,18 @@ export default {
   height: 1.5rem
   vertical-align: middle
 
-  &.v-enter-active,
-  &.v-leave-active
+  &.swirl-enter-active,
+  &.swirl-leave-active
     transition: transform 200ms ease, opacity 200ms ease
 
-    &.v-enter-from,
-    &.v-leave-to
+    &.swirl-enter-from,
+    &.swirl-leave-to
       opacity: 0
 
-    &.v-enter-from
+    &.swirl-enter-from
       transform: rotate(-45deg)
 
-    &.v-leave-to
+    &.swirl-leave-to
       transform: rotate(45deg)
 
 </style>
