@@ -19,10 +19,10 @@
       </div>
     </header>
     <MbScroller class="folder-wrapper">
-      <div v-for="folder in filteredFolders" class="folder" :class="{ 'no-actions': fileActions.length === 0 }" :key="folder.name" tabindex="0" @click="openFolder(folder.name, $event)" @contextmenu.prevent="openMenu($event, joinPath(currentPath, folder.name))">
+      <div v-for="folder in filteredFolders" class="folder" :class="{ 'no-actions': fileActions.length === 0 }" :key="folder.name" tabindex="0" @click="openFolder(folder.name, $event)" @contextmenu.prevent="openMenu($event, joinPath(currentPath, folder.name), true)">
         <header>
           <MbIcon icon="folder"  />
-          <MbButton v-if="fileActions.length > 0" :dark="dark" icon="more-vertical" rounded tooltip="More" @click="openMenu($event, joinPath(currentPath, folder.name))" />
+          <MbButton v-if="fileActions.length > 0" :dark="dark" icon="more-vertical" rounded tooltip="More" @click="openMenu($event, joinPath(currentPath, folder.name), true)" />
         </header>
         <p><span v-show="folder.localChanges" class="local-changes-indicator"/>{{folder.name}}</p>
         <p class="meta">{{formattedUpdatedAt(folder.updatedAt)}}</p>
@@ -30,16 +30,16 @@
     </MbScroller>
     <p v-if="foldersFirst" class="h3">Files</p>
     <ul v-show="files.length > 0" class="files">
-      <li v-for="file in filteredFiles" class="file" :class="{ 'no-actions': fileActions.length === 0 }" :key="file.name" tabindex="0" @click="file.isFolder ? openFolder(file.name, $event) : handleFileClick(file.name, $event)" @contextmenu.prevent="openMenu($event, joinPath(currentPath, file.name))">
+      <li v-for="file in filteredFiles" class="file" :class="{ 'no-actions': fileActions.length === 0 }" :key="file.name" tabindex="0" @click="file.isFolder ? openFolder(file.name, $event) : handleFileClick(file.name, $event)" @contextmenu.prevent="openMenu($event, joinPath(currentPath, file.name), file.isFolder)">
         <MbIcon :icon="file.isFolder ? 'folder' : imageRegExp.test(file.name) ? 'image' : 'document'" />
         <span v-show="file.localChanges" class="local-changes-indicator"/>
         <span>{{file.name}}</span>
         <span class="meta">{{formattedUpdatedAt(file.updatedAt)}}</span>
-        <MbButton v-if="fileActions.length > 0" :dark="dark" icon="more-vertical" rounded tooltip="More" @click="openMenu($event, joinPath(currentPath, file.name))" />
+        <MbButton v-if="fileActions.length > 0" :dark="dark" icon="more-vertical" rounded tooltip="More" @click="openMenu($event, joinPath(currentPath, file.name), file.isFolder)" />
       </li>
     </ul>
     <p v-show="files.length === 0" class="empty-state">{{ foldersFirst ? 'There are no files in this directory' : 'There is nothing in this directory' }}</p>
-    <MbContextMenu class="options" :dark="dark" :from-right="popover.fromRight" :options="modifiedFileActions" :show="popover.show" :target="popover.target" :x="popover.x" :y="popover.y" @close="popover.show = false" />
+    <MbContextMenu class="options" :dark="dark" :from-right="popover.fromRight" :options="popover.isFolder ? modifiedFolderActions : modifiedFileActions" :show="popover.show" :target="popover.target" :x="popover.x" :y="popover.y" @close="popover.show = false" />
   </div>
 </template>
 
@@ -66,13 +66,24 @@ export default {
     filteredFolders() {
       return this.folders.filter((folder) => folder.name.includes(this.searchTerm));
     },
-    modifiedFileActions() { // we need to pass the current filepath to the callback
+    modifiedFileActions() { // we need to pass the current filepath to the callback and check if it’s applicable for this type
       const actions = [];
 
       if (this.fileActions.length === 0) return this.fileActions;
 
       this.fileActions.forEach((action) => {
-        actions.push({ ...action, action: () => action.action(this.currentFile) });
+        if (!action.foldersOnly) actions.push({ ...action, action: () => action.action(this.currentFile) });
+      });
+
+      return actions;
+    },
+    modifiedFolderActions() { // we need to pass the current filepath to the callback and check if it’s applicable for this type
+      const actions = [];
+
+      if (this.fileActions.length === 0) return this.fileActions;
+
+      this.fileActions.forEach((action) => {
+        if (!action.filesOnly) actions.push({ ...action, action: () => action.action(this.currentFile) });
       });
 
       return actions;
@@ -96,6 +107,7 @@ export default {
       imageRegExp: /\.(gif|jpg|jpeg|tiff|png|webp|svg)$/i,
       loading: false,
       popover: {
+        isFolder: false,
         show: false,
         target: null,
         x: 0,
@@ -207,7 +219,7 @@ export default {
       if (e.target.classList.contains('button')) return; // buttons have a ::before that covers them completely, so this is enough
       this.currentPath = this.joinPath(this.currentPath, name);
     },
-    openMenu(e, path) {
+    openMenu(e, path, isFolder) {
       if (this.popover.show) return; // close it first
       this.currentFile = path;
       if (e.type === 'contextmenu') {
@@ -220,6 +232,7 @@ export default {
         this.popover.x = rect.right;
         this.popover.y = rect.top;
       }
+      this.popover.isFolder = isFolder;
       this.popover.target = e.currentTarget;
       this.popover.show = true;
     },
