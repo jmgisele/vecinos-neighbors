@@ -24,7 +24,7 @@
           <MbIcon icon="folder"  />
           <MbButton v-if="fileActions.length > 0" :dark="dark" icon="more-vertical" rounded tooltip="More" @click="openMenu($event, joinPath(currentPath, folder.name))" />
         </header>
-        <p>{{folder.name}}</p>
+        <p><span v-show="folder.localChanges" class="local-changes-indicator"/>{{folder.name}}</p>
         <p class="meta">{{formattedUpdatedAt(folder.updatedAt)}}</p>
       </div>
     </MbScroller>
@@ -32,6 +32,7 @@
     <ul v-show="files.length > 0" class="files">
       <li v-for="file in filteredFiles" class="file" :class="{ 'no-actions': fileActions.length === 0 }" :key="file.name" tabindex="0" @click="file.isFolder ? openFolder(file.name, $event) : handleFileClick(file.name, $event)" @contextmenu.prevent="openMenu($event, joinPath(currentPath, file.name))">
         <MbIcon :icon="file.isFolder ? 'folder' : imageRegExp.test(file.name) ? 'image' : 'document'" />
+        <span v-show="file.localChanges" class="local-changes-indicator"/>
         <span>{{file.name}}</span>
         <span class="meta">{{formattedUpdatedAt(file.updatedAt)}}</span>
         <MbButton v-if="fileActions.length > 0" :dark="dark" icon="more-vertical" rounded tooltip="More" @click="openMenu($event, joinPath(currentPath, file.name))" />
@@ -84,6 +85,7 @@ export default {
     this.sortBy = this.initialSortBy;
     this.reverseOrder = this.initialReverseSortOrder;
     this.currentPath = this.root;
+    this.$store.commit('addLocallyChangedFile', '/projects/portfolio-v2');
   },
   data() {
     return {
@@ -330,7 +332,7 @@ export default {
       margin-bottom: 1rem
 
       .button
-        margin-right: 1rem
+        margin-right: 0.5rem
 
       > .breadcrumb
         font-weight: 700
@@ -433,6 +435,10 @@ export default {
         margin-right: 3rem
         font-weight: 700
 
+        &:not(.meta) // ie the name
+          display: flex
+          align-items: center
+
         &.meta
           font-weight: 400
           margin-top: 0
@@ -509,4 +515,12 @@ export default {
       z-index: 1
       pointer-events: none
       transition: opacity 200ms ease
+
+    .local-changes-indicator
+      width: 0.5rem
+      height: @width
+      border-radius: 50%
+      background-color: $warning-saturated
+      display: inline-block
+      margin-right: 0.5rem
 </style>
