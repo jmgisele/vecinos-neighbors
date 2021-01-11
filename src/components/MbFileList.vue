@@ -51,9 +51,12 @@ export default {
   computed: {
     breadcrumb() {
       const rootName = this.root.split('/').slice(-1)[0] || 'Root';
-      const steps = this.currentPath.replace(this.root, '').split('/').slice(1); // FIXME: If the root is / the breadcrumb shows one action too little, likely because of the slice 1
+      if (this.currentPath === this.root) return [rootName];
 
-      if (steps.length === 0) return [rootName];
+      let steps;
+      if (this.root !== '/') steps = this.currentPath.replace(this.root, '').split('/').slice(1);
+      else steps = this.currentPath.split('/').slice(1);
+
       return [rootName, ...steps].slice(-4); // so it doesn’t get too long
     },
     filteredFiles() {
@@ -189,12 +192,14 @@ export default {
     },
     jumpTo(index) {
       if (this.currentPath === this.root) return;
-      const split = this.currentPath.split('/').slice(1);
-      let newPath;
-      // index is a number between 0 and 3 showing which of the last four items in split was clicked
-      if (split.length < 4) newPath = split.slice(0, index + 1);
-      else newPath = split.slice(0, split.length - (3 - index)); // no need for +1 since split.length includes that
-      this.currentPath = `/${newPath.join('/')}`;
+      let steps;
+      if (this.root !== '/') steps = this.currentPath.replace(this.root, '').split('/');
+      else steps = this.currentPath.split('/');
+      // the index is a number between 0 and 3, representing the point clicked  in the breadcrumb (max-length: 4)
+      // we want the path from the start of the path up to that number, but since the path might be longer than 4, we have to offset it by the difference
+      // also the index has to be +1 because the end of slice() is non-inclusive
+      const newPath = steps.slice(0, steps.length - Math.min(steps.length, 4) + index + 1);
+      this.currentPath = this.joinPath(this.root, ...newPath.slice(1)); // strip the leading empty string (since currentPath always starts with a slash)
     },
     openFolder(name, e) {
       if (e.target.classList.contains('button')) return; // buttons have a ::before that covers them completely, so this is enough
