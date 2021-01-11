@@ -338,7 +338,7 @@
       <section v-else-if="activeTabValue === 'file-lists'" class="tab file-lists">
         <h3>File Lists</h3>
         <p>This component is a fully fledged file browser that can display the contents of a folder and offers the ability for custom actions on the files.</p>
-        <MbFileList :dark="dark" :file-actions="[{ action: showFileToast, icon: 'folder-open', label: 'Open', foldersOnly: true }, { disabled: true, icon: 'arrow-right', label: 'Move', foldersOnly: true }, { action: showFileToast, icon: 'trash', label: 'Delete', type: 'negative', filesOnly: true }]" :folders-first="true" :folders-only="false" root="/" show-hidden :action="{ callback: () => $store.commit('addToast', { message: 'Hi there!'}), label: 'Add', icon: 'plus', type: 'positive'}" @fileclick="showFileToast" />
+        <MbFileList :dark="dark" :file-actions="[{ action: showFileToast, icon: 'folder-open', label: 'Open', foldersOnly: true }, { disabled: true, icon: 'arrow-right', label: 'Move', foldersOnly: true }, { action: softDeleteFile, icon: 'trash', label: 'Delete', type: 'negative' }]" :folders-first="true" :folders-only="false" root="/" show-hidden :action="{ callback: () => $store.commit('addToast', { message: 'Hi there!'}), label: 'Add', icon: 'plus', type: 'positive'}" @fileclick="showFileToast" />
         <h3>Props</h3>
         <MbTable :data="props.fileLists" />
         <h3>Events</h3>
@@ -725,6 +725,16 @@ export default {
     },
     showFileToast(path) {
       this.$store.commit('addToast', { message: `Clicked on file: ${path}` });
+    },
+    softDeleteFile(path) {
+      this.$store.commit('addToSoftDeleted', path);
+      this.$store.commit('addToast', {
+        action: () => this.$store.commit('removeFromSoftDeleted', path),
+        actionLabel: 'Undo',
+        message: 'The file was soft-deleted',
+        timeout: false,
+        type: 'warning',
+      });
     },
   },
   props: {
