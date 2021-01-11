@@ -18,8 +18,8 @@
         <MbButton v-if="action && (action.label || action.icon) && action.callback" :dark="dark" :icon="action.icon" :icon-first="action.iconFirst !== false" :loading="action.loading" :tooltip="action.tooltip" :type="action.type" @click="action.callback">{{action.label}}</MbButton>
       </div>
     </header>
-    <MbScroller>
-      <transition-group class="folder-wrapper" tag="div">
+    <MbScroller v-show="filteredFolders.length > 0" class="folder-scroller" ref="folderWrapper">
+      <transition-group class="folder-wrapper" tag="div" @after-enter="updateOffsets" @after-leave="updateOffsets" @before-leave="setRowPosition">
         <div v-for="folder in filteredFolders" class="folder" :class="{ 'no-actions': modifiedFolderActions.length === 0 }" :key="folder.name" tabindex="0" @click="openFolder(folder.name, $event)" @contextmenu.prevent="openMenu($event, joinPath(currentPath, folder.name), true)">
           <header>
             <MbIcon icon="folder"  />
@@ -49,6 +49,7 @@
 
 <script>
 import { formatDistanceToNowStrict } from 'date-fns';
+import { debounce } from 'lodash-es';
 
 import fs from '../fs';
 
@@ -65,10 +66,12 @@ export default {
       return [rootName, ...steps].slice(-4); // so it doesn’t get too long
     },
     filteredFiles() {
-      return this.files.filter((file) => file.name.includes(this.searchTerm));
+      if (!this.searchTerm) return this.files.filter((file) => !this.$store.getters.isSoftDeleted(this.joinPath(this.currentPath, file.name)));
+      return this.files.filter((file) => file.name.includes(this.searchTerm) && !this.$store.getters.isSoftDeleted(this.joinPath(this.currentPath, file.name)));
     },
     filteredFolders() {
-      return this.folders.filter((folder) => folder.name.includes(this.searchTerm));
+      if (!this.searchTerm) return this.folders.filter((folder) => !this.$store.getters.isSoftDeleted(this.joinPath(this.currentPath, folder.name)));
+      return this.folders.filter((folder) => folder.name.includes(this.searchTerm) && !this.$store.getters.isSoftDeleted(this.joinPath(this.currentPath, folder.name)));
     },
     modifiedFileActions() { // we need to pass the current filepath to the callback and check if it’s applicable for this type
       const actions = [];
@@ -100,7 +103,6 @@ export default {
     this.sortBy = this.initialSortBy;
     this.reverseOrder = this.initialReverseSortOrder;
     this.currentPath = this.root;
-    this.$store.commit('addLocallyChangedFile', '/projects/portfolio-v2');
   },
   data() {
     return {
@@ -225,6 +227,7 @@ export default {
     },
     openFolder(name, e) {
       if (e.target.classList.contains('button')) return; // buttons have a ::before that covers them completely, so this is enough
+      this.searchTerm = '';
       this.currentPath = this.joinPath(this.currentPath, name);
     },
     openMenu(e, path, isFolder) {
@@ -243,6 +246,10 @@ export default {
       this.popover.isFolder = isFolder;
       this.popover.target = e.currentTarget;
       this.popover.show = true;
+    },
+    setRowPosition(el) {
+      el.style.setProperty('left', `${el.dataset.offsetLeft}px`);
+      el.style.setProperty('position', 'absolute');
     },
     sortEntities(type) {
       if (!type || !['files', 'folders'].includes(type)) {
@@ -268,6 +275,11 @@ export default {
         }
       });
     },
+    updateOffsets: debounce(function () { // eslint-disable-line func-names
+      this.$refs.folderWrapper.$el.querySelectorAll('.folder').forEach((el) => {
+        el.dataset.offsetLeft = el.offsetLeft; // eslint-disable-line no-param-reassign
+      });
+    }),
   },
   props: {
     action: Object,
@@ -298,7 +310,10 @@ export default {
   },
   watch: {
     currentPath(nv, ov) {
-      if (nv !== ov) this.fetchData();
+      if (nv !== ov) {
+        this.fetchData();
+        if (this.$refs.folderWrapper) this.$refs.folderWrapper.$refs.scrollArea.scrollTo({ left: 0 });
+      }
     },
   },
 };
@@ -410,9 +425,15 @@ export default {
           border-top-left-radius: 0
           border-bottom-left-radius: 0
 
+  .folder-scroller
+    &::v-deep(.scroll-area)
+      scroll-snap-type: x mandatory
+
+    &::v-deep(.shadow)
+      bottom: 0.125rem
+
   .folder-wrapper
     display: flex
-    scroll-snap-type: x mandatory
     padding-bottom: 0.125rem
     position: relative
 
@@ -434,14 +455,13 @@ export default {
       &.v-enter-active,
       &.v-leave-active,
       &.v-move
+        scrol-snap-align: none
         transition: opacity 200ms ease, transform 350ms ease
 
         &.v-enter-from,
         &.v-leave-to
           opacity: 0
-
-      &.v-leave-active
-        position: absolute
+          transform: scale(0.8)
 
       &:not(:last-child)
         margin-right: 1rem
