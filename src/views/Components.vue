@@ -111,6 +111,7 @@
       </section>
       <section v-else-if="activeTabValue === 'icons'" class="tab icons" key="icons">
         <h2>Icons</h2>
+        <p>All of the below icons are automatically fetched and optimized from the <code>@/assets/icons/</code> directory. Hover over them to see their name.</p>
         <MbIcon v-for="icon in availableIcons" :icon="icon" :key="icon" @mouseenter="$store.commit('setTooltip', { message: icon, target: $event.currentTarget })" />
         <h3>Props</h3>
         <MbTable :data="props.icons" />
@@ -305,7 +306,7 @@
         <MbTable :data="slots.modals" />
       </section>
       <section v-else-if="activeTabValue === 'progress-bars'" class="tab progress-bars">
-        <h3>Progress Bars</h3>
+        <h2>Progress Bars</h2>
         <MbProgress :colors="['accent']" :dark="dark" indetermined />
         <MbProgress :dark="dark" label="70%" :progress="0.7" />
         <MbProgress :colors="['positive', 'warning', 'negative']" :dark="dark" label="This is a really long label to prove a point" :progress="0.6" />
@@ -323,7 +324,7 @@
         <p>If the array contains more than one item, the bar will be that color based on the progress.</p>
       </section>
       <section v-else-if="activeTabValue === 'context-menus'" class="tab context-menus" @contextmenu.prevent="contextMenu.show = true; contextMenu.x = $event.clientX; contextMenu.y = $event.clientY">
-        <h3>Context Menus</h3>
+        <h2>Context Menus</h2>
         <p>Press <kbd>RMB</kbd> anywhere here to open a context menu.</p>
         <MbContextMenu :dark="dark" :options="[{ label: 'Hi there', icon: 'plus', type: 'positive' }, { label: 'Not so good', type: 'warning', disabled: true, shortcut: ['ctrl', 'q'] }, { icon: 'arrow-right', label: 'Test', shortcut: ['ctrl', 'alt', 'C'] }]" :show="contextMenu.show" :x="contextMenu.x" :y="contextMenu.y" @close="contextMenu.show = false" />
         <h3>Props</h3>
@@ -336,7 +337,7 @@
         <p>If a <code>target</code> is provided, it will be focussed if the context menu gets closed.</p>
       </section>
       <section v-else-if="activeTabValue === 'file-lists'" class="tab file-lists">
-        <h3>File Lists</h3>
+        <h2>File Lists</h2>
         <p>This component is a fully fledged file browser that can display the contents of a folder and offers the ability for custom actions on the files.</p>
         <MbFileList :dark="dark" :file-actions="[{ action: showFileToast, icon: 'folder-open', label: 'Open', foldersOnly: true }, { disabled: true, icon: 'arrow-right', label: 'Move', foldersOnly: true }, { action: softDeleteFile, icon: 'trash', label: 'Delete', type: 'negative' }]" :folders-first="true" :folders-only="false" root="/" show-hidden :action="{ callback: () => $store.commit('addToast', { message: 'Hi there!'}), label: 'Add', icon: 'plus', type: 'positive'}" @fileclick="showFileToast" />
         <h3>Props</h3>
@@ -345,7 +346,7 @@
         <MbTable :data="events.fileLists" />
       </section>
       <section v-else-if="activeTabValue === 'tables'" class="tab">
-        <h3>Tables</h3>
+        <h2>Tables</h2>
         <p>This is a simple wrapper component to display tabular data in a responsive fashion.</p>
         <h3>Props</h3>
         <MbTable :data="props.tables" />
@@ -499,7 +500,7 @@ export default {
           ['`initialSortBy`', 'String', "`'name'`", 'Allowed values: name, edited'],
           ['`initialReverseSortOrder`', 'Boolean', '`false`', 'If true, the entities will be sorted in descending order initially'],
           ['`root`', 'String', '`/`', 'The root folder to start in, will not allow going higher than that'],
-          ['`showHidden`', 'Boolean', '`false`', ''],
+          ['`showHidden`', 'Boolean', '`false`', 'By default all files starting with a . are hidden. If this is true, they’ll be shown. .git is always hidden'],
         ],
         icons: [
           ['Name', 'Type', 'Default'],
