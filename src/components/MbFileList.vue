@@ -20,7 +20,7 @@
     </header>
     <MbScroller v-show="filteredFolders.length > 0" class="folder-scroller" ref="folderWrapper">
       <transition-group class="folder-wrapper" tag="div" @after-enter="updateOffsets" @after-leave="updateOffsets" @before-leave="setRowPosition">
-        <div v-for="folder in filteredFolders" class="folder" :class="{ 'no-actions': modifiedFolderActions.length === 0 }" :key="folder.name" tabindex="0" @click="openFolder(folder.name, $event)" @contextmenu.prevent="openMenu($event, joinPath(currentPath, folder.name), true)">
+        <div v-for="folder in filteredFolders" class="folder" :class="{ 'no-actions': modifiedFolderActions.length === 0 }" :key="folder.name" tabindex="0" @click="openFolder(folder.name, $event)" @contextmenu.prevent="openMenu($event, joinPath(currentPath, folder.name), true)" @keyup.space.enter="openFolder(folder.name, $event)" @keydown.space.prevent>
           <header>
             <MbIcon icon="folder"  />
             <MbButton v-if="modifiedFolderActions.length > 1" :dark="dark" icon="more-vertical" rounded tooltip="More" @click="openMenu($event, joinPath(currentPath, folder.name), true)" />
@@ -33,7 +33,7 @@
     </MbScroller>
     <p v-if="foldersFirst" class="h3">Files</p>
     <transition-group v-show="filteredFiles.length > 0" class="files" tag="ul">
-      <li v-for="file in filteredFiles" class="file" :class="{ 'no-actions': modifiedFileActions.length === 0 }" :key="file.name" tabindex="0" @click="file.isFolder ? openFolder(file.name, $event) : handleFileClick(file.name, $event)" @contextmenu.prevent="openMenu($event, joinPath(currentPath, file.name), file.isFolder)">
+      <li v-for="file in filteredFiles" class="file" :class="{ 'no-actions': modifiedFileActions.length === 0 }" :key="file.name" tabindex="0" @click="file.isFolder ? openFolder(file.name, $event) : handleFileClick(file.name, $event)" @contextmenu.prevent="openMenu($event, joinPath(currentPath, file.name), file.isFolder)" @keyup.space.enter="file.isFolder ? openFolder(file.name, $event) : handleFileClick(file.name, $event)" @keydown.space.prevent>
         <MbIcon :icon="file.isFolder ? 'folder' : imageRegExp.test(file.name) ? 'image' : 'document'" />
         <span v-show="file.localChanges" class="local-changes-indicator"/>
         <span>{{file.name}}</span>
