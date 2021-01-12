@@ -361,6 +361,19 @@
         <p>Table data could look as follows for example:</p>
         <pre data-lang="javascript"><code>{{"const data = [\n  ['Name', 'Type', 'Default'],\n  ['`data`', 'Array', '`[]`'],\n];"}}</code></pre>
       </section>
+      <section v-else-if="activeTabValue === 'color-pickers'" class="tab color-pickers">
+        <h2>Color Pickers</h2>
+        <p>The currently picked color is: <span class="color-preview" :style="{ backgroundColor: currentColor }" />{{currentColor}}</p>
+        <MbColorPicker v-model="currentColor" :dark="dark" />
+        <h3>Props</h3>
+        <MbTable :data="props.colorPickers" />
+        <h3>Events</h3>
+        <MbTable :data="events.colorPickers" />
+        <h3>Notes</h3>
+        <p>If the format is set to <code>rgba</code> a control for the color’s opacity will be shown.</p>
+        <p>With the <code>palette</code> prop an array of valid CSS colors may be passed to be displayed under the color selector / as the available colors up for selection if <code>paletteOnly</code> is also active.</p>
+        <p>If <code>removable</code> is set to <code>true</code> an additional option to clear the color will be shown, causing the value to become an empty string.</p>
+      </section>
       <section v-else class="tab" key="exampleTab">
         <p>This is just an empty test-tab.</p>
         <p>To delete it, click the button in the “<u @click="activeTab = tabs.findIndex((tab) => tab.value === 'tabs')">Tabs</u>”-tab.</p>
@@ -400,6 +413,7 @@ export default {
         x: 0,
         y: 0,
       },
+      currentColor: '#bada55',
       events: {
         buttons: [
           ['Name', 'Data'],
@@ -408,6 +422,10 @@ export default {
         checkboxes: [
           ['Name', 'Data'],
           ['`update:modelValue`', '`!value`'],
+        ],
+        colorPickers: [
+          ['Name', 'Data'],
+          ['`update:modelValue`', 'The new color'],
         ],
         contextMenus: [
           ['Name', 'Data'],
@@ -478,6 +496,15 @@ export default {
           ['`dark`', 'Boolean', '`false`'],
           ['`disabled`', 'Boolean', '`false`'],
           ['`modelValue`', 'Boolean', '`false`'],
+        ],
+        colorPickers: [
+          ['Name', 'Type', 'Default', 'Allowed Values'],
+          ['`dark`', 'Boolean', '`false`', ''],
+          ['`format`', 'String', '`hex`', 'hex, rgb, rgba'],
+          ['`modelValue`', 'String', '', ''],
+          ['`palette`', 'Array', '`undefined`', 'Valid hex or rgb colors'],
+          ['`paletteOnly`', 'Boolean', '`false`', ''],
+          ['`removable`', 'Boolean', '`false`', ''],
         ],
         contextMenus: [
           ['Name', 'Type', 'Default'],
@@ -711,6 +738,7 @@ export default {
         { label: 'Styles and Colors', value: 'design' },
         { label: 'Buttons', value: 'buttons' },
         { label: 'Checkboxes', value: 'checkboxes' },
+        { label: 'Color Pickers', value: 'color-pickers' },
         { label: 'Context Menus', value: 'context-menus' },
         { label: 'File Lists', value: 'file-lists' },
         { label: 'Icons', value: 'icons' },
@@ -964,4 +992,15 @@ export default {
     &.radios
       .radio-group
         margin-bottom: 1.5rem
+
+    &.color-pickers
+      .color-preview
+        display: inline-block
+        width: 1rem
+        height: @width
+        border-radius: 50%
+        margin-left: 1rem
+        margin-right: 0.5rem
+        margin-top: 0.25rem
+        vertical-align: top
 </style>
