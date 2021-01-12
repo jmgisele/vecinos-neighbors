@@ -344,6 +344,22 @@
         <h3>Events</h3>
         <MbTable :data="events.fileLists" />
       </section>
+      <section v-else-if="activeTabValue === 'tables'" class="tab">
+        <h3>Tables</h3>
+        <p>This is a simple wrapper component to display tabular data in a responsive fashion.</p>
+        <h3>Props</h3>
+        <MbTable :data="props.tables" />
+        <h3>Notes</h3>
+        <p>The data-array should contain one array for each row of data. The headers for the columns will be automatically generated based on the first entry in the array.</p>
+        <p>Items in rows besides the first support special strings at the beginning and end of values for formatting them:</p>
+        <ul>
+          <li><code>`</code> causes the value to be rendered as in a <code>&lt;code /&gt;</code> tag</li>
+          <li><code>*</code> causes the value to be rendered as in a <code>&lt;em /&gt;</code> tag</li>
+          <li><code>**</code> causes the value to be rendered as in a <code>&lt;strong /&gt;</code> tag</li>
+        </ul>
+        <p>Table data could look as follows for example:</p>
+        <pre data-lang="javascript"><code>{{"const data = [\n  ['Name', 'Type', 'Default'],\n  ['`data`', 'Array', '`[]`'],\n];"}}</code></pre>
+      </section>
       <section v-else class="tab" key="exampleTab">
         <p>This is just an empty test-tab.</p>
         <p>To delete it, click the button in the “<u @click="activeTab = tabs.findIndex((tab) => tab.value === 'tabs')">Tabs</u>”-tab.</p>
@@ -554,6 +570,10 @@ export default {
           ['`rounded`', 'Boolean', '`false`', ''],
           ['`tooltip`', 'String / Object', '', ''],
         ],
+        tables: [
+          ['Name', 'Type', 'Default'],
+          ['`data`', 'Array', '`[]`'],
+        ],
         tabs: [
           ['Name', 'Type', 'Default'],
           ['`dark`', 'Boolean', '`false`'],
@@ -701,6 +721,7 @@ export default {
         { label: 'Radio Groups', value: 'radios' },
         { label: 'Scrollers', value: 'scrollers' },
         { label: 'Select Boxes', value: 'selects' },
+        { label: 'Tables', value: 'tables' },
         { label: 'Tabs', value: 'tabs' },
         { label: 'Textareas', value: 'textareas' },
         { label: 'Toggles', value: 'toggles' },
