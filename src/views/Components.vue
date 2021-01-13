@@ -372,6 +372,8 @@
         <h3>Notes</h3>
         <p>If the format is set to <code>rgba</code> a control for the color’s opacity will be shown.</p>
         <p>With the <code>palette</code> prop an array of valid CSS colors may be passed to be displayed under the color selector / as the available colors up for selection if <code>paletteOnly</code> is also active.</p>
+        <p>The <code>palette</code> array may also contain objects in the following shape to add named colors:</p>
+        <pre data-lang="javascript"><code>{{JSON.stringify([{ label: 'Color Name', value: 'valid CSS color'}, { label: 'Badass', value: '#bada55' }], null, 2)}}</code></pre>
         <p>If <code>removable</code> is set to <code>true</code> an additional option to clear the color will be shown, causing the value to become an empty string.</p>
       </section>
       <section v-else class="tab" key="exampleTab">
@@ -413,7 +415,7 @@ export default {
         x: 0,
         y: 0,
       },
-      currentColor: '#bada55',
+      currentColor: 'rgba(123, 255, 213, 0.25)',
       events: {
         buttons: [
           ['Name', 'Data'],
