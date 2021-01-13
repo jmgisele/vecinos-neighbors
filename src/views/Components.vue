@@ -365,6 +365,7 @@
         <h2>Color Pickers</h2>
         <p>The currently picked color is: <span class="color-preview" :style="{ backgroundColor: currentColor }" />{{currentColor}}</p>
         <MbColorPicker v-model="currentColor" :dark="dark" />
+        <MbColorPicker v-model="currentColor" :dark="dark" format="rgba" />
         <h3>Props</h3>
         <MbTable :data="props.colorPickers" />
         <h3>Events</h3>

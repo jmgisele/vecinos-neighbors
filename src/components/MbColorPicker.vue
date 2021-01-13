@@ -18,6 +18,10 @@
           <div class="hue" />
           <div class="picker" :style="{left: hueLeft}" />
         </div>
+        <div v-if="format === 'rgba'" class="alpha-picker" ref="huePicker" @pointerdown="activateAlphaPicker" @touchstart.stop>
+          <div class="alpha" :style="{ backgroundImage: `linear-gradient(to right, transparent, ${colorNoAlpha})` }"/>
+          <div class="picker" :style="{left: alphaLeft}" />
+        </div>
       </div>
     </MbPopover>
   </button>
@@ -32,6 +36,12 @@ export default {
     window.removeEventListener('scroll', this.deactivate, { capture: true, passive: true });
   },
   computed: {
+    alphaLeft() {
+      return `${this.workingColor.a * 100}%`;
+    },
+    colorNoAlpha() {
+      return tinycolor(this.workingColor).toHexString();
+    },
     hueLeft() {
       return `${(this.workingColor.h / 360) * 100}%`;
     },
@@ -69,6 +79,7 @@ export default {
   },
   methods: {
     activate() {
+      if (this.popover.show) return;
       const rect = this.$el.getBoundingClientRect();
       const remBase = Number.parseInt(window.getComputedStyle(document.documentElement).fontSize, 10);
       this.popover.x = rect.left + rect.width / 2;
@@ -76,7 +87,7 @@ export default {
       this.popover.minWidth = Math.min(rect.width, window.innerWidth - remBase);
       window.addEventListener('scroll', this.deactivate, { capture: true, passive: true });
 
-      this.workingColor = tinycolor(this.value).toHsv(); // don’t update using the watcher but upon activation to avoid issues with the hue on desaturated colors
+      this.workingColor = tinycolor(this.modelValue).toHsv(); // don’t update using the watcher but upon activation to avoid issues with the hue on desaturated colors
 
       this.popover.show = true;
     },
@@ -87,6 +98,15 @@ export default {
       } else {
         window.addEventListener('mousemove', this.handleHueInput, { passive: true });
         window.addEventListener('mouseup', this.deactivateHuePicker);
+      }
+    },
+    activateAlphaPicker() {
+      if (window.PointerEvent) {
+        window.addEventListener('pointermove', this.handleAlphaInput, { passive: true });
+        window.addEventListener('pointerup', this.deactivateAlphaPicker);
+      } else {
+        window.addEventListener('mousemove', this.handleAlphaInput, { passive: true });
+        window.addEventListener('mouseup', this.deactivateAlphaPicker);
       }
     },
     activateSaturationPicker() {
@@ -113,6 +133,16 @@ export default {
       this.popover.show = false;
       this.$el.focus();
     },
+    deactivateAlphaPicker(e) {
+      this.handleAlphaInput(e);
+      if (window.PointerEvent) {
+        window.removeEventListener('pointermove', this.handleAlphaInput);
+        window.removeEventListener('pointerup', this.deactivateAlphaPicker);
+      } else {
+        window.removeEventListener('mousemove', this.handleAlphaInput);
+        window.removeEventListener('mouseup', this.deactivateAlphaPicker);
+      }
+    },
     deactivateHuePicker(e) {
       this.handleHueInput(e);
       if (window.PointerEvent) {
@@ -136,18 +166,21 @@ export default {
     handleFocusout(e) {
       if (!this.$el.contains(e.relatedTarget)) this.deactivate();
     },
+    handleAlphaInput: throttle(function (e) { // eslint-disable-line func-names
+      const container = this.$refs.huePicker;
+      const containerRect = container.getBoundingClientRect();
+
+      const left = this.clamp(e.clientX - containerRect.left, 0, containerRect.width);
+      const a = this.clamp(left / containerRect.width, 0, 1);
+      this.workingColor.a = a;
+    }, 20),
     handleHueInput: throttle(function (e) { // eslint-disable-line func-names
       const container = this.$refs.huePicker;
       const containerRect = container.getBoundingClientRect();
 
       const left = this.clamp(e.clientX - containerRect.left, 0, containerRect.width);
       const h = 360 * this.clamp(left / containerRect.width, 0, 360);
-      const { s, v } = this.workingColor;
-
-      const hexString = tinycolor({ h, s, v }).toHexString();
-
       this.workingColor.h = h;
-      this.$emit('input', hexString);
     }, 20),
     handleSaturationInput: throttle(function (e) { // eslint-disable-line func-names
       const container = this.$refs.saturationPicker;
@@ -156,14 +189,11 @@ export default {
       const left = this.clamp(e.clientX - containerRect.left, 0, containerRect.width);
       const top = this.clamp(e.clientY - containerRect.top, 0, containerRect.height);
 
-      const { h } = this.workingColor;
       const s = left / containerRect.width;
       const v = this.clamp(-(top / containerRect.height) + 1, 0, 1);
-      const hexString = tinycolor({ h, s, v }).toHexString();
 
       this.workingColor.s = s;
       this.workingColor.v = v;
-      this.$emit('input', hexString);
     }, 20),
     updateModel() {
       this.$emit('update:modelValue', this.newColor);
@@ -200,6 +230,7 @@ export default {
   align-items: center
   cursor: pointer
   transition: background-color 200ms ease
+  user-select: none
 
   &:hover
     background-color: $bg-tertiary
@@ -240,8 +271,8 @@ export default {
     height: @width
     margin-right: 1rem
     background-image: linear-gradient(45deg, $text-tertiary 25%, transparent 25%), linear-gradient(-45deg, $text-tertiary 25%, transparent 25%), linear-gradient(45deg, transparent 75%, $text-tertiary 75%), linear-gradient(-45deg, transparent 75%, $text-tertiary 75%);
-    background-size: 1rem 1rem;
-    background-position: 0 0, 0 0.5rem, 0.5rem -0.5rem, -0.5rem 0;
+    background-size: 1rem 1rem
+    background-position: 0 0, 0 0.5rem, 0.5rem -0.5rem, -0.5rem 0
     position: relative
     overflow: hidden
 
@@ -296,17 +327,24 @@ export default {
       .saturation-black
         background-image: linear-gradient(to top, #000, rgba(0,0,0,0));
 
-    .hue-picker
+    .hue-picker,
+    .alpha-picker
       position: relative
       height: 1.5rem
       margin-bottom: 0.375rem
       touch-action: none
 
-      .hue
+      .hue,
+      .alpha
         height: 100%
         border-radius: 0.375rem
         background-image: linear-gradient(to right, #f00 0%, #ff0 17%, #0f0 33%, #0ff 50%, #00f 67%, #f0f 83%, #f00 100%);
         pointer-events: none
+
+    .alpha-picker
+      background-image: linear-gradient(45deg, $text-tertiary 25%, transparent 25%), linear-gradient(-45deg, $text-tertiary 25%, transparent 25%), linear-gradient(45deg, transparent 75%, $text-tertiary 75%), linear-gradient(-45deg, transparent 75%, $text-tertiary 75%);
+      background-size: 1rem 1rem
+      background-position: 0 0, 0 0.5rem, 0.5rem -0.5rem, -0.5rem 0
 
     .picker
       border: 0.125rem solid white
