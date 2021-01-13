@@ -3,7 +3,9 @@
     <div class="color-swatch">
       <div class="old-color" :style="{ backgroundColor: modelValue }" />
       <transition @after-leave="updateModel">
-        <div v-show="popover.show && newColor && newColor !== modelValue" class="new-color" :style="{ backgroundColor: newColor }" />
+        <div v-show="popover.show && newColor && newColor !== modelValue" class="new-color">
+          <div class="color" :style="{ backgroundColor: newColor }" />
+        </div>
       </transition>
     </div>
     <span>{{modelValue}}</span>
@@ -18,7 +20,7 @@
           <div class="hue" />
           <div class="picker" :style="{left: hueLeft}" />
         </div>
-        <div v-if="format === 'rgba'" class="alpha-picker" ref="huePicker" @pointerdown="activateAlphaPicker" @touchstart.stop>
+        <div v-if="format === 'rgba'" class="alpha-picker" ref="alphaPicker" @pointerdown="activateAlphaPicker" @touchstart.stop>
           <div class="alpha" :style="{ backgroundImage: `linear-gradient(to right, transparent, ${colorNoAlpha})` }"/>
           <div class="picker" :style="{left: alphaLeft}" />
         </div>
@@ -92,31 +94,16 @@ export default {
       this.popover.show = true;
     },
     activateHuePicker() {
-      if (window.PointerEvent) {
-        window.addEventListener('pointermove', this.handleHueInput, { passive: true });
-        window.addEventListener('pointerup', this.deactivateHuePicker);
-      } else {
-        window.addEventListener('mousemove', this.handleHueInput, { passive: true });
-        window.addEventListener('mouseup', this.deactivateHuePicker);
-      }
+      window.addEventListener('pointermove', this.handleHueInput, { passive: true });
+      window.addEventListener('pointerup', this.deactivateHuePicker);
     },
     activateAlphaPicker() {
-      if (window.PointerEvent) {
-        window.addEventListener('pointermove', this.handleAlphaInput, { passive: true });
-        window.addEventListener('pointerup', this.deactivateAlphaPicker);
-      } else {
-        window.addEventListener('mousemove', this.handleAlphaInput, { passive: true });
-        window.addEventListener('mouseup', this.deactivateAlphaPicker);
-      }
+      window.addEventListener('pointermove', this.handleAlphaInput, { passive: true });
+      window.addEventListener('pointerup', this.deactivateAlphaPicker);
     },
     activateSaturationPicker() {
-      if (window.PointerEvent) {
-        window.addEventListener('pointermove', this.handleSaturationInput, { passive: true });
-        window.addEventListener('pointerup', this.deactivateSaturationPicker);
-      } else {
-        window.addEventListener('mousemove', this.handleSaturationInput, { passive: true });
-        window.addEventListener('mouseup', this.deactivateSaturationPicker);
-      }
+      window.addEventListener('pointermove', this.handleSaturationInput, { passive: true });
+      window.addEventListener('pointerup', this.deactivateSaturationPicker);
     },
     clamp(value, min, max) {
       if (min < max) {
@@ -135,39 +122,24 @@ export default {
     },
     deactivateAlphaPicker(e) {
       this.handleAlphaInput(e);
-      if (window.PointerEvent) {
-        window.removeEventListener('pointermove', this.handleAlphaInput);
-        window.removeEventListener('pointerup', this.deactivateAlphaPicker);
-      } else {
-        window.removeEventListener('mousemove', this.handleAlphaInput);
-        window.removeEventListener('mouseup', this.deactivateAlphaPicker);
-      }
+      window.removeEventListener('pointermove', this.handleAlphaInput);
+      window.removeEventListener('pointerup', this.deactivateAlphaPicker);
     },
     deactivateHuePicker(e) {
       this.handleHueInput(e);
-      if (window.PointerEvent) {
-        window.removeEventListener('pointermove', this.handleHueInput);
-        window.removeEventListener('pointerup', this.deactivateHuePicker);
-      } else {
-        window.removeEventListener('mousemove', this.handleHueInput);
-        window.removeEventListener('mouseup', this.deactivateHuePicker);
-      }
+      window.removeEventListener('pointermove', this.handleHueInput);
+      window.removeEventListener('pointerup', this.deactivateHuePicker);
     },
     deactivateSaturationPicker(e) {
       this.handleSaturationInput(e);
-      if (window.PointerEvent) {
-        window.removeEventListener('pointermove', this.handleSaturationInput);
-        window.removeEventListener('pointerup', this.deactivateSaturationPicker);
-      } else {
-        window.removeEventListener('mousemove', this.handleSaturationInput);
-        window.removeEventListener('mouseup', this.deactivateSaturationPicker);
-      }
+      window.removeEventListener('pointermove', this.handleSaturationInput);
+      window.removeEventListener('pointerup', this.deactivateSaturationPicker);
     },
     handleFocusout(e) {
       if (!this.$el.contains(e.relatedTarget)) this.deactivate();
     },
     handleAlphaInput: throttle(function (e) { // eslint-disable-line func-names
-      const container = this.$refs.huePicker;
+      const container = this.$refs.alphaPicker;
       const containerRect = container.getBoundingClientRect();
 
       const left = this.clamp(e.clientX - containerRect.left, 0, containerRect.width);
@@ -253,6 +225,13 @@ export default {
     &:focus
       background-color: $bg-dark
 
+    .color-swatch
+      background-color: $bg-tertiary-dark
+      background-image: linear-gradient(45deg, $text-tertiary 25%, transparent 25%), linear-gradient(-45deg, $text-tertiary 25%, transparent 25%), linear-gradient(45deg, transparent 75%, $text-tertiary 75%), linear-gradient(-45deg, transparent 75%, $text-tertiary 75%);
+
+      .new-color
+        background-color: $bg-tertiary-dark
+
   &::before
     content: ''
     position: absolute
@@ -270,9 +249,10 @@ export default {
     width: 2.625rem
     height: @width
     margin-right: 1rem
+    background-color: $bg-secondary
     background-image: linear-gradient(45deg, $text-tertiary 25%, transparent 25%), linear-gradient(-45deg, $text-tertiary 25%, transparent 25%), linear-gradient(45deg, transparent 75%, $text-tertiary 75%), linear-gradient(-45deg, transparent 75%, $text-tertiary 75%);
-    background-size: 1rem 1rem
-    background-position: 0 0, 0 0.5rem, 0.5rem -0.5rem, -0.5rem 0
+    background-size: (2.625 / 2)rem (2.625 / 2)rem
+    background-position: 0 0, 0 (2.625 / 4)rem, (2.625 / 4)rem (-2.625 / 4)rem, (-2.625 / 4)rem 0
     position: relative
     overflow: hidden
 
@@ -287,18 +267,29 @@ export default {
     .new-color
       left: auto
       right: 0
-      width: 50%
-      transform-origin: right
+      width: 100%
+      background-color: $bg-secondary
+      background-image: linear-gradient(45deg, $text-tertiary 25%, transparent 25%), linear-gradient(-45deg, $text-tertiary 25%, transparent 25%), linear-gradient(45deg, transparent 75%, $text-tertiary 75%), linear-gradient(-45deg, transparent 75%, $text-tertiary 75%);
+      background-size: (2.625 / 2)rem (2.625 / 2)rem
+      background-position: 0 0, 0 (2.625 / 4)rem, (2.625 / 4)rem (-2.625 / 4)rem, (-2.625 / 4)rem 0
+      transform: translateX(50%)
 
       &.v-enter-active,
       &.v-leave-active
         transition: transform 150ms ease
 
         &.v-enter-from
-          transform: scaleX(0)
+          transform: translateX(100%)
 
         &.v-leave-to
-          transform: scaleX(2)
+          transform: translateX(0)
+
+      .color
+        position: absolute
+        top: 0
+        left: 0
+        width: 100%
+        height: 100%
 
 .color-popover
   .padder
