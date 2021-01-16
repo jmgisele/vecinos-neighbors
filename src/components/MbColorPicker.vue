@@ -3,8 +3,8 @@
     <div class="color-swatch">
       <div class="old-color" :style="{ backgroundImage: `linear-gradient(to right, ${currentColorNoAlpha} 50%, ${modelValue} 50%)` }" />
       <transition @after-leave="updateModel">
-        <div v-show="popover.show && newColor && newColor !== modelValue" class="new-color">
-          <div class="color" :style="{ backgroundImage: `linear-gradient(to right, ${newColorNoAlpha} 50%, ${newColor} 50%)` }" />
+        <div v-show="popover.show && newColor && newColor !== modelValue" class="new-color" :class="{ cancelled: newColor === modelValue }">
+          <div class="color" :style="{ backgroundImage: `linear-gradient(to right, ${colorCache ? colorCache.colorNoAlpha : newColorNoAlpha} 50%, ${colorCache ? colorCache.color : newColor} 50%)` }" />
         </div>
       </transition>
     </div>
@@ -26,6 +26,10 @@
         </div>
         <MbInput v-model="colorInput" :dark="dark" :error="colorError" icon="hash" placeholder="Color" @blur="handleColorInput" @keyup.enter="handleColorInput" />
       </div>
+      <template #footer>
+        <MbButton :dark="dark" @click="deactivate(false)">Cancel</MbButton>
+        <MbButton :dark="dark" type="primary" @click="deactivate(true)">Set Color</MbButton>
+      </template>
     </MbPopover>
   </button>
 </template>
@@ -69,6 +73,7 @@ export default {
   },
   data() {
     return {
+      colorCache: null,
       colorError: '',
       colorInput: this.modelValue,
       popover: {
@@ -119,9 +124,16 @@ export default {
       if (value > min) return min;
       return value;
     },
-    deactivate() {
+    deactivate(confirm) {
       window.removeEventListener('scroll', this.deactivate, { capture: true, passive: true });
       this.popover.show = false;
+      if (!confirm) {
+        this.colorCache = {
+          color: this.newColor,
+          colorNoAlpha: this.newColorNoAlpha,
+        };
+        this.workingColor = tinycolor(this.modelValue).toHsv();
+      }
       this.$el.focus();
     },
     deactivateAlphaPicker(e) {
@@ -184,6 +196,7 @@ export default {
     },
     updateModel() {
       this.$emit('update:modelValue', this.newColor); // newColor already has the appropriate format
+      this.colorCache = null;
     },
   },
   props: {
@@ -310,6 +323,9 @@ export default {
         &.v-leave-to
           transform: translateY(0)
 
+          &.cancelled
+            transform: translateY(100%)
+
       .color
         position: absolute
         top: 0
@@ -384,6 +400,7 @@ export default {
       padding: 0.5rem
       margin-top: 0
       transition: margin 150ms ease
+      width: 100%
 
       &.dark
         background-color: $bg-tertiary-dark
