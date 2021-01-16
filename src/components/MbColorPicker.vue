@@ -226,6 +226,9 @@ export default {
   cursor: pointer
   transition: background-color 200ms ease
   user-select: none
+  text-align: left
+  white-space: nowrap
+  max-width: 100%
 
   &:hover
     background-color: $bg-tertiary
@@ -278,6 +281,7 @@ export default {
     background-position: 0 0, 0 (2.625 / 4)rem, (2.625 / 4)rem (-2.625 / 4)rem, (-2.625 / 4)rem 0
     position: relative
     overflow: hidden
+    flex-shrink: 0
 
     .old-color,
     .new-color
@@ -312,6 +316,11 @@ export default {
         left: 0
         width: 100%
         height: 100%
+
+  span
+    overflow: hidden
+    width: 100%
+    text-overflow: ellipsis
 
 .color-popover
   .padder
