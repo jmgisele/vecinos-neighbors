@@ -1,10 +1,10 @@
 <template lang="html">
   <button class="color-picker" :class="{ dark }" @click="activate">
     <div class="color-swatch">
-      <div class="old-color" :style="{ backgroundColor: modelValue }" />
+      <div class="old-color" :style="{ backgroundImage: `linear-gradient(to bottom, ${currentColorNoAlpha} 50%, ${modelValue} 50%)` }" />
       <transition @after-leave="updateModel">
         <div v-show="popover.show && newColor && newColor !== modelValue" class="new-color">
-          <div class="color" :style="{ backgroundColor: newColor }" />
+          <div class="color" :style="{ backgroundImage: `linear-gradient(to bottom, ${newColorNoAlpha} 50%, ${newColor} 50%)` }" />
         </div>
       </transition>
     </div>
@@ -21,7 +21,7 @@
           <div class="picker" :style="{left: hueLeft}" />
         </div>
         <div v-if="format === 'rgba'" class="alpha-picker" ref="alphaPicker" @pointerdown="activateAlphaPicker" @touchstart.stop>
-          <div class="alpha" :style="{ backgroundImage: `linear-gradient(to right, transparent, ${colorNoAlpha})` }"/>
+          <div class="alpha" :style="{ backgroundImage: `linear-gradient(to right, transparent, ${newColorNoAlpha})` }"/>
           <div class="picker" :style="{left: alphaLeft}" />
         </div>
       </div>
@@ -41,7 +41,10 @@ export default {
     alphaLeft() {
       return `${this.workingColor.a * 100}%`;
     },
-    colorNoAlpha() {
+    currentColorNoAlpha() {
+      return tinycolor(this.modelValue).toHexString();
+    },
+    newColorNoAlpha() {
       return tinycolor(this.workingColor).toHexString();
     },
     hueLeft() {
@@ -299,7 +302,7 @@ export default {
       position: relative
       height: 8rem
       margin-bottom: 0.375rem
-      border-radius: 0.375rem
+      border-radius: $radius-m
       touch-action: none
 
       .saturation-white,
@@ -309,7 +312,7 @@ export default {
         left: @top
         right: @top
         bottom: @top
-        border-radius: 0.375rem
+        border-radius: $radius-m
         pointer-events: none
 
       .saturation-white
@@ -328,7 +331,7 @@ export default {
       .hue,
       .alpha
         height: 100%
-        border-radius: 0.375rem
+        border-radius: $radius-m
         background-image: linear-gradient(to right, #f00 0%, #ff0 17%, #0f0 33%, #0ff 50%, #00f 67%, #f0f 83%, #f00 100%);
         pointer-events: none
 
@@ -336,6 +339,7 @@ export default {
       background-image: linear-gradient(45deg, $text-tertiary 25%, transparent 25%), linear-gradient(-45deg, $text-tertiary 25%, transparent 25%), linear-gradient(45deg, transparent 75%, $text-tertiary 75%), linear-gradient(-45deg, transparent 75%, $text-tertiary 75%);
       background-size: 1rem 1rem
       background-position: 0 0, 0 0.5rem, 0.5rem -0.5rem, -0.5rem 0
+      border-radius: $radius-m
 
     .picker
       border: 0.125rem solid white
