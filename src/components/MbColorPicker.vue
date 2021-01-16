@@ -433,8 +433,8 @@ export default {
         margin-right: 0.5rem
         overflow: hidden
         background-image: linear-gradient(45deg, $text-tertiary 25%, transparent 25%), linear-gradient(-45deg, $text-tertiary 25%, transparent 25%), linear-gradient(45deg, transparent 75%, $text-tertiary 75%), linear-gradient(-45deg, transparent 75%, $text-tertiary 75%);
-        background-size: 1rem 1rem
-        background-position: 0 0, 0 0.5rem, 0.5rem -0.5rem, -0.5rem 0
+        background-size: 0.7071rem 0.7071rem // 1 / sqrt(2) to have them be the same size as the rotated ones
+        transform: rotate(-45deg)
 
         .color
           width: 100%
