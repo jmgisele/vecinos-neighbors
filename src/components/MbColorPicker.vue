@@ -429,7 +429,7 @@ export default {
         flex-shrink: 0
         width: (40 / 16)rem // height of the smaller input minus shadow
         height: @width
-        border-radius: $radius-m
+        border-radius: 50%
         margin-right: 0.5rem
         overflow: hidden
         background-image: linear-gradient(45deg, $text-tertiary 25%, transparent 25%), linear-gradient(-45deg, $text-tertiary 25%, transparent 25%), linear-gradient(45deg, transparent 75%, $text-tertiary 75%), linear-gradient(-45deg, transparent 75%, $text-tertiary 75%);
