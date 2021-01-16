@@ -1,10 +1,10 @@
 <template lang="html">
   <button class="color-picker" :class="{ dark }" @click="activate">
     <div class="color-swatch">
-      <div class="old-color" :style="{ backgroundImage: `linear-gradient(to bottom, ${currentColorNoAlpha} 50%, ${modelValue} 50%)` }" />
+      <div class="old-color" :style="{ backgroundImage: `linear-gradient(to right, ${currentColorNoAlpha} 50%, ${modelValue} 50%)` }" />
       <transition @after-leave="updateModel">
         <div v-show="popover.show && newColor && newColor !== modelValue" class="new-color">
-          <div class="color" :style="{ backgroundImage: `linear-gradient(to bottom, ${newColorNoAlpha} 50%, ${newColor} 50%)` }" />
+          <div class="color" :style="{ backgroundImage: `linear-gradient(to right, ${newColorNoAlpha} 50%, ${newColor} 50%)` }" />
         </div>
       </transition>
     </div>
@@ -268,24 +268,23 @@ export default {
       height: 100%
 
     .new-color
-      left: auto
-      right: 0
-      width: 100%
+      top: auto
+      bottom: 0
       background-color: $bg-secondary
       background-image: linear-gradient(45deg, $text-tertiary 25%, transparent 25%), linear-gradient(-45deg, $text-tertiary 25%, transparent 25%), linear-gradient(45deg, transparent 75%, $text-tertiary 75%), linear-gradient(-45deg, transparent 75%, $text-tertiary 75%);
       background-size: (2.625 / 2)rem (2.625 / 2)rem
       background-position: 0 0, 0 (2.625 / 4)rem, (2.625 / 4)rem (-2.625 / 4)rem, (-2.625 / 4)rem 0
-      transform: translateX(50%)
+      transform: translateY(50%)
 
       &.v-enter-active,
       &.v-leave-active
         transition: transform 150ms ease
 
         &.v-enter-from
-          transform: translateX(100%)
+          transform: translateY(100%)
 
         &.v-leave-to
-          transform: translateX(0)
+          transform: translateY(0)
 
       .color
         position: absolute

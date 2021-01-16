@@ -1006,4 +1006,7 @@ export default {
         margin-right: 0.5rem
         margin-top: 0.25rem
         vertical-align: top
+
+      .color-picker:not(:last-of-type)
+        margin-right: 1rem
 </style>
