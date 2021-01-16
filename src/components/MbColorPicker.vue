@@ -109,16 +109,19 @@ export default {
       window.addEventListener('pointermove', this.handleHueInput, { passive: true });
       window.addEventListener('pointerup', this.deactivateHuePicker);
       window.addEventListener('click', this.preventPopoverClose, { capture: true });
+      window.addEventListener('touchend', this.preventPopoverClose, { capture: true }); // needed because on touchscreens it doesn’t actually fire a click event on window when the touch is released
     },
     activateAlphaPicker() {
       window.addEventListener('pointermove', this.handleAlphaInput, { passive: true });
       window.addEventListener('pointerup', this.deactivateAlphaPicker);
       window.addEventListener('click', this.preventPopoverClose, { capture: true });
+      window.addEventListener('touchend', this.preventPopoverClose, { capture: true }); // needed because on touchscreens it doesn’t actually fire a click event on window when the touch is released
     },
     activateSaturationPicker() {
       window.addEventListener('pointermove', this.handleSaturationInput, { passive: true });
       window.addEventListener('pointerup', this.deactivateSaturationPicker);
       window.addEventListener('click', this.preventPopoverClose, { capture: true });
+      window.addEventListener('touchend', this.preventPopoverClose, { capture: true }); // needed because on touchscreens it doesn’t actually fire a click event on window when the touch is released
     },
     clamp(value, min, max) {
       if (min < max) {
@@ -203,6 +206,7 @@ export default {
     preventPopoverClose(e) {
       e.stopPropagation();
       window.removeEventListener('click', this.preventPopoverClose, { capture: true });
+      window.removeEventListener('touchend', this.preventPopoverClose, { capture: true });
     },
     updateModel() {
       if (this.removable && this.workingColor.a === 0) this.$emit('update:modelValue', null);
