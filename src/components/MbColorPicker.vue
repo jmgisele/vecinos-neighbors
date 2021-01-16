@@ -1,14 +1,14 @@
 <template lang="html">
   <button class="color-picker" :class="{ dark }" @click="activate">
     <div class="color-swatch">
-      <div class="old-color" :style="{ backgroundImage: `linear-gradient(to right, ${currentColorNoAlpha} 50%, ${modelValue} 50%)` }" />
+      <div v-show="Boolean(modelValue)" class="old-color" :style="{ backgroundImage: `linear-gradient(to right, ${currentColorNoAlpha} 50%, ${modelValue} 50%)` }" />
       <transition @after-leave="updateModel">
-        <div v-show="popover.show && newColor && newColor !== modelValue" class="new-color" :class="{ cancelled: newColor === modelValue }">
-          <div class="color" :style="{ backgroundImage: `linear-gradient(to right, ${colorCache ? colorCache.colorNoAlpha : newColorNoAlpha} 50%, ${colorCache ? colorCache.color : newColor} 50%)` }" />
+        <div v-show="popover.show && newColor && newColor !== modelValue" class="new-color" :class="{ cancelled: newColor === modelValue || (removable && !modelValue && workingColor.a === 0) }">
+          <div v-show="colorCache || !removable || workingColor.a !== 0" class="color" :style="{ backgroundImage: `linear-gradient(to right, ${colorCache ? colorCache.colorNoAlpha : newColorNoAlpha} 50%, ${colorCache ? colorCache.color : newColor} 50%)` }" />
         </div>
       </transition>
     </div>
-    <span>{{modelValue}}</span>
+    <span>{{modelValue || 'No Color'}}</span>
     <MbPopover center-x class="color-popover" :dark="dark" no-content-padding ref="popover" :style="{ minWidth: `${popover.minWidth}px`}" :visible="popover.show" :x="popover.x" :y="popover.y" @close="deactivate" @focusout="handleFocusout">
       <div class="padder">
         <div class="saturation-picker" ref="saturationPicker" :style="{backgroundColor: saturationPickerBG}" @pointerdown="activateSaturationPicker" @touchstart.stop>
@@ -24,7 +24,13 @@
           <div class="alpha" :style="{ backgroundImage: `linear-gradient(to right, transparent, ${newColorNoAlpha})` }"/>
           <div class="picker" :style="{left: alphaLeft}" />
         </div>
-        <MbInput v-model="colorInput" :dark="dark" :error="colorError" icon="hash" placeholder="Color" @blur="handleColorInput" @keyup.enter="handleColorInput" />
+        <div class="color-info" :class="[format, {removable}]">
+          <div class="color-swatch">
+            <div v-show="colorCache || !removable || workingColor.a !== 0" class="color" :style="{ backgroundImage: `linear-gradient(to right, ${colorCache ? colorCache.colorNoAlpha : newColorNoAlpha} 50%, ${colorCache ? colorCache.color : newColor} 50%)` }" />
+          </div>
+          <MbInput v-model="colorInput" :dark="dark" :error="colorError" icon="hash" placeholder="Color" @blur="handleColorInput" @keyup.enter="handleColorInput" />
+          <MbButton v-if="removable" :dark="dark" icon="cross" rounded :tooltip="{ message: 'Clear Color', position: 'right' }" @click="clearColor" />
+        </div>
       </div>
       <template #footer>
         <MbButton :dark="dark" @click="deactivate(false)">Cancel</MbButton>
@@ -58,7 +64,7 @@ export default {
     newColor() {
       if (!this.workingColor) return null;
       if (this.format === 'hex') return tinycolor(this.workingColor).toHexString();
-      if (this.format === 'rgb') return tinycolor(this.workingColor).setAlpha(1);
+      if (this.format === 'rgb') return tinycolor(this.workingColor).setAlpha(1).toRgbString();
       return tinycolor(this.workingColor).toRgbString();
     },
     saturationLeft() {
@@ -124,6 +130,10 @@ export default {
       if (value > min) return min;
       return value;
     },
+    clearColor() {
+      this.workingColor = { h: 0, s: 0, v: 100, a: 0 }; // eslint-disable-line object-curly-newline
+      this.$nextTick(() => { this.colorInput = ''; }); // wait a tick so it doesn’t get overwritten by the watcher
+    },
     deactivate(confirm) {
       window.removeEventListener('scroll', this.deactivate, { capture: true, passive: true });
       this.popover.show = false;
@@ -132,7 +142,7 @@ export default {
           color: this.newColor,
           colorNoAlpha: this.newColorNoAlpha,
         };
-        this.workingColor = tinycolor(this.modelValue).toHsv();
+        this.workingColor = this.modelValue ? tinycolor(this.modelValue).toHsv() : { h: 0, s: 0, v: 100, a: 0 }; // eslint-disable-line object-curly-newline
       }
       this.$el.focus();
     },
@@ -195,7 +205,8 @@ export default {
       window.removeEventListener('click', this.preventPopoverClose, { capture: true });
     },
     updateModel() {
-      this.$emit('update:modelValue', this.newColor); // newColor already has the appropriate format
+      if (this.removable && this.workingColor.a === 0) this.$emit('update:modelValue', null);
+      else this.$emit('update:modelValue', this.newColor); // newColor already has the appropriate format
       this.colorCache = null;
     },
   },
@@ -213,10 +224,8 @@ export default {
   },
   watch: {
     newColor(nv) {
-      if (nv) {
-        if (this.colorError) this.colorError = '';
-        this.colorInput = nv;
-      }
+      if (this.colorError) this.colorError = '';
+      this.colorInput = nv;
     },
   },
 };
@@ -387,7 +396,7 @@ export default {
 
     .picker
       border: 0.125rem solid white
-      width: 1rem
+      width: 0.75rem
       height: @width
       border-radius: 0.5rem
       position: absolute
@@ -396,18 +405,53 @@ export default {
       transform: translate(-50%, -50%)
       box-shadow: 0 0 0 0.0625rem alpha(black, 0.5)
 
-    .input
-      padding: 0.5rem
-      margin-top: 0
-      transition: margin 150ms ease
-      width: 100%
+    .color-info
+      display: flex
+      align-items: center
+      max-width: 16rem
 
-      &.dark
-        background-color: $bg-tertiary-dark
+      &.rgb
+        &.removable
+          max-width: 19rem
 
-      &.error
-        margin-top: 1rem
+      &.rgba
+        max-width: 19rem
 
-        &::v-deep(span)
-          transform: translate((-3rem + $radius-m), calc(-100% - 0.5rem)) scale(0.75)
+        &.removable
+          max-width: 22rem
+
+      .color-swatch
+        box-shadow: 0 0 0 0.0625rem $text-secondary
+        flex-shrink: 0
+        width: (40 / 16)rem // height of the smaller input minus shadow
+        height: @width
+        border-radius: $radius-m
+        margin-right: 0.5rem
+        overflow: hidden
+        background-image: linear-gradient(45deg, $text-tertiary 25%, transparent 25%), linear-gradient(-45deg, $text-tertiary 25%, transparent 25%), linear-gradient(45deg, transparent 75%, $text-tertiary 75%), linear-gradient(-45deg, transparent 75%, $text-tertiary 75%);
+        background-size: 1rem 1rem
+        background-position: 0 0, 0 0.5rem, 0.5rem -0.5rem, -0.5rem 0
+
+        .color
+          width: 100%
+          height: @width
+
+      .input
+        flex-shrink: 1
+        padding: 0.5rem
+        margin-top: 0
+        transition: margin 150ms ease
+        width: 100%
+
+        &.dark
+          background-color: $bg-tertiary-dark
+
+        &.error
+          margin-top: 1rem
+
+          &::v-deep(span)
+            transform: translate((-3rem + $radius-m), calc(-100% - 0.5rem)) scale(0.75)
+
+      .button
+        margin-left: 0.5rem
 </style>
