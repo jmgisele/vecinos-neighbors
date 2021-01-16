@@ -9,7 +9,7 @@
       </transition>
     </div>
     <span>{{modelValue}}</span>
-    <MbPopover center-x class="color-popover" :dark="dark" no-content-padding :style="{ minWidth: `${popover.minWidth}px`}" :visible="popover.show" :x="popover.x" :y="popover.y" @close="deactivate" @focusout="handleFocusout">
+    <MbPopover center-x class="color-popover" :dark="dark" no-content-padding ref="popover" :style="{ minWidth: `${popover.minWidth}px`}" :visible="popover.show" :x="popover.x" :y="popover.y" @close="deactivate" @focusout="handleFocusout">
       <div class="padder">
         <div class="saturation-picker" ref="saturationPicker" :style="{backgroundColor: saturationPickerBG}" @pointerdown="activateSaturationPicker" @touchstart.stop>
           <div class="saturation-white" />
@@ -24,6 +24,7 @@
           <div class="alpha" :style="{ backgroundImage: `linear-gradient(to right, transparent, ${newColorNoAlpha})` }"/>
           <div class="picker" :style="{left: alphaLeft}" />
         </div>
+        <MbInput v-model="colorInput" :dark="dark" :error="colorError" icon="hash" placeholder="Color" @blur="handleColorInput" @keyup.enter="handleColorInput" />
       </div>
     </MbPopover>
   </button>
@@ -56,9 +57,6 @@ export default {
       if (this.format === 'rgb') return tinycolor(this.workingColor).setAlpha(1);
       return tinycolor(this.workingColor).toRgbString();
     },
-    isColorInvalid() {
-      return tinycolor(this.colorInput).isValid() ? '' : 'Invalid color';
-    },
     saturationLeft() {
       return `${this.workingColor.s * 100}%`;
     },
@@ -71,8 +69,8 @@ export default {
   },
   data() {
     return {
+      colorError: '',
       colorInput: this.modelValue,
-      currentColor: null,
       popover: {
         minWidth: 0,
         show: false,
@@ -99,14 +97,17 @@ export default {
     activateHuePicker() {
       window.addEventListener('pointermove', this.handleHueInput, { passive: true });
       window.addEventListener('pointerup', this.deactivateHuePicker);
+      window.addEventListener('click', this.preventPopoverClose, { capture: true });
     },
     activateAlphaPicker() {
       window.addEventListener('pointermove', this.handleAlphaInput, { passive: true });
       window.addEventListener('pointerup', this.deactivateAlphaPicker);
+      window.addEventListener('click', this.preventPopoverClose, { capture: true });
     },
     activateSaturationPicker() {
       window.addEventListener('pointermove', this.handleSaturationInput, { passive: true });
       window.addEventListener('pointerup', this.deactivateSaturationPicker);
+      window.addEventListener('click', this.preventPopoverClose, { capture: true });
     },
     clamp(value, min, max) {
       if (min < max) {
@@ -139,7 +140,7 @@ export default {
       window.removeEventListener('pointerup', this.deactivateSaturationPicker);
     },
     handleFocusout(e) {
-      if (!this.$el.contains(e.relatedTarget)) this.deactivate();
+      if (e.relatedTarget !== this.$el && !this.$refs.popover.$refs.el.contains(e.relatedTarget)) this.deactivate();
     },
     handleAlphaInput: throttle(function (e) { // eslint-disable-line func-names
       const container = this.$refs.alphaPicker;
@@ -149,6 +150,13 @@ export default {
       const a = this.clamp(left / containerRect.width, 0, 1);
       this.workingColor.a = a;
     }, 20),
+    handleColorInput() {
+      const color = tinycolor(this.colorInput);
+      this.colorError = '';
+
+      if (color.isValid()) this.workingColor = color.toHsv();
+      else this.colorError = 'Invalid Color';
+    },
     handleHueInput: throttle(function (e) { // eslint-disable-line func-names
       const container = this.$refs.huePicker;
       const containerRect = container.getBoundingClientRect();
@@ -170,8 +178,12 @@ export default {
       this.workingColor.s = s;
       this.workingColor.v = v;
     }, 20),
+    preventPopoverClose(e) {
+      e.stopPropagation();
+      window.removeEventListener('click', this.preventPopoverClose, { capture: true });
+    },
     updateModel() {
-      this.$emit('update:modelValue', this.newColor);
+      this.$emit('update:modelValue', this.newColor); // newColor already has the appropriate format
     },
   },
   props: {
@@ -185,6 +197,14 @@ export default {
     palette: Array,
     paletteOnly: Boolean,
     removable: Boolean,
+  },
+  watch: {
+    newColor(nv) {
+      if (nv) {
+        if (this.colorError) this.colorError = '';
+        this.colorInput = nv;
+      }
+    },
   },
 };
 </script>
@@ -300,7 +320,7 @@ export default {
     .saturation-picker
       position: relative
       height: 8rem
-      margin-bottom: 0.375rem
+      margin-bottom: 0.5rem
       border-radius: $radius-m
       touch-action: none
 
@@ -324,7 +344,7 @@ export default {
     .alpha-picker
       position: relative
       height: 1.5rem
-      margin-bottom: 0.375rem
+      margin-bottom: 0.5rem
       touch-action: none
 
       .hue,
@@ -350,4 +370,18 @@ export default {
       top: 50%
       transform: translate(-50%, -50%)
       box-shadow: 0 0 0 0.0625rem alpha(black, 0.5)
+
+    .input
+      padding: 0.5rem
+      margin-top: 0
+      transition: margin 150ms ease
+
+      &.dark
+        background-color: $bg-tertiary-dark
+
+      &.error
+        margin-top: 1rem
+
+        &::v-deep(span)
+          transform: translate((-3rem + $radius-m), calc(-100% - 0.5rem)) scale(0.75)
 </style>
