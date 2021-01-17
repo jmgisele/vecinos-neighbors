@@ -12,8 +12,7 @@
     <MbPopover center-x class="color-popover" :dark="dark" no-content-padding ref="popover" :style="{ minWidth: `${popover.minWidth}px`}" :visible="popover.show" :x="popover.x" :y="popover.y" @close="deactivate" @focusout="handleFocusout">
       <div class="padder">
         <div class="saturation-picker" ref="saturationPicker" :style="{backgroundColor: saturationPickerBG}" @pointerdown="activateSaturationPicker" @touchstart.stop>
-          <div class="saturation-white" />
-          <div class="saturation-black" />
+          <div class="saturation" />
           <div class="picker" :style="{top: saturationTop, left: saturationLeft}" />
         </div>
         <div class="hue-picker" ref="huePicker" @pointerdown="activateHuePicker" @touchstart.stop>
@@ -26,7 +25,7 @@
         </div>
         <div class="color-info" :class="[format, {removable}]">
           <div class="color-swatch">
-            <div v-show="colorCache || !removable || workingColor.a !== 0" class="color" :style="{ backgroundImage: `linear-gradient(to right, ${colorCache ? colorCache.colorNoAlpha : newColorNoAlpha} 50%, ${colorCache ? colorCache.color : newColor} 50%)` }" />
+            <div v-show="colorCache || !removable || workingColor.a !== 0" class="color" :style="{ backgroundImage: `linear-gradient(45deg, ${colorCache ? colorCache.colorNoAlpha : newColorNoAlpha} 50%, ${colorCache ? colorCache.color : newColor} 50%)` }" />
           </div>
           <MbInput v-model="colorInput" :dark="dark" :error="colorError" icon="hash" placeholder="Color" @blur="handleColorInput" @keyup.enter="handleColorInput" />
           <MbButton v-if="removable" :dark="dark" icon="cross" rounded :tooltip="{ message: 'Clear Color', position: 'right' }" @click="clearColor" />
@@ -239,6 +238,11 @@ export default {
 @require '../assets/styles/colors'
 @require '../assets/styles/corners'
 
+$checkerboardBG(color, size = 1rem)
+  background-image: linear-gradient(to right, color, color), linear-gradient(to right, black 50%, white 50%), linear-gradient(to bottom, black 50%, white 50%)
+  background-size: size size
+  background-blend-mode: normal, difference
+
 .color-picker
   position: relative
   border: none
@@ -277,13 +281,6 @@ export default {
     &:focus
       background-color: $bg-dark
 
-    .color-swatch
-      background-color: $bg-tertiary-dark
-      background-image: linear-gradient(45deg, $text-tertiary 25%, transparent 25%), linear-gradient(-45deg, $text-tertiary 25%, transparent 25%), linear-gradient(45deg, transparent 75%, $text-tertiary 75%), linear-gradient(-45deg, transparent 75%, $text-tertiary 75%);
-
-      .new-color
-        background-color: $bg-tertiary-dark
-
   &::before
     content: ''
     position: absolute
@@ -301,13 +298,12 @@ export default {
     width: 2.625rem
     height: @width
     margin-right: 1rem
-    background-color: $bg-secondary
-    background-image: linear-gradient(45deg, $text-tertiary 25%, transparent 25%), linear-gradient(-45deg, $text-tertiary 25%, transparent 25%), linear-gradient(45deg, transparent 75%, $text-tertiary 75%), linear-gradient(-45deg, transparent 75%, $text-tertiary 75%);
-    background-size: (2.625 / 2)rem (2.625 / 2)rem
-    background-position: 0 0, 0 (2.625 / 4)rem, (2.625 / 4)rem (-2.625 / 4)rem, (-2.625 / 4)rem 0
+    $checkerboardBG(alpha(white, 0.75), @width / 2)
     position: relative
     overflow: hidden
     flex-shrink: 0
+    padding: 0.0625rem
+    background-clip: content-box
 
     .old-color,
     .new-color
@@ -320,11 +316,10 @@ export default {
     .new-color
       top: auto
       bottom: 0
-      background-color: $bg-secondary
-      background-image: linear-gradient(45deg, $text-tertiary 25%, transparent 25%), linear-gradient(-45deg, $text-tertiary 25%, transparent 25%), linear-gradient(45deg, transparent 75%, $text-tertiary 75%), linear-gradient(-45deg, transparent 75%, $text-tertiary 75%);
-      background-size: (2.625 / 2)rem (2.625 / 2)rem
-      background-position: 0 0, 0 (2.625 / 4)rem, (2.625 / 4)rem (-2.625 / 4)rem, (-2.625 / 4)rem 0
+      $checkerboardBG(alpha(white, 0.75), @width / 2)
       transform: translateY(50%)
+      padding: 0 0.0625rem
+      background-clip: content-box
 
       &.v-enter-active,
       &.v-leave-active
@@ -362,8 +357,7 @@ export default {
       border-radius: $radius-m
       touch-action: none
 
-      .saturation-white,
-      .saturation-black
+      .saturation
         position: absolute
         top: 0
         left: @top
@@ -372,11 +366,8 @@ export default {
         border-radius: $radius-m
         pointer-events: none
 
-      .saturation-white
-        background-image: linear-gradient(to right, #fff, rgba(255,255,255,0));
-
-      .saturation-black
-        background-image: linear-gradient(to top, #000, rgba(0,0,0,0));
+      .saturation
+        background-image: linear-gradient(to top, #000, rgba(0,0,0,0)), linear-gradient(to right, #fff, rgba(255,255,255,0))
 
     .hue-picker,
     .alpha-picker
@@ -393,10 +384,17 @@ export default {
         pointer-events: none
 
     .alpha-picker
-      background-image: linear-gradient(45deg, $text-tertiary 25%, transparent 25%), linear-gradient(-45deg, $text-tertiary 25%, transparent 25%), linear-gradient(45deg, transparent 75%, $text-tertiary 75%), linear-gradient(-45deg, transparent 75%, $text-tertiary 75%);
-      background-size: 1rem 1rem
-      background-position: 0 0, 0 0.5rem, 0.5rem -0.5rem, -0.5rem 0
+      $checkerboardBG(alpha(white, 0.75), 0.75rem)
       border-radius: $radius-m
+      padding: 0.0625rem
+      background-clip: content-box
+
+      .alpha
+        position: absolute
+        top: 0
+        bottom: 0
+        left: 0
+        right: 0
 
     .picker
       border: 0.125rem solid white
@@ -432,11 +430,15 @@ export default {
         border-radius: 50%
         margin-right: 0.5rem
         overflow: hidden
-        background-image: linear-gradient(45deg, $text-tertiary 25%, transparent 25%), linear-gradient(-45deg, $text-tertiary 25%, transparent 25%), linear-gradient(45deg, transparent 75%, $text-tertiary 75%), linear-gradient(-45deg, transparent 75%, $text-tertiary 75%);
-        background-size: 0.7071rem 0.7071rem // 1 / sqrt(2) to have them be the same size as the rotated ones
-        transform: rotate(-45deg)
+        $checkerboardBG(alpha(white, 0.75), 0.75rem)
+        padding: 0.0625rem
+        background-clip: content-box
+        position: relative
 
         .color
+          position: absolute
+          top: 0
+          left: 0
           width: 100%
           height: @width
 
