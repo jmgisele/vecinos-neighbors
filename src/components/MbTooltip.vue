@@ -140,7 +140,7 @@ export default {
   border-radius: $radius-m
   pointer-events: none
   clip-path: circle(100% at 50% 0%)
-  z-index: 9
+  z-index: 999 // needs to be on top of everything
   white-space: nowrap
   overflow: hidden
   text-overflow: ellipsis
