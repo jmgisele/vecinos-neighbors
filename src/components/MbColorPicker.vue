@@ -8,9 +8,9 @@
         </div>
       </transition>
     </div>
-    <span>{{modelValue || 'No Color'}}</span>
+    <span>{{label}}</span>
     <MbPopover center-x class="color-popover" :dark="dark" no-content-padding ref="popover" :style="{ minWidth: `${popover.minWidth}px`}" :visible="popover.show" :x="popover.x" :y="popover.y" @close="deactivate" @focusout="handleFocusout" @keyup.arrow-down="focus(1)" @keyup.arrow-up="focus(-1)">
-      <div v-if="!paletteOnly" class="padder">
+      <div v-if="!paletteOnly" class="padder" :class="[format, {removable}]">
         <div class="saturation-picker" ref="saturationPicker" :style="{backgroundColor: saturationPickerBG}" @pointerdown="activateSaturationPicker" @touchstart.stop>
           <div class="saturation" />
           <div class="picker" :style="{top: saturationTop, left: saturationLeft}" />
@@ -23,13 +23,20 @@
           <div class="alpha" :style="{ backgroundImage: `linear-gradient(to right, transparent, ${newColorNoAlpha})` }"/>
           <div class="picker" :style="{left: alphaLeft}" />
         </div>
-        <div class="color-info" :class="[format, {removable}]">
+        <div class="color-info">
           <div class="color-swatch">
             <div v-show="colorCache || !removable || workingColor.a !== 0" class="color" :style="{ backgroundImage: `linear-gradient(45deg, ${colorCache ? colorCache.colorNoAlpha : newColorNoAlpha} 50%, ${colorCache ? colorCache.color : newColor} 50%)` }" />
           </div>
           <MbInput v-model="colorInput" :dark="dark" :error="colorError" icon="hash" placeholder="Color" @blur="handleColorInput" @keyup.enter="handleColorInput" />
           <MbButton v-if="removable" :dark="dark" icon="cross" rounded :tooltip="{ message: 'Clear Color', position: 'right' }" @click="clearColor" />
         </div>
+        <MbScroller v-if="palette && cleanPalette.length > 0">
+          <div class="swatches">
+            <div v-for="(color, index) in cleanPalette" class="color-swatch" :key="index" @click="selectColor(color.value)" @mouseenter="$store.commit('setTooltip', { message: color.label, target: $event.currentTarget })">
+              <div class="color" :style="{ backgroundImage: `linear-gradient(45deg, ${color.valueNoAlpha} 50%, ${color.value} 50%)` }" />
+            </div>
+          </div>
+        </MbScroller>
       </div>
       <ul v-else class="palette-list" ref="palette" tabindex="-1">
         <li v-for="(color, index) in filteredPalette" :class="{ active: color.value === modelValue, dark }" :key="index" tabindex="0" @click="selectColor(color.value)" @keyup.enter.space="selectColor(color.value)" @mouseenter="handleMouseenter($event, index)" @mouseleave="handleMouseleave">
@@ -101,6 +108,13 @@ export default {
     hueLeft() {
       return `${(this.workingColor.h / 360) * 100}%`;
     },
+    label() {
+      if (this.cleanPalette.length > 0) {
+        const color = this.cleanPalette.find((paletteItem) => paletteItem.value === this.modelValue);
+        if (color) return color.label;
+      }
+      return this.modelValue || 'No Color';
+    },
     newColor() {
       if (!this.workingColor) return null;
       if (this.format === 'hex') return tinycolor(this.workingColor).toHexString();
@@ -139,6 +153,7 @@ export default {
       const rect = this.$el.getBoundingClientRect();
       const remBase = Number.parseInt(window.getComputedStyle(document.documentElement).fontSize, 10);
       if (this.paletteOnly && this.filter) this.filter = '';
+      if (this.colorCache) this.colorCache = null;
       this.popover.x = rect.left + rect.width / 2;
       this.popover.y = rect.bottom + 0.5 * remBase;
       this.popover.minWidth = Math.min(rect.width, window.innerWidth - remBase);
@@ -180,10 +195,11 @@ export default {
       this.workingColor = { h: 0, s: 0, v: 100, a: 0 }; // eslint-disable-line object-curly-newline
       this.$nextTick(() => { this.colorInput = ''; }); // wait a tick so it doesn’t get overwritten by the watcher
     },
-    deactivate(confirm) {
+    deactivate(confirm) { // confirm may also be the scroll event
+      if (typeof confirm === 'object' && confirm.type === 'scroll' && this.$refs.popover.$refs.el.contains(confirm.target)) return;
       window.removeEventListener('scroll', this.deactivate, { capture: true, passive: true });
       this.popover.show = false;
-      if (!confirm) {
+      if (confirm !== true) {
         this.colorCache = {
           color: this.newColor,
           colorNoAlpha: this.newColorNoAlpha,
@@ -282,6 +298,7 @@ export default {
     },
     selectColor(color) {
       this.workingColor = tinycolor(color).toHsv();
+      if (!this.paletteOnly) return; // don’t deactivate if it’s not paletteOnly
       this.$nextTick(() => { // wait a tick so updateModel can fire
         this.deactivate(true);
       });
@@ -428,6 +445,17 @@ $checkerboardBG(color, size = 1rem)
 .color-popover
   .padder
     padding: 0.5rem
+    max-width: 16rem
+
+    &.rgb
+      &.removable
+        max-width: 19rem
+
+    &.rgba
+      max-width: 20rem
+
+      &.removable
+        max-width: 22rem
 
     .saturation-picker
       position: relative
@@ -489,17 +517,6 @@ $checkerboardBG(color, size = 1rem)
     .color-info
       display: flex
       align-items: center
-      max-width: 16rem
-
-      &.rgb
-        &.removable
-          max-width: 19rem
-
-      &.rgba
-        max-width: 19rem
-
-        &.removable
-          max-width: 22rem
 
       .color-swatch
         width: (40 / 16)rem // height of the smaller input minus shadow
@@ -524,6 +541,23 @@ $checkerboardBG(color, size = 1rem)
 
       .button
         margin-left: 0.5rem
+
+    .scroller
+      margin-top: 0.5rem
+      width: 100%
+
+      .swatches
+        display: flex
+        padding: 0.5rem
+
+        &::after
+          content: ''
+          display: block
+          width: 0.5rem
+          flex-shrink: 0
+
+        .color-swatch:last-child
+          margin-right: 0
 
   .palette-list
     list-style: none
