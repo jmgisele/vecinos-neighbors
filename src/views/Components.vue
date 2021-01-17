@@ -366,6 +366,8 @@
         <p>The currently picked color is: <span class="color-preview" :style="{ backgroundColor: currentColor }" />{{currentColor}}</p>
         <MbColorPicker v-model="currentColor" :dark="dark" removable />
         <MbColorPicker v-model="currentColor" :dark="dark" format="rgba" />
+        <MbColorPicker v-model="currentColor" :dark="dark" format="rgba" :palette="colorPalette" />
+        <MbColorPicker v-model="currentColor" :dark="dark" format="rgba" :palette="colorPalette" palette-only removable />
         <h3>Props</h3>
         <MbTable :data="props.colorPickers" />
         <h3>Events</h3>
@@ -375,7 +377,7 @@
         <p>With the <code>palette</code> prop an array of valid CSS colors may be passed to be displayed under the color selector / as the available colors up for selection if <code>paletteOnly</code> is also active.</p>
         <p>The <code>palette</code> array may also contain objects in the following shape to add named colors:</p>
         <pre data-lang="javascript"><code>{{JSON.stringify([{ label: 'Color Name', value: 'valid CSS color'}, { label: 'Badass', value: '#bada55' }], null, 2)}}</code></pre>
-        <p>If <code>removable</code> is set to <code>true</code> an additional option to clear the color will be shown, causing the value to become an empty string.</p>
+        <p>If <code>removable</code> is set to <code>true</code> an additional option to clear the color will be shown, causing the value to become <code>null</code>.</p>
       </section>
       <section v-else class="tab" key="exampleTab">
         <p>This is just an empty test-tab.</p>
@@ -411,6 +413,110 @@ export default {
       activeTab: 0,
       availableIcons: require.context('@/assets/icons', false, /\w+\.svg$/i).keys().map((path) => path.replace(/^\.\/(.*)\.\w+$/, '$1')),
       centerPopover: false,
+      colorPalette: [
+        {
+          label: 'Accent',
+          value: '#6c5ce7',
+        },
+        {
+          label: 'Accent Secondary',
+          value: '#A29BFE',
+        },
+        {
+          label: 'Text',
+          value: '#111028',
+        },
+        {
+          label: 'Text Secondary',
+          value: 'rgba(0, 0, 0, 0.54)',
+        },
+        {
+          label: 'Text Tertiary',
+          value: 'rgba(0, 0, 0, 0.38)',
+        },
+        {
+          label: 'Bg',
+          value: '#fff',
+        },
+        {
+          label: 'Bg Secondary',
+          value: '#f4f3ff',
+        },
+        {
+          label: 'Bg Tertiary',
+          value: '#fafaff',
+        },
+        {
+          label: 'Text Dark',
+          value: 'white',
+        },
+        {
+          label: 'Text Secondary Dark',
+          value: 'rgba(255, 255, 255, 0.7)',
+        },
+        {
+          label: 'Text Tertiary Dark',
+          value: 'rgba(255, 255, 255, 0.5)',
+        },
+        {
+          label: 'Bg Dark',
+          value: '#1E1D22',
+        },
+        {
+          label: 'Bg Secondary Dark',
+          value: '#2B2A32',
+        },
+        {
+          label: 'Bg Tertiary Dark',
+          value: '#343244',
+        },
+        {
+          label: 'Negative Saturated',
+          value: '#d63031',
+        },
+        {
+          label: 'Negative',
+          value: '#ff7675',
+        },
+        {
+          label: 'Positive Saturated',
+          value: '#00b894',
+        },
+        {
+          label: 'Positive',
+          value: '#55efc4',
+        },
+        {
+          label: 'Warning Saturated',
+          value: '#fdcb6e',
+        },
+        {
+          label: 'Warning',
+          value: '#ffeaa7',
+        },
+      ],
+      colorPaletteStrings: [
+        '#6c5ce7',
+        '#A29BFE',
+        '#111028',
+        'rgba(0, 0, 0, 0.54)',
+        'rgba(0, 0, 0, 0.38)',
+        '#fff',
+        '#f4f3ff',
+        '#fafaff',
+        'white',
+        'rgba(255, 255, 255, 0.7)',
+        'rgba(255, 255, 255, 0.5)',
+        '#1E1D22',
+        '#2B2A32',
+        '#343244',
+        '#d63031',
+        '#ff7675',
+        '#00b894',
+        '#55efc4',
+        '#fdcb6e',
+        '#ffeaa7',
+      ],
       contextMenu: {
         show: false,
         x: 0,
@@ -1009,4 +1115,5 @@ export default {
 
       .color-picker:not(:last-of-type)
         margin-right: 1rem
+        margin-bottom: 1rem
 </style>

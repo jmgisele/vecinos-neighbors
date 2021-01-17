@@ -9,8 +9,8 @@
       </transition>
     </div>
     <span>{{modelValue || 'No Color'}}</span>
-    <MbPopover center-x class="color-popover" :dark="dark" no-content-padding ref="popover" :style="{ minWidth: `${popover.minWidth}px`}" :visible="popover.show" :x="popover.x" :y="popover.y" @close="deactivate" @focusout="handleFocusout">
-      <div class="padder">
+    <MbPopover center-x class="color-popover" :dark="dark" no-content-padding ref="popover" :style="{ minWidth: `${popover.minWidth}px`}" :visible="popover.show" :x="popover.x" :y="popover.y" @close="deactivate" @focusout="handleFocusout" @keyup.arrow-down="focus(1)" @keyup.arrow-up="focus(-1)">
+      <div v-if="!paletteOnly" class="padder">
         <div class="saturation-picker" ref="saturationPicker" :style="{backgroundColor: saturationPickerBG}" @pointerdown="activateSaturationPicker" @touchstart.stop>
           <div class="saturation" />
           <div class="picker" :style="{top: saturationTop, left: saturationLeft}" />
@@ -31,9 +31,20 @@
           <MbButton v-if="removable" :dark="dark" icon="cross" rounded :tooltip="{ message: 'Clear Color', position: 'right' }" @click="clearColor" />
         </div>
       </div>
-      <template #footer>
+      <ul v-else class="palette-list" ref="palette" tabindex="-1">
+        <li v-for="(color, index) in filteredPalette" :class="{ active: color.value === modelValue, dark }" :key="index" tabindex="0" @click="selectColor(color.value)" @keyup.enter.space="selectColor(color.value)" @mouseenter="handleMouseenter($event, index)" @mouseleave="handleMouseleave">
+          <div class="color-swatch">
+            <div class="color" :style="{ backgroundImage: `linear-gradient(45deg, ${color.valueNoAlpha} 50%, ${color.value} 50%)` }" />
+          </div>
+          <span>{{color.label}}</span>
+        </li>
+      </ul>
+      <template v-if="!paletteOnly" #footer>
         <MbButton :dark="dark" @click="deactivate(false)">Cancel</MbButton>
         <MbButton :dark="dark" type="primary" @click="deactivate(true)">Set Color</MbButton>
+      </template>
+      <template v-else #header>
+        <MbInput v-model="filter" class="palette-filter" :dark="dark" icon="search" placeholder="Filter Colors" />
       </template>
     </MbPopover>
   </button>
@@ -51,8 +62,38 @@ export default {
     alphaLeft() {
       return `${this.workingColor.a * 100}%`;
     },
+    cleanPalette() {
+      if (!this.palette) return [];
+      const cleanPalette = this.palette.map((color) => {
+        let value;
+        const valueNoAlpha = tinycolor(color.value || color).toHexString();
+        if (this.format === 'hex') value = valueNoAlpha;
+        if (this.format === 'rgb') value = tinycolor(color.value || color).setAlpha(1).toRgbString();
+        else value = tinycolor(color.value || color).toRgbString();
+
+        if (typeof color === 'string') {
+          return {
+            label: value,
+            value,
+            valueNoAlpha,
+          };
+        }
+        return {
+          label: color.label || value,
+          value,
+          valueNoAlpha,
+        };
+      });
+
+      if (this.paletteOnly && this.removable) cleanPalette.unshift({ label: 'No Color', value: '#ffffff00', valueNoAlpha: '#ffffff00' });
+      return cleanPalette;
+    },
     currentColorNoAlpha() {
       return tinycolor(this.modelValue).toHexString();
+    },
+    filteredPalette() {
+      if (!this.filter) return this.cleanPalette;
+      return this.cleanPalette.filter((color) => color.label.toLowerCase().includes(this.filter.toLowerCase()));
     },
     newColorNoAlpha() {
       return tinycolor(this.workingColor).toHexString();
@@ -81,6 +122,8 @@ export default {
       colorCache: null,
       colorError: '',
       colorInput: this.modelValue,
+      currentlySelected: -1,
+      filter: '',
       popover: {
         minWidth: 0,
         show: false,
@@ -95,6 +138,7 @@ export default {
       if (this.popover.show) return;
       const rect = this.$el.getBoundingClientRect();
       const remBase = Number.parseInt(window.getComputedStyle(document.documentElement).fontSize, 10);
+      if (this.paletteOnly && this.filter) this.filter = '';
       this.popover.x = rect.left + rect.width / 2;
       this.popover.y = rect.bottom + 0.5 * remBase;
       this.popover.minWidth = Math.min(rect.width, window.innerWidth - remBase);
@@ -163,8 +207,21 @@ export default {
       window.removeEventListener('pointermove', this.handleSaturationInput);
       window.removeEventListener('pointerup', this.deactivateSaturationPicker);
     },
-    handleFocusout(e) {
-      if (e.relatedTarget !== this.$el && !this.$refs.popover.$refs.el.contains(e.relatedTarget)) this.deactivate();
+    focus(direction) {
+      if (!this.paletteOnly) return;
+      const elements = this.$refs.palette.querySelectorAll('li');
+      if (elements.length === 0) return;
+
+      if (direction < 0) { // focus previous
+        if (this.currentlySelected > 0) this.currentlySelected -= 1;
+        else this.currentlySelected = elements.length - 1;
+      } else { // focus next
+        // eslint-disable-next-line no-lonely-if
+        if (this.currentlySelected < elements.length - 1) this.currentlySelected += 1;
+        else this.currentlySelected = 0;
+      }
+
+      elements[this.currentlySelected].focus();
     },
     handleAlphaInput: throttle(function (e) { // eslint-disable-line func-names
       const container = this.$refs.alphaPicker;
@@ -181,6 +238,9 @@ export default {
       if (color.isValid()) this.workingColor = color.toHsv();
       else this.colorError = 'Invalid Color';
     },
+    handleFocusout(e) {
+      if (e.relatedTarget !== this.$el && !this.$refs.popover.$refs.el.contains(e.relatedTarget)) this.deactivate();
+    },
     handleHueInput: throttle(function (e) { // eslint-disable-line func-names
       const container = this.$refs.huePicker;
       const containerRect = container.getBoundingClientRect();
@@ -189,6 +249,19 @@ export default {
       const h = 360 * this.clamp(left / containerRect.width, 0, 360);
       this.workingColor.h = h;
     }, 20),
+    handleMouseenter(e, index) {
+      if (!this.paletteOnly) return;
+      if (this.popover.show) {
+        if (this.$refs.palette.contains(document.activeElement)) this.$refs.palette.focus();
+        this.currentlySelected = index;
+      }
+    },
+    handleMouseleave() {
+      if (!this.paletteOnly) return;
+      if (this.popover.show) {
+        this.currentlySelected = -1;
+      }
+    },
     handleSaturationInput: throttle(function (e) { // eslint-disable-line func-names
       const container = this.$refs.saturationPicker;
       const containerRect = container.getBoundingClientRect();
@@ -206,6 +279,12 @@ export default {
       e.stopPropagation();
       window.removeEventListener('click', this.preventPopoverClose, { capture: true });
       window.removeEventListener('touchend', this.preventPopoverClose, { capture: true });
+    },
+    selectColor(color) {
+      this.workingColor = tinycolor(color).toHsv();
+      this.$nextTick(() => { // wait a tick so updateModel can fire
+        this.deactivate(true);
+      });
     },
     updateModel() {
       if (this.removable && this.workingColor.a === 0) this.$emit('update:modelValue', null);
@@ -423,24 +502,9 @@ $checkerboardBG(color, size = 1rem)
           max-width: 22rem
 
       .color-swatch
-        box-shadow: 0 0 0 0.0625rem $text-secondary
-        flex-shrink: 0
         width: (40 / 16)rem // height of the smaller input minus shadow
         height: @width
-        border-radius: 50%
         margin-right: 0.5rem
-        overflow: hidden
-        $checkerboardBG(alpha(white, 0.75), 0.75rem)
-        padding: 0.0625rem
-        background-clip: content-box
-        position: relative
-
-        .color
-          position: absolute
-          top: 0
-          left: 0
-          width: 100%
-          height: @width
 
       .input
         flex-shrink: 1
@@ -460,4 +524,72 @@ $checkerboardBG(color, size = 1rem)
 
       .button
         margin-left: 0.5rem
+
+  .palette-list
+    list-style: none
+    padding: 0.5rem
+    margin: 0
+
+    li
+      display: flex
+      align-items: center
+      padding: 0.75rem 1rem
+      white-space: nowrap
+      overflow: hidden
+      text-overflow: ellipsis
+      cursor: pointer
+      border-radius: $radius-m
+      transition: background-color 200ms ease
+
+      &:not(:last-child)
+        margin-bottom: 0.5rem
+
+      &.active
+        background-color: $accent
+        color: $text-dark
+
+      &:hover,
+      &:focus
+        background-color: $bg-secondary
+
+        &.active
+          color: $text
+          box-shadow: inset 0 0 0 (2 / 16)rem $accent
+
+      &.dark
+        &:hover,
+        &:focus
+          background-color: $bg-tertiary-dark
+
+          &.active
+            color: $text-dark
+
+  .color-swatch
+    box-shadow: 0 0 0 0.0625rem $text-secondary
+    flex-shrink: 0
+    width: 1.5rem
+    height: @width
+    border-radius: 50%
+    margin-right: 0.75rem
+    overflow: hidden
+    $checkerboardBG(alpha(white, 0.75), 0.75rem)
+    padding: 0.0625rem
+    background-clip: content-box
+    position: relative
+
+    .color
+      position: absolute
+      top: 0
+      left: 0
+      width: 100%
+      height: @width
+
+  .palette-filter
+    margin: 0.5rem
+    margin-bottom: 0
+    width: calc(100% - 1rem)
+    padding: 0.75rem
+
+    &.dark
+      background-color: $bg-tertiary-dark
 </style>
