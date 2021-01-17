@@ -379,6 +379,16 @@
         <pre data-lang="javascript"><code>{{JSON.stringify([{ label: 'Color Name', value: 'valid CSS color'}, { label: 'Badass', value: '#bada55' }], null, 2)}}</code></pre>
         <p>If <code>removable</code> is set to <code>true</code> an additional option to clear the color will be shown, causing the value to become <code>null</code>.</p>
       </section>
+      <section v-else-if="activeTabValue === 'tag-inputs'" class="tab tag-inputs">
+        <h2>Tag Inputs</h2>
+        <p>This component allows entering a list of tags with autocompletion, removal and rearrangement.</p>
+        <p>The current value is: <code>{{tagList}}</code></p>
+        <MbTagInput v-model="tagList" :autocomplete-model="colorPalette" autocomplete-property="label" allow-unsuggested :dark="dark" label="A simple tag input" :max="3" />
+        <h3>Props</h3>
+        <MbTable :data="props.tagInputs" />
+        <h3>Events</h3>
+        <MbTable :data="events.tagInputs" />
+      </section>
       <section v-else class="tab" key="exampleTab">
         <p>This is just an empty test-tab.</p>
         <p>To delete it, click the button in the “<u @click="activeTab = tabs.findIndex((tab) => tab.value === 'tabs')">Tabs</u>”-tab.</p>
@@ -571,6 +581,10 @@ export default {
           ['`add-tab`', ''],
           ['`update:modelValue`', 'The index of the new active tab'],
         ],
+        tagInputs: [
+          ['Name', 'Data'],
+          ['`update:modelValue`', 'The new array of tags'],
+        ],
         textareas: [
           ['Name', 'Data'],
           ['`update:modelValue`', 'The new content in the specified output format'],
@@ -718,6 +732,11 @@ export default {
           ['`showAddOption`', 'Boolean', '`false`'],
           ['`tabs`', 'Array', '`[]`'],
         ],
+        tagInputs: [
+          ['Name', 'Type', 'Default'],
+          ['`dark`', 'Boolean', '`false`'],
+          ['`modelValue`', 'Array', '`[]`'],
+        ],
         textareas: [
           ['Name', 'Type', 'Default', 'Notes'],
           ['`allowNewLines`', 'Boolean', '`true`', 'Ignored if outputFormat !== \'text\', use formats in that case'],
@@ -861,11 +880,13 @@ export default {
         { label: 'Select Boxes', value: 'selects' },
         { label: 'Tables', value: 'tables' },
         { label: 'Tabs', value: 'tabs' },
+        { label: 'Tag Inputs', value: 'tag-inputs' },
         { label: 'Textareas', value: 'textareas' },
         { label: 'Toggles', value: 'toggles' },
         { label: 'Tooltips', value: 'tooltips' },
       ],
       editorTest: '',
+      tagList: [],
       textTest: '',
       toggleTest: false,
     };
