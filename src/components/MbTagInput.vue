@@ -2,10 +2,10 @@
   <div class="tag-input" :class="{dark, error: error || (max && modelValue.length > max), }" @click="$refs.input.focus()" @focusin="handleFocusIn" @focusout="handleFocusOut">
     <span v-if="displayLabel" class="label" :class="{ right: !label && max }">{{displayLabel}}</span>
     <transition-group class="tags-wrapper" tag="div" @before-leave="setGridPosition">
-      <div v-for="(tag, index) in modelValue" class="tag" :class="{ overflow: max && index + 1 > max }" :key="tag[autocompleteProperty] || tag">
+      <div v-for="(tag, index) in modelValue" class="tag" :class="{ overflow: max && index + 1 > max, 'drag-active': index === draggedIndex }" :data-index="index" :key="tag[autocompleteProperty] || tag" @pointerdown="startDrag($event, index)">
         <MbIcon icon="drag-handle" />
         <span>{{tag[autocompleteProperty] || tag}}</span>
-        <MbButton :dark="dark" icon="cross" @click="removeTag(index)" />
+        <MbButton :dark="dark" :disabled="index === draggedIndex" icon="cross" @click="removeTag(index)" />
       </div>
       <div class="autogrow-input" key="autogrowInput">
         <span v-show="topSuggestion" class="top-suggestion">{{topSuggestion}}</span>
@@ -20,6 +20,8 @@
 export default {
   beforeUnmount() {
     window.removeEventListener('scroll', this.hideSuggestions, { passive: true, capture: true });
+    window.removeEventListener('pointerup', this.stopDrag);
+    window.removeEventListener('pointermove', this.handlePointerMove, { passive: true });
   },
   computed: {
     displayLabel() {
@@ -52,6 +54,8 @@ export default {
   },
   data() {
     return {
+      dragging: false,
+      draggedIndex: -1,
       error: '',
       newTag: '',
       suggestions: [],
@@ -156,6 +160,17 @@ export default {
         items.forEach((item) => this.addTag(item));
       }
     },
+    handlePointerEnter(i) {
+      if (!this.dragging) return;
+      this.ownTags.splice(i, 0, this.ownTags.splice(this.draggedIndex, 1)[0]);
+      this.draggedIndex = i;
+      this.$emit('update:modelValue', this.ownTags);
+    },
+    handlePointerMove(e) {
+      const el = document.elementFromPoint(e.clientX, e.clientY);
+      if (!el || !el.dataset.index) return;
+      this.handlePointerEnter(Number.parseInt(el.dataset.index, 10));
+    },
     hideSuggestions() {
       this.suggestions = [];
     },
@@ -167,6 +182,19 @@ export default {
       el.style.setProperty('top', `${el.offsetTop}px`);
       el.style.setProperty('left', `${el.offsetLeft}px`);
       el.style.setProperty('position', 'absolute');
+    },
+    startDrag(e, i) {
+      if (e.target.tagName.toLowerCase() === 'button') return;
+      this.dragging = e.currentTarget;
+      this.draggedIndex = i;
+      window.addEventListener('pointerup', this.stopDrag);
+      window.addEventListener('pointermove', this.handlePointerMove, { passive: true });
+    },
+    stopDrag() {
+      this.dragging = false;
+      this.draggedIndex = -1;
+      window.removeEventListener('pointerup', this.stopDrag);
+      window.removeEventListener('pointermove', this.handlePointerMove, { passive: true });
     },
     validate() {
       let error = '';
@@ -206,12 +234,10 @@ export default {
   border-radius: $radius-m
   padding: 1rem
   position: relative
-  min-width: 16rem
-  max-width: 100%
   cursor: text
   margin-top: 1.5rem
   user-select: none
-  display: inline-flex
+  display: flex
   transition: box-shadow 200ms ease
 
   &.dark
@@ -239,10 +265,6 @@ export default {
     .label
       color: $negative-saturated
 
-    .tags-wrapper
-      .tag.overflow
-        color: $negative-saturated
-
   &:focus-within
     box-shadow: inset 0 0 0 2px $accent
 
@@ -268,9 +290,7 @@ export default {
 
   .tags-wrapper
     margin: -0.25rem
-    display: flex
-    flex-wrap: wrap
-    align-items: center
+    max-width: 100%
 
     .tag
       padding: 0.25rem
@@ -281,7 +301,18 @@ export default {
       align-items: center
       white-space: nowrap
       max-width: 100%
+      touch-action: none
+      cursor: default
       box-shadow: inset 0 0 0 0.0625rem $text-tertiary
+
+      &.overflow
+        color: $negative-saturated
+
+      &.drag-active
+        background-color: $accent
+        color: $text-dark
+        position: relative
+        z-index: 1
 
       > .icon
         flex-shrink: 0
@@ -309,7 +340,7 @@ export default {
     .autogrow-input
       position: relative
       display: inline-block
-      height: 1.5rem
+      height: (34 / 16)rem
       max-width: 100%
       vertical-align: top
       margin: 0.25rem
@@ -375,4 +406,7 @@ export default {
       &.v-leave-to
         transform: scale(0.8)
         opacity: 0
+
+    .v-move
+      pointer-events: none
 </style>
