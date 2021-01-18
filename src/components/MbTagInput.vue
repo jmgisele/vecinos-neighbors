@@ -9,21 +9,28 @@
       </div>
       <div class="autogrow-input" key="autogrowInput">
         <span v-show="topSuggestion && newTag" class="top-suggestion">{{topSuggestion}}</span>
-        <input autocapitalize="off" autocomplete="off" :placeholder="placeholder" ref="input" type="text" :value="newTag" @input="handleInput" @keydown="handleAcceptOrDelete" @keyup="handleMobileComma" @paste="handlePaste">
+        <input autocapitalize="off" autocomplete="off" :placeholder="placeholder" ref="input" type="text" :value="newTag" @contextmenu.prevent="fetchSuggestions" @input="handleInput" @keydown="handleAcceptOrDelete" @keyup.arrow-down="focusMenu" @keyup="handleMobileComma" @paste="handlePaste">
         <span class="spacer" ref="spacer">{{placeholder}}</span>
       </div>
     </transition-group>
+    <MbContextMenu :dark="dark" :options="contextActions.length > 0 ? contextActions : contextActionsCache" ref="menu" :show="contextActions.length > 0" :steal-focus="false" :target="$refs.input" :x="popover.x" :y="popover.y" @close="hideSuggestions" />
   </div>
 </template>
 
 <script>
 export default {
   beforeUnmount() {
-    window.removeEventListener('scroll', this.hideSuggestions, { passive: true, capture: true });
     window.removeEventListener('pointerup', this.stopDrag);
     window.removeEventListener('pointermove', this.handlePointerMove, { passive: true });
   },
   computed: {
+    contextActions() {
+      if (this.filteredSuggestions.length < 1 || (this.filteredSuggestions.length === 1 && this.topSuggestion)) return [];
+      return this.filteredSuggestions.slice(0, 5).map((suggestion) => ({
+        action: () => this.addTag(suggestion),
+        label: this.autocompleteProperty && typeof suggestion !== 'string' ? suggestion[this.autocompleteProperty] : suggestion,
+      }));
+    },
     displayLabel() {
       if (this.error) return this.error;
       if (this.max && (this.error || this.modelValue.length > 0 || this.placeholder)) {
@@ -61,10 +68,12 @@ export default {
   },
   data() {
     return {
+      contextActionsCache: [],
       dragging: false,
       draggedIndex: -1,
       error: '',
       newTag: '',
+      popover: { x: 0, y: 0 },
       suggestions: [],
     };
   },
@@ -100,6 +109,11 @@ export default {
         return el.toLowerCase().includes(this.newTag.toLowerCase());
       });
     },
+    focusMenu() {
+      if (this.contextActions.length > 0) {
+        this.$refs.menu.focus(0);
+      }
+    },
     handleAcceptOrDelete(e) {
       if (e.key === ',') e.preventDefault();
       if (this.newTag.length > 0) {
@@ -117,13 +131,11 @@ export default {
       }
     },
     handleFocusIn() {
-      window.addEventListener('scroll', this.hideSuggestions, { passive: true, capture: true });
       this.$emit('focus');
     },
     handleFocusOut(e) {
       if (!e.relatedTarget || !this.$el.contains(e.relatedTarget)) {
         this.validate();
-        window.removeEventListener('scroll', this.hideSuggestions, { passive: true, capture: true });
         this.$emit('blur');
       }
     },
@@ -193,6 +205,13 @@ export default {
       el.style.setProperty('left', `${el.offsetLeft}px`);
       el.style.setProperty('position', 'absolute');
     },
+    setPopoverPosition() {
+      if (this.contextActions.length < 1) return;
+      const rect = this.$refs.input.getBoundingClientRect();
+      const remBase = Number.parseInt(window.getComputedStyle(document.documentElement).fontSize, 10);
+      this.popover.x = rect.left - 1.5 * remBase;
+      this.popover.y = rect.bottom + 0.5 * remBase;
+    },
     startDrag(e, i) {
       if (e.target.tagName.toLowerCase() === 'button') return;
       this.dragging = e.currentTarget;
@@ -228,6 +247,15 @@ export default {
     placeholder: {
       type: String,
       default: 'New Tag…',
+    },
+  },
+  watch: {
+    contextActions(nv, ov) {
+      if (nv.length === 0) this.contextActionsCache = ov;
+      else this.setPopoverPosition();
+    },
+    modelValue() {
+      if (this.suggestions.length > 0) this.hideSuggestions();
     },
   },
 };
@@ -404,6 +432,7 @@ export default {
         display: block
         overflow: hidden
         visibility: hidden
+        padding-right: 0.0625rem // so it doesn’t cause a scroll / jitter
 
       .top-suggestion
         display: block
