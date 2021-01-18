@@ -1,5 +1,5 @@
 <template lang="html">
-  <MbPopover class="context-menu" :dark="dark" :from-right="fromRight" no-content-padding :visible="show" :x="x" :y="y" @close="close" @keyup.arrow-down="focus(1)" @keyup.arrow-up="focus(-1)">
+  <MbPopover class="context-menu" :dark="dark" :from-right="fromRight" no-content-padding :steal-focus="stealFocus" :visible="show" :x="x" :y="y" @close="close" @keyup.arrow-down="focus(1)" @keyup.arrow-up="focus(-1)">
     <ul class="wrapper" ref="list" tabindex="-1">
       <li v-for="(option, index) in options" :class="[option.type, {dark, disabled: option.disabled, icon: withIcons && !option.icon}]" :key="index" :tabindex="option.disabled ? -1 : 0" @click="handleAction(option.action)" @keyup.space.enter="handleAction(option.action)" @mouseenter="handleMouseenter($event, index)" @mouseleave="handleMouseleave">
         <MbIcon v-if="option.icon" :icon="option.icon" no-transition />
@@ -77,6 +77,10 @@ export default {
     fromRight: Boolean,
     options: Array,
     show: Boolean,
+    stealFocus: {
+      type: Boolean,
+      default: true,
+    },
     target: HTMLElement,
     x: Number,
     y: Number,

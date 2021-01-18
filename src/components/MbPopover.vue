@@ -84,6 +84,8 @@ export default {
       this.left = `${left}px`;
       this.top = `${top}px`;
 
+      if (!this.stealFocus) return; // don’t grab focus
+
       if (!document.activeElement || (document.activeElement !== this.$refs.el && !this.$refs.el.contains(document.activeElement))) this.$refs.el.focus();
     },
   },
@@ -93,6 +95,10 @@ export default {
     dark: Boolean,
     fromRight: Boolean,
     noContentPadding: Boolean,
+    stealFocus: {
+      type: Boolean,
+      default: true,
+    },
     visible: Boolean,
     x: {
       type: Number,
