@@ -1,8 +1,8 @@
 <template lang="html">
-  <div class="tag-input" :class="{dark, dirty: error || modelValue.length > 0 || newTag || placeholder, error: error || (max && modelValue.length > max), }" @click="$refs.input.focus()" @focusin="handleFocusIn" @focusout="handleFocusOut">
-    <span v-if="displayLabel" :class="{ right: !label && max }">{{displayLabel}}</span>
+  <div class="tag-input" :class="{dark, error: error || (max && modelValue.length > max), }" @click="$refs.input.focus()" @focusin="handleFocusIn" @focusout="handleFocusOut">
+    <span v-if="displayLabel" class="label" :class="{ right: !label && max }">{{displayLabel}}</span>
     <transition-group class="tags-wrapper" tag="div" @before-leave="setGridPosition">
-      <div v-for="(tag, index) in modelValue" class="tag" :key="tag[autocompleteProperty] || tag">
+      <div v-for="(tag, index) in modelValue" class="tag" :class="{ overflow: max && index + 1 > max }" :key="tag[autocompleteProperty] || tag">
         <MbIcon icon="drag-handle" />
         <span>{{tag[autocompleteProperty] || tag}}</span>
         <MbButton :dark="dark" icon="cross" @click="removeTag(index)" />
@@ -53,7 +53,6 @@ export default {
   data() {
     return {
       error: '',
-      focussed: false,
       newTag: '',
       suggestions: [],
     };
@@ -61,19 +60,20 @@ export default {
   emits: ['blur', 'focus', 'update:modelValue'],
   methods: {
     addTag(tag) {
+      const cleanTag = typeof tag === 'string' ? tag.trim() : tag;
       const elementExists = this.ownTags.findIndex((element) => {
-        if (this.autocompleteProperty && element[this.autocompleteProperty]) return element[this.autocompleteProperty] === tag[this.autocompleteProperty];
-        return element === tag;
+        if (this.autocompleteProperty && element[this.autocompleteProperty]) return element[this.autocompleteProperty] === cleanTag[this.autocompleteProperty];
+        return element === cleanTag;
       }) >= 0;
 
-      if (!elementExists) {
-        this.ownTags.push(tag);
+      if (cleanTag && !elementExists) {
+        this.ownTags.push(cleanTag);
         this.$emit('update:modelValue', this.ownTags);
         this.$refs.input.focus();
       }
       this.newTag = '';
       this.$refs.spacer.innerText = this.placeholder;
-      if (this.suggestions.length > 0) this.suggestions = [];
+      if (this.suggestions.length > 0) this.hideSuggestions();
     },
     fetchSuggestions() {
       if (!this.autocompleteModel || !this.autocompleteProperty) return;
@@ -92,7 +92,7 @@ export default {
         if (e.key === 'Enter' || e.key === ',') {
           let tag;
           if (this.filteredSuggestions.length > 0) [tag] = this.filteredSuggestions;
-          else if (!this.autocompleteModel || this.allowUnsuggested) tag = this.newTag.trim().toLowerCase();
+          else if (!this.autocompleteModel || this.allowUnsuggested) tag = this.newTag;
 
           if (tag) this.addTag(tag);
           else this.error = `${this.newTag} is not an allowed value`;
@@ -104,12 +104,11 @@ export default {
     },
     handleFocusIn() {
       window.addEventListener('scroll', this.hideSuggestions, { passive: true, capture: true });
-      this.focussed = true;
       this.$emit('focus');
     },
     handleFocusOut(e) {
       if (!e.relatedTarget || !this.$el.contains(e.relatedTarget)) {
-        this.focussed = false;
+        this.validate();
         window.removeEventListener('scroll', this.hideSuggestions, { passive: true, capture: true });
         this.$emit('blur');
       }
@@ -132,7 +131,7 @@ export default {
           const [newTag, ...rest] = this.newTag.split(',');
           let tag;
           if (this.filteredSuggestions.length > 0) [tag] = this.filteredSuggestions;
-          else if (!this.autocompleteModel || this.allowUnsuggested) tag = newTag.trim().toLowerCase();
+          else if (!this.autocompleteModel || this.allowUnsuggested) tag = newTag;
 
           if (tag) {
             this.addTag(tag);
@@ -154,10 +153,7 @@ export default {
       if (paste.includes(',') || paste.includes('\n')) {
         e.preventDefault();
         const items = paste.split(/,|\n/);
-        items.forEach((item) => {
-          const trimmed = item.trim();
-          if (trimmed) this.addTag(trimmed);
-        });
+        items.forEach((item) => this.addTag(item));
       }
     },
     hideSuggestions() {
@@ -171,6 +167,12 @@ export default {
       el.style.setProperty('top', `${el.offsetTop}px`);
       el.style.setProperty('left', `${el.offsetLeft}px`);
       el.style.setProperty('position', 'absolute');
+    },
+    validate() {
+      let error = '';
+      if (this.min && this.modelValue.length < this.min) error = `Must have at minimum ${this.min} entries`;
+      if (this.max && this.modelValue.length > this.max) error = `Must have at maximum ${this.max} entries`;
+      this.error = error;
     },
   },
   props: {
@@ -209,9 +211,14 @@ export default {
   cursor: text
   margin-top: 1.5rem
   user-select: none
+  display: inline-flex
+  transition: box-shadow 200ms ease
 
   &.dark
     background-color: $bg-secondary-dark
+
+    .label
+      color: $text-secondary-dark
 
     .tags-wrapper
       .tag
@@ -219,8 +226,45 @@ export default {
         box-shadow: none
 
       .autogrow-input
-        .top-suggestion
+        input
+          caret-color: currentColor
+
+        .top-suggestion,
+        input::placeholder
           color: $text-secondary-dark
+
+  &.error
+    box-shadow: inset 0 0 0 2px $negative
+
+    .label
+      color: $negative-saturated
+
+    .tags-wrapper
+      .tag.overflow
+        color: $negative-saturated
+
+  &:focus-within
+    box-shadow: inset 0 0 0 2px $accent
+
+  .label
+    flex-shrink: 0
+    display: block
+    cursor: text
+    user-select: none
+    color: $text-secondary
+    transform-origin: bottom left
+    position: absolute
+    white-space: nowrap
+    width: calc(100% - 0.75rem)
+    overflow: hidden
+    text-overflow: ellipsis
+    pointer-events: none
+    top: -1.25rem
+    left: $radius-m
+    font-size: 0.75rem
+
+    &.right
+      text-align: right
 
   .tags-wrapper
     margin: -0.25rem
@@ -296,6 +340,8 @@ export default {
         right: 0
         bottom: 0
         user-select: text
+        caret-color: $accent
+        -moz-appearance: textfield
 
         &::-webkit-outer-spin-button,
         &::-webkit-inner-spin-button,

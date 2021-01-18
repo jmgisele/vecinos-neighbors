@@ -383,7 +383,7 @@
         <h2>Tag Inputs</h2>
         <p>This component allows entering a list of tags with autocompletion, removal and rearrangement.</p>
         <p>The current value is: <code>{{tagList}}</code></p>
-        <MbTagInput v-model="tagList" :autocomplete-model="colorPalette" autocomplete-property="label" allow-unsuggested :dark="dark" label="A simple tag input" :max="3" />
+        <MbTagInput v-model="tagList" :autocomplete-model="colorPalette" autocomplete-property="label" :allow-unsuggested="true" :dark="dark" label="A simple tag input" :max="4" :min="3" />
         <h3>Props</h3>
         <MbTable :data="props.tagInputs" />
         <h3>Events</h3>
