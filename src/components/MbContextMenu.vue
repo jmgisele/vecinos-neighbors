@@ -19,7 +19,7 @@ export default {
   beforeUnmount() {
     if (this.show) {
       window.removeEventListener('contextmenu', this.close);
-      window.removeEventListener('scroll', this.close);
+      window.removeEventListener('scroll', this.close, { capture: true });
     }
   },
   computed: {
@@ -90,11 +90,11 @@ export default {
       if (nv) {
         window.setTimeout(() => { // so it doesn’t immediately close again
           window.addEventListener('contextmenu', this.close);
-          window.addEventListener('scroll', this.close);
+          window.addEventListener('scroll', this.close, { capture: true });
         }, 0);
       } else {
         window.removeEventListener('contextmenu', this.close);
-        window.removeEventListener('scroll', this.close);
+        window.removeEventListener('scroll', this.close, { capture: true });
       }
     },
   },
