@@ -8,7 +8,7 @@
         <MbButton :dark="dark" :disabled="index === draggedIndex" icon="cross" @click="removeTag(index)" />
       </div>
       <div class="autogrow-input" key="autogrowInput">
-        <span v-show="topSuggestion" class="top-suggestion">{{topSuggestion}}</span>
+        <span v-show="topSuggestion && newTag" class="top-suggestion">{{topSuggestion}}</span>
         <input autocapitalize="off" autocomplete="off" :placeholder="placeholder" ref="input" type="text" :value="newTag" @input="handleInput" @keydown="handleAcceptOrDelete" @keyup="handleMobileComma" @paste="handlePaste">
         <span class="spacer" ref="spacer">{{placeholder}}</span>
       </div>
@@ -109,7 +109,7 @@ export default {
           else if (!this.autocompleteModel || this.allowUnsuggested) tag = this.newTag;
 
           if (tag) this.addTag(tag);
-          else this.error = `${this.newTag} is not an allowed value`;
+          else this.error = `‘${this.newTag}’ is not an allowed value`;
         }
       } else if (e.key === 'Delete' || e.key === 'Backspace') {
         this.ownTags.pop();
@@ -133,7 +133,7 @@ export default {
       if (this.$refs.input.value) this.$refs.spacer.innerText = this.$refs.input.value; // to fix the jitter I can’t use {{newTag}} in the <span>
       else this.$refs.spacer.innerText = this.placeholder;
 
-      if (this.newTag.length > 3) {
+      if (this.newTag.length > 3 || (this.autocompleteModel && !this.allowUnsuggested)) {
         this.fetchSuggestions();
       } else if (this.suggestions.length > 0) this.hideSuggestions();
     },
@@ -151,7 +151,7 @@ export default {
             this.addTag(tag);
             this.newTag = rest.join('');
           } else {
-            this.error = `${this.newTag} is not an allowed value`;
+            this.error = `‘${this.newTag}’ is not an allowed value`;
             this.newTag = `${newTag} ${rest.join(' ')}`;
           }
 
