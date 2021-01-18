@@ -49,6 +49,7 @@ export default {
         && this.filteredSuggestions.length > 0
         && this.filteredSuggestions[0][this.autocompleteProperty].startsWith(this.newTag)
       ) return this.filteredSuggestions[0][this.autocompleteProperty];
+      if (this.autocompleteModel && !this.autocompleteProperty && this.filteredSuggestions.length > 0 && this.filteredSuggestions[0].startsWith(this.newTag)) return this.filteredSuggestions[0];
       return null;
     },
   },
@@ -80,14 +81,17 @@ export default {
       if (this.suggestions.length > 0) this.hideSuggestions();
     },
     fetchSuggestions() {
-      if (!this.autocompleteModel || !this.autocompleteProperty) return;
+      if (!this.autocompleteModel) return;
 
       const seen = []; // to deduplicate
       this.suggestions = this.autocompleteModel.filter((el) => {
-        const prop = el[this.autocompleteProperty];
-        if (!prop || seen.includes(prop)) return false;
-        seen.push(prop);
-        return prop.toLowerCase().includes(this.newTag.toLowerCase());
+        if (this.autocompleteProperty) {
+          const prop = el[this.autocompleteProperty];
+          if (!prop || seen.includes(prop)) return false;
+          seen.push(prop);
+          return prop.toLowerCase().includes(this.newTag.toLowerCase());
+        }
+        return el.toLowerCase().includes(this.newTag.toLowerCase());
       });
     },
     handleAcceptOrDelete(e) {
