@@ -222,6 +222,8 @@
         <MbTable :data="events.popovers" />
         <h3>Slots</h3>
         <MbTable :data="slots.popovers" />
+        <h3>Notes</h3>
+        <p>If <code>stealFocus</code> gets explicitly set to false, the popover will not be focussed on opening (making keyboard shortcuts not work until it’s focussed manually)</p>
       </section>
       <section v-else-if="activeTabValue === 'selects'" class="tab selects" key="selects">
         <h2>Select Boxes</h2>
@@ -335,6 +337,7 @@
         <p>The <code>options</code> array should consist of objects with the following properties:</p>
         <pre>{{'{\n  action: Function (required),\n  label: String (required),\n  icon: String,\n  type: String,\n  disabled: Boolean,\n  shortcut: Array // for displaying keyboard shortcuts\n}'}}</pre>
         <p>If a <code>target</code> is provided, it will be focussed if the context menu gets closed.</p>
+        <p>If <code>stealFocus</code> gets explicitly set to false, the popover will not be focussed on opening (making keyboard shortcuts not work until it’s focussed manually)</p>
       </section>
       <section v-else-if="activeTabValue === 'file-lists'" class="tab file-lists">
         <h2>File Lists</h2>
@@ -641,6 +644,7 @@ export default {
           ['`fromRight`', 'Boolean', '`false`'],
           ['`options`', 'Array', '`[]`'],
           ['`show`', 'Boolean', '`false`'],
+          ['`stealFocus`', 'Boolean', '`true`'],
           ['`target`', 'HTMLElement', ''],
           ['`x`', 'Number', '`0`'],
           ['`y`', 'Number', '`0`'],
@@ -691,6 +695,7 @@ export default {
           ['`dark`', 'Boolean', '`false`'],
           ['`fromRight`', 'Boolean', '`false`'],
           ['`noContentPadding`', 'Boolean', '`false`'],
+          ['`stealFocus`', 'Boolean', '`true`'],
           ['`visible`', 'Boolean', '`false`'],
           ['`x`', 'Number', '`0`'],
           ['`y`', 'Number', '`0`'],
