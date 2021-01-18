@@ -1,7 +1,7 @@
 <template lang="html">
   <div class="tag-input" :class="{dark, dirty: error || modelValue.length > 0 || newTag || placeholder, error: error || (max && modelValue.length > max), }" @click="$refs.input.focus()" @focusin="handleFocusIn" @focusout="handleFocusOut">
     <span v-if="displayLabel" :class="{ right: !label && max }">{{displayLabel}}</span>
-    <transition-group class="tags-wrapper" tag="div">
+    <transition-group class="tags-wrapper" tag="div" @before-leave="setGridPosition">
       <div v-for="(tag, index) in modelValue" class="tag" :key="tag[autocompleteProperty] || tag">
         <MbIcon icon="drag-handle" />
         <span>{{tag[autocompleteProperty] || tag}}</span>
@@ -167,6 +167,11 @@ export default {
       this.ownTags.splice(index, 1);
       this.$emit('update:modelValue', this.ownTags);
     },
+    setGridPosition(el) {
+      el.style.setProperty('top', `${el.offsetTop}px`);
+      el.style.setProperty('left', `${el.offsetLeft}px`);
+      el.style.setProperty('position', 'absolute');
+    },
   },
   props: {
     allowUnsuggested: Boolean,
@@ -314,4 +319,14 @@ export default {
         display: block
         overflow: hidden
         color: $text-secondary
+
+    .v-enter-active,
+    .v-leave-active,
+    .v-move
+      transition: transform 200ms ease, opacity 200ms ease
+
+      &.v-enter-from,
+      &.v-leave-to
+        transform: scale(0.8)
+        opacity: 0
 </style>
