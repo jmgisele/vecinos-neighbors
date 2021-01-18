@@ -301,6 +301,9 @@ export default {
   .tags-wrapper
     margin: -0.25rem
     max-width: 100%
+    display: flex
+    flex-wrap: wrap
+    align-items: center
 
     .tag
       padding: 0.25rem
@@ -350,7 +353,7 @@ export default {
     .autogrow-input
       position: relative
       display: inline-block
-      height: (34 / 16)rem
+      height: 1.5rem
       max-width: 100%
       vertical-align: top
       margin: 0.25rem
@@ -406,7 +409,6 @@ export default {
         display: block
         overflow: hidden
         color: $text-secondary
-        line-height: (34 / 16)rem
 
     .v-enter-active,
     .v-leave-active,
