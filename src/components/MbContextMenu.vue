@@ -46,6 +46,8 @@ export default {
       if (direction < 0) { // focus previous
         if (this.currentlySelected > 0) this.currentlySelected -= 1;
         else this.currentlySelected = elements.length - 1;
+      } else if (direction === 0) {
+        this.currentlySelected = 0;
       } else { // focus next
         // eslint-disable-next-line no-lonely-if
         if (this.currentlySelected < elements.length - 1) this.currentlySelected += 1;
