@@ -396,6 +396,7 @@ export default {
         display: block
         overflow: hidden
         color: $text-secondary
+        line-height: (34 / 16)rem
 
     .v-enter-active,
     .v-leave-active,
