@@ -383,11 +383,15 @@
         <h2>Tag Inputs</h2>
         <p>This component allows entering a list of tags with autocompletion, removal and rearrangement.</p>
         <p>The current value is: <code>{{tagList}}</code></p>
-        <MbTagInput v-model="tagList" :autocomplete-model="colorPalette" autocomplete-property="label" :allow-unsuggested="true" :dark="dark" label="A simple tag input" :max="4" :min="3" />
+        <MbTagInput v-model="tagList" :autocomplete-model="colorPalette" autocomplete-property="label" :allow-unsuggested="true" :dark="dark" label="An advanced tag input" :max="4" :min="3" />
+        <MbTagInput v-model="tagList" :autocomplete-model="['foobar', 'bazlington', 'fizzbuzz', 'crazy']" :dark="dark" label="A simple tag input" />
         <h3>Props</h3>
         <MbTable :data="props.tagInputs" />
         <h3>Events</h3>
         <MbTable :data="events.tagInputs" />
+        <h3>Notes</h3>
+        <p>If <code>autocompleteModel</code> and <code>autocompleteProperty</code> are provided, the tag input will fetch suggestions based on the typed characters out of the model.</p>
+        <p>If a model is provided, the input will only accept tags from that model unless <code>allowUnsuggested</code> is set to <code>true</code>.</p>
       </section>
       <section v-else class="tab" key="exampleTab">
         <p>This is just an empty test-tab.</p>
@@ -583,6 +587,8 @@ export default {
         ],
         tagInputs: [
           ['Name', 'Data'],
+          ['`blur`', ''],
+          ['`focus`', ''],
           ['`update:modelValue`', 'The new array of tags'],
         ],
         textareas: [
@@ -734,8 +740,15 @@ export default {
         ],
         tagInputs: [
           ['Name', 'Type', 'Default'],
+          ['`allowUnsuggested`', 'Boolean', '`false`'],
+          ['`autocompleteModel`', 'Array', '`undefined`'],
+          ['`autocompleteProperty`', 'String', '`undefined`'],
           ['`dark`', 'Boolean', '`false`'],
+          ['`label`', 'String', '`undefined`'],
+          ['`max`', 'Number', '`undefined`'],
+          ['`min`', 'Number', '`undefined`'],
           ['`modelValue`', 'Array', '`[]`'],
+          ['`placeholder`', 'String', '`New Tag…`'],
         ],
         textareas: [
           ['Name', 'Type', 'Default', 'Notes'],
