@@ -49,7 +49,13 @@ export default {
         && this.filteredSuggestions.length > 0
         && this.filteredSuggestions[0][this.autocompleteProperty].startsWith(this.newTag)
       ) return this.filteredSuggestions[0][this.autocompleteProperty];
-      if (this.autocompleteModel && !this.autocompleteProperty && this.filteredSuggestions.length > 0 && this.filteredSuggestions[0].startsWith(this.newTag)) return this.filteredSuggestions[0];
+      if (
+        this.autocompleteModel
+        && !this.autocompleteProperty
+        && this.filteredSuggestions.length > 0
+        && typeof this.filteredSuggestions[0] === 'string'
+        && this.filteredSuggestions[0].startsWith(this.newTag)
+      ) return this.filteredSuggestions[0];
       return null;
     },
   },
