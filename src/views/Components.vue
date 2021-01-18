@@ -396,6 +396,15 @@
         <p>If <code>autocompleteModel</code> and <code>autocompleteProperty</code> are provided, the tag input will fetch suggestions based on the typed characters out of the model.</p>
         <p>If a model is provided, the input will only accept tags from that model unless <code>allowUnsuggested</code> is set to <code>true</code>.</p>
       </section>
+      <section v-else-if="activeTabValue === 'date-pickers'" class="tab date-pickers">
+        <h2>Date Pickers</h2>
+        <p>This component allows picking dates and times visually.</p>
+        <MbDatePicker :dark="dark" />
+        <h3>Props</h3>
+        <MbTable :data="props.datePickers" />
+        <h3>Events</h3>
+        <MbTable :data="events.datePickers" />
+      </section>
       <section v-else class="tab" key="exampleTab">
         <p>This is just an empty test-tab.</p>
         <p>To delete it, click the button in the “<u @click="activeTab = tabs.findIndex((tab) => tab.value === 'tabs')">Tabs</u>”-tab.</p>
@@ -557,6 +566,10 @@ export default {
           ['Name', 'Data'],
           ['`close`', ''],
         ],
+        datePickers: [
+          ['Name', 'Data'],
+          ['`update:modelValue`', 'The new date in the specified format'],
+        ],
         fileLists: [
           ['Name', 'Data'],
           ['`fileclick`', 'The full path of the clicked file'],
@@ -648,6 +661,13 @@ export default {
           ['`target`', 'HTMLElement', ''],
           ['`x`', 'Number', '`0`'],
           ['`y`', 'Number', '`0`'],
+        ],
+        datePickers: [
+          ['Name', 'Type', 'Default'],
+          ['`dark`', 'Boolean', '`false`'],
+          ['`format`', 'String', '`ms`'],
+          ['`modelValue`', 'String, Number', ''],
+          ['`showTime`', 'Boolean', '`false`'],
         ],
         fileLists: [
           ['Name', 'Type', 'Default', 'Notes'],
@@ -886,6 +906,7 @@ export default {
         { label: 'Checkboxes', value: 'checkboxes' },
         { label: 'Color Pickers', value: 'color-pickers' },
         { label: 'Context Menus', value: 'context-menus' },
+        { label: 'Date Pickers', value: 'date-pickers' },
         { label: 'File Lists', value: 'file-lists' },
         { label: 'Icons', value: 'icons' },
         { label: 'Inputs', value: 'inputs' },
