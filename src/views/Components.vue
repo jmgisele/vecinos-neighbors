@@ -172,6 +172,7 @@
       <section v-else-if="activeTabValue === 'scrollers'" class="tab scrollers" key="scrollers">
         <h2>Scrollers</h2>
         <p>Scrollers are used to hide scrollbars, but still leave indicators that there’s more content to be scrolled to, like in overflowing editor toolbars and tab bars.</p>
+        <p>To facilitate horizontal scrolling on a desktop when no trackpad is available, horizontal scrollers can also be scrolled by clicking &amp; dragging with the left or middle mouse buttons.</p>
         <MbScroller class="horiz">
           <ul>
             <li>First Item</li>
@@ -181,6 +182,9 @@
             <li>Fifth Item</li>
             <li>Sixth Item</li>
             <li>Seventh Item</li>
+            <li>Eighth Item</li>
+            <li>Ninth Item</li>
+            <li>Tenth Item</li>
           </ul>
         </MbScroller>
         <MbScroller class="vert" direction="vertical">

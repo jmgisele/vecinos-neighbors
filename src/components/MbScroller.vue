@@ -1,5 +1,5 @@
 <template lang="html">
-  <div class="scroller" :class="[direction]">
+  <div class="scroller" :class="[direction]" @mousedown.prevent="startDrag">
     <div class="scroll-area" ref="scrollArea" @scroll.passive="toggleScrollShadows">
       <slot />
     </div>
@@ -16,6 +16,11 @@ export default {
   },
   data() {
     return {
+      drag: {
+        active: false,
+        lastSpeed: 0,
+        start: 0,
+      },
       observer: null,
       shadow: {
         start: false,
@@ -24,6 +29,27 @@ export default {
     };
   },
   methods: {
+    carryMomentum(speed) {
+      if (this.drag.active || Math.abs(speed) < 0.5 || !speed) return;
+      this.$refs.scrollArea.scrollLeft -= speed;
+      window.requestAnimationFrame(() => this.carryMomentum(speed * 0.92));
+    },
+    preventClick(e) {
+      e.stopPropagation();
+      window.removeEventListener('click', this.preventClick, { capture: true });
+    },
+    startDrag(e) {
+      if (this.direction !== 'horizontal' || e.button === 2) return;
+      this.drag.start = e.clientX;
+      window.addEventListener('mousemove', this.updateDrag);
+      window.addEventListener('mouseup', this.stopDrag);
+    },
+    stopDrag() {
+      this.drag.active = false;
+      window.removeEventListener('mousemove', this.updateDrag);
+      window.removeEventListener('mouseup', this.stopDrag);
+      this.carryMomentum(this.drag.lastSpeed);
+    },
     toggleScrollShadows() {
       if (this.direction === 'horizontal') {
         const hasHorizontalScrollbar = this.$refs.scrollArea.clientWidth < this.$refs.scrollArea.scrollWidth;
@@ -48,6 +74,15 @@ export default {
         this.shadow.end = hasVerticalScrollbar && !scrolledToBottom;
         this.shadow.start = hasVerticalScrollbar && !scrolledToTop;
       }
+    },
+    updateDrag(e) {
+      if (!this.drag.active && Math.abs(e.clientX - this.drag.start) > 10) {
+        this.drag.active = true;
+        window.addEventListener('click', this.preventClick, { capture: true });
+      }
+      if (!this.drag.active) return;
+      this.$refs.scrollArea.scrollLeft -= e.movementX;
+      this.drag.lastSpeed = e.movementX;
     },
   },
   mounted() {
