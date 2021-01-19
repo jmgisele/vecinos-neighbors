@@ -671,6 +671,8 @@ export default {
           ['`dark`', 'Boolean', '`false`'],
           ['`format`', 'String', '`ms`'],
           ['`modelValue`', 'String, Number', ''],
+          ['`placeholder`', 'String', 'Choose a date…'],
+          ['`removable`', 'Boolean', '`false`'],
           ['`showTime`', 'Boolean', '`false`'],
         ],
         fileLists: [
