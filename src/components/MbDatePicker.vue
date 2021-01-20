@@ -4,9 +4,24 @@
     <span class="label" :class="{ placeholder: !formattedDate }">{{formattedDate || placeholder}}</span>
     <MbButton v-if="removable" :dark="dark" icon="cross" rounded tooltip="Clear date" @click="$emit('update:modelValue', null)" />
     <MbPopover center-x class="date-popover" :dark="dark" ref="popover" :style="{ minWidth: popover.minWidth }" :visible="popover.show" :x="popover.x" :y="popover.y" @close="deactivate">
-      <MbSelect class="month-picker" :dark="dark" :model-value="months[currentMonth]" :options="months" rounded @update:model-value="setCurrentMonth" />
+      <header>
+        <MbButton :dark="dark" icon="chevron-left" rounded tooltip="Previous month" @click="changeMonth(-1)" />
+        <MbSelect v-model="currentMonth" class="month-picker" :dark="dark" :options="months" @click="monthSelectorOpen = true" />
+        <MbButton :dark="dark" icon="chevron-right" rounded tooltip="Next month" @click="changeMonth(1)" />
+      </header>
       <div class="calendar">
+        <header>
+          <span class="label">Mon</span>
+          <span class="label">Tue</span>
+          <span class="label">Wed</span>
+          <span class="label">Thu</span>
+          <span class="label">Fri</span>
+          <span class="label">Sat</span>
+          <span class="label">Sun</span>
+        </header>
+        <div class="days">
 
+        </div>
       </div>
       <template #footer>
         <MbButton :dark="dark" @click="deactivate">Cancel</MbButton>
@@ -17,32 +32,46 @@
 </template>
 
 <script>
+import {
+  addMonths,
+  eachMonthOfInterval,
+  endOfYear,
+  format,
+  getMonth,
+  setMonth,
+  startOfYear,
+} from 'date-fns';
+
 export default {
   computed: {
+    currentMonth: {
+      get() {
+        return getMonth(this.date);
+      },
+      set(v) {
+        this.date = setMonth(this.date, v);
+      },
+    },
     formattedDate() {
       if (!this.modelValue) return null;
-      return 'Todo: format date';
+      return format(this.date, 'MMM do yyyy');
     },
     months() {
-      return [
-        'January 2021',
-        'February 2021',
-        'March 2021',
-        'May 2021',
-        'June 2021',
-        'July 2021',
-        'August 2021',
-        'September 2021',
-        'October 2021',
-        'November 2021',
-        'December 2021',
-      ];
+      return eachMonthOfInterval({ start: startOfYear(this.date), end: endOfYear(this.date) })
+        .map((month, index) => ({
+          label: format(month, 'MMMM yyyy'),
+          value: index,
+        }));
     },
+  },
+  created() {
+    if (this.modelValue) this.date = new Date(this.modelValue);
+    else this.date = new Date();
   },
   data() {
     return {
-      currentMonth: 0,
       date: null,
+      monthSelectorOpen: false,
       popover: {
         minWidth: 0,
         show: false,
@@ -64,14 +93,18 @@ export default {
 
       this.popover.show = true;
     },
+    changeMonth(amount) {
+      this.date = addMonths(this.date, amount);
+    },
     deactivate(e) {
+      if (this.monthSelectorOpen) {
+        this.monthSelectorOpen = false;
+        return;
+      }
       if (e && e.type === 'scroll' && this.$refs.popover.$refs.el.contains(e.target)) return;
       window.removeEventListener('scroll', this.deactivate, { capture: true, passive: true });
       this.popover.show = false;
       this.$el.focus();
-    },
-    setCurrentMonth(month) {
-      this.currentMonth = this.months.indexOf(month);
     },
     setDate() {
       this.$emit('update:modelValue', this.date);
@@ -95,6 +128,16 @@ export default {
   },
 };
 </script>
+
+<style lang="stylus">
+.date-popover // needs to be unscoped for the select to pick up the styles
+  .month-picker.select.button
+    border: none
+    min-width: auto
+
+    &:focus
+      border: none
+</style>
 
 <style lang="stylus" scoped>
 @require '../assets/styles/colors'
@@ -166,11 +209,48 @@ export default {
     padding: (8.5 / 16)rem
 
 .date-popover
-  .month-picker
-    border: none
-    min-width: auto
+  *
+    user-select: none
+
+  header
+    display: flex
+    align-items: center
+    margin-bottom: 0.5rem
+
+    .button
+      &:first-child
+        margin-right: 0.5rem
+
+      &:last-child
+        margin-left: 0.5rem
 
   .calendar
-    background-color: red
-    height: 1rem
+    header
+      display: flex
+      justify-content: space-around
+      color: $text-secondary
+      margin-bottom: 0.75rem
+
+      .label
+        margin: 0 0.375rem
+        width: 100%
+        text-align: center
+        font-size: 0.75rem
+
+        &:first-child
+          margin-left: 0
+
+        &:last-child
+          margin-right: 0
+
+    .days
+      display: flex
+      flex-wrap: wrap
+      margin: 0 -0.1875rem
+
+      .button
+        margin: 0.1875rem 0.1875rem
+        width: calc(100% / 7 - 0.375rem)
+        padding: 0.125rem
+
 </style>
