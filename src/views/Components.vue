@@ -403,7 +403,8 @@
       <section v-else-if="activeTabValue === 'date-pickers'" class="tab date-pickers">
         <h2>Date Pickers</h2>
         <p>This component allows picking dates and times visually.</p>
-        <MbDatePicker :dark="dark" />
+        <p>The current date is: <code>{{testdate}}</code></p>
+        <MbDatePicker v-model="testdate" :dark="dark" />
         <h3>Props</h3>
         <MbTable :data="props.datePickers" />
         <h3>Events</h3>
@@ -932,6 +933,7 @@ export default {
       ],
       editorTest: '',
       tagList: [],
+      testdate: null,
       textTest: '',
       toggleTest: false,
     };

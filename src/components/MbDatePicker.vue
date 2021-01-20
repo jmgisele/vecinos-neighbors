@@ -3,7 +3,7 @@
     <MbIcon :icon="modelValue ? 'calendar' : 'calendar-add'" />
     <span class="label" :class="{ placeholder: !formattedDate }">{{formattedDate || placeholder}}</span>
     <MbButton v-if="removable" :dark="dark" icon="cross" rounded tooltip="Clear date" @click="$emit('update:modelValue', null)" />
-    <MbPopover center-x class="date-popover" :dark="dark" ref="popover" :style="{ minWidth: popover.minWidth }" :visible="popover.show" :x="popover.x" :y="popover.y" @close="deactivate">
+    <MbPopover center-x class="date-popover" :dark="dark" ref="popover" :visible="popover.show" :x="popover.x" :y="popover.y" @close="deactivate">
       <header>
         <MbButton :dark="dark" icon="chevron-left" rounded tooltip="Previous month" @click="changeMonth(-1)" />
         <MbSelect v-model="currentMonth" class="month-picker" :dark="dark" :options="months" @click="monthSelectorOpen = true" />
@@ -19,9 +19,11 @@
           <span class="label">Sat</span>
           <span class="label">Sun</span>
         </header>
-        <div class="days">
-
-        </div>
+        <transition mode="out-in" :name="calendarTransition">
+          <div class="days" :key="currentMonth">
+            <MbButton v-for="(day, index) in days" :class="{ 'other-month': day.month !== currentMonth }" :dark="dark" :key="index" rounded :type="day.active ? 'primary' : null" @click="setDay(day.day, day.month, day.year)">{{day.day}}</MbButton>
+          </div>
+        </transition>
       </div>
       <template #footer>
         <MbButton :dark="dark" @click="deactivate">Cancel</MbButton>
@@ -34,15 +36,29 @@
 <script>
 import {
   addMonths,
+  eachDayOfInterval,
   eachMonthOfInterval,
+  endOfMonth,
+  endOfWeek,
   endOfYear,
   format,
+  formatISO,
+  getDate,
   getMonth,
+  getYear,
+  isSameDay,
+  setDate,
   setMonth,
+  setYear,
+  startOfMonth,
+  startOfWeek,
   startOfYear,
 } from 'date-fns';
 
 export default {
+  beforeUnmount() {
+    window.removeEventListener('scroll', this.deactivate, { capture: true, passive: true });
+  },
   computed: {
     currentMonth: {
       get() {
@@ -52,9 +68,27 @@ export default {
         this.date = setMonth(this.date, v);
       },
     },
+    currentYear() {
+      return getYear(this.date);
+    },
+    days() {
+      const start = startOfWeek(startOfMonth(this.date), { weekStartsOn: 1 });
+      const end = endOfWeek(endOfMonth(this.date), { weekStartsOn: 1 });
+      const rawDays = eachDayOfInterval({ start, end });
+      const cleanDays = [];
+      rawDays.forEach((day) => {
+        cleanDays.push({
+          active: isSameDay(this.date, day),
+          day: getDate(day),
+          month: getMonth(day),
+          year: getYear(day),
+        });
+      });
+      return cleanDays;
+    },
     formattedDate() {
       if (!this.modelValue) return null;
-      return format(this.date, 'MMM do yyyy');
+      return format(this.modelValue, 'MMMM do, yyyy');
     },
     months() {
       return eachMonthOfInterval({ start: startOfYear(this.date), end: endOfYear(this.date) })
@@ -70,10 +104,10 @@ export default {
   },
   data() {
     return {
+      calendarTransition: 'forward',
       date: null,
       monthSelectorOpen: false,
       popover: {
-        minWidth: 0,
         show: false,
         x: 0,
         y: 0,
@@ -88,7 +122,6 @@ export default {
       const remBase = Number.parseInt(window.getComputedStyle(document.documentElement).fontSize, 10);
       this.popover.x = rect.left + rect.width / 2;
       this.popover.y = rect.bottom + 0.5 * remBase;
-      this.popover.minWidth = Math.min(rect.width, window.innerWidth - remBase);
       window.addEventListener('scroll', this.deactivate, { capture: true, passive: true });
 
       this.popover.show = true;
@@ -107,8 +140,16 @@ export default {
       this.$el.focus();
     },
     setDate() {
-      this.$emit('update:modelValue', this.date);
+      if (this.format === 'ms') this.$emit('update:modelValue', this.date.valueOf());
+      else if (this.format === 'iso' && this.showTime) this.$emit('update:modelValue', formatISO(this.date));
+      else this.$emit('update:modelValue', formatISO(this.date, { representation: 'date' }));
       this.deactivate();
+    },
+    setDay(day, month, year) {
+      let { date } = this;
+      if (year !== this.currentYear) date = setYear(date, year);
+      if (month !== this.currentMonth) date = setMonth(date, month);
+      this.date = setDate(date, day);
     },
   },
   props: {
@@ -125,6 +166,16 @@ export default {
     },
     removable: Boolean,
     showTime: Boolean,
+  },
+  watch: {
+    currentMonth(nv, ov) {
+      if (ov > nv) this.calendarTransition = 'forwards';
+      else this.calendarTransition = 'backwards';
+    },
+    currentYear(nv, ov) { // hacky but ensures that the right animation plays if the year gets smaller
+      if (ov > nv) this.calendarTransition = 'forwards';
+      else this.calendarTransition = 'backwards';
+    },
   },
 };
 </script>
@@ -209,13 +260,22 @@ export default {
     padding: (8.5 / 16)rem
 
 .date-popover
+  &.dark
+    .calendar
+      header
+        color: $text-secondary-dark
+
+      .days
+        .button.other-month
+          color: $text-tertiary-dark
   *
     user-select: none
 
   header
     display: flex
+    justify-content: space-between
     align-items: center
-    margin-bottom: 0.5rem
+    margin-bottom: 1rem
 
     .button
       &:first-child
@@ -225,6 +285,9 @@ export default {
         margin-left: 0.5rem
 
   .calendar
+    width: 100%
+    max-width: (((7 * (48 + 6)) - 6) / 16)rem // 7 Buttons a 48px + 6px margin - negative margin of 6px
+
     header
       display: flex
       justify-content: space-around
@@ -248,9 +311,30 @@ export default {
       flex-wrap: wrap
       margin: 0 -0.1875rem
 
+      &.forwards-enter-active,
+      &.backwards-enter-active,
+      &.forwards-leave-active,
+      &.backwards-leave-active
+        transition: transform 200ms ease, opacity 200ms ease
+
+        &.forwards-enter-from,
+        &.backwards-leave-to
+          opacity: 0
+          transform: translateX(-2rem)
+
+        &.backwards-enter-from,
+        &.forwards-leave-to
+          opacity: 0
+          transform: translateX(2rem)
+
       .button
-        margin: 0.1875rem 0.1875rem
+        margin: 0.1875rem
+        padding: 0
         width: calc(100% / 7 - 0.375rem)
-        padding: 0.125rem
+        height: (48 / 16)rem
+        border: none
+
+        &.other-month
+          color: $text-secondary
 
 </style>
