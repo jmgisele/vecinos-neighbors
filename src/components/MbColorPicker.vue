@@ -113,7 +113,12 @@ export default {
         const color = this.cleanPalette.find((paletteItem) => paletteItem.value === this.modelValue);
         if (color) return color.label;
       }
-      return this.modelValue || 'No Color';
+      if (this.modelValue) {
+        if (this.format === 'hex') return tinycolor(this.modelValue).toHexString();
+        if (this.format === 'rgb') return tinycolor(this.modelValue).setAlpha(1).toRgbString();
+        return tinycolor(this.modelValue).toRgbString();
+      }
+      return 'No Color';
     },
     newColor() {
       if (!this.workingColor) return null;
