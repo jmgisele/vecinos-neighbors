@@ -196,6 +196,10 @@ export default {
       if (ov > nv) this.calendarTransition = 'forwards';
       else this.calendarTransition = 'backwards';
     },
+    modelValue(nv) {
+      if (!nv) this.date = new Date();
+      else this.date = new Date(this.modelValue);
+    },
   },
 };
 </script>
