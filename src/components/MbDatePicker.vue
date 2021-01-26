@@ -2,6 +2,8 @@
   <div class="date-picker" :class="{dark}" tabindex="0" @click="activate">
     <MbIcon :icon="modelValue ? 'calendar' : 'calendar-add'" />
     <span class="label" :class="{ placeholder: !formattedDate }">{{formattedDate || placeholder}}</span>
+    <MbIcon v-if="showTime" v-show="modelValue" class="clock" icon="clock" />
+    <span v-if="showTime" v-show="modelValue" class="label">{{formattedTime}}</span>
     <MbButton v-if="removable" v-show="modelValue" :dark="dark" icon="cross" ref="removeButton" rounded tooltip="Clear date" @click="$emit('update:modelValue', null)" />
     <MbPopover center-x class="date-popover" :dark="dark" ref="popover" :visible="popover.show" :x="popover.x" :y="popover.y" @close="deactivate">
       <header>
@@ -25,6 +27,11 @@
           </div>
         </transition>
       </div>
+      <footer v-if="showTime">
+        <MbButton :dark="dark" icon="minus" rounded tooltip="Remove 15 minutes" @click="changeTime(-15)" />
+        <MbInput :dark="dark" icon="clock" :error="timeError" :model-value="formattedLocalTime" placeholder="00:00" @blur="changeTime(tempTime)" @keyup.enter="changeTime(tempTime)" @update:model-value="tempTime = $event" />
+        <MbButton :dark="dark" icon="plus" rounded tooltip="Add 15 minutes" @click="changeTime(15)" />
+      </footer>
       <template #footer>
         <MbButton :dark="dark" @click="deactivate">Cancel</MbButton>
         <MbButton :dark="dark" type="primary" @click="setDate">Set Date</MbButton>
@@ -35,6 +42,7 @@
 
 <script>
 import {
+  addMinutes,
   addMonths,
   eachDayOfInterval,
   eachMonthOfInterval,
@@ -48,7 +56,10 @@ import {
   getYear,
   isSameDay,
   parseISO,
+  roundToNearestMinutes,
   setDate,
+  setHours,
+  setMinutes,
   setMonth,
   setYear,
   startOfDay,
@@ -90,7 +101,17 @@ export default {
     },
     formattedDate() {
       if (!this.modelValue) return null;
-      const dateFormat = 'MMMM do, yyyy';
+      let dateFormat = 'MMMM do, yyyy';
+      if (this.showTime) dateFormat = 'MMM. do, yyyy';
+      if (typeof this.modelValue === 'string') return format(parseISO(this.modelValue), dateFormat);
+      return format(this.modelValue, dateFormat);
+    },
+    formattedLocalTime() {
+      return format(this.date, 'HH:mm');
+    },
+    formattedTime() {
+      if (!this.modelValue) return null;
+      const dateFormat = 'HH:mm';
       if (typeof this.modelValue === 'string') return format(parseISO(this.modelValue), dateFormat);
       return format(this.modelValue, dateFormat);
     },
@@ -119,6 +140,8 @@ export default {
         x: 0,
         y: 0,
       },
+      tempTime: '',
+      timeError: '',
       touchStart: 0,
     };
   },
@@ -137,6 +160,29 @@ export default {
     },
     changeMonth(amount) {
       this.date = addMonths(this.date, amount);
+    },
+    changeTime(value) {
+      if (this.timeError) this.timeError = '';
+      if (!value) return;
+      if (typeof value === 'string') {
+        const [hourString, minuteString] = value.split(':');
+        const parsedHours = Number.parseInt(hourString, 10);
+        let parsedMinutes = Number.parseInt(minuteString, 10);
+
+        if (Number.isNaN(parsedHours)) {
+          this.timeError = 'Invalid time';
+          return;
+        }
+
+        if (Number.isNaN(parsedMinutes)) parsedMinutes = 0;
+
+        const hours = Math.max(Math.min(parsedHours, 23), 0);
+        const minutes = Math.max(Math.min(parsedMinutes, 59), 0);
+
+        this.date = setHours(setMinutes(this.date, minutes), hours);
+      } else {
+        this.date = roundToNearestMinutes(addMinutes(this.date, value), { nearestTo: 15 });
+      }
     },
     deactivate(e) {
       if (this.monthSelectorOpen) {
@@ -278,6 +324,9 @@ export default {
     &.placeholder
       color: $text-secondary
 
+  .clock
+    margin-left: 1.5rem
+
   .button.icon
     margin: -0.5rem
     margin-left: 0.5rem
@@ -370,4 +419,23 @@ export default {
         &.other-month
           color: $text-secondary
 
+  footer
+    display: flex
+    align-items: center
+    justify-content: space-between
+    margin-top: 1.5rem
+
+    &:last-child
+      margin-bottom: 0.5rem
+
+    .button.icon
+      &:first-child
+        margin-right: 0.75rem
+
+      &:last-child
+        margin-left: 0.75rem
+
+    .input
+      margin-top: 0
+      width: 8rem
 </style>
