@@ -101,8 +101,11 @@ export default {
     },
     formattedDate() {
       if (!this.modelValue) return null;
-      let dateFormat = 'MMMM do, yyyy';
-      if (this.showTime) dateFormat = 'MMM. do, yyyy';
+      let dateFormat = 'dd MMMM yyyy';
+      if (this.showTime) {
+        if (this.mobile) dateFormat = 'dd/MM/yy';
+        else dateFormat = 'dd MMM. yyyy';
+      } else if (this.mobile) dateFormat = 'dd MMM. yyyy';
       if (typeof this.modelValue === 'string') return format(parseISO(this.modelValue), dateFormat);
       return format(this.modelValue, dateFormat);
     },
@@ -320,12 +323,20 @@ export default {
 
   .label
     margin-left: 0.75rem
+    overflow: hidden
+    text-overflow: ellipsis
 
     &.placeholder
       color: $text-secondary
 
-  .clock
-    margin-left: 1.5rem
+  .icon
+    flex-shrink: 0
+
+    &.clock
+      margin-left: 1.5rem
+
+      @media $mobile
+        margin-left: 1rem
 
   .button.icon
     margin: -0.5rem
