@@ -2,7 +2,7 @@
   <div class="date-picker" :class="{dark}" tabindex="0" @click="activate">
     <MbIcon :icon="modelValue ? 'calendar' : 'calendar-add'" />
     <span class="label" :class="{ placeholder: !formattedDate }">{{formattedDate || placeholder}}</span>
-    <MbButton v-if="removable" :dark="dark" icon="cross" rounded tooltip="Clear date" @click="$emit('update:modelValue', null)" />
+    <MbButton v-if="removable" v-show="modelValue" :dark="dark" icon="cross" ref="removeButton" rounded tooltip="Clear date" @click="$emit('update:modelValue', null)" />
     <MbPopover center-x class="date-popover" :dark="dark" ref="popover" :visible="popover.show" :x="popover.x" :y="popover.y" @close="deactivate">
       <header>
         <MbButton v-show="!mobile" :dark="dark" icon="chevron-left" rounded tooltip="Previous month" @click="changeMonth(-1)" />
@@ -47,6 +47,7 @@ import {
   getMonth,
   getYear,
   isSameDay,
+  parseISO,
   setDate,
   setMonth,
   setYear,
@@ -89,7 +90,9 @@ export default {
     },
     formattedDate() {
       if (!this.modelValue) return null;
-      return format(this.modelValue, 'MMMM do, yyyy');
+      const dateFormat = 'MMMM do, yyyy';
+      if (typeof this.modelValue === 'string') return format(parseISO(this.modelValue), dateFormat);
+      return format(this.modelValue, dateFormat);
     },
     mobile() {
       return this.$store.state.application.mobile;
@@ -121,8 +124,9 @@ export default {
   },
   emits: ['update:modelValue'],
   methods: {
-    activate() {
+    activate(e) {
       if (this.popover.show) return;
+      if (this.removable && (e.target === this.$refs.removeButton.$el || this.$refs.removeButton.$el.contains(e.target))) return;
       const rect = this.$el.getBoundingClientRect();
       const remBase = Number.parseInt(window.getComputedStyle(document.documentElement).fontSize, 10);
       this.popover.x = rect.left + rect.width / 2;
