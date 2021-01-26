@@ -52,6 +52,8 @@ import {
   format,
   formatISO,
   getDate,
+  getHours,
+  getMinutes,
   getMonth,
   getYear,
   isSameDay,
@@ -63,6 +65,7 @@ import {
   setMonth,
   setYear,
   startOfDay,
+  startOfMinute,
   startOfMonth,
   startOfWeek,
   startOfYear,
@@ -166,8 +169,14 @@ export default {
     },
     changeTime(value) {
       if (this.timeError) this.timeError = '';
-      if (!value) return;
       if (typeof value === 'string') {
+        if (value === '') {
+          const now = new Date();
+          const minutes = getMinutes(now);
+          const hours = getHours(now);
+          this.date = startOfMinute(setHours(setMinutes(this.date, minutes), hours));
+          return;
+        }
         const [hourString, minuteString] = value.split(':');
         const parsedHours = Number.parseInt(hourString, 10);
         let parsedMinutes = Number.parseInt(minuteString, 10);
@@ -182,10 +191,10 @@ export default {
         const hours = Math.max(Math.min(parsedHours, 23), 0);
         const minutes = Math.max(Math.min(parsedMinutes, 59), 0);
 
-        this.date = setHours(setMinutes(this.date, minutes), hours);
-      } else {
+        this.date = startOfMinute(setHours(setMinutes(this.date, minutes), hours));
+      } else if (value) {
         this.date = roundToNearestMinutes(addMinutes(this.date, value), { nearestTo: 15 });
-      }
+      } else this.timeError = 'Invalid time';
     },
     deactivate(e) {
       if (this.monthSelectorOpen) {
