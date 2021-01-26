@@ -405,6 +405,7 @@
         <p>This component allows picking dates and times visually.</p>
         <p>The current date is: <code>{{testdate}}</code></p>
         <MbDatePicker v-model="testdate" :dark="dark" />
+        <MbDatePicker v-model="testdate" :dark="dark" format="iso" placeholder="A custom placeholder" removable show-time />
         <h3>Props</h3>
         <MbTable :data="props.datePickers" />
         <h3>Events</h3>
@@ -1184,6 +1185,11 @@ export default {
         vertical-align: top
 
       .color-picker:not(:last-of-type)
+        margin-right: 1rem
+        margin-bottom: 1rem
+
+    &.date-pickers
+      .date-picker:not(:last-of-type)
         margin-right: 1rem
         margin-bottom: 1rem
 </style>
