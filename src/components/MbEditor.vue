@@ -31,9 +31,9 @@
       <MbInput v-model="linkPopover.title" :dark="dark" icon="text" label="Link Title (optional)" />
       <MbToggle v-model="linkPopover.newTab" :dark="dark">Open link in a new tab</MbToggle>
       <MbToggle v-show="linkPopover.newTab" v-model="linkPopover.nofollow" :dark="dark">Include “nofollow” hint</MbToggle>
+      <MbButton v-show="linkPopover.editing" class="remove-link" :dark="dark" icon="trash" :icon-first="false" type="negative" @click="removeLink">Remove Link</MbButton>
       <template #footer>
         <MbButton :dark="dark" @click="closeLinkPopover">Cancel</MbButton>
-        <MbButton v-show="linkPopover.editing" :dark="dark" type="negative" @click="removeLink">Remove Link</MbButton>
         <MbButton :dark="dark" :disabled="!linkPopover.href" type="primary" @click="addLink">{{linkPopover.editing ? 'Save' : 'Add'}}</MbButton>
       </template>
     </MbPopover>
@@ -946,4 +946,8 @@ export default {
 
   .toggle
     margin-top: 1rem
+
+  .remove-link
+    margin-top: 1rem
+    width: 100%
 </style>
