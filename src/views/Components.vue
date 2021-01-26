@@ -409,6 +409,8 @@
         <MbTable :data="props.datePickers" />
         <h3>Events</h3>
         <MbTable :data="events.datePickers" />
+        <h3>Notes</h3>
+        <p>If <code>showTime</code> is not <code>true</code> the resulting date will be at the start of the day (00:00).</p>
       </section>
       <section v-else class="tab" key="exampleTab">
         <p>This is just an empty test-tab.</p>

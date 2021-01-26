@@ -50,6 +50,7 @@ import {
   setDate,
   setMonth,
   setYear,
+  startOfDay,
   startOfMonth,
   startOfWeek,
   startOfYear,
@@ -154,6 +155,7 @@ export default {
       this.touchStart = e.changedTouches[0].clientX;
     },
     setDate() {
+      if (!this.showTime) this.date = startOfDay(this.date);
       if (this.format === 'ms') this.$emit('update:modelValue', this.date.valueOf());
       else if (this.format === 'iso' && this.showTime) this.$emit('update:modelValue', formatISO(this.date));
       else this.$emit('update:modelValue', formatISO(this.date, { representation: 'date' }));
