@@ -6,7 +6,7 @@
     <MbPopover center-x class="date-popover" :dark="dark" ref="popover" :visible="popover.show" :x="popover.x" :y="popover.y" @close="deactivate">
       <header>
         <MbButton v-show="!mobile" :dark="dark" icon="chevron-left" rounded tooltip="Previous month" @click="changeMonth(-1)" />
-        <MbSelect v-model="currentMonth" class="month-picker" :dark="dark" :options="months" @click="monthSelectorOpen = true" />
+        <MbSelect v-model="currentMonth" class="month-picker" :dark="dark" :options="months" ref="monthSelector" @click="monthSelectorOpen = true" />
         <MbButton v-show="!mobile" :dark="dark" icon="chevron-right" rounded tooltip="Next month" @click="changeMonth(1)" />
       </header>
       <div class="calendar" @touchend="handleTouchEnd" @touchstart="handleTouchStart">
@@ -143,7 +143,7 @@ export default {
         this.monthSelectorOpen = false;
         return;
       }
-      if (e && e.type === 'scroll' && this.$refs.popover.$refs.el.contains(e.target)) return;
+      if (e && e.type === 'scroll' && (this.$refs.popover.$refs.el.contains(e.target) || this.$refs.monthSelector.$refs.popover.$refs.el.contains(e.target))) return;
       window.removeEventListener('scroll', this.deactivate, { capture: true, passive: true });
       this.popover.show = false;
       this.$el.focus();
