@@ -285,8 +285,9 @@ export default {
         margin-left: 0.5rem
 
   .calendar
+    margin: 0 auto
     width: 100%
-    max-width: (((7 * (48 + 6)) - 6) / 16)rem // 7 Buttons a 48px + 6px margin - negative margin of 6px
+    max-width: (((7 * (40 + 6)) - 6) / 16)rem // 7 Buttons a 48px + 6px margin - negative margin of 6px
 
     header
       display: flex
@@ -315,7 +316,7 @@ export default {
       &.backwards-enter-active,
       &.forwards-leave-active,
       &.backwards-leave-active
-        transition: transform 200ms ease, opacity 200ms ease
+        transition: transform 150ms ease-out, opacity 150ms ease-out
 
         &.forwards-enter-from,
         &.backwards-leave-to
@@ -327,11 +328,15 @@ export default {
           opacity: 0
           transform: translateX(2rem)
 
+      &.forwards-leave-active,
+      &.backwards-leave-active
+        transition-timing-function: ease-in
+
       .button
         margin: 0.1875rem
         padding: 0
         width: calc(100% / 7 - 0.375rem)
-        height: (48 / 16)rem
+        height: (40 / 16)rem
         border: none
 
         &.other-month
