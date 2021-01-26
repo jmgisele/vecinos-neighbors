@@ -365,7 +365,7 @@ $checkerboardBG(color, size = 1rem)
     background-color: $bg-tertiary
 
   &:focus
-    background-color: $bg
+    background-color: $bg-secondary
 
     &::before
       opacity: 1
@@ -380,7 +380,7 @@ $checkerboardBG(color, size = 1rem)
       background-color: $bg-tertiary-dark
 
     &:focus
-      background-color: $bg-dark
+      background-color: $bg-secondary-dark
 
   &::before
     content: ''

@@ -240,7 +240,7 @@ export default {
     background-color: $bg-tertiary
 
   &:focus
-    background-color: $bg
+    background-color: $bg-secondary
 
     &::before
       opacity: 1
@@ -255,7 +255,7 @@ export default {
       background-color: $bg-tertiary-dark
 
     &:focus
-      background-color: $bg-dark
+      background-color: $bg-secondary-dark
 
     .label.placeholder
       color: $text-secondary-dark
