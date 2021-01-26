@@ -5,11 +5,11 @@
     <MbButton v-if="removable" :dark="dark" icon="cross" rounded tooltip="Clear date" @click="$emit('update:modelValue', null)" />
     <MbPopover center-x class="date-popover" :dark="dark" ref="popover" :visible="popover.show" :x="popover.x" :y="popover.y" @close="deactivate">
       <header>
-        <MbButton :dark="dark" icon="chevron-left" rounded tooltip="Previous month" @click="changeMonth(-1)" />
+        <MbButton v-show="!mobile" :dark="dark" icon="chevron-left" rounded tooltip="Previous month" @click="changeMonth(-1)" />
         <MbSelect v-model="currentMonth" class="month-picker" :dark="dark" :options="months" @click="monthSelectorOpen = true" />
-        <MbButton :dark="dark" icon="chevron-right" rounded tooltip="Next month" @click="changeMonth(1)" />
+        <MbButton v-show="!mobile" :dark="dark" icon="chevron-right" rounded tooltip="Next month" @click="changeMonth(1)" />
       </header>
-      <div class="calendar">
+      <div class="calendar" @touchend="handleTouchEnd" @touchstart="handleTouchStart">
         <header>
           <span class="label">Mon</span>
           <span class="label">Tue</span>
@@ -90,6 +90,9 @@ export default {
       if (!this.modelValue) return null;
       return format(this.modelValue, 'MMMM do, yyyy');
     },
+    mobile() {
+      return this.$store.state.application.mobile;
+    },
     months() {
       return eachMonthOfInterval({ start: startOfYear(this.date), end: endOfYear(this.date) })
         .map((month, index) => ({
@@ -112,6 +115,7 @@ export default {
         x: 0,
         y: 0,
       },
+      touchStart: 0,
     };
   },
   emits: ['update:modelValue'],
@@ -138,6 +142,16 @@ export default {
       window.removeEventListener('scroll', this.deactivate, { capture: true, passive: true });
       this.popover.show = false;
       this.$el.focus();
+    },
+    handleTouchEnd(e) {
+      const delta = this.touchStart - e.changedTouches[0].clientX;
+      const threshold = 150;
+
+      if (delta > threshold) this.changeMonth(1);
+      if (delta < -threshold) this.changeMonth(-1);
+    },
+    handleTouchStart(e) {
+      this.touchStart = e.changedTouches[0].clientX;
     },
     setDate() {
       if (this.format === 'ms') this.$emit('update:modelValue', this.date.valueOf());
@@ -191,6 +205,7 @@ export default {
 </style>
 
 <style lang="stylus" scoped>
+@require '../assets/styles/breakpoints'
 @require '../assets/styles/colors'
 @require '../assets/styles/corners'
 
@@ -276,6 +291,9 @@ export default {
     justify-content: space-between
     align-items: center
     margin-bottom: 1rem
+
+    @media $mobile
+      justify-content: center
 
     .button
       &:first-child
