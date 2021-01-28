@@ -2,7 +2,7 @@
   <div class="tag-input" :class="{dark, error: error || (max && modelValue.length > max), }" @click="$refs.input.focus()" @focusin="handleFocusIn" @focusout="handleFocusOut">
     <span v-if="displayLabel" class="label" :class="{ right: !label && max }">{{displayLabel}}</span>
     <transition-group class="tags-wrapper" tag="div" @before-leave="setGridPosition">
-      <div v-for="(tag, index) in modelValue" class="tag" :class="{ overflow: max && index + 1 > max, 'drag-active': index === draggedIndex }" :data-index="index" :key="tag[autocompleteProperty] || tag" @pointerdown="startDrag($event, index)">
+      <div v-for="(tag, index) in modelValue" class="tag" :class="{ overflow: max && index + 1 > max, dark, 'drag-active': index === draggedIndex }" :data-area="areaId" :data-index="index" :key="tag[autocompleteProperty] || tag" @pointerdown="startDrag($event, index)">
         <MbIcon icon="drag-handle" />
         <span>{{tag[autocompleteProperty] || tag}}</span>
         <MbButton :dark="dark" :disabled="index === draggedIndex" icon="cross" @click="removeTag(index)" />
@@ -68,8 +68,11 @@ export default {
   },
   data() {
     return {
+      areaId: Math.random().toString(36).slice(2, 9),
+      cloneClickDelta: null,
       contextActionsCache: [],
       dragging: false,
+      draggingClone: null,
       draggedIndex: -1,
       error: '',
       newTag: '',
@@ -190,8 +193,10 @@ export default {
     },
     handlePointerMove(e) {
       const el = document.elementFromPoint(e.clientX, e.clientY);
-      if (!el || !el.dataset.index) return;
-      this.handlePointerEnter(Number.parseInt(el.dataset.index, 10));
+      this.draggingClone.style.left = `${e.clientX - this.cloneClickDelta.x}px`;
+      this.draggingClone.style.top = `${e.clientY - this.cloneClickDelta.y}px`;
+      if (!el || !el.dataset.index || !el.classList.contains('tag') || el.dataset.area !== this.areaId) return;
+      this.handlePointerEnter(Number.parseInt(el.dataset.index, 10)); // TODO: Distinguish between left and right half of element and set index accordingly?
     },
     hideSuggestions() {
       this.suggestions = [];
@@ -212,18 +217,45 @@ export default {
       this.popover.x = rect.left - 1.5 * remBase;
       this.popover.y = rect.bottom + 0.5 * remBase;
     },
-    startDrag(e, i) {
-      if (e.target.tagName.toLowerCase() === 'button') return;
+    startDrag(e, index) {
+      if (e.target.tagName.toLowerCase() === 'button' || e.button !== 0) return;
+      if (this.draggingClone) this.destroyClone();
       this.dragging = e.currentTarget;
-      this.draggedIndex = i;
+      this.draggedIndex = index;
+      const rect = e.currentTarget.getBoundingClientRect();
+      const clone = e.currentTarget.cloneNode(true);
+      this.cloneClickDelta = { x: e.clientX - rect.left, y: e.clientY - rect.top };
+      clone.style.position = 'fixed';
+      clone.style.left = `${e.clientX - this.cloneClickDelta.x}px`;
+      clone.style.top = `${e.clientY - this.cloneClickDelta.y}px`;
+      clone.style.pointerEvents = 'none';
+      clone.style.zIndex = 999;
+      clone.style.margin = 0;
+      document.body.append(clone);
+      this.draggingClone = clone;
       window.addEventListener('pointerup', this.stopDrag);
       window.addEventListener('pointermove', this.handlePointerMove, { passive: true });
     },
-    stopDrag() {
+    destroyClone() {
+      this.draggingClone.remove();
+      this.draggingClone = null;
       this.dragging = false;
       this.draggedIndex = -1;
+      this.cloneClickDelta = null;
+    },
+    stopDrag() {
       window.removeEventListener('pointerup', this.stopDrag);
       window.removeEventListener('pointermove', this.handlePointerMove, { passive: true });
+      const targetRect = this.dragging.getBoundingClientRect();
+      const { left: currentLeft, top: currentTop } = this.draggingClone.style;
+      if (Number.parseInt(currentLeft, 10) === Math.floor(targetRect.left) && Number.parseInt(currentTop, 10) === Math.floor(targetRect.top)) {
+        this.destroyClone();
+        return;
+      }
+      this.draggingClone.style.transition = 'left 200ms ease, top 200ms ease';
+      this.draggingClone.style.left = `${targetRect.left}px`;
+      this.draggingClone.style.top = `${targetRect.top}px`;
+      this.draggingClone.addEventListener('transitionend', this.destroyClone, { once: true });
     },
     validate() {
       let error = '';
@@ -285,10 +317,6 @@ export default {
       color: $text-secondary-dark
 
     .tags-wrapper
-      .tag
-        background-color: $bg-dark
-        box-shadow: none
-
       .autogrow-input
         input
           caret-color: currentColor
@@ -332,51 +360,6 @@ export default {
     display: flex
     flex-wrap: wrap
     align-items: center
-
-    .tag
-      padding: 0.25rem
-      background-color: $bg
-      border-radius: $radius-m
-      margin: 0.25rem
-      display: inline-flex
-      align-items: center
-      white-space: nowrap
-      max-width: 100%
-      touch-action: none
-      cursor: default
-      box-shadow: inset 0 0 0 0.0625rem $text-tertiary
-
-      &.overflow
-        color: $negative-saturated
-
-      &.drag-active
-        background-color: $accent
-        color: $text-dark
-        position: relative
-        z-index: 1
-
-      > .icon
-        flex-shrink: 0
-
-        &:not(.button)
-          cursor: move
-          width: 1rem
-          height: @width
-
-      span
-        margin-left: 0.25rem
-        max-width: 100%
-        overflow: hidden
-        text-overflow: ellipsis
-
-      .button
-        padding: 0.5rem
-        margin-left: 0.25rem
-        border-radius: $radius-s
-
-        &::v-deep(.icon)
-          width: 1rem
-          height: @width
 
     .autogrow-input
       position: relative
@@ -451,4 +434,51 @@ export default {
 
     .v-move
       pointer-events: none
+
+// needs to be unnested so the tag clone has the same styles
+.tag
+  padding: 0.25rem
+  background-color: $bg
+  border-radius: $radius-m
+  margin: 0.25rem
+  display: inline-flex
+  align-items: center
+  white-space: nowrap
+  max-width: 100%
+  touch-action: none
+  cursor: default
+  box-shadow: inset 0 0 0 0.0625rem $text-tertiary
+
+  &.dark
+    background-color: $bg-dark
+    box-shadow: none
+
+  &.overflow
+    color: $negative-saturated
+
+  &.drag-active
+    opacity: 0
+
+  > .icon
+    flex-shrink: 0
+
+    &:not(.button)
+      cursor: move
+      width: 1rem
+      height: @width
+
+  span
+    margin-left: 0.25rem
+    max-width: 100%
+    overflow: hidden
+    text-overflow: ellipsis
+
+  .button.icon
+    padding: 0.5rem
+    margin-left: 0.25rem
+    border-radius: $radius-s
+
+    &::v-deep(.icon)
+      width: 1rem
+      height: @width
 </style>
