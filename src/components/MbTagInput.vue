@@ -457,7 +457,11 @@ export default {
     color: $negative-saturated
 
   &.drag-active
-    opacity: 0
+    box-shadow: inset 0 0 0 2px alpha($accent, 0.5)
+    background-color: transparent
+
+    > *
+      opacity: 0
 
   > .icon
     flex-shrink: 0
