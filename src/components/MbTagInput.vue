@@ -233,6 +233,10 @@ export default {
       clone.style.margin = 0;
       document.body.append(clone);
       this.draggingClone = clone;
+      const style = document.createElement('STYLE');
+      style.innerText = '* { cursor: grabbing !important; }';
+      style.id = `${this.areaId}-grabbingStyle`;
+      document.querySelector('head').append(style);
       window.addEventListener('pointerup', this.stopDrag);
       window.addEventListener('pointermove', this.handlePointerMove, { passive: true });
     },
@@ -246,6 +250,7 @@ export default {
     stopDrag() {
       window.removeEventListener('pointerup', this.stopDrag);
       window.removeEventListener('pointermove', this.handlePointerMove, { passive: true });
+      document.getElementById(`${this.areaId}-grabbingStyle`).remove();
       const targetRect = this.dragging.getBoundingClientRect();
       const { left: currentLeft, top: currentTop } = this.draggingClone.style;
       if (Number.parseInt(currentLeft, 10) === Math.floor(targetRect.left) && Number.parseInt(currentTop, 10) === Math.floor(targetRect.top)) {
