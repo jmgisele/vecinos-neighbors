@@ -2,7 +2,7 @@
   <div class="tag-input" :class="{dark, error: error || (max && modelValue.length > max), }" @click="$refs.input.focus()" @focusin="handleFocusIn" @focusout="handleFocusOut">
     <span v-if="displayLabel" class="label" :class="{ right: !label && max }">{{displayLabel}}</span>
     <transition-group class="tags-wrapper" tag="div" @before-leave="setGridPosition">
-      <div v-for="(tag, index) in modelValue" class="tag" :class="{ overflow: max && index + 1 > max, dark, 'drag-active': index === draggedIndex }" :data-area="areaId" :data-index="index" :key="tag[autocompleteProperty] || tag" @pointerdown="startDrag($event, index)">
+      <div v-for="(tag, index) in modelValue" class="tag" :class="{ overflow: max && index + 1 > max, dark, 'being-dragged': index === draggedIndex, 'drag-active': dragging }" :data-area="areaId" :data-index="index" :key="tag[autocompleteProperty] || tag" @pointerdown="startDrag($event, index)">
         <MbIcon icon="drag-handle" />
         <span>{{tag[autocompleteProperty] || tag}}</span>
         <MbButton :dark="dark" :disabled="index === draggedIndex" icon="cross" @click="removeTag(index)" />
@@ -185,21 +185,26 @@ export default {
         items.forEach((item) => this.addTag(item));
       }
     },
-    handlePointerEnter(i) {
-      if (!this.dragging) return;
-      this.ownTags.splice(i, 0, this.ownTags.splice(this.draggedIndex, 1)[0]);
-      this.draggedIndex = i;
-      this.$emit('update:modelValue', this.ownTags);
-    },
     handlePointerMove(e) {
       const el = document.elementFromPoint(e.clientX, e.clientY);
       this.draggingClone.style.left = `${e.clientX - this.cloneClickDelta.x}px`;
       this.draggingClone.style.top = `${e.clientY - this.cloneClickDelta.y}px`;
-      if (!el || !el.dataset.index || !el.classList.contains('tag') || el.dataset.area !== this.areaId) return;
-      this.handlePointerEnter(Number.parseInt(el.dataset.index, 10)); // TODO: Distinguish between left and right half of element and set index accordingly?
+      if (!el || !el.dataset.index || !el.classList.contains('tag') || el.dataset.area !== this.areaId || el === this.dragging) return;
+      const index = Number.parseInt(el.dataset.index, 10);
+      const elRect = el.getBoundingClientRect();
+      const isRightHalf = (e.clientX - elRect.left) > elRect.width / 2;
+      if ((this.draggedIndex < index && isRightHalf) || (this.draggedIndex > index && !isRightHalf)) this.moveElementToIndex(index);
+      else if (this.draggedIndex < index && !isRightHalf) this.moveElementToIndex(Math.max(0, index - 1));
+      else if (this.draggedIndex > index && isRightHalf) this.moveElementToIndex(Math.min(index + 1, this.ownTags.length - 1));
     },
     hideSuggestions() {
       this.suggestions = [];
+    },
+    moveElementToIndex(i) {
+      if (!this.dragging || this.draggedIndex === i) return;
+      this.ownTags.splice(i, 0, this.ownTags.splice(this.draggedIndex, 1)[0]);
+      this.draggedIndex = i;
+      this.$emit('update:modelValue', this.ownTags);
     },
     removeTag(index) {
       this.ownTags.splice(index, 1);
@@ -461,12 +466,16 @@ export default {
   &.overflow
     color: $negative-saturated
 
-  &.drag-active
+  &.being-dragged
     box-shadow: inset 0 0 0 2px alpha($accent, 0.5)
     background-color: transparent
 
     > *
       opacity: 0
+
+  &.drag-active
+    > *
+      pointer-events: none
 
   > .icon
     flex-shrink: 0
