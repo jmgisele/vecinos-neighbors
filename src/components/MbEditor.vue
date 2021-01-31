@@ -15,7 +15,7 @@
             <MbButton v-for="action in actions" :dark="dark" :disabled="disabledActions[action.name] || disabled || raw" :icon="action.icon" :key="action.name" :type="activeMarks.includes(action.name) ? 'primary' : null" :tooltip="{ message: action.tooltip, position: 'top' }" @click="action.action" />
           </div>
           <div v-if="allowRaw" class="tool-group align-right">
-            <MbButton v-show="raw" :dark="dark" :disabled="disabled && raw" icon="text" :tooltip="{ message: 'Clean up code', position: 'top' }" @click="prettifyCode" />
+            <MbButton v-show="raw && outputFormat === 'html'" :dark="dark" :disabled="disabled && raw" icon="text" :tooltip="{ message: 'Clean up code', position: 'top' }" @click="prettifyCode" />
             <MbToggle v-model="raw" :dark="dark" :disabled="disabled" :icons="['text-alt', 'code']" tooltip="Toggle raw editing mode" />
           </div>
         </div>
@@ -39,8 +39,8 @@
       </template>
       <MbInput v-model="linkPopover.href" :dark="dark" icon="link" label="Link URL" ref="linkHref" />
       <MbInput v-model="linkPopover.title" :dark="dark" icon="text" label="Link Title (optional)" />
-      <MbToggle v-model="linkPopover.newTab" :dark="dark">Open link in a new tab</MbToggle>
-      <MbToggle v-show="linkPopover.newTab" v-model="linkPopover.nofollow" :dark="dark">Include “nofollow” hint</MbToggle>
+      <MbToggle v-if="outputFormat === 'html'" v-model="linkPopover.newTab" :dark="dark">Open link in a new tab</MbToggle>
+      <MbToggle v-if="outputFormat === 'html'" v-show="linkPopover.newTab" v-model="linkPopover.nofollow" :dark="dark">Include “nofollow” hint</MbToggle>
       <MbButton v-show="linkPopover.editing" class="remove-link" :dark="dark" icon="trash" :icon-first="false" type="negative" @click="removeLink">Remove Link</MbButton>
       <template #footer>
         <MbButton :dark="dark" @click="closeLinkPopover">Cancel</MbButton>
@@ -65,10 +65,12 @@ import { isEqual, debounce } from 'lodash-es';
 import { keymap } from 'prosemirror-keymap';
 import { wrapInList } from 'prosemirror-schema-list';
 
+import formatHTML from '../assets/js/formatHTML';
 import generateInputRules from '../assets/js/generateInputRules';
 import generateKeymap, { insertHr } from '../assets/js/generateKeymap';
+import MarkdownParser from '../assets/js/MarkdownParser';
+import MarkdownSerializer from '../assets/js/MarkdownSerializer';
 import generateSchema from '../assets/js/generateSchema';
-import formatHTML from '../assets/js/formatHTML';
 
 export default {
   beforeUnmount() {
@@ -205,6 +207,8 @@ export default {
         x: 0,
         y: 0,
       },
+      markdownParser: null,
+      markdownSerializer: null,
       raw: false,
       redoDepth: 0,
       renderDiv: null,
@@ -358,11 +362,15 @@ export default {
       return actions.filter((action) => action);
     },
     getContentString() {
-      if (this.outputFormat === 'html') {
+      if (this.outputFormat === 'html' || this.outputFormat === 'markdown') {
         if (!this.renderDiv) this.renderDiv = document.createElement('div');
         const htmlFragment = DOMSerializer.fromSchema(this.editorView.state.schema).serializeFragment(this.editorState.doc);
         this.renderDiv.appendChild(htmlFragment);
-        const result = this.renderDiv.innerHTML;
+        let result;
+
+        if (this.outputFormat === 'html') result = this.renderDiv.innerHTML;
+        else result = this.markdownSerializer.serialize(this.renderDiv);
+
         this.renderDiv.innerHTML = ''; // clean up the render div since it’s being reused
         // this.contentLength = this.editorState.doc.textContent.length; // less accurate, but probably more performant
         this.contentLength = this.editorState.doc.textBetween(0, this.editorState.doc.content.size, '\n').length;
@@ -493,22 +501,26 @@ export default {
       redo(this.editorState, this.editorView.dispatch);
     },
     reInitializeProseMirror() {
-      let initialContent;
       const schema = generateSchema(this.formats, this.formatOptions);
       this.toolbarActions = this.generateActions(schema);
-      if (this.outputFormat === 'html') {
-        if (!this.renderDiv) this.renderDiv = document.createElement('div');
-        if (this.formats.block) this.renderDiv.innerHTML = this.modelValue;
-        else this.renderDiv.innerHTML = this.modelValue.replace(/<\/[^>]*>\s*<[^>]*>/g, ' ');
-        initialContent = DOMParser.fromSchema(schema).parse(this.renderDiv);
-        this.renderDiv.innerHTML = ''; // clean up the render div since it’s being reused
+
+      if (this.outputFormat === 'markdown') {
+        this.markdownParser = new MarkdownParser({ typographer: this.inputRuleOptions && (this.inputRuleOptions.ellipsis || this.inputRuleOptions.dashes), quotes: this.inputRuleOptions && this.inputRuleOptions.autoquotes });
+        this.markdownSerializer = new MarkdownSerializer();
       }
+
+      if (!this.renderDiv) this.renderDiv = document.createElement('div');
+      if (this.formats.block) this.renderDiv.innerHTML = this.outputFormat === 'html' ? this.modelValue : this.markdownParser.parse(this.modelValue);
+      else this.renderDiv.innerHTML = this.outputFormat === 'html' ? this.modelValue.replace(/<\/[^>]*>\s*<[^>]*>/g, ' ') : this.markdownParser.parseInline(this.modelValue);
+      const initialContent = DOMParser.fromSchema(schema).parse(this.renderDiv);
+      this.renderDiv.innerHTML = ''; // clean up the render div since it’s being reused
+
       if (initialContent && initialContent.childCount > 0 && (initialContent.firstChild.content.size > 0 || !initialContent.firstChild.isTextblock)) this.showPlaceholder = false;
       const vm = this; // so we have a reference to the view-model
       vm.editorState = EditorState.create({ // doesn’t need to be reactive, is immutable
         doc: initialContent,
         plugins: [
-          inputRules({ rules: generateInputRules(schema, vm.inputRuleOptions) }),
+          inputRules({ rules: generateInputRules(schema, { maxHeading: vm.formatOptions.maxHeading, minHeading: vm.formatOptions.minHeading, ...vm.inputRuleOptions }) }),
           dropCursor({ class: 'dropcursor', width: 2 }),
           gapCursor(),
           history(),
@@ -626,10 +638,10 @@ export default {
       if (this.outputFormat === 'text' || this.raw) {
         if (this.allowNewLines) this.recalculateHeight(newValue);
         else this.recalculateHeight(newValue.replace(/\n+/g, ' '));
-      } else if (this.outputFormat === 'html' && !this.editorView.hasFocus()) {
+      } else if (!this.editorView.hasFocus()) {
         if (!this.renderDiv) this.renderDiv = document.createElement('div');
-        if (this.formats.blocks) this.renderDiv.innerHTML = newValue;
-        else this.renderDiv.innerHTML = newValue.replace(/<\/[^>]*>\s*<[^>]*>/g, ' '); // replaces ending and starting tags with a space so we don’t get characters sticking together
+        if (this.formats.block) this.renderDiv.innerHTML = this.outputFormat === 'html' ? newValue : this.markdownParser.parse(newValue);
+        else this.renderDiv.innerHTML = this.outputFormat === 'html' ? newValue.replace(/<\/[^>]*>\s*<[^>]*>/g, ' ') : this.markdownParser.parseInline(newValue); // replaces ending and starting tags with a space so we don’t get characters sticking together
         const newContent = DOMParser.fromSchema(this.editorView.state.schema).parse(this.renderDiv);
         this.renderDiv.innerHTML = ''; // clean up the render div since it’s being reused
         // Create a new EditorState based on the settings of the one initially created
@@ -997,6 +1009,9 @@ export default {
 
     &.dark
       background-color: $bg-tertiary-dark
+
+    & + .remove-link
+      margin-top: 2rem
 
   .toggle
     margin-top: 1rem
