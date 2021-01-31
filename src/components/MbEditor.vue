@@ -3,13 +3,21 @@
     <div v-if="outputFormat !== 'text'" class="toolbar" :class="{ dark }">
       <MbScroller>
         <div class="scroll-wrapper">
-          <MbButton :dark="dark" icon="undo" :disabled="undoDepth === 0" :tooltip="{ message: `Undo <kbd>${mac ? '⌘' : 'Ctrl'}</kbd>+<kbd>Z</kbd>`, position: 'top' }" @click="undo" />
-          <MbButton :dark="dark" icon="redo" :disabled="redoDepth === 0" :tooltip="{ message: `Redo <kbd>${mac ? '⌘' : 'Ctrl'}</kbd>+<kbd>Y</kbd>`, position: 'top' }" @click="redo" />
-          <MbSelect v-if="formats.block" class="paragraph-type" :dark="dark" :disabled="cleanActiveParagraphType === 'Document Block' || disabled || raw" :model-value="cleanActiveParagraphType" :options="paragraphTypes" :refocus="false" :tooltip="{ message: 'Paragraph type', position: 'top'}" @update:model-value="setParagraphType" />
-          <MbSelect v-if="activeParagraphType === 'codeBlock'" class="paragraph-type" :dark="dark" :disabled="disabled || raw" :model-value="activeCodeLang" :options="codeLangs" placeholder="No Language" :refocus="false" :tooltip="{ message: 'Code Block Language', position: 'top' }" @update:model-value="setCodeBlockLang" />
-          <MbButton v-for="action in visibleToolbarActions" :class="{ 'space-next': action.spaceNext }" :dark="dark" :disabled="disabledActions[action.name] || disabled || raw" :icon="action.icon" :key="action.name" :type="activeMarks.includes(action.name) ? 'primary' : null" :tooltip="{ message: action.tooltip, position: 'top' }" @click="action.action" />
-          <MbButton v-show="raw" :dark="dark" :disabled="disabled && raw" icon="text" :tooltip="{ message: 'Clean up code', position: 'top' }" @click="prettifyCode" />
-          <MbToggle v-if="allowRaw" v-model="raw" :dark="dark" :disabled="disabled" :icons="['text-alt', 'code']" tooltip="Toggle raw editing mode" />
+          <div class="tool-group">
+            <MbButton :dark="dark" icon="undo" :disabled="undoDepth === 0" :tooltip="{ message: `Undo <kbd>${mac ? '⌘' : 'Ctrl'}</kbd>+<kbd>Z</kbd>`, position: 'top' }" @click="undo" />
+            <MbButton :dark="dark" icon="redo" :disabled="redoDepth === 0" :tooltip="{ message: `Redo <kbd>${mac ? '⌘' : 'Ctrl'}</kbd>+<kbd>Y</kbd>`, position: 'top' }" @click="redo" />
+          </div>
+          <div v-if="formats.block" class="tool-group">
+            <MbSelect class="paragraph-type" :dark="dark" :disabled="cleanActiveParagraphType === 'Document Block' || disabled || raw" :model-value="cleanActiveParagraphType" :options="paragraphTypes" :refocus="false" :tooltip="{ message: 'Paragraph type', position: 'top'}" @update:model-value="setParagraphType" />
+            <MbSelect v-if="activeParagraphType === 'codeBlock'" class="paragraph-type" :dark="dark" :disabled="disabled || raw" :model-value="activeCodeLang" :options="codeLangs" placeholder="No Language" :refocus="false" :tooltip="{ message: 'Code Block Language', position: 'top' }" @update:model-value="setCodeBlockLang" />
+          </div>
+          <div v-for="(actions, name) in visibleToolbarActions" class="tool-group" :key="name">
+            <MbButton v-for="action in actions" :dark="dark" :disabled="disabledActions[action.name] || disabled || raw" :icon="action.icon" :key="action.name" :type="activeMarks.includes(action.name) ? 'primary' : null" :tooltip="{ message: action.tooltip, position: 'top' }" @click="action.action" />
+          </div>
+          <div v-if="allowRaw" class="tool-group align-right">
+            <MbButton v-show="raw" :dark="dark" :disabled="disabled && raw" icon="text" :tooltip="{ message: 'Clean up code', position: 'top' }" @click="prettifyCode" />
+            <MbToggle v-model="raw" :dark="dark" :disabled="disabled" :icons="['text-alt', 'code']" tooltip="Toggle raw editing mode" />
+          </div>
         </div>
       </MbScroller>
     </div>
@@ -168,8 +176,12 @@ export default {
       if (this.allowNewLines) return null;
       return 'keydown';
     },
-    visibleToolbarActions() {
-      return this.toolbarActions.filter((a) => !this.disabledActions[a.name]);
+    visibleToolbarActions() { // OPTIMIZE: gets recomputed after every edit at the moment
+      return this.toolbarActions.filter((a) => !this.disabledActions[a.name]).reduce((acc, action) => {
+        if (!acc[action.group]) acc[action.group] = [action];
+        else acc[action.group].push(action);
+        return acc;
+      }, {});
     },
   },
   data() {
@@ -257,6 +269,7 @@ export default {
         const strong = type;
         actions.push({
           action: () => this.setMark(strong),
+          group: 'formatting',
           name: 'strong',
           icon: 'bold',
           tooltip: `Toggle bold <kbd>${this.mac ? '⌘' : 'Ctrl'}</kbd>+<kbd>B</kbd>`,
@@ -266,6 +279,7 @@ export default {
         const em = type;
         actions.push({
           action: () => this.setMark(em),
+          group: 'formatting',
           name: 'em',
           icon: 'italic',
           tooltip: `Toggle italics <kbd>${this.mac ? '⌘' : 'Ctrl'}</kbd>+<kbd>I</kbd>`,
@@ -275,6 +289,7 @@ export default {
         const strike = type;
         actions.push({
           action: () => this.setMark(strike),
+          group: 'formatting',
           name: 'strike',
           icon: 'strikethrough',
           tooltip: `Toggle strikethrough <kbd>${this.mac ? '⌘' : 'Ctrl'}</kbd>+<kbd>S</kbd>`,
@@ -284,6 +299,7 @@ export default {
         const code = type;
         actions.push({
           action: () => this.setMark(code),
+          group: 'formatting',
           name: 'code',
           icon: 'inline-code',
           tooltip: `Toggle code font <kbd>${this.mac ? '⌘' : 'Ctrl'}</kbd>+<kbd>Shift</kbd>+<kbd>C</kbd>`,
@@ -293,24 +309,17 @@ export default {
         // const link = type;
         actions.push({
           action: this.openLinkPopover,
+          group: 'formatting',
           name: 'link',
           icon: 'link',
-          spaceNext: true,
           tooltip: `Insert link <kbd>${this.mac ? '⌘' : 'Ctrl'}</kbd>+<kbd>K</kbd>`,
-        });
-      }
-      if (type = schema.nodes.horizontalRule) {
-        actions.push({
-          action: this.insertHr,
-          name: 'hr',
-          icon: 'add-separator',
-          tooltip: `Insert separator <kbd>${this.mac ? '⌘' : 'Ctrl'}</kbd>+<kbd>_</kbd>`,
         });
       }
       if (type = schema.nodes.unorderedList) {
         const ul = type;
         actions.push({
           action: () => this.insertList(ul),
+          group: 'block-formats',
           name: 'ul',
           icon: 'bullet-list',
           tooltip: `Format as bullet list <kbd>${this.mac ? '⌘' : 'Ctrl'}</kbd>+<kbd>Shift</kbd>+<kbd>8</kbd>`,
@@ -320,6 +329,7 @@ export default {
         const ol = type;
         actions.push({
           action: () => this.insertList(ol),
+          group: 'block-formats',
           name: 'ol',
           icon: 'number-list',
           tooltip: `Format as numbered list <kbd>${this.mac ? '⌘' : 'Ctrl'}</kbd>+<kbd>Shift</kbd>+<kbd>9</kbd>`,
@@ -328,10 +338,19 @@ export default {
       if (type = schema.nodes.blockquote) {
         actions.push({
           action: this.insertBlockquote,
+          group: 'block-formats',
           name: 'blockquote',
           icon: 'blockquote',
-          spaceNext: true,
           tooltip: `Format as quote <kbd>${this.mac ? '⌘' : 'Ctrl'}</kbd>+<kbd>&gt;</kbd>`,
+        });
+      }
+      if (type = schema.nodes.horizontalRule) {
+        actions.push({
+          action: this.insertHr,
+          group: 'inserts',
+          name: 'hr',
+          icon: 'add-separator',
+          tooltip: `Insert separator <kbd>${this.mac ? '⌘' : 'Ctrl'}</kbd>+<kbd>_</kbd>`,
         });
       }
       /* eslint-enable no-cond-assign */
@@ -650,33 +669,53 @@ export default {
     .scroll-wrapper
       padding: 0.5rem
       display: flex
+      align-items: center
 
       &::after /* so the last item isn’t glued to the right */
         content: ''
         display: block
         width: 0.5rem
         flex-shrink: 0
+        align-self: stretch
 
-      .button.paragraph-type
-        border: none
-        min-width: (96 / 16)rem
+      .tool-group
         flex-shrink: 0
 
-      .button.icon
-        padding: ((16 - 3) / 16)rem
-        margin-right: 0.5rem
+        &.align-right
+          margin-left: auto
 
-        &:not(.primary):hover
-          background-color: $bg-secondary
+        &:not(:last-child)
+          &::after
+            content: ''
+            display: inline-block
+            vertical-align: middle
+            width: 0.0625rem
+            height: 2rem
+            background-color: alpha($accent-secondary, 0.25)
+            margin: 0 0.5rem
 
-          &.dark
-            background-color: $bg-secondary-dark
+        .button.paragraph-type
+          border: none
+          min-width: (96 / 16)rem
+          flex-shrink: 0
 
-        &.space-next
-          margin-right: 1rem
+        .button.icon
+          padding: ((16 - 3) / 16)rem
 
-      .toggle
-        margin-left: auto
+          &:not(:last-child)
+            margin-right: 0.5rem
+
+          &:not(.primary):hover
+            background-color: $bg-secondary
+
+            &.dark
+              background-color: $bg-secondary-dark
+
+          &.space-next
+            margin-right: 1rem
+
+        .toggle
+          margin-left: auto
 
   .content-wrapper
     display: block
