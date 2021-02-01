@@ -1,7 +1,7 @@
 import { Selection } from 'prosemirror-state';
 
 import {
-  wrapIn, setBlockType, chainCommands, toggleMark, exitCode,
+  wrapIn, setBlockType, chainCommands, toggleMark, exitCode, lift,
 } from 'prosemirror-commands';
 
 import {
@@ -135,6 +135,9 @@ export default function generateKeymap(schema, vm) {
   // blockquotes
   if (type = schema.nodes.blockquote) {
     bindings['Mod->'] = wrapIn(type);
+
+    if (!bindings['Shift-Tab']) bindings['Shift-Tab'] = lift;
+    else bindings['Shift-Tab'] = chainCommands(bindings['Shift-Tab'], lift);
 
     if (type = schema.nodes.quoteFooter) {
       bindings['Mod-f'] = setBlockType(type);
