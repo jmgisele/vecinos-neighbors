@@ -113,7 +113,7 @@ export default {
         disabled.ol = true;
         disabled.ul = true;
       }
-      if (this.activeParentType === 'blockquote' || this.activeParagraphType === 'blockquote') {
+      if (this.activeParentType === 'blockquote' && this.activeParagraphType !== 'quoteFooter') {
         disabled.outdent = false;
       }
       return disabled;
