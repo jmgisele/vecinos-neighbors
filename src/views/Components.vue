@@ -413,6 +413,36 @@
         <h3>Notes</h3>
         <p>If <code>showTime</code> is not <code>true</code> the resulting date will be at the start of the day (00:00).</p>
       </section>
+      <section v-else-if="activeTabValue === 'project-avatars'" class="tab project-avatars">
+        <h2>Project Avatars</h2>
+        <h3>Props</h3>
+        <!-- <MbTable :data="props" /> -->
+        <h3>Events</h3>
+        <!-- <MbTable :data="events" /> -->
+        <h3>Notes</h3>
+      </section>
+      <section v-else-if="activeTabValue === 'project-cards'" class="tab project-cards">
+        <h2>Project Cards</h2>
+        <h3>Props</h3>
+        <!-- <MbTable :data="props" /> -->
+        <h3>Events</h3>
+        <!-- <MbTable :data="events" /> -->
+        <h3>Notes</h3>
+      </section>
+      <section v-else-if="activeTabValue === 'utility'" class="tab utility">
+        <h2>Utility Components</h2>
+        <p>A set of one-shot or just plain utility components that don’t need to be listed in a separate category.</p>
+        <p>Many of these components are purely functional, meant to appear only once throughout the app, or require special data structures in place in order to function, which is why not all of them have interactive examples.</p>
+        <h3>Async Image</h3>
+        <h3>Avatar Uploader</h3>
+        <h3>Git Login Modal</h3>
+        <h3>Global Tooltip Controller</h3>
+        <h3>Modal Overlay</h3>
+        <h3>Snackbar</h3>
+        <h3>Svg Sprite</h3>
+        <h3>Toast</h3>
+        <h3>User Switcher</h3>
+      </section>
       <section v-else class="tab" key="exampleTab">
         <p>This is just an empty test-tab.</p>
         <p>To delete it, click the button in the “<u @click="activeTab = tabs.findIndex((tab) => tab.value === 'tabs')">Tabs</u>”-tab.</p>
@@ -924,6 +954,8 @@ export default {
         { label: 'Modals', value: 'modals' },
         { label: 'Popovers', value: 'popovers' },
         { label: 'Progress Bars', value: 'progress-bars' },
+        { label: 'Project Avatars', value: 'project-avatars' },
+        { label: 'Project Cards', value: 'project-cards' },
         { label: 'Radio Groups', value: 'radios' },
         { label: 'Scrollers', value: 'scrollers' },
         { label: 'Select Boxes', value: 'selects' },
@@ -933,6 +965,7 @@ export default {
         { label: 'Textareas', value: 'textareas' },
         { label: 'Toggles', value: 'toggles' },
         { label: 'Tooltips', value: 'tooltips' },
+        { label: 'Utility', value: 'utility' },
       ],
       editorTest: '',
       tagList: [],
