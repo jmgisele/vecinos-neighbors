@@ -52,7 +52,7 @@
 
 <script>
 import {
-  baseKeymap, setBlockType, toggleMark, wrapIn,
+  baseKeymap, lift, setBlockType, toggleMark, wrapIn,
 } from 'prosemirror-commands';
 import { DOMParser, DOMSerializer } from 'prosemirror-model';
 import { dropCursor } from 'prosemirror-dropcursor';
@@ -63,7 +63,7 @@ import { history, redo, redoDepth, undo, undoDepth } from 'prosemirror-history';
 import { inputRules } from 'prosemirror-inputrules';
 import { isEqual, debounce } from 'lodash-es';
 import { keymap } from 'prosemirror-keymap';
-import { wrapInList } from 'prosemirror-schema-list';
+import { liftListItem, sinkListItem, wrapInList } from 'prosemirror-schema-list';
 
 import formatHTML from '../assets/js/formatHTML';
 import generateInputRules from '../assets/js/generateInputRules';
@@ -91,6 +91,10 @@ export default {
     disabledActions() {
       const disabled = {};
       if (this.selectionEmpty && !this.activeMarks.includes('link')) disabled.link = true;
+      if (this.activeParentType !== 'listItem') {
+        disabled.indent = true;
+        disabled.outdent = true;
+      }
       if (this.activeParagraphType === 'codeBlock') {
         disabled.code = true;
         disabled.em = true;
@@ -108,6 +112,9 @@ export default {
       if (['blockquote', 'orderedList', 'unorderedList'].includes(this.activeParagraphType)) {
         disabled.ol = true;
         disabled.ul = true;
+      }
+      if (this.activeParentType === 'blockquote' || this.activeParagraphType === 'blockquote') {
+        disabled.outdent = false;
       }
       return disabled;
     },
@@ -346,6 +353,27 @@ export default {
           name: 'blockquote',
           icon: 'blockquote',
           tooltip: `Format as quote <kbd>${this.mac ? '⌘' : 'Ctrl'}</kbd>+<kbd>&gt;</kbd>`,
+        });
+      }
+      if (this.formatOptions.allowNestedLists && (schema.nodes.unorderedList || schema.nodes.orderedList)) {
+        actions.push({
+          action: () => sinkListItem(schema.nodes.listItem)(this.editorState, this.editorView.dispatch),
+          group: 'block-formats',
+          name: 'indent',
+          icon: 'indent',
+          tooltip: 'Indent list item <kbd>Tab</kbd>',
+        });
+      }
+      if ((this.formatOptions.allowNestedLists && (schema.nodes.unorderedList || schema.nodes.orderedList)) || schema.nodes.blockquote) {
+        actions.push({
+          action: () => {
+            if (this.activeParagraphType === 'listItem') liftListItem(schema.nodes.listItem)(this.editorState, this.editorView.dispatch);
+            else lift(this.editorState, this.editorView.dispatch);
+          },
+          group: 'block-formats',
+          name: 'outdent',
+          icon: 'outdent',
+          tooltip: 'Outdent list item <kbd>Shift</kbd>+<kbd>Tab</kbd>',
         });
       }
       if (type = schema.nodes.horizontalRule) {
