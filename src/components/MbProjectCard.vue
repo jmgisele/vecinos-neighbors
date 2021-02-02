@@ -41,6 +41,7 @@ export default {
         {
           action: () => {
             const routeData = this.$router.resolve({ name: 'Project', params: { id: this.id } });
+            // TODO: Focus tab instead of always opening a new instance of the same project
             window.open(routeData.href, '_blank');
           },
           icon: 'open-new-window',
@@ -126,7 +127,10 @@ export default {
   props: {
     avatar: String,
     dark: Boolean,
-    id: String,
+    id: {
+      type: String,
+      required: true,
+    },
     localChanges: Boolean,
     name: String,
     updatedAt: Number,
