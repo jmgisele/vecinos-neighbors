@@ -415,19 +415,25 @@
       </section>
       <section v-else-if="activeTabValue === 'project-avatars'" class="tab project-avatars">
         <h2>Project Avatars</h2>
+        <MbProjectAvatar avatar="https://picsum.photos/320/180" project-id="demo-project" />
+        <MbProjectAvatar project-id="green-falafel" project-name="Green Falafel" />
+        <p>This component either shows a user provided avatar image, or generates a random one based on the provided project ID.</p>
+        <p>This method of generation ensures that projects without set avatars look the same accross all devices they might appear on.</p>
+        <p>If a project name is passed, it will be printed on the generated avatar, but not appear on provided images.</p>
         <h3>Props</h3>
-        <!-- <MbTable :data="props" /> -->
-        <h3>Events</h3>
-        <!-- <MbTable :data="events" /> -->
-        <h3>Notes</h3>
+        <MbTable :data="props.projectAvatars" />
       </section>
       <section v-else-if="activeTabValue === 'project-cards'" class="tab project-cards">
         <h2>Project Cards</h2>
+        <p>This component is used to display lists / grids of projects. It has functions to open a project (including in a new tab / window) or its settings, as well as deleting the project.</p>
+        <div class="wrapper" :class="{dark}">
+          <MbProjectCard :dark="dark" id="green-falafel" name="Green Falafel" :updated-at="1612301667853" />
+          <MbProjectCard avatar="https://picsum.photos/seed/demo-project/320/180" :dark="dark" id="demo-project" local-changes name="Demo Project" :updated-at="1612302667853" />
+        </div>
         <h3>Props</h3>
-        <!-- <MbTable :data="props" /> -->
+        <MbTable :data="props.projectCards" />
         <h3>Events</h3>
-        <!-- <MbTable :data="events" /> -->
-        <h3>Notes</h3>
+        <MbTable :data="events.projectCards" />
       </section>
       <section v-else-if="activeTabValue === 'utility'" class="tab utility">
         <h2>Utility Components</h2>
@@ -626,6 +632,11 @@ export default {
           ['Name', 'Data'],
           ['`close`', ''],
         ],
+        projectCards: [
+          ['Name', 'Data'],
+          ['`click`', 'The MouseEvent'],
+          ['`deleted`', ''],
+        ],
         radios: [
           ['Name', 'Data'],
           ['`update:modelValue`', 'The value of the selected option'],
@@ -767,6 +778,21 @@ export default {
           ['`indetermined`', 'Boolean', '`false`'],
           ['`label`', 'String', '`\'\'`'],
           ['`progress`', 'Number', '`0`'],
+        ],
+        projectAvatars: [
+          ['Name', 'Type', 'Default', 'Notes'],
+          ['`avatar`', 'String', '`undefined`', 'Image URL'],
+          ['`projectId`', 'String', '`undefined`', 'The ID of the project (required)'],
+          ['`projectName`', 'String', '`undefined`', ''],
+        ],
+        projectCards: [
+          ['Name', 'Type', 'Default', 'Notes'],
+          ['`avatar`', 'String', '`undefined`', 'Image URL'],
+          ['`dark`', 'Boolean', '`false`', ''],
+          ['`id`', 'String', '`undefined`', 'The ID of the project, used for opening the project, etc. (required)'],
+          ['`localChanges`', 'Boolean', '`undefined`', 'Can be used to show a little marker that the project has un-pushed changes'],
+          ['`name`', 'String', '`undefined`', 'The name of the project'],
+          ['`updatedAt`', 'Number', '`undefined`', 'When the project was last modified'],
         ],
         radios: [
           ['Name', 'Type', 'Default'],
@@ -1225,4 +1251,21 @@ export default {
       .date-picker:not(:last-of-type)
         margin-right: 1rem
         margin-bottom: 1rem
+
+    &.project-cards
+
+      .wrapper
+        display: flex
+        flex-wrap: wrap
+        background-color: $bg-secondary
+
+        &.dark
+          background-color: $bg-secondary-dark
+
+        .project-card
+          margin: 1rem
+          min-width: (192 / 16)rem
+          max-width: (320 / 16)rem
+          flex-grow: 1
+          flex-shrink: 1
 </style>
