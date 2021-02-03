@@ -351,6 +351,8 @@
         <MbTable :data="props.fileLists" />
         <h3>Events</h3>
         <MbTable :data="events.fileLists" />
+        <h3>Notes</h3>
+        <p>The component offers an async <code>refresh</code> method that can be used to refresh the current directory if needed. To use it you will need a <code>$ref</code> for the component.</p>
       </section>
       <section v-else-if="activeTabValue === 'tables'" class="tab">
         <h2>Tables</h2>

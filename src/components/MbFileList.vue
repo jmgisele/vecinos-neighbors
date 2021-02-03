@@ -250,6 +250,9 @@ export default {
       this.popover.target = e.currentTarget;
       this.popover.show = true;
     },
+    async refresh() {
+      await this.fetchData();
+    },
     setRowPosition(el) {
       el.style.setProperty('left', `${el.dataset.offsetLeft}px`);
       el.style.setProperty('position', 'absolute');
