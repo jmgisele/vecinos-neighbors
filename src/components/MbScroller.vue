@@ -19,6 +19,7 @@ export default {
       drag: {
         active: false,
         lastSpeed: 0,
+        preventClick: false,
         start: 0,
       },
       observer: null,
@@ -40,6 +41,7 @@ export default {
     },
     startDrag(e) {
       if (this.direction !== 'horizontal' || e.button === 2) return;
+      if (e.button === 0) this.drag.preventClick = true;
       this.drag.start = e.clientX;
       window.addEventListener('mousemove', this.updateDrag);
       window.addEventListener('mouseup', this.stopDrag);
@@ -78,7 +80,10 @@ export default {
     updateDrag(e) {
       if (!this.drag.active && Math.abs(e.clientX - this.drag.start) > 10) {
         this.drag.active = true;
-        window.addEventListener('click', this.preventClick, { capture: true });
+        if (this.drag.preventClick) {
+          window.addEventListener('click', this.preventClick, { capture: true });
+          this.drag.preventClick = false; // we’re done, we can reset
+        }
       }
       if (!this.drag.active) return;
       this.$refs.scrollArea.scrollLeft -= e.movementX;
