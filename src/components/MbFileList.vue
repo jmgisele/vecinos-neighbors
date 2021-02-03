@@ -12,10 +12,12 @@
       </nav>
       <div class="actions">
         <MbInput v-if="filterable" :dark="dark" icon="search" label="Search current directory" type="search" :model-value="searchTerm" @update:model-value="debouncedSearch" />
-        <span class="select-label">Sort by:</span>
-        <MbSelect v-model="sortBy" :dark="dark" :options="sortOptions" @update:model-value="sortEntities" />
-        <MbButton :dark="dark" :icon="reverseOrder ? 'arrow-up' : 'arrow-down'" :tooltip="{ position: 'right', message: reverseOrder ? 'Descending' : 'Ascending' }" @click="reverseOrder = !reverseOrder; sortEntities()"/>
-        <MbButton v-if="action && (action.label || action.icon) && action.callback" :dark="dark" :icon="action.icon" :icon-first="action.iconFirst !== false" :loading="action.loading" :tooltip="action.tooltip" :type="action.type" @click="action.callback">{{action.label}}</MbButton>
+        <div class="sort">
+          <span class="select-label">Sort by:</span>
+          <MbSelect v-model="sortBy" :dark="dark" :options="sortOptions" @update:model-value="sortEntities" />
+          <MbButton :dark="dark" :icon="reverseOrder ? 'arrow-up' : 'arrow-down'" :tooltip="{ position: 'right', message: reverseOrder ? 'Descending' : 'Ascending' }" @click="reverseOrder = !reverseOrder; sortEntities()"/>
+        </div>
+        <MbButton v-if="action && (action.label || action.icon) && action.callback" class="action" :dark="dark" :icon="action.icon" :icon-first="action.iconFirst !== false" :loading="action.loading" :tooltip="action.tooltip" :type="action.type" @click="action.callback(currentPath)">{{action.label}}</MbButton>
       </div>
     </header>
     <MbScroller v-show="filteredFolders.length > 0" class="folder-scroller" ref="folderWrapper">
@@ -326,6 +328,7 @@ export default {
 </script>
 
 <style lang="stylus" scoped>
+@require '../assets/styles/breakpoints'
 @require '../assets/styles/colors'
 @require '../assets/styles/corners'
 
@@ -402,39 +405,60 @@ export default {
       display: flex
       align-items: center
 
+      @media $mobile
+        flex-wrap: wrap
+
       .input
         margin-top: 0
         margin-right: 1rem
 
-      .select-label
+        @media $mobile
+          margin-right: 0
+          width: 100%
+          margin-bottom: 1rem
+
+      .sort
         margin-left: auto
-        margin-right: 0.5rem
         white-space: nowrap
 
-      ::v-deep(.select)
-        min-width: 10rem
-        border-top-right-radius: 0
-        border-bottom-right-radius: 0
+        @media $mobile
+          margin-bottom: 1rem
 
-        &::before
+        .select-label
+          margin-right: 0.5rem
+          white-space: nowrap
+
+          @media $mobile
+            display: none
+
+        ::v-deep(.select)
+          min-width: 10rem
           border-top-right-radius: 0
           border-bottom-right-radius: 0
 
-      .button.no-label
-        margin-right: 1rem
-        border: 0.0625rem solid $accent
-        border-left: none
-        border-top-left-radius: 0
-        border-bottom-left-radius: 0
+          &::before
+            border-top-right-radius: 0
+            border-bottom-right-radius: 0
 
-        &::before
+        .button.no-label
+          border: 0.0625rem solid $accent
+          border-left: none
           border-top-left-radius: 0
           border-bottom-left-radius: 0
 
-  .folder-scroller
-    &::v-deep(.scroll-area)
-      scroll-snap-type: x mandatory
+          &::before
+            border-top-left-radius: 0
+            border-bottom-left-radius: 0
 
+      .action
+        margin-left: 1rem
+        flex-shrink: 1
+
+        @media $mobile
+          margin-bottom: 1rem
+          flex-grow: 1
+
+  .folder-scroller
     &::v-deep(.shadow)
       bottom: 0.125rem
 
@@ -455,13 +479,11 @@ export default {
       white-space: nowrap
       cursor: pointer
       min-width: (192 / 16)rem
-      scroll-snap-align: center
       transition: background-color 200ms ease
 
       &.v-enter-active,
       &.v-leave-active,
       &.v-move
-        scrol-snap-align: none
         transition: opacity 200ms ease, transform 350ms ease
 
         &.v-enter-from,
@@ -550,8 +572,13 @@ export default {
 
       .icon:not(.button)
         margin-right: 1rem
+        flex-shrink: 0
 
       span
+        white-space: nowrap
+        text-overflow: ellipsis
+        overflow: hidden
+
         &.meta
           margin-left: auto
           font-size: 0.875rem
@@ -568,8 +595,10 @@ export default {
   .files li
     position: relative
 
-    &:focus::before
-      opacity: 1
+    &:focus,
+    &:active
+      &::before
+        opacity: 1
 
     &:active
       transform: translateY(0.125rem)
