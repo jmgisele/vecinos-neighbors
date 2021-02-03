@@ -440,14 +440,60 @@
         <p>A set of one-shot or just plain utility components that don’t need to be listed in a separate category.</p>
         <p>Many of these components are purely functional, meant to appear only once throughout the app, or require special data structures in place in order to function, which is why not all of them have interactive examples.</p>
         <h3>Async Image</h3>
+        <p>This component can be used to show a loader and / or a static background color while an image is loading.</p>
+        <p>For an example see the <u @click="activeTab = tabs.findIndex((tab) => tab.value === 'project-avatars')">Project Avatar</u> component.</p>
+        <h4>Props</h4>
+        <MbTable :data="props.asyncImages" />
+        <h4>Events</h4>
+        <MbTable :data="events.asyncImages" />
         <h3>Avatar Uploader</h3>
+        <p>This component crops a user picked image to a square and compresses it to a given resolution and quality.</p>
+        <h4>Props</h4>
+        <MbTable :data="props.avatarUploaders" />
+        <h4>Events</h4>
+        <MbTable :data="events.avatarUploaders" />
+        <h4>Notes</h4>
+        <p>This component has no visual output, it is meant to be used programmatically by another component that then “clicks” it.</p>
         <h3>Git Login Modal</h3>
+        <p>A component for prompting the user to sign into their Git account. It bundles some common text and input fields with a custom message.</p>
+        <MbButton :dark="dark" @click="showGitLoginModal = true">Show Modal</MbButton>
+        <GitLoginModal :dark="dark" message="This is a custom message!" :visible="showGitLoginModal" @cancel="handleLoginModal(false)" @submit="handleLoginModal" />
+        <h4>Props</h4>
+        <MbTable :data="props.gitLoginModals" />
+        <h4>Events</h4>
+        <MbTable :data="events.gitLoginModals" />
+        <h4>Notes</h4>
+        <p>This does <strong>not</strong> perform the log-in. It only provides the details input by the user in its <code>submit</code> event!</p>
         <h3>Global Tooltip Controller</h3>
+        <p>This component is supposed to be added <em>once</em> at the topmost level of the app. It handles showing and hiding tooltips that can be attached to components throughout the app.</p>
+        <p>It offers no configuration.</p>
         <h3>Modal Overlay</h3>
+        <p>In order to only have one modal overlay despite multiple modals stacking on top of each other, the overlay is factored out into its own component that should be included <em>once</em> in the app.</p>
+        <h4>Props</h4>
+        <MbTable :data="props.modalOverlays" />
         <h3>Snackbar</h3>
+        <p>Similarly to the Global Tooltip Controller, this component should be included <em>once</em> at the topmost level of the app and is responsible for showing the toasts emitted by various other components.</p>
+        <h4>Props</h4>
+        <MbTable :data="props.snackbars" />
         <h3>Svg Sprite</h3>
+        <p>This component loads all .svg-Files in the <code>/src/assets/icons</code> folder and compiles them into a SVG spritesheet so they can be easily included with a <code>&lt;use /&gt;</code> tag in the entire app.</p>
+        <p>It should only be included <em>once</em> at the topmost level of the app and offers no configuration.</p>
         <h3>Toast</h3>
+        <p>A component to inform the user of things happening throughout the app. It will usually be displayed in a <code>Snackbar</code> component.</p>
+        <p>Toasts are meant to be ephemeral, so they will disappear after a configured timeout or can be manually dismissed. This has been disabled for the demo toasts below.</p>
+        <Toast :dark="dark" :toast="{ message: 'I’m a basic toast', permanent: true, timeout: 0 }" />
+        <Toast :dark="dark" :toast="{ action: sayHi, actionLabel: 'Say Hi', message: 'I’m an advanced toast', permanent: true, timeout: 0, type: 'positive' }" />
+        <h4>Props</h4>
+        <MbTable :data="props.toasts" />
+        <h4>Notes</h4>
+        <p>The <code>toast</code> object passed should consist of the following properties:</p>
+        <pre style="white-space: pre;">{{'{\n  id: String, // will be generated if undefined\n  action: Function,\n  actionLabel: String (required if action),\n  message: String (required),\n  permanent: Boolean, // hides dismiss action and disables timeout\n  timeout: Number, // default: 5000ms\n  type: String // may be one of error, positive, negative, warning\n}'}}</pre>
+        <p>If the <code>type</code> property is set to <code>error</code>, the actual type will be <code>negative</code>, but the timeout will be disabled as well.</p>
         <h3>User Switcher</h3>
+        <p>This component is used for user management. It allows switching the current user, creating new users, modifying user settings and deleting users.</p>
+        <p>Since it requires at least one user to function, it cannot be shown here.</p>
+        <h4>Props</h4>
+        <MbTable :data="props.userSwitchers" />
       </section>
       <section v-else class="tab" key="exampleTab">
         <p>This is just an empty test-tab.</p>
@@ -458,8 +504,15 @@
 </template>
 
 <script>
+import GitLoginModal from '../components/utility/GitLoginModal.vue';
+import Toast from '../components/utility/Toast.vue';
+
 export default {
   name: 'Components',
+  components: {
+    GitLoginModal,
+    Toast,
+  },
   computed: {
     activeTabValue() {
       return this.tabs[this.activeTab] && (this.tabs[this.activeTab].value || this.tabs[this.activeTab]);
@@ -594,6 +647,14 @@ export default {
       },
       currentColor: 'rgba(123, 255, 213, 0.25)',
       events: {
+        asyncImages: [
+          ['Name', 'Data'],
+          ['`load`', 'The native image load event'],
+        ],
+        avatarUploaders: [
+          ['Name', 'Data'],
+          ['`ready`', 'A DataURL representing the cropped and compressed image'],
+        ],
         buttons: [
           ['Name', 'Data'],
           ['`click`', 'The browser click event'],
@@ -617,6 +678,11 @@ export default {
         fileLists: [
           ['Name', 'Data'],
           ['`fileclick`', 'The full path of the clicked file'],
+        ],
+        gitLoginModals: [
+          ['Name', 'Data'],
+          ['`cancel`', ''],
+          ['`submit`', ' An object with the following structure: { user, password, save\ufeffPassword }'],
         ],
         inputs: [
           ['Name', 'Data'],
@@ -674,6 +740,18 @@ export default {
       popover2: null,
       popoverFromRight: false,
       props: {
+        asyncImages: [
+          ['Name', 'Type', 'Default', 'Allowed Values'],
+          ['`alt`', 'String', '`undefined`', ''],
+          ['`placeholderColor`', 'String', '`undefined`', 'A valid CSS color'],
+          ['`showLoader`', 'Boolean', '`false`', ''],
+          ['`src`', 'String', '`undefined`', 'Path to an image'],
+        ],
+        avatarUploaders: [
+          ['Name', 'Type', 'Default', 'Notes'],
+          ['`compression`', 'Number', '`0.45`', ''],
+          ['`size`', 'Number', '`128`', 'The width of the avatar in px'],
+        ],
         buttons: [
           ['Name', 'Type', 'Default', 'Allowed Values'],
           ['`dark`', 'Boolean', '`false`', ''],
@@ -733,6 +811,12 @@ export default {
           ['`root`', 'String', '`/`', 'The root folder to start in, will not allow going higher than that'],
           ['`showHidden`', 'Boolean', '`false`', 'By default all files starting with a . are hidden. If this is true, they’ll be shown. .git is always hidden'],
         ],
+        gitLoginModals: [
+          ['Name', 'Type', 'Default', 'Notes'],
+          ['`dark`', 'Boolean', '`false`', ''],
+          ['`message`', 'String', '`undefined`', 'If not provided a default messae will be shown instead'],
+          ['`visible`', 'Boolean', '`false`', ''],
+        ],
         icons: [
           ['Name', 'Type', 'Default'],
           ['`icon`', 'String', "`'mattrbld'`"],
@@ -758,6 +842,10 @@ export default {
           ['`slim`', 'Boolean', '`false`'],
           ['`title`', 'String', '`\'\'`'],
           ['`visible`', 'Boolean', '`false`'],
+        ],
+        modalOverlays: [
+          ['Name', 'Type', 'Default'],
+          ['`dark`', 'Boolean', '`false`'],
         ],
         popovers: [
           ['Name', 'Type', 'Default'],
@@ -818,6 +906,10 @@ export default {
           ['`rounded`', 'Boolean', '`false`', ''],
           ['`tooltip`', 'String / Object', '', ''],
         ],
+        snackbars: [
+          ['Name', 'Type', 'Default'],
+          ['`dark`', 'Boolean', '`false`'],
+        ],
         tables: [
           ['Name', 'Type', 'Default'],
           ['`data`', 'Array', '`[]`'],
@@ -858,6 +950,11 @@ export default {
           ['`outputFormat`', 'String', '', 'Allowed values: text, html, markdown'],
           ['`placeholder`', 'String', '', ''],
         ],
+        toasts: [
+          ['Name', 'Type', 'Default'],
+          ['`dark`', 'Boolean', '`false`'],
+          ['`toast`', 'Object', '`undefined`'],
+        ],
         toggles: [
           ['Name', 'Type', 'Default'],
           ['`dark`', 'Boolean', '`false`'],
@@ -871,6 +968,10 @@ export default {
           ['`message`', 'String', ''],
           ['`position`', 'String', 'top, left, right, bottom'],
           ['`target`', 'HTMLElement', ''],
+        ],
+        userSwitchers: [
+          ['Name', 'Type', 'Default'],
+          ['`dark`', 'Boolean', '`false`'],
         ],
       },
       radioTest: null,
@@ -932,6 +1033,7 @@ export default {
           value: 'disabled',
         },
       ],
+      showGitLoginModal: false,
       simulateLoading: false,
       slots: {
         modals: [
@@ -1008,9 +1110,17 @@ export default {
         this.activeTab = this.tabs.length - 1;
       });
     },
+    handleLoginModal(data) {
+      if (data) this.$store.commit('addToast', { message: `Submitted login as ${data.user} opting to ${data.savePassword ? '' : 'not'} save the password.`, type: 'positive' });
+      else this.$store.commit('addToast', { message: 'Login cancelled', type: 'negative' });
+      this.showGitLoginModal = false;
+    },
     removeTab() {
       const lastTab = this.tabs[this.tabs.length - 1];
       if (lastTab.value.startsWith('untitled')) this.tabs.pop();
+    },
+    sayHi() {
+      this.$store.commit('addToast', { message: 'Hi from Toast!' });
     },
     showFileToast(path) {
       this.$store.commit('addToast', { message: `Clicked on file: ${path}` });
@@ -1268,4 +1378,8 @@ export default {
           max-width: (320 / 16)rem
           flex-grow: 1
           flex-shrink: 1
+
+    &.utility
+      h3:not(:first-of-type)
+        margin-top: 6rem
 </style>
