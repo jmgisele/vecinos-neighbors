@@ -91,6 +91,9 @@ export default {
       left: 3rem
       width: calc(100% - 4rem)
 
+    > input
+      width: calc(100% - 2rem) // firefox doesn’t shrink input fields apparently
+
   &.error
     color: $negative-saturated
     box-shadow: inset 0 0 0 2px $negative
