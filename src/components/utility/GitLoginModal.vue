@@ -26,6 +26,7 @@ export default {
       savePassword: false,
     };
   },
+  emits: ['cancel', 'submit'],
   methods: {
     handleCancel() {
       this.$emit('cancel');
