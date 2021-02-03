@@ -4,7 +4,7 @@
     <AsyncImage draggable="false" :src="activeUser.avatar" :alt="`${activeUser.name}’s Avatar`" />
     <MbPopover class="user-popover" :dark="dark" from-right no-content-padding :visible="popover.show" :x="popover.x" :y="popover.y" @close="popover.show = false">
       <div class="users">
-        <div v-for="user in users" class="user" :class="{ active: currentActiveUser === user.id }" :key="user.id" tabindex="0" @click="setActiveUser(user.id)" @keyup.enter="setActiveUser(user.id)" @keyup.space="setActiveUser(user.id)">
+        <div v-for="user in users" class="user" :class="{ active: currentActiveUser === user.id }" :key="user.id" tabindex="0" @click="setActiveUser(user.id)" @keydown.space.prevent @keyup.enter.space="setActiveUser(user.id)">
           <AsyncImage :src="user.avatar" :alt="`${user.name}’s avatar`" />
           <span v-if="!isMobile">{{user.name}}</span>
           <span v-else>{{user.name.split(' ')[0]}}</span>

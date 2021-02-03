@@ -2,12 +2,12 @@
   <MbButton v-bind="$attrs" class="select" :class="{ placeholder: modelValue === null }" :dark="dark" :disabled="disabled" icon="chevron-down" :icon-first="false" :loading="loading" ref="button" :rounded="rounded" :tooltip="tooltip" @click="activate">
     {{currentOption}}
   </MbButton>
-  <MbPopover center-x class="item-wrapper" :dark="dark" no-content-padding ref="popover" :style="{ width: `${popoverWidth}px` }" :visible="active" :x="position.x" :y="position.y" @close="deactivate" @keyup.arrow-down="focus(1)" @keyup.arrow-up="focus(-1)">
+  <MbPopover center-x class="item-wrapper" :dark="dark" no-content-padding ref="popover" :style="{ width: `${popoverWidth}px` }" :visible="active" :x="position.x" :y="position.y" @close="deactivate" @keydown.arrow-down.arrow-up.prevent @keyup.arrow-down="focus(1)" @keyup.arrow-up="focus(-1)">
     <template v-if="filterable" #header>
       <MbInput v-model="filter" :dark="dark" icon="search" placeholder="Filter Items" />
     </template>
     <ul class="items" :class="{ dark }" ref="list" tabindex="-1">
-      <li v-for="(option, index) in filteredOptions" :class="{ active: option.value ? option.value === modelValue : option === modelValue, disabled: option.disabled }" :key="option.value" :tabindex="option.disabled ? -1 : 0" @click="selectOption(typeof option.value !== 'undefined' ? option.value : option)" @keyup.space.enter="selectOption(option.value || option)" @mouseenter="handleMouseenter($event, index)" @mouseleave="handleMouseleave">
+      <li v-for="(option, index) in filteredOptions" :class="{ active: option.value ? option.value === modelValue : option === modelValue, disabled: option.disabled }" :key="option.value" :tabindex="option.disabled ? -1 : 0" @click="selectOption(typeof option.value !== 'undefined' ? option.value : option)" @keydown.space.prevent @keyup.space.enter="selectOption(option.value || option)" @mouseenter="handleMouseenter($event, index)" @mouseleave="handleMouseleave">
         {{option.label || option.value || option}}
       </li>
     </ul>

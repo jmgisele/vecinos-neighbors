@@ -2,8 +2,8 @@
   <MbScroller class="tabs" :class="{ dark }">
     <div class="scroll-wrapper">
       <transition-group ref="tabs" tag="ul" @after-leave="resetActiveTab">
-        <li v-for="(tab, index) in tabs" :data-index="index" :key="tab.value || tab" tabindex="0" @click.left="activateTab($event, index)" @keyup.enter="activateTab($event, index)" @keyup.space="activateTab($event, index)">{{tab.label || tab}}</li>
-        <li v-if="showAddOption" class="add-option" key="mbTabsAddOption" tabindex="0" @click="addTab" @keyup.space="addTab" @keyup.enter="addTab" @mouseenter="handleTooltip" @focus="handleTooltip"><MbIcon icon="plus" /></li>
+        <li v-for="(tab, index) in tabs" :data-index="index" :key="tab.value || tab" tabindex="0" @click.left="activateTab($event, index)" @keydown.space.prevent @keyup.enter.space="activateTab($event, index)">{{tab.label || tab}}</li>
+        <li v-if="showAddOption" class="add-option" key="mbTabsAddOption" tabindex="0" @click="addTab" @keydown.space.prevent @keyup.enter.space="addTab" @mouseenter="handleTooltip" @focus="handleTooltip"><MbIcon icon="plus" /></li>
       </transition-group>
       <div class="active-indicator" :style="{ transform: indicatorTransform }"></div>
     </div>
