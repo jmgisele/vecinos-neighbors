@@ -73,7 +73,7 @@ export default {
     left: 0
     width: 0
     height: 100%
-    transition: transform 200ms ease
+    transition: transform 200ms cubic-bezier(0.645, 0.045, 0.355, 1.000)
 
     &.v-enter-active,
     &.v-leave-active

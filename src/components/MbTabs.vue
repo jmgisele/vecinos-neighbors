@@ -135,7 +135,7 @@ export default {
       bottom: 0
       left: 0
       transform-origin: left
-      transition: transform 200ms ease
+      transition: transform 200ms cubic-bezier(0.645, 0.045, 0.355, 1.000)
 
   ::v-deep(.shadow)
     bottom: 2px
