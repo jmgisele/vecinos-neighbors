@@ -51,6 +51,7 @@ export default {
       window.removeEventListener('mousemove', this.updateDrag);
       window.removeEventListener('mouseup', this.stopDrag);
       this.carryMomentum(this.drag.lastSpeed);
+      this.drag.lastSpeed = 0;
     },
     toggleScrollShadows() {
       if (this.direction === 'horizontal') {
