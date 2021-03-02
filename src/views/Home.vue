@@ -97,10 +97,6 @@ export default {
 
     if (this.usedQuota > 0.9) this.$store.commit('addToast', { message: 'You might be running out of storage soon. Please free up some space by removing old projects to ensure that everything can run smoothly', timeout: false, type: 'warning' });
 
-    for (let i = 0; i < 10; i += 1) {
-      const id = Math.random().toString(36).substr(2, 9);
-      this.projects.push({ id, updatedAt: Date.now(), name: id });
-    }
     this.fetchProjects();
   },
   data() {
@@ -120,7 +116,7 @@ export default {
       loaded: false,
       loadingBranches: false,
       overwriteCorsProxy: false,
-      projects: [{ id: 'simple', updatedAt: new Date('2020-12-14').valueOf(), name: 'Strawberry Slush', localChanges: true }], // eslint-disable-line object-curly-newline
+      projects: [],
       repoURL: '',
       repoBranch: null,
       repoBranches: [],
