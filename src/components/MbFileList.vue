@@ -33,7 +33,7 @@
         </div>
       </transition-group>
     </MbScroller>
-    <p v-if="foldersFirst" class="h3">Files</p>
+    <p v-if="foldersFirst && !foldersOnly" class="h3">Files</p>
     <transition-group v-show="filteredFiles.length > 0" class="files" tag="ul">
       <li v-for="file in filteredFiles" class="file" :class="{ 'no-actions': modifiedFileActions.length === 0 }" :key="file.name" tabindex="0" @click="file.isFolder ? openFolder(file.name, $event) : handleFileClick(file.name, $event)" @contextmenu.prevent="openMenu($event, joinPath(currentPath, file.name), file.isFolder)" @keyup.space.enter="file.isFolder ? openFolder(file.name, $event) : handleFileClick(file.name, $event)" @keydown.space.prevent>
         <MbIcon :icon="file.isFolder ? 'folder' : imageRegExp.test(file.name) ? 'image' : 'document'" />
@@ -44,7 +44,7 @@
         <MbButton v-else-if="modifiedFileActions.length === 1" :dark="dark" :icon="modifiedFileActions[0].icon" rounded :tooltip="modifiedFileActions[0].label" :type="modifiedFileActions[0].type" @click="executeAction(modifiedFileActions[0].action, joinPath(currentPath, file.name))" />
       </li>
     </transition-group>
-    <p v-show="filteredFiles.length === 0" class="empty-state">{{ foldersFirst ? 'There are no files in this directory' : 'There is nothing in this directory' }}</p>
+    <p v-show="filteredFiles.length === 0 && ((foldersFirst && !foldersOnly) || filteredFolders.length === 0)" class="empty-state">{{ foldersFirst && !foldersOnly ? 'There are no files in this directory' : foldersOnly ? 'There are no folders in this directory' : 'This directory is empty' }}</p>
     <MbContextMenu class="options" :dark="dark" :from-right="popover.fromRight" :options="popover.isFolder ? modifiedFolderActions : modifiedFileActions" :show="popover.show" :target="popover.target" :x="popover.x" :y="popover.y" @close="popover.show = false" />
   </div>
 </template>
