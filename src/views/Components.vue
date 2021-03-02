@@ -497,6 +497,20 @@
         <h4>Props</h4>
         <MbTable :data="props.userSwitchers" />
       </section>
+      <section v-else-if="activeTabValue === 'segmented-selectors'" class="tab segmented-selectors">
+        <h2>Segmented Selectors</h2>
+        <p>These work like radio groups, but follow a design that might be more appropriate in certain situations where Selects, Tabs, or Radio Groups don’t make as much sense visually.</p>
+        <p>The currently selected value is: <code>{{segmentedSelectorTest || 'null'}}</code></p>
+        <MbSegmentedSelector v-model="segmentedSelectorTest" :dark="dark" :options="['One', 'Two', 'Three']" />
+        <MbSegmentedSelector v-model="segmentedSelectorTest" :dark="dark" :options="[{ label: 'Eins', value: 'One' }, { disabled: true, label: 'Zwei', value: 'Two' }, { label: 'Drei', value: 'Three' }, { label: 'Nothing', value: null }]" />
+        <h3>Props</h3>
+        <MbTable :data="props.segmentedSelectors" />
+        <h3>Events</h3>
+        <MbTable :data="events.segmentedSelectors" />
+        <h3>Notes</h3>
+        <p>The <code>options</code>-array can either be an array of values like strings, or an array of objects in the following format:</p>
+        <p><code>{ disabled: optional boolean, label: 'Option Label', value: optionValue }</code></p>
+      </section>
       <section v-else class="tab" key="exampleTab">
         <p>This is just an empty test-tab.</p>
         <p>To delete it, click the button in the “<u @click="activeTab = tabs.findIndex((tab) => tab.value === 'tabs')">Tabs</u>”-tab.</p>
@@ -709,6 +723,10 @@ export default {
           ['Name', 'Data'],
           ['`update:modelValue`', 'The value of the selected option'],
         ],
+        segmentedSelectors: [
+          ['Name', 'Data'],
+          ['`update:modelValue`', 'The value of the selected segment'],
+        ],
         selects: [
           ['Name', 'Data'],
           ['`update:modelValue`', 'The value of the selected option'],
@@ -895,6 +913,12 @@ export default {
           ['Name', 'Type', 'Default', 'Allowed Values'],
           ['`direction`', 'String', "`'horizontal'`", 'horizontal, vertical'],
         ],
+        segmentedSelectors: [
+          ['Name', 'Type', 'Default'],
+          ['`dark`', 'Boolean', '`false`'],
+          ['`modelValue`', 'Any', '`undefined`'],
+          ['`options`', 'Array', '`undefined`'],
+        ],
         selects: [
           ['Name', 'Type', 'Default', 'Notes'],
           ['`dark`', 'Boolean', '`false`', ''],
@@ -977,6 +1001,7 @@ export default {
         ],
       },
       radioTest: null,
+      segmentedSelectorTest: null,
       selectTest: null,
       selectOptions: [
         {
@@ -1088,6 +1113,7 @@ export default {
         { label: 'Project Cards', value: 'project-cards' },
         { label: 'Radio Groups', value: 'radios' },
         { label: 'Scrollers', value: 'scrollers' },
+        { label: 'Segmented Selectors', value: 'segmented-selectors' },
         { label: 'Select Boxes', value: 'selects' },
         { label: 'Tables', value: 'tables' },
         { label: 'Tabs', value: 'tabs' },
@@ -1384,4 +1410,8 @@ export default {
     &.utility
       h3:not(:first-of-type)
         margin-top: 6rem
+
+    &.segmented-selectors
+      .segmented-selector
+        margin-bottom: 1rem
 </style>
