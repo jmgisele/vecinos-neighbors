@@ -139,6 +139,9 @@ export default {
     align-items: stretch
     margin-bottom: 0.5rem
 
+    &:first-child
+      margin-top: 1.5rem
+
     .input
       border: none
       width: 100%
