@@ -113,6 +113,7 @@ export default {
       files: [],
       folders: [],
       imageRegExp: /\.(gif|jpg|jpeg|tiff|png|webp|svg)$/i,
+      joinPath,
       loading: false,
       popover: {
         isFolder: false,
