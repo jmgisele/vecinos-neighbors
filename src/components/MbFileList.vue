@@ -15,7 +15,7 @@
         <div class="sort">
           <span class="select-label">Sort by:</span>
           <MbSelect v-model="sortBy" :dark="dark" :options="sortOptions" @update:model-value="sortEntities" />
-          <MbButton :dark="dark" :icon="reverseOrder ? 'arrow-up' : 'arrow-down'" :tooltip="{ position: 'right', message: reverseOrder ? 'Descending' : 'Ascending' }" @click="reverseOrder = !reverseOrder; sortEntities()"/>
+          <MbButton :dark="dark" :icon="reverseOrder ? 'descending' : 'ascending'" :tooltip="{ position: 'right', message: reverseOrder ? 'Descending' : 'Ascending' }" @click="reverseOrder = !reverseOrder; sortEntities()"/>
         </div>
         <MbButton v-if="action && (action.label || action.icon) && action.callback" class="action" :dark="dark" :icon="action.icon" :icon-first="action.iconFirst !== false" :loading="action.loading" :tooltip="action.tooltip" :type="action.type" @click="action.callback(currentPath)">{{action.label}}</MbButton>
       </div>
