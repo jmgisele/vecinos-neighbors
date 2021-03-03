@@ -346,8 +346,8 @@
       <section v-else-if="activeTabValue === 'file-lists'" class="tab file-lists">
         <h2>File Lists</h2>
         <p>This component is a fully fledged file browser that can display the contents of a folder and offers the ability for custom actions on the files.</p>
-        <MbFileList :dark="dark" :file-actions="[{ action: showFileToast, icon: 'folder-open', label: 'Open', foldersOnly: true }, { disabled: true, icon: 'arrow-right', label: 'Move', foldersOnly: true }, { action: softDeleteFile, icon: 'trash', label: 'Delete', type: 'negative' }]" :folders-first="true" :folders-only="false" root="/" show-hidden :action="{ callback: (path) => { currentPath = path; showEntityCreationModal = true; }, label: 'Add', icon: 'plus', type: 'positive'}" @fileclick="showFileToast" />
-        <EntityCreationModal :dark="dark" :file-extension="['json', 'txt', 'yaml']" :path="currentPath" :visible="showEntityCreationModal" @close="showEntityCreationModal = false" />
+        <MbFileList :dark="dark" :file-actions="[{ action: showFileToast, icon: 'folder-open', label: 'Open', foldersOnly: true }, { disabled: true, icon: 'arrow-right', label: 'Move', foldersOnly: true }, { action: softDeleteFile, icon: 'trash', label: 'Delete', type: 'negative' }]" :folders-first="true" :folders-only="false" ref="fileList" root="/" show-hidden :action="{ callback: (path) => { currentPath = path; showEntityCreationModal = true; }, label: 'Add', icon: 'plus', type: 'positive'}" @fileclick="showFileToast" />
+        <EntityCreationModal :dark="dark" :file-extension="['json', 'txt', 'yaml']" :path="currentPath" :visible="showEntityCreationModal" @close="showEntityCreationModal = false" @entity-created="refreshFileList" />
         <h3>Props</h3>
         <MbTable :data="props.fileLists" />
         <h3>Events</h3>
@@ -1147,6 +1147,9 @@ export default {
       if (data) this.$store.commit('addToast', { message: `Submitted login as ${data.user} opting to ${data.savePassword ? '' : 'not'} save the password.`, type: 'positive' });
       else this.$store.commit('addToast', { message: 'Login cancelled', type: 'negative' });
       this.showGitLoginModal = false;
+    },
+    refreshFileList() {
+      this.$refs.fileList.refresh();
     },
     removeTab() {
       const lastTab = this.tabs[this.tabs.length - 1];
