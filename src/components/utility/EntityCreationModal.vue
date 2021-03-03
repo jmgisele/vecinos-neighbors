@@ -2,7 +2,7 @@
   <MbModal class="entity-creation-modal" :dark="dark" slim :title="title" :visible="visible" @close="$emit('close')">
     <MbSegmentedSelector v-if="!only" v-model="entity" :dark="dark" :options="[{ label: 'File', value: 'file' }, { label: 'Folder', value: 'directory' }]" />
     <div class="input-group">
-      <MbInput v-model="name" :class="{ 'no-extension': !showExtension }" :dark="dark" :error="nameError" :icon="entity === 'file' ? 'document-add' : 'folder-add'" label="Name" :max-len="255 - currentFileExtension.length + 1" @update:model-value="validateName" />
+      <MbInput v-model="name" :class="{ 'no-extension': !showExtension }" :dark="dark" :error="nameError" :icon="entity === 'file' ? 'document-add' : 'folder-add'" label="Name" :max-len="currentFileExtension && showExtension ? 255 - currentFileExtension.length + 1 : 255" @update:model-value="validateName" />
       <template v-if="showExtension">
         <span v-if="typeof fileExtension === 'string'" :class="{ dark }">.{{fileExtension}}</span>
         <MbSelect v-else v-model="currentFileExtension" :dark="dark" :options="fileExtension" tooltip="This extension will automatically be added to the filename" />
@@ -33,11 +33,7 @@ export default {
     },
   },
   created() {
-    if (this.only) this.entity = this.only;
-    else this.entity = 'file';
-
-    if (Array.isArray(this.fileExtension)) [this.currentFileExtension] = this.fileExtension;
-    else if (typeof this.fileExtension === 'string') this.currentFileExtension = this.fileExtension;
+    this.reInitialize();
   },
   data() {
     return {
@@ -49,11 +45,15 @@ export default {
   },
   emits: ['close'],
   methods: {
-    cleanup() {
+    reInitialize() {
       this.name = '';
       this.nameError = '';
-      this.currentFileExtension = null;
-      this.entity = null;
+
+      if (this.only) this.entity = this.only;
+      else this.entity = 'file';
+
+      if (Array.isArray(this.fileExtension)) [this.currentFileExtension] = this.fileExtension;
+      else if (typeof this.fileExtension === 'string') this.currentFileExtension = this.fileExtension;
     },
     async createEntity() {
       await this.validateName();
@@ -63,7 +63,7 @@ export default {
       if (this.entity === 'directory') {
         try {
           await fs.mkdir(joinPath(this.path, this.fullName));
-          this.cleanup();
+          this.reInitialize();
           this.$emit('close');
         } catch (err) {
           this.$store.commit('addToast', { message: `Something went wrong while creating the directory: ${err.message}` });
@@ -71,7 +71,7 @@ export default {
       } else {
         try {
           await fs.writeFile(joinPath(this.path, this.fullName), this.fileContent || '', 'utf8');
-          this.cleanup();
+          this.reInitialize();
           this.$emit('close');
         } catch (err) {
           this.$store.commit('addToast', { message: `Something went wrong while creating the file: ${err.message}` });
@@ -79,7 +79,7 @@ export default {
       }
     },
     handleCancel() {
-      this.cleanup();
+      this.reInitialize();
       this.$emit('close');
     },
     validateName: debounce(async function () { // eslint-disable-line func-names
