@@ -43,7 +43,7 @@ export default {
       nameError: '',
     };
   },
-  emits: ['close'],
+  emits: ['close', 'entity-created'],
   methods: {
     reInitialize() {
       this.name = '';
@@ -65,6 +65,7 @@ export default {
           await fs.mkdir(joinPath(this.path, this.fullName));
           this.reInitialize();
           this.$emit('close');
+          this.$emit('entity-created');
         } catch (err) {
           this.$store.commit('addToast', { message: `Something went wrong while creating the directory: ${err.message}` });
         }
@@ -73,6 +74,7 @@ export default {
           await fs.writeFile(joinPath(this.path, this.fullName), this.fileContent || '', 'utf8');
           this.reInitialize();
           this.$emit('close');
+          this.$emit('entity-created');
         } catch (err) {
           this.$store.commit('addToast', { message: `Something went wrong while creating the file: ${err.message}` });
         }
