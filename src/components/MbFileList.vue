@@ -53,7 +53,7 @@
 import { formatDistanceToNowStrict } from 'date-fns';
 import { debounce } from 'lodash-es';
 
-import fs from '../fs';
+import fs, { joinPath } from '../fs';
 
 export default {
   computed: {
@@ -68,12 +68,12 @@ export default {
       return [rootName, ...steps].slice(-4); // so it doesn’t get too long
     },
     filteredFiles() {
-      if (!this.searchTerm) return this.files.filter((file) => !this.$store.getters.isSoftDeleted(this.joinPath(this.currentPath, file.name)));
-      return this.files.filter((file) => file.name.includes(this.searchTerm) && !this.$store.getters.isSoftDeleted(this.joinPath(this.currentPath, file.name)));
+      if (!this.searchTerm) return this.files.filter((file) => !this.$store.getters.isSoftDeleted(joinPath(this.currentPath, file.name)));
+      return this.files.filter((file) => file.name.includes(this.searchTerm) && !this.$store.getters.isSoftDeleted(joinPath(this.currentPath, file.name)));
     },
     filteredFolders() {
-      if (!this.searchTerm) return this.folders.filter((folder) => !this.$store.getters.isSoftDeleted(this.joinPath(this.currentPath, folder.name)));
-      return this.folders.filter((folder) => folder.name.includes(this.searchTerm) && !this.$store.getters.isSoftDeleted(this.joinPath(this.currentPath, folder.name)));
+      if (!this.searchTerm) return this.folders.filter((folder) => !this.$store.getters.isSoftDeleted(joinPath(this.currentPath, folder.name)));
+      return this.folders.filter((folder) => folder.name.includes(this.searchTerm) && !this.$store.getters.isSoftDeleted(joinPath(this.currentPath, folder.name)));
     },
     modifiedFileActions() { // we need to pass the current filepath to the callback and check if it’s applicable for this type
       const actions = [];
@@ -210,14 +210,7 @@ export default {
     },
     handleFileClick(name, e) {
       if (e.target.classList.contains('button')) return; // buttons have a ::before that covers them completely, so this is enough
-      this.$emit('fileclick', this.joinPath(this.currentPath, name));
-    },
-    joinPath(...parts) { // taken from https://github.com/isomorphic-git/lightning-fs/blob/main/src/path.js
-      if (parts.length === 0) return '';
-      let path = parts.join('/');
-      // Replace consecutive '/'
-      path = path.replace(/\/{2,}/g, '/');
-      return path;
+      this.$emit('fileclick', joinPath(this.currentPath, name));
     },
     jumpTo(index) {
       if (this.currentPath === this.root) return;
@@ -228,12 +221,12 @@ export default {
       // we want the path from the start of the path up to that number, but since the path might be longer than 4, we have to offset it by the difference
       // also the index has to be +1 because the end of slice() is non-inclusive
       const newPath = steps.slice(0, steps.length - Math.min(steps.length, 4) + index + 1);
-      this.currentPath = this.joinPath(this.root, ...newPath.slice(1)); // strip the leading empty string (since currentPath always starts with a slash)
+      this.currentPath = joinPath(this.root, ...newPath.slice(1)); // strip the leading empty string (since currentPath always starts with a slash)
     },
     openFolder(name, e) {
       if (e.target.classList.contains('button')) return; // buttons have a ::before that covers them completely, so this is enough
       this.searchTerm = '';
-      this.currentPath = this.joinPath(this.currentPath, name);
+      this.currentPath = joinPath(this.currentPath, name);
     },
     openMenu(e, path, isFolder) {
       if (this.popover.show || (isFolder && this.modifiedFolderActions.length < 1) || (!isFolder && this.modifiedFileActions.length < 1)) return; // close it first or abort if there’s nothing to display
