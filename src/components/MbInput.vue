@@ -72,7 +72,7 @@ export default {
   max-width: 100%
   cursor: text
   margin-top: 1.5rem
-  border: 1px solid transparent
+  border: 0.0625rem solid transparent // exists for the disabled fields
   transition: box-shadow 200ms ease
 
   &.dark
