@@ -347,7 +347,7 @@
         <h2>File Lists</h2>
         <p>This component is a fully fledged file browser that can display the contents of a folder and offers the ability for custom actions on the files.</p>
         <MbFileList :dark="dark" :file-actions="[{ action: showFileToast, icon: 'folder-open', label: 'Open', foldersOnly: true }, { disabled: true, icon: 'arrow-right', label: 'Move', foldersOnly: true }, { action: softDeleteFile, icon: 'trash', label: 'Delete', type: 'negative' }]" :folders-first="true" :folders-only="false" ref="fileList" root="/" show-hidden :action="{ callback: (path) => { currentPath = path; showEntityCreationModal = true; }, label: 'Add', icon: 'plus', type: 'positive'}" @fileclick="showFileToast" />
-        <EntityCreationModal :dark="dark" :file-extension="['json', 'txt', 'yaml']" :path="currentPath" :visible="showEntityCreationModal" @close="showEntityCreationModal = false" @entity-created="refreshFileList" />
+        <EntityCreationModal :dark="dark" :file-extension="['json', 'md', 'txt', 'yaml']" :path="currentPath" :visible="showEntityCreationModal" @close="showEntityCreationModal = false" @entity-created="refreshFileList" />
         <h3>Props</h3>
         <MbTable :data="props.fileLists" />
         <h3>Events</h3>
@@ -457,6 +457,12 @@
         <MbTable :data="events.avatarUploaders" />
         <h4>Notes</h4>
         <p>This component has no visual output, it is meant to be used programmatically by another component that then “clicks” it.</p>
+        <h3>Entity Creation Modal</h3>
+        <p>A reusable modal for creating files or folders at a specific location. Click the “Add” button under “<u @click="activeTab = tabs.findIndex((tab) => tab.value === 'file-lists')">File Lists</u>” to see how it looks and works.</p>
+        <h4>Props</h4>
+        <MbTable :data="props.entityCreationModals" />
+        <h4>Events</h4>
+        <MbTable :data="events.entityCreationModals" />
         <h3>Git Login Modal</h3>
         <p>A component for prompting the user to sign into their Git account. It bundles some common text and input fields with a custom message.</p>
         <MbButton :dark="dark" @click="showGitLoginModal = true">Show Modal</MbButton>
@@ -695,6 +701,11 @@ export default {
           ['Name', 'Data'],
           ['`update:modelValue`', 'The new date in the specified format'],
         ],
+        entityCreationModals: [
+          ['Name', 'Data'],
+          ['`cancel`', ''],
+          ['`entity-created`', ''],
+        ],
         fileLists: [
           ['Name', 'Data'],
           ['`fileclick`', 'The full path of the clicked file'],
@@ -821,6 +832,16 @@ export default {
           ['`placeholder`', 'String', 'Choose a date…'],
           ['`removable`', 'Boolean', '`false`'],
           ['`showTime`', 'Boolean', '`false`'],
+        ],
+        entityCreationModals: [
+          ['Name', 'Type', 'Default', 'Notes'],
+          ['`dark`', 'boolean', '`false`', ''],
+          ['`fileContent`', 'String', '`undefined`', 'The text-content that should be written into the new file'],
+          ['`fileExtension`', 'String or Array', '`undefined`', 'Either a single file extension such as json, or an array of them'],
+          ['`only`', 'String', '`undefined`', 'Should be either ‘file’ or ‘directory’, will allow only the creation of the specified entity'],
+          ['`path`', 'String', '`/`', 'The path where the entity should be created'],
+          ['`title`', 'String', "`'Create new…'`", ''],
+          ['`visible`', 'Boolean', '`false`', ''],
         ],
         fileLists: [
           ['Name', 'Type', 'Default', 'Notes'],
