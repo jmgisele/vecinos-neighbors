@@ -18,6 +18,9 @@ export default createStore({
       toasts: [],
       tooltip: null,
     },
+    currentProject: {
+      slugifyOptions: null,
+    },
     user: {
       email: null,
       gitAuth: null,
