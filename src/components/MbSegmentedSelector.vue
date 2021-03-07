@@ -1,7 +1,7 @@
 <template lang="html">
   <div class="segmented-selector" :class="{ dark }">
     <transition>
-      <div v-show="activeOptionIndex > -1" class="ink" :style="{ transform: inkTransform, width: `calc((100% - ${0.5 * (options.length - 1)}rem) * ${1 / options.length })` }" />
+      <div v-show="activeOptionIndex > -1" class="ink" :style="{ transform: inkTransform, width: `calc((100% - ${0.125 * (options.length - 1)}rem) * ${1 / options.length })` }" />
     </transition>
     <span v-for="(option, index) in options" class="option" :class="{ active: index === activeOptionIndex, disabled: option.disabled }" :key="index" :tabindex="option.disabled ? -1 : 0" @click.left="selectOption(option)" @keydown.space.prevent @keyup.space.enter="selectOption(option)">{{option.label || option.value || option}}</span>
   </div>
@@ -19,7 +19,7 @@ export default {
   },
   created() {
     if (this.activeOptionIndex < 0) return;
-    this.inkTransform = `translateX(calc(${this.activeOptionIndex * 100}% + ${this.activeOptionIndex * 0.5}rem))`;
+    this.inkTransform = `translateX(calc(${this.activeOptionIndex * 100}% + ${this.activeOptionIndex * 0.125}rem))`;
   },
   data() {
     return {
@@ -40,8 +40,8 @@ export default {
   },
   watch: {
     activeOptionIndex(nv, ov) {
-      if (nv < 0) this.inkTransform = `translateX(calc(${ov * 100}% + ${ov * 0.5}rem))`;
-      else this.inkTransform = `translateX(calc(${nv * 100}% + ${nv * 0.5}rem))`;
+      if (nv < 0) this.inkTransform = `translateX(calc(${ov * 100}% + ${ov * 0.125}rem))`;
+      else this.inkTransform = `translateX(calc(${nv * 100}% + ${nv * 0.125}rem))`;
     },
   },
 };
@@ -96,7 +96,7 @@ export default {
     white-space: nowrap
 
     &:not(:last-child)
-      margin-right: 0.5rem
+      margin-right: 0.125rem
 
     &.active
       color: $text-dark
