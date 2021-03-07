@@ -1,7 +1,7 @@
 <template lang="html">
   <div class="segmented-selector" :class="{ dark }">
     <transition>
-      <div v-show="activeOptionIndex > -1" class="ink" :style="{ transform: inkTransform, width: `calc((100% - ${0.125 * (options.length - 1)}rem) * ${1 / options.length })` }" />
+      <div v-show="activeOptionIndex > -1" class="ink" :class="{ disabled: options[activeOptionIndex] && options[activeOptionIndex].disabled }" :style="{ transform: inkTransform, width: `calc((100% - ${0.125 * (options.length - 1)}rem) * ${1 / options.length })` }" />
     </transition>
     <span v-for="(option, index) in options" class="option" :class="{ active: index === activeOptionIndex, disabled: option.disabled }" :key="index" :tabindex="option.disabled ? -1 : 0" @click.left="selectOption(option)" @keydown.space.prevent @keyup.space.enter="selectOption(option)">{{option.label || option.value || option}}</span>
   </div>
@@ -74,6 +74,9 @@ export default {
     width: 0
     height: 100%
     transition: transform 200ms cubic-bezier(0.645, 0.045, 0.355, 1.000)
+
+    &.disabled
+      opacity: 0.7
 
     &.v-enter-active,
     &.v-leave-active
