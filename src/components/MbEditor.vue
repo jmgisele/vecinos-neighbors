@@ -161,7 +161,7 @@ export default {
         });
       }
 
-      if (this.formats.block && this.formats.block.includes('blockquote') && this.formatOptions.allowQuoteFooters && this.activeParentType === 'blockquote') {
+      if (this.outputFormat === 'html' && this.formats.block && this.formats.block.includes('blockquote') && this.formatOptions.allowQuoteFooters && this.activeParentType === 'blockquote') {
         types.push({
           label: 'Quote Footer',
           value: 'quoteFooter',
@@ -529,7 +529,7 @@ export default {
       redo(this.editorState, this.editorView.dispatch);
     },
     reInitializeProseMirror() {
-      const schema = generateSchema(this.formats, this.formatOptions);
+      const schema = generateSchema(this.formats, this.outputFormat === 'markdown' ? { ...this.formatOptions, allowQuoteFooters: false } : this.formatOptions);
       this.toolbarActions = this.generateActions(schema);
 
       if (this.outputFormat === 'markdown') {
