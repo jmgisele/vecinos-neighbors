@@ -306,6 +306,7 @@
         </MbModal>
         <h3>Props</h3>
         <MbTable :data="props.modals" />
+        <p><strong>Note:</strong> a permanent modal is a modal that cannot be swiped away or be closed by clicking on the background / the modal before. It has to be closed by setting its visibility prop to false.</p>
         <h3>Events</h3>
         <MbTable :data="events.modals" />
         <h3>Slots</h3>
@@ -859,7 +860,7 @@ export default {
         gitLoginModals: [
           ['Name', 'Type', 'Default', 'Notes'],
           ['`dark`', 'Boolean', '`false`', ''],
-          ['`message`', 'String', '`undefined`', 'If not provided a default messae will be shown instead'],
+          ['`message`', 'String', '`undefined`', 'If not provided a default message will be shown instead'],
           ['`visible`', 'Boolean', '`false`', ''],
         ],
         icons: [
