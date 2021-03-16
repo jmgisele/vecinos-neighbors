@@ -105,6 +105,11 @@ export default createStore({
     setMobile(state, value) {
       state.application.mobile = value;
     },
+    setModalPermanence(state, { el, value }) {
+      const index = state.application.permanentModals.indexOf(el);
+      if (value && index === -1) state.application.permanentModals.push(el);
+      else if (index !== -1) state.application.permanentModals.splice(index, 1);
+    },
     setUserData(state, data) {
       state.user = data;
     },

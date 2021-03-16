@@ -133,6 +133,9 @@ export default {
         this.pointerEvents = null;
       } else this.$nextTick(this.updateOffsets);
     },
+    permanent(nv) {
+      this.$store.commit('setModalPermanence', { el: this.$refs.el, permanent: nv });
+    },
     visible(nv) {
       if (nv) {
         this.transform = null;
