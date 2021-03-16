@@ -5,11 +5,13 @@
     <MbInput v-model="user" autofocus :dark="dark" icon="user" label="Username or Email Address" />
     <MbInput v-model="password" :dark="dark" icon="key" label="Password" type="password" />
     <MbCheckbox v-model="savePassword" :dark="dark">Remember password until the end of the session</MbCheckbox>
-    <p class="note"><strong>Note:</strong> if you have set up two-factor authentication (2FA)
-      on your account, you will have to generate an App Password or Personal Access Token
-      to use instead of your password. You may also want to do this in order to
-      increase security for your account while using Mattrbld.
-    </p>
+    <MbHighlightBox color="warning" :dark="dark">
+      <p>If you have set up two-factor authentication (2FA)
+        on your account, you will have to generate an App Password or Personal Access Token
+        to use instead of your password. You may also want to do this in order to
+        increase security for your account while using Mattrbld.
+      </p>
+    </MbHighlightBox>
     <template #actions>
       <MbButton :dark="dark" @click="handleCancel">Cancel</MbButton>
       <MbButton :dark="dark" :disabled="!user || !password" type="primary" @click="handleSubmit">Submit</MbButton>
@@ -50,20 +52,13 @@ export default {
 @require '../../assets/styles/corners'
 
 .git-login-modal
-  &.dark .note
-    background-color: $warning-saturated
-
   .input
     width: 100%
 
   .checkbox
     margin-top: 1.5rem
 
-  .note
-    padding: 1.5rem
-    background-color: $warning
-    border-radius: $radius-l
-    margin-top: 2rem
+  .highlight-box
+    margin-top: 2.5rem
     margin-bottom: 0
-    color: $text
 </style>
