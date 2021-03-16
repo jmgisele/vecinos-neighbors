@@ -23,8 +23,8 @@
             <MbButton :dark="dark" :disabled="Boolean(!repoURL || errors.repoURL || loadingBranches || !repoBranch)" type="primary" @click="importProject">Import Project</MbButton>
           </footer>
           <footer class="meta-info">
-            <p @click="showAdvancedSettings = true">Advanced Settings</p>
-            <p @click="showPrivacyPolicy = true">Privacy Policy</p>
+            <a href="#" @click.prevent="showAdvancedSettings = true">Advanced Settings</a>
+            <a href="#" @click.prevent="showPrivacyPolicy = true">Privacy Policy</a>
           </footer>
           <MbModal class="advanced-settings-modal" :dark="dark" title="Advanced Settings" :visible="showAdvancedSettings" @close="showAdvancedSettings = false">
             <h3>CORS Proxy Server</h3>
@@ -592,16 +592,12 @@ export default {
             position: absolute
             bottom: 2rem
             right: 2rem
-            display: flex
 
             @media $mobile
               position: static
               margin-top: 2rem
 
-          > p
-            cursor: pointer
-            color: $accent
-            margin: 0
+          > a
             white-space: nowrap
 
             &:not(:last-child)
