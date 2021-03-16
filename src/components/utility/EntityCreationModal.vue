@@ -96,7 +96,7 @@ export default {
       else if (this.fullName.length > 255) this.nameError = 'Name is too long';
       else if (existingEntities.length > 0 && existingEntities.includes(this.fullName)) this.nameError = `A ${this.entity} with this name already exists`;
       else this.nameError = '';
-    }, 250),
+    }, 250, { leading: true }),
   },
   props: {
     dark: Boolean,
