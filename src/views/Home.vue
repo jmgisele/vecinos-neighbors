@@ -21,7 +21,7 @@
         </div>
       </transition>
     </main>
-    <MbModal class="import-project-modal" :dark="dark" title="Import Project" :visible="showImportProject" @close="cancelProjectImport">
+    <MbModal class="import-project-modal" :dark="dark" :permanent="importing" title="Import Project" :visible="showImportProject" @close="cancelProjectImport">
       <transition mode="out-in">
         <div v-if="!importing" class="form">
           <MbInput v-model="repoURL" :autofocus="!isMobile" :dark="dark" :error="errors.repoURL" icon="repo" label="Project Repository URL" @blur="handleRepoInput" @keyup.enter="$event.target.blur()" />
@@ -128,8 +128,7 @@ export default {
   },
   methods: {
     cancelProjectImport(clear) {
-      if (this.importing) this.$store.commit('addToast', { message: 'Your project is still being imported in the background', type: 'warning' });
-      else if (clear) {
+      if (clear) {
         this.corsProxy = this.$store.state.application.corsProxy;
         this.credentials = null;
         this.errors = {
