@@ -12,8 +12,9 @@ export default createStore({
       corsProxy: null,
       initialised: false,
       locallyChangedFiles: [],
-      openModals: [],
       mobile: false,
+      openModals: [],
+      permanentModals: [],
       softDeleted: [],
       toasts: [],
       tooltip: null,
@@ -43,8 +44,9 @@ export default createStore({
     addLocallyChangedFile(state, path) {
       if (!state.application.locallyChangedFiles.includes(path)) state.application.locallyChangedFiles.push(path);
     },
-    addOpenModal(state, modalEl) {
-      state.application.openModals.push(modalEl);
+    addOpenModal(state, modal) {
+      state.application.openModals.push(modal.el);
+      if (modal.permanent) state.application.permanentModals.push(modal.el);
     },
     addProjectToActiveUser(state, id) {
       state.user.projects.push(id);
@@ -72,9 +74,11 @@ export default createStore({
     },
     closeModal(state, index) {
       state.application.openModals.splice(index, 1);
+      state.application.permanentModals.splice(index, 1);
     },
     closeTopmostModal(state) {
-      state.application.openModals.pop();
+      const topmost = state.application.openModals[state.application.openModals.length - 1];
+      if (topmost && state.application.permanentModals.indexOf(topmost) === -1) state.application.openModals.pop();
     },
     removeFromSoftDeleted(state, path) {
       const index = state.application.softDeleted.indexOf(path);

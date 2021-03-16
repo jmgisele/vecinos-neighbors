@@ -258,8 +258,8 @@
         <p>Modals get displayed over every other piece of content. They put the user in a new mode. They can also be stacked.</p>
         <p>Click the button below to open a modal.</p>
         <MbButton :dark="dark" type="primary" @click="modalVisible = true">Open Modal</MbButton>
-        <MbModal :dark="dark" title="Test Modal" :visible="modalVisible" @close="modalVisible = false">
-          <p>This is a testing modal.</p>
+        <MbModal :dark="dark" permanent title="Permanent Test Modal" :visible="modalVisible" @close="modalVisible = false">
+          <p>This is a permanent testing modal. It cannot be closed by clicking outside.</p>
           <p>The document is in <code>{{$store.state.application.mobile ? 'mobile' : 'desktop'}}</code> mode.</p>
           <template #actions>
             <MbButton :dark="dark" @click="modalVisible = false">Close Me</MbButton>
@@ -884,6 +884,7 @@ export default {
           ['Name', 'Type', 'Default'],
           ['`dark`', 'Boolean', '`false`'],
           ['`paddedBody`', 'Boolean', '`true`'],
+          ['`permanent`', 'Boolean', '`false`'],
           ['`slim`', 'Boolean', '`false`'],
           ['`title`', 'String', '`\'\'`'],
           ['`visible`', 'Boolean', '`false`'],

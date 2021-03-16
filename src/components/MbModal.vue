@@ -71,6 +71,7 @@ export default {
       } else this.transform = null;
     },
     swipeStart(e) {
+      if (this.permanent) return; // permanent modals cannot be swiped
       if (this.$refs.body.scrollTop !== 0) return; // we’ll be scrolling
       this.maxSwipeDistance = this.$refs.el.getBoundingClientRect().height;
       this.startY = e.changedTouches[0].clientY;
@@ -108,7 +109,7 @@ export default {
   mounted() {
     if (this.visible) { // needs to be during mounted so $refs.el is defined
       this.transform = null;
-      this.$store.commit('addOpenModal', this.$refs.el);
+      this.$store.commit('addOpenModal', { el: this.$refs.el, permanent: this.permanent });
     }
   },
   props: {
@@ -117,6 +118,7 @@ export default {
       type: Boolean,
       default: true,
     },
+    permanent: Boolean,
     slim: Boolean,
     title: String,
     visible: Boolean,
@@ -134,7 +136,7 @@ export default {
     visible(nv) {
       if (nv) {
         this.transform = null;
-        this.$store.commit('addOpenModal', this.$refs.el);
+        this.$store.commit('addOpenModal', { el: this.$refs.el, permanent: this.permanent });
         this.$nextTick(() => this.$refs.el.focus());
       } else if (this.modalIndex >= 0) this.$store.commit('closeModal', this.modalIndex);
     },
