@@ -2,7 +2,7 @@
   <teleport to="body">
     <div class="centerer" :style="{ zIndex: modalIndex === -1 ? 999 : modalIndex + 1 }"><!-- This is needed so the modal doesn’t slip under another one while leaving -->
       <transition>
-        <div v-show="visible" v-bind="$attrs" class="modal" :class="{dark, darkened: nextModal, transition: !swiping, slim, swiping }" ref="el" :style="{ opacity, pointerEvents, transform }" tabindex="-1" @touchstart="swipeStart" @touchmove="swipeUpdate" @touchend="swipeEnd">
+        <div v-show="visible" v-bind="$attrs" class="modal" :class="{dark, darkened: nextModal, transition: !swiping, slim, swiping, wiggle }" ref="el" :style="{ opacity, pointerEvents, transform }" tabindex="-1" @touchstart="swipeStart" @touchmove="swipeUpdate" @touchend="swipeEnd">
           <header v-if="title">
             <h2 class="h3">{{title}}</h2>
           </header>
@@ -20,6 +20,9 @@
 
 <script>
 export default {
+  beforeUnmount() {
+    window.removeEventListener('click', this.showPermanence, { capture: true });
+  },
   computed: {
     mobile() {
       return this.$store.state.application.mobile;
@@ -50,11 +53,17 @@ export default {
       startY: 0,
       swiping: false,
       transform: null,
+      wiggle: false,
     };
   },
   emits: ['close'],
   inheritAttrs: false,
   methods: {
+    showPermanence(e) {
+      if (this.wiggle) return;
+      if (!this.$refs.el.contains(e.target) && e.target !== this.$refs.el && this.modalIndex === this.$store.state.application.openModals.length - 1) this.wiggle = true;
+      window.setTimeout(() => { this.wiggle = false; }, 350);
+    },
     swipeEnd(e) {
       if (!this.swiping) return;
       const finalY = e.changedTouches[0].clientY;
@@ -110,6 +119,8 @@ export default {
     if (this.visible) { // needs to be during mounted so $refs.el is defined
       this.transform = null;
       this.$store.commit('addOpenModal', { el: this.$refs.el, permanent: this.permanent });
+
+      if (this.permanent) window.addEventListener('click', this.showPermanence, { capture: true });
     }
   },
   props: {
@@ -135,13 +146,22 @@ export default {
     },
     permanent(nv) {
       this.$store.commit('setModalPermanence', { el: this.$refs.el, permanent: nv });
+
+      if (this.visible) {
+        if (nv) window.addEventListener('click', this.showPermanence, { capture: true });
+        else window.removeEventListener('click', this.showPermanence, { capture: true });
+      }
     },
     visible(nv) {
       if (nv) {
         this.transform = null;
         this.$store.commit('addOpenModal', { el: this.$refs.el, permanent: this.permanent });
+        if (this.permanent) window.addEventListener('click', this.showPermanence, { capture: true });
         this.$nextTick(() => this.$refs.el.focus());
-      } else if (this.modalIndex >= 0) this.$store.commit('closeModal', this.modalIndex);
+      } else if (this.modalIndex >= 0) {
+        window.removeEventListener('click', this.showPermanence, { capture: true });
+        this.$store.commit('closeModal', this.modalIndex);
+      }
     },
   },
 };
@@ -211,6 +231,17 @@ export default {
     &.darkened
       background-color: mix(black, $bg-dark, 20)
       border-color: $bg-dark
+
+  &.wiggle
+    animation: wiggle 350ms ease
+
+    @keyframes wiggle
+      0%
+        transform: none
+      50%
+        transform: scale(1.1)
+      100%
+        transform: none
 
   &.v-enter-active,
   &.v-leave-active
