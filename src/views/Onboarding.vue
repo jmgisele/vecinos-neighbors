@@ -88,7 +88,7 @@
 </template>
 
 <script>
-import { clone, listServerRefs, setConfig } from 'isomorphic-git';
+import { clone, listServerRefs } from 'isomorphic-git';
 import http from 'isomorphic-git/http/web/index.cjs';
 import slugify from '@sindresorhus/slugify';
 
@@ -354,25 +354,8 @@ export default {
       return new Promise((resolve) => { this.credentialPromise = resolve; });
     },
     async openProject() {
-      try { // we’re setting the config here, because we know we’re done cloning
-        await setConfig({
-          fs: PlainFS,
-          dir: `/projects/${this.projectName}`,
-          path: 'user.name',
-          value: this.userName.trim(),
-        });
-        await setConfig({
-          fs: PlainFS,
-          dir: `/projects/${this.projectName}`,
-          path: 'user.email',
-          value: this.userEmail.trim(),
-        });
-        if (this.isMattrbldProject) this.$router.push({ name: 'Project', params: { id: this.projectName } }); // go to project dashboard
-        else this.$router.push({ name: 'Project.Settings', params: { id: this.projectName }, query: { tab: 'users' } }); // go to project settings
-      } catch (err) {
-        // TODO: figure out a way to clean this up in case something goes wrong, if the config isn’t set other operations will fail in the future
-        this.$store.commit('addToast', { message: `Something went wrong while setting the project configuration: ${err.message}`, type: 'error' });
-      }
+      if (this.isMattrbldProject) this.$router.push({ name: 'Project', params: { id: this.projectName } }); // go to project dashboard
+      else this.$router.push({ name: 'Project.Settings', params: { id: this.projectName }, query: { tab: 'users' } }); // go to project settings
     },
     regenerateAvatar() {
       const split = this.userName.split(' ');
