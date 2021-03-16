@@ -1,6 +1,6 @@
 <template lang="html">
   <teleport to="body">
-    <div class="centerer" :style="{ zIndex: modalIndex + 2 }"><!-- +2 so it doesn’t slip under the modal overlay when modalIndex === -1 -->
+    <div class="centerer" :style="{ zIndex: modalIndex === -1 ? 999 : modalIndex + 1 }"><!-- This is needed so the modal doesn’t slip under another one while leaving -->
       <transition>
         <div v-show="visible" v-bind="$attrs" class="modal" :class="{dark, darkened: nextModal, transition: !swiping, slim, swiping }" ref="el" :style="{ opacity, pointerEvents, transform }" tabindex="-1" @touchstart="swipeStart" @touchmove="swipeUpdate" @touchend="swipeEnd">
           <header v-if="title">
