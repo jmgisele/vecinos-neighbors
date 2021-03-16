@@ -519,6 +519,18 @@
         <p>The <code>options</code>-array can either be an array of values like strings, or an array of objects in the following format:</p>
         <p><code>{ disabled: optional boolean, label: 'Option Label', value: optionValue }</code></p>
       </section>
+      <section v-else-if="activeTabValue === 'highlight-boxes'" class="tab highlight-boxes">
+        <h2>Highlight Boxes</h2>
+        <p>These components can be used to highlight a portion of content, for example notes or warnings.</p>
+        <MbHighlightBox :dark="dark">
+          <p>Just a default box with no customisation.</p>
+        </MbHighlightBox>
+        <MbHighlightBox color="warning" :dark="dark" label="Custom Heading">
+          <p>This box has a custom color and a custom label.</p>
+        </MbHighlightBox>
+        <h3>Props</h3>
+        <MbTable :data="props.highlightBoxes" />
+      </section>
       <section v-else class="tab" key="exampleTab">
         <p>This is just an empty test-tab.</p>
         <p>To delete it, click the button in the “<u @click="activeTab = tabs.findIndex((tab) => tab.value === 'tabs')">Tabs</u>”-tab.</p>
@@ -863,6 +875,12 @@ export default {
           ['`message`', 'String', '`undefined`', 'If not provided a default message will be shown instead'],
           ['`visible`', 'Boolean', '`false`', ''],
         ],
+        highlightBoxes: [
+          ['Name', 'Type', 'Default', 'Default / Allowed Values'],
+          ['`color`', 'String', '`accent`', 'accent, negative, positive, warning'],
+          ['`dark`', 'Boolean', '`false`', ''],
+          ['`label`', 'String', '`undefined`', 'Please note'],
+        ],
         icons: [
           ['Name', 'Type', 'Default'],
           ['`icon`', 'String', "`'mattrbld'`"],
@@ -1131,6 +1149,7 @@ export default {
         { label: 'Context Menus', value: 'context-menus' },
         { label: 'Date Pickers', value: 'date-pickers' },
         { label: 'File Lists', value: 'file-lists' },
+        { label: 'Highlight Boxes', value: 'highlight-boxes' },
         { label: 'Icons', value: 'icons' },
         { label: 'Inputs', value: 'inputs' },
         { label: 'Loaders', value: 'loaders' },
