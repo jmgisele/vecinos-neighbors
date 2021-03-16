@@ -25,7 +25,7 @@ export default {
 @require '../assets/styles/corners'
 
 .highlight-box
-  margin: (32 / 16)rem auto
+  margin-top: 1rem
   border-radius: $radius-l
   padding: (24 / 16)rem
   border: (1 / 16)rem solid $accent
@@ -34,6 +34,9 @@ export default {
 
   &.dark
     background-color: $bg-dark
+
+    &.warning::before
+      color: $warning-saturated
 
   &.accent
     border-color: $accent
@@ -57,14 +60,14 @@ export default {
     border-color: $warning-saturated
 
     &::before
-      color: @border-color
+      color: $text-secondary
 
   &::before
     content: attr(data-label)
     display: inline-block
     padding: (2 / 16)rem (8 / 16)rem
     position: absolute
-    top: -1rem
+    top: (-14 / 16)rem
     left: 1rem
     font-weight: 700
     background-color: inherit
