@@ -29,7 +29,7 @@
           <MbModal class="advanced-settings-modal" :dark="dark" title="Advanced Settings" :visible="showAdvancedSettings" @close="showAdvancedSettings = false">
             <h3>CORS Proxy Server</h3>
             <MbInput v-model="corsProxy" :dark="dark" :error="errors.corsProxy" label="Proxy URL" placeholder="https://cors.isomorphic-git.org" @blur="validate('corsProxy')" />
-            <MbHighlightBox label="Why is this neccessary?">
+            <MbHighlightBox :dark="dark" label="Why is this neccessary?">
               <p>Unfortunately, for the time being, most Git-Providers don’t support requests made from browsers. To circumvent that limitation, a proxy server has to be used.</p>
               <p>
                 For small scale, <em>private</em> projects, you may use the provided proxy server.
@@ -583,8 +583,8 @@ export default {
           > a
             white-space: nowrap
 
-            &:not(:last-child)
-              margin-right: 1rem
+            &:not(:first-child)
+              margin-left: 1rem
 
 .advanced-settings-modal
   h3
