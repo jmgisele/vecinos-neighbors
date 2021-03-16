@@ -22,17 +22,27 @@
           <footer>
             <MbButton :dark="dark" :disabled="Boolean(!repoURL || errors.repoURL || loadingBranches || !repoBranch)" type="primary" @click="importProject">Import Project</MbButton>
           </footer>
-          <p class="advanced-settings" @click="showAdvancedSettings = true">Advanced Settings</p>
+          <footer class="meta-info">
+            <p @click="showAdvancedSettings = true">Advanced Settings</p>
+            <p @click="showPrivacyPolicy = true">Privacy Policy</p>
+          </footer>
           <MbModal class="advanced-settings-modal" :dark="dark" title="Advanced Settings" :visible="showAdvancedSettings" @close="showAdvancedSettings = false">
             <h3>CORS Proxy Server</h3>
             <MbInput v-model="corsProxy" :dark="dark" :error="errors.corsProxy" label="Proxy URL" placeholder="https://cors.isomorphic-git.org" @blur="validate('corsProxy')" />
-            <p>Unfortunately, for the time being, most Git-Providers don’t support requests made from browsers. To circumvent that limitation, a proxy server is used.</p>
-            <p>
-              For small scale, private projects, the provided proxy server may be
-              used. However, if you plan on using Mattrbld commercially, or use
-              it with very large sites, please host your own instance. Learn more
-              about how <a href="https://github.com/isomorphic-git/cors-proxy" rel="noopener noreferrer nofollow" target="_blank">here</a>.
-            </p>
+            <MbHighlightBox label="Why is this neccessary?">
+              <p>Unfortunately, for the time being, most Git-Providers don’t support requests made from browsers. To circumvent that limitation, a proxy server has to be used.</p>
+              <p>
+                For small scale, <em>private</em> projects, you may use the provided proxy server.
+                However, if you plan on using Mattrbld commercially, or use
+                it with very large sites, please host your own instance or lobby your Git provider to support requests from a browser.
+              </p>
+              <p>
+                Learn more about how <a href="https://github.com/isomorphic-git/cors-proxy" rel="noopener noreferrer nofollow" target="_blank">here</a>.
+              </p>
+            </MbHighlightBox>
+          </MbModal>
+          <MbModal class="privacy-modal" :dark="dark" title="Privacy Policy" :visible="showPrivacyPolicy" @close="showPrivacyPolicy = false">
+            <p><strong>Todo:</strong> add privacy policy, perhaps with Markdown loader? 🤔</p>
           </MbModal>
         </div>
         <div v-else-if="currentSlide === 1" class="slide">
@@ -144,6 +154,7 @@ export default {
       roleOptions: availableRoles,
       showAdvancedSettings: false,
       showGitLoginModal: false,
+      showPrivacyPolicy: false,
       steps: [
         {
           icon: 'mattrbld',
@@ -576,18 +587,25 @@ export default {
           text-align: right
           margin-top: 2rem
 
-        .advanced-settings
-          position: absolute
-          bottom: 2rem
-          right: 2rem
-          cursor: pointer
-          color: $accent
-          margin: 0
+          &.meta-info
+            margin-top: 0
+            position: absolute
+            bottom: 2rem
+            right: 2rem
+            display: flex
 
-          @media $mobile
-            position: static
-            margin-top: 2rem
-            text-align: right
+            @media $mobile
+              position: static
+              margin-top: 2rem
+
+          > p
+            cursor: pointer
+            color: $accent
+            margin: 0
+            white-space: nowrap
+
+            &:not(:last-child)
+              margin-right: 1rem
 
 .advanced-settings-modal
   h3
