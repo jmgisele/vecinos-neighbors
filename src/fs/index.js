@@ -3,14 +3,6 @@ import { join } from '@isomorphic-git/lightning-fs/src/path';
 
 const fs = new FS('mattrfs');
 
-function joinPath(...parts) { // taken from https://github.com/isomorphic-git/lightning-fs/blob/main/src/path.js
-  if (parts.length === 0) return '';
-  let path = parts.join('/');
-  // Replace consecutive '/'
-  path = path.replace(/\/{2,}/g, '/');
-  return path;
-}
-
 async function deleteFileOrFolder(path) {
   const stat = await fs.promises.lstat(path);
 
@@ -32,4 +24,4 @@ async function rmrf(path) {
 }
 
 export default fs.promises;
-export { fs as PlainFS, joinPath, rmrf };
+export { fs as PlainFS, join as joinPath, rmrf };
