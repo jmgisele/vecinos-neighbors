@@ -145,7 +145,7 @@ export default {
       } else this.$nextTick(this.updateOffsets);
     },
     permanent(nv) {
-      this.$store.commit('setModalPermanence', { el: this.$refs.el, permanent: nv });
+      this.$store.commit('setModalPermanence', { el: this.$refs.el, value: nv });
 
       if (this.visible) {
         if (nv) window.addEventListener('click', this.showPermanence, { capture: true });
