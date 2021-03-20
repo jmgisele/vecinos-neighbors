@@ -51,6 +51,7 @@
     "imagemin-svgo": "^9.0.0",
     "raw-loader": "^4.0.2",
     "stylus": "^0.54.7",
-    "stylus-loader": "^3.0.2"
+    "stylus-loader": "^3.0.2",
+    "worker-loader": "^3.0.8"
   }
 }
