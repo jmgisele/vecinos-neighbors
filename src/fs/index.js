@@ -14,13 +14,17 @@ async function rmrf(path) {
   if (!path || typeof path !== 'string' || !path.trim()) throw new Error('Invalid directory');
   if (path.trim() === '/') throw new Error('You may not delete the root directory');
 
-  // assume the folder is not empty since we would’ve used rmdir then
-  const entities = await fs.promises.readdir(path);
-  await Promise.all(entities.map((entity) => {
-    const fullPath = join(path, entity);
-    return deleteFileOrFolder(fullPath);
-  }));
-  await fs.promises.rmdir(path);
+  try {
+    const entities = await fs.promises.readdir(path);
+    await Promise.all(entities.map((entity) => {
+      const fullPath = join(path, entity);
+      return deleteFileOrFolder(fullPath);
+    }));
+    await fs.promises.rmdir(path);
+  } catch (err) {
+    if (err.code === 'ENOTDIR') await fs.promises.unlink(path); // it must be a file
+    else throw err;
+  }
 }
 
 export default fs.promises;
