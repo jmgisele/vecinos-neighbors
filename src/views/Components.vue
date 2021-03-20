@@ -544,6 +544,8 @@ import EntityCreationModal from '../components/utility/EntityCreationModal.vue';
 import GitLoginModal from '../components/utility/GitLoginModal.vue';
 import Toast from '../components/utility/Toast.vue';
 
+import { rmrf } from '../fs/workerFS';
+
 export default {
   name: 'Components',
   components: {
@@ -1191,7 +1193,7 @@ export default {
       this.showGitLoginModal = false;
     },
     refreshFileList() {
-      this.$refs.fileList.refresh();
+      return this.$refs.fileList.refresh();
     },
     removeTab() {
       const lastTab = this.tabs[this.tabs.length - 1];
@@ -1203,13 +1205,29 @@ export default {
     showFileToast(path) {
       this.$store.commit('addToast', { message: `Clicked on file: ${path}` });
     },
-    softDeleteFile(path) {
+    async softDeleteFile(path) {
+      const timeout = 5000;
+      const timeoutId = window.setTimeout(async () => {
+        try {
+          await rmrf(path);
+          await this.refreshFileList();
+        } catch (err) {
+          this.$store.commit('addToast', { message: `Something went wrong while deleting the file: ${err.message}`, type: 'error' });
+        } finally {
+          window.clearTimeout(timeoutId);
+          this.$store.commit('removeFromSoftDeleted', path);
+        }
+      }, timeout);
+
       this.$store.commit('addToSoftDeleted', path);
       this.$store.commit('addToast', {
-        action: () => this.$store.commit('removeFromSoftDeleted', path),
+        action: () => {
+          window.clearTimeout(timeoutId);
+          this.$store.commit('removeFromSoftDeleted', path);
+        },
         actionLabel: 'Undo',
         message: 'The file was soft-deleted',
-        timeout: false,
+        timeout: timeout - 200,
         type: 'warning',
       });
     },
