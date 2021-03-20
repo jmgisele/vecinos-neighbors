@@ -17,7 +17,7 @@
 <script>
 export default {
   beforeUnmount() {
-    window.removeEventListener('scroll', this.deactivate, { capture: true });
+    window.removeEventListener('scroll', this.deactivate, { capture: true, passive: true });
   },
   computed: {
     currentOption() {
@@ -53,13 +53,13 @@ export default {
       this.position.y = Math.round(buttonRect.top);
       this.popoverWidth = buttonRect.width + remBase;
       this.active = true;
-      window.addEventListener('scroll', this.deactivate, { capture: true });
+      window.addEventListener('scroll', this.deactivate, { capture: true, passive: true });
     },
     deactivate(e) {
       if (e && (e.target === this.$refs.popover.$refs.el || this.$refs.popover.$refs.el.contains(e.target))) return; // hacky but needed since it’s teleporting
       this.active = false;
       if (this.refocus) this.$refs.button.$el.focus();
-      window.removeEventListener('scroll', this.deactivate, { capture: true });
+      window.removeEventListener('scroll', this.deactivate, { capture: true, passive: true });
     },
     focus(direction) {
       const elements = this.$refs.list.querySelectorAll('li:not(.disabled)');
