@@ -203,7 +203,11 @@ export default {
           projects: [this.projectName],
           role: this.userRole,
         };
-        await fs.mkdir('/users');
+        try {
+          await fs.mkdir('/users');
+        } catch (err) {
+          if (err.code !== 'EEXIST') throw err;
+        }
         await fs.writeFile(`/users/${this.userId}.json`, JSON.stringify(user), 'utf8');
         this.$store.commit('setUserData', { ...this.$store.state.user, ...user });
         this.regenerateAvatar();
@@ -242,7 +246,11 @@ export default {
         // Create a projects folder and one to clone into based on the repoURL (naive implementation, but should work considering we’re forcing the URL to be a HTTP one)
         this.projectName = this.repoURL.split('/').slice(-1)[0].replace(/\.git$/, '');
         try {
-          await fs.mkdir('/projects');
+          try {
+            await fs.mkdir('/projects');
+          } catch (err) {
+            if (err.code !== 'EEXIST') throw err;
+          }
           await fs.mkdir(`/projects/${this.projectName}`);
         } catch (err) {
           this.$store.commit('addToast', { message: `Something went wrong while creating the folder structure: ${err.message}`, type: 'error' });
