@@ -1,0 +1,68 @@
+import FS from '@isomorphic-git/lightning-fs';
+import http from 'isomorphic-git/http/web/index.cjs';
+import { clone as gitClone, listServerRefs } from 'isomorphic-git';
+
+import MagicPortal from '../assets/js/FixedMagicPortal';
+import TimeoutError from '../assets/js/TimeoutError';
+
+const fs = new FS('mattrfs');
+const portal = new MagicPortal(self); // eslint-disable-line no-restricted-globals
+
+async function clone(args) {
+  const mainThread = await portal.get('mainThread');
+
+  return gitClone({
+    ...args,
+    fs,
+    http,
+    onProgress(e) {
+      mainThread.onProgress(e);
+    },
+    onAuth() {
+      return mainThread.onAuth();
+    },
+    onAuthFailure() {
+      return mainThread.onAuthFailure();
+    },
+    onAuthSuccess() {
+      mainThread.onAuthSuccess();
+    },
+  });
+}
+
+async function listRemoteBranches(args) {
+  const mainThread = await portal.get('mainThread');
+  let timeout = null;
+
+  const refs = await Promise.race([ // we’re racing against a timeout because the proxy sometimes silently fails to relay and we’d be waiting forever otherwise
+    listServerRefs({
+      ...args,
+      http,
+      prefix: 'refs/heads/',
+      onAuth() {
+        self.clearTimeout(timeout); // eslint-disable-line no-restricted-globals
+        timeout = null;
+        return mainThread.onAuth();
+      },
+      onAuthFailure() {
+        return mainThread.onAuthFailure();
+      },
+      onAuthSuccess() {
+        mainThread.onAuthSuccess();
+      },
+    }),
+    new Promise((resolve, reject) => {
+      timeout = self.setTimeout(() => { // eslint-disable-line no-restricted-globals
+        self.clearTimeout(timeout); // eslint-disable-line no-restricted-globals
+        timeout = null;
+        reject(new TimeoutError('Connection timed out'));
+      }, this.isMobile ? 10000 : 5000); // a 10s timeout might be too much here generally speaking, but on mobile it could be necessary
+    }),
+  ]);
+  return refs.map((ref) => ref.ref.replace('refs/heads/', ''));
+}
+
+portal.set('workerThread', {
+  clone,
+  listRemoteBranches,
+});
