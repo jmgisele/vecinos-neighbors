@@ -38,9 +38,20 @@
         <MbButton v-show="avatarUploaded" :dark="dark" :disabled="formErrors" icon-first icon="trash" type="negative" @click="regenerateAvatar">Remove</MbButton>
         <MbButton :dark="dark" icon-first :icon="avatarUploaded ? 'replace-alt' : 'upload'" @click="$refs.uploader.$el.click()">{{ avatarUploaded ? 'Replace' : 'Upload' }}</MbButton>
       </div>
+      <p class="h3 negative">Danger Zone</p>
+      <p>Should you no longer need this user and any of their projects including all unpublished local changes on this device, you can <strong>permanently</strong> remove them with the button below.</p>
+      <p>Please keep in mind, however, that this action <strong>cannot be undone</strong>.</p>
+      <MbButton class="delete-user" :dark="dark" icon-first icon="trash" type="negative" @click="showDeletionConfirmation = true">Delete user and all projects</MbButton>
       <template #actions>
         <MbButton :dark="dark" @click="handleSettingsModalClose">Cancel</MbButton>
         <MbButton :dark="dark" :disabled="formErrors" type="primary" @click="saveUser">Save</MbButton>
+      </template>
+    </MbModal>
+    <MbModal class="confirmation-modal" :dark="dark" slim title="Are you sure?" :visible="showDeletionConfirmation" @close="showDeletionConfirmation = false">
+      <p>This action is <strong>destructive</strong> and cannot be undone. You will lose any local changes that were made on this machine.</p>
+      <template #actions>
+        <MbButton :dark="dark" @click="showDeletionConfirmation = false">Cancel</MbButton>
+        <MbButton :dark="dark" type="negative" @click="deleteUser">Delete Permanently</MbButton>
       </template>
     </MbModal>
     <MbModal class="settings-modal" :dark="dark" slim title="Add New User" :visible="showAddUser" @close="handleSettingsModalClose">
@@ -63,6 +74,9 @@
         <MbButton :dark="dark" :disabled="formErrors" type="primary" @click="createUser">Create</MbButton>
       </template>
     </MbModal>
+    <MbModal class="deletion-progress-modal" :dark="dark" permanent slim title="Deleting user…" :visible="showDeletionProgress">
+      <MbProgress :colors="['negative']" :dark="dark" indetermined />
+    </MbModal>
   </button>
 </template>
 
@@ -70,6 +84,7 @@
 import slugify from '@sindresorhus/slugify';
 
 import fs from '../../fs';
+import { rmrf } from '../../fs/workerFS';
 
 import availableRoles from '../../data/availableRoles';
 import generateAvatar from '../../assets/js/generateAvatar';
@@ -157,6 +172,8 @@ export default {
         { label: '200%', value: 2 },
       ],
       showAddUser: false,
+      showDeletionConfirmation: false,
+      showDeletionProgress: false,
       showUserSettings: false,
       themeOptions: [
         { label: 'OS Default', value: 'auto' },
@@ -206,6 +223,41 @@ export default {
         this.handleSettingsModalClose();
       } catch (err) {
         this.$store.commit('addToast', { message: `Something went wrong while creating the user: ${err.message}`, type: 'error' });
+      }
+    },
+    async deleteUser() {
+      const userToDelete = this.currentActiveUser;
+      const projectsOfActiveUser = this.users.find((user) => user.id === userToDelete).projects;
+      let projectsReferencedByOtherUsers = [];
+      this.users.forEach((user) => {
+        if (user.id !== userToDelete) projectsReferencedByOtherUsers = projectsReferencedByOtherUsers.concat(user.projects);
+      });
+      projectsReferencedByOtherUsers = Array.from(new Set(projectsReferencedByOtherUsers));
+      const projectsUniqueToActiveUser = projectsOfActiveUser.filter((project) => !projectsReferencedByOtherUsers.includes(project));
+      const deletionQueue = [];
+
+      if (projectsUniqueToActiveUser.length > 0) projectsUniqueToActiveUser.forEach((project) => deletionQueue.push(rmrf(`/projects/${project}/`)));
+
+      deletionQueue.push(fs.unlink(`/users/${userToDelete}.json`));
+      deletionQueue.push(fs.unlink(`/users/${userToDelete}.jpg`));
+
+      try {
+        this.showDeletionConfirmation = false;
+        this.handleSettingsModalClose();
+        this.showDeletionProgress = true;
+
+        await Promise.all(deletionQueue);
+        this.users.splice(this.users.findIndex((user) => user.id === userToDelete), 1);
+        this.showDeletionProgress = false;
+
+        if (this.users.length > 0) this.setActiveUser(this.users[0].id);
+        else {
+          this.$store.commit('setAppProperty', { key: 'activeUser', value: null });
+          await this.$store.dispatch('saveAppData');
+          this.$router.push({ name: 'Onboarding' });
+        }
+      } catch (err) {
+        this.$store.commit('addToast', { message: `Something went wrong while deleting the user: ${err.message}`, type: 'error' });
       }
     },
     async fetchActiveUser() {
@@ -522,6 +574,9 @@ export default {
     &:first-child
       margin-top: 0
 
+    &.negative
+      color: $negative-saturated
+
   .row
     display: flex
     align-items: center
@@ -567,5 +622,14 @@ export default {
       &::v-deep(input)
         text-transform: capitalize
 
+  .button.delete-user
+    margin-bottom: 1rem
 
+.confirmation-modal
+  p
+    margin: 0
+
+.deletion-progress-modal
+  .progress
+    width: 100%
 </style>
