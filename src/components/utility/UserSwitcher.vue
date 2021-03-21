@@ -18,13 +18,10 @@
     </MbPopover>
     <MbModal class="settings-modal" :dark="dark" slim title="User Settings" :visible="showUserSettings" @close="handleSettingsModalClose">
       <p class="h3">Interface</p>
-      <div class="row">
-        <p>Color theme:</p>
-        <MbSelect v-model="theme" :dark="dark" inline :options="themeOptions" />
-      </div>
+      <MbSegmentedSelector v-model="theme" :dark="dark" :options="themeOptions" />
       <div class="row">
         <p>UI scaling:</p>
-        <MbSelect v-model="scale" :dark="dark" inline :options="scaleOptions" />
+        <MbSelect v-model="scale" :dark="dark" :options="scaleOptions" />
       </div>
       <p class="h3">Default Details</p>
       <p>These settings are used as defaults when you join a project, but can be overridden on a per-project basis.</p>
@@ -569,9 +566,5 @@ export default {
       &::v-deep(input)
         text-transform: capitalize
 
-  .radio-group.inline
-    margin-bottom: 0
 
-    &::v-deep(label)
-      flex-grow: 1
 </style>
