@@ -367,6 +367,7 @@ export default {
       this.$store.commit('setUserData', userData);
       this.$store.commit('setAppProperty', { key: 'activeUser', value: id });
       this.$store.dispatch('saveAppData');
+      this.$router.push({ name: 'Home' });
     },
     validate(field) {
       let error = '';
