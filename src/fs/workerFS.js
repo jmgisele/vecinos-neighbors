@@ -1,4 +1,4 @@
-import FsWorker from 'worker-loader!./worker'; // eslint-disable-line
+import FsWorker from 'worker-loader!./fs.worker'; // eslint-disable-line
 
 import MagicPortal from '../assets/js/FixedMagicPortal';
 
