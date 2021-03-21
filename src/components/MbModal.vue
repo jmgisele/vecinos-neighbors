@@ -157,7 +157,10 @@ export default {
         this.transform = null;
         this.$store.commit('addOpenModal', { el: this.$refs.el, permanent: this.permanent });
         if (this.permanent) window.addEventListener('click', this.showPermanence, { capture: true });
-        this.$nextTick(() => this.$refs.el.focus());
+        this.$nextTick(() => {
+          this.$refs.body.scrollTop = 0;
+          this.$refs.el.focus();
+        });
       } else if (this.modalIndex >= 0) {
         window.removeEventListener('click', this.showPermanence, { capture: true });
         this.$store.commit('closeModal', this.modalIndex);
