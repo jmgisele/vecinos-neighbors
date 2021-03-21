@@ -4,7 +4,7 @@
   <header v-if="!$route.meta.hideAppHeader" id="appHeader">
     <MbButton v-if="$route.meta.showBack" :dark="dark" icon="chevron-left" rounded tooltip="Back" @click="$router.back" />
     <p v-if="$route.meta.label && !isMobile" class="h3">{{$route.meta.label}}</p>
-    <UserSwitcher :dark="dark" />
+    <UserSwitcher v-show="$store.state.application.activeUser" :dark="dark" />
   </header>
   <router-view :dark="dark" />
   <ModalOverlay :dark="dark" />
