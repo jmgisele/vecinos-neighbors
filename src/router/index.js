@@ -2,6 +2,7 @@ import { createRouter, createWebHistory } from 'vue-router';
 import Store from '../store';
 
 import GeneralError from '../views/GeneralError.vue';
+import Forbidden from '../views/Forbidden.vue';
 import Home from '../views/Home.vue';
 import NotFound from '../views/NotFound.vue';
 import Onboarding from '../views/Onboarding.vue';
@@ -31,6 +32,15 @@ const routes = [
     component: NotFound,
     meta: {
       title: '404',
+      hideAppHeader: true,
+    },
+  },
+  {
+    path: '/access-denied',
+    name: 'Forbidden',
+    component: Forbidden,
+    meta: {
+      title: 'Access Denied',
       hideAppHeader: true,
     },
   },
@@ -75,6 +85,10 @@ const routes = [
         },
       },
     ],
+    beforeEnter: (to) => {
+      if (!Store.state.user.projects.includes(to.params.id)) return { name: 'Forbidden', replace: true };
+      return true;
+    },
   },
 ];
 
