@@ -329,8 +329,8 @@ export default {
 
       this.$store.commit('setUserData', {
         ...this.$store.state.user,
-        email,
-        name,
+        email: email.trim(),
+        name: name.trim().toLowerCase(),
         role,
         theme: this.theme,
         uiScale: this.scale,
@@ -343,8 +343,8 @@ export default {
         this.users[index] = {
           ...this.users[index],
           avatar: this.activeUser.avatar,
-          email,
-          name,
+          email: email.trim(),
+          name: name.trim().toLowerCase(),
           role,
           theme: this.theme,
           uiScale: this.scale,
