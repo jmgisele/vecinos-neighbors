@@ -88,31 +88,24 @@
 </template>
 
 <script>
-import { clone, listServerRefs } from 'isomorphic-git';
-import http from 'isomorphic-git/http/web/index.cjs';
 import slugify from '@sindresorhus/slugify';
 
 import availableRoles from '../data/availableRoles';
 
 import generateAvatar from '../assets/js/generateAvatar';
 import isMattrbldProject from '../assets/js/isMattrbldProject';
-import TimeoutError from '../assets/js/TimeoutError';
-import fs, { PlainFS } from '../fs';
+import fs from '../fs';
+import { clone, listRemoteBranches } from '../git';
 
 import AvatarUploader from '../components/utility/AvatarUploader.vue';
-import GitLoginModal from '../components/utility/GitLoginModal.vue';
+
+import gitTools from '../mixins/gitTools';
 
 export default {
   components: {
     AvatarUploader,
-    GitLoginModal,
   },
   computed: {
-    cloneLabel() {
-      if (!this.cloneStep) return '';
-      if (this.cloneStep === 'done') return 'Done';
-      return `${this.cloneStep[0].toUpperCase()}${this.cloneStep.slice(1)}: ${(this.cloneProgress * 100).toFixed(2)}%`;
-    },
     currentStep() {
       return this.steps[this.currentSlide];
     },
@@ -130,12 +123,8 @@ export default {
   data() {
     return {
       avatarUploaded: false,
-      cloneProgress: 0,
-      cloneStep: '',
       corsProxy: 'http://localhost:9999', // Requires a cors buster running on 9999 (is this safe?)
       // corsProxy: 'https://cors.isomorphic-git.org', // TODO: replace with our own before launch!
-      credentialPromise: null,
-      credentials: null,
       currentSlide: 0,
       errors: {
         corsProxy: '',
@@ -143,7 +132,6 @@ export default {
         userEmail: '',
         userName: '',
       },
-      gitLoginMessage: `This repository seems to be private. Please log into your <strong>${this.gitProvider}</strong> account to confirm that you may perform this action.`,
       isMattrbldProject: false,
       lastRepoURL: '',
       loadingBranches: false,
@@ -153,7 +141,6 @@ export default {
       repoBranches: [],
       roleOptions: availableRoles,
       showAdvancedSettings: false,
-      showGitLoginModal: false,
       showPrivacyPolicy: false,
       steps: [
         {
@@ -236,69 +223,15 @@ export default {
         this.loadingBranches = true;
         this.repoBranches = [];
         this.repoBranch = null;
-        let timeout = null;
         try {
-          const refs = await Promise.race([ // we’re racing against a timeout because the proxy sometimes silently fails to relay and we’d be waiting forever otherwise
-            listServerRefs({
-              corsProxy: this.corsProxy,
-              // forPush: true, // we can use this to determine whether we’ll be able to push to the repo or certain branches early (also means that we have to show the login modal as soon as we blur)
-              http,
-              onAuth: async () => {
-                window.clearTimeout(timeout); // we have connected successfully, we don’t need the timeout anymore
-                if (this.$store.state.user.gitAuth) {
-                  const { user, password } = this.$store.state.user.gitAuth;
-                  return { username: user, password };
-                }
-                this.gitLoginMessage = `This repository seems to be private. Please log into your <strong>${this.gitProvider}</strong> account to confirm that you may perform this action.`;
-                this.credentials = await this.openGitLoginModal();
-                this.showGitLoginModal = false;
-                if (this.credentials === 'cancel') return { cancel: true };
-                return { username: this.credentials.user, password: this.credentials.password };
-              },
-              onAuthFailure: async () => {
-                if (this.$store.state.user.gitAuth) this.$store.commit('setUserProperty', { key: 'gitAuth', value: null });
-                this.gitLoginMessage = 'Sorry, that didn’t work. This might mean that you don’t have access to this repository, or that you typed the wrong username / password combination. Please try again.';
-                this.credentials = await this.openGitLoginModal();
-                this.showGitLoginModal = false;
+          this.repoBranches = await listRemoteBranches({ corsProxy: this.corsProxy, url: this.repoURL }, this.onGitAuth, this.onGitAuthFailure, this.onGitAuthSuccess);
 
-                if (this.credentials === 'cancel') return { cancel: true };
-                return { username: this.credentials.user, password: this.credentials.password };
-              },
-              onAuthSuccess: () => {
-                if (this.credentials.savePassword) {
-                  // WARNING: This might be insecure considering XSS attacks (then again, if there’s a XSS, we probably are screwed anyway)
-                  this.$store.commit('setUserProperty', { key: 'gitAuth', value: { password: this.credentials.password, user: this.credentials.user } });
-                }
-              },
-              prefix: 'refs/heads/',
-              url: this.repoURL,
-            }),
-            new Promise((resolve, reject) => {
-              timeout = window.setTimeout(() => reject(new TimeoutError('Connection timed out')), this.isMobile ? 10000 : 5000); // a 10s timeout might be too much here generally speaking, but on mobile it could be necessary
-            }),
-          ]);
-          this.repoBranches = refs.map((ref) => ref.ref.replace('refs/heads/', ''));
-
-          // TODO: find a way to extract the default branch?
-          if (this.repoBranches.includes('main')) this.repoBranch = 'main';
-          else if (this.repoBranches.includes('master')) this.repoBranch = 'master';
-          else [this.repoBranch] = this.repoBranches;
+          this.repoBranch = this.getDefaultBranch(this.repoBranches);
 
           this.lastRepoURL = this.repoURL;
         } catch (err) {
-          if (err.code === 'UserCanceledError') {
-            this.credentials = null;
-            this.errors.repoURL = 'You might not have access to this repository';
-          } else if (err.code === 'HttpError' && err.data && err.data.statusCode === 404) { // there might also be a 403 error if we have read- but not write-access, but that only matters if we have forPush active
-            this.errors.repoURL = 'This repository doesn’t seem to exist';
-          } else if (err instanceof TimeoutError || (err.name === 'TypeError' && err.message === 'Failed to fetch')) { // This is probably not the best way to catch these errors, but there’s hardly any information in that object
-            this.errors.repoURL = 'This repository doesn’t exist or is refusing connections';
-            this.$store.commit('addToast', { message: 'Could not fetch the repository, please check your network connection and the proxy server settings under ‘Advanced Settings’', type: 'error' });
-          } else {
-            this.$store.commit('addToast', { message: `Something went wrong while fetching branches: ${err.message}`, type: 'error' });
-          }
+          this.handleGitError(err);
         }
-        window.clearTimeout(timeout); // clear the timeout for consistency
         this.loadingBranches = false;
       }
     },
@@ -317,21 +250,13 @@ export default {
         }
         // Start cloning the repo and advance to the next slide (no await since we want to progress to the next slide)
         clone({
-          fs: PlainFS,
-          http,
-          onAuth: () => ({ username: this.credentials.user, password: this.credentials.password }), // we still have credentials from listing the branches
-          onProgress: (progress) => {
-            this.cloneStep = progress.phase;
-            if (progress.total) this.cloneProgress = progress.loaded / progress.total;
-            else this.cloneProgress = 0;
-          },
           dir: `/projects/${this.projectName}`,
           corsProxy: this.corsProxy,
           url: this.repoURL,
           ref: this.repoBranch,
           singleBranch: true,
           depth: 5,
-        })
+        }, this.onGitAuth, this.onGitAuthFailure, this.onGitAuthSuccess, this.onGitProgress)
           .then(() => {
             isMattrbldProject(`/projects/${this.projectName}/.mattrbld`)
               .then((result) => {
@@ -342,16 +267,12 @@ export default {
           })
           .catch((err) => {
             // If cloning fails, reset everything and start anew
-            this.$store.commit('addToast', { message: `Something went wrong while cloning the project: ${err.message}`, type: 'error' });
+            this.$store.commit('addToast', { message: `Something went wrong while cloning the project: ${err.message}. Please try again.`, type: 'error' });
             // TODO: wipe the file system or rimraf /projects and remove mattrbld.conf if it exists
             this.currentSlide = 0;
           });
         this.currentSlide += 1;
       }
-    },
-    openGitLoginModal() {
-      this.showGitLoginModal = true;
-      return new Promise((resolve) => { this.credentialPromise = resolve; });
     },
     async openProject() {
       if (this.isMattrbldProject) this.$router.push({ name: 'Project', params: { id: this.projectName } }); // go to project dashboard
@@ -391,6 +312,9 @@ export default {
       this.errors[field] = error;
     },
   },
+  mixins: [
+    gitTools,
+  ],
   props: {
     dark: Boolean,
   },
