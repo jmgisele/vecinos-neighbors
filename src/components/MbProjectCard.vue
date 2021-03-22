@@ -21,6 +21,7 @@
 
 <script>
 import { formatDistanceToNowStrict } from 'date-fns';
+import fs from '../fs';
 import { rmrf } from '../fs/workerFS';
 
 export default {
@@ -84,7 +85,19 @@ export default {
       const timeout = 5000;
       const timeoutId = window.setTimeout(async () => {
         try {
-          await rmrf(`/projects/${this.id}`);
+          // Check if another user references this project
+          const userFiles = await fs.readdir('/users');
+          const rawUserData = await Promise.all(userFiles.reduce((acc, file) => { if (file.endsWith('.json')) acc.push(fs.readFile(`/users/${file}`, 'utf8')); return acc; }, []));
+          const users = rawUserData.map((data) => JSON.parse(data));
+          const usersWithThisProject = users.reduce((acc, user) => {
+            if (user.projects.includes(this.id)) acc += 1;
+            return acc;
+          }, 0);
+          // if so, just remove it from the active user
+          this.$store.commit('removeProjectFromActiveUser', this.id);
+          await this.$store.dispatch('saveUser');
+          // otherwise also rmrf it
+          if (usersWithThisProject < 2) await rmrf(`/projects/${this.id}`);
           this.$emit('deleted');
         } catch (err) {
           this.$store.commit('addToast', { message: `Something went wrong while deleting the project: ${err.message}`, type: 'error' });
