@@ -27,5 +27,21 @@ async function rmrf(path) {
   }
 }
 
+// Adapted from https://github.com/isomorphic-git/isomorphic-git/blob/main/src/models/FileSystem.js
+async function exists(filepath) {
+  try {
+    await fs.promises.stat(filepath);
+    return true;
+  } catch (err) {
+    if (err.code === 'ENOENT' || err.code === 'ENOTDIR') return false;
+    throw err;
+  }
+}
+
 export default fs.promises;
-export { fs as PlainFS, join as joinPath, rmrf };
+export {
+  exists,
+  fs as PlainFS,
+  join as joinPath,
+  rmrf,
+};
