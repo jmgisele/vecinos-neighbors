@@ -54,7 +54,8 @@
 import { listRemotes } from 'isomorphic-git';
 
 import isMattrbldProject from '../assets/js/isMattrbldProject';
-import fs, { PlainFS } from '../fs';
+import fs, { PlainFS, exists as entityExists } from '../fs';
+import { rmrf } from '../fs/workerFS';
 import { clone, listRemoteBranches } from '../git';
 
 import gitTools from '../mixins/gitTools';
@@ -274,7 +275,8 @@ export default {
         } catch (err) {
           this.$store.commit('addToast', { message: `Something went wrong while importing the project: ${err.message}`, type: 'error' });
           this.$store.commit('removeProjectFromActiveUser', projectId);
-          // TODO: delete the zombie project folder if it exists
+          const folderExists = await entityExists(`/projects/${projectId}`);
+          if (folderExists) rmrf(`/projects/${projectId}`);
           this.$store.dispatch('saveUser');
         }
       }
