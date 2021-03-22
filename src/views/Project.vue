@@ -1,6 +1,6 @@
 <template lang="html">
   <div class="project">
-    <h1>Project view for {{$route.params.id}}</h1>
+    <ProjectSidebar  :dark="dark" />
     <router-view :dark="dark" />
   </div>
 </template>
@@ -9,6 +9,8 @@
 import fs, { exists } from '../fs';
 import Store from '../store';
 import isMattrbldProject from '../assets/js/isMattrbldProject';
+
+import ProjectSidebar from '../components/utility/ProjectSidebar.vue';
 
 export default {
   async beforeRouteEnter(to) {
@@ -67,6 +69,9 @@ export default {
   },
   beforeRouteLeave() {
     this.$store.commit('clearCurrentProject');
+  },
+  components: {
+    ProjectSidebar,
   },
   props: {
     dark: Boolean,
