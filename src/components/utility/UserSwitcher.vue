@@ -4,7 +4,7 @@
     <AsyncImage draggable="false" :src="activeUser.avatar" :alt="`${activeUser.name}’s Avatar`" />
     <MbPopover class="user-popover" :dark="dark" from-right no-content-padding :visible="popover.show" :x="popover.x" :y="popover.y" @close="popover.show = false">
       <div class="users">
-        <div v-for="user in users" class="user" :class="{ active: currentActiveUser === user.id, disabled: $route.name === 'Project' && !user.projects.includes($route.params.id) }" :key="user.id" :tabindex="$route.name === 'Project' && !user.projects.includes($route.params.id) ? -1: 0" @click="setActiveUser(user.id)" @keydown.space.prevent @keyup.enter.space="setActiveUser(user.id)">
+        <div v-for="user in users" class="user" :class="{ active: currentActiveUser === user.id, disabled: $route.name.startsWith('Project') && !user.projects.includes($route.params.id) }" :key="user.id" :tabindex="$route.name.startsWith('Project') && !user.projects.includes($route.params.id) ? -1: 0" @click="setActiveUser(user.id)" @keydown.space.prevent @keyup.enter.space="setActiveUser(user.id)">
           <AsyncImage :src="user.avatar" :alt="`${user.name}’s avatar`" />
           <span v-if="!isMobile">{{user.name}}</span>
           <span v-else>{{user.name.split(' ')[0]}}</span>
@@ -411,7 +411,7 @@ export default {
       this.popover.show = false;
       if (id === this.currentActiveUser) return;
       const user = this.users.find((existingUser) => existingUser.id === id);
-      if (this.$route.name === 'Project' && !user.projects.includes(this.$route.params.id)) return;
+      if (this.$route.name.startsWith('Project') && !user.projects.includes(this.$route.params.id)) return;
       const userData = {
         ...user,
         gitAuth: null,
