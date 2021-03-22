@@ -46,6 +46,9 @@ export default {
     scale() {
       return this.$store.state.user.uiScale;
     },
+    sidebarVisible() {
+      return this.$store.state.application.sidebarVisible;
+    },
     tooltip() {
       return this.$store.state.application.tooltip || {};
     },
@@ -89,6 +92,10 @@ export default {
     scale(newVal) {
       if (typeof newVal === 'number' && newVal !== 'auto') document.documentElement.style.fontSize = `${16 * newVal}px`;
       else document.documentElement.style.removeProperty('font-size');
+    },
+    sidebarVisible(newVal) {
+      if (newVal) document.body.classList.add('sidebar');
+      else document.body.classList.remove('sidebar');
     },
   },
 };

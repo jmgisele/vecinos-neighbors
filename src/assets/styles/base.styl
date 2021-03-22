@@ -1,3 +1,4 @@
+@require 'breakpoints'
 @require 'colors'
 @require 'corners'
 @require 'fonts'
@@ -31,6 +32,12 @@ html
     word-break: break-word
     color: $text
     background-color: $bg
+
+    &.sidebar
+      margin-left: (320 / 16)rem
+
+      @media $mobile
+        margin-left: 0
 
     &.dark
       color: $text-dark

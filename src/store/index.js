@@ -24,6 +24,7 @@ export default createStore({
       mobile: false,
       openModals: [],
       permanentModals: [],
+      sidebarVisible: false,
       softDeleted: [],
       toasts: [],
       tooltip: null,
