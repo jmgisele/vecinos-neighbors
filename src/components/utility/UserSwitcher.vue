@@ -487,7 +487,6 @@ export default {
     width: (48 / 16)rem
     height: @width
     border-radius: 50%
-    background-color: $accent-secondary
 
 .user-popover
   &.dark
