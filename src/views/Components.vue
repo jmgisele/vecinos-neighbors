@@ -347,7 +347,7 @@
       <section v-else-if="activeTabValue === 'file-lists'" class="tab file-lists">
         <h2>File Lists</h2>
         <p>This component is a fully fledged file browser that can display the contents of a folder and offers the ability for custom actions on the files.</p>
-        <MbFileList :dark="dark" :file-actions="[{ action: showFileToast, icon: 'folder-open', label: 'Open', foldersOnly: true }, { disabled: true, icon: 'arrow-right', label: 'Move', foldersOnly: true }, { action: softDeleteFile, icon: 'trash', label: 'Delete', type: 'negative' }]" :folders-first="true" :folders-only="false" ref="fileList" root="/" show-hidden :action="{ callback: (path) => { currentPath = path; showEntityCreationModal = true; }, label: 'Add', icon: 'plus', type: 'positive'}" @fileclick="showFileToast" />
+        <MbFileList :dark="dark" :file-actions="[{ action: previewFile, icon: 'folder-open', label: 'Open', foldersOnly: true }, { disabled: true, icon: 'arrow-right', label: 'Move', foldersOnly: true }, { action: softDeleteFile, icon: 'trash', label: 'Delete', type: 'negative' }]" :folders-first="true" :folders-only="false" ref="fileList" root="/" show-hidden :action="{ callback: (path) => { currentPath = path; showEntityCreationModal = true; }, label: 'Add', icon: 'plus', type: 'positive'}" @fileclick="previewFile" />
         <EntityCreationModal :dark="dark" :file-extension="['json', 'md', 'txt', 'yaml']" :path="currentPath" :visible="showEntityCreationModal" @close="showEntityCreationModal = false" @entity-created="refreshFileList" />
         <h3>Props</h3>
         <MbTable :data="props.fileLists" />
@@ -355,6 +355,9 @@
         <MbTable :data="events.fileLists" />
         <h3>Notes</h3>
         <p>The component offers an async <code>refresh</code> method that can be used to refresh the current directory if needed. To use it you will need a <code>$ref</code> for the component.</p>
+        <MbModal class="file-preview-modal" :dark="dark" :title="currentFile" :visible="showFilePreviewModal" @after-close="resetFilePreview" @close="showFilePreviewModal = false">
+          <pre>{{fileContent}}</pre>
+        </MbModal>
       </section>
       <section v-else-if="activeTabValue === 'tables'" class="tab">
         <h2>Tables</h2>
@@ -544,6 +547,7 @@ import EntityCreationModal from '../components/utility/EntityCreationModal.vue';
 import GitLoginModal from '../components/utility/GitLoginModal.vue';
 import Toast from '../components/utility/Toast.vue';
 
+import fs from '../fs';
 import { rmrf } from '../fs/workerFS';
 
 export default {
@@ -687,6 +691,7 @@ export default {
       },
       currentColor: 'rgba(123, 255, 213, 0.25)',
       currentPath: '/',
+      currentFile: null,
       events: {
         asyncImages: [
           ['Name', 'Data'],
@@ -782,6 +787,7 @@ export default {
           ['`update:modelValue`', '`!value`'],
         ],
       },
+      fileContent: null,
       idCounter: 0,
       modalVisible: false,
       modalVisible2: false,
@@ -1110,6 +1116,7 @@ export default {
       ],
       showGitLoginModal: false,
       showEntityCreationModal: false,
+      showFilePreviewModal: false,
       simulateLoading: false,
       slots: {
         modals: [
@@ -1203,8 +1210,14 @@ export default {
     sayHi() {
       this.$store.commit('addToast', { message: 'Hi from Toast!' });
     },
-    showFileToast(path) {
-      this.$store.commit('addToast', { message: `Clicked on file: ${path}` });
+    resetFilePreview() {
+      this.currentFile = null;
+      this.fileContent = null;
+    },
+    async previewFile(path) {
+      this.currentFile = path;
+      this.fileContent = await fs.readFile(this.currentFile, 'utf8');
+      this.showFilePreviewModal = true;
     },
     async softDeleteFile(path) {
       const timeout = 5000;
@@ -1476,6 +1489,15 @@ export default {
           flex-grow: 1
           flex-shrink: 1
 
+    &.file-lists
+      .file-list
+        margin-left: -4rem
+        margin-right: @margin-left
+
+        @media only screen and (max-width: 64rem)
+          margin-left: -1rem
+          margin-right: @margin-left
+
     &.utility
       h3:not(:first-of-type)
         margin-top: 6rem
@@ -1483,4 +1505,8 @@ export default {
     &.segmented-selectors
       .segmented-selector
         margin-bottom: 1rem
+
+.file-preview-modal
+  pre
+    margin: 0
 </style>
