@@ -258,6 +258,7 @@ export default {
         }
       } catch (err) {
         this.$store.commit('addToast', { message: `Something went wrong while deleting the user: ${err.message}`, type: 'error' });
+        this.showDeletionProgress = false;
       }
     },
     async fetchActiveUser() {
