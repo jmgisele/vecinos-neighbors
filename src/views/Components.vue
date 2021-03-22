@@ -738,6 +738,7 @@ export default {
         ],
         modals: [
           ['Name', 'Data'],
+          ['`after-close`', ''],
           ['`close`', ''],
         ],
         popovers: [
