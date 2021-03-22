@@ -90,7 +90,7 @@ export default {
           const rawUserData = await Promise.all(userFiles.reduce((acc, file) => { if (file.endsWith('.json')) acc.push(fs.readFile(`/users/${file}`, 'utf8')); return acc; }, []));
           const users = rawUserData.map((data) => JSON.parse(data));
           const usersWithThisProject = users.reduce((acc, user) => {
-            if (user.projects.includes(this.id)) acc += 1;
+            if (user.projects.includes(this.id)) acc += 1; // eslint-disable-line no-param-reassign
             return acc;
           }, 0);
           // if so, just remove it from the active user
