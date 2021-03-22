@@ -3,14 +3,17 @@
     <span v-if="!isMobile" class="name">{{activeUser.name}}</span>
     <AsyncImage draggable="false" :src="activeUser.avatar" :alt="`${activeUser.name}’s Avatar`" />
     <MbPopover class="user-popover" :dark="dark" from-right no-content-padding :visible="popover.show" :x="popover.x" :y="popover.y" @close="popover.show = false">
-      <div class="users">
-        <div v-for="user in users" class="user" :class="{ active: currentActiveUser === user.id, disabled: $route.name.startsWith('Project') && !user.projects.includes($route.params.id) }" :key="user.id" :tabindex="$route.name.startsWith('Project') && !user.projects.includes($route.params.id) ? -1: 0" @click="setActiveUser(user.id)" @keydown.space.prevent @keyup.enter.space="setActiveUser(user.id)">
-          <AsyncImage :src="user.avatar" :alt="`${user.name}’s avatar`" />
-          <span v-if="!isMobile">{{user.name}}</span>
-          <span v-else>{{user.name.split(' ')[0]}}</span>
-          <span class="email">({{user.email}})</span>
+      <transition mode="out-in">
+        <MbLoader v-if="usersLoading || users.length === 0" />
+        <div v-else class="users">
+          <div v-for="user in users" class="user" :class="{ active: currentActiveUser === user.id, disabled: $route.name.startsWith('Project') && !user.projects.includes($route.params.id) }" :key="user.id" :tabindex="$route.name.startsWith('Project') && !user.projects.includes($route.params.id) ? -1: 0" @click="setActiveUser(user.id)" @keydown.space.prevent @keyup.enter.space="setActiveUser(user.id)">
+            <AsyncImage :src="user.avatar" :alt="`${user.name}’s avatar`" />
+            <span v-if="!isMobile">{{user.name}}</span>
+            <span v-else>{{user.name.split(' ')[0]}}</span>
+            <span class="email">({{user.email}})</span>
+          </div>
         </div>
-      </div>
+    </transition>
       <template #footer>
         <MbButton :dark="dark" icon="settings" @click="openUserSettings">{{ isMobile ? 'Settings' : 'User Settings' }}</MbButton>
         <MbButton :dark="dark" icon="plus" type="positive" @click="showAddUser = true; popover.show = false">{{ isMobile ? 'Add' : 'Add User' }}</MbButton>
@@ -181,6 +184,7 @@ export default {
         { label: 'Dark', value: 'dark' },
       ],
       users: [],
+      usersLoading: false,
     };
   },
   methods: {
@@ -188,7 +192,7 @@ export default {
       const elRect = this.$el.getBoundingClientRect();
       this.popover.x = elRect.right;
       this.popover.y = elRect.top;
-      if (this.users.length === 0) await this.fetchUsers();
+      if (this.users.length === 0) this.fetchUsers();
       this.popover.show = true;
     },
     checkAvatarRegeneration() {
@@ -270,6 +274,7 @@ export default {
       this.activeUser.id = this.currentActiveUser;
     },
     async fetchUsers() {
+      this.usersLoading = true;
       try {
         const users = await fs.readdir('/users');
         const userIds = [];
@@ -299,6 +304,8 @@ export default {
         });
       } catch (err) {
         this.$store.commit('addToast', { message: `Something went wrong while fetching all users: ${err.message}`, type: 'error' });
+      } finally {
+        this.usersLoading = false;
       }
     },
     handleAvatarReady(avatar) {
@@ -506,10 +513,22 @@ export default {
       .email
         color: $text-secondary-dark
 
+  .loader,
   .users
-    padding: 0.5rem
     max-width: 100%
     width: (488 / 16)rem
+    padding: 2rem 0.5rem
+
+    &.v-enter-active,
+    &.v-leave-active
+      transition: opacity 200ms ease
+
+      &.v-enter-from,
+      &.v-leave-to
+        opacity: 0
+
+  .users
+    padding: 0.5rem
 
     .user
       display: flex
