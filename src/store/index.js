@@ -5,6 +5,15 @@ import observers from './observers';
 
 const persistentAppProperties = ['activeUser', 'corsProxy', 'initialised', 'locallyChangedFiles'];
 
+const projectDefaults = {
+  avatar: null,
+  corsProxy: null,
+  id: null,
+  instanceUrl: null,
+  name: null,
+  slugifyOptions: null,
+};
+
 export default createStore({
   state: {
     application: {
@@ -19,9 +28,7 @@ export default createStore({
       toasts: [],
       tooltip: null,
     },
-    currentProject: {
-      slugifyOptions: null,
-    },
+    currentProject: { ...projectDefaults },
     user: {
       email: null,
       gitAuth: null,
@@ -69,6 +76,9 @@ export default createStore({
     addToSoftDeleted(state, path) {
       if (!state.application.softDeleted.includes(path)) state.application.softDeleted.push(path);
     },
+    clearCurrentProject(state) {
+      state.currentProject = { ...projectDefaults };
+    },
     clearToasts(state) {
       state.application.toasts = [];
     },
@@ -101,6 +111,12 @@ export default createStore({
     },
     setAppProperty(state, { key, value }) {
       state.application[key] = value;
+    },
+    setCurrentProject(state, data) {
+      state.currentProject = data;
+    },
+    setCurrentProjectProperty(state, { key, value }) {
+      state.currentProject[key] = value;
     },
     setMobile(state, value) {
       state.application.mobile = value;
@@ -150,6 +166,16 @@ export default createStore({
         return true;
       } catch (err) {
         commit('addToast', { message: `Something went wrong while saving the app configuration: ${err.message}`, type: 'error' });
+        return false;
+      }
+    },
+    async saveCurrentProject({ commit, state }) {
+      try {
+        const currentProjectData = { ...state.currentProject };
+        await fs.writeFile(`/projects/${state.currentProject.id}/.mattrbld/config.json`, JSON.stringify(currentProjectData), 'utf8');
+        return true;
+      } catch (err) {
+        commit('addToast', { message: `Something went wrong while saving the configuration of the current project: ${err.message}`, type: 'error' });
         return false;
       }
     },
