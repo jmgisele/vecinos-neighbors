@@ -95,6 +95,7 @@ import availableRoles from '../data/availableRoles';
 import generateAvatar from '../assets/js/generateAvatar';
 import isMattrbldProject from '../assets/js/isMattrbldProject';
 import fs from '../fs';
+import { rmrf } from '../fs/workerFS';
 import { clone, listRemoteBranches } from '../git';
 
 import AvatarUploader from '../components/utility/AvatarUploader.vue';
@@ -274,10 +275,9 @@ export default {
             this.cloneStep = 'done';
           })
           .catch((err) => {
-            // If cloning fails, reset everything and start anew
+            // If cloning fails, reset and start anew
             this.$store.commit('addToast', { message: `Something went wrong while cloning the project: ${err.message}. Please try again.`, type: 'error' });
-            // TODO: wipe the file system or rimraf /projects and remove mattrbld.conf if it exists
-            this.currentSlide = 0;
+            rmrf('/projects').then(() => { this.currentSlide = 0; }); // clean up the projects dir with the zombie project
           });
         this.currentSlide += 1;
       }
