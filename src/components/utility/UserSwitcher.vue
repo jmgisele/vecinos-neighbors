@@ -409,7 +409,7 @@ export default {
     },
     setActiveUser(id) {
       this.popover.show = false;
-      if (id === this.currentActiveUsert) return;
+      if (id === this.currentActiveUser) return;
       const user = this.users.find((existingUser) => existingUser.id === id);
       const userData = {
         ...user,
