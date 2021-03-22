@@ -172,6 +172,7 @@ export default createStore({
     async saveCurrentProject({ commit, state }) {
       try {
         const currentProjectData = { ...state.currentProject };
+        delete currentProjectData.avatar;
         await fs.writeFile(`/projects/${state.currentProject.id}/.mattrbld/config.json`, JSON.stringify(currentProjectData), 'utf8');
         return true;
       } catch (err) {
