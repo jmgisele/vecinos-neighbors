@@ -43,8 +43,8 @@ export default {
         {
           action: () => {
             const routeData = this.$router.resolve({ name: 'Project', params: { id: this.id } });
-            // TODO: Focus tab instead of always opening a new instance of the same project
-            window.open(routeData.href, '_blank');
+            const existingTab = window.open('', `com.mattrbld.app.Project/${this.id}`); // this will focus a window of the same name (reverse domain to avoid duplicates) or open a blank new one
+            if (existingTab.location.href === 'about:blank') existingTab.location.href = routeData.href; // we just opened a blank window, navigate to url
           },
           icon: 'open-new-window',
           label: 'Open in new window',
