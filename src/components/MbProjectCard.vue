@@ -21,6 +21,7 @@
 
 <script>
 import { formatDistanceToNowStrict } from 'date-fns';
+import { rmrf } from '../fs/workerFS';
 
 export default {
   computed: {
@@ -83,8 +84,7 @@ export default {
       const timeout = 5000;
       const timeoutId = window.setTimeout(async () => {
         try {
-          // TODO: actually delete the project from the device by removing it from the user’s projects and deleting the project folder if no other user uses this project
-          this.$store.commit('addToast', { message: 'Todo: implement project deletion', type: 'warning' });
+          await rmrf(`/projects/${this.id}`);
           this.$emit('deleted');
         } catch (err) {
           this.$store.commit('addToast', { message: `Something went wrong while deleting the project: ${err.message}`, type: 'error' });
