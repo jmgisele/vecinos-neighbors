@@ -3,6 +3,7 @@
   <GlobalTooltipController />
   <header v-if="!$route.meta.hideAppHeader" id="appHeader">
     <MbButton v-if="$route.meta.showBack" :dark="dark" icon="chevron-left" rounded tooltip="Back" @click="$router.back" />
+    <MbButton v-if="$route.meta.sidebar && $store.state.application.tablet" :dark="dark" icon="show-sidebar" rounded tooltip="Show Sidebar" @click="$store.commit('setAppProperty', { key: 'sidebarVisible', value: true })" />
     <p v-if="$route.meta.label && !isMobile" class="h3">{{$route.meta.label}}</p>
     <UserSwitcher v-show="$store.state.application.activeUser" :dark="dark" />
   </header>
@@ -114,7 +115,7 @@ export default {
   display: flex
   align-items: center
 
-  @media $mobile
+  @media $tablet
     padding: 1rem
 
   .button
