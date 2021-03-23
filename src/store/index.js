@@ -22,6 +22,7 @@ export default createStore({
       initialised: false,
       locallyChangedFiles: [],
       mobile: false,
+      tablet: false,
       openModals: [],
       permanentModals: [],
       sidebarVisible: false,
@@ -132,6 +133,9 @@ export default createStore({
     },
     setUserProperty(state, { key, value }) {
       state.user[key] = value;
+    },
+    setTablet(state, value) {
+      state.application.tablet = value;
     },
     setTooltip(state, tooltip) {
       state.application.tooltip = tooltip;
