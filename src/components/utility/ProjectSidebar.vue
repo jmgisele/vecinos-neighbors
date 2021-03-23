@@ -7,6 +7,7 @@
       <MbProjectAvatar :avatar="currentProject.avatar" :project-id="currentProject.id" :project-name="currentProject.name" />
       <div class="meta">
         <p>{{currentProject.name}}</p>
+        <MbChip :color="chipColor" :label="chipLabel" />
       </div>
       <ul class="custom options">
         <template v-for="(option, index) in sidebarOptions" :key="index">
@@ -79,6 +80,8 @@ export default {
   },
   data() {
     return {
+      chipColor: 'warning',
+      chipLabel: 'Changes',
       maskOpacity: null,
       maxSwipeDistance: null,
       sidebarTransform: null,
@@ -312,9 +315,19 @@ export default {
     display: flex
     margin-bottom: 2rem
     padding: 0 0.75rem
+    align-items: center
+    justify-content: space-between
 
     p
       margin: 0
+      margin-right: 0.5rem
+      white-space: nowrap
+      overflow: hidden
+      text-overflow: ellipsis
+
+    .chip
+      margin-right: -0.75rem
+      flex-shrink: 0
 
   .options
     list-style: none
