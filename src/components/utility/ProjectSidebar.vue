@@ -1,29 +1,91 @@
 <template lang="html">
-  <div class="project-sidebar" :class="{ dark }">
-    <MbProjectAvatar v-if="currentProject.id" :avatar="currentProject.avatar" :project-id="currentProject.id" :project-name="currentProject.name" />
-    <div class="meta">
-      <p>{{currentProject.name}}</p>
+  <transition duration="350">
+    <div v-if="isTablet && visible" class="mask" :class="{ dark, swiping }" :style="{ opacity: maskOpacity }" @click="visible = false" />
+  </transition>
+  <transition>
+    <div v-if="currentProject.id" v-show="visible" v-bind="$attrs" class="project-sidebar" :class="{ dark, swiping }" ref="el" :style="{ transform: sidebarTransform }" tabindex="-1" @touchstart="swipeStart" @touchmove="swipeUpdate" @touchend="swipeEnd">
+      <MbProjectAvatar :avatar="currentProject.avatar" :project-id="currentProject.id" :project-name="currentProject.name" />
+      <div class="meta">
+        <p>{{currentProject.name}}</p>
+      </div>
+      <ul class="custom options">
+        <template v-for="(option, index) in sidebarOptions" :key="index">
+          <router-link v-if="option.target" custom :to="option.target" v-slot="{ isExactActive, navigate }">
+            <li :class="{ active: isExactActive }" role="link" tabindex="0" @click="goTo(navigate)" @keydown.space.prevent @keyup.enter.space="goTo(navigate)">
+              <MbIcon :icon="option.icon || 'document'" />
+              <span>{{option.label}}</span>
+            </li>
+          </router-link>
+          <li class="separator" v-else>{{option.label}}</li>
+        </template>
+      </ul>
+      <ul class="default options">
+        <router-link custom :to="{ name: 'Project.Dashboard'}" v-slot="{ isExactActive, navigate }">
+          <li :class="{ active: isExactActive }" role="link" tabindex="0" @click="goTo(navigate)" @keydown.space.prevent @keyup.enter.space="goTo(navigate)">
+            <MbIcon icon="grid" />
+            <span>Dashboard</span>
+          </li>
+        </router-link>
+        <router-link custom :to="{ name: 'Project.MediaLibrary'}" v-slot="{ isExactActive, navigate }">
+          <li :class="{ active: isExactActive }" role="link" tabindex="0" @click="goTo(navigate)" @keydown.space.prevent @keyup.enter.space="goTo(navigate)">
+            <MbIcon icon="image-stack" />
+            <span>Media Library</span>
+          </li>
+        </router-link>
+        <router-link custom :to="{ name: 'Project.Settings'}" v-slot="{ isExactActive, navigate }">
+          <li :class="{ active: isExactActive }" role="link" tabindex="0" @click="goTo(navigate)" @keydown.space.prevent @keyup.enter.space="goTo(navigate)">
+            <MbIcon icon="settings" />
+            <span>Settings</span>
+          </li>
+        </router-link>
+      </ul>
+      <MbButton class="back-button" :dark="dark" icon="chevron-left" icon-first @click="backToProjects">Back to all projects</MbButton>
     </div>
-    <MbButton class="back-button" :dark="dark" icon="chevron-left" icon-first @click="backToProjects">Back to all projects</MbButton>
-  </div>
+  </transition>
 </template>
 
 <script>
 export default {
   beforeUnmount() {
-    this.$store.commit('setAppProperty', { key: 'sidebarVisible', value: false });
+    if (this.visible) this.$store.commit('setAppProperty', { key: 'sidebarVisible', value: false });
+    window.removeEventListener('touchstart', this.windowSwipeStart);
   },
   computed: {
     currentProject() {
       return this.$store.state.currentProject;
     },
+    isTablet() {
+      return this.$store.state.application.tablet;
+    },
+    sidebarOptions() {
+      if (this.currentProject.sidebar && this.currentProject.sidebar.length > 0) return this.currentProject.sidebar;
+      return [
+        { label: 'The sidebar has not been configured yet' },
+        { icon: 'arrow-right', label: 'Configure now', target: { name: 'Project.Settings', query: { tab: 'sidebar' } } },
+      ];
+    },
+    visible: {
+      get() {
+        return this.$route.meta.sidebar && this.$store.state.application.sidebarVisible;
+      },
+      set(v) {
+        this.$store.commit('setAppProperty', { key: 'sidebarVisible', value: v });
+      },
+    },
   },
   created() {
-    this.$store.commit('setAppProperty', { key: 'sidebarVisible', value: true });
+    if (!this.isTablet) this.$store.commit('setAppProperty', { key: 'sidebarVisible', value: true });
+    else window.addEventListener('touchstart', this.windowSwipeStart);
   },
   data() {
     return {
-      collapsed: false,
+      maskOpacity: null,
+      maxSwipeDistance: null,
+      sidebarTransform: null,
+      swipeStartX: 0,
+      swipeStartY: 0,
+      swiping: false,
+      windowSwipe: false,
     };
   },
   methods: {
@@ -34,69 +96,277 @@ export default {
         window.opener.focus();
       }
     },
+    goTo(navigate) {
+      navigate();
+      if (this.isTablet) window.setTimeout(() => { this.visible = false; }, 0); // so the leave animation plays properly
+    },
+    async swipeEnd(e) {
+      if (!this.swiping) return;
+      const finalX = e.changedTouches[0].clientX;
+      const distance = finalX - this.swipeStartX;
+      this.swiping = false;
+
+      await this.$nextTick();
+
+      if (distance < 0 && Math.abs(distance) > this.maxSwipeDistance / 2) {
+        this.sidebarTransform = 'translateX(-100%)';
+        this.maskOpacity = 0;
+        this.visible = false;
+      } else {
+        this.sidebarTransform = null;
+        this.maskOpacity = null;
+      }
+    },
+    swipeStart(e) {
+      if (!this.isTablet) return;
+      this.maxSwipeDistance = this.$refs.el.getBoundingClientRect().width;
+      this.swipeStartX = e.changedTouches[0].clientX;
+      this.swipeStartY = e.changedTouches[0].clientY;
+      this.swiping = true;
+    },
+    swipeUpdate(e) {
+      if (!this.swiping) return;
+      const currentX = e.changedTouches[0].clientX;
+      const currentY = e.changedTouches[0].clientY;
+      const distance = currentX - this.swipeStartX;
+      const distanceY = currentY - this.swipeStartY;
+
+      if (Math.abs(distance) < 15 && Math.abs(distanceY) > Math.abs(distance)) { // if we haven’t moved much horizontally, but the y direction is bigger, we want to scroll, so abort
+        this.swipeEnd(e);
+        return;
+      }
+
+      this.sidebarTransform = `translateX(${Math.min(distance, 0)}px)`;
+      this.maskOpacity = Math.min(1 + distance / this.maxSwipeDistance, 1);
+    },
+    async windowSwipeEnd(e) {
+      window.removeEventListener('touchmove', this.windowSwipeUpdate);
+      window.removeEventListener('touchend', this.windowSwipeEnd);
+      if (!this.swiping) return;
+      const finalX = e.changedTouches[0].clientX;
+      const distance = finalX - this.swipeStartX;
+      this.swiping = false;
+      this.windowSwipe = false;
+
+      await this.$nextTick();
+
+      if (distance > this.maxSwipeDistance / 3) {
+        this.sidebarTransform = null;
+        this.maskOpacity = null;
+      } else {
+        this.sidebarTransform = 'translateX(-100%)';
+        this.maskOpacity = 0;
+        this.visible = false;
+      }
+    },
+    windowSwipeStart(e) {
+      if (!this.isTablet || this.swiping || this.visible) return;
+      if (e.changedTouches[0].clientX > 48) return;
+
+      this.swipeStartX = e.changedTouches[0].clientX;
+      this.swipeStartY = e.changedTouches[0].clientY;
+      this.sidebarTransform = 'translateX(-100%)';
+      this.maskOpacity = 0;
+
+      window.addEventListener('touchmove', this.windowSwipeUpdate);
+      window.addEventListener('touchend', this.windowSwipeEnd);
+    },
+    windowSwipeUpdate(e) {
+      const currentX = e.changedTouches[0].clientX;
+      const currentY = e.changedTouches[0].clientY;
+      const distance = currentX - this.swipeStartX;
+      const distanceY = currentY - this.swipeStartY;
+
+      if (distance > 5) {
+        this.windowSwipe = true;
+        this.swiping = true;
+        this.$nextTick(() => {
+          this.visible = true;
+          this.$nextTick(() => {
+            this.maxSwipeDistance = this.$refs.el.getBoundingClientRect().width;
+          });
+        });
+      }
+      if (!this.swiping) return;
+
+      if (Math.abs(distance) < 15 && Math.abs(distanceY) > Math.abs(distance)) { // if we haven’t moved much horizontally, but the y direction is bigger, we want to scroll, so abort
+        this.windowSwipeEnd(e);
+        return;
+      }
+
+      this.sidebarTransform = `translateX(${Math.min(-this.maxSwipeDistance + distance, 0)}px)`;
+      this.maskOpacity = Math.min(distance / this.maxSwipeDistance, 1);
+    },
   },
   props: {
     dark: Boolean,
+  },
+  watch: {
+    isTablet(nv) {
+      if (nv && this.visible) {
+        this.visible = false;
+        window.addEventListener('touchstart', this.windowSwipeStart);
+      } else if (!nv && !this.visible) {
+        this.visible = true;
+        window.removeEventListener('touchstart', this.windowSwipeStart);
+      }
+    },
+    visible(nv) {
+      if (nv) {
+        if (!this.windowSwipe) {
+          if (this.sidebarTransform) this.sidebarTransform = null;
+          if (this.maskOpacity !== null) this.maskOpacity = null;
+        }
+        this.$nextTick(() => this.$refs.el.focus());
+      }
+    },
   },
 };
 </script>
 
 <style lang="stylus" scoped>
+@require '../../assets/styles/breakpoints'
 @require '../../assets/styles/colors'
 @require '../../assets/styles/corners'
+
+.mask
+  position: fixed
+  top: 0
+  left: 0
+  width: 100%
+  height: 100%
+  background-color: alpha($bg-dark, 0.6)
+
+  &:not(.swiping)
+    transition: opacity 200ms ease
+
+  &.dark
+    background-color: alpha(black, 0.6)
+
+  &.v-enter-active:not(.swiping),
+  &.v-leave-active:not(.swiping)
+    transition: opacity 350ms ease
+
+    &.v-enter-from,
+    &.v-leave-to
+      opacity: 0 !important
 
 .project-sidebar
   position: fixed
   top: 0rem
   left: @top
   width: (320 / 16)rem
+  max-width: calc(100vw - 2rem)
   height: 100%
-  padding: 1.5rem
+  padding: 1rem
   background-color: $bg-secondary
   display: flex
   flex-direction: column
+  overflow-x: hidden
+  overflow-y: auto
+  user-select: none
+  touch-action: pan-y
+
+  @media $tablet
+    border-top-right-radius: $radius-l
+    border-bottom-right-radius: @border-top-right-radius
+
+  &:not(.swiping)
+    transition: transform 200ms ease
 
   &.dark
     background-color: $bg-secondary-dark
-  //   border-top-right-radius: $radius-l
-  //   border-bottom-right-radius: @border-top-right-radius
-  //   box-shadow: inset 0 0 0 0.0625rem $bg-tertiary-dark
-  //
-  //   &::before,
-  //   &::after
-  //     content: none
-  //
-  // &::before,
-  // &::after
-  //   content: ''
-  //   display: block
-  //   position: absolute
-  //   top: 0
-  //   right: ($radius-l * -2)
-  //   width: (@right * -1)
-  //   height: (@width / 2)
-  //   border-top-left-radius: @height
-  //   box-shadow: (@height * -1) 0 0 0 @background-color
-  //   background-color: transparent
-  //
-  // &::after
-  //   top: auto
-  //   bottom: 0
-  //   border-top-left-radius: 0
-  //   border-bottom-left-radius: @height
+
+    .options
+      li:not(.separator)
+        &.disabled
+          color: $text-tertiary-dark
+
+        &:hover,
+        &:focus-visible
+          background-color: $bg-tertiary-dark
+
+          &.active
+            color: $text-dark
+
+      li.separator
+        color: $text-tertiary-dark
+
+  &.v-enter-active:not(.swiping),
+  &.v-leave-active:not(.swiping)
+    transition: transform 350ms cubic-bezier(0.215, 0.610, 0.355, 1.000)
+
+    &.v-enter-from,
+    &.v-leave-to
+      transform: translateX(-100%)
+
+  &.v-leave-active
+    transition-timing-function: cubic-bezier(0.645, 0.045, 0.355, 1.000)
 
   .project-avatar
-    // margin: -1.5rem
-    margin: -0.5rem
     margin-bottom: 1rem
-    width: calc(100% + 1rem)
+    width: 100%
     border-radius: $radius-s
 
   .meta
     display: flex
+    margin-bottom: 2rem
+    padding: 0 0.75rem
 
     p
       margin: 0
+
+  .options
+    list-style: none
+    margin: 0
+    padding: 0
+    margin-bottom: 2rem
+
+    li:not(.separator)
+      padding: 0.75rem 1rem
+      white-space: nowrap
+      overflow: hidden
+      text-overflow: ellipsis
+      cursor: pointer
+      border-radius: $radius-m
+      transition: background-color 200ms ease
+      display: flex
+      align-items: center
+
+      &:not(:last-child)
+        margin-bottom: 0.5rem
+
+      &.active
+        background-color: $accent
+        color: $text-dark
+
+      &.disabled
+        pointer-events: none
+        color: $text-tertiary
+
+      &:focus-visible
+        box-shadow: inset 0 0 0 (2 / 16)rem $accent
+
+      &:hover,
+      &:focus-visible
+        background-color: $bg-tertiary
+
+        &.active
+          box-shadow: inset 0 0 0 (2 / 16)rem $accent
+          color: $text
+
+      .icon
+        margin-right: 1rem
+
+    li.separator
+      padding-left: 0.75rem
+      color: $text-secondary
+
+      &:not(:last-child)
+        margin-bottom: 0.5rem
+
+      &:not(:first-child)
+        margin-top: 1.5rem
 
   .back-button
     margin-top: auto
