@@ -55,17 +55,29 @@ export default {
         },
       };
     }
-    const projectJsonString = await fs.readFile(`/projects/${to.params.id}/.mattrbld/config.json`, 'utf8');
-    let avatarData;
-    let avatarUrl;
+
     try {
-      avatarData = await fs.readFile(`/projects/${to.params.id}/.mattrbld/avatar.jpg`, 'utf8');
-      avatarUrl = URL.createObjectURL(new Blob([avatarData], { type: 'image/jpeg' })); // revoking is handled by the ProjectAvatar component
+      const projectJsonString = await fs.readFile(`/projects/${to.params.id}/.mattrbld/config.json`, 'utf8');
+      let avatarData;
+      let avatarUrl;
+      try {
+        avatarData = await fs.readFile(`/projects/${to.params.id}/.mattrbld/avatar.jpg`, 'utf8');
+        avatarUrl = URL.createObjectURL(new Blob([avatarData], { type: 'image/jpeg' })); // revoking is handled by the ProjectAvatar component
+      } catch (err) {
+        if (err.code !== 'ENOENT') throw err;
+      }
+      Store.commit('setCurrentProject', { ...Store.state.currentProject, ...JSON.parse(projectJsonString), avatar: avatarUrl });
+      return true;
     } catch (err) {
-      if (err.code !== 'ENOENT') throw err;
+      return {
+        name: 'Error',
+        params: {
+          code: err.code,
+          message: err.message,
+          name: err.name,
+        },
+      };
     }
-    Store.commit('setCurrentProject', { ...Store.state.currentProject, ...JSON.parse(projectJsonString), avatar: avatarUrl });
-    return true;
   },
   beforeRouteLeave() {
     this.$store.commit('clearCurrentProject');
