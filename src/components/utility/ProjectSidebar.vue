@@ -4,7 +4,7 @@
     <div class="meta">
       <p>{{currentProject.name}}</p>
     </div>
-    <MbButton class="back-button" :dark="dark" icon="chevron-left" icon-first @click="$router.push({ name: 'Home' })">Back to all projects</MbButton>
+    <MbButton class="back-button" :dark="dark" icon="chevron-left" icon-first @click="backToProjects">Back to all projects</MbButton>
   </div>
 </template>
 
@@ -25,6 +25,15 @@ export default {
     return {
       collapsed: false,
     };
+  },
+  methods: {
+    backToProjects() {
+      if (!window.opener || window.opener.closed || window.opener.location.pathname !== '/') this.$router.push({ name: 'Home' });
+      else {
+        window.close();
+        window.opener.focus();
+      }
+    },
   },
   props: {
     dark: Boolean,
