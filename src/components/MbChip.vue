@@ -29,7 +29,7 @@ export default {
 @require '../assets/styles/colors'
 
 .chip
-  padding: 0.5rem 1rem
+  padding: 0.5rem 0.75rem
   border-radius: 1rem
   background-color: $accent
   color: $text-dark
