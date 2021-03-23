@@ -65,6 +65,7 @@ const routes = [
     // which is lazy-loaded when the route is visited.
     component: () => import(/* webpackChunkName: "project" */ '../views/Project.vue'),
     meta: {
+      sidebar: true,
       title: 'Project',
     },
     children: [
@@ -73,7 +74,17 @@ const routes = [
         path: '', // this sub-route will be loaded when we enter the parent route
         component: () => import(/* webpackChunkName: "project" */ '../views/ProjectDashboard.vue'),
         meta: {
+          label: 'Dashboard',
           title: 'Project Dashboard',
+        },
+      },
+      {
+        name: 'Project.MediaLibrary',
+        path: 'media', // this sub-route will be loaded when we enter the parent route
+        component: () => import(/* webpackChunkName: "project" */ '../views/ProjectMediaLibrary.vue'),
+        meta: {
+          label: 'Media Library',
+          title: 'Project Media Library',
         },
       },
       {
@@ -81,6 +92,7 @@ const routes = [
         path: 'settings',
         component: () => import(/* webpackChunkName: "project" */ '../views/ProjectSettings.vue'),
         meta: {
+          label: 'Settings',
           title: 'Project Settings',
         },
       },
