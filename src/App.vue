@@ -119,6 +119,9 @@ export default {
   .h3
     margin: 0
     margin-right: 2rem
+    white-space: nowrap
+    overflow: hidden
+    text-overflow: ellipsis
 
   .user-switcher
     margin-left: auto

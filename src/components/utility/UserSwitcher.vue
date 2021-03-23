@@ -490,6 +490,9 @@ export default {
   span
     text-transform: capitalize
     margin-right: 1rem
+    white-space: nowrap
+    overflow: hidden
+    text-overflow: ellipsis
 
   .async-image
     width: (48 / 16)rem
