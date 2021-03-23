@@ -1,6 +1,6 @@
 <template lang="html">
   <div class="project">
-    <ProjectSidebar  :dark="dark" />
+    <ProjectSidebar :dark="dark" />
     <router-view :dark="dark" />
   </div>
 </template>
