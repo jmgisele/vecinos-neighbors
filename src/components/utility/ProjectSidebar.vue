@@ -7,7 +7,7 @@
       <MbProjectAvatar :avatar="currentProject.avatar" :project-id="currentProject.id" :project-name="currentProject.name" />
       <div class="meta">
         <p>{{currentProject.name}}</p>
-        <MbChip :color="chipColor" :label="chipLabel" />
+        <MbChip :color="chipColor" :label="chipLabel" :loading="chipLoading" />
       </div>
       <ul class="custom options">
         <template v-for="(option, index) in sidebarOptions" :key="index">
@@ -82,6 +82,7 @@ export default {
     return {
       chipColor: 'warning',
       chipLabel: 'Changes',
+      chipLoading: false,
       maskOpacity: null,
       maxSwipeDistance: null,
       sidebarTransform: null,

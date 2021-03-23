@@ -1,7 +1,8 @@
 <template lang="html">
-  <div class="chip" :class="[ color, { dark } ]">
+  <div class="chip" :class="[color]">
     <transition mode="out-in">
-      <span :key="label">{{label}}</span>
+      <MbInlineLoader v-if="loading" />
+      <span v-else :key="label">{{label}}</span>
     </transition>
   </div>
 </template>
@@ -18,8 +19,8 @@ export default {
       default: 'accent',
       validator: (v) => ['accent', 'negative', 'positive', 'warning'].includes(v),
     },
-    dark: Boolean,
     label: String,
+    loading: Boolean,
   },
 };
 </script>
@@ -53,6 +54,12 @@ export default {
   &.warning
     color: $text-secondary
     background-color: $warning-saturated
+
+    &.dark
+      color: $text-dark
+
+  .inline-loader
+    height: (12 / 16)rem
 
   span
     display: inline-block
