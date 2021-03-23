@@ -48,7 +48,7 @@ export default {
       return this.$store.state.user.uiScale;
     },
     sidebarVisible() {
-      return this.$store.state.application.sidebarVisible;
+      return this.$route.meta.sidebar && this.$store.state.application.sidebarVisible;
     },
     tooltip() {
       return this.$store.state.application.tooltip || {};
