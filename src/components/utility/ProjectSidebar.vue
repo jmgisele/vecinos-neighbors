@@ -106,7 +106,7 @@ export default {
       const distance = finalX - this.swipeStartX;
       this.swiping = false;
 
-      await this.$nextTick();
+      await this.$nextTick(); // wait a tick so the swiping class is removed and the transitions can take over
 
       if (distance < 0 && Math.abs(distance) > this.maxSwipeDistance / 2) {
         this.sidebarTransform = 'translateX(-100%)';
@@ -148,7 +148,7 @@ export default {
       this.swiping = false;
       this.windowSwipe = false;
 
-      await this.$nextTick();
+      await this.$nextTick(); // wait a tick so the swiping class is removed and the transitions can take over
 
       if (distance > this.maxSwipeDistance / 3) {
         this.sidebarTransform = null;
@@ -180,9 +180,9 @@ export default {
       if (distance > 5) {
         this.windowSwipe = true;
         this.swiping = true;
-        this.$nextTick(() => {
+        this.$nextTick(() => { // wait a tick so it picks up on the set transform and opacity
           this.visible = true;
-          this.$nextTick(() => {
+          this.$nextTick(() => { // wait another tick so we actually have the correct width
             this.maxSwipeDistance = this.$refs.el.getBoundingClientRect().width;
           });
         });
@@ -324,9 +324,6 @@ export default {
 
     li:not(.separator)
       padding: 0.75rem 1rem
-      white-space: nowrap
-      overflow: hidden
-      text-overflow: ellipsis
       cursor: pointer
       border-radius: $radius-m
       transition: background-color 200ms ease
@@ -357,6 +354,12 @@ export default {
 
       .icon
         margin-right: 1rem
+        flex-shrink: 0
+
+      span
+        white-space: nowrap
+        overflow: hidden
+        text-overflow: ellipsis
 
     li.separator
       padding-left: 0.75rem
