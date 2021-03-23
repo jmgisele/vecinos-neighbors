@@ -11,7 +11,9 @@ const projectDefaults = {
   id: null,
   instanceUrl: null,
   name: null,
+  sidebar: [],
   slugifyOptions: null,
+  users: [],
 };
 
 export default createStore({
