@@ -59,7 +59,7 @@ const routes = [
   },
   {
     path: '/project/:id',
-    name: 'Project',
+    // name: 'Project',
     // route level code-splitting
     // this generates a separate chunk (about.[hash].js) for this route
     // which is lazy-loaded when the route is visited.
@@ -70,7 +70,7 @@ const routes = [
     },
     children: [
       {
-        name: 'Project.Dashboard',
+        name: 'Project',
         path: '', // this sub-route will be loaded when we enter the parent route
         component: () => import(/* webpackChunkName: "project" */ '../views/ProjectDashboard.vue'),
         meta: {

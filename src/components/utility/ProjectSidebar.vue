@@ -21,7 +21,7 @@
         </template>
       </ul>
       <ul class="default options">
-        <router-link custom :to="{ name: 'Project.Dashboard'}" v-slot="{ isExactActive, navigate }">
+        <router-link custom :to="{ name: 'Project'}" v-slot="{ isExactActive, navigate }">
           <li :class="{ active: isExactActive }" role="link" tabindex="0" @click="goTo(navigate)" @keydown.space.prevent @keyup.enter.space="goTo(navigate)">
             <MbIcon icon="grid" />
             <span>Dashboard</span>
