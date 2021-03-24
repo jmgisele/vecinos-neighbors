@@ -61,8 +61,8 @@ export default {
     sidebarOptions() {
       if (this.currentProject.sidebar && this.currentProject.sidebar.length > 0) return this.currentProject.sidebar;
       return [
-        { label: 'The sidebar has not been configured yet' },
-        { icon: 'arrow-right', label: 'Configure now', target: { name: 'Project.Settings', query: { tab: 'sidebar' } } },
+        { label: 'The sidebar has not yet been configured for this project' },
+        { icon: 'wrench-and-driver', label: 'Configure now', target: { name: 'Project.Settings', query: { tab: 'sidebar' } } },
       ];
     },
     visible: {
