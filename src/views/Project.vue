@@ -1,6 +1,6 @@
 <template lang="html">
   <div class="project">
-    <ProjectSidebar :dark="dark" />
+    <ProjectSidebar :dark="dark" :git-status="gitStatus" @git-status-click="handleGitStatusClick" />
     <router-view :dark="dark" />
   </div>
 </template>
@@ -84,6 +84,21 @@ export default {
   },
   components: {
     ProjectSidebar,
+  },
+  data() {
+    return {
+      gitStatus: {
+        color: 'warning',
+        label: 'Changes',
+        loading: false,
+        message: 'You have some unpublished local changes',
+      },
+    };
+  },
+  methods: {
+    handleGitStatusClick() {
+      this.$store.commit('addToast', { message: 'Todo: add some status messages in a modal if there are some, i.e. on errors' });
+    },
   },
   props: {
     dark: Boolean,

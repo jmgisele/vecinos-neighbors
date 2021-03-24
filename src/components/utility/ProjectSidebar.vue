@@ -7,7 +7,7 @@
       <MbProjectAvatar :avatar="currentProject.avatar" :project-id="currentProject.id" :project-name="currentProject.name" />
       <div class="meta">
         <p>{{currentProject.name}}</p>
-        <MbChip :color="chipColor" :label="chipLabel" :loading="chipLoading" />
+        <MbChip v-if="gitStatus.label" :color="gitStatus.color" :label="gitStatus.label" :loading="gitStatus.loading" @click="$emit('git-status-click')" @mouseenter="handleChipTooltip" />
       </div>
       <ul class="custom options">
         <template v-for="(option, index) in sidebarOptions" :key="index">
@@ -80,9 +80,6 @@ export default {
   },
   data() {
     return {
-      chipColor: 'warning',
-      chipLabel: 'Changes',
-      chipLoading: false,
       maskOpacity: null,
       maxSwipeDistance: null,
       sidebarTransform: null,
@@ -92,6 +89,7 @@ export default {
       windowSwipe: false,
     };
   },
+  emits: ['git-status-click'],
   methods: {
     backToProjects() {
       if (!window.opener || window.opener.closed || window.opener.location.pathname !== '/') this.$router.push({ name: 'Home' });
@@ -103,6 +101,19 @@ export default {
     goTo(navigate) {
       navigate();
       if (this.isTablet) window.setTimeout(() => { this.visible = false; }, 0); // so the leave animation plays properly
+    },
+    handleChipTooltip(e) {
+      const { message } = this.gitStatus;
+      if (message) {
+        this.$store.commit(
+          'setTooltip',
+          {
+            position: 'right',
+            message,
+            target: e.target,
+          },
+        );
+      }
     },
     async swipeEnd(e) {
       if (!this.swiping) return;
@@ -204,6 +215,10 @@ export default {
   },
   props: {
     dark: Boolean,
+    gitStatus: {
+      type: Object,
+      default: () => ({}),
+    },
   },
   watch: {
     isTablet(nv) {
@@ -328,6 +343,10 @@ export default {
 
     .chip
       flex-shrink: 0
+      cursor: pointer
+
+      &:active
+        transform: translateY(0.125rem)
 
   .options
     list-style: none
