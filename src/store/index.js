@@ -169,7 +169,7 @@ export default createStore({
         const appData = {};
 
         persistentAppProperties.forEach((prop) => { appData[prop] = state.application[prop]; });
-        await fs.writeFile('/mattrbld.conf', JSON.stringify(appData), 'utf8');
+        await fs.writeFile('/mattrbld.conf', JSON.stringify(appData, null, 2), 'utf8');
         return true;
       } catch (err) {
         commit('addToast', { message: `Something went wrong while saving the app configuration: ${err.message}`, type: 'error' });
@@ -180,7 +180,7 @@ export default createStore({
       try {
         const currentProjectData = { ...state.currentProject };
         delete currentProjectData.avatar;
-        await fs.writeFile(`/projects/${state.currentProject.id}/.mattrbld/config.json`, JSON.stringify(currentProjectData), 'utf8');
+        await fs.writeFile(`/projects/${state.currentProject.id}/.mattrbld/config.json`, JSON.stringify(currentProjectData, null, 2), 'utf8');
         return true;
       } catch (err) {
         commit('addToast', { message: `Something went wrong while saving the configuration of the current project: ${err.message}`, type: 'error' });
@@ -191,7 +191,7 @@ export default createStore({
       try {
         const userData = { ...state.user };
         delete userData.gitAuth;
-        await fs.writeFile(`/users/${state.application.activeUser}.json`, JSON.stringify(userData), 'utf8');
+        await fs.writeFile(`/users/${state.application.activeUser}.json`, JSON.stringify(userData, null, 2), 'utf8');
         return true;
       } catch (err) {
         commit('addToast', { message: `Something went wrong while saving the active user: ${err.message}`, type: 'error' });

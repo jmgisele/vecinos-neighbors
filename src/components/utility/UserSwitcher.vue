@@ -216,7 +216,7 @@ export default {
           projects: [],
           role: this.newUserData.role,
         };
-        await fs.writeFile(`/users/${newUserId}.json`, JSON.stringify(user), 'utf8');
+        await fs.writeFile(`/users/${newUserId}.json`, JSON.stringify(user, null, 2), 'utf8');
         await fs.writeFile(`/users/${newUserId}.jpg`, avatarData, 'utf8'); // we know it’s a image/jpeg because we converted it ourselves in AvatarUploader / generateAvatar
         this.users.push({
           ...user,

@@ -209,7 +209,7 @@ export default {
         } catch (err) {
           if (err.code !== 'EEXIST') throw err;
         }
-        await fs.writeFile(`/users/${this.userId}.json`, JSON.stringify(user), 'utf8');
+        await fs.writeFile(`/users/${this.userId}.json`, JSON.stringify(user, null, 2), 'utf8');
         this.$store.commit('setUserData', { ...this.$store.state.user, ...user });
         this.regenerateAvatar();
         this.currentSlide += 1;
