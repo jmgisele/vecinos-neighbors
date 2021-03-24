@@ -315,7 +315,7 @@ export default {
   .meta
     display: flex
     margin-bottom: 2rem
-    padding: 0 0.75rem
+    padding-left: 0.75rem
     align-items: center
     justify-content: space-between
 
@@ -327,7 +327,6 @@ export default {
       text-overflow: ellipsis
 
     .chip
-      margin-right: -0.75rem
       flex-shrink: 0
 
   .options
