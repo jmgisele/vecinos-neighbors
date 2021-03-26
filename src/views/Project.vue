@@ -1,7 +1,7 @@
 <template lang="html">
   <div class="project">
-    <ProjectSidebar :dark="dark" :git-status="gitStatus" @git-status-click="handleGitStatusClick" />
     <router-view :dark="dark" />
+    <ProjectSidebar :dark="dark" :git-status="gitStatus" @git-status-click="handleGitStatusClick" />
   </div>
 </template>
 
