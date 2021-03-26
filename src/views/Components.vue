@@ -65,6 +65,7 @@
         <h3>Events</h3>
         <MbTable :data="events.tabs" />
         <h3>Notes</h3>
+        <p>The <code>tabs</code> array should either by an array of strings, or an array of <code>{ label, value}</code> objects.</p>
         <p>If the <code>add-tab</code> prop is set to <code>true</code> the last tab will always contain a “Plus”-icon for adding a new tab.</p>
         <p>Clicking this tab will <strong>not</strong> automatically create a new tab, it will only send an event, so the parent can handle tab creation as it sees fit.</p>
         <MbButton :dark="dark" rounded type="negative" @click="removeTab">Delete Last Demo Tab</MbButton>
