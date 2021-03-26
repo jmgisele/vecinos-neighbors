@@ -33,7 +33,8 @@ export default {
   },
   watch: {
     $route(nv) {
-      if (nv.query.tab) this.activeTab = this.tabs.findIndex((tab) => tab.value === nv.query.tab);
+      if (nv.query.tab) this.activeTab = Math.max(this.tabs.findIndex((tab) => tab.value === nv.query.tab), 0);
+      else this.activeTab = 0;
     },
     activeTab(nv) {
       this.$router.push({ query: { tab: this.tabs[nv].value } });
