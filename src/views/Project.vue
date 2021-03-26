@@ -13,7 +13,7 @@ import isMattrbldProject from '../assets/js/isMattrbldProject';
 import ProjectSidebar from '../components/utility/ProjectSidebar.vue';
 
 export default {
-  async beforeRouteEnter(to) {
+  async beforeRouteEnter(to, from, next) {
     const configPath = `/projects/${to.params.id}/.mattrbld/config.json`;
     const hasConfigDir = await isMattrbldProject(to.params.id);
     const hasConfigFile = await exists(configPath);
@@ -44,7 +44,7 @@ export default {
       if (configSaved) {
         Store.commit('addLocallyChangedFile', configPath);
         Store.dispatch('saveAppData');
-        return true;
+        return next();
       }
       return {
         name: 'Error',
@@ -67,7 +67,9 @@ export default {
         if (err.code !== 'ENOENT') throw err;
       }
       Store.commit('setCurrentProject', { ...Store.state.currentProject, ...JSON.parse(projectJsonString), avatar: avatarUrl });
-      return true;
+      return next((vm) => {
+        vm.performInitialPull();
+      });
     } catch (err) {
       return {
         name: 'Error',
@@ -98,6 +100,11 @@ export default {
   methods: {
     handleGitStatusClick() {
       this.$store.commit('addToast', { message: 'Todo: add some status messages in a modal if there are some, i.e. on errors' });
+    },
+    async performInitialPull() {
+      this.gitStatus.loading = true;
+      // TODO: Fire off initial pull on the gitWorker
+      window.setTimeout(() => { this.gitStatus.loading = false; }, 2000);
     },
   },
   props: {
