@@ -114,4 +114,14 @@ export default {
 </script>
 
 <style lang="stylus" scoped>
+@require  '../assets/styles/breakpoints'
+
+.project // 100% minus the height of the app-header
+  height: "calc(100vh - %s)" % (116 / 16)rem
+
+  @media $tablet
+    height: "calc(100vh - %s)" % (84 / 16)rem
+
+  @media $mobile
+    height: "calc(100vh - %s)" % (82 / 16)rem
 </style>
