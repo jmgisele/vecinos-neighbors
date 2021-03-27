@@ -133,6 +133,7 @@ export default {
 
 #componentsModal
   width: 80vw
+  max-width: (1536 / 16)rem
 
   @media $mobile
     width: 100%
