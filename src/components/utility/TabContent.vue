@@ -43,12 +43,14 @@ export default {
 @require '../../assets/styles/colors'
 
 .tab-content
-  display: flex
   overflow-x: hidden
+  position: relative
 
   &.split
     .content-wrapper
       &:first-child
+        width: 50%
+        transition-timing-function: cubic-bezier(0.215, 0.610, 0.355, 1.000)
         background-color: $bg-tertiary
 
         &.dark
@@ -61,7 +63,7 @@ export default {
     background-color: $bg
 
     &:first-child
-      transition: background-color 200ms ease
+      transition: background-color 200ms ease, width 200ms cubic-bezier(0.645, 0.045, 0.355, 1.000)
 
     &.dark
       background-color: $bg-dark
@@ -70,22 +72,24 @@ export default {
       padding: 0 2rem 8rem 2rem
 
     &.right
-      position: relative
+      position: absolute
+      top: 0
+      left: 50%
+      width: 50%
 
       &.dark
         background-color: $bg-secondary-dark
 
       &.v-enter-active,
       &.v-leave-active
-        transition: transform 200ms ease, opacity 200ms ease
+        transition: transform 200ms cubic-bezier(0.215, 0.610, 0.355, 1.000)
 
         &.v-enter-from,
         &.v-leave-to
-          transform: translateX(8rem)
-          opacity: 0
-      //
-      // &.v-enter-active
-      //   transition-delay: 200ms
+          transform: translateX(100%)
+
+      &.v-leave-active
+        transition-timing-function: cubic-bezier(0.645, 0.045, 0.355, 1.000)
 
       .close-button
         position: absolute
