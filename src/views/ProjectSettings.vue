@@ -1,10 +1,15 @@
 <template lang="html">
   <div class="project-settings">
     <MbTabs v-model="activeTab" :dark="dark" :tabs="tabs" />
+    <transition mode="out-in" :name="tabTransition">
+      <GeneralSettings v-if="activeTabValue === 'general'" :dark="dark" />
+    </transition>
   </div>
 </template>
 
 <script>
+import GeneralSettings from './settings/GeneralSettings.vue';
+
 export default {
   beforeRouteEnter(to, from, next) {
     if (to.query.tab) {
@@ -13,6 +18,14 @@ export default {
         vm.activeTab = Math.max(activeTab, 0); // eslint-disable-line no-param-reassign
       });
     } else next();
+  },
+  components: {
+    GeneralSettings,
+  },
+  computed: {
+    activeTabValue() {
+      return this.tabs[this.activeTab].value;
+    },
   },
   data() {
     return {
@@ -26,6 +39,7 @@ export default {
         { label: 'Media Library', value: 'media' },
         { label: 'Users', value: 'users' },
       ],
+      tabTransition: 'to-left',
     };
   },
   props: {
@@ -36,7 +50,10 @@ export default {
       if (nv.query.tab) this.activeTab = Math.max(this.tabs.findIndex((tab) => tab.value === nv.query.tab), 0);
       else this.activeTab = 0;
     },
-    activeTab(nv) {
+    activeTab(nv, ov) {
+      if (nv > ov) this.tabTransition = 'to-left';
+      else this.tabTransition = 'to-right';
+
       this.$router.push({ query: { tab: this.tabs[nv].value } });
     },
   },
@@ -45,6 +62,39 @@ export default {
 
 <style lang="stylus" scoped>
 .project-settings
+  height: 100%
+  display: flex
+  flex-direction: column
+  overflow-x: hidden
+
   .tabs
+    flex-shrink: 0
     margin-top: (6 / 16)rem // so it’s aligned with the image in the sidebar
+
+  .tab-content
+    flex-grow: 1
+
+    &.to-left-enter-active,
+    &.to-right-leave-active
+      transition: transform 200ms cubic-bezier(0.215, 0.610, 0.355, 1.000), opacity 200ms ease
+
+      &.to-left-enter-from,
+      &.to-right-leave-to
+        opacity: 0
+        transform: translateX(4rem)
+
+    &.to-left-leave-active,
+    &.to-right-enter-active
+      transition: transform 200ms cubic-bezier(0.645, 0.045, 0.355, 1.000), opacity 200ms ease
+
+      &.to-left-leave-to,
+      &.to-right-enter-from
+        opacity: 0
+        transform: translateX(-4rem)
+
+    &.to-right-leave-active
+      transition-timing-function: cubic-bezier(0.645, 0.045, 0.355, 1.000)
+
+    &.to-right-enter-active
+      transition-timing-function: cubic-bezier(0.215, 0.610, 0.355, 1.000)
 </style>
