@@ -40,6 +40,7 @@ export default {
 </script>
 
 <style lang="stylus" scoped>
+@require '../../assets/styles/breakpoints'
 @require '../../assets/styles/colors'
 
 .tab-content
@@ -52,6 +53,9 @@ export default {
         width: 50%
         transition-timing-function: cubic-bezier(0.215, 0.610, 0.355, 1.000)
         background-color: $bg-tertiary
+
+        @media $mobile
+          width: 100%
 
         &.dark
           background-color: $bg-dark
