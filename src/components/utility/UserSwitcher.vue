@@ -658,6 +658,7 @@ export default {
 
   .button.delete-user
     margin-bottom: 1rem
+    max-width: 100%
 
 .confirmation-modal
   p
