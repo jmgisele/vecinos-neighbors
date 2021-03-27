@@ -75,6 +75,9 @@ export default {
     &.padded
       padding: 0 2rem 8rem 2rem
 
+      @media $tablet
+        padding: 0 1rem 4rem 1rem
+
     &.right
       position: absolute
       top: 0
