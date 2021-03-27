@@ -111,6 +111,18 @@ export default {
     },
     projectName: String,
   },
+  watch: {
+    projectName(nv, ov) {
+      if (nv !== ov && !this.avatar) {
+        // We have to reinitialise the rng and simulate regenerating the project color so we always get the same image
+        this.rng = new SeededRNG(this.projectId);
+        this.rng.random();
+        this.rng.random();
+        this.rng.random();
+        this.generateAvatar();
+      }
+    },
+  },
 };
 </script>
 
