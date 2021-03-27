@@ -16,18 +16,31 @@ export default {
       image.onload = () => {
         window.URL.revokeObjectURL(imageURL);
         const canvas = document.createElement('canvas');
-        canvas.width = this.size;
-        canvas.height = this.size;
+        const width = this.width || this.size;
+        const height = this.height || this.size;
+
+        canvas.width = width;
+        canvas.height = height;
 
         const ctx = canvas.getContext('2d');
-        const sourceSize = Math.min(image.width, image.height);
-        const cropAxis = image.width < image.height ? 'y' : 'x';
-        const cropDistance = cropAxis === 'x' ? image.width - image.height : image.height - image.width;
-
         ctx.imageSmoothingQuality = 'high';
 
-        if (cropAxis === 'x') ctx.drawImage(image, cropDistance / 2, 0, sourceSize, sourceSize, 0, 0, 128, 128);
-        else ctx.drawImage(image, 0, cropDistance / 2, sourceSize, sourceSize, 0, 0, 128, 128);
+        const sourceAspectRatio = image.width / image.height;
+        const targetAspectRatio = width / height;
+
+        if (sourceAspectRatio < targetAspectRatio) {
+          // we’re cropping top and bottom
+          const sourceWidth = image.width;
+          const sourceHeight = image.width / targetAspectRatio;
+          const cropDistance = (image.height - sourceHeight) / 2;
+          ctx.drawImage(image, 0, cropDistance, sourceWidth, sourceHeight, 0, 0, width, height);
+        } else {
+          // we’re cropping the sides
+          const sourceWidth = image.height * targetAspectRatio;
+          const sourceHeight = image.height;
+          const cropDistance = (image.width - sourceWidth) / 2;
+          ctx.drawImage(image, cropDistance, 0, sourceWidth, sourceHeight, 0, 0, width, height);
+        }
 
         const avatar = canvas.toDataURL('image/jpeg', Math.max(Math.min(this.compression, 1), 0));
         this.$emit('ready', avatar);
@@ -40,10 +53,12 @@ export default {
       type: Number,
       default: 0.45,
     },
+    height: Number,
     size: {
       type: Number,
       default: 128,
     },
+    width: Number,
   },
 };
 </script>
