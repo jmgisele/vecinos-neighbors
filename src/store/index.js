@@ -9,7 +9,6 @@ const projectDefaults = {
   avatar: null,
   corsProxy: null,
   id: null,
-  instanceUrl: null,
   name: null,
   sidebar: [],
   slugifyOptions: null,
@@ -176,11 +175,13 @@ export default createStore({
         return false;
       }
     },
-    async saveCurrentProject({ commit, state }) {
+    async saveCurrentProject({ commit, dispatch, state }) {
       try {
         const currentProjectData = { ...state.currentProject };
         delete currentProjectData.avatar;
         await fs.writeFile(`/projects/${state.currentProject.id}/.mattrbld/config.json`, JSON.stringify(currentProjectData, null, 2), 'utf8');
+        commit('addLocallyChangedFile', `/projects/${state.currentProject.id}/.mattrbld/config.json`);
+        dispatch('saveAppData');
         return true;
       } catch (err) {
         commit('addToast', { message: `Something went wrong while saving the configuration of the current project: ${err.message}`, type: 'error' });

@@ -41,11 +41,8 @@ export default {
       });
 
       const configSaved = await Store.dispatch('saveCurrentProject');
-      if (configSaved) {
-        Store.commit('addLocallyChangedFile', configPath);
-        Store.dispatch('saveAppData');
-        return next();
-      }
+      if (configSaved) return next();
+
       return {
         name: 'Error',
         params: {
