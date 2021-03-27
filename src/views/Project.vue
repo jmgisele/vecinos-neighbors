@@ -58,7 +58,7 @@ export default {
       let avatarData;
       let avatarUrl;
       try {
-        avatarData = await fs.readFile(`/projects/${to.params.id}/.mattrbld/avatar.jpg`, 'utf8');
+        avatarData = await fs.readFile(`/projects/${to.params.id}/.mattrbld/avatar.jpg`);
         avatarUrl = URL.createObjectURL(new Blob([avatarData], { type: 'image/jpeg' })); // revoking is handled by the ProjectAvatar component
       } catch (err) {
         if (err.code !== 'ENOENT') throw err;

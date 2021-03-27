@@ -138,7 +138,7 @@ export default {
         const jsonPromises = [];
         const statPromises = [];
         projects.forEach((project) => {
-          avatarPromises.push(fs.readFile(`/projects/${project}/.mattrbld/avatar.jpg`, 'utf8'));
+          avatarPromises.push(fs.readFile(`/projects/${project}/.mattrbld/avatar.jpg`));
           jsonPromises.push(fs.readFile(`/projects/${project}/.mattrbld/config.json`, 'utf8'));
           statPromises.push(fs.stat(`/projects/${project}`));
         });
