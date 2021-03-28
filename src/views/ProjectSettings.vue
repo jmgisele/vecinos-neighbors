@@ -32,10 +32,10 @@ export default {
       activeTab: 0,
       tabs: [
         { label: 'General Settings', value: 'general' },
-        { label: 'Sidebar', value: 'sidebar' },
         { label: 'Collections', value: 'collections' },
         { label: 'Schemas', value: 'schemas' },
         { label: 'Custom Fields', value: 'fields' },
+        { label: 'Sidebar', value: 'sidebar' },
         { label: 'Media Library', value: 'media' },
         { label: 'Users', value: 'users' },
       ],
