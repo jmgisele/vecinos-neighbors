@@ -4,15 +4,15 @@
       <h1 class="h2">Users</h1>
       <header>
         <MbInput v-model="userFilter" :dark="dark" icon="search" placeholder="Filter users" />
-        <MbButton :dark="dark" icon="plus" type="positive">Invite User</MbButton>
+        <MbButton :dark="dark" icon="plus" type="positive" @click="handleInvite">Invite User</MbButton>
       </header>
       <ul>
-        <li v-for="(user, index) in filteredUsers" :key="index" tabindex="0">
+        <li v-for="(user, index) in filteredUsers" :key="index" tabindex="0" @click="handleUserClick($event, user.id)" @kedown.space.prevent @keyup.space.enter="handleUserClick($event, user.id)">
           <AsyncImage :src="user.avatar" />
           <span v-show="user.localChanges" class="local-changes-indicator"/>
           <span>{{user.details.name}}</span>
           <span class="email">{{user.details.email}}</span>
-          <MbSelect :dark="dark" :model-value="user.details.role" :options="availableRoles" @update:model-value="user.details.role = $event" />
+          <MbSelect :dark="dark" :model-value="user.details.role" :options="availableRoles" @update:model-value="handleRoleChange(user.id, $event)" />
         </li>
       </ul>
     </section>
@@ -60,6 +60,7 @@ export default {
   created() {
     this.users = this.currentProject.users.map((user) => ({ details: user }));
     this.users.forEach((user) => {
+      user.id = slugify(user.details.email); // eslint-disable-line no-param-reassign
       if (this.$store.getters.hasLocalChanges(`/projects/${this.currentProject.id}/.mattrbld/users/${slugify(user.details.email).json}`)) user.localChanges = true; // eslint-disable-line no-param-reassign
     });
     this.fetchUserAvatars();
@@ -81,7 +82,7 @@ export default {
       const [avatarFiles, localAvatars] = await Promise.all([fs.readdir(usersPath), fs.readdir('/users')]);
 
       const avatarPromises = this.users.reduce((acc, user) => {
-        const id = slugify(user.details.email);
+        const { id } = user;
 
         if (avatarFiles.includes(`${id}.jpg`)) acc.push(fs.readFile(`${usersPath}/${id}.jpg`));
         else if (localAvatars.includes(`${id}.jpg`)) acc.push(fs.readFile(`/users/${id}.jpg`));
@@ -99,6 +100,13 @@ export default {
         if (typeof avatar !== 'string') this.users[index].avatar = URL.createObjectURL(new Blob([avatar]), { type: 'image/jpeg' });
         else this.users[index].avatar = avatar;
       });
+    },
+    handleInvite() {},
+    handleRoleChange(id, newRole) {
+      console.log(id, newRole);
+    },
+    handleUserClick(event, id) {
+      if (!event.target.classList.contains('button')) console.log(id);
     },
   },
   props: {
@@ -144,7 +152,7 @@ export default {
         .input
           margin: 0
           margin-right: 1rem
-          width: auto
+          max-width: 30rem
 
         .button
           margin-left: auto
