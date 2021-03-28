@@ -179,6 +179,7 @@ export default createStore({
       try {
         const currentProjectData = { ...state.currentProject };
         delete currentProjectData.avatar;
+        delete currentProjectData.users;
         await fs.writeFile(`/projects/${state.currentProject.id}/.mattrbld/config.json`, JSON.stringify(currentProjectData, null, 2), 'utf8');
         commit('addLocallyChangedFile', `/projects/${state.currentProject.id}/.mattrbld/config.json`);
         dispatch('saveAppData');
