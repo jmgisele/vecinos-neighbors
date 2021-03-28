@@ -1,6 +1,6 @@
 <template lang="html">
   <TabContent class="general-settings" :dark="dark">
-    <div class="wrapper">
+    <section class="wrapper">
       <h1 class="h2">Project</h1>
       <MbInput v-model="projectName" :dark="dark" :error="errors.name" icon="tag" label="Project name" :max-len="32" @blur="changeName" @keyup.enter="changeName" />
       <p class="avatar-label" :class="{ dark }">Project Avatar</p>
@@ -12,6 +12,8 @@
           <MbButton :dark="dark" icon-first :icon="avatar ? 'replace-alt' : 'upload'" @click="$refs.uploader.$el.click()">{{ avatar ? 'Replace' : 'Upload' }}</MbButton>
         </div>
       </div>
+    </section>
+    <section class="wrapper">
       <h2>Repository</h2>
       <MbInput v-model="projectRepo" :dark="dark" disabled :error="errors.repo" icon="repo" label="Repository URL" @blur="changeRepo" @keyup.enter="changeRepo" />
       <div class="select-wrapper">
@@ -23,7 +25,7 @@
       </MbHighlightBox>
       <h2>Other</h2>
       <MbInput v-model="projectProxy" :dark="dark" :error="errors.proxy" icon="link" label="CORS Proxy URL" @blur="changeProxy" @keyup.enter="changeProxy" />
-    </div>
+    </section>
   </TabContent>
 </template>
 
