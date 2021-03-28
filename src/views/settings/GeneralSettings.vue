@@ -26,6 +26,11 @@
       <h2>Other</h2>
       <MbInput v-model="projectProxy" :dark="dark" :error="errors.proxy" icon="link" label="CORS Proxy URL" @blur="changeProxy" @keyup.enter="changeProxy" />
     </section>
+    <section class="wrapper">
+      <h2>Slugify Options</h2>
+      <p>These options will be passed to the internal slugifier that is used for creating url-safe filenames, slugs and internal links. You should make sure that the options Mattrbld uses are the same that you use when building your project to ensure consistent paths / slugs.</p>
+      <p>Mattrbld uses <a href="https://github.com/sindresorhus/slugify" rel="noopener noreferrer nofollow" target="_blank">@sindresorhus/slugify</a> internally, so all options for that are valid here, too.</p>
+    </section>
   </TabContent>
 </template>
 
@@ -160,6 +165,8 @@ export default {
 @require '../../assets/styles/corners'
 
 .general-settings
+  user-select: none
+
   .wrapper
     max-width: 40rem
     margin-left: auto
