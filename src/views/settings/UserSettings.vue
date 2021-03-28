@@ -11,8 +11,8 @@
           <AsyncImage :src="user.avatar" />
           <span v-show="user.localChanges" class="local-changes-indicator"/>
           <span>{{user.details.name}}</span>
-          <span class="email">{{user.details.email}}</span>
-          <MbSelect :dark="dark" :model-value="user.details.role" :options="availableRoles" @update:model-value="handleRoleChange(user.id, $event)" />
+          <span class="secondary">{{user.details.email}}</span>
+          <span class="secondary">{{availableRoles.find((role) => role.value === user.details.role).label}}</span>
         </li>
       </ul>
     </section>
@@ -102,11 +102,8 @@ export default {
       });
     },
     handleInvite() {},
-    handleRoleChange(id, newRole) {
-      console.log(id, newRole);
-    },
     handleUserClick(event, id) {
-      if (!event.target.classList.contains('button')) console.log(id);
+      console.log(id);
     },
   },
   props: {
@@ -133,7 +130,7 @@ export default {
       &:active
         background-color: $bg-dark
 
-      span.email
+      span.secondary
         color: $text-secondary-dark
 
   .wrapper
@@ -145,17 +142,30 @@ export default {
       max-width: (960 / 16)rem
       margin-bottom: 8rem
 
+      @media $mobile
+        margin-bottom: 4rem
+
       header
         display: flex
         margin-bottom: 2rem
+
+        @media $mobile
+          flex-direction: column-reverse
 
         .input
           margin: 0
           margin-right: 1rem
           max-width: 30rem
 
+          @media $mobile
+            margin-right: 0
+            margin-top: 1rem
+
         .button
           margin-left: auto
+
+          @media $mobile
+            width: 100%
 
       ul
         list-style: none
@@ -164,8 +174,7 @@ export default {
         li
           position: relative
           background-color: $bg-secondary
-          padding: 0.5rem
-          padding-left: 1rem
+          padding: 1rem
           border-radius: $radius-m
           display: flex
           align-items: center
@@ -202,6 +211,7 @@ export default {
             transition: opacity 200ms ease
 
           .local-changes-indicator
+            flex: none
             width: 0.5rem
             height: @width
             border-radius: 50%
@@ -209,29 +219,30 @@ export default {
             display: inline-block
             margin-right: 0.5rem
 
-          .icon:not(.button)
-            margin-right: 1rem
-            flex-shrink: 0
-
           .async-image
             width: 2.5rem
             height: @width
             border-radius: 50%
             margin-right: 1rem
 
+            @media $mobile
+              width: 1.5rem
+              height: @width
+
           span
+            margin-right: 1rem
             white-space: nowrap
             text-overflow: ellipsis
             overflow: hidden
             text-transform: capitalize
-            margin-right: 2rem
+            flex: 1 1 100%
 
-            &.email
+            &.secondary
               text-transform: none
               color: $text-secondary
 
-          ::v-deep(.select)
-            margin-left: auto
+              @media $mobile
+                display: none
 
     .input
       width: 100%
