@@ -4,6 +4,7 @@ import fs from '../fs';
 import observers from './observers';
 
 const persistentAppProperties = ['activeUser', 'corsProxy', 'initialised', 'locallyChangedFiles'];
+const persistentProjectProperties = ['corsProxy', 'id', 'name', 'sidebar', 'slugifyOptions'];
 
 const projectDefaults = {
   avatar: null,
@@ -177,9 +178,9 @@ export default createStore({
     },
     async saveCurrentProject({ commit, dispatch, state }) {
       try {
-        const currentProjectData = { ...state.currentProject };
-        delete currentProjectData.avatar;
-        delete currentProjectData.users;
+        const currentProjectData = {};
+        persistentProjectProperties.forEach((prop) => { currentProjectData[prop] = state.currentProject[prop]; });
+
         await fs.writeFile(`/projects/${state.currentProject.id}/.mattrbld/config.json`, JSON.stringify(currentProjectData, null, 2), 'utf8');
         commit('addLocallyChangedFile', `/projects/${state.currentProject.id}/.mattrbld/config.json`);
         dispatch('saveAppData');
