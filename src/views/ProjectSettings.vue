@@ -3,12 +3,14 @@
     <MbTabs v-model="activeTab" :dark="dark" :tabs="tabs" />
     <transition mode="out-in" :name="tabTransition">
       <GeneralSettings v-if="activeTabValue === 'general'" :dark="dark" />
+      <UserSettings v-else-if="activeTabValue === 'users'" :dark="dark" />
     </transition>
   </div>
 </template>
 
 <script>
 import GeneralSettings from './settings/GeneralSettings.vue';
+import UserSettings from './settings/UserSettings.vue';
 
 export default {
   beforeRouteEnter(to, from, next) {
@@ -21,6 +23,7 @@ export default {
   },
   components: {
     GeneralSettings,
+    UserSettings,
   },
   computed: {
     activeTabValue() {
