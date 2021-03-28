@@ -6,6 +6,8 @@
 </template>
 
 <script>
+import slugify from '@sindresorhus/slugify';
+
 import fs, { exists } from '../fs';
 import Store from '../store';
 import isMattrbldProject from '../assets/js/isMattrbldProject';
@@ -15,46 +17,104 @@ import ProjectSidebar from '../components/utility/ProjectSidebar.vue';
 export default {
   async beforeRouteEnter(to, from, next) {
     const configPath = `/projects/${to.params.id}/.mattrbld/config.json`;
+    const usersPath = `/projects/${to.params.id}/.mattrbld/users`;
+    const currentUserId = slugify(Store.state.user.email);
+
     const hasConfigDir = await isMattrbldProject(to.params.id);
     const hasConfigFile = await exists(configPath);
+
     if (!hasConfigDir || !hasConfigFile) {
       try {
         await fs.mkdir(`/projects/${to.params.id}/.mattrbld`);
+        await fs.mkdir(usersPath);
       } catch (err) {
         if (err.code !== 'EEXIST') { // it might exist, but there’s no config.json
-          return {
+          return next({
             name: 'Error',
             params: {
               code: err.code,
               message: err.message,
               name: err.name,
             },
-          };
+          });
         }
       }
+
+      // Add first user as project owner
+      const { email, name } = Store.state.user;
+      const user = {
+        email,
+        name,
+        role: 'owner',
+      };
+
+      try {
+        const path = `${usersPath}/${currentUserId}.json`;
+        await fs.writeFile(path, JSON.stringify(user, null, 2), 'utf8');
+        Store.commit('addLocallyChangedFile', path);
+      } catch (err) {
+        return next({
+          name: 'Error',
+          params: {
+            code: err.code,
+            message: err.message,
+            name: err.name,
+          },
+        });
+      }
+
       // Create config.json with defaults
       Store.commit('setCurrentProject', {
         ...Store.state.currentProject,
         corsProxy: Store.state.application.corsProxy,
         id: to.params.id,
         name: to.params.id,
+        users: [user],
       });
 
+      // Save the config and move on
       const configSaved = await Store.dispatch('saveCurrentProject');
       if (configSaved) return next();
 
-      return {
+      return next({
         name: 'Error',
         params: {
           code: '500',
           message: 'Could not save config, see toast for details',
           name: 'Internal Error',
         },
-      };
+      });
     }
 
+    // if we’re here the project was initialised before
     try {
-      const projectJsonString = await fs.readFile(`/projects/${to.params.id}/.mattrbld/config.json`, 'utf8');
+      let userFiles;
+      try {
+        userFiles = await fs.readdir(usersPath);
+      } catch (err) {
+        if (err.code !== 'ENOENT') throw err;
+      }
+
+      const [projectJsonString, ...userJsonStrings] = await Promise.all([
+        fs.readFile(`/projects/${to.params.id}/.mattrbld/config.json`, 'utf8'),
+        ...userFiles.map((userFile) => fs.readFile(`${usersPath}/${userFile}`, 'utf8')),
+      ]);
+
+      const users = userJsonStrings.map((string) => JSON.parse(string));
+
+      if (!userFiles.includes(`${currentUserId}.json`)) { // this user isn’t a member of this project yet
+        const { email, name, role } = Store.state.user;
+        const user = {
+          email,
+          name,
+          role: role === 'owner' ? 'developer' : role, // take the users default role for the moment, but shouldn’t it be better to have all new users be at first Editors?
+        };
+        const path = `${usersPath}/${currentUserId}.json`;
+        await fs.writeFile(path, JSON.stringify(user, null, 2), 'utf8');
+        Store.commit('addLocallyChangedFile', path);
+        users.push(user);
+      }
+
       let avatarData;
       let avatarUrl;
       try {
@@ -63,19 +123,25 @@ export default {
       } catch (err) {
         if (err.code !== 'ENOENT') throw err;
       }
-      Store.commit('setCurrentProject', { ...Store.state.currentProject, ...JSON.parse(projectJsonString), avatar: avatarUrl });
+
+      Store.commit('setCurrentProject', {
+        ...Store.state.currentProject,
+        ...JSON.parse(projectJsonString),
+        avatar: avatarUrl,
+        users,
+      });
       return next((vm) => {
         vm.performInitialPull();
       });
     } catch (err) {
-      return {
+      return next({
         name: 'Error',
         params: {
           code: err.code,
           message: err.message,
           name: err.name,
         },
-      };
+      });
     }
   },
   beforeRouteLeave() {
