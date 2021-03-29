@@ -197,9 +197,10 @@ export default {
     },
     async createUser() {
       try {
-        this.userId = slugify(this.userEmail.trim()); // WARNING: this could lead to collisions if there’s two very similar email addresses (foo-bar@exmaple.com foo.bar@example.com), but since we have a low amount of local users, I think it’s negligible
+        this.userId = slugify(this.userEmail.trim()); // WARNING: this could lead to collisions if there’s two very similar email addresses (foo-bar@exmaple.com foo.bar@example.com), but this is the first user, so it’s fine
         const user = {
           email: this.userEmail.trim(),
+          id: this.userId,
           name: this.userName.trim().toLowerCase(),
           projects: [this.projectName],
           role: this.userRole,

@@ -200,21 +200,22 @@ export default {
     },
     async createUser() {
       try {
-        const newUserId = slugify(this.newUserData.email.trim()); // WARNING: this could lead to collisions if there’s two very similar email addresses (foo-bar@exmaple.com foo.bar@example.com), but since we have a low amount of local users, I think it’s negligible
-        const alreadyExists = await this.idExists(newUserId);
+        let newUserId = slugify(this.newUserData.email.trim()); // WARNING: this could lead to collisions if there’s two very similar email addresses (foo-bar@exmaple.com foo.bar@example.com), but since we have a low amount of local users, I think it’s negligible
+        let alreadyExists = await this.idExists(newUserId);
 
-        if (alreadyExists) { // we could also add a randomly generated string to the end of the id and  let it pass
-          this.$store.commit('addToast', { message: 'A user with this (or a similar) email address already exists on this device. Please try a different one.', type: 'negative' });
-          return;
+        while (alreadyExists) {
+          newUserId += `-${Math.random().toString(36).slice(2, 9)}`;
+          alreadyExists = await this.idExists(newUserId); // eslint-disable-line no-await-in-loop
         }
 
         const byteString = window.atob(this.newUserData.avatar.split(',')[1]);
         const avatarData = Uint8Array.from(byteString, (ch) => ch.charCodeAt(0));
         const user = {
           email: this.newUserData.email.trim(),
+          id: newUserId,
           name: this.newUserData.name.trim().toLowerCase(),
           projects: [],
-          role: this.newUserData.role,
+          role: this.newUserData.role || 'editor',
         };
         await fs.writeFile(`/users/${newUserId}.json`, JSON.stringify(user, null, 2), 'utf8');
         await fs.writeFile(`/users/${newUserId}.jpg`, avatarData, 'utf8'); // we know it’s a image/jpeg because we converted it ourselves in AvatarUploader / generateAvatar
