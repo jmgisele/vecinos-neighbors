@@ -7,10 +7,10 @@
         <MbButton :dark="dark" icon="plus" type="positive" @click="handleInvite">Invite User</MbButton>
       </header>
       <ul>
-        <li v-for="(user, index) in filteredUsers" :key="index" tabindex="0" @click="handleUserClick($event, user.id)" @kedown.space.prevent @keyup.space.enter="handleUserClick($event, user.id)">
+        <li v-for="(user, index) in filteredUsers" :key="index" tabindex="0" @click="handleUserClick($event, user.details.id)" @kedown.space.prevent @keyup.space.enter="handleUserClick($event, user.details.id)">
           <AsyncImage :src="user.avatar" />
           <span v-show="user.localChanges" class="local-changes-indicator"/>
-          <span>{{user.details.name}}</span>
+          <span :class="{ changed: user.localChanges }">{{user.details.name}}</span>
           <span class="secondary">{{user.details.email}}</span>
           <span class="secondary">{{availableRoles.find((role) => role.value === user.details.role).label}}</span>
         </li>
@@ -26,8 +26,6 @@
 </template>
 
 <script>
-import slugify from '@sindresorhus/slugify';
-
 import fs from '../../fs';
 
 // import AvatarUploader from '../../components/utility/AvatarUploader.vue';
@@ -60,8 +58,7 @@ export default {
   created() {
     this.users = this.currentProject.users.map((user) => ({ details: user }));
     this.users.forEach((user) => {
-      user.id = slugify(user.details.email); // eslint-disable-line no-param-reassign
-      if (this.$store.getters.hasLocalChanges(`/projects/${this.currentProject.id}/.mattrbld/users/${user.id}.json`)) user.localChanges = true; // eslint-disable-line no-param-reassign
+      if (this.$store.getters.hasLocalChanges(`/projects/${this.currentProject.id}/.mattrbld/users/${user.details.id}.json`)) user.localChanges = true; // eslint-disable-line no-param-reassign
     });
     this.fetchUserAvatars();
   },
@@ -82,7 +79,7 @@ export default {
       const [avatarFiles, localAvatars] = await Promise.all([fs.readdir(usersPath), fs.readdir('/users')]);
 
       const avatarPromises = this.users.reduce((acc, user) => {
-        const { id } = user;
+        const { id } = user.details;
 
         if (avatarFiles.includes(`${id}.jpg`)) acc.push(fs.readFile(`${usersPath}/${id}.jpg`));
         else if (localAvatars.includes(`${id}.jpg`)) acc.push(fs.readFile(`/users/${id}.jpg`));
@@ -235,7 +232,10 @@ export default {
             text-overflow: ellipsis
             overflow: hidden
             text-transform: capitalize
-            flex: 1 1 100%
+            flex: 1 1 33.33%
+
+            &.changed
+              flex-basis: calc(33.33% - 1rem)
 
             &.secondary
               text-transform: none
