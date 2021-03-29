@@ -61,7 +61,7 @@ export default {
     this.users = this.currentProject.users.map((user) => ({ details: user }));
     this.users.forEach((user) => {
       user.id = slugify(user.details.email); // eslint-disable-line no-param-reassign
-      if (this.$store.getters.hasLocalChanges(`/projects/${this.currentProject.id}/.mattrbld/users/${slugify(user.details.email).json}`)) user.localChanges = true; // eslint-disable-line no-param-reassign
+      if (this.$store.getters.hasLocalChanges(`/projects/${this.currentProject.id}/.mattrbld/users/${user.id}.json`)) user.localChanges = true; // eslint-disable-line no-param-reassign
     });
     this.fetchUserAvatars();
   },
