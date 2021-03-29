@@ -5,6 +5,7 @@ import observers from './observers';
 
 const persistentAppProperties = ['activeUser', 'corsProxy', 'initialised', 'locallyChangedFiles'];
 const persistentProjectProperties = ['corsProxy', 'id', 'name', 'sidebar', 'slugifyOptions'];
+const persistentUserProperties = ['email', 'id', 'name', 'projects', 'role', 'theme', 'uiScale'];
 
 const projectDefaults = {
   avatar: null,
@@ -34,8 +35,10 @@ export default createStore({
     },
     currentProject: { ...projectDefaults },
     user: {
+      avatar: null,
       email: null,
       gitAuth: null,
+      id: null,
       name: null,
       projects: [],
       role: null,
@@ -192,8 +195,9 @@ export default createStore({
     },
     async saveUser({ commit, state }) {
       try {
-        const userData = { ...state.user };
-        delete userData.gitAuth;
+        const userData = {};
+        persistentUserProperties.forEach((prop) => { userData[prop] = state.user[prop]; });
+
         await fs.writeFile(`/users/${state.application.activeUser}.json`, JSON.stringify(userData, null, 2), 'utf8');
         return true;
       } catch (err) {
