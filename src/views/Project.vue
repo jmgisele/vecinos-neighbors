@@ -6,8 +6,6 @@
 </template>
 
 <script>
-import slugify from '@sindresorhus/slugify';
-
 import fs, { exists } from '../fs';
 import Store from '../store';
 import isMattrbldProject from '../assets/js/isMattrbldProject';
@@ -18,7 +16,7 @@ export default {
   async beforeRouteEnter(to, from, next) {
     const configPath = `/projects/${to.params.id}/.mattrbld/config.json`;
     const usersPath = `/projects/${to.params.id}/.mattrbld/users`;
-    const currentUserId = slugify(Store.state.user.email);
+    const currentUserId = Store.state.user.id;
 
     const hasConfigDir = await isMattrbldProject(to.params.id);
     const hasConfigFile = await exists(configPath);
@@ -41,9 +39,10 @@ export default {
       }
 
       // Add first user as project owner
-      const { email, name } = Store.state.user;
+      const { email, id, name } = Store.state.user;
       const user = {
         email,
+        id,
         name,
         role: 'owner',
       };
@@ -52,6 +51,7 @@ export default {
         const path = `${usersPath}/${currentUserId}.json`;
         await fs.writeFile(path, JSON.stringify(user, null, 2), 'utf8');
         Store.commit('addLocallyChangedFile', path);
+        Store.dispatch('saveAppData');
       } catch (err) {
         return next({
           name: 'Error',
@@ -103,15 +103,19 @@ export default {
       const users = userJsonStrings.map((string) => JSON.parse(string));
 
       if (!userFiles.includes(`${currentUserId}.json`)) { // this user isn’t a member of this project yet
-        const { email, name, role } = Store.state.user;
+        const {
+          email, id, name, role,
+        } = Store.state.user;
         const user = {
           email,
+          id,
           name,
-          role: role === 'owner' ? 'developer' : role, // take the users default role for the moment, but shouldn’t it be better to have all new users be at first Editors?
+          role: role === 'owner' ? 'dev' : role, // take the users default role for the moment, but shouldn’t it be better to have all new users be at first Editors?
         };
         const path = `${usersPath}/${currentUserId}.json`;
         await fs.writeFile(path, JSON.stringify(user, null, 2), 'utf8');
         Store.commit('addLocallyChangedFile', path);
+        Store.dispatch('saveAppData');
         users.push(user);
       }
 
