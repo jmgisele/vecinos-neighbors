@@ -274,6 +274,7 @@ export default {
               })
               .catch(() => { this.isMattrbldProject = false; }); // if it doesn’t exist the project hasn’t been configured yet
             this.cloneStep = 'done';
+            if (this.currentSlide === 3) this.currentSlide = 4;
           })
           .catch((err) => {
             // If cloning fails, reset and start anew
