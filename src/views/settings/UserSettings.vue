@@ -23,14 +23,14 @@
       </header>
       <header v-if="currentProject.customRoles.length > 0" class="legend">
         <span>Name</span>
-        <span>Value</span>
+        <span class="secondary">Value</span>
         <span>Access Level</span>
       </header>
       <ul class="roles">
         <li v-for="(role, index) in currentProject.customRoles" :key="index" tabindex="0" @click="handleRoleClick(role.value, $event)" @keydown.space.prevent @keyup.space.enter="handleRoleClick(role.value, $event)">
           <span>{{role.label}}</span>
           <span class="secondary">{{role.value}}</span>
-          <span class="secondary">{{role.accessLevel}}</span>
+          <span class="secondary access-level">{{role.accessLevel}}</span>
           <MbButton :dark="dark" icon="trash" rounded tooltip="Delete role" type="negative" @click="removeCustomRole(index)" />
         </li>
         <li v-if="currentProject.customRoles.length === 0" class="empty-state">
@@ -51,12 +51,12 @@
         <MbInput v-model="roleBeingEdited.value" :dark="dark" :error="errors.roleValue" icon="hash" label="Role value" :max-len="16" @blur="validate('roleValue')" />
       </div>
       <div class="select-wrapper">
-        <span>Access Label:</span>
+        <span>Access level:</span>
         <MbSelect v-model="roleBeingEdited.accessLevel" :dark="dark" :options="availableRoles" />
       </div>
       <template #actions>
         <MbButton :dark="dark" @click="showRoleModal = false">Cancel</MbButton>
-        <MbButton :dark="dark" :disabled="formErrors || !roleBeingEdited.label || !roleBeingEdited.value" type="primary" @click="saveCustomRole">Save</MbButton>
+        <MbButton :dark="dark" :disabled="formErrors" type="primary" @click="saveCustomRole">Save</MbButton>
       </template>
     </MbModal>
   </TabContent>
@@ -195,6 +195,8 @@ export default {
       this.errors.roleValue = '';
     },
     async saveCustomRole() {
+      this.validate('roleLabel');
+      this.validate('roleValue');
       if (this.formErrors) return;
 
       const customRoles = [...this.currentProject.customRoles, { label: this.roleBeingEdited.label.trim(), value: this.roleBeingEdited.value.toLowerCase().trim(), accessLevel: this.roleBeingEdited.accessLevel }];
@@ -289,6 +291,12 @@ export default {
             white-space: nowrap
             overflow: hidden
             text-overflow: ellipsis
+
+            @media $mobile
+              font-size: 0.875rem
+
+              &.secondary
+                display: none
 
         &:not(.legend)
           align-items: center
@@ -401,6 +409,12 @@ export default {
               @media $mobile
                 display: none
 
+              &.access-level
+                text-transform: capitalize
+
+                @media $mobile
+                  display: inline
+
     .input
       width: 100%
       margin-bottom: 2rem
@@ -420,6 +434,11 @@ export default {
 
       &:not(:last-child)
         margin-right: 1rem
+
+  .input-wrapper
+    @media $mobile
+      display: block
+      margin-bottom: 1.5rem
 
   .select-wrapper
     > span
