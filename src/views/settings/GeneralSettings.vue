@@ -95,6 +95,9 @@ export default {
       if (this.errors.name) return;
 
       this.$store.commit('setCurrentProjectProperty', { key: 'name', value: this.projectName.trim() });
+
+      if (!this.avatar) this.$store.commit('setCurrentProjectProperty', { key: 'avatar', value: null });
+
       this.$store.dispatch('saveCurrentProject');
     },
     changeProxy() {
@@ -124,12 +127,12 @@ export default {
         await fs.writeFile(path, avatarData, 'utf8'); // we know it’s a image/jpeg because we converted it ourselves in AvatarUploader
         this.$store.commit('addLocallyChangedFile', path);
         this.avatar = URL.createObjectURL(new Blob([avatarData], { type: 'image/jpeg' })); // revoking is handled by the ProjectAvatar component
+        this.$store.commit('setCurrentProjectProperty', { key: 'avatar', value: this.avatar }); // might become an issue if the url is already revoked → then we just need to create a new object URL for this one
       } catch (err) {
         this.$store.commit('addToast', { message: `Something went wrong while saving the project avatar: ${err.message}`, type: 'error' });
       }
     },
     removeAvatar() {
-      const cachedAvatar = this.avatar;
       const path = `/projects/${this.currentProject.id}/.mattrbld/avatar.jpg`;
       const timeout = 5000;
       const timeoutId = window.setTimeout(async () => {
@@ -142,10 +145,13 @@ export default {
       }, timeout);
 
       this.avatar = null;
+      this.$store.commit('setCurrentProjectProperty', { key: 'avatar', value: null });
+
       this.$store.commit('addToast', {
-        action: () => {
+        action: async () => {
           window.clearTimeout(timeoutId);
-          this.avatar = cachedAvatar;
+          await this.fetchAvatar();
+          this.$store.commit('setCurrentProjectProperty', { key: 'avatar', value: this.avatar }); // might become an issue if the url is already revoked → then we just need to create a new object URL for this one
         },
         actionLabel: 'Undo',
         message: 'Deleted project avatar',
