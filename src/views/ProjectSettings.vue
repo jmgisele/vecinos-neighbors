@@ -81,6 +81,9 @@ export default {
     &.to-right-leave-active
       transition: transform 200ms cubic-bezier(0.215, 0.610, 0.355, 1.000), opacity 200ms ease
 
+      &::v-deep(.content-wrapper)
+        overflow: hidden
+
       &.to-left-enter-from,
       &.to-right-leave-to
         opacity: 0
@@ -89,6 +92,9 @@ export default {
     &.to-left-leave-active,
     &.to-right-enter-active
       transition: transform 200ms cubic-bezier(0.645, 0.045, 0.355, 1.000), opacity 200ms ease
+
+      &::v-deep(.content-wrapper)
+        overflow: hidden
 
       &.to-left-leave-to,
       &.to-right-enter-from
