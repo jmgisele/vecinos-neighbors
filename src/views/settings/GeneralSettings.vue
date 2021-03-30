@@ -14,6 +14,24 @@
       </div>
     </section>
     <section class="wrapper">
+      <h2>Drafts</h2>
+      <p>If this setting is enabled, users will be allowed to save content as a draft. This content will be saved to the directory specified below and synced with your repository in separate pushes, so you can configure your CI/CD setup to not run when drafts are synced.</p>
+      <MbToggle v-model="enableDrafts" :dark="dark" :icons="['cross', 'check']">Enable draft content</MbToggle>
+    </section>
+    <section class="wrapper">
+      <h2>Content Previews</h2>
+      <p>If this setting is enabled, users will have the option to open a preview of their content. Please keep in mind that this will only work, if you have created a preview route in your website / app. To learn more, please refer to the <a href="https://mattrbld.com/docs/content/previews/" rel="noopener noreferrer" target="_blank">official documentation</a>.</p>
+      <MbToggle v-model="enablePreviews" :dark="dark" :icons="['cross', 'check']">Enable content previews</MbToggle>
+      <transition>
+        <MbInput v-show="enablePreviews" v-model="projectPreviewUrl" :dark="dark" :error="errors.previewUrl" icon="link" label="Prieview route URL" placeholder="https://example.com/___mb-preview/" ref="previewUrlInput" @blur="setPreviewUrl" @keyup.enter="setPreviewUrl" />
+      </transition>
+    </section>
+    <section class="wrapper">
+      <h2>Slugify Options</h2>
+      <p>These options will be passed to the internal slugifier that is used for creating url-safe filenames, slugs and internal links. You should make sure that the options Mattrbld uses are the same that you use when building your project to ensure consistent paths / slugs.</p>
+      <p>Mattrbld uses <a href="https://github.com/sindresorhus/slugify" rel="noopener noreferrer nofollow" target="_blank">@sindresorhus/slugify</a> internally, so all options for that are valid here, too.</p>
+    </section>
+    <section class="wrapper">
       <h2>Repository</h2>
       <MbInput v-model="projectRepo" :dark="dark" disabled :error="errors.repo" icon="repo" label="Repository URL" @blur="changeRepo" @keyup.enter="changeRepo" />
       <div class="select-wrapper">
@@ -23,13 +41,10 @@
       <MbHighlightBox :dark="dark">
         <p>The options above are read-only for the time being. Changing the remote of a repository or switching to a different branch are complex features that may be added in the future.</p>
       </MbHighlightBox>
-      <h2>Other</h2>
-      <MbInput v-model="projectProxy" :dark="dark" :error="errors.proxy" icon="link" label="CORS Proxy URL" @blur="changeProxy" @keyup.enter="changeProxy" />
     </section>
     <section class="wrapper">
-      <h2>Slugify Options</h2>
-      <p>These options will be passed to the internal slugifier that is used for creating url-safe filenames, slugs and internal links. You should make sure that the options Mattrbld uses are the same that you use when building your project to ensure consistent paths / slugs.</p>
-      <p>Mattrbld uses <a href="https://github.com/sindresorhus/slugify" rel="noopener noreferrer nofollow" target="_blank">@sindresorhus/slugify</a> internally, so all options for that are valid here, too.</p>
+      <h2>Other</h2>
+      <MbInput v-model="projectProxy" :dark="dark" :error="errors.proxy" icon="link" label="CORS Proxy URL" @blur="changeProxy" @keyup.enter="changeProxy" />
     </section>
   </TabContent>
 </template>
@@ -51,10 +66,36 @@ export default {
     currentProject() {
       return this.$store.state.currentProject;
     },
+    enableDrafts: {
+      get() {
+        return Boolean(this.$store.state.currentProject.draftsDir);
+      },
+      set(v) {
+        if (v) this.$store.commit('setCurrentProjectProperty', { key: 'draftsDir', value: `/projects/${this.currentProject.id}/.mattrbld/drafts` });
+        else this.$store.commit('setCurrentProjectProperty', { key: 'draftsDir', value: null });
+        this.$store.dispatch('saveCurrentProject');
+      },
+    },
+    enablePreviews: {
+      get() {
+        return Boolean(this.$store.state.currentProject.previewUrl);
+      },
+      set(v) {
+        if (v) {
+          this.$store.commit('setCurrentProjectProperty', { key: 'previewUrl', value: 'https://' });
+          this.projectPreviewUrl = this.currentProject.previewUrl;
+          this.$nextTick(() => this.$refs.previewUrlInput.$refs.input.focus());
+        } else {
+          this.$store.commit('setCurrentProjectProperty', { key: 'previewUrl', value: null });
+          this.$store.dispatch('saveCurrentProject');
+        }
+      },
+    },
   },
   async created() {
     this.projectName = this.currentProject.name;
     this.projectProxy = this.currentProject.corsProxy;
+    this.projectPreviewUrl = this.currentProject.previewUrl;
     const dir = `/projects/${this.currentProject.id}`;
     const [remotes, branches, projectBranch] = await Promise.all([
       listRemotes({ fs: PlainFS, dir }),
@@ -71,12 +112,14 @@ export default {
       avatar: null,
       errors: {
         name: null,
+        previewUrl: null,
         proxy: null,
         repo: null,
       },
       projectBranch: null,
-      projectProxy: null,
       projectName: null,
+      projectPreviewUrl: null,
+      projectProxy: null,
       projectRepo: null,
       repoBranches: [],
     };
@@ -158,6 +201,19 @@ export default {
         type: 'warning',
       });
     },
+    setPreviewUrl() {
+      if (this.projectPreviewUrl === this.currentProject.previewUrl) return;
+
+      if (!this.projectPreviewUrl || !this.projectPreviewUrl.trim()) this.errors.previewUrl = 'A valid preview URL is required';
+      else if (!/^(https?:\/\/)?(www\.)?[-a-zA-Z0-9@:%._+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_+.~#?&//=]*$)/.test(this.projectPreviewUrl)) this.errors.previewUrl = 'Invalid URL'; // Regex source: https://graphcms.com/user-guides/working-with/field-validations
+      else this.errors.previewUrl = '';
+
+      if (this.errors.previewUrl) return;
+
+      this.$store.commit('setCurrentProjectProperty', { key: 'previewUrl', value: this.projectPreviewUrl.trim() });
+
+      this.$store.dispatch('saveCurrentProject');
+    },
   },
   props: {
     dark: Boolean,
@@ -178,12 +234,26 @@ export default {
     margin-left: auto
     margin-right: auto
 
+    &:not(:last-child)
+      margin-bottom: 8rem
+
+      @media $mobile
+        margin-bottom: 4rem
+
     .input
       width: 100%
       margin-bottom: 2rem
 
       & + h2
         margin-top: 1rem
+
+      &.v-enter-active,
+      &.v-leave-active
+        transition: opacity 200ms ease
+
+        &.v-enter-from,
+        &.v-leave-to
+          opacity: 0
 
     .avatar-label
       margin: 0
@@ -223,6 +293,9 @@ export default {
             margin-left: 0
             margin-right: 0
             max-width: (320 / 16)rem
+
+    .toggle
+      margin-bottom: 1rem
 
     .select-wrapper
       display: flex
