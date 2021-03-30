@@ -6,6 +6,8 @@
 </template>
 
 <script>
+import slugify from '@sindresorhus/slugify';
+
 import fs, { exists } from '../fs';
 import Store from '../store';
 import isMattrbldProject from '../assets/js/isMattrbldProject';
@@ -39,7 +41,8 @@ export default {
       }
 
       // Add first user as project owner
-      const { email, id, name } = Store.state.user;
+      const { email, name } = Store.state.user;
+      const id = slugify(email.trim()); // it’s the first, so there’s no need to worry about collisions, we cannot use the local users id though
       const user = {
         email,
         id,
@@ -102,17 +105,21 @@ export default {
 
       const users = userJsonStrings.map((string) => JSON.parse(string));
 
-      if (!userFiles.includes(`${currentUserId}.json`)) { // this user isn’t a member of this project yet
+      if (!users.find((user) => user.email === Store.state.user.email)) { // this user isn’t a member of this project yet
         const {
-          email, id, name, role,
+          email, name, role,
         } = Store.state.user;
+        let id = slugify(email.trim()); // could lead to collisions with similar addresses, so we check if it exists in the next step, but we don’t use the id of the current user since that’s only unique to the current device
+        while (userFiles.includes(`${id}.json`)) id += `-${Math.random().toString(36).slice(2, 9)}`; // add a random sequence after to make it unique
+
         const user = {
           email,
           id,
           name,
           role: role === 'owner' ? 'dev' : role, // take the users default role for the moment, but shouldn’t it be better to have all new users be at first Editors?
         };
-        const path = `${usersPath}/${currentUserId}.json`;
+
+        const path = `${usersPath}/${id}.json`;
         await fs.writeFile(path, JSON.stringify(user, null, 2), 'utf8');
         Store.commit('addLocallyChangedFile', path);
         Store.dispatch('saveAppData');

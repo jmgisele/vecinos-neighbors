@@ -7,7 +7,7 @@
         <MbButton :dark="dark" icon="plus" type="positive" @click="handleInvite">Invite User</MbButton>
       </header>
       <ul>
-        <li v-for="(user, index) in filteredUsers" :key="index" tabindex="0" @click="handleUserClick($event, user.details.id)" @kedown.space.prevent @keyup.space.enter="handleUserClick($event, user.details.id)">
+        <li v-for="(user, index) in filteredUsers" :key="index" tabindex="0" @click="handleUserClick($event, user.details.email)" @keydown.space.prevent @keyup.space.enter="handleUserClick($event, user.details.email)">
           <AsyncImage :src="user.avatar" />
           <span v-show="user.localChanges" class="local-changes-indicator"/>
           <span :class="{ changed: user.localChanges }">{{user.details.name}}</span>
@@ -79,14 +79,15 @@ export default {
       const [avatarFiles, localAvatars] = await Promise.all([fs.readdir(usersPath), fs.readdir('/users')]);
 
       const avatarPromises = this.users.reduce((acc, user) => {
-        const { id } = user.details;
+        const { email, id, name } = user.details;
 
         if (avatarFiles.includes(`${id}.jpg`)) acc.push(fs.readFile(`${usersPath}/${id}.jpg`));
-        else if (localAvatars.includes(`${id}.jpg`)) acc.push(fs.readFile(`/users/${id}.jpg`));
+        else if (localAvatars.includes(`${id}.jpg`)) acc.push(fs.readFile(`/users/${id}.jpg`)); // only works if the local user id matches the repo user’s id, which should be the case
+        else if (email === this.$store.state.user.email && localAvatars.includes(`${this.$store.state.user.id}.jpg`)) acc.push(fs.readFile(`/users/${this.$store.state.user.id}.jpg`)); // if not at least we can show the current users local avatar, since we know their local id
         else {
-          const split = user.details.name.split(' ');
+          const split = name.split(' ');
           const initials = `${split[0][0]}${split[split.length - 1][0]}`.toUpperCase();
-          acc.push(new Promise((res) => res(generateAvatar(initials, '#A29BFE', '#6c5ce7', 'light', this.newUserData.email))));
+          acc.push(new Promise((res) => res(generateAvatar(initials, '#A29BFE', '#6c5ce7', 'light', email))));
         }
 
         return acc;
