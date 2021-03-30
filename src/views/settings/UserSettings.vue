@@ -63,6 +63,8 @@
 </template>
 
 <script>
+import slugify from '@sindresorhus/slugify';
+
 import fs from '../../fs';
 
 // import AvatarUploader from '../../components/utility/AvatarUploader.vue';
@@ -235,6 +237,17 @@ export default {
   },
   props: {
     dark: Boolean,
+  },
+  watch: {
+    'roleBeingEdited.label': {
+      handler(nv, ov) {
+        const slugifiedOv = slugify(ov, this.currentProject.slugifyOptions || {});
+
+        if (!this.roleBeingEdited.value || this.roleBeingEdited.value === slugifiedOv) {
+          this.roleBeingEdited.value = slugify(nv, this.currentProject.slugifyOptions || {});
+        }
+      },
+    },
   },
 };
 </script>
