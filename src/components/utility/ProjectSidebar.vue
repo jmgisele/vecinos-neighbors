@@ -50,7 +50,7 @@
 export default {
   beforeUnmount() {
     if (this.visible) this.$store.commit('setAppProperty', { key: 'sidebarVisible', value: false });
-    window.removeEventListener('touchstart', this.windowSwipeStart);
+    window.removeEventListener('touchstart', this.windowSwipeStart, { passive: false });
   },
   computed: {
     currentProject() {
@@ -77,7 +77,7 @@ export default {
   },
   created() {
     if (!this.isTablet) this.$store.commit('setAppProperty', { key: 'sidebarVisible', value: true });
-    else window.addEventListener('touchstart', this.windowSwipeStart);
+    else window.addEventListener('touchstart', this.windowSwipeStart, { passive: false });
   },
   data() {
     return {
@@ -156,7 +156,7 @@ export default {
       this.maskOpacity = Math.min(1 + distance / this.maxSwipeDistance, 1);
     },
     async windowSwipeEnd(e) {
-      window.removeEventListener('touchmove', this.windowSwipeUpdate);
+      window.removeEventListener('touchmove', this.windowSwipeUpdate, { passive: false });
       window.removeEventListener('touchend', this.windowSwipeEnd);
       if (!this.swiping) return;
       const finalX = e.changedTouches[0].clientX;
@@ -179,15 +179,18 @@ export default {
       if (!this.isTablet || this.swiping || this.visible) return;
       if (e.changedTouches[0].clientX > 48) return;
 
+      e.preventDefault();
+
       this.swipeStartX = e.changedTouches[0].clientX;
       this.swipeStartY = e.changedTouches[0].clientY;
       this.sidebarTransform = 'translateX(-100%)';
       this.maskOpacity = 0;
 
-      window.addEventListener('touchmove', this.windowSwipeUpdate);
+      window.addEventListener('touchmove', this.windowSwipeUpdate, { passive: false });
       window.addEventListener('touchend', this.windowSwipeEnd);
     },
     windowSwipeUpdate(e) {
+      e.preventDefault();
       const currentX = e.changedTouches[0].clientX;
       const currentY = e.changedTouches[0].clientY;
       const distance = currentX - this.swipeStartX;
@@ -225,10 +228,10 @@ export default {
     isTablet(nv) {
       if (nv && this.visible) {
         this.visible = false;
-        window.addEventListener('touchstart', this.windowSwipeStart);
+        window.addEventListener('touchstart', this.windowSwipeStart, { passive: false });
       } else if (!nv && !this.visible) {
         this.visible = true;
-        window.removeEventListener('touchstart', this.windowSwipeStart);
+        window.removeEventListener('touchstart', this.windowSwipeStart, { passive: false });
       }
     },
     visible(nv) {
