@@ -4,14 +4,18 @@ import fs from '../fs';
 import observers from './observers';
 
 const persistentAppProperties = ['activeUser', 'corsProxy', 'initialised', 'locallyChangedFiles'];
-const persistentProjectProperties = ['corsProxy', 'id', 'name', 'sidebar', 'slugifyOptions'];
+const persistentProjectProperties = ['corsProxy', 'id', 'name', 'sidebar', 'slugifyOptions', 'collections', 'customFields', 'customRoles', 'schemas'];
 const persistentUserProperties = ['email', 'id', 'name', 'projects', 'role', 'theme', 'uiScale'];
 
 const projectDefaults = {
   avatar: null,
+  collections: [],
   corsProxy: null,
+  customFields: [],
+  customRoles: [],
   id: null,
   name: null,
+  schemas: [],
   sidebar: [],
   slugifyOptions: null,
   users: [],
