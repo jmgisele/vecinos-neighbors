@@ -535,6 +535,17 @@
         <h3>Props</h3>
         <MbTable :data="props.highlightBoxes" />
       </section>
+      <section v-else-if="activeTabValue === 'file-pickers'" class="tab file-pickers">
+        <h2>File Pickers</h2>
+        <p>These components can be used to pick a file or a folder from a given root path.</p>
+        <p>The currently picked value is: <code>{{filePickerTest}}</code></p>
+        <MbFilePicker v-model="filePickerTest" :dark="dark" />
+        <MbFilePicker v-model="filePickerTest" :dark="dark" mode="file" removable root="/projects" />
+        <h3>Props</h3>
+        <MbTable :data="props.filePickers" />
+        <h3>Events</h3>
+        <MbTable :data="events.filePickers" />
+      </section>
       <section v-else class="tab" key="exampleTab">
         <p>This is just an empty test-tab.</p>
         <p>To delete it, click the button in the “<u @click="activeTab = tabs.findIndex((tab) => tab.value === 'tabs')">Tabs</u>”-tab.</p>
@@ -731,6 +742,10 @@ export default {
           ['Name', 'Data'],
           ['`fileclick`', 'The full path of the clicked file'],
         ],
+        filePickers: [
+          ['Name', 'Data'],
+          ['`update:modelValue`', 'The absolute path to the picked entity'],
+        ],
         gitLoginModals: [
           ['Name', 'Data'],
           ['`cancel`', ''],
@@ -878,6 +893,15 @@ export default {
           ['`initialReverseSortOrder`', 'Boolean', '`false`', 'If true, the entities will be sorted in descending order initially'],
           ['`root`', 'String', '`/`', 'The root folder to start in, will not allow going higher than that'],
           ['`showHidden`', 'Boolean', '`false`', 'By default all files starting with a . are hidden. If this is true, they’ll be shown. .git is always hidden'],
+        ],
+        filePickers: [
+          ['Name', 'Type', 'Default'],
+          ['`dark`', 'Boolean', '`false`'],
+          ['`mode`', 'String', '`folder`'],
+          ['`modelValue`', 'String', ''],
+          ['`placeholder`', 'String', '`undefined`'],
+          ['`removable`', 'Boolean', '`false`'],
+          ['`root`', 'String', '`false`'],
         ],
         gitLoginModals: [
           ['Name', 'Type', 'Default', 'Notes'],
@@ -1160,6 +1184,7 @@ export default {
         { label: 'Context Menus', value: 'context-menus' },
         { label: 'Date Pickers', value: 'date-pickers' },
         { label: 'File Lists', value: 'file-lists' },
+        { label: 'File Pickers', value: 'file-pickers' },
         { label: 'Highlight Boxes', value: 'highlight-boxes' },
         { label: 'Icons', value: 'icons' },
         { label: 'Inputs', value: 'inputs' },
@@ -1182,6 +1207,7 @@ export default {
         { label: 'Utility', value: 'utility' },
       ],
       editorTest: '',
+      filePickerTest: '',
       tagList: [],
       testdate: null,
       textTest: '',
