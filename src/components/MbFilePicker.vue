@@ -144,10 +144,21 @@ export default {
 
 .picker-modal
   .file-list
-    margin-top: 0.0625rem
     height: (624 / 16)rem
     max-height: 100%
 
     @media $mobile
       height: auto
+
+    &.dark::v-deep(> header)
+      background-color: $bg-dark
+
+    &::v-deep(> header)
+      position: sticky
+      top: 0
+      z-index: 1
+      background-color: $bg
+      padding-top: 0.0625rem
+      padding-bottom: 1rem
+      margin-bottom: 0
 </style>
