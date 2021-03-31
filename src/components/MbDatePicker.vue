@@ -1,5 +1,5 @@
 <template lang="html">
-  <div class="date-picker" :class="{dark}" tabindex="0" @click="activate">
+  <div class="date-picker" :class="{dark}" tabindex="0" @click="activate" @keydown.space.prevent @keyup.space.enter="activate">
     <MbIcon :icon="modelValue ? 'calendar' : 'calendar-add'" />
     <span class="label" :class="{ placeholder: !formattedDate }">{{formattedDate || placeholder}}</span>
     <MbIcon v-if="showTime" v-show="modelValue" class="clock" icon="clock" />
