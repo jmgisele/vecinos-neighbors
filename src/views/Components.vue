@@ -735,7 +735,7 @@ export default {
         ],
         entityCreationModals: [
           ['Name', 'Data'],
-          ['`cancel`', ''],
+          ['`close`', ''],
           ['`entity-created`', ''],
         ],
         fileLists: [
@@ -1532,6 +1532,10 @@ export default {
     &.segmented-selectors
       .segmented-selector
         margin-bottom: 1rem
+
+    &.file-pickers
+      .file-picker
+        margin: 0.5rem 0
 
 .file-preview-modal
   pre
