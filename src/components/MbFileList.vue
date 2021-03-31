@@ -524,10 +524,14 @@ export default {
   > p.h3
     font-size: 1rem
 
+    & + .files
+      margin-top: 1.5rem
+
   .files
     list-style: none
     padding: 0
     margin: 1.5rem 0
+    margin-top: 0
     position: relative
 
     li
