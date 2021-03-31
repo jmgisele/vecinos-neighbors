@@ -3,11 +3,24 @@
     <MbIcon :icon="mode === 'folder' ? 'folder' : 'document'" />
     <span class="label" :class="{ placeholder: !modelValue }">{{label}}</span>
     <MbButton v-if="removable" v-show="modelValue" :dark="dark" icon="cross" ref="removeButton" rounded tooltip="Clear path" @click="$emit('update:modelValue', null)" />
+    <MbModal class="picker-modal" :dark="dark" :title="`Pick a ${mode}…`" :visible="showPicker" @close="showPicker = false">
+      <MbFileList :action="mode === 'folder' ? { callback: (path) => { currentPath = path; showEntityCreationModal = true; }, label: 'Add', icon: 'plus', type: 'positive'} : undefined" :dark="dark" :filterable="false" :folders-first="mode === 'file'" :folders-only="mode === 'folder'" ref="fileList" :root="root" :show-hidden="true" @fileclick="pickEntity" />
+      <template #actions>
+        <MbButton :dark="dark" @click="showPicker = false">Cancel</MbButton>
+        <MbButton v-if="mode === 'folder'" :dark="dark" type="primary" @click="pickEntity($refs.fileList.currentPath)">Pick this folder</MbButton>
+      </template>
+    </MbModal>
+    <EntityCreationModal :dark="dark" only="directory" :path="currentPath" title="Add folder" :visible="showEntityCreationModal" @close="showEntityCreationModal = false" @entity-created="handleEntityCreated" />
   </div>
 </template>
 
 <script>
+import EntityCreationModal from './utility/EntityCreationModal.vue';
+
 export default {
+  components: {
+    EntityCreationModal,
+  },
   computed: {
     label() {
       if (this.modelValue) return this.modelValue;
@@ -17,6 +30,9 @@ export default {
   },
   data() {
     return {
+      currentPath: null,
+      showEntityCreationModal: false,
+      showPicker: false,
     };
   },
   emits: ['update:modelValue'],
@@ -24,6 +40,13 @@ export default {
     activate(e) {
       if (this.removable && (e.target === this.$refs.removeButton.$el || this.$refs.removeButton.$el.contains(e.target))) return;
       this.showPicker = true;
+    },
+    handleEntityCreated() {
+      this.$refs.fileList.refresh();
+    },
+    pickEntity(path) {
+      this.$emit('update:modelValue', path);
+      this.showPicker = false;
     },
   },
   props: {
@@ -45,6 +68,7 @@ export default {
 </script>
 
 <style lang="stylus" scoped>
+@require '../assets/styles/breakpoints'
 @require '../assets/styles/colors'
 @require '../assets/styles/corners'
 
@@ -117,4 +141,13 @@ export default {
     margin-left: 0.5rem
     margin-right: -1rem
     padding: (8.5 / 16)rem
+
+.picker-modal
+  .file-list
+    margin-top: 0.0625rem
+    height: (624 / 16)rem
+    max-height: 100%
+
+    @media $mobile
+      height: auto
 </style>
