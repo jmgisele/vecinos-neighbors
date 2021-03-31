@@ -161,4 +161,7 @@ export default {
       padding-top: 0.0625rem
       padding-bottom: 1rem
       margin-bottom: 0
+
+      @media $mobile
+        position: static
 </style>
