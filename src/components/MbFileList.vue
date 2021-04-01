@@ -28,7 +28,7 @@
             <MbButton v-if="modifiedFolderActions.length > 1" :dark="dark" icon="more-vertical" rounded tooltip="More" @click="openMenu($event, joinPath(currentPath, folder.name), true)" />
             <MbButton v-else-if="modifiedFolderActions.length === 1" :dark="dark" :icon="modifiedFolderActions[0].icon" rounded :tooltip="modifiedFolderActions[0].label" :type="modifiedFolderActions[0].type" @click="executeAction(modifiedFolderActions[0].action, joinPath(currentPath, folder.name))" />
           </header>
-          <p><span v-show="folder.localChanges" class="local-changes-indicator"/>{{folder.name}}</p>
+          <p><span v-show="folder.localChanges" class="local-changes-indicator"/><span>{{folder.name}}</span></p>
           <p class="meta">{{formattedUpdatedAt(folder.updatedAt)}}</p>
         </div>
       </transition-group>
@@ -511,12 +511,17 @@ export default {
 
       p
         margin-bottom: 0
-        margin-right: 3rem
+        margin-right: 0.5rem
+        max-width: 100%
         font-weight: 700
 
-        &:not(.meta) // ie the name
+        &:not(.meta) // ie the name, styles needed for the local changes indicator
           display: flex
           align-items: center
+
+          span
+            overflow: hidden
+            text-overflow: ellipsis
 
         &.meta
           font-weight: 400
