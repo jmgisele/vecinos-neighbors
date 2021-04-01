@@ -3,14 +3,17 @@
     <MbIcon :icon="mode === 'folder' ? 'folder' : 'document'" />
     <span class="label" :class="{ placeholder: !modelValue }">{{label}}</span>
     <MbButton v-if="removable" v-show="modelValue" :dark="dark" icon="cross" ref="removeButton" rounded tooltip="Clear path" @click="$emit('update:modelValue', null)" />
-    <MbModal class="picker-modal" :dark="dark" :title="`Pick a ${mode}…`" :visible="showPicker" @close="showPicker = false">
-      <MbFileList :action="mode === 'folder' ? { callback: (path) => { currentPath = path; showEntityCreationModal = true; }, label: 'Add', icon: 'plus', type: 'positive'} : undefined" :dark="dark" :filterable="false" :folders-first="mode === 'file'" :folders-only="mode === 'folder'" ref="fileList" :root="root" :show-hidden="true" @fileclick="pickEntity" />
-      <template #actions>
-        <MbButton :dark="dark" @click="showPicker = false">Cancel</MbButton>
+    <MbPopover center-x class="picker-popover" :dark="dark" no-content-padding ref="popover" :visible="showPicker" :x="popover.x" :y="popover.y" @close="deactivate">
+      <div class="content-wrapper">
+        <MbFileList :dark="dark" :filterable="false" :folders-first="mode === 'file'" :folders-only="mode === 'folder'" ref="fileList" :root="root" :show-hidden="true" :sortable="false" @fileclick="pickEntity" />
+        <MbButton v-if="mode === 'folder'" class="create-button" :dark="dark" icon="plus" type="positive" @click="handleFolderCreation">Add Folder</MbButton>
+      </div>
+      <template #footer>
+        <MbButton :dark="dark" @click="deactivate">Cancel</MbButton>
         <MbButton v-if="mode === 'folder'" :dark="dark" type="primary" @click="pickEntity($refs.fileList.currentPath)">Pick this folder</MbButton>
       </template>
-    </MbModal>
-    <EntityCreationModal :dark="dark" only="directory" :path="currentPath" title="Add folder" :visible="showEntityCreationModal" @close="showEntityCreationModal = false" @entity-created="handleEntityCreated" />
+    </MbPopover>
+    <EntityCreationModal :dark="dark" only="directory" :path="currentPath" title="Add folder" :visible="showEntityCreationModal" @after-close="activate" @close="showEntityCreationModal = false" @entity-created="handleEntityCreated" />
   </div>
 </template>
 
@@ -18,6 +21,9 @@
 import EntityCreationModal from './utility/EntityCreationModal.vue';
 
 export default {
+  beforeUnmount() {
+    window.removeEventListener('scroll', this.deactivate, { capture: true, passive: true });
+  },
   components: {
     EntityCreationModal,
   },
@@ -31,6 +37,10 @@ export default {
   data() {
     return {
       currentPath: null,
+      popover: {
+        x: 0,
+        y: 0,
+      },
       showEntityCreationModal: false,
       showPicker: false,
     };
@@ -38,11 +48,27 @@ export default {
   emits: ['update:modelValue'],
   methods: {
     activate(e) {
-      if (this.removable && (e.target === this.$refs.removeButton.$el || this.$refs.removeButton.$el.contains(e.target))) return;
+      if (e && this.removable && (e.target === this.$refs.removeButton.$el || this.$refs.removeButton.$el.contains(e.target))) return;
+      const rect = this.$el.getBoundingClientRect();
+      const remBase = Number.parseInt(window.getComputedStyle(document.documentElement).fontSize, 10);
+      this.popover.x = rect.left + rect.width / 2;
+      this.popover.y = rect.bottom + 0.5 * remBase;
+      window.addEventListener('scroll', this.deactivate, { capture: true, passive: true });
       this.showPicker = true;
+    },
+    deactivate(e) {
+      if (e && e.type === 'scroll' && this.$refs.popover.$refs.el.contains(e.target)) return;
+      window.removeEventListener('scroll', this.deactivate, { capture: true, passive: true });
+      this.showPicker = false;
+      this.$el.focus();
     },
     handleEntityCreated() {
       this.$refs.fileList.refresh();
+    },
+    handleFolderCreation() {
+      this.deactivate();
+      this.currentPath = this.$refs.fileList.currentPath;
+      this.showEntityCreationModal = true;
     },
     pickEntity(path) {
       this.$emit('update:modelValue', path);
@@ -142,26 +168,62 @@ export default {
     margin-right: -1rem
     padding: (8.5 / 16)rem
 
-.picker-modal
-  .file-list
-    height: (624 / 16)rem
-    max-height: 100%
+.picker-popover
+  .content-wrapper
+    padding: 0 1rem
+    max-height: 30rem
 
-    @media $mobile
-      height: auto
+    &::after
+      content: ''
+      height: 1rem
+      display: block
 
-    &.dark::v-deep(> header)
-      background-color: $bg-dark
+    .create-button
+      width: 100%
+      margin-top: 1rem
 
-    &::v-deep(> header)
-      position: sticky
-      top: 0
-      z-index: 1
-      background-color: $bg
-      padding-top: 0.0625rem
-      padding-bottom: 1rem
-      margin-bottom: 0
+    .file-list
+      width: 20rem
+      max-width: 100%
 
       @media $mobile
-        position: static
+        height: auto
+
+      &.dark
+        &::v-deep(> header)
+          background-color: $bg-secondary-dark
+
+        &::v-deep(.file),
+        &::v-deep(.folder)
+          background-color: $bg-tertiary-dark
+
+          &:active
+            background-color: $bg-dark
+
+      &::v-deep(> header)
+        position: sticky
+        top: 0
+        z-index: 1
+        background-color: $bg
+        padding-top: 1rem
+        padding-bottom: 1rem
+        margin-bottom: 0
+
+      &::v-deep(.empty-state)
+        text-align: center
+        margin: 2rem 0
+
+      &::v-deep(.folder-scroller)
+        margin-left: -1rem
+        margin-right: -1rem
+
+        .folder-wrapper
+          padding-left: 1rem
+          padding-right: @padding-left
+
+          &::after
+            content: ''
+            width: 1rem
+            flex-shrink: 0
+
 </style>

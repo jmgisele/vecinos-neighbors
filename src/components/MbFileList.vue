@@ -10,9 +10,9 @@
           </template>
         </p>
       </nav>
-      <div class="actions">
+      <div v-if="filterable || sortable || action" class="actions">
         <MbInput v-if="filterable" :dark="dark" icon="search" label="Search current directory" type="search" :model-value="searchTerm" @update:model-value="debouncedSearch" />
-        <div class="sort">
+        <div v-if="sortable" class="sort">
           <span class="select-label">Sort by:</span>
           <MbSelect v-model="sortBy" :dark="dark" :options="sortOptions" @update:model-value="sortEntities" />
           <MbButton :dark="dark" :icon="reverseOrder ? 'descending' : 'ascending'" :tooltip="{ position: 'right', message: reverseOrder ? 'Descending' : 'Ascending' }" @click="reverseOrder = !reverseOrder; sortEntities()"/>
@@ -28,7 +28,7 @@
             <MbButton v-if="modifiedFolderActions.length > 1" :dark="dark" icon="more-vertical" rounded tooltip="More" @click="openMenu($event, joinPath(currentPath, folder.name), true)" />
             <MbButton v-else-if="modifiedFolderActions.length === 1" :dark="dark" :icon="modifiedFolderActions[0].icon" rounded :tooltip="modifiedFolderActions[0].label" :type="modifiedFolderActions[0].type" @click="executeAction(modifiedFolderActions[0].action, joinPath(currentPath, folder.name))" />
           </header>
-          <p><span v-show="folder.localChanges" class="local-changes-indicator"/>{{folder.name}}</p>
+          <p><span v-show="folder.localChanges" class="local-changes-indicator"/><span>{{folder.name}}</span></p>
           <p class="meta">{{formattedUpdatedAt(folder.updatedAt)}}</p>
         </div>
       </transition-group>
@@ -309,6 +309,10 @@ export default {
       default: '/',
     },
     showHidden: Boolean,
+    sortable: {
+      type: Boolean,
+      default: true,
+    },
   },
   watch: {
     currentPath(nv, ov) {
@@ -369,6 +373,9 @@ export default {
       display: flex
       align-items: center
       margin-bottom: 1rem
+
+      &:only-child
+        margin-bottom: 0
 
       .button
         margin-right: 0.5rem
@@ -448,9 +455,15 @@ export default {
         margin-left: 1rem
         flex-shrink: 1
 
+        &:only-child
+          margin-left: auto
+
         @media $mobile
           margin-bottom: 1rem
           flex-grow: 1
+
+          &:only-child
+            margin-bottom: 0
 
   .folder-scroller
     &::v-deep(.shadow)
@@ -507,12 +520,17 @@ export default {
 
       p
         margin-bottom: 0
-        margin-right: 3rem
+        margin-right: 0.5rem
+        max-width: 100%
         font-weight: 700
 
-        &:not(.meta) // ie the name
+        &:not(.meta) // ie the name, styles needed for the local changes indicator
           display: flex
           align-items: center
+
+          span
+            overflow: hidden
+            text-overflow: ellipsis
 
         &.meta
           font-weight: 400
@@ -530,8 +548,7 @@ export default {
   .files
     list-style: none
     padding: 0
-    margin: 1.5rem 0
-    margin-top: 0
+    margin: 0
     position: relative
 
     li
@@ -576,6 +593,9 @@ export default {
         white-space: nowrap
         text-overflow: ellipsis
         overflow: hidden
+
+        &:not(.meta)
+          margin-right: 0.5rem
 
         &.meta
           margin-left: auto
@@ -623,4 +643,5 @@ export default {
       background-color: $warning-saturated
       display: inline-block
       margin-right: 0.5rem
+      flex-shrink: 0
 </style>
