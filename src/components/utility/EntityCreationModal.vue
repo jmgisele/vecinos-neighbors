@@ -2,7 +2,7 @@
   <MbModal class="entity-creation-modal" :dark="dark" slim :title="title" :visible="visible" @close="$emit('close')">
     <MbSegmentedSelector v-if="!only" v-model="entity" :dark="dark" :options="[{ label: 'File', value: 'file' }, { label: 'Folder', value: 'directory' }]" />
     <div class="input-group">
-      <MbInput v-model="name" :class="{ 'no-extension': !showExtension }" :dark="dark" :error="nameError" :icon="entity === 'file' ? 'document-add' : 'folder-add'" label="Name" :max-len="currentFileExtension && showExtension ? 255 - currentFileExtension.length + 1 : 255" @update:model-value="validateName" />
+      <MbInput v-model="name" :class="{ 'no-extension': !showExtension }" :dark="dark" :error="nameError" :icon="entity === 'file' ? 'document-add' : 'folder-add'" label="Name" :max-len="currentFileExtension && showExtension ? 255 - currentFileExtension.length + 1 : 255" @keyup.ctrl.enter="createEntity" @update:model-value="validateName" />
       <template v-if="showExtension">
         <span v-if="typeof fileExtension === 'string'" :class="{ dark }">.{{fileExtension}}</span>
         <MbSelect v-else v-model="currentFileExtension" :dark="dark" :options="fileExtension" tooltip="This extension will automatically be added to the filename" />
