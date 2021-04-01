@@ -374,6 +374,9 @@ export default {
       align-items: center
       margin-bottom: 1rem
 
+      &:only-child
+        margin-bottom: 0
+
       .button
         margin-right: 0.5rem
 
@@ -452,9 +455,15 @@ export default {
         margin-left: 1rem
         flex-shrink: 1
 
+        &:only-child
+          margin-left: auto
+
         @media $mobile
           margin-bottom: 1rem
           flex-grow: 1
+
+          &:only-child
+            margin-bottom: 0
 
   .folder-scroller
     &::v-deep(.shadow)
@@ -539,8 +548,7 @@ export default {
   .files
     list-style: none
     padding: 0
-    margin: 1.5rem 0
-    margin-top: 0
+    margin: 0
     position: relative
 
     li
@@ -585,6 +593,9 @@ export default {
         white-space: nowrap
         text-overflow: ellipsis
         overflow: hidden
+
+        &:not(.meta)
+          margin-right: 0.5rem
 
         &.meta
           margin-left: auto
@@ -632,4 +643,5 @@ export default {
       background-color: $warning-saturated
       display: inline-block
       margin-right: 0.5rem
+      flex-shrink: 0
 </style>
