@@ -10,9 +10,9 @@
           </template>
         </p>
       </nav>
-      <div class="actions">
+      <div v-if="filterable || sortable || action" class="actions">
         <MbInput v-if="filterable" :dark="dark" icon="search" label="Search current directory" type="search" :model-value="searchTerm" @update:model-value="debouncedSearch" />
-        <div class="sort">
+        <div v-if="sortable" class="sort">
           <span class="select-label">Sort by:</span>
           <MbSelect v-model="sortBy" :dark="dark" :options="sortOptions" @update:model-value="sortEntities" />
           <MbButton :dark="dark" :icon="reverseOrder ? 'descending' : 'ascending'" :tooltip="{ position: 'right', message: reverseOrder ? 'Descending' : 'Ascending' }" @click="reverseOrder = !reverseOrder; sortEntities()"/>
@@ -309,6 +309,10 @@ export default {
       default: '/',
     },
     showHidden: Boolean,
+    sortable: {
+      type: Boolean,
+      default: true,
+    },
   },
   watch: {
     currentPath(nv, ov) {
