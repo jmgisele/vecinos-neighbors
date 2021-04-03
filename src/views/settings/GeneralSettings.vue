@@ -17,6 +17,12 @@
       <h2>Drafts</h2>
       <p>If this setting is enabled, users will be allowed to save content as a draft. This content will be saved to the directory specified below and synced with your repository in separate pushes, so you can configure your CI/CD setup to not run when drafts are synced.</p>
       <MbToggle v-model="enableDrafts" :dark="dark" :icons="['cross', 'check']">Enable draft content</MbToggle>
+      <transition>
+        <div class="file-picker-wrapper">
+          <span>Drafts folder:</span>
+          <MbFilePicker v-show="enableDrafts" v-model="draftsDir" :dark="dark" removable :root="`/projects/${currentProject.id}`" />
+        </div>
+      </transition>
     </section>
     <section class="wrapper">
       <h2>Content Previews</h2>
@@ -65,6 +71,15 @@ export default {
   computed: {
     currentProject() {
       return this.$store.state.currentProject;
+    },
+    draftsDir: {
+      get() {
+        return this.$store.state.currentProject.draftsDir;
+      },
+      set(v) {
+        this.$store.commit('setCurrentProjectProperty', { key: 'draftsDir', value: v });
+        this.$store.dispatch('saveCurrentProject');
+      },
     },
     enableDrafts: {
       get() {
@@ -297,9 +312,18 @@ export default {
     .toggle
       margin-bottom: 1rem
 
-    .select-wrapper
+    .select-wrapper,
+    .file-picker-wrapper
       display: flex
       align-items: center
       justify-content: space-between
       margin-bottom: 2rem
+
+      > span
+        margin-right: 1rem
+        white-space: nowrap
+
+      > .file-picker
+        max-width: none
+        overflow: hidden
 </style>
