@@ -27,11 +27,11 @@
         <span>Access Level</span>
       </header>
       <ul class="roles">
-        <li v-for="(role, index) in currentProject.customRoles" :key="index" tabindex="0" @click="handleRoleClick(role.value, $event)" @keydown.space.prevent @keyup.space.enter="handleRoleClick(role.value, $event)">
+        <li v-for="(role, index) in customRolesWithoutSoftDeleted" :key="index" tabindex="0" @click="handleRoleClick(role.value, $event)" @keydown.space.prevent @keyup.space.enter="handleRoleClick(role.value, $event)">
           <span>{{role.label}}</span>
           <span class="secondary">{{role.value}}</span>
           <span class="secondary access-level">{{role.accessLevel}}</span>
-          <MbButton :dark="dark" icon="trash" rounded tooltip="Delete role" type="negative" @click="removeCustomRole(index)" />
+          <MbButton :dark="dark" icon="trash" rounded tooltip="Delete role" type="negative" @click="removeCustomRole(index, role)" />
         </li>
         <li v-if="currentProject.customRoles.length === 0" class="empty-state">
           <span class="secondary">There are currently no custom roles for this project</span>
@@ -91,6 +91,9 @@ export default {
     },
     currentProject() {
       return this.$store.state.currentProject;
+    },
+    customRolesWithoutSoftDeleted() {
+      return this.currentProject.customRoles.filter((role) => !this.$store.getters.isSoftDeleted(`customRole/${role.value}`));
     },
     filteredUsers() {
       if (!this.userFilter) return this.users;
@@ -188,9 +191,43 @@ export default {
 
       return (customRole && customRole.label) || (builtinRole && builtinRole.label) || 'Unknown';
     },
-    removeCustomRole(index) {
-      console.log(`Delete role with index ${index}`);
-      // TODO: don’t forget to reset all users with the role to the role’s access level once it’s actually deleted
+    removeCustomRole(index, { value, label, accessLevel }) {
+      const timeout = 5000;
+      const timeoutId = window.setTimeout(async () => {
+        // find all users that have the role being deleted
+        const usersWithRole = this.currentProject.users.filter((user) => user.role === value);
+
+        try {
+          if (usersWithRole.length > 0) {
+            const promises = usersWithRole.map((user) => {
+              const userCopy = { ...user, role: accessLevel }; // reset the role to its access level
+              return fs.writeFile(`/projects/${this.currentProject.id}/.mattrbld/users/${user.id}.json`, JSON.stringify(userCopy, null, 2), 'utf8');
+            });
+
+            await Promise.all(promises);
+          }
+          const customRoles = [...this.currentProject.customRoles];
+          customRoles.splice(index, 1);
+          this.$store.commit('setCurrentProjectProperty', { key: 'customRoles', value: customRoles });
+          this.$store.dispatch('saveCurrentProject');
+        } catch (err) {
+          this.$store.commit('addToast', { message: `Something went wrong while deleting the custom role: ${err.message}`, type: 'error' });
+        } finally {
+          this.$store.commit('removeFromSoftDeleted', `customRole/${value}`);
+        }
+      }, timeout);
+
+      this.$store.commit('addToSoftDeleted', `customRole/${value}`);
+      this.$store.commit('addToast', {
+        action: () => {
+          window.clearTimeout(timeoutId);
+          this.$store.commit('removeFromSoftDeleted', `customRole/${value}`);
+        },
+        actionLabel: 'Undo',
+        message: `The custom role “${label}” was deleted`,
+        timeout: timeout - 200, // just to be sure
+        type: 'warning',
+      });
     },
     removeUser() {
       // TODO: don’t forget to delete the users avatar too, if there is one
