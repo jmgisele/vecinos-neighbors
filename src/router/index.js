@@ -95,6 +95,20 @@ const routes = [
           label: 'Settings',
           title: 'Project Settings',
         },
+        beforeEnter: () => {
+          const { userInCurrentProject } = Store.getters;
+          const { customRoles } = Store.state.currentProject;
+
+          let accessLevel = 'editor';
+          if (userInCurrentProject.role === 'dev' || userInCurrentProject.role === 'owner') accessLevel = userInCurrentProject.role;
+          else if (customRoles.length > 0) {
+            const customRole = customRoles.find((existingCustomRole) => existingCustomRole.value === userInCurrentProject.role);
+            if (customRole) accessLevel = customRole.accessLevel;
+          }
+
+          if (!['dev', 'owner'].includes(accessLevel)) return { name: 'Forbidden', replace: true };
+          return true;
+        },
       },
     ],
     beforeEnter: (to) => {
