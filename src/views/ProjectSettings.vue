@@ -12,6 +12,8 @@
 import GeneralSettings from './settings/GeneralSettings.vue';
 import UserSettings from './settings/UserSettings.vue';
 
+import isPrivilegedUser from '../mixins/isPrivilegedUser';
+
 export default {
   beforeRouteEnter(to, from, next) {
     if (to.query.tab) {
@@ -45,6 +47,7 @@ export default {
       tabTransition: 'to-left',
     };
   },
+  mixins: [isPrivilegedUser],
   props: {
     dark: Boolean,
   },
@@ -58,6 +61,9 @@ export default {
       else this.tabTransition = 'to-right';
 
       this.$router.push({ query: { tab: this.tabs[nv].value } });
+    },
+    isPrivilegedUser(nv) {
+      if (!nv) this.$router.replace({ name: 'Project' });
     },
   },
 };
