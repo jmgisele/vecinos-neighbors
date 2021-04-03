@@ -201,6 +201,8 @@ export default {
           if (usersWithRole.length > 0) {
             const promises = usersWithRole.map((user) => {
               const userCopy = { ...user, role: accessLevel }; // reset the role to its access level
+              const userPath = `/projects/${this.currentProject.id}/.mattrbld/users/${user.id}.json`;
+              this.$store.commit('addLocallyChangedFile', userPath);
               return fs.writeFile(`/projects/${this.currentProject.id}/.mattrbld/users/${user.id}.json`, JSON.stringify(userCopy, null, 2), 'utf8');
             });
 
