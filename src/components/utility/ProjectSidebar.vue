@@ -34,7 +34,7 @@
             <span>Media Library</span>
           </li>
         </router-link>
-        <router-link custom :to="{ name: 'Project.Settings'}" v-slot="{ isExactActive, navigate }">
+        <router-link v-if="isPrivilegedUser" custom :to="{ name: 'Project.Settings'}" v-slot="{ isExactActive, navigate }">
           <li :class="{ active: isExactActive }" role="link" tabindex="0" @click="goTo(navigate)" @keydown.space.prevent @keyup.enter.space="goTo(navigate)">
             <MbIcon icon="settings" />
             <span>Settings</span>
@@ -47,6 +47,8 @@
 </template>
 
 <script>
+import isPrivilegedUser from '../../mixins/isPrivilegedUser';
+
 export default {
   beforeUnmount() {
     if (this.visible) this.$store.commit('setAppProperty', { key: 'sidebarVisible', value: false });
@@ -61,10 +63,10 @@ export default {
     },
     sidebarOptions() {
       if (this.currentProject.sidebar && this.currentProject.sidebar.length > 0) return this.currentProject.sidebar;
-      return [
-        { label: 'The sidebar has not yet been configured for this project' },
-        { icon: 'wrench-and-driver', label: 'Configure now', target: { name: 'Project.Settings', query: { tab: 'sidebar' } } },
-      ];
+      const defaultOptions = [{ label: 'The sidebar has not yet been configured for this project' }];
+
+      if (this.isPrivilegedUser) defaultOptions.push({ icon: 'wrench-and-driver', label: 'Configure now', target: { name: 'Project.Settings', query: { tab: 'sidebar' } } });
+      return defaultOptions;
     },
     visible: {
       get() {
@@ -217,6 +219,9 @@ export default {
       this.maskOpacity = Math.min(distance / this.maxSwipeDistance, 1);
     },
   },
+  mixins: [
+    isPrivilegedUser,
+  ],
   props: {
     dark: Boolean,
     gitStatus: {
