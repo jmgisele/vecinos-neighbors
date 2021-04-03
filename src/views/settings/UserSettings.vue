@@ -6,15 +6,15 @@
         <MbInput v-model="userFilter" :dark="dark" icon="search" placeholder="Filter users" />
         <MbButton :dark="dark" icon="plus" type="positive" @click="handleAddUser">Add User</MbButton>
       </header>
-      <ul>
-        <li v-for="(user, index) in filteredUsers" :key="index" tabindex="0" @click="handleUserClick(user.details.email)" @keydown.space.prevent @keyup.space.enter="handleUserClick(user.details.email)">
+      <transition-group tag="ul">
+        <li v-for="(user) in filteredUsers" :key="user.details.email" tabindex="0" @click="handleUserClick(user.details.email)" @keydown.space.prevent @keyup.space.enter="handleUserClick(user.details.email)">
           <AsyncImage :src="user.avatar" />
           <span v-show="user.localChanges" class="local-changes-indicator"/>
           <span :class="{ changed: user.localChanges }">{{user.details.name}}</span>
           <span class="secondary">{{user.details.email}}</span>
           <span class="secondary">{{labelForRole(user.details.role)}}</span>
         </li>
-      </ul>
+      </transition-group>
     </section>
     <section class="wrapper wide">
       <h2>Custom Roles</h2>
@@ -26,8 +26,8 @@
         <span class="secondary">Value</span>
         <span>Access Level</span>
       </header>
-      <ul class="roles">
-        <li v-for="(role, index) in customRolesWithoutSoftDeleted" :key="index" tabindex="0" @click="handleRoleClick(role.value, $event)" @keydown.space.prevent @keyup.space.enter="handleRoleClick(role.value, $event)">
+      <transition-group class="roles" tag="ul">
+        <li v-for="(role, index) in customRolesWithoutSoftDeleted" :key="role.value" tabindex="0" @click="handleRoleClick(role.value, $event)" @keydown.space.prevent @keyup.space.enter="handleRoleClick(role.value, $event)">
           <span>{{role.label}}</span>
           <span class="secondary">{{role.value}}</span>
           <span class="secondary access-level">{{role.accessLevel}}</span>
@@ -36,7 +36,7 @@
         <li v-if="currentProject.customRoles.length === 0" class="empty-state">
           <span class="secondary">There are currently no custom roles for this project</span>
         </li>
-      </ul>
+      </transition-group>
     </section>
     <section class="wrapper">
       <MbHighlightBox color="negative" :dark="dark">
@@ -391,6 +391,7 @@ export default {
       ul
         list-style: none
         margin: 0
+        position: relative
 
         &.roles
           li
@@ -406,6 +407,19 @@ export default {
           align-items: center
           cursor: pointer
           transition: background-color 200ms ease
+
+          &.v-enter-active,
+          &.v-leave-active,
+          &.v-move
+            transition: opacity 200ms ease, transform 350ms ease
+
+            &.v-enter-from,
+            &.v-leave-to
+              opacity: 0
+
+          &.v-leave-active
+            position: absolute
+            width: 100%
 
           &:hover
             background-color: $bg-tertiary
