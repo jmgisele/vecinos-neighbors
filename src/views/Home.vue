@@ -193,7 +193,7 @@ export default {
       }
     },
     async importProject() {
-      this.validate(this.repoURL);
+      this.validate('repoURL');
 
       if (this.repoURL && !this.errors.repoURL && this.repoBranch) {
         this.importing = true;
@@ -289,7 +289,7 @@ export default {
         await fs.stat(`/projects/${id}`);
         const remotes = await listRemotes({ fs: PlainFS, dir: `/projects/${id}` });
         const origin = remotes.find((remote) => remote.remote === 'origin');
-        if (origin && origin.url === this.repoURL) return { remote: true, user: this.$store.state.user.projects.includes(id) };
+        if (origin && (origin.url === this.repoURL || origin.url === this.repoURL.replace('http', 'https') || origin.url === this.repoURL.replace('https', 'http'))) return { remote: true, user: this.$store.state.user.projects.includes(id) };
         return true;
       } catch (err) {
         if (err.code === 'ENOENT' || err.code === 'ENOTDIR') return false;
