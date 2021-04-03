@@ -43,12 +43,12 @@
         <p>The user’s role and the privileges that come with each role are <strong>only enforced on the client</strong>. This means that the might be circumvented by tampering with the code (the client can’t be trusted).</p>
         <p>Make sure to not rely on these settings as your only security and configure your server-side Git-environment to reflect these permissions as closely as possible. This also means making sure that users can actually read and write to the branches you use for your content.</p>
       </MbHighlightBox>
-      <pre><code>{{roleBeingEdited}}</code></pre>
+      <pre><code>{{$store.getters.userInCurrentProject}}</code></pre>
     </section>
     <MbModal class="role-modal" :dark="dark" :title="roleBeingEdited.new ? 'Create new custom role' : 'Edit custom role'" :visible="showRoleModal" @close="showRoleModal = false" @after-close="resetRoleBeingEdited">
       <div class="input-wrapper">
         <MbInput v-model="roleBeingEdited.label" :dark="dark" :error="errors.roleLabel" icon="tag" label="Role label" :max-len="16" @blur="validate('roleLabel')" />
-        <MbInput v-model="roleBeingEdited.value" :dark="dark" :error="errors.roleValue" icon="hash" label="Role value" :max-len="16" @blur="validate('roleValue')" />
+        <MbInput v-model="roleBeingEdited.value" :dark="dark" :disabled="!roleBeingEdited.new" :error="errors.roleValue" icon="hash" label="Role value" :max-len="16" @blur="validate('roleValue')" />
       </div>
       <div class="select-wrapper">
         <span>Access level:</span>
@@ -167,9 +167,17 @@ export default {
       this.showRoleModal = true;
     },
     handleAddUser() {},
-    handleRoleClick(role, e) {
+    handleRoleClick(roleValue, e) {
       if (e.target.classList.contains('button')) return; // buttons have a ::before that covers them completely, so this is enough
-      console.log(role);
+
+      const role = this.currentProject.customRoles.find((customRole) => customRole.value === roleValue);
+      if (!role) return;
+
+      this.roleBeingEdited.accessLevel = role.accessLevel;
+      this.roleBeingEdited.label = role.label;
+      this.roleBeingEdited.value = role.value;
+
+      this.showRoleModal = true;
     },
     handleUserClick(mail) {
       console.log(mail);
@@ -198,10 +206,19 @@ export default {
     },
     async saveCustomRole() {
       this.validate('roleLabel');
-      this.validate('roleValue');
+      if (this.roleBeingEdited.new) this.validate('roleValue'); // can only be changed with new roles
       if (this.formErrors) return;
 
-      const customRoles = [...this.currentProject.customRoles, { label: this.roleBeingEdited.label.trim(), value: this.roleBeingEdited.value.toLowerCase().trim(), accessLevel: this.roleBeingEdited.accessLevel }];
+      let customRoles;
+
+      if (this.roleBeingEdited.new) {
+        customRoles = [...this.currentProject.customRoles, { label: this.roleBeingEdited.label.trim(), value: this.roleBeingEdited.value.toLowerCase().trim(), accessLevel: this.roleBeingEdited.accessLevel }];
+      } else {
+        const roleIndex = this.currentProject.customRoles.findIndex((existingRole) => this.roleBeingEdited.value === existingRole.value);
+        customRoles = [...this.currentProject.customRoles];
+        customRoles.splice(roleIndex, 1, { label: this.roleBeingEdited.label.trim(), value: this.roleBeingEdited.value.toLowerCase().trim(), accessLevel: this.roleBeingEdited.accessLevel });
+      }
+
       this.$store.commit('setCurrentProjectProperty', { key: 'customRoles', value: customRoles });
       const saved = await this.$store.dispatch('saveCurrentProject');
 
@@ -213,7 +230,7 @@ export default {
         case 'roleLabel':
           if (!this.roleBeingEdited.label || !this.roleBeingEdited.label.trim()) error = 'A label is required';
           else if (this.roleBeingEdited.label.trim().length > 16) error = 'The label is too long';
-          else if (this.currentProject.customRoles.find((role) => role.label === this.roleBeingEdited.label)) error = 'A role with this label already exists';
+          else if (this.roleBeingEdited.new && this.currentProject.customRoles.find((role) => role.label === this.roleBeingEdited.label)) error = 'A role with this label already exists';
           break;
         case 'roleValue':
           if (!this.roleBeingEdited.value || !this.roleBeingEdited.value.trim()) error = 'A value is required';
@@ -241,10 +258,12 @@ export default {
   watch: {
     'roleBeingEdited.label': {
       handler(nv, ov) {
+        if (!this.roleBeingEdited.new) return;
         const slugifiedOv = slugify(ov, this.currentProject.slugifyOptions || {});
 
         if (!this.roleBeingEdited.value || this.roleBeingEdited.value === slugifiedOv) {
           this.roleBeingEdited.value = slugify(nv, this.currentProject.slugifyOptions || {});
+          if (this.errors.roleValue) this.errors.roleValue = '';
         }
       },
     },
