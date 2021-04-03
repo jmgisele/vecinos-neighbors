@@ -56,6 +56,10 @@ export default createStore({
     isSoftDeleted(state) {
       return (path) => state.application.softDeleted.includes(path);
     },
+    userInCurrentProject(state) {
+      if (!state.currentProject.id) return null;
+      return state.currentProject.users.find((user) => user.email === state.user.email);
+    },
   },
   mutations: {
     addLocallyChangedFile(state, path) {
