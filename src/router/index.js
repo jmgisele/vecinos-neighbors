@@ -95,9 +95,11 @@ const routes = [
           label: 'Settings',
           title: 'Project Settings',
         },
-        beforeEnter: () => {
+        beforeEnter: (to) => {
           const { userInCurrentProject } = Store.getters;
           const { customRoles } = Store.state.currentProject;
+
+          if (!userInCurrentProject) return { name: 'Project', params: { id: to.params.id } }; // to avoid error on reload, so currentProject can be set by Project component
 
           let accessLevel = 'editor';
           if (userInCurrentProject.role === 'dev' || userInCurrentProject.role === 'owner') accessLevel = userInCurrentProject.role;
