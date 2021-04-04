@@ -381,8 +381,7 @@ export default {
 
         // show toast with copyable invite link
         if (this.userBeingEdited.new) {
-          const split = user.name.split(' ');
-          const capitalizedName = split.map((part) => part && `${part[0].toUpperCase()}${part.slice(1)}`).join(' ').trim();
+          const capitalizedName = user.name.replace(/\b(\w)/g, (firstLetter) => firstLetter.toUpperCase());
           this.$store.commit('addToast', {
             action: async () => {
               try {
