@@ -168,7 +168,7 @@ export default {
 
       await this.$nextTick(); // wait a tick so the swiping class is removed and the transitions can take over
 
-      if (distance > this.maxSwipeDistance / 3) {
+      if (this.maxSwipeDistance && distance > this.maxSwipeDistance / 3) {
         this.sidebarTransform = null;
         this.maskOpacity = null;
       } else {
@@ -181,7 +181,7 @@ export default {
       if (!this.isTablet || this.swiping || this.visible) return;
       if (e.changedTouches[0].clientX > 48) return;
 
-      e.preventDefault();
+      // e.preventDefault(); // this would be needed to prevent chromes and safaris swipe to go back, but it also prevents clicks from firing, maybe it could be avoided with overscroll-behaviour on body?
 
       this.swipeStartX = e.changedTouches[0].clientX;
       this.swipeStartY = e.changedTouches[0].clientY;
@@ -192,13 +192,13 @@ export default {
       window.addEventListener('touchend', this.windowSwipeEnd);
     },
     windowSwipeUpdate(e) {
-      e.preventDefault();
       const currentX = e.changedTouches[0].clientX;
       const currentY = e.changedTouches[0].clientY;
       const distance = currentX - this.swipeStartX;
       const distanceY = currentY - this.swipeStartY;
 
       if (distance > 5) {
+        if (e.cancelable) e.preventDefault();
         this.windowSwipe = true;
         this.swiping = true;
         this.$nextTick(() => { // wait a tick so it picks up on the set transform and opacity
