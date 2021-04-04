@@ -75,7 +75,7 @@ export default createStore({
     addToast(state, toast) {
       let timeout = 5000;
 
-      if (toast.timeout && toast.timeout > 1000) timeout = toast.timeout;
+      if (toast.timeout && toast.timeout > 999) timeout = toast.timeout;
       if (toast.type === 'error' || toast.timeout === 0 || toast.timeout === false || toast.permanent) timeout = 0;
 
       if (state.application.toasts.length > 5) state.application.toasts.shift();
