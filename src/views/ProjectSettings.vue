@@ -12,16 +12,29 @@
 import GeneralSettings from './settings/GeneralSettings.vue';
 import UserSettings from './settings/UserSettings.vue';
 
+import Store from '../store';
 import isPrivilegedUser from '../mixins/isPrivilegedUser';
 
 export default {
   beforeRouteEnter(to, from, next) {
+    const { userInCurrentProject } = Store.getters;
+    const { customRoles } = Store.state.currentProject;
+
+    let accessLevel = 'editor';
+    if (userInCurrentProject.role === 'dev' || userInCurrentProject.role === 'owner') accessLevel = userInCurrentProject.role;
+    else if (customRoles.length > 0) {
+      const customRole = customRoles.find((existingCustomRole) => existingCustomRole.value === userInCurrentProject.role);
+      if (customRole) accessLevel = customRole.accessLevel;
+    }
+
+    if (!['dev', 'owner'].includes(accessLevel)) return next({ name: 'Forbidden', replace: true });
     if (to.query.tab) {
-      next((vm) => {
+      return next((vm) => {
         const activeTab = vm.tabs.findIndex((tab) => tab.value === to.query.tab);
         vm.activeTab = Math.max(activeTab, 0); // eslint-disable-line no-param-reassign
       });
-    } else next();
+    }
+    return next();
   },
   components: {
     GeneralSettings,
