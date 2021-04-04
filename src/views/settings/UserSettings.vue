@@ -13,7 +13,7 @@
           <span :class="{ changed: user.localChanges }">{{user.details.name}}</span>
           <span class="secondary">{{user.details.email}}</span>
           <span class="secondary">{{labelForRole(user.details.role)}}</span>
-          <MbButton :dark="dark" icon="invite-link" rounded tooltip="Copy invite link" type="positive" @click="copyInviteLinkForUser(user.details)" />
+          <MbButton class="invite-link" :dark="dark" icon="invite-link-alt" rounded tooltip="Copy invite link" @click="copyInviteLinkForUser(user.details)" />
         </li>
       </transition-group>
     </section>
@@ -773,6 +773,16 @@ export default {
 
                 @media $mobile
                   display: inline
+
+          .button.invite-link
+            &:hover,
+            &:focus
+              background-color: $bg-secondary
+
+            &.dark
+              &:hover,
+              &:focus
+                background-color: lighten($bg-tertiary-dark, 5)
 
     .input
       width: 100%
