@@ -64,16 +64,20 @@
       <MbInput v-model="userBeingEdited.email" :dark="dark" :error="errors.userEmail" icon="mail" label="Email Address" type="email" @blur="validate('userEmail'); checkAvatarRegeneration()" />
       <div class="select-wrapper">
         <span>Role:</span>
-        <MbSelect v-model="userBeingEdited.role" :dark="dark" inline :options="combinedRoles" placeholder="Select a role…" />
+        <MbSelect :dark="dark" inline :model-value="userBeingEdited.role" :options="combinedRoles" placeholder="Select a role…" @update:model-value="validateRole" />
       </div>
       <div class="avatar-wrapper">
         <AsyncImage :src="userBeingEdited.avatar" :alt="`${userBeingEdited.name}’s avatar`" />
         <MbButton v-show="avatarUploaded" :dark="dark" :disabled="formErrors" icon-first icon="trash" type="negative" @click="regenerateAvatar">Remove</MbButton>
         <MbButton :dark="dark" icon-first :icon="avatarUploaded ? 'replace-alt' : 'upload'" @click="$refs.uploader.$el.click()">{{ avatarUploaded ? 'Replace' : 'Upload' }}</MbButton>
       </div>
-      <MbHighlightBox color="warning">
+      <MbHighlightBox v-if="userBeingEdited.new" color="warning">
         <p>Adding a user here allows you to set their details (such as role, name, and avatar) for this project. It will also generate a link with which you can invite them to Mattrbld, so they can work on the project without having to set up anything.</p>
         <p>How you send them this link is up to you. It is also your responsibility to make sure they have the appropriate access to the Git repository this project is stored in.</p>
+      </MbHighlightBox>
+      <MbHighlightBox v-else color="negative" label="Remove user">
+        <p>Remove the user will only remove their settings from the project. Make sure to also revoke their access to the Git repository to avoid them joining again!</p>
+        <MbButton :dark="dark" icon="trash" type="negative">Remove user</MbButton>
       </MbHighlightBox>
       <AvatarUploader ref="uploader" @ready="handleAvatarReady" />
       <template #actions>
@@ -218,6 +222,7 @@ export default {
       this.showUserModal = true;
     },
     handleAvatarReady(avatar) {
+      if (this.userBeingEdited.avatar && this.userBeingEdited.avatar.startsWith('blob:')) URL.revokeObjectURL(this.userBeingEdited.avatar); // we’re removing an existing avatar and should revoke the reference
       this.userBeingEdited.avatar = avatar;
       this.avatarUploaded = true;
     },
@@ -233,8 +238,25 @@ export default {
 
       this.showRoleModal = true;
     },
-    handleUserClick(mail) {
-      console.log(mail);
+    async handleUserClick(email) {
+      const user = this.users.find((existingUser) => existingUser.details.email === email);
+      if (!user) return;
+
+      this.userBeingEdited.email = user.details.email;
+      this.userBeingEdited.id = user.details.id;
+      this.userBeingEdited.name = user.details.name;
+      this.userBeingEdited.role = user.details.role;
+
+      const avatars = await fs.readdir(`/projects/${this.currentProject.id}/.mattrbld/users`);
+      const userAvatar = avatars.find((avatar) => avatar === `${user.details.id}.jpg`);
+
+      if (userAvatar) {
+        this.avatarUploaded = true;
+      }
+
+      this.userBeingEdited.avatar = user.avatar;
+
+      this.showUserModal = true;
     },
     async idExists(id) {
       try {
@@ -245,6 +267,10 @@ export default {
         throw err;
       }
     },
+    isLastOwner(user) {
+      if (user.role === 'owner' && this.users.filter((existingUser) => existingUser.role === 'owner').length <= 1) return true;
+      return false;
+    },
     labelForRole(role) {
       const builtinRole = availableRoles.find((availableRole) => availableRole.value === role);
       const customRole = this.currentProject.customRoles.find((availableRole) => availableRole.value === role);
@@ -252,6 +278,7 @@ export default {
       return (customRole && customRole.label) || (builtinRole && builtinRole.label) || 'Unknown';
     },
     regenerateAvatar() {
+      if (this.userBeingEdited.avatar && this.userBeingEdited.avatar.startsWith('blob:')) URL.revokeObjectURL(this.userBeingEdited.avatar); // we’re removing an existing avatar and should revoke the reference
       const split = this.userBeingEdited.name.split(' ');
       const initials = `${split[0][0]}${split[split.length - 1][0]}`.toUpperCase();
       this.userBeingEdited.avatar = generateAvatar(initials, '#A29BFE', '#6c5ce7', 'light', this.userBeingEdited.email);
@@ -347,31 +374,46 @@ export default {
       this.validate('userName');
       this.validate('userEmail');
 
+      if (this.formErrors) return;
+
       // write user and avatar files
       try {
-        let newUserId = slugify(this.userBeingEdited.email.trim()); // WARNING: this could lead to collisions if there’s two very similar email addresses (foo-bar@exmaple.com foo.bar@example.com), but since we have a low amount of local users, I think it’s negligible
-        let alreadyExists = await this.idExists(newUserId);
+        let userId = this.userBeingEdited.id;
 
-        while (alreadyExists) {
-          newUserId += `-${Math.random().toString(36).slice(2, 9)}`;
-          alreadyExists = await this.idExists(newUserId); // eslint-disable-line no-await-in-loop
+        if (!userId) {
+          userId = slugify(this.userBeingEdited.email.trim()); // WARNING: this could lead to collisions if there’s two very similar email addresses (foo-bar@exmaple.com foo.bar@example.com), but since we have a low amount of local users, I think it’s negligible
+          let alreadyExists = await this.idExists(userId);
+
+          while (alreadyExists) {
+            userId += `-${Math.random().toString(36).slice(2, 9)}`;
+            alreadyExists = await this.idExists(userId); // eslint-disable-line no-await-in-loop
+          }
         }
 
         const user = {
           email: this.userBeingEdited.email.trim(),
-          id: newUserId,
+          id: userId,
           name: this.userBeingEdited.name.trim().toLowerCase(),
           role: this.userBeingEdited.role || 'editor',
         };
         const userPath = `/projects/${this.currentProject.id}/.mattrbld/users`;
-        await fs.writeFile(`${userPath}/${newUserId}.json`, JSON.stringify(user, null, 2), 'utf8');
-        this.$store.commit('addLocallyChangedFile', `${userPath}/${newUserId}.json`);
+        await fs.writeFile(`${userPath}/${userId}.json`, JSON.stringify(user, null, 2), 'utf8');
+        this.$store.commit('addLocallyChangedFile', `${userPath}/${userId}.json`);
 
-        const byteString = window.atob(this.userBeingEdited.avatar.split(',')[1]);
-        const avatarData = Uint8Array.from(byteString, (ch) => ch.charCodeAt(0));
-        if (this.avatarUploaded) {
-          await fs.writeFile(`${userPath}/${newUserId}.jpg`, avatarData, 'utf8'); // we know it’s a image/jpeg because we converted it ourselves in AvatarUploader / generateAvatar
-          this.$store.commit('addLocallyChangedFile', `${userPath}/${newUserId}.jpg`);
+        let avatarData;
+        if (!this.userBeingEdited.avatar.startsWith('blob:')) {
+          const byteString = window.atob(this.userBeingEdited.avatar.split(',')[1]);
+          avatarData = Uint8Array.from(byteString, (ch) => ch.charCodeAt(0));
+          if (this.avatarUploaded) {
+            await fs.writeFile(`${userPath}/${userId}.jpg`, avatarData, 'utf8'); // we know it’s a image/jpeg because we converted it ourselves in AvatarUploader / generateAvatar
+            this.$store.commit('addLocallyChangedFile', `${userPath}/${userId}.jpg`);
+          } else if (!this.userBeingEdited.new) { // it might have been removed
+            try {
+              await fs.unlink(`${userPath}/${userId}.jpg`);
+            } catch (err) {
+              if (err.code !== 'ENOENT') throw err;
+            }
+          }
         }
 
         // update users in component and store
@@ -416,7 +458,11 @@ export default {
       } else {
         // first the in-component users
         let userIndex = this.users.findIndex((existingUser) => user.id === existingUser.details.id);
-        if (userIndex > -1) this.users[userIndex].details = user;
+        if (userIndex > -1) {
+          this.users[userIndex].details = user;
+          this.users[userIndex].avatar = avatarData ? URL.createObjectURL(new Blob([avatarData], { type: 'image/jpeg' })) : this.users[userIndex].avatar;
+          this.users[userIndex].localChanges = true;
+        }
         // then the ones in the store
         userIndex = this.currentProject.users.findIndex((existingUser) => user.id === existingUser.id);
         users = [...this.currentProject.users];
@@ -441,7 +487,7 @@ export default {
         case 'userEmail':
           if (!this.userBeingEdited.email) error = 'An email address is required';
           else if (!/^([a-z0-9_.+-]+)@([\da-z.-]+)\.([a-z.]{2,6})$/.test(this.userBeingEdited.email)) error = 'Invalid address'; // Regex source: https://graphcms.com/user-guides/working-with/field-validations
-          else if (this.currentProject.users.find((user) => user.email === this.userBeingEdited.email)) error = 'A user with this email address ahs already been added to the project';
+          else if (this.userBeingEdited.new && this.currentProject.users.find((user) => user.email === this.userBeingEdited.email)) error = 'A user with this email address ahs already been added to the project';
           break;
         case 'userName':
           if (!this.userBeingEdited.name) error = 'A name is required';
@@ -450,6 +496,11 @@ export default {
         default:
       }
       this.errors[field] = error;
+    },
+    validateRole(newRole) {
+      if (newRole !== 'owner' && this.isLastOwner(this.userBeingEdited)) {
+        this.$store.commit('addToast', { message: 'There has to be at least one Project Owner per project', type: 'negative' });
+      } else this.userBeingEdited.role = newRole;
     },
   },
   props: {
@@ -711,6 +762,12 @@ export default {
     margin-top: 2.5rem
     margin-bottom: 2.5rem
 
+    @media $mobile
+      flex-wrap: wrap
+
+      .button:last-child
+        margin-left: auto
+
     .async-image
       width: 4rem
       height: @width
@@ -726,4 +783,8 @@ export default {
       @media $mobile
         margin-right: 0
         margin-bottom: 0.5rem
+
+  .highlight-box
+    .button
+      width: 100%
 </style>
