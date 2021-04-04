@@ -104,7 +104,7 @@ import generateAvatar from '../../assets/js/generateAvatar';
 export default {
   beforeUnmount() {
     this.users.forEach((user) => {
-      if (user.avatar.startsWith('blob:')) URL.revokeObjectURL(user.avatar);
+      if (user.avatar && user.avatar.startsWith('blob:')) URL.revokeObjectURL(user.avatar);
     });
   },
   components: {
@@ -498,7 +498,7 @@ export default {
       this.errors[field] = error;
     },
     validateRole(newRole) {
-      if (newRole !== 'owner' && this.isLastOwner(this.userBeingEdited)) {
+      if (!this.userBeingEdited.new && newRole !== 'owner' && this.isLastOwner(this.userBeingEdited)) {
         this.$store.commit('addToast', { message: 'There has to be at least one Project Owner per project', type: 'negative' });
       } else this.userBeingEdited.role = newRole;
     },
