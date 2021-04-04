@@ -36,6 +36,9 @@ export default {
     }
     return next();
   },
+  beforeRouteLeave() {
+    this.leaving = true; // this is needed so we don’t get redirected to dashboard as soon as we try leaving the project from here
+  },
   components: {
     GeneralSettings,
     UserSettings,
@@ -48,6 +51,7 @@ export default {
   data() {
     return {
       activeTab: 0,
+      leaving: false,
       tabs: [
         { label: 'General Settings', value: 'general' },
         { label: 'Collections', value: 'collections' },
@@ -76,7 +80,7 @@ export default {
       this.$router.push({ query: { tab: this.tabs[nv].value } });
     },
     isPrivilegedUser(nv) {
-      if (!nv) this.$router.replace({ name: 'Project' });
+      if (!this.leaving && !nv) this.$router.replace({ name: 'Project' });
     },
   },
 };
