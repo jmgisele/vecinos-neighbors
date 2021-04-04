@@ -100,7 +100,7 @@ export default {
 
       const [projectJsonString, ...userJsonStrings] = await Promise.all([
         fs.readFile(`/projects/${to.params.id}/.mattrbld/config.json`, 'utf8'),
-        ...userFiles.map((userFile) => fs.readFile(`${usersPath}/${userFile}`, 'utf8')),
+        ...userFiles.filter((userFile) => userFile.endsWith('.json')).map((userFile) => fs.readFile(`${usersPath}/${userFile}`, 'utf8')),
       ]);
 
       const users = userJsonStrings.map((string) => JSON.parse(string));
