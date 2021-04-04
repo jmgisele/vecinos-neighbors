@@ -71,11 +71,11 @@
         <MbButton v-show="avatarUploaded" :dark="dark" :disabled="formErrors" icon-first icon="trash" type="negative" @click="regenerateAvatar">Remove</MbButton>
         <MbButton :dark="dark" icon-first :icon="avatarUploaded ? 'replace-alt' : 'upload'" @click="$refs.uploader.$el.click()">{{ avatarUploaded ? 'Replace' : 'Upload' }}</MbButton>
       </div>
-      <MbHighlightBox v-if="userBeingEdited.new" color="warning">
+      <MbHighlightBox v-if="userBeingEdited.new" color="warning" :dark="dark">
         <p>Adding a user here allows you to set their details (such as role, name, and avatar) for this project. It will also generate a link with which you can invite them to Mattrbld, so they can work on the project without having to set up anything.</p>
         <p>How you send them this link is up to you. It is also your responsibility to make sure they have the appropriate access to the Git repository this project is stored in.</p>
       </MbHighlightBox>
-      <MbHighlightBox v-else color="negative" label="Remove user">
+      <MbHighlightBox v-else color="negative" :dark="dark" label="Remove user">
         <p>Remove the user will only remove their settings from the project. Make sure to also revoke their access to the Git repository to avoid them joining again!</p>
         <MbButton :dark="dark" icon="trash" type="negative" @click="removeUser">Remove user</MbButton>
       </MbHighlightBox>
