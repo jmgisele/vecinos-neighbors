@@ -7,12 +7,13 @@
         <MbButton :dark="dark" icon="plus" type="positive" @click="handleAddUser">Add user</MbButton>
       </header>
       <transition-group tag="ul">
-        <li v-for="(user) in filteredUsers" :key="user.details.email" tabindex="0" @click="handleUserClick(user.details.email)" @keydown.space.prevent @keyup.space.enter="handleUserClick(user.details.email)">
+        <li v-for="(user) in filteredUsers" :key="user.details.email" tabindex="0" @click="handleUserClick(user.details.email, $event)" @keydown.space.prevent @keyup.space.enter="handleUserClick(user.details.email)">
           <AsyncImage :src="user.avatar" />
           <span v-show="user.localChanges" class="local-changes-indicator"/>
           <span :class="{ changed: user.localChanges }">{{user.details.name}}</span>
           <span class="secondary">{{user.details.email}}</span>
           <span class="secondary">{{labelForRole(user.details.role)}}</span>
+          <MbButton :dark="dark" icon="invite-link" rounded tooltip="Copy invite link" type="positive" @click="copyInviteLinkForUser(user.details)" />
         </li>
       </transition-group>
     </section>
@@ -60,7 +61,7 @@
       </template>
     </MbModal>
     <MbModal class="user-modal" :dark="dark" slim :title="userBeingEdited.new ? 'Add new user' : 'Edit user'" :visible="showUserModal" @close="showUserModal = false" @after-close="resetUserBeingEdited">
-      <MbInput v-model="userBeingEdited.name" :dark="dark" :error="errors.userName" icon="user" label="Full Name" @blur="validate('userName'); checkAvatarRegeneration()" />
+      <MbInput v-model="userBeingEdited.name" class="name-input" :dark="dark" :error="errors.userName" icon="user" label="Full Name" @blur="validate('userName'); checkAvatarRegeneration()" />
       <MbInput v-model="userBeingEdited.email" :dark="dark" :error="errors.userEmail" icon="mail" label="Email Address" type="email" @blur="validate('userEmail'); checkAvatarRegeneration()" />
       <div class="select-wrapper">
         <span>Role:</span>
@@ -171,6 +172,18 @@ export default {
     checkAvatarRegeneration() {
       if (!this.avatarUploaded && !this.formErrors && this.userBeingEdited.name && this.userBeingEdited.email) this.regenerateAvatar();
     },
+    async copyInviteLink(link) {
+      try {
+        await navigator.clipboard.writeText(link);
+        this.$store.commit('addToast', { message: 'Copied invite link to clipboard!', timeout: 1000, type: 'positive' });
+      } catch (err) {
+        this.$store.commit('addToast', { message: `Unable to copy link: ${err}`, type: 'error' });
+      }
+    },
+    async copyInviteLinkForUser(user) {
+      const link = await this.generateInviteLink(user);
+      this.copyInviteLink(link);
+    },
     async fetchUserAvatars() {
       const usersPath = `/projects/${this.currentProject.id}/.mattrbld/users`;
       const [avatarFiles, localAvatars] = await Promise.all([fs.readdir(usersPath), fs.readdir('/users')]);
@@ -238,7 +251,9 @@ export default {
 
       this.showRoleModal = true;
     },
-    async handleUserClick(email) {
+    async handleUserClick(email, e) {
+      if (e.target.classList.contains('button')) return; // buttons have a ::before that covers them completely, so this is enough
+
       const user = this.users.find((existingUser) => existingUser.details.email === email);
       if (!user) return;
 
@@ -426,13 +441,8 @@ export default {
           const capitalizedName = user.name.replace(/\b(\w)/g, (firstLetter) => firstLetter.toUpperCase());
           this.$store.commit('addToast', {
             action: async () => {
-              try {
-                const inviteLink = await this.generateInviteLink(user);
-                await navigator.clipboard.writeText(inviteLink);
-                this.$store.commit('addToast', { message: 'Copied!', timeout: 1000, type: 'positive' });
-              } catch (err) {
-                this.$store.commit('addToast', { message: `Unable to copy link: ${err}`, type: 'error' });
-              }
+              const inviteLink = await this.generateInviteLink(user);
+              this.copyInviteLink(inviteLink);
             },
             actionLabel: 'Copy invite-link',
             message: `“${capitalizedName}” was added sucessfully`,
@@ -727,6 +737,9 @@ export default {
   .input
     width: 100%
     margin-bottom: 1rem
+
+    &.name-input::v-deep(input)
+        text-transform: capitalize
 
     & + .select-wrapper
       margin-top: 1.5rem
