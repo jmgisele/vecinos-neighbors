@@ -7,7 +7,7 @@
         <MbButton :dark="dark" icon="plus" type="positive" @click="handleAddUser">Add user</MbButton>
       </header>
       <transition-group tag="ul">
-        <li v-for="(user) in filteredUsers" :key="user.details.email" tabindex="0" @click="handleUserClick(user.details.email, $event)" @keydown.space.prevent @keyup.space.enter="handleUserClick(user.details.email)">
+        <li v-for="(user) in filteredUsers" :key="user.details.id" tabindex="0" @click="handleUserClick(user.details.id, $event)" @keydown.space.prevent @keyup.space.enter="handleUserClick(user.details.id)">
           <AsyncImage :src="user.avatar" />
           <span v-show="user.localChanges" class="local-changes-indicator"/>
           <span :class="{ changed: user.localChanges }">{{user.details.name}}</span>
@@ -78,7 +78,7 @@
       </MbHighlightBox>
       <MbHighlightBox v-else color="negative" label="Remove user">
         <p>Remove the user will only remove their settings from the project. Make sure to also revoke their access to the Git repository to avoid them joining again!</p>
-        <MbButton :dark="dark" icon="trash" type="negative">Remove user</MbButton>
+        <MbButton :dark="dark" icon="trash" type="negative" @click="removeUser">Remove user</MbButton>
       </MbHighlightBox>
       <AvatarUploader ref="uploader" @ready="handleAvatarReady" />
       <template #actions>
@@ -124,11 +124,14 @@ export default {
       return this.currentProject.customRoles.filter((role) => !this.$store.getters.isSoftDeleted(`customRole/${role.value}`));
     },
     filteredUsers() {
-      if (!this.userFilter) return this.users;
-      return this.users.filter((user) => user.details.name.includes(this.userFilter) || user.details.email.includes(this.userFilter));
+      if (!this.userFilter) return this.usersWithoutSoftDeleted;
+      return this.usersWithoutSoftDeleted.filter((user) => user.details.name.includes(this.userFilter) || user.details.email.includes(this.userFilter));
     },
     formErrors() {
       return Object.values(this.errors).some((error) => error);
+    },
+    usersWithoutSoftDeleted() {
+      return this.users.filter((user) => !this.$store.getters.isSoftDeleted(`user/${this.currentProject.id}/${user.details.id}`));
     },
   },
   created() {
@@ -169,6 +172,9 @@ export default {
     };
   },
   methods: {
+    capitalizeName(name) {
+      return name.replace(/\b(\w)/g, (firstLetter) => firstLetter.toUpperCase());
+    },
     checkAvatarRegeneration() {
       if (!this.avatarUploaded && !this.formErrors && this.userBeingEdited.name && this.userBeingEdited.email) this.regenerateAvatar();
     },
@@ -251,10 +257,10 @@ export default {
 
       this.showRoleModal = true;
     },
-    async handleUserClick(email, e) {
+    async handleUserClick(id, e) {
       if (e.target.classList.contains('button')) return; // buttons have a ::before that covers them completely, so this is enough
 
-      const user = this.users.find((existingUser) => existingUser.details.email === email);
+      const user = this.users.find((existingUser) => existingUser.details.id === id);
       if (!user) return;
 
       this.userBeingEdited.email = user.details.email;
@@ -343,7 +349,50 @@ export default {
       });
     },
     removeUser() {
-      // TODO: don’t forget to delete the users avatar too, if there is one
+      if (this.isLastOwner(this.userBeingEdited)) {
+        this.$store.commit('addToast', { message: 'This user cannot be removed because there has to be at least one Project Owner per project', type: 'negative' });
+        return;
+      }
+      const timeout = 5000;
+      const userBeingDeleted = this.userBeingEdited.id;
+      const timeoutId = window.setTimeout(async () => {
+        try {
+          const userPath = `/projects/${this.currentProject.id}/.mattrbld/users`;
+          await fs.unlink(`${userPath}/${userBeingDeleted}.json`);
+          try {
+            await fs.unlink(`${userPath}/${userBeingDeleted}.jpg`);
+          } catch (err) {
+            if (err.code !== 'ENOENT') throw err;
+          }
+
+          // delete user first the in-component users
+          let userIndex = this.users.findIndex((existingUser) => userBeingDeleted === existingUser.details.id);
+          if (userIndex > -1) this.users.splice(userIndex, 1);
+
+          // then the ones in the store
+          userIndex = this.currentProject.users.findIndex((existingUser) => userBeingDeleted === existingUser.id);
+          const users = [...this.currentProject.users];
+          users.splice(userIndex, 1);
+          this.$store.commit('setCurrentProjectProperty', { key: 'users', value: users });
+        } catch (err) {
+          this.$store.commit('addToast', { message: `Something went wrong while deleting the user: ${err.message}`, type: 'error' });
+        } finally {
+          this.$store.commit('removeFromSoftDeleted', `user/${this.currentProject.id}/${userBeingDeleted}`);
+        }
+      }, timeout);
+
+      this.$store.commit('addToSoftDeleted', `user/${this.currentProject.id}/${userBeingDeleted}`);
+      this.$store.commit('addToast', {
+        action: () => {
+          window.clearTimeout(timeoutId);
+          this.$store.commit('removeFromSoftDeleted', `user/${this.currentProject.id}/${userBeingDeleted}`);
+        },
+        actionLabel: 'Undo',
+        message: `“${this.capitalizeName(this.userBeingEdited.name)}” was removed`,
+        timeout: timeout - 200, // just to be sure
+        type: 'warning',
+      });
+      this.showUserModal = false;
     },
     resetRoleBeingEdited() {
       this.roleBeingEdited.accessLevel = 'editor';
@@ -440,14 +489,13 @@ export default {
 
         // show toast with copyable invite link
         if (this.userBeingEdited.new) {
-          const capitalizedName = user.name.replace(/\b(\w)/g, (firstLetter) => firstLetter.toUpperCase());
           this.$store.commit('addToast', {
             action: async () => {
               const inviteLink = await this.generateInviteLink(user);
               this.copyInviteLink(inviteLink);
             },
             actionLabel: 'Copy invite-link',
-            message: `“${capitalizedName}” was added sucessfully`,
+            message: `“${this.capitalizeName(user.name)}” was added sucessfully`,
             type: 'positive',
           });
         }
