@@ -4,7 +4,7 @@
       <h1 class="h2">Users</h1>
       <header>
         <MbInput v-model="userFilter" :dark="dark" icon="search" placeholder="Filter users" />
-        <MbButton :dark="dark" icon="plus" type="positive" @click="handleAddUser">Add User</MbButton>
+        <MbButton :dark="dark" icon="plus" type="positive" @click="handleAddUser">Add user</MbButton>
       </header>
       <transition-group tag="ul">
         <li v-for="(user) in filteredUsers" :key="user.details.email" tabindex="0" @click="handleUserClick(user.details.email)" @keydown.space.prevent @keyup.space.enter="handleUserClick(user.details.email)">
@@ -19,7 +19,7 @@
     <section class="wrapper wide">
       <h2>Custom Roles</h2>
       <header>
-        <MbButton :dark="dark" icon="plus" type="positive" @click="handleAddRole">Add Custom Role</MbButton>
+        <MbButton :dark="dark" icon="plus" type="positive" @click="handleAddRole">Add custom role</MbButton>
       </header>
       <header v-if="currentProject.customRoles.length > 0" class="legend">
         <span>Name</span>
@@ -43,7 +43,7 @@
         <p>The user’s role and the privileges that come with each role are <strong>only enforced on the client</strong>. This means that the might be circumvented by tampering with the code (the client can’t be trusted).</p>
         <p>Make sure to not rely on these settings as your only security and configure your server-side Git-environment to reflect these permissions as closely as possible. This also means making sure that users can actually read and write to the branches you use for your content.</p>
       </MbHighlightBox>
-      <pre><code>{{$store.getters.userInCurrentProject}}</code></pre>
+      <pre><code>{{currentProject.users}}</code></pre>
     </section>
     <MbModal class="role-modal" :dark="dark" :title="roleBeingEdited.new ? 'Create new custom role' : 'Edit custom role'" :visible="showRoleModal" @close="showRoleModal = false" @after-close="resetRoleBeingEdited">
       <div class="input-wrapper">
@@ -59,15 +59,38 @@
         <MbButton :dark="dark" :disabled="formErrors" type="primary" @click="saveCustomRole">Save</MbButton>
       </template>
     </MbModal>
+    <MbModal class="user-modal" :dark="dark" slim :title="userBeingEdited.new ? 'Add new user' : 'Edit user'" :visible="showUserModal" @close="showUserModal = false" @after-close="resetUserBeingEdited">
+      <MbInput v-model="userBeingEdited.name" :dark="dark" :error="errors.userName" icon="user" label="Full Name" @blur="validate('userName'); checkAvatarRegeneration()" />
+      <MbInput v-model="userBeingEdited.email" :dark="dark" :error="errors.userEmail" icon="mail" label="Email Address" type="email" @blur="validate('userEmail'); checkAvatarRegeneration()" />
+      <div class="select-wrapper">
+        <span>Role:</span>
+        <MbSelect v-model="userBeingEdited.role" :dark="dark" inline :options="combinedRoles" placeholder="Select a role…" />
+      </div>
+      <div class="avatar-wrapper">
+        <AsyncImage :src="userBeingEdited.avatar" :alt="`${userBeingEdited.name}’s avatar`" />
+        <MbButton v-show="avatarUploaded" :dark="dark" :disabled="formErrors" icon-first icon="trash" type="negative" @click="regenerateAvatar">Remove</MbButton>
+        <MbButton :dark="dark" icon-first :icon="avatarUploaded ? 'replace-alt' : 'upload'" @click="$refs.uploader.$el.click()">{{ avatarUploaded ? 'Replace' : 'Upload' }}</MbButton>
+      </div>
+      <MbHighlightBox color="warning">
+        <p>Adding a user here allows you to set their details (such as role, name, and avatar) for this project. It will also generate a link with which you can invite them to Mattrbld, so they can work on the project without having to set up anything.</p>
+        <p>How you send them this link is up to you. It is also your responsibility to make sure they have the appropriate access to the Git repository this project is stored in.</p>
+      </MbHighlightBox>
+      <AvatarUploader ref="uploader" @ready="handleAvatarReady" />
+      <template #actions>
+        <MbButton :dark="dark" @click="showUserModal = false">Cancel</MbButton>
+        <MbButton :dark="dark" :disabled="formErrors" type="primary" @click="saveUser">Save</MbButton>
+      </template>
+    </MbModal>
   </TabContent>
 </template>
 
 <script>
 import slugify from '@sindresorhus/slugify';
+import { currentBranch, listRemotes } from 'isomorphic-git';
 
-import fs from '../../fs';
+import fs, { PlainFS } from '../../fs';
 
-// import AvatarUploader from '../../components/utility/AvatarUploader.vue';
+import AvatarUploader from '../../components/utility/AvatarUploader.vue';
 import AsyncImage from '../../components/utility/AsyncImage.vue';
 import TabContent from '../../components/utility/TabContent.vue';
 
@@ -81,7 +104,7 @@ export default {
     });
   },
   components: {
-    // AvatarUploader,
+    AvatarUploader,
     AsyncImage,
     TabContent,
   },
@@ -113,6 +136,7 @@ export default {
   data() {
     return {
       availableRoles,
+      avatarUploaded: false,
       errors: {
         roleLabel: null,
         roleValue: null,
@@ -135,11 +159,14 @@ export default {
         id: null,
         name: '',
         new: false,
-        role: null,
+        role: 'editor',
       },
     };
   },
   methods: {
+    checkAvatarRegeneration() {
+      if (!this.avatarUploaded && !this.formErrors && this.userBeingEdited.name && this.userBeingEdited.email) this.regenerateAvatar();
+    },
     async fetchUserAvatars() {
       const usersPath = `/projects/${this.currentProject.id}/.mattrbld/users`;
       const [avatarFiles, localAvatars] = await Promise.all([fs.readdir(usersPath), fs.readdir('/users')]);
@@ -165,11 +192,35 @@ export default {
         else this.users[index].avatar = avatar;
       });
     },
+    async generateInviteLink(user) {
+      const dir = `/projects/${this.currentProject.id}`;
+      const [remotes, branch] = await Promise.all([
+        listRemotes({ fs: PlainFS, dir }),
+        currentBranch({ fs: PlainFS, dir }),
+      ]);
+      let accessLevel;
+
+      if (['editor', 'dev', 'owner'].includes(user.role)) accessLevel = user.role;
+      else {
+        const customRole = this.currentProject.customRoles.find((role) => role.value === user.role);
+        if (customRole) accessLevel = customRole.accessLevel;
+        else accessLevel = 'editor';
+      }
+
+      return `${window.location.protocol}//${window.location.host}/import?name=${window.encodeURIComponent(user.name)}&email=${window.encodeURIComponent(user.email)}&al=${window.encodeURIComponent(accessLevel)}&repo=${window.encodeURIComponent(remotes[0].url)}&branch=${window.encodeURIComponent(branch)}&proxy=${window.encodeURIComponent(this.currentProject.corsProxy)}`;
+    },
     handleAddRole() {
       this.roleBeingEdited.new = true;
       this.showRoleModal = true;
     },
-    handleAddUser() {},
+    handleAddUser() {
+      this.userBeingEdited.new = true;
+      this.showUserModal = true;
+    },
+    handleAvatarReady(avatar) {
+      this.userBeingEdited.avatar = avatar;
+      this.avatarUploaded = true;
+    },
     handleRoleClick(roleValue, e) {
       if (e.target.classList.contains('button')) return; // buttons have a ::before that covers them completely, so this is enough
 
@@ -185,11 +236,26 @@ export default {
     handleUserClick(mail) {
       console.log(mail);
     },
+    async idExists(id) {
+      try {
+        await fs.stat(`/projects/${this.currentProject.id}/.mattrbld/users/${id}.json`);
+        return true;
+      } catch (err) {
+        if (err.code === 'ENOENT' || err.code === 'ENOTDIR') return false;
+        throw err;
+      }
+    },
     labelForRole(role) {
       const builtinRole = availableRoles.find((availableRole) => availableRole.value === role);
       const customRole = this.currentProject.customRoles.find((availableRole) => availableRole.value === role);
 
       return (customRole && customRole.label) || (builtinRole && builtinRole.label) || 'Unknown';
+    },
+    regenerateAvatar() {
+      const split = this.userBeingEdited.name.split(' ');
+      const initials = `${split[0][0]}${split[split.length - 1][0]}`.toUpperCase();
+      this.userBeingEdited.avatar = generateAvatar(initials, '#A29BFE', '#6c5ce7', 'light', this.userBeingEdited.email);
+      if (this.avatarUploaded) this.avatarUploaded = false;
     },
     removeCustomRole(index, { value, label, accessLevel }) {
       const timeout = 5000;
@@ -203,6 +269,7 @@ export default {
               const userCopy = { ...user, role: accessLevel }; // reset the role to its access level
               const userPath = `/projects/${this.currentProject.id}/.mattrbld/users/${user.id}.json`;
               this.$store.commit('addLocallyChangedFile', userPath);
+              this.updateUser(userCopy);
               return fs.writeFile(`/projects/${this.currentProject.id}/.mattrbld/users/${user.id}.json`, JSON.stringify(userCopy, null, 2), 'utf8');
             });
 
@@ -243,6 +310,19 @@ export default {
       this.errors.roleLabel = '';
       this.errors.roleValue = '';
     },
+    resetUserBeingEdited() {
+      this.userBeingEdited.avatar = null;
+      this.userBeingEdited.email = '';
+      this.userBeingEdited.id = null;
+      this.userBeingEdited.name = '';
+      this.userBeingEdited.new = false;
+      this.userBeingEdited.role = 'editor';
+
+      this.errors.userName = '';
+      this.errors.userEmail = '';
+
+      this.avatarUploaded = false;
+    },
     async saveCustomRole() {
       this.validate('roleLabel');
       if (this.roleBeingEdited.new) this.validate('roleValue'); // can only be changed with new roles
@@ -262,6 +342,88 @@ export default {
       const saved = await this.$store.dispatch('saveCurrentProject');
 
       if (saved) this.showRoleModal = false;
+    },
+    async saveUser() {
+      this.validate('userName');
+      this.validate('userEmail');
+
+      // write user and avatar files
+      try {
+        let newUserId = slugify(this.userBeingEdited.email.trim()); // WARNING: this could lead to collisions if there’s two very similar email addresses (foo-bar@exmaple.com foo.bar@example.com), but since we have a low amount of local users, I think it’s negligible
+        let alreadyExists = await this.idExists(newUserId);
+
+        while (alreadyExists) {
+          newUserId += `-${Math.random().toString(36).slice(2, 9)}`;
+          alreadyExists = await this.idExists(newUserId); // eslint-disable-line no-await-in-loop
+        }
+
+        const user = {
+          email: this.userBeingEdited.email.trim(),
+          id: newUserId,
+          name: this.userBeingEdited.name.trim().toLowerCase(),
+          role: this.userBeingEdited.role || 'editor',
+        };
+        const userPath = `/projects/${this.currentProject.id}/.mattrbld/users`;
+        await fs.writeFile(`${userPath}/${newUserId}.json`, JSON.stringify(user, null, 2), 'utf8');
+        this.$store.commit('addLocallyChangedFile', `${userPath}/${newUserId}.json`);
+
+        const byteString = window.atob(this.userBeingEdited.avatar.split(',')[1]);
+        const avatarData = Uint8Array.from(byteString, (ch) => ch.charCodeAt(0));
+        if (this.avatarUploaded) {
+          await fs.writeFile(`${userPath}/${newUserId}.jpg`, avatarData, 'utf8'); // we know it’s a image/jpeg because we converted it ourselves in AvatarUploader / generateAvatar
+          this.$store.commit('addLocallyChangedFile', `${userPath}/${newUserId}.jpg`);
+        }
+
+        // update users in component and store
+        this.updateUser(user, avatarData, this.userBeingEdited.new);
+
+        const saved = await this.$store.dispatch('saveAppData');
+
+        // show toast with copyable invite link
+        if (this.userBeingEdited.new) {
+          const split = user.name.split(' ');
+          const capitalizedName = split.map((part) => part && `${part[0].toUpperCase()}${part.slice(1)}`).join(' ').trim();
+          this.$store.commit('addToast', {
+            action: async () => {
+              try {
+                const inviteLink = await this.generateInviteLink(user);
+                await navigator.clipboard.writeText(inviteLink);
+                this.$store.commit('addToast', { message: 'Copied!', timeout: 1000, type: 'positive' });
+              } catch (err) {
+                this.$store.commit('addToast', { message: `Unable to copy link: ${err}`, type: 'error' });
+              }
+            },
+            actionLabel: 'Copy invite-link',
+            message: `“${capitalizedName}” was added sucessfully`,
+            type: 'positive',
+          });
+        }
+
+        // close modal
+        if (saved) this.showUserModal = false;
+      } catch (err) {
+        this.$store.commit('addToast', { message: `Something went wrong while saving the user: ${err.message}`, type: 'error' });
+      }
+    },
+    updateUser(user, avatarData, isNew) {
+      let users;
+      if (isNew) {
+        this.users.push({
+          details: user,
+          avatar: URL.createObjectURL(new Blob([avatarData], { type: 'image/jpeg' })),
+          localChanges: true,
+        });
+        users = [...this.currentProject.users, user];
+      } else {
+        // first the in-component users
+        let userIndex = this.users.findIndex((existingUser) => user.id === existingUser.details.id);
+        if (userIndex > -1) this.users[userIndex].details = user;
+        // then the ones in the store
+        userIndex = this.currentProject.users.findIndex((existingUser) => user.id === existingUser.id);
+        users = [...this.currentProject.users];
+        users.splice(userIndex, 1, user);
+      }
+      this.$store.commit('setCurrentProjectProperty', { key: 'users', value: users });
     },
     validate(field) {
       let error = '';
@@ -400,6 +562,9 @@ export default {
             padding: 0.5rem
             padding-left: 1.5rem
 
+            span
+              text-transform: none
+
         li
           position: relative
           background-color: $bg-secondary
@@ -507,7 +672,15 @@ export default {
       & + h2
         margin-top: 1rem
 
-.role-modal
+.role-modal,
+.user-modal
+  .input
+    width: 100%
+    margin-bottom: 1rem
+
+    & + .select-wrapper
+      margin-top: 1.5rem
+
   .input-wrapper,
   .select-wrapper
     display: flex
@@ -515,7 +688,7 @@ export default {
     margin-bottom: 1rem
 
     .input
-      width: 100%
+      margin-bottom: 0
 
       &:not(:last-child)
         margin-right: 1rem
@@ -532,4 +705,26 @@ export default {
     &::v-deep(.select),
     .button
       margin-left: auto
+
+  .avatar-wrapper
+    display: flex
+    align-items: center
+    margin-top: 2.5rem
+    margin-bottom: 2.5rem
+
+    .async-image
+      width: 4rem
+      height: @width
+      border-radius: 50%
+      margin-right: auto
+
+      + .button
+        margin-left: 1rem
+
+    .button:not(:last-child)
+      margin-right: 1rem
+
+      @media $mobile
+        margin-right: 0
+        margin-bottom: 0.5rem
 </style>
