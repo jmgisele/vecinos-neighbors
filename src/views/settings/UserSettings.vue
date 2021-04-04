@@ -283,7 +283,9 @@ export default {
       }
     },
     isLastOwner(user) {
-      if (user.role === 'owner' && this.users.filter((existingUser) => existingUser.role === 'owner').length <= 1) return true;
+      const localUser = this.users.find((existingUser) => user.id === existingUser.details.id);
+
+      if (localUser.details.role === 'owner' && this.users.filter((existingUser) => existingUser.details.role === 'owner').length <= 1) return true;
       return false;
     },
     labelForRole(role) {
