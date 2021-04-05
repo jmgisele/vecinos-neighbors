@@ -2,6 +2,14 @@
   <div class="project">
     <router-view :dark="dark" />
     <ProjectSidebar :dark="dark" :git-status="gitStatus" @git-status-click="handleGitStatusClick" />
+    <GitLoginModal :dark="dark" :message="gitLoginMessage" :visible="showGitLoginModal" @cancel="credentialPromise('cancel')" @submit="credentialPromise" />
+    <MbModal class="error-modal" :dark="dark" title="Oops…" :visible="showGitErrorModal" @close="showGitErrorModal = false">
+      <p>Something went wrong while syncing the latest changes. See the error message below for more details:</p>
+      <pre><code>{{JSON.stringify({ timestamp: new Date(), ...gitError }, null, 2)}}</code></pre>
+      <template #actions>
+        <MbButton :dark="dark" @click="showGitErrorModal = false">Close</MbButton>
+      </template>
+    </MbModal>
   </div>
 </template>
 
@@ -9,10 +17,21 @@
 import slugify from '@sindresorhus/slugify';
 
 import fs, { exists } from '../fs';
+import { pull } from '../git';
 import Store from '../store';
 import isMattrbldProject from '../assets/js/isMattrbldProject';
 
 import ProjectSidebar from '../components/utility/ProjectSidebar.vue';
+
+import gitAuth from '../mixins/gitAuth';
+
+const GIT_STATUS_MESSAGES = {
+  ERROR: 'Something went wrong syncing the latest changes. Click to learn more.',
+  PULLING: 'Fetching remote changes',
+  PUSHING: 'Pushing changes to remote',
+  CHANGES: 'You have some unpublished local changes',
+  READY: 'Everything is in sync',
+};
 
 export default {
   async beforeRouteEnter(to, from, next) {
@@ -167,24 +186,66 @@ export default {
   },
   data() {
     return {
+      currentOperation: null,
+      gitError: null,
       gitStatus: {
-        color: 'warning',
-        label: 'Changes',
+        color: 'positive',
+        label: 'Ready',
         loading: false,
-        message: 'You have some unpublished local changes',
+        message: GIT_STATUS_MESSAGES.READY,
       },
+      showGitErrorModal: false,
     };
   },
   methods: {
     handleGitStatusClick() {
-      this.$store.commit('addToast', { message: 'Todo: add some status messages in a modal if there are some, i.e. on errors' });
+      if (this.gitError) this.showGitErrorModal = true;
+    },
+    async onGitProgress(progress) {
+      const step = progress.phase;
+      let percent = '';
+      if (progress.total) percent = ` ${(progress.loaded / progress.total) * 100}%`; // NOTE: leading space is intentional
+      if (this.currentOperation === 'pull') this.gitStatus.message = `${GIT_STATUS_MESSAGES.PULLING}: ${step}${percent}`;
     },
     async performInitialPull() {
+      this.currentOperation = 'pull';
       this.gitStatus.loading = true;
-      // TODO: Fire off initial pull on the gitWorker
-      window.setTimeout(() => { this.gitStatus.loading = false; }, 2000);
+      this.gitStatus.message = GIT_STATUS_MESSAGES.PULLING;
+      try {
+        const { name, email } = this.$store.getters.userInCurrentProject;
+        const projectDir = `/projects/${this.$route.params.id}`;
+        await pull(
+          {
+            author: { name, email },
+            corsProxy: this.$store.state.currentProject.corsProxy,
+            dir: projectDir,
+            singleBranch: true,
+          },
+          this.onGitAuth,
+          this.onGitAuthFailure,
+          this.onGitAuthSuccess,
+          this.onGitProgress,
+        );
+        if (this.$store.getters.hasLocalChanges(projectDir)) {
+          this.gitStatus.color = 'warning';
+          this.gitStatus.label = 'Changes';
+          this.gitStatus.message = GIT_STATUS_MESSAGES.CHANGES;
+        } else {
+          this.gitStatus.color = 'positive';
+          this.gitStatus.label = 'Ready';
+          this.gitStatus.message = GIT_STATUS_MESSAGES.READY;
+        }
+      } catch (err) {
+        this.gitStatus.color = 'negative';
+        this.gitStatus.label = 'Error';
+        this.gitStatus.message = GIT_STATUS_MESSAGES.ERROR;
+        this.gitError = { code: err.code, message: err.message, name: err.name };
+      }
+      this.gitStatus.loading = false;
+      this.currentOperation = null;
     },
   },
+  mixins: [gitAuth],
   props: {
     dark: Boolean,
   },
@@ -202,4 +263,11 @@ export default {
 
   @media $mobile
     height: "calc(100vh - %s)" % (82 / 16)rem
+
+.error-modal
+  p
+    margin-top: 0
+
+  pre
+    margin-bottom: 0
 </style>
