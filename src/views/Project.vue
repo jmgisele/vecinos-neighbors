@@ -1,6 +1,6 @@
 <template lang="html">
   <div class="project">
-    <router-view :dark="dark" />
+    <router-view :dark="dark" @push="openChangesModal" />
     <ProjectSidebar :dark="dark" :git-status="gitStatus" @git-status-click="handleGitStatusClick" />
     <GitLoginModal :dark="dark" :message="gitLoginMessage" :visible="showGitLoginModal" @cancel="credentialPromise('cancel')" @submit="credentialPromise" />
     <MbModal class="error-modal" :dark="dark" title="Oops…" :visible="showGitErrorModal" @close="showGitErrorModal = false">
@@ -10,13 +10,39 @@
         <MbButton :dark="dark" @click="showGitErrorModal = false">Close</MbButton>
       </template>
     </MbModal>
+    <MbModal class="changes-modal" :dark="dark" title="Sync local changes" :visible="showChangesModal" @close="showChangesModal = false" @after-close="resetChangesModal">
+      <transition mode="out-in">
+        <MbLoader v-if="changesLoading" />
+        <div v-else class="wrapper">
+          <MbEditor v-model="commitMessage" :allow-new-lines="false" :dark="dark" label="Message describing the changes (optional)" :max-len="72" />
+          <header :class="{dark}">
+            <span>Select the changes to include:</span>
+            <MbButton :dark="dark" @click="toggleSelectAll">{{lessThanHalfSelected ? 'Select all' : 'Deselect all'}}</MbButton>
+          </header>
+          <ul class="changes">
+            <li v-for="(change, index) in changes" :key="index">
+              <MbCheckbox v-model="change.selected" :dark="dark" />
+              <div class="group" :class="{dark}" @click="change.selected = !change.selected">
+                <MbChip :color="change.color" :label="change.type" />
+                <span>{{change.file}}</span>
+              </div>
+            </li>
+          </ul>
+        </div>
+      </transition>
+      <template #actions>
+        <MbButton :dark="dark" @click="showChangesModal = false">Cancel</MbButton>
+        <MbButton :dark="dark" :disabled="changesLoading || selectedChanges.length === 0" type="primary" @click="pushChanges">Sync {{selectedChanges.length}} changes</MbButton>
+      </template>
+    </MbModal>
   </div>
 </template>
 
 <script>
 import slugify from '@sindresorhus/slugify';
+import { statusMatrix } from 'isomorphic-git';
 
-import fs, { exists } from '../fs';
+import fs, { PlainFS, exists } from '../fs';
 import { pull } from '../git';
 import Store from '../store';
 import isMattrbldProject from '../assets/js/isMattrbldProject';
@@ -180,12 +206,23 @@ export default {
   components: {
     ProjectSidebar,
   },
+  computed: {
+    lessThanHalfSelected() {
+      return this.selectedChanges.length < this.changes.length / 2;
+    },
+    selectedChanges() {
+      return this.changes.filter((change) => change.selected);
+    },
+  },
   created() {
     this.$store.commit('setProjectAccessDate', { project: this.$route.params.id, value: Date.now() });
     this.$store.dispatch('saveUser');
   },
   data() {
     return {
+      changes: [],
+      changesLoading: true,
+      commitMessage: '',
       currentOperation: null,
       gitError: null,
       gitStatus: {
@@ -195,17 +232,50 @@ export default {
         message: GIT_STATUS_MESSAGES.READY,
       },
       showGitErrorModal: false,
+      showChangesModal: false,
     };
   },
   methods: {
     async handleGitStatusClick() {
       if (this.gitError && this.gitStatus.label === 'error') this.showGitErrorModal = true;
+      else if (this.gitStatus.label === 'changes') this.openChangesModal();
     },
     async onGitProgress(progress) {
       const step = progress.phase;
       let percent = '';
       if (progress.total) percent = ` ${(progress.loaded / progress.total) * 100}%`; // NOTE: leading space is intentional
       if (this.currentOperation === 'pull') this.gitStatus.message = `${GIT_STATUS_MESSAGES.PULLING}: ${step}${percent}`;
+    },
+    async openChangesModal() {
+      this.changesLoading = true;
+      this.showChangesModal = true;
+      this.changes = (await statusMatrix({ fs: PlainFS, dir: `/projects/${this.$route.params.id}` }))
+        .reduce((acc, change) => {
+          if (change[2] !== change[3]) {
+            let type;
+            let color;
+
+            if (change[1] === 1 && change[2] === 0 && change[3] === 1) {
+              type = 'remove';
+              color = 'negative';
+            } else if (change[1] === 1 && change[2] === 2 && change[3] === 1) {
+              type = 'modify';
+              color = 'warning';
+            } else if (change[1] === 0 && change[2] === 2 && change[3] === 0) {
+              type = 'add';
+              color = 'positive';
+            } else return acc;
+
+            acc.push({
+              file: change[0],
+              selected: true,
+              color,
+              type,
+            });
+          }
+          return acc;
+        }, []);
+      this.changesLoading = false;
     },
     async performInitialPull() {
       this.currentOperation = 'pull';
@@ -244,6 +314,38 @@ export default {
       this.gitStatus.loading = false;
       this.currentOperation = null;
     },
+    pushChanges() {
+      const { draftsDir } = this.$store.state.currentProject;
+      const projectDir = `/projects/${this.$route.params.id}`;
+
+      if (draftsDir) {
+        const changesWithoutDrafts = [];
+        const drafts = [];
+
+        this.selectedChanges.forEach((change) => {
+          if (change.file.startsWith(`${projectDir}/${draftsDir}`)) drafts.push(change);
+          else changesWithoutDrafts.push(change);
+        });
+        // commit and push them separately
+      } else {
+        // commit and push everything at once
+      }
+
+      this.selectedChanges.forEach((change) => { // separate loop since we want them to only be removed if the push was successful
+        this.$store.commit('removeLocallyChangedFile', change.file);
+      });
+      this.$store.dispatch('saveAppData');
+
+      this.showChangesModal = false;
+    },
+    resetChangesModal() {
+      this.changes = [];
+      this.commitMessage = '';
+    },
+    toggleSelectAll() {
+      if (this.lessThanHalfSelected) this.changes.forEach((change) => { change.selected = true; }); // eslint-disable-line no-param-reassign
+      else this.changes.forEach((change) => { change.selected = false; }); // eslint-disable-line no-param-reassign
+    },
   },
   mixins: [gitAuth],
   props: {
@@ -254,6 +356,8 @@ export default {
 
 <style lang="stylus" scoped>
 @require  '../assets/styles/breakpoints'
+@require  '../assets/styles/colors'
+@require  '../assets/styles/corners'
 
 .project // 100% minus the height of the app-header
   height: "calc(100vh - %s)" % (116 / 16)rem
@@ -270,4 +374,81 @@ export default {
 
   pre
     margin-bottom: 0
+
+.changes-modal
+  .loader,
+  .wrapper
+    &.v-enter-active,
+    &.v-leave-active
+      transition: opacity 200ms ease
+
+      &.v-enter-from,
+      &.v-leave-to
+        opacity: 0
+
+  .loader
+    height: 16rem
+
+  .wrapper
+    .editor
+      margin-bottom: 1rem
+
+    > header
+      display: flex
+      align-items: center
+      justify-content: space-between
+      position: sticky
+      top: 0
+      z-index: 1
+      background-color: $bg
+      padding: 1rem 0
+
+      &.dark
+        background-color: $bg-dark
+
+      > span
+        margin-right: 0.5rem
+
+    .changes
+      list-style: none
+      margin: 0
+
+      li
+        display: flex
+        align-items: center
+        overflow: hidden
+        white-space: nowrap
+
+        &:not(:last-child)
+          margin-bottom: 1rem
+
+        .checkbox
+          margin-right: 1rem
+
+        .group
+          display: flex
+          overflow: hidden
+          padding: 1rem
+          background-color: $bg-tertiary
+          border-radius: $radius-m
+          width: 100%
+          cursor: pointer
+          transition: background-color 200ms ease
+
+          &:hover
+            background-color: $bg-secondary
+
+          &.dark
+            background-color: $bg-secondary-dark
+
+            &:hover
+              background-color: $bg-tertiary-dark
+
+          .chip
+            margin-right: 1rem
+            flex-shrink: 0
+
+          > span
+            overflow: hidden
+            text-overflow: ellipsis
 </style>
