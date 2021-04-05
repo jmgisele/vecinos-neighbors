@@ -70,7 +70,7 @@ export default {
       showDeleteWarning: false,
     };
   },
-  emits: ['click', 'deleted'],
+  emits: ['click', 'deleted', 'delete-undo'],
   methods: {
     async deleteProject(force) {
       if (this.localChanges && !force) {
@@ -110,6 +110,7 @@ export default {
       this.$store.commit('addToast', {
         action: () => {
           window.clearTimeout(timeoutId);
+          this.$emit('delete-undo');
           this.$store.commit('removeFromSoftDeleted', `/projects/${this.id}`);
         },
         actionLabel: 'Undo',

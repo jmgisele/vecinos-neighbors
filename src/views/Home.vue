@@ -6,7 +6,7 @@
     </header>
     <main>
       <transition-group class="grid" tag="div" @before-leave="setGridPosition">
-        <MbProjectCard v-for="project in projectsWithoutSoftDeleted" :avatar="project.avatar" :dark="dark" :id="project.id" :key="project.id" :local-changes="project.localChanges" :name="project.name" :updated-at="project.updatedAt" @click="openProject(project.id)" @deleted="removeProject(project.id)" />
+        <MbProjectCard v-for="project in projectsWithoutSoftDeleted" :avatar="project.avatar" :dark="dark" :id="project.id" :key="project.id" :local-changes="project.localChanges" :name="project.name" :updated-at="project.updatedAt" @click="openProject(project.id)" @deleted="removeProject(project.id)" @delete-undo="refetchAvatar(project.id)" />
         <button class="add-project-button" :class="{dark}" key="addProjectButton" @click="showImportProject = true">
           <div class="icon-wrapper">
             <MbIcon icon="download" />
@@ -293,6 +293,15 @@ export default {
       } catch (err) {
         if (err.code === 'ENOENT' || err.code === 'ENOTDIR') return false;
         throw err;
+      }
+    },
+    async refetchAvatar(projectId) {
+      const project = this.projects.find((existingProject) => existingProject.id === projectId);
+      if (project.avatar) {
+        project.avatar = null;
+        const avatarData = await fs.readFile(`/projects/${projectId}/.mattrbld/avatar.jpg`);
+        const avatarUrl = URL.createObjectURL(new Blob([avatarData], { type: 'image/jpeg' })); // revoking is handled by the ProjectAvatar component
+        project.avatar = avatarUrl;
       }
     },
     async refreshStorageQuota() {

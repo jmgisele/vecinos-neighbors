@@ -770,6 +770,7 @@ export default {
           ['Name', 'Data'],
           ['`click`', 'The MouseEvent'],
           ['`deleted`', ''],
+          ['`delete-undo`', ''],
         ],
         radios: [
           ['Name', 'Data'],
