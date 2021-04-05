@@ -190,7 +190,7 @@ export default {
       gitError: null,
       gitStatus: {
         color: 'positive',
-        label: 'Ready',
+        label: 'ready',
         loading: false,
         message: GIT_STATUS_MESSAGES.READY,
       },
@@ -198,8 +198,8 @@ export default {
     };
   },
   methods: {
-    handleGitStatusClick() {
-      if (this.gitError) this.showGitErrorModal = true;
+    async handleGitStatusClick() {
+      if (this.gitError && this.gitStatus.label === 'error') this.showGitErrorModal = true;
     },
     async onGitProgress(progress) {
       const step = progress.phase;
@@ -228,16 +228,16 @@ export default {
         );
         if (this.$store.getters.hasLocalChanges(projectDir)) {
           this.gitStatus.color = 'warning';
-          this.gitStatus.label = 'Changes';
+          this.gitStatus.label = 'changes';
           this.gitStatus.message = GIT_STATUS_MESSAGES.CHANGES;
         } else {
           this.gitStatus.color = 'positive';
-          this.gitStatus.label = 'Ready';
+          this.gitStatus.label = 'ready';
           this.gitStatus.message = GIT_STATUS_MESSAGES.READY;
         }
       } catch (err) {
         this.gitStatus.color = 'negative';
-        this.gitStatus.label = 'Error';
+        this.gitStatus.label = 'error';
         this.gitStatus.message = GIT_STATUS_MESSAGES.ERROR;
         this.gitError = { code: err.code, message: err.message, name: err.name };
       }
