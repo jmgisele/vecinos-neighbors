@@ -1,6 +1,6 @@
 <template lang="html">
   <div class="radio-group" :class="{ dark, inline }">
-    <label v-for="(option, index) in options" :class="{ active: index === activeOptionIndex }" :key="index" tabindex="0" @keyup.space="$emit('update:modelValue', typeof option.value !== 'undefined' ? option.value : option )" @keyup.enter="$emit('update:modelValue', typeof option.value !== 'undefined' ? option.value : option )">
+    <label v-for="(option, index) in options" :class="{ active: index === activeOptionIndex }" :key="index" tabindex="0" @keydown.space.prevent @keyup.space.enter="$emit('update:modelValue', typeof option.value !== 'undefined' ? option.value : option )">
       <input :checked="index === activeOptionIndex" type="radio" :name="groupId" tabindex="-1" :value="typeof option.value !== 'undefined' ? option.value : option" @change="$emit('update:modelValue', $event.target.value)">
       <span class="label-text">{{typeof option.label !== 'undefined' ? option.label : option}}</span>
       <span class="fake-radio">
