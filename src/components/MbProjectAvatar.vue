@@ -112,6 +112,9 @@ export default {
     projectName: String,
   },
   watch: {
+    avatar(nv) {
+      if (!nv && !this.generatedAvatar) this.generateAvatar();
+    },
     projectName(nv, ov) {
       if (nv !== ov && !this.avatar) {
         // We have to reinitialise the rng and simulate regenerating the project color so we always get the same image
