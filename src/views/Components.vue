@@ -1089,7 +1089,7 @@ export default {
           ['`label`', 'String', '', ''],
           ['`maxLen`', 'Number', '', ''],
           ['`modelValue`', 'String', '', 'Will be either text / html / markdown depending on outputFormat'],
-          ['`outputFormat`', 'String', '', 'Allowed values: text, html, markdown'],
+          ['`outputFormat`', 'String', "`'text'`", 'Allowed values: text, html, markdown'],
           ['`placeholder`', 'String', '', ''],
         ],
         toasts: [
