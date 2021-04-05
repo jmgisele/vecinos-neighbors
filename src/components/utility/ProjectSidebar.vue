@@ -93,6 +93,7 @@ export default {
     };
   },
   emits: ['git-status-click'],
+  inheritAttrs: false,
   methods: {
     backToProjects() {
       if (!window.opener || window.opener.closed || window.opener.location.pathname !== '/') this.$router.push({ name: 'Home' });
