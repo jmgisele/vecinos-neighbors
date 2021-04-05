@@ -18,9 +18,9 @@
       <p>If this setting is enabled, users will be allowed to save content as a draft. This content will be saved to the directory specified below and synced with your repository in separate pushes, so you can configure your CI/CD setup to not run when drafts are synced.</p>
       <MbToggle v-model="enableDrafts" :dark="dark" :icons="['cross', 'check']">Enable draft content</MbToggle>
       <transition>
-        <div class="file-picker-wrapper">
+        <div v-show="enableDrafts" class="file-picker-wrapper">
           <span>Drafts folder:</span>
-          <MbFilePicker v-show="enableDrafts" v-model="draftsDir" :dark="dark" removable :root="`/projects/${currentProject.id}`" />
+          <MbFilePicker v-model="draftsDir" :dark="dark" removable :root="`/projects/${currentProject.id}`" />
         </div>
       </transition>
     </section>
@@ -30,6 +30,14 @@
       <MbToggle v-model="enablePreviews" :dark="dark" :icons="['cross', 'check']">Enable content previews</MbToggle>
       <transition>
         <MbInput v-show="enablePreviews" v-model="projectPreviewUrl" :dark="dark" :error="errors.previewUrl" icon="link" label="Prieview route URL" placeholder="https://example.com/___mb-preview/" ref="previewUrlInput" @blur="setPreviewUrl" @keyup.enter="setPreviewUrl" />
+      </transition>
+    </section>
+    <section class="wrapper">
+      <h2>Internationalisation</h2>
+      <p>Mattrbld is built to support multiple languages. If you enable this feature, you will be able to enable internationalisation per-field, allowing you to specify different values for every language you define in the list below.</p>
+      <MbToggle v-model="enableLanguages" :dark="dark" :icons="['cross', 'check']">Enable internationalisation</MbToggle>
+      <transition>
+        <MbTagInput v-show="enableLanguages" v-model="projectLanguages" allow-unsuggested :dark="dark" label="Languages" placeholder="New language code…" />
       </transition>
     </section>
     <section class="wrapper">
@@ -91,6 +99,16 @@ export default {
         this.$store.dispatch('saveCurrentProject');
       },
     },
+    enableLanguages: {
+      get() {
+        return this.$store.state.currentProject.languages.length > 0;
+      },
+      set(v) {
+        if (v) this.$store.commit('setCurrentProjectProperty', { key: 'languages', value: [navigator.language || 'en-US'] });
+        else this.$store.commit('setCurrentProjectProperty', { key: 'languages', value: [] });
+        this.$store.dispatch('saveCurrentProject');
+      },
+    },
     enablePreviews: {
       get() {
         return Boolean(this.$store.state.currentProject.previewUrl);
@@ -104,6 +122,15 @@ export default {
           this.$store.commit('setCurrentProjectProperty', { key: 'previewUrl', value: null });
           this.$store.dispatch('saveCurrentProject');
         }
+      },
+    },
+    projectLanguages: {
+      get() {
+        return this.$store.state.currentProject.languages;
+      },
+      set(v) {
+        this.$store.commit('setCurrentProjectProperty', { key: 'languages', value: v });
+        this.$store.dispatch('saveCurrentProject');
       },
     },
   },
@@ -256,8 +283,13 @@ export default {
         margin-bottom: 4rem
 
     .input
+      display: flex
+
+    .input,
+    .tag-input
       width: 100%
       margin-bottom: 2rem
+      margin-top: 2rem
 
       & + h2
         margin-top: 1rem
@@ -318,6 +350,14 @@ export default {
       align-items: center
       justify-content: space-between
       margin-bottom: 2rem
+
+      &.v-enter-active,
+      &.v-leave-active
+        transition: opacity 200ms ease
+
+        &.v-enter-from,
+        &.v-leave-to
+          opacity: 0
 
       > span
         margin-right: 1rem
