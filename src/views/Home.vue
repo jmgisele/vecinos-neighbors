@@ -166,8 +166,7 @@ export default {
         });
 
         loadedProjects.sort((a, b) => b.updatedAt - a.updatedAt); // last modified first
-        // this.projects = loadedProjects;
-        this.projects = [...this.projects, ...loadedProjects]; // only needed while the demo projects exist
+        this.projects = loadedProjects;
       } catch (err) {
         this.$store.commit('addToast', { message: `Something went wrong while fetching the projects: ${err.message}`, type: 'error' });
       }
