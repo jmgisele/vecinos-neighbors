@@ -113,6 +113,9 @@ export default createStore({
       const index = state.application.locallyChangedFiles.indexOf(path);
       if (index > -1) state.application.locallyChangedFiles.splice(index, 1);
     },
+    removeLocallyChangedFolder(state, path) {
+      state.application.locallyChangedFiles = state.application.locallyChangedFiles.filter((file) => !file.startsWith(path));
+    },
     removeProjectFromActiveUser(state, id) {
       const index = state.user.projects.indexOf(id);
       if (index > -1) state.user.projects.splice(index, 1);

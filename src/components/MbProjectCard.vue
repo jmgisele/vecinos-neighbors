@@ -97,7 +97,12 @@ export default {
           this.$store.commit('removeProjectFromActiveUser', this.id);
           await this.$store.dispatch('saveUser');
           // otherwise also rmrf it
-          if (usersWithThisProject < 2) await rmrf(`/projects/${this.id}`);
+          if (usersWithThisProject < 2) {
+            const projectPath = `/projects/${this.id}`;
+            await rmrf(projectPath);
+            this.$store.commit('removeLocallyChangedFolder', projectPath);
+            await this.$store.dispatch('saveAppData');
+          }
           this.$emit('deleted');
         } catch (err) {
           this.$store.commit('addToast', { message: `Something went wrong while deleting the project: ${err.message}`, type: 'error' });
