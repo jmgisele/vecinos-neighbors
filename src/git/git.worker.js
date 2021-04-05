@@ -1,6 +1,6 @@
 import FS from '@isomorphic-git/lightning-fs';
 import http from 'isomorphic-git/http/web/index.cjs';
-import { clone as gitClone, listServerRefs } from 'isomorphic-git';
+import { clone as gitClone, listServerRefs, pull as gitPull } from 'isomorphic-git';
 
 import MagicPortal from '../assets/js/FixedMagicPortal';
 import TimeoutError from '../assets/js/TimeoutError';
@@ -62,7 +62,30 @@ async function listRemoteBranches(args) {
   return refs.map((ref) => ref.ref.replace('refs/heads/', ''));
 }
 
+async function pull(args) {
+  const mainThread = await portal.get('mainThread');
+
+  return gitPull({
+    ...args,
+    fs,
+    http,
+    onProgress(e) {
+      mainThread.onProgress(e);
+    },
+    onAuth() {
+      return mainThread.onAuth();
+    },
+    onAuthFailure() {
+      return mainThread.onAuthFailure();
+    },
+    onAuthSuccess() {
+      mainThread.onAuthSuccess();
+    },
+  });
+}
+
 portal.set('workerThread', {
   clone,
   listRemoteBranches,
+  pull,
 });

@@ -28,4 +28,16 @@ async function listRemoteBranches(gitOptions, onAuth, onAuthFailure, onAuthSucce
   return workerThread.listRemoteBranches(gitOptions);
 }
 
-export { clone, listRemoteBranches };
+async function pull(gitOptions, onAuth, onAuthFailure, onAuthSuccess, onProgress) {
+  portal.set('mainThread', {
+    onAuth,
+    onAuthFailure,
+    onAuthSuccess,
+    onProgress,
+  });
+
+  const workerThread = await portal.get('workerThread');
+  return workerThread.pull(gitOptions);
+}
+
+export { clone, listRemoteBranches, pull };
