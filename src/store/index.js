@@ -5,7 +5,7 @@ import observers from './observers';
 
 const persistentAppProperties = ['activeUser', 'corsProxy', 'initialised', 'locallyChangedFiles'];
 const persistentProjectProperties = ['corsProxy', 'id', 'name', 'sidebar', 'slugifyOptions', 'customRoles', 'draftsDir', 'previewUrl', 'languages'];
-const persistentUserProperties = ['email', 'id', 'name', 'projects', 'role', 'theme', 'uiScale'];
+const persistentUserProperties = ['email', 'id', 'name', 'projectAccessDates', 'projects', 'role', 'theme', 'uiScale'];
 
 const projectDefaults = {
   avatar: null,
@@ -44,6 +44,7 @@ export default createStore({
       gitAuth: null,
       id: null,
       name: null,
+      projectAccessDates: {},
       projects: [],
       role: null,
       theme: 'auto',
@@ -143,6 +144,9 @@ export default createStore({
       const index = state.application.permanentModals.indexOf(el);
       if (value && index === -1) state.application.permanentModals.push(el);
       else if (index !== -1) state.application.permanentModals.splice(index, 1);
+    },
+    setProjectAccessDate(state, { project, value }) {
+      state.user.projectAccessDates[project] = value;
     },
     setUserData(state, data) {
       state.user = data;

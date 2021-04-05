@@ -161,6 +161,10 @@ export default {
   components: {
     ProjectSidebar,
   },
+  created() {
+    this.$store.commit('setProjectAccessDate', { project: this.$route.params.id, value: Date.now() });
+    this.$store.dispatch('saveUser');
+  },
   data() {
     return {
       gitStatus: {
