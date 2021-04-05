@@ -58,6 +58,7 @@ export default {
         { label: 'Schemas', value: 'schemas' },
         { label: 'Custom Fields', value: 'fields' },
         { label: 'Sidebar', value: 'sidebar' },
+        { label: 'Dashboard', value: 'dashboard' },
         { label: 'Media Library', value: 'media' },
         { label: 'Users', value: 'users' },
       ],
