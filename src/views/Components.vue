@@ -485,6 +485,17 @@
         <p>In order to only have one modal overlay despite multiple modals stacking on top of each other, the overlay is factored out into its own component that should be included <em>once</em> in the app.</p>
         <h4>Props</h4>
         <MbTable :data="props.modalOverlays" />
+        <h3>Project Sidebar</h3>
+        <p>A component that houses all relevant navigation and the current git status of a project. It only functions within a project, which is why it doesn’t have a demo here.</p>
+        <h4>Props</h4>
+        <MbTable :data="props.projectSidebars" />
+        <h4>Events</h4>
+        <MbTable :data="events.projectSidebars" />
+        <h4>Notes</h4>
+        <p>The component automatially gnerates the upper navigation links based on the sidebar configuration in the current project.</p>
+        <p>This configuration option is an array of objects with the following shape:</p>
+        <pre><code>{{JSON.stringify({ icon: 'Icon name', label: 'String', target: 'Router target' }, null, 2)}}</code></pre>
+        <p>If no <code>target</code> is supplied, just the <code>label</code> is rendered as a separator headline and the <code>icon</code> will be ignored. Otherwise a button with the specified icon and label will be rendered, which will navigate to the supplied <code>target</code> on click.</p>
         <h3>Snackbar</h3>
         <p>Similarly to the Global Tooltip Controller, this component should be included <em>once</em> at the topmost level of the app and is responsible for showing the toasts emitted by various other components.</p>
         <h4>Props</h4>
@@ -492,6 +503,12 @@
         <h3>Svg Sprite</h3>
         <p>This component loads all .svg-Files in the <code>/src/assets/icons</code> folder and compiles them into a SVG spritesheet so they can be easily included with a <code>&lt;use /&gt;</code> tag in the entire app.</p>
         <p>It should only be included <em>once</em> at the topmost level of the app and offers no configuration.</p>
+        <h3>Tab Content</h3>
+        <p>This component can be used to display content in two columns or a single column + a modal on mobile. It’s the base for most views within a project.</p>
+        <h4>Props</h4>
+        <MbTable :data="props.tabContent" />
+        <h4>Events</h4>
+        <MbTable :data="events.tabContent" />
         <h3>Toast</h3>
         <p>A component to inform the user of things happening throughout the app. It will usually be displayed in a <code>Snackbar</code> component.</p>
         <p>Toasts are meant to be ephemeral, so they will disappear after a configured timeout or can be manually dismissed. This has been disabled for the demo toasts below.</p>
@@ -772,6 +789,10 @@ export default {
           ['`deleted`', ''],
           ['`delete-undo`', ''],
         ],
+        projectSidebars: [
+          ['Name', 'Data'],
+          ['`git-status-click`', ''],
+        ],
         radios: [
           ['Name', 'Data'],
           ['`update:modelValue`', 'The value of the selected option'],
@@ -788,6 +809,10 @@ export default {
           ['Name', 'Data'],
           ['`add-tab`', ''],
           ['`update:modelValue`', 'The index of the new active tab'],
+        ],
+        tabContent: [
+          ['Name', 'Data'],
+          ['`split-close`', ''],
         ],
         tagInputs: [
           ['Name', 'Data'],
@@ -982,6 +1007,11 @@ export default {
           ['`name`', 'String', '`undefined`', 'The name of the project'],
           ['`updatedAt`', 'Number', '`undefined`', 'When the project was last modified'],
         ],
+        projectSidebars: [
+          ['Name', 'Type', 'Default', 'Notes'],
+          ['`dark`', 'Boolean', '`false`', ''],
+          ['`gitStatus`', 'Object', '`{}`', 'An object of this shape: { color, label, loading, message }'],
+        ],
         radios: [
           ['Name', 'Type', 'Default'],
           ['`dark`', 'Boolean', '`false`'],
@@ -1026,6 +1056,12 @@ export default {
           ['`modelValue`', 'Number', ''],
           ['`showAddOption`', 'Boolean', '`false`'],
           ['`tabs`', 'Array', '`[]`'],
+        ],
+        tabContent: [
+          ['Name', 'Type', 'Default'],
+          ['`dark`', 'Boolean', '`false`'],
+          ['`padded`', 'Boolean', '`true`'],
+          ['`showSplit`', 'Boolean', '`false`'],
         ],
         tagInputs: [
           ['Name', 'Type', 'Default'],
