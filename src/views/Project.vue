@@ -32,7 +32,7 @@
       </transition>
       <template #actions>
         <MbButton :dark="dark" @click="showChangesModal = false">Cancel</MbButton>
-        <MbButton :dark="dark" :disabled="changesLoading || selectedChanges.length === 0" type="primary" @click="pushChanges">Sync {{selectedChanges.length}} changes</MbButton>
+        <MbButton :dark="dark" :disabled="changesLoading || selectedChanges.length === 0" type="primary" @click="pushChanges">Sync {{selectedChanges.length}} change{{ selectedChanges.length !== 1 ? 's' : ''}}</MbButton>
       </template>
     </MbModal>
   </div>
