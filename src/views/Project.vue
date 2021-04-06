@@ -207,8 +207,45 @@ export default {
     ProjectSidebar,
   },
   computed: {
+    gitStatus() {
+      const status = {
+        color: 'positive',
+        label: 'ready',
+        loading: this.gitLoading,
+        message: GIT_STATUS_MESSAGES.READY,
+      };
+
+      const { percent, step, type } = this.currentOperation;
+
+      if (this.$store.getters.hasLocalChanges(this.projectDir)) {
+        status.color = 'warning';
+        status.label = 'changes';
+        status.message = GIT_STATUS_MESSAGES.CHANGES;
+      }
+
+      if (type === 'pull' && this.gitLoading) {
+        if (step && !percent) status.message = `${GIT_STATUS_MESSAGES.PULLING}: ${step}`;
+        else if (percent) status.message = `${GIT_STATUS_MESSAGES.PULLING}: ${step} ${percent}%`;
+        else status.message = GIT_STATUS_MESSAGES.PULLING;
+      }
+      if (type === 'push' && this.gitLoading) {
+        if (step && !percent) status.message = `${GIT_STATUS_MESSAGES.PUSHING}: ${step}`;
+        else if (percent) status.message = `${GIT_STATUS_MESSAGES.PUSHING}: ${step} ${percent}%`;
+        else status.message = GIT_STATUS_MESSAGES.PUSHING;
+      }
+
+      if (this.gitError) {
+        status.color = 'negative';
+        status.label = 'error';
+        status.message = GIT_STATUS_MESSAGES.ERROR;
+      }
+      return status;
+    },
     lessThanHalfSelected() {
       return this.selectedChanges.length < this.changes.length / 2;
+    },
+    projectDir() {
+      return `/projects/${this.$route.params.id}`;
     },
     selectedChanges() {
       return this.changes.filter((change) => change.selected);
@@ -223,14 +260,13 @@ export default {
       changes: [],
       changesLoading: true,
       commitMessage: '',
-      currentOperation: null,
-      gitError: null,
-      gitStatus: {
-        color: 'positive',
-        label: 'ready',
-        loading: false,
-        message: GIT_STATUS_MESSAGES.READY,
+      currentOperation: {
+        type: null,
+        step: null,
+        percent: null,
       },
+      gitError: null,
+      gitLoading: false,
       showGitErrorModal: false,
       showChangesModal: false,
     };
@@ -241,10 +277,9 @@ export default {
       else if (this.gitStatus.label === 'changes') this.openChangesModal();
     },
     async onGitProgress(progress) {
-      const step = progress.phase;
-      let percent = '';
-      if (progress.total) percent = ` ${(progress.loaded / progress.total) * 100}%`; // NOTE: leading space is intentional
-      if (this.currentOperation === 'pull') this.gitStatus.message = `${GIT_STATUS_MESSAGES.PULLING}: ${step}${percent}`;
+      this.currentOperation.step = progress.phase;
+      if (progress.total) this.currentOperation.percent = (progress.loaded / progress.total) * 100;
+      else this.currentOperation.percent = null;
     },
     async openChangesModal() {
       this.changesLoading = true;
@@ -255,6 +290,7 @@ export default {
             let type;
             let color;
 
+            // NOTE: see this to understand how these codes work: https://isomorphic-git.org/docs/en/statusMatrix
             if (change[1] === 1 && change[2] === 0 && change[3] === 1) {
               type = 'remove';
               color = 'negative';
@@ -278,17 +314,15 @@ export default {
       this.changesLoading = false;
     },
     async performInitialPull() {
-      this.currentOperation = 'pull';
-      this.gitStatus.loading = true;
-      this.gitStatus.message = GIT_STATUS_MESSAGES.PULLING;
+      this.currentOperation.type = 'pull';
+      this.gitLoading = true;
       try {
         const { name, email } = this.$store.getters.userInCurrentProject;
-        const projectDir = `/projects/${this.$route.params.id}`;
         await pull(
           {
             author: { name, email },
             corsProxy: this.$store.state.currentProject.corsProxy,
-            dir: projectDir,
+            dir: this.projectDir,
             singleBranch: true,
           },
           this.onGitAuth,
@@ -296,34 +330,26 @@ export default {
           this.onGitAuthSuccess,
           this.onGitProgress,
         );
-        if (this.$store.getters.hasLocalChanges(projectDir)) {
-          this.gitStatus.color = 'warning';
-          this.gitStatus.label = 'changes';
-          this.gitStatus.message = GIT_STATUS_MESSAGES.CHANGES;
-        } else {
-          this.gitStatus.color = 'positive';
-          this.gitStatus.label = 'ready';
-          this.gitStatus.message = GIT_STATUS_MESSAGES.READY;
-        }
       } catch (err) {
-        this.gitStatus.color = 'negative';
-        this.gitStatus.label = 'error';
-        this.gitStatus.message = GIT_STATUS_MESSAGES.ERROR;
         this.gitError = { code: err.code, message: err.message, name: err.name };
       }
-      this.gitStatus.loading = false;
-      this.currentOperation = null;
+      this.currentOperation.type = null;
+      this.currentOperation.step = null;
+      this.currentOperation.percent = null;
+      this.gitLoading = false;
     },
-    pushChanges() {
+    async pushChanges() {
       const { draftsDir } = this.$store.state.currentProject;
-      const projectDir = `/projects/${this.$route.params.id}`;
 
       if (draftsDir) {
+        this.gitLoading = true;
+        this.currentOperation.type = 'push';
+
         const changesWithoutDrafts = [];
         const drafts = [];
 
         this.selectedChanges.forEach((change) => {
-          if (change.file.startsWith(`${projectDir}/${draftsDir}`)) drafts.push(change);
+          if (change.file.startsWith(`${this.projectDir}/${draftsDir}`)) drafts.push(change);
           else changesWithoutDrafts.push(change);
         });
         // commit and push them separately
@@ -336,6 +362,10 @@ export default {
       });
       this.$store.dispatch('saveAppData');
 
+      this.currentOperation.type = null;
+      this.currentOperation.step = null;
+      this.currentOperation.percent = null;
+      this.gitLoading = false;
       this.showChangesModal = false;
     },
     resetChangesModal() {
