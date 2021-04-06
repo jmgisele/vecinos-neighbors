@@ -40,10 +40,12 @@
 
 <script>
 import slugify from '@sindresorhus/slugify';
-import { statusMatrix } from 'isomorphic-git';
+import {
+  currentBranch as getCurrentBranch, log as gitLog, resetIndex, statusMatrix,
+} from 'isomorphic-git';
 
 import fs, { PlainFS, exists } from '../fs';
-import { pull } from '../git';
+import { addAllAndCommit, pull, push } from '../git';
 import Store from '../store';
 import isMattrbldProject from '../assets/js/isMattrbldProject';
 
@@ -272,13 +274,39 @@ export default {
     };
   },
   methods: {
+    gitAddAllAndCommit(changes, dryRun = false) {
+      const { name, email } = this.$store.getters.userInCurrentProject;
+
+      return addAllAndCommit(changes, {
+        dir: this.projectDir,
+        message: this.commitMessage || 'Update content through Mattrbld',
+        author: {
+          name,
+          email,
+        },
+        dryRun,
+        noUpdateBranch: dryRun || false,
+      });
+    },
+    gitPush() {
+      return push(
+        {
+          corsProxy: this.$store.state.currentProject.corsProxy,
+          dir: this.projectDir,
+        },
+        this.onGitAuth,
+        this.onGitAuthFailure,
+        this.onGitAuthSuccess,
+        this.onGitProgress,
+      );
+    },
     async handleGitStatusClick() {
       if (this.gitError && this.gitStatus.label === 'error') this.showGitErrorModal = true;
       else if (this.gitStatus.label === 'changes') this.openChangesModal();
     },
     async onGitProgress(progress) {
       this.currentOperation.step = progress.phase;
-      if (progress.total) this.currentOperation.percent = (progress.loaded / progress.total) * 100;
+      if (progress.total) this.currentOperation.percent = ((progress.loaded / progress.total) * 100).toFixed(2);
       else this.currentOperation.percent = null;
     },
     async openChangesModal() {
@@ -294,7 +322,11 @@ export default {
             if (change[1] === 1 && change[2] === 0 && change[3] === 1) {
               type = 'remove';
               color = 'negative';
-            } else if (change[1] === 1 && change[2] === 2 && change[3] === 1) {
+            } else if (
+              (change[1] === 1 && change[2] === 2 && change[3] === 1)
+              || (change[1] === 0 && change[2] === 2 && change[3] === 3)
+              || (change[1] === 1 && change[2] === 2 && change[3] === 3)
+            ) {
               type = 'modify';
               color = 'warning';
             } else if (change[1] === 0 && change[2] === 2 && change[3] === 0) {
@@ -347,26 +379,47 @@ export default {
       this.gitLoading = false;
     },
     async pushChanges() {
+      if (this.selectedChanges.length === 0) return;
       const { draftsDir } = this.$store.state.currentProject;
 
       if (draftsDir) {
         this.gitLoading = true;
         this.currentOperation.type = 'push';
 
+        // try doing a pull so we are sure we are on the latest version
+
         const changesWithoutDrafts = [];
         const drafts = [];
 
-        this.selectedChanges.forEach((change) => {
-          if (change.file.startsWith(`${this.projectDir}/${draftsDir}`)) drafts.push(change);
-          else changesWithoutDrafts.push(change);
+        this.selectedChanges.forEach((change) => { // changes need to be turned into plain objects to be processable in the worker thread
+          if (change.file.startsWith(`${this.projectDir}/${draftsDir}`)) drafts.push({ file: change.file, type: change.type });
+          else changesWithoutDrafts.push({ file: change.file, type: change.type });
         });
         // commit and push them separately
+        if (changesWithoutDrafts.length > 0) {
+          await this.gitAddAllAndCommit(changesWithoutDrafts);
+          await this.gitPush(); // TODO: handle errors → reset to last commit (https://github.com/isomorphic-git/isomorphic-git/issues/129, <commit> is log({depth: 1}).oid), unstage everything with resetIndex
+        }
+
+        if (drafts.length > 0) {
+          await this.gitAddAllAndCommit(drafts);
+          await this.gitPush(); // TODO: handle errors → reset to last commit (https://github.com/isomorphic-git/isomorphic-git/issues/129, <commit> is log({depth: 1}).oid), unstage everything with resetIndex
+        }
       } else {
-        // commit and push everything at once
+        const cleanChanges = this.selectedChanges.map((change) => ({ file: change.file, type: change.type })); // changes need to be turned into plain objects to be processable in the worker thread
+        await this.gitAddAllAndCommit(cleanChanges);
+
+        try {
+          await this.gitPush();
+        } catch (err) {
+          console.error(err);
+          await this.resetAfterFail(cleanChanges);
+          return; // // TODO: communicate error to user
+        }
       }
 
       this.selectedChanges.forEach((change) => { // separate loop since we want them to only be removed if the push was successful
-        this.$store.commit('removeLocallyChangedFile', change.file);
+        this.$store.commit('removeLocallyChangedFile', `${this.projectDir}/${change.file}`);
       });
       this.$store.dispatch('saveAppData');
 
@@ -375,6 +428,29 @@ export default {
       this.currentOperation.percent = null;
       this.gitLoading = false;
       this.showChangesModal = false;
+    },
+    async resetAfterFail(changes) {
+      // reset to last commit (https://github.com/isomorphic-git/isomorphic-git/issues/129, <commit> is log({depth: 1}).oid), unstage everything with resetIndex
+      const currentBranch = await getCurrentBranch({
+        fs: PlainFS,
+        dir: this.projectDir,
+        fullname: true,
+      });
+      const lastCommit = (await gitLog({
+        fs: PlainFS,
+        dir: this.projectDir,
+        depth: 2,
+      })).pop().oid;
+
+      // reset HEAD to last successfully pushed commit, taken from here: https://github.com/isomorphic-git/isomorphic-git/issues/129 since no proper git reset --soft exists
+      await fs.writeFile(`${this.projectDir}/.git/${currentBranch}`, lastCommit, 'utf8');
+
+      // unstage everything
+      await Promise.all(changes.map((change) => resetIndex({
+        fs: PlainFS,
+        dir: this.projectDir,
+        filepath: change.file,
+      })));
     },
     resetChangesModal() {
       this.changes = [];
