@@ -331,7 +331,15 @@ export default {
           this.onGitProgress,
         );
       } catch (err) {
-        this.gitError = { code: err.code, message: err.message, name: err.name };
+        let hint;
+        // NOTE: This isn’t exactly a robust way to detect errors, but it’s all the data I have…
+        if (err.message === 'Failed to fetch') hint = 'Check your internet connection and make sure your CORS-proxy is set up correctly. Exiting and re-opening the project or reloading the page might help.';
+        this.gitError = {
+          code: err.code,
+          message: err.message,
+          name: err.name,
+          hint,
+        };
       }
       this.currentOperation.type = null;
       this.currentOperation.step = null;
