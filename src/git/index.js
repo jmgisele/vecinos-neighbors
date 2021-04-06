@@ -54,7 +54,7 @@ async function push(gitOptions, onAuth, onAuthFailure, onAuthSuccess, onProgress
   });
 
   const workerThread = await portal.get('workerThread');
-  return workerThread.pull(gitOptions);
+  return workerThread.push(gitOptions);
 }
 
 export {
