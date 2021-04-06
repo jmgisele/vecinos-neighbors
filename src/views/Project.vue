@@ -418,6 +418,7 @@ export default {
 
   .loader
     height: 16rem
+    margin-top: 1.5rem // to match editor and prevent jumping
 
   .wrapper
     .editor
