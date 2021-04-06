@@ -5,6 +5,11 @@ import MagicPortal from '../assets/js/FixedMagicPortal';
 const worker = new GitWorker();
 const portal = new MagicPortal(worker);
 
+async function addAllAndCommit(changes, gitOptions) {
+  const workerThread = await portal.get('workerThread');
+  return workerThread.addAllAndCommit(changes, gitOptions);
+}
+
 async function clone(gitOptions, onAuth, onAuthFailure, onAuthSuccess, onProgress) {
   portal.set('mainThread', {
     onAuth,
@@ -40,4 +45,22 @@ async function pull(gitOptions, onAuth, onAuthFailure, onAuthSuccess, onProgress
   return workerThread.pull(gitOptions);
 }
 
-export { clone, listRemoteBranches, pull };
+async function push(gitOptions, onAuth, onAuthFailure, onAuthSuccess, onProgress) {
+  portal.set('mainThread', {
+    onAuth,
+    onAuthFailure,
+    onAuthSuccess,
+    onProgress,
+  });
+
+  const workerThread = await portal.get('workerThread');
+  return workerThread.pull(gitOptions);
+}
+
+export {
+  addAllAndCommit,
+  clone,
+  listRemoteBranches,
+  pull,
+  push,
+};

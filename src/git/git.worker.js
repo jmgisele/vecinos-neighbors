@@ -1,12 +1,34 @@
 import FS from '@isomorphic-git/lightning-fs';
 import http from 'isomorphic-git/http/web/index.cjs';
-import { clone as gitClone, listServerRefs, pull as gitPull } from 'isomorphic-git';
+import {
+  add,
+  commit,
+  clone as gitClone,
+  listServerRefs,
+  pull as gitPull,
+  push as gitPush,
+  remove,
+} from 'isomorphic-git';
 
 import MagicPortal from '../assets/js/FixedMagicPortal';
 import TimeoutError from '../assets/js/TimeoutError';
 
 const fs = new FS('mattrfs');
 const portal = new MagicPortal(self); // eslint-disable-line no-restricted-globals
+
+async function addAllAndCommit(changes, gitOptions) {
+  // git add -A adapted from https://isomorphic-git.org/docs/en/snippets
+  await Promise.all(
+    changes.map((change) => {
+      if (change.type === 'remove') return remove({ fs, dir: gitOptions.dir, filepath: change.file });
+      return add({ fs, dir: gitOptions.dir, filepath: change.file });
+    }),
+  );
+  return commit({
+    ...gitOptions,
+    fs,
+  });
+}
 
 async function clone(args) {
   const mainThread = await portal.get('mainThread');
@@ -84,8 +106,32 @@ async function pull(args) {
   });
 }
 
+async function push(args) {
+  const mainThread = await portal.get('mainThread');
+
+  return gitPush({
+    ...args,
+    fs,
+    http,
+    onProgress(e) {
+      mainThread.onProgress(e);
+    },
+    onAuth() {
+      return mainThread.onAuth();
+    },
+    onAuthFailure() {
+      return mainThread.onAuthFailure();
+    },
+    onAuthSuccess() {
+      mainThread.onAuthSuccess();
+    },
+  });
+}
+
 portal.set('workerThread', {
+  addAllAndCommit,
   clone,
   listRemoteBranches,
   pull,
+  push,
 });
