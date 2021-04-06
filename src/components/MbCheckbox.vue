@@ -34,6 +34,7 @@ export default {
   position: relative
   user-select: none
   cursor: pointer
+  display: inline-flex
 
   &.full-width
     display: flex
