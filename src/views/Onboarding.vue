@@ -201,7 +201,7 @@ export default {
         const user = {
           email: this.userEmail.trim(),
           id: this.userId,
-          name: this.userName.trim().toLowerCase(),
+          name: this.userName.trim(),
           projects: [this.projectName],
           role: this.userRole,
         };

@@ -213,7 +213,7 @@ export default {
         const user = {
           email: this.newUserData.email.trim(),
           id: newUserId,
-          name: this.newUserData.name.trim().toLowerCase(),
+          name: this.newUserData.name.trim(),
           projects: [],
           role: this.newUserData.role || 'editor',
         };
@@ -388,7 +388,7 @@ export default {
       this.$store.commit('setUserData', {
         ...this.$store.state.user,
         email: email.trim(),
-        name: name.trim().toLowerCase(),
+        name: name.trim(),
         role,
         theme: this.theme,
         uiScale: this.scale,
@@ -402,7 +402,7 @@ export default {
           ...this.users[index],
           avatar: this.activeUser.avatar,
           email: email.trim(),
-          name: name.trim().toLowerCase(),
+          name: name.trim(),
           role,
           theme: this.theme,
           uiScale: this.scale,
@@ -489,7 +489,6 @@ export default {
       background-color: $bg-secondary-dark
 
   span
-    text-transform: capitalize
     margin-right: 1rem
     white-space: nowrap
     overflow: hidden
@@ -585,7 +584,6 @@ export default {
         border-radius: 50%
 
       span
-        text-transform: capitalize
         text-overflow: ellipsis
         overflow: hidden
         white-space: nowrap
@@ -653,9 +651,6 @@ export default {
 
     &.name
       margin-top: 2rem
-
-      &::v-deep(input)
-        text-transform: capitalize
 
   .button.delete-user
     margin-bottom: 1rem

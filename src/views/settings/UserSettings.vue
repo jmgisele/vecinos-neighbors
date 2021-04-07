@@ -171,9 +171,6 @@ export default {
     };
   },
   methods: {
-    capitalizeName(name) {
-      return name.replace(/\b(\w)/g, (firstLetter) => firstLetter.toUpperCase());
-    },
     checkAvatarRegeneration() {
       if (!this.avatarUploaded && !this.formErrors && this.userBeingEdited.name && this.userBeingEdited.email) this.regenerateAvatar();
     },
@@ -387,7 +384,7 @@ export default {
           this.$store.commit('removeFromSoftDeleted', `user/${this.currentProject.id}/${userBeingDeleted}`);
         },
         actionLabel: 'Undo',
-        message: `“${this.capitalizeName(this.userBeingEdited.name)}” was removed`,
+        message: `“${this.userBeingEdited.name}” was removed`,
         timeout: timeout - 200, // just to be sure
         type: 'warning',
       });
@@ -458,7 +455,7 @@ export default {
         const user = {
           email: this.userBeingEdited.email.trim(),
           id: userId,
-          name: this.userBeingEdited.name.trim().toLowerCase(),
+          name: this.userBeingEdited.name.trim(),
           role: this.userBeingEdited.role || 'editor',
         };
         const userPath = `/projects/${this.currentProject.id}/.mattrbld/users`;
@@ -494,7 +491,7 @@ export default {
               this.copyInviteLink(inviteLink);
             },
             actionLabel: 'Copy invite-link',
-            message: `“${this.capitalizeName(user.name)}” was added sucessfully`,
+            message: `“${user.name}” was added sucessfully`,
             type: 'positive',
           });
         }
@@ -755,14 +752,12 @@ export default {
             white-space: nowrap
             text-overflow: ellipsis
             overflow: hidden
-            text-transform: capitalize
             flex: 1 1 33.33%
 
             &.changed
               flex-basis: calc(33.33% - 1rem)
 
             &.secondary
-              text-transform: none
               color: $text-secondary
 
               @media $mobile
@@ -796,9 +791,6 @@ export default {
   .input
     width: 100%
     margin-bottom: 1rem
-
-    &.name-input::v-deep(input)
-        text-transform: capitalize
 
     & + .select-wrapper
       margin-top: 1.5rem
