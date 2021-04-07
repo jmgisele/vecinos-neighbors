@@ -35,7 +35,7 @@ export default {
       return { username: this.credentials.user, password: this.credentials.password };
     },
     async onGitAuthSuccess() {
-      if (this.credentials.savePassword) {
+      if (this.credentials && this.credentials.savePassword) {
         // WARNING: This might be insecure considering XSS attacks (then again, if there’s a XSS, we probably are screwed anyway)
         this.$store.commit('setUserProperty', { key: 'gitAuth', value: { password: this.credentials.password, user: this.credentials.user } });
       }
