@@ -241,15 +241,17 @@ export default {
           }, this.onGitAuth, this.onGitAuthFailure, this.onGitAuthSuccess, this.onGitProgress);
           this.cloneStep = 'checking configuration';
           this.cloneProgress = 0;
-          const wasConfigured = await isMattrbldProject(`/projects/${projectId}/.mattrbld`);
+          const wasConfigured = await isMattrbldProject(projectId);
 
           let project;
           if (wasConfigured) {
-            const projectDetails = [fs.readFile(`/projects/${projectId}/.mattrbld/avatar.jpg`, 'utf8'), fs.readFile(`/projects/${projectId}/.mattrbld/config.json`, 'utf8')];
+            const projectDetails = [fs.readFile(`/projects/${projectId}/.mattrbld/avatar.jpg`), fs.readFile(`/projects/${projectId}/.mattrbld/config.json`, 'utf8')];
             const [avatar, config] = await Promise.allSettled(projectDetails);
 
-            if (config.status !== 'rejected') project = { ...JSON.parse(config.value) };
-            else project = { id: projectId, name: projectId };
+            if (config.status !== 'rejected') {
+              const projectData = JSON.parse(config.value);
+              project = { id: projectId, name: projectData.name || projectId, updatedAt: Date.now() };
+            } else project = { id: projectId, name: projectId, updatedAt: Date.now() };
 
             if (avatar.status !== 'rejected') project.avatar = URL.createObjectURL(new Blob([avatar.value], { type: 'image/jpeg' })); // revoking is handled by the ProjectAvatar component
             project.updatedAt = Date.now();
