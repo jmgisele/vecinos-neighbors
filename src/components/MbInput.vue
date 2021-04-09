@@ -26,6 +26,9 @@ export default {
   },
   emits: ['blur', 'focus', 'update:modelValue'],
   methods: {
+    focus() {
+      this.$refs.input.focus();
+    },
     handleBlur() {
       this.focussed = false;
       this.$emit('blur');
