@@ -2,7 +2,7 @@
   <teleport to="body">
     <div class="centerer" :style="{ zIndex: modalIndex === -1 ? 999 : modalIndex + 1 }"><!-- This is needed so the modal doesn’t slip under another one while leaving -->
       <transition @after-leave="$emit('after-close')">
-        <div v-show="visible" v-bind="$attrs" class="modal" :class="{dark, darkened: nextModal, transition: !swiping, slim, swiping, wiggle }" ref="el" :style="{ opacity, pointerEvents, transform }" tabindex="-1" @touchstart="swipeStart" @touchmove="swipeUpdate" @touchend="swipeEnd">
+        <div v-show="visible" v-bind="$attrs" class="modal" :class="{dark, darkened: nextModal, transition: !swiping, slim, swiping, wiggle }" ref="el" :style="{ opacity, pointerEvents, transform }" tabindex="-1" @keyup.esc="permanent ? showPermanence({}) : $emit('close')" @touchstart="swipeStart" @touchmove="swipeUpdate" @touchend="swipeEnd">
           <header v-if="title">
             <h2 class="h3">{{title}}</h2>
           </header>
@@ -142,6 +142,7 @@ export default {
       if (!nv) {
         this.transform = null;
         this.pointerEvents = null;
+        this.$nextTick(() => this.$refs.el.focus());
       } else this.$nextTick(this.updateOffsets);
     },
     permanent(nv) {
