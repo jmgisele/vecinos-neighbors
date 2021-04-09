@@ -179,7 +179,7 @@ export default {
       }
     },
     windowSwipeStart(e) {
-      if (!this.isTablet || this.swiping || this.visible) return;
+      if (!this.isTablet || this.swiping || this.visible || this.$store.state.application.openModals.length > 0) return;
       if (e.changedTouches[0].clientX > 48) return;
 
       // e.preventDefault(); // this would be needed to prevent chromes and safaris swipe to go back, but it also prevents clicks from firing, maybe it could be avoided with overscroll-behaviour on body?
