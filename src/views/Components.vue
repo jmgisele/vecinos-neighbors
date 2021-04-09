@@ -84,6 +84,8 @@
         <MbTable :data="props.inputs" />
         <h3>Events</h3>
         <MbTable :data="events.inputs" />
+        <h3>Notes</h3>
+        <p>They can be focussed programmatically with a <code>focus()</code> function, if you first optain a <code>$ref</code> for them.</p>
       </section>
       <section v-else-if="activeTabValue === 'buttons'" class="tab buttons" key="buttons">
         <h2>Buttons</h2>
@@ -256,7 +258,7 @@
       </section>
       <section v-else-if="activeTabValue === 'modals'" class="tab modals" key="modals">
         <h2>Modals</h2>
-        <p>Modals get displayed over every other piece of content. They put the user in a new mode. They can also be stacked.</p>
+        <p>Modals get displayed over every other piece of content. They put the user in a new mode. They can also be stacked. Hitting Esc while the focus is within them, closes them.</p>
         <p>Click the button below to open a modal.</p>
         <MbButton :dark="dark" type="primary" @click="modalVisible = true">Open Modal</MbButton>
         <MbModal :dark="dark" permanent title="Permanent Test Modal" :visible="modalVisible" @close="modalVisible = false">
@@ -777,6 +779,7 @@ export default {
         modals: [
           ['Name', 'Data'],
           ['`after-close`', ''],
+          ['`after-open`', ''],
           ['`close`', ''],
         ],
         popovers: [
