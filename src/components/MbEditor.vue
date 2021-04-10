@@ -269,6 +269,10 @@ export default {
       this.editorView = null;
       this.editorState = null;
     },
+    focus() {
+      if (this.outputFormat === 'text' || this.raw) this.$refs.textarea.focus();
+      else this.editorView.focus();
+    },
     generateActions(schema) {
       if (this.outputFormat === 'text') return [];
       const actions = [];

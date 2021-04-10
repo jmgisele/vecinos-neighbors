@@ -164,6 +164,8 @@
         <MbTable :data="props.textareas" />
         <h3>Events</h3>
         <MbTable :data="events.textareas" />
+        <h3>Notes</h3>
+        <p>Like inputs, editors can be focussed externally by calling <code>focus()</code> on a reference of them.</p>
       </section>
       <section v-else-if="activeTabValue === 'loaders'" class="tab loaders" key="loaders">
         <h2>Loaders</h2>
