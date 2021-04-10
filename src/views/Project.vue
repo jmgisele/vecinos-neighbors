@@ -31,6 +31,9 @@
                 <span>{{change.file}}</span>
               </div>
             </li>
+            <li v-if="changes.length === 0" class="empty-state">
+              <span>There currently are no unpublished changes</span>
+            </li>
           </ul>
         </div>
       </transition>
@@ -593,6 +596,11 @@ export default {
 
         &:not(:last-child)
           margin-bottom: 1rem
+
+        &.empty-state
+          padding: 1rem 0
+          justify-content: center
+          color: $text-secondary
 
         .checkbox
           margin-right: 1rem
