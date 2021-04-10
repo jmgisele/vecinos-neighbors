@@ -370,6 +370,9 @@ export default {
           const users = [...this.currentProject.users];
           users.splice(userIndex, 1);
           this.$store.commit('setCurrentProjectProperty', { key: 'users', value: users });
+          this.$store.commit('removeLocallyChangedFile', `${userPath}/${userBeingDeleted}.json`);
+          this.$store.commit('removeLocallyChangedFile', `${userPath}/${userBeingDeleted}.jpg`);
+          await this.$store.dispatch('saveAppData');
         } catch (err) {
           this.$store.commit('addToast', { message: `Something went wrong while deleting the user: ${err.message}`, type: 'error' });
         } finally {
