@@ -70,7 +70,7 @@ class _MagicPortalImplementation {
     if (object) {
       object[data.method](...data.args)
         .then((result) => data.reply && this.channel.postMessage({ type: 'MP_RETURN', id: data.id, result }))
-        .catch((err) => this.channel.postMessage({ type: 'MP_RETURN', id: data.id, error: { code: err.code, message: err.message, name: err.name } }));
+        .catch((err) => this.channel.postMessage({ type: 'MP_RETURN', id: data.id, error: { code: err.code, data: err.data, message: err.message, name: err.name } }));
     }
   }
 
