@@ -346,7 +346,7 @@ export default {
     async openChangesModal() {
       this.changesLoading = true;
       this.showChangesModal = true;
-      this.changes = (await statusMatrix({ fs: PlainFS, dir: `/projects/${this.$route.params.id}` }))
+      this.changes = (await statusMatrix({ fs: PlainFS, dir: this.projectDir }))
         .reduce((acc, change) => {
           if (change[2] !== change[3]) {
             let type;
@@ -377,6 +377,12 @@ export default {
           }
           return acc;
         }, []);
+      const actuallyChangedFiles = this.$store.state.application.locallyChangedFiles.reduce((acc, path) => {
+        if (!path.startsWith(this.projectDir) || this.changes.find((change) => `${this.projectDir}/${change.file}` === path)) acc.push(path);
+        return acc;
+      }, []);
+      this.$store.commit('setLocallyChangedFiles', actuallyChangedFiles);
+      await this.$store.dispatch('saveAppData');
       this.changesLoading = false;
     },
     async performInitialPull() {
