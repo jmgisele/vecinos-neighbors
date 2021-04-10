@@ -8,6 +8,7 @@
       <pre><code>{{JSON.stringify({ timestamp: new Date(), ...gitError }, null, 2)}}</code></pre>
       <template #actions>
         <MbButton :dark="dark" @click="showGitErrorModal = false">Close</MbButton>
+        <MbButton v-if="gitErrorRetryAction" :dark="dark" type="primary" @click="handleGitErrorRetry">Try again</MbButton>
       </template>
     </MbModal>
     <MbModal class="changes-modal" :dark="dark" title="Sync local changes" :visible="showChangesModal" @close="showChangesModal = false" @after-close="resetChangesModal">
@@ -268,6 +269,7 @@ export default {
         percent: null,
       },
       gitError: null,
+      gitErrorRetryAction: null,
       gitLoading: false,
       showGitErrorModal: false,
       showChangesModal: false,
@@ -300,9 +302,31 @@ export default {
         this.onGitProgress,
       );
     },
+    handleGitErrorRetry() {
+      if (!this.gitErrorRetryAction) return;
+      this.gitErrorRetryAction();
+      this.gitErrorRetryAction = null;
+      this.gitError = null;
+      this.showGitErrorModal = false;
+    },
     async handleGitStatusClick() {
       if (this.gitError && this.gitStatus.label === 'error') this.showGitErrorModal = true;
       else if (this.gitStatus.label === 'changes') this.openChangesModal();
+    },
+    async handlePushError(err, changes) {
+      await this.resetAfterFail(changes);
+      this.currentOperation.type = null;
+      this.currentOperation.step = null;
+      this.currentOperation.percent = null;
+      this.gitLoading = false;
+
+      if (err.code === 'UserCanceledError') {
+        this.showChangesModal = false;
+      } else {
+        this.gitError = err;
+        this.gitErrorRetryAction = this.pushChanges;
+        this.showGitErrorModal = true;
+      }
     },
     async onGitProgress(progress) {
       this.currentOperation.step = progress.phase;
@@ -368,10 +392,12 @@ export default {
         if (err.message === 'Failed to fetch') hint = 'Check your internet connection and make sure your CORS-proxy is set up correctly. Exiting and re-opening the project or reloading the page might help.';
         this.gitError = {
           code: err.code,
+          data: err.data,
           message: err.message,
           name: err.name,
           hint,
         };
+        this.gitErrorRetryAction = this.performInitialPull;
       }
       this.currentOperation.type = null;
       this.currentOperation.step = null;
@@ -382,12 +408,12 @@ export default {
       if (this.selectedChanges.length === 0) return;
       const { draftsDir } = this.$store.state.currentProject;
 
+      this.gitLoading = true;
+      this.currentOperation.type = 'push';
+
+      // try doing a pull so we are sure we are on the latest version
+
       if (draftsDir) {
-        this.gitLoading = true;
-        this.currentOperation.type = 'push';
-
-        // try doing a pull so we are sure we are on the latest version
-
         const changesWithoutDrafts = [];
         const drafts = [];
 
@@ -398,12 +424,22 @@ export default {
         // commit and push them separately
         if (changesWithoutDrafts.length > 0) {
           await this.gitAddAllAndCommit(changesWithoutDrafts);
-          await this.gitPush(); // TODO: handle errors → reset to last commit (https://github.com/isomorphic-git/isomorphic-git/issues/129, <commit> is log({depth: 1}).oid), unstage everything with resetIndex
+          try {
+            await this.gitPush();
+          } catch (err) {
+            this.handlePushError(err, changesWithoutDrafts);
+            return;
+          }
         }
 
         if (drafts.length > 0) {
           await this.gitAddAllAndCommit(drafts);
-          await this.gitPush(); // TODO: handle errors → reset to last commit (https://github.com/isomorphic-git/isomorphic-git/issues/129, <commit> is log({depth: 1}).oid), unstage everything with resetIndex
+          try {
+            await this.gitPush();
+          } catch (err) {
+            this.handlePushError(err, drafts);
+            return;
+          }
         }
       } else {
         const cleanChanges = this.selectedChanges.map((change) => ({ file: change.file, type: change.type })); // changes need to be turned into plain objects to be processable in the worker thread
@@ -412,9 +448,8 @@ export default {
         try {
           await this.gitPush();
         } catch (err) {
-          console.error(err);
-          await this.resetAfterFail(cleanChanges);
-          return; // // TODO: communicate error to user
+          this.handlePushError(err, cleanChanges);
+          return;
         }
       }
 
