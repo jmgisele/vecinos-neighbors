@@ -453,6 +453,7 @@ export default {
 
         if (drafts.length > 0) {
           this.currentOperation.step = 'Synching drafts…';
+          this.commitMessage = this.commitMessage ? `${this.commitMessage} (drafts)` : 'Update drafts through Mattrbld';
           await this.gitAddAllAndCommit(drafts);
           try {
             await this.gitPush();
