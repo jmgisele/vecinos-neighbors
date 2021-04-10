@@ -137,6 +137,9 @@ export default createStore({
     setCurrentProjectProperty(state, { key, value }) {
       state.currentProject[key] = value;
     },
+    setLocallyChangedFiles(state, value) {
+      state.application.locallyChangedFiles = value;
+    },
     setMobile(state, value) {
       state.application.mobile = value;
     },
