@@ -11,9 +11,12 @@
         <MbButton v-if="gitErrorRetryAction" :dark="dark" type="primary" @click="handleGitErrorRetry">Try again</MbButton>
       </template>
     </MbModal>
-    <MbModal class="changes-modal" :dark="dark" title="Sync local changes" :visible="showChangesModal" @close="showChangesModal = false" @after-close="resetChangesModal">
+    <MbModal class="changes-modal" :dark="dark" :permanent="isPushing" title="Sync local changes" :visible="showChangesModal" @close="showChangesModal = false" @after-close="resetChangesModal">
       <transition mode="out-in">
         <MbLoader v-if="changesLoading" />
+        <div v-else-if="isPushing" class="progress">
+          <MbProgress :dark="dark" :indetermined="!currentOperation.progress" :label="currentOperation.step" :progress="currentOperation.progress" />
+        </div>
         <div v-else class="wrapper">
           <MbEditor v-model="commitMessage" :allow-new-lines="false" :dark="dark" label="Message describing the changes (optional)" :max-len="72" />
           <header :class="{dark}">
@@ -32,8 +35,8 @@
         </div>
       </transition>
       <template #actions>
-        <MbButton :dark="dark" @click="showChangesModal = false">Cancel</MbButton>
-        <MbButton :dark="dark" :disabled="changesLoading || selectedChanges.length === 0" type="primary" @click="pushChanges">Sync {{selectedChanges.length}} change{{ selectedChanges.length !== 1 ? 's' : ''}}</MbButton>
+        <MbButton :dark="dark" :disabled="isPushing" @click="showChangesModal = false">Cancel</MbButton>
+        <MbButton :dark="dark" :disabled="isPushing || changesLoading || selectedChanges.length === 0" type="primary" @click="pushChanges">Sync {{selectedChanges.length}} change{{ selectedChanges.length !== 1 ? 's' : ''}}</MbButton>
       </template>
     </MbModal>
   </div>
@@ -218,7 +221,7 @@ export default {
         message: GIT_STATUS_MESSAGES.READY,
       };
 
-      const { percent, step, type } = this.currentOperation;
+      const { progress, step, type } = this.currentOperation;
 
       if (this.$store.getters.hasLocalChanges(this.projectDir)) {
         status.color = 'warning';
@@ -227,13 +230,13 @@ export default {
       }
 
       if (type === 'pull' && this.gitLoading) {
-        if (step && !percent) status.message = `${GIT_STATUS_MESSAGES.PULLING}: ${step}`;
-        else if (percent) status.message = `${GIT_STATUS_MESSAGES.PULLING}: ${step} ${percent}%`;
+        if (step && !progress) status.message = `${GIT_STATUS_MESSAGES.PULLING}: ${step}`;
+        else if (progress) status.message = `${GIT_STATUS_MESSAGES.PULLING}: ${step} ${(progress * 100).toFixed(2)}%`;
         else status.message = GIT_STATUS_MESSAGES.PULLING;
       }
       if (type === 'push' && this.gitLoading) {
-        if (step && !percent) status.message = `${GIT_STATUS_MESSAGES.PUSHING}: ${step}`;
-        else if (percent) status.message = `${GIT_STATUS_MESSAGES.PUSHING}: ${step} ${percent}%`;
+        if (step && !progress) status.message = `${GIT_STATUS_MESSAGES.PUSHING}: ${step}`;
+        else if (progress) status.message = `${GIT_STATUS_MESSAGES.PUSHING}: ${step} ${(progress * 100).toFixed(2)}%`;
         else status.message = GIT_STATUS_MESSAGES.PUSHING;
       }
 
@@ -243,6 +246,9 @@ export default {
         status.message = GIT_STATUS_MESSAGES.ERROR;
       }
       return status;
+    },
+    isPushing() {
+      return this.currentOperation.type === 'push' && this.gitLoading;
     },
     lessThanHalfSelected() {
       return this.selectedChanges.length < this.changes.length / 2;
@@ -266,7 +272,7 @@ export default {
       currentOperation: {
         type: null,
         step: null,
-        percent: null,
+        progress: null,
       },
       gitError: null,
       gitErrorRetryAction: null,
@@ -291,6 +297,7 @@ export default {
       });
     },
     gitPush() {
+      this.currentOperation.step = 'Starting sync…';
       return push(
         {
           corsProxy: this.$store.state.currentProject.corsProxy,
@@ -305,9 +312,9 @@ export default {
     handleGitErrorRetry() {
       if (!this.gitErrorRetryAction) return;
       this.gitErrorRetryAction();
+      this.showGitErrorModal = false;
       this.gitErrorRetryAction = null;
       this.gitError = null;
-      this.showGitErrorModal = false;
     },
     async handleGitStatusClick() {
       if (this.gitError && this.gitStatus.label === 'error') this.showGitErrorModal = true;
@@ -317,7 +324,7 @@ export default {
       await this.resetAfterFail(changes);
       this.currentOperation.type = null;
       this.currentOperation.step = null;
-      this.currentOperation.percent = null;
+      this.currentOperation.progress = null;
       this.gitLoading = false;
 
       if (err.code === 'UserCanceledError') {
@@ -330,8 +337,8 @@ export default {
     },
     async onGitProgress(progress) {
       this.currentOperation.step = progress.phase;
-      if (progress.total) this.currentOperation.percent = ((progress.loaded / progress.total) * 100).toFixed(2);
-      else this.currentOperation.percent = null;
+      if (progress.total) this.currentOperation.progress = progress.loaded / progress.total;
+      else this.currentOperation.progress = null;
     },
     async openChangesModal() {
       this.changesLoading = true;
@@ -401,7 +408,7 @@ export default {
       }
       this.currentOperation.type = null;
       this.currentOperation.step = null;
-      this.currentOperation.percent = null;
+      this.currentOperation.progress = null;
       this.gitLoading = false;
     },
     async pushChanges() {
@@ -410,19 +417,22 @@ export default {
 
       this.gitLoading = true;
       this.currentOperation.type = 'push';
+      this.currentOperation.step = 'Fetching latest changes…';
 
-      // try doing a pull so we are sure we are on the latest version
+      // TODO: try doing a fetch && merge so we are sure we are on the latest version
 
       if (draftsDir) {
         const changesWithoutDrafts = [];
         const drafts = [];
 
+        this.currentOperation.step = 'Separating drafts from published content…';
         this.selectedChanges.forEach((change) => { // changes need to be turned into plain objects to be processable in the worker thread
           if (change.file.startsWith(`${this.projectDir}/${draftsDir}`)) drafts.push({ file: change.file, type: change.type });
           else changesWithoutDrafts.push({ file: change.file, type: change.type });
         });
         // commit and push them separately
         if (changesWithoutDrafts.length > 0) {
+          this.currentOperation.step = 'Synching changes…';
           await this.gitAddAllAndCommit(changesWithoutDrafts);
           try {
             await this.gitPush();
@@ -433,6 +443,7 @@ export default {
         }
 
         if (drafts.length > 0) {
+          this.currentOperation.step = 'Synching drafts…';
           await this.gitAddAllAndCommit(drafts);
           try {
             await this.gitPush();
@@ -442,6 +453,7 @@ export default {
           }
         }
       } else {
+        this.currentOperation.step = 'Gathering changes…';
         const cleanChanges = this.selectedChanges.map((change) => ({ file: change.file, type: change.type })); // changes need to be turned into plain objects to be processable in the worker thread
         await this.gitAddAllAndCommit(cleanChanges);
 
@@ -458,11 +470,11 @@ export default {
       });
       this.$store.dispatch('saveAppData');
 
+      this.showChangesModal = false;
       this.currentOperation.type = null;
       this.currentOperation.step = null;
-      this.currentOperation.percent = null;
+      this.currentOperation.progress = null;
       this.gitLoading = false;
-      this.showChangesModal = false;
     },
     async resetAfterFail(changes) {
       // reset to last commit (https://github.com/isomorphic-git/isomorphic-git/issues/129, <commit> is log({depth: 1}).oid), unstage everything with resetIndex
@@ -526,6 +538,7 @@ export default {
 
 .changes-modal
   .loader,
+  .progress,
   .wrapper
     &.v-enter-active,
     &.v-leave-active
@@ -538,6 +551,15 @@ export default {
   .loader
     height: 16rem
     margin-top: 1.5rem // to match editor and prevent jumping
+
+  .progress
+    padding: 2rem
+
+    .progress
+      width: 100%
+
+      &::v-deep(.label)
+        text-align: center
 
   .wrapper
     .editor
