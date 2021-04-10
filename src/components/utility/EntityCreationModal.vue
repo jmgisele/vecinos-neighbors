@@ -1,8 +1,8 @@
 <template lang="html">
-  <MbModal class="entity-creation-modal" :dark="dark" slim :title="title" :visible="visible" @close="$emit('close')">
+  <MbModal class="entity-creation-modal" :dark="dark" slim :title="title" :visible="visible" @after-open="$refs.nameInput.focus()" @close="$emit('close')">
     <MbSegmentedSelector v-if="!only" v-model="entity" :dark="dark" :options="[{ label: 'File', value: 'file' }, { label: 'Folder', value: 'directory' }]" />
     <div class="input-group">
-      <MbInput v-model="name" :class="{ 'no-extension': !showExtension }" :dark="dark" :error="nameError" :icon="entity === 'file' ? 'document-add' : 'folder-add'" label="Name" :max-len="currentFileExtension && showExtension ? 255 - currentFileExtension.length + 1 : 255" @keyup.ctrl.enter="createEntity" @update:model-value="validateName" />
+      <MbInput v-model="name" :class="{ 'no-extension': !showExtension }" :dark="dark" :error="nameError" :icon="entity === 'file' ? 'document-add' : 'folder-add'" label="Name" :max-len="currentFileExtension && showExtension ? 255 - currentFileExtension.length + 1 : 255" ref="nameInput" @keyup.ctrl.enter="createEntity" @update:model-value="validateName" />
       <template v-if="showExtension">
         <span v-if="typeof fileExtension === 'string'" :class="{ dark }">.{{fileExtension}}</span>
         <MbSelect v-else v-model="currentFileExtension" :dark="dark" :options="fileExtension" tooltip="This extension will automatically be added to the filename" />
@@ -60,21 +60,23 @@ export default {
 
       if (this.nameError) return;
 
+      const { fullName, path } = this;
+
       if (this.entity === 'directory') {
         try {
-          await fs.mkdir(joinPath(this.path, this.fullName));
+          await fs.mkdir(joinPath(path, fullName));
           this.reInitialize();
           this.$emit('close');
-          this.$emit('entity-created');
+          this.$emit('entity-created', fullName);
         } catch (err) {
           this.$store.commit('addToast', { message: `Something went wrong while creating the directory: ${err.message}` });
         }
       } else {
         try {
-          await fs.writeFile(joinPath(this.path, this.fullName), this.fileContent || '', 'utf8');
+          await fs.writeFile(joinPath(path, fullName), this.fileContent || '', 'utf8');
           this.reInitialize();
           this.$emit('close');
-          this.$emit('entity-created');
+          this.$emit('entity-created', fullName);
         } catch (err) {
           this.$store.commit('addToast', { message: `Something went wrong while creating the file: ${err.message}` });
         }

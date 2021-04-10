@@ -757,7 +757,7 @@ export default {
         entityCreationModals: [
           ['Name', 'Data'],
           ['`close`', ''],
-          ['`entity-created`', ''],
+          ['`entity-created`', 'The name of the newly created entity'],
         ],
         fileLists: [
           ['Name', 'Data'],
