@@ -62,8 +62,8 @@ export default {
       this.showPicker = false;
       this.$el.focus();
     },
-    handleEntityCreated() {
-      this.$refs.fileList.refresh();
+    handleEntityCreated(name) {
+      this.$refs.fileList.openFolder(name);
     },
     handleFolderCreation() {
       this.deactivate();
