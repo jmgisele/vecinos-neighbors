@@ -225,7 +225,7 @@ export default {
       this.currentPath = joinPath(this.root, ...newPath.slice(1)); // strip the leading empty string (since currentPath always starts with a slash)
     },
     openFolder(name, e) {
-      if (e.target.classList.contains('button')) return; // buttons have a ::before that covers them completely, so this is enough
+      if (e && e.target.classList.contains('button')) return; // buttons have a ::before that covers them completely, so this is enough
       this.searchTerm = '';
       this.currentPath = joinPath(this.currentPath, name);
     },
