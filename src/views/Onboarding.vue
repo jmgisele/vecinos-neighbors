@@ -268,7 +268,7 @@ export default {
           depth: 5,
         }, this.onGitAuth, this.onGitAuthFailure, this.onGitAuthSuccess, this.onGitProgress)
           .then(() => {
-            isMattrbldProject(`/projects/${this.projectName}/.mattrbld`)
+            isMattrbldProject(this.projectName)
               .then((result) => {
                 this.isMattrbldProject = result;
               })
