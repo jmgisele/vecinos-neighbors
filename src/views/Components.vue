@@ -1090,7 +1090,7 @@ export default {
           ['`error`', 'String', '`\'\'`', ''],
           ['`formatOptions`', 'Object', '`{ minHeading: 1, maxHeading: 6, allowQuoteFooters: true, allowNestedLists: true }`', ''],
           ['`formats`', 'Object', "`{ block: ['blockquote', 'codeBlock', 'heading', 'hr', 'orderedList', 'unorderedList'], inline: ['br', 'code', 'em', 'link', 'strike', 'strong'] }`", 'List of allowed formats for non-text editors. Set block to false to get an inline-only editor.'],
-          ['`inputRuleOptions`', 'Object', "`{ autoquotes: '“”‘’', dashes: true, ellipsis: true, minHeading: 1, maxHeading: 6, noDoubleSpace: true, }`", 'Configuration for input rules.'],
+          ['`inputRuleOptions`', 'Object', "`{ autoquotes: '“”‘’', dashes: true, ellipsis: true, minHeading: 1, maxHeading: 6, noDoubleCaps: true, noDoubleSpace: true, }`", 'Configuration for input rules.'],
           ['`label`', 'String', '', ''],
           ['`maxLen`', 'Number', '', ''],
           ['`modelValue`', 'String', '', 'Will be either text / html / markdown depending on outputFormat'],
