@@ -11,7 +11,7 @@
 </template>
 
 <script>
-import fs, { exists } from '../../fs';
+import fs, { exists, joinPath } from '../../fs';
 import EntityCreationModal from '../../components/utility/EntityCreationModal.vue';
 import EntityMoveModal from '../../components/utility/EntityMoveModal.vue';
 import TabContent from '../../components/utility/TabContent.vue';
@@ -39,8 +39,9 @@ export default {
     return {
       createSchemaAction: {
         callback: () => { this.showEntityCreation = true; },
-        label: 'Add schema',
+        label: 'Add',
         icon: 'plus',
+        iconFirst: true,
         type: 'primary',
       },
       currentPath: this.schemaDir,
@@ -92,11 +93,21 @@ export default {
         this.openSchema(`${this.currentPath}/${name}`);
       }
     },
-    handleEntityMoved({ oldPath, newPath }) {
+    async handleEntityMoved({ oldPath, newPath }) {
       this.$refs.fileList.refresh();
       this.entityBeingModified = null;
-      this.$store.commit('removeLocallyChangedFile', oldPath);
-      this.$store.commit('addLocallyChangedFile', newPath);
+
+      if (oldPath.endsWith('.json')) {
+        this.$store.commit('removeLocallyChangedFile', oldPath);
+        this.$store.commit('addLocallyChangedFile', newPath);
+      } else { // we moved a directory
+        this.$store.commit('removeLocallyChangedFolder', oldPath);
+        try {
+          await this.updateLocallyChangedFiles(newPath);
+        } catch (err) {
+          this.$store.commit('addToast', { message: `Something went wrong while updating locally changed files: ${err.message}`, type: 'error' });
+        }
+      }
       this.$store.dispatch('saveAppData');
     },
     moveEntity(path) {
@@ -108,6 +119,13 @@ export default {
     },
     renameFolder(path) {
       console.log('rename', path);
+    },
+    async updateLocallyChangedFiles(path) {
+      const entities = await fs.readdir(path);
+      return Promise.all(entities.map((entity) => {
+        if (entity.endsWith('.json')) return new Promise((res) => res(this.$store.commit('addLocallyChangedFile', joinPath(path, entity))));
+        return this.updateLocallyChangedFiles(joinPath(path, entity));
+      }));
     },
   },
   props: {
