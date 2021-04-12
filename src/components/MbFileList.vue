@@ -5,7 +5,7 @@
         <MbButton :dark="dark" :disabled="currentPath === root" icon="chevron-left" rounded @click="back" />
         <p class="breadcrumb">
           <template v-for="(step, index) in breadcrumb" :key="index">
-            <span class="step" :class="{ active: index === breadcrumb.length - 1 }" @click="jumpTo(index)">{{step}}</span>
+            <span class="step" :class="{ active: index === breadcrumb.length - 1 }" @click="jumpTo(index)">{{prettyFilenames ? prettify(step) : step}}</span>
             <span v-if="index !== breadcrumb.length - 1" class="separator">/</span>
           </template>
         </p>
