@@ -352,7 +352,7 @@
       <section v-else-if="activeTabValue === 'file-lists'" class="tab file-lists">
         <h2>File Lists</h2>
         <p>This component is a fully fledged file browser that can display the contents of a folder and offers the ability for custom actions on the files.</p>
-        <MbFileList :dark="dark" :file-actions="[{ action: previewFile, icon: 'folder-open', label: 'Open', foldersOnly: true }, { disabled: true, icon: 'arrow-right', label: 'Move', foldersOnly: true }, { action: softDeleteFile, icon: 'trash', label: 'Delete', type: 'negative' }]" :folders-first="true" :folders-only="false" ref="fileList" root="/" show-hidden :action="{ callback: (path) => { currentPath = path; showEntityCreationModal = true; }, label: 'Add', icon: 'plus', type: 'positive'}" @fileclick="previewFile" />
+        <MbFileList :dark="dark" :file-actions="[{ action: previewFile, icon: 'folder-open', label: 'Open', filesOnly: true }, { disabled: true, icon: 'arrow-right', label: 'Move', foldersOnly: true }, { action: softDeleteFile, icon: 'trash', label: 'Delete', type: 'negative' }]" :folders-first="true" :folders-only="false" ref="fileList" root="/" show-hidden :action="{ callback: (path) => { currentPath = path; showEntityCreationModal = true; }, label: 'Add', icon: 'plus', type: 'positive'}" @fileclick="previewFile" />
         <EntityCreationModal :dark="dark" :file-extension="['json', 'md', 'txt', 'yaml']" :path="currentPath" :visible="showEntityCreationModal" @close="showEntityCreationModal = false" @entity-created="refreshFileList" />
         <h3>Props</h3>
         <MbTable :data="props.fileLists" />
