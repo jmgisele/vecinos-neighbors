@@ -143,7 +143,7 @@ export default {
       reverseOrder: false,
     };
   },
-  emits: ['fileclick'],
+  emits: ['fileclick', 'path-change'],
   methods: {
     back() {
       if (this.currentPath === this.root) return;
@@ -343,6 +343,7 @@ export default {
       if (nv !== ov) {
         this.fetchData();
         if (this.$refs.folderWrapper) this.$refs.folderWrapper.$refs.scrollArea.scrollTo({ left: 0 });
+        this.$emit('path-change', nv);
       }
     },
   },

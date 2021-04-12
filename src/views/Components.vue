@@ -771,6 +771,7 @@ export default {
         fileLists: [
           ['Name', 'Data'],
           ['`fileclick`', 'The full path of the clicked file'],
+          ['`path-change`', 'The full new path'],
         ],
         filePickers: [
           ['Name', 'Data'],
