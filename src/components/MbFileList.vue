@@ -75,11 +75,11 @@ export default {
     },
     filteredFiles() {
       if (!this.searchTerm) return this.files.filter((file) => !this.$store.getters.isSoftDeleted(joinPath(this.currentPath, file.name)));
-      return this.files.filter((file) => file.name.includes(this.searchTerm) && !this.$store.getters.isSoftDeleted(joinPath(this.currentPath, file.name)));
+      return this.files.filter((file) => file.name.toLowerCase().includes(this.searchTerm.toLowerCase()) && !this.$store.getters.isSoftDeleted(joinPath(this.currentPath, file.name)));
     },
     filteredFolders() {
       if (!this.searchTerm) return this.folders.filter((folder) => !this.$store.getters.isSoftDeleted(joinPath(this.currentPath, folder.name)));
-      return this.folders.filter((folder) => folder.name.includes(this.searchTerm) && !this.$store.getters.isSoftDeleted(joinPath(this.currentPath, folder.name)));
+      return this.folders.filter((folder) => folder.name.toLowerCase().includes(this.searchTerm.toLowerCase()) && !this.$store.getters.isSoftDeleted(joinPath(this.currentPath, folder.name)));
     },
     modifiedFileActions() { // we need to pass the current filepath to the callback and check if it’s applicable for this type
       const actions = [];
@@ -152,7 +152,7 @@ export default {
     },
     debouncedSearch: debounce(function (v) { // eslint-disable-line func-names
       this.searchTerm = v;
-    }, 250),
+    }, 150),
     executeAction(action, path) {
       this.currentFile = path;
       action();
