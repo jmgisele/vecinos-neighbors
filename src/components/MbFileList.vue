@@ -15,6 +15,7 @@
         <div v-if="sortable" class="sort">
           <span class="select-label">Sort by:</span>
           <MbSelect v-model="sortBy" :dark="dark" :options="sortOptions" @update:model-value="sortEntities" />
+          <MbButton class="mobile-sort-by" :dark="dark" :icon="sortBy === 'name' ? 'text-alt' : 'calendar'" :tooltip="{ position: 'right', message: sortBy === 'name' ? 'By name' : 'By date' }" @click="sortBy === 'name' ? sortBy = 'edited' : sortBy = 'name'; sortEntities()"/>
           <MbButton :dark="dark" :icon="reverseOrder ? 'descending' : 'ascending'" :tooltip="{ position: 'right', message: reverseOrder ? 'Descending' : 'Ascending' }" @click="reverseOrder = !reverseOrder; sortEntities()"/>
         </div>
         <MbButton v-if="action && (action.label || action.icon) && action.callback" class="action" :dark="dark" :icon="action.icon" :icon-first="action.iconFirst !== false" :loading="action.loading" :tooltip="action.tooltip" :type="action.type" @click="action.callback(currentPath)">{{action.label}}</MbButton>
@@ -466,6 +467,9 @@ export default {
             border-top-right-radius: 0
             border-bottom-right-radius: 0
 
+          @media $mobile
+            display: none
+
         .button.no-label
           border: 0.0625rem solid $accent
           border-left: none
@@ -473,8 +477,18 @@ export default {
           border-bottom-left-radius: 0
 
           &::before
-            border-top-left-radius: 0
-            border-bottom-left-radius: 0
+            border-radius: inherit
+
+          &.mobile-sort-by
+            border-left: @border
+            border-top-left-radius: $radius-m
+            border-bottom-left-radius: @border-top-left-radius
+            border-top-right-radius: 0
+            border-bottom-right-radius: 0
+            display: none
+
+            @media $mobile
+              display: inline-flex
 
       .action
         margin-left: 1rem
