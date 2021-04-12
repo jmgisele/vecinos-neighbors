@@ -943,6 +943,7 @@ export default {
           ['`prettyFilenames`', 'Booelan', '`false`', 'If set, all names will have dashes replaced with spaces and their extension removed'],
           ['`root`', 'String', '`/`', 'The root folder to start in, will not allow going higher than that'],
           ['`showHidden`', 'Boolean', '`false`', 'By default all files starting with a . are hidden. If this is true, they’ll be shown. .git is always hidden'],
+          ['`sortable`', 'Boolean', '`true`', ''],
         ],
         filePickers: [
           ['Name', 'Type', 'Default'],
