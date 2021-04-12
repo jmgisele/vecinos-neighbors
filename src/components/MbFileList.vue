@@ -28,23 +28,23 @@
             <MbButton v-if="modifiedFolderActions.length > 1" :dark="dark" icon="more-vertical" rounded tooltip="More" @click="openMenu($event, joinPath(currentPath, folder.name), true)" />
             <MbButton v-else-if="modifiedFolderActions.length === 1" :dark="dark" :icon="modifiedFolderActions[0].icon" rounded :tooltip="modifiedFolderActions[0].label" :type="modifiedFolderActions[0].type" @click="executeAction(modifiedFolderActions[0].action, joinPath(currentPath, folder.name))" />
           </header>
-          <p><span v-show="folder.localChanges" class="local-changes-indicator"/><span>{{folder.name}}</span></p>
+          <p><span v-show="folder.localChanges" class="local-changes-indicator"/><span>{{prettyFilenames ? prettify(folder.name) : folder.name}}</span></p>
           <p class="meta">{{formattedUpdatedAt(folder.updatedAt)}}</p>
         </div>
       </transition-group>
     </MbScroller>
-    <p v-if="foldersFirst && !foldersOnly" class="h3">Files</p>
+    <p v-if="foldersFirst && !foldersOnly" class="h3">{{fileListLabel}}</p>
     <transition-group v-show="filteredFiles.length > 0" class="files" tag="ul">
       <li v-for="file in filteredFiles" class="file" :class="{ 'no-actions': modifiedFileActions.length === 0 }" :key="file.name" tabindex="0" @click="file.isFolder ? openFolder(file.name, $event) : handleFileClick(file.name, $event)" @contextmenu.prevent="openMenu($event, joinPath(currentPath, file.name), file.isFolder)" @keyup.space.enter="file.isFolder ? openFolder(file.name, $event) : handleFileClick(file.name, $event)" @keydown.space.prevent>
         <MbIcon :icon="file.isFolder ? 'folder' : imageRegExp.test(file.name) ? 'image' : 'document'" />
         <span v-show="file.localChanges" class="local-changes-indicator"/>
-        <span>{{file.name}}</span>
+        <span>{{prettyFilenames ? prettify(file.name) : file.name}}</span>
         <span class="meta">{{formattedUpdatedAt(file.updatedAt)}}</span>
         <MbButton v-if="modifiedFileActions.length > 1" :dark="dark" icon="more-vertical" rounded tooltip="More" @click="openMenu($event, joinPath(currentPath, file.name), file.isFolder)" />
         <MbButton v-else-if="modifiedFileActions.length === 1" :dark="dark" :icon="modifiedFileActions[0].icon" rounded :tooltip="modifiedFileActions[0].label" :type="modifiedFileActions[0].type" @click="executeAction(modifiedFileActions[0].action, joinPath(currentPath, file.name))" />
       </li>
     </transition-group>
-    <p v-show="filteredFiles.length === 0 && ((foldersFirst && !foldersOnly) || filteredFolders.length === 0)" class="empty-state">{{ foldersFirst && !foldersOnly ? 'There are no files in this directory' : foldersOnly ? 'There are no folders in this directory' : 'This directory is empty' }}</p>
+    <p v-show="filteredFiles.length === 0 && ((foldersFirst && !foldersOnly) || filteredFolders.length === 0)" class="empty-state">{{emptyStateMessage}}</p>
     <MbContextMenu class="options" :dark="dark" :from-right="popover.fromRight" :options="popover.isFolder ? modifiedFolderActions : modifiedFileActions" :show="popover.show" :target="popover.target" :x="popover.x" :y="popover.y" @close="popover.show = false" />
   </div>
 </template>
@@ -66,6 +66,12 @@ export default {
       else steps = this.currentPath.split('/').slice(1);
 
       return [rootName, ...steps].slice(-4); // so it doesn’t get too long
+    },
+    emptyStateMessage() {
+      if (typeof this.emptyState === 'string') return this.emptyState;
+      if (this.foldersFirst && !this.foldersOnly) return this.emptyState.noFiles;
+      if (this.foldersOnly) return this.emptyState.noFolders;
+      return this.emptyState.empty;
     },
     filteredFiles() {
       if (!this.searchTerm) return this.files.filter((file) => !this.$store.getters.isSoftDeleted(joinPath(this.currentPath, file.name)));
@@ -246,6 +252,11 @@ export default {
       this.popover.target = e.currentTarget;
       this.popover.show = true;
     },
+    prettify(name) {
+      const dotindex = name.indexOf('.', 1); // ignoring leading dots of hidden files
+      if (dotindex !== -1) return name.replace(/-/g, ' ').substring(0, name.indexOf('.', 1));
+      return name.replace(/-/g, ' ');
+    },
     async refresh() {
       await this.fetchData();
     },
@@ -286,9 +297,21 @@ export default {
   props: {
     action: Object,
     dark: Boolean,
+    emptyState: {
+      type: [String, Object],
+      default: () => ({
+        noFiles: 'There are no files in this directory',
+        noFolders: 'There are no folders in this directory',
+        empty: 'This directory is empty',
+      }),
+    },
     fileActions: {
       type: Array,
       default: () => [],
+    },
+    fileListLabel: {
+      type: String,
+      default: 'Files',
     },
     filterable: {
       type: Boolean,
@@ -304,6 +327,7 @@ export default {
       default: 'name',
     },
     initialReverseSortOrder: Boolean,
+    prettyFilenames: Boolean,
     root: {
       type: String,
       default: '/',
