@@ -205,9 +205,10 @@ export default {
         top: 0
         z-index: 1
         background-color: $bg
-        padding-top: 1rem
-        padding-bottom: 1rem
+        padding: 1rem
         margin-bottom: 0
+        margin-left: -1rem
+        margin-right: @margin-left
 
       &::v-deep(.empty-state)
         text-align: center
