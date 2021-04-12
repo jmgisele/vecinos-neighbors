@@ -1,5 +1,5 @@
 import FS from '@isomorphic-git/lightning-fs';
-import { join } from '@isomorphic-git/lightning-fs/src/path';
+import { basename, dirname, join } from '@isomorphic-git/lightning-fs/src/path';
 
 const fs = new FS('mattrfs');
 
@@ -40,6 +40,8 @@ async function exists(filepath) {
 
 export default fs.promises;
 export {
+  basename as pathBasename,
+  dirname as pathDirname,
   exists,
   fs as PlainFS,
   join as joinPath,
