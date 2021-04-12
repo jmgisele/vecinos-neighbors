@@ -567,6 +567,15 @@
         <h3>Events</h3>
         <MbTable :data="events.filePickers" />
       </section>
+      <section v-else-if="activeTabValue === 'chips'" class="tab chips">
+        <h2>Chips</h2>
+        <p>These components can be used to show the status of something.</p>
+        <MbChip label="A basic chip" /><br>
+        <MbChip color="positive" label="A chip that can think" :loading="simulateLoading" /><br>
+        <MbButton :dark="dark" @click="simulateLoading = !simulateLoading">{{simulateLoading ? 'Stop' : 'Start'}} thinking</MbButton>
+        <h3>Props</h3>
+        <MbTable :data="props.chips" />
+      </section>
       <section v-else class="tab" key="exampleTab">
         <p>This is just an empty test-tab.</p>
         <p>To delete it, click the button in the “<u @click="activeTab = tabs.findIndex((tab) => tab.value === 'tabs')">Tabs</u>”-tab.</p>
@@ -872,6 +881,12 @@ export default {
           ['`dark`', 'Boolean', '`false`'],
           ['`disabled`', 'Boolean', '`false`'],
           ['`modelValue`', 'Boolean', '`false`'],
+        ],
+        chips: [
+          ['Name', 'Type', 'Default'],
+          ['`color`', 'String', '`\'accent\'`'],
+          ['`label`', 'String', '`undefined`'],
+          ['`loading`', 'Boolean', '`false`'],
         ],
         colorPickers: [
           ['Name', 'Type', 'Default', 'Allowed Values'],
@@ -1222,6 +1237,7 @@ export default {
         { label: 'Styles and Colors', value: 'design' },
         { label: 'Buttons', value: 'buttons' },
         { label: 'Checkboxes', value: 'checkboxes' },
+        { label: 'Chips', value: 'chips' },
         { label: 'Color Pickers', value: 'color-pickers' },
         { label: 'Context Menus', value: 'context-menus' },
         { label: 'Date Pickers', value: 'date-pickers' },
@@ -1578,6 +1594,11 @@ export default {
     &.file-pickers
       .file-picker
         margin: 0.5rem 0
+
+    &.chips
+      .chip
+        display: inline-block
+        margin-bottom: 1rem
 
 .file-preview-modal
   pre
