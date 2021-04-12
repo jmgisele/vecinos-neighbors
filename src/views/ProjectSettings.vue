@@ -3,6 +3,7 @@
     <MbTabs v-model="activeTab" :dark="dark" :tabs="tabs" />
     <transition mode="out-in" :name="tabTransition">
       <GeneralSettings v-if="activeTabValue === 'general'" :dark="dark" />
+      <SchemaSettings v-else-if="activeTabValue === 'schemas'" :dark="dark" />
       <UserSettings v-else-if="activeTabValue === 'users'" :dark="dark" />
     </transition>
   </div>
@@ -10,6 +11,7 @@
 
 <script>
 import GeneralSettings from './settings/GeneralSettings.vue';
+import SchemaSettings from './settings/SchemaSettings.vue';
 import UserSettings from './settings/UserSettings.vue';
 
 import Store from '../store';
@@ -41,6 +43,7 @@ export default {
   },
   components: {
     GeneralSettings,
+    SchemaSettings,
     UserSettings,
   },
   computed: {
