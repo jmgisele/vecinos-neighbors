@@ -632,6 +632,7 @@ export default {
 
   .empty-state
     color: $text-secondary
+    text-align: center
     margin-bottom: 0
 
   .folder-wrapper .folder,
