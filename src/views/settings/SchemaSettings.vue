@@ -13,6 +13,7 @@
 
 <script>
 import fs, { exists, joinPath } from '../../fs';
+import { rmrf } from '../../fs/workerFS';
 import EntityCreationModal from '../../components/utility/EntityCreationModal.vue';
 import EntityMoveModal from '../../components/utility/EntityMoveModal.vue';
 import EntityRenameModal from '../../components/utility/EntityRenameModal.vue';
@@ -87,7 +88,34 @@ export default {
   },
   methods: {
     deleteEntity(path) {
-      console.log('delete', path);
+      const timeout = 5000;
+      const isFile = path.endsWith('.json'); // fine since Schemas are always json and there can’t be a folder with .json as a name
+      const timeoutId = window.setTimeout(async () => {
+        try {
+          await rmrf(path);
+          await this.$refs.fileList.refresh();
+          if (isFile) this.$store.commit('removeLocallyChangedFile', path);
+          else this.$store.commit('removeLocallyChangedFolder', path);
+          this.$store.dispatch('saveAppData');
+        } catch (err) {
+          this.$store.commit('addToast', { message: `Something went wrong while deleting the ${isFile ? 'schema' : 'folder'}: ${err.message}`, type: 'error' });
+        } finally {
+          window.clearTimeout(timeoutId);
+          this.$store.commit('removeFromSoftDeleted', path);
+        }
+      }, timeout);
+
+      this.$store.commit('addToSoftDeleted', path);
+      this.$store.commit('addToast', {
+        action: () => {
+          window.clearTimeout(timeoutId);
+          this.$store.commit('removeFromSoftDeleted', path);
+        },
+        actionLabel: 'Undo',
+        message: `The ${isFile ? 'schema was' : 'folder and all schemas within have been'} deleted`,
+        timeout: timeout - 200,
+        type: 'warning',
+      });
     },
     handleEntityCreated(name) {
       if (!name.endsWith('.json')) this.$refs.fileList.refresh();
