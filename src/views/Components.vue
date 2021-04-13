@@ -352,8 +352,10 @@
       <section v-else-if="activeTabValue === 'file-lists'" class="tab file-lists">
         <h2>File Lists</h2>
         <p>This component is a fully fledged file browser that can display the contents of a folder and offers the ability for custom actions on the files.</p>
-        <MbFileList :dark="dark" :file-actions="[{ action: previewFile, icon: 'folder-open', label: 'Open', filesOnly: true }, { disabled: true, icon: 'arrow-right', label: 'Move', foldersOnly: true }, { action: softDeleteFile, icon: 'trash', label: 'Delete', type: 'negative' }]" :folders-first="true" :folders-only="false" ref="fileList" root="/" show-hidden :action="{ callback: (path) => { currentPath = path; showEntityCreationModal = true; }, label: 'Add', icon: 'plus', type: 'positive'}" @fileclick="previewFile" />
+        <MbFileList :dark="dark" :file-actions="[{ action: previewFile, icon: 'folder-open', label: 'Open', filesOnly: true }, { disabled: true, icon: 'folder-open', label: 'Open', foldersOnly: true }, { action: moveEntity, icon: 'arrow-right', label: 'Move' }, { action: renameEntity, icon: 'text-input', label: 'Rename' }, { action: softDeleteFile, icon: 'trash', label: 'Delete', type: 'negative' }]" :folders-first="true" :folders-only="false" ref="fileList" root="/" show-hidden :action="{ callback: (path) => { currentPath = path; showEntityCreationModal = true; }, label: 'Add', icon: 'plus', type: 'positive'}" @fileclick="previewFile" />
         <EntityCreationModal :dark="dark" :file-extension="['json', 'md', 'txt', 'yaml']" :path="currentPath" :visible="showEntityCreationModal" @close="showEntityCreationModal = false" @entity-created="refreshFileList" />
+        <EntityMoveModal :dark="dark" :old-path="entityBeingModified" :visible="showEntityMove" @close="showEntityMove = false" @after-close="entityBeingModified = null" @entity-moved="refreshFileList" />
+        <EntityRenameModal :dark="dark" :old-path="entityBeingModified" :visible="showEntityRename" @close="showEntityRename = false" @after-close="entityBeingModified = null" @entity-renamed="refreshFileList" />
         <h3>Props</h3>
         <MbTable :data="props.fileLists" />
         <h3>Events</h3>
@@ -472,6 +474,18 @@
         <MbTable :data="props.entityCreationModals" />
         <h4>Events</h4>
         <MbTable :data="events.entityCreationModals" />
+        <h3>Entity Move Modal</h3>
+        <p>A reusable modal for moving files or folders to a specific location. Try it under “<u @click="activeTab = tabs.findIndex((tab) => tab.value === 'file-lists')">File Lists</u>”.</p>
+        <h4>Props</h4>
+        <MbTable :data="props.entityMoveModals" />
+        <h4>Events</h4>
+        <MbTable :data="events.entityMoveModals" />
+        <h3>Entity Rename Modal</h3>
+        <p>A reusable modal for renaming files or folders. Try it under “<u @click="activeTab = tabs.findIndex((tab) => tab.value === 'file-lists')">File Lists</u>”.</p>
+        <h4>Props</h4>
+        <MbTable :data="props.entityRenameModals" />
+        <h4>Events</h4>
+        <MbTable :data="events.entityRenameModals" />
         <h3>Git Login Modal</h3>
         <p>A component for prompting the user to sign into their Git account. It bundles some common text and input fields with a custom message.</p>
         <MbButton :dark="dark" @click="showGitLoginModal = true">Show Modal</MbButton>
@@ -586,6 +600,8 @@
 
 <script>
 import EntityCreationModal from '../components/utility/EntityCreationModal.vue';
+import EntityMoveModal from '../components/utility/EntityMoveModal.vue';
+import EntityRenameModal from '../components/utility/EntityRenameModal.vue';
 import GitLoginModal from '../components/utility/GitLoginModal.vue';
 import Toast from '../components/utility/Toast.vue';
 
@@ -596,6 +612,8 @@ export default {
   name: 'Components',
   components: {
     EntityCreationModal,
+    EntityMoveModal,
+    EntityRenameModal,
     GitLoginModal,
     Toast,
   },
@@ -734,6 +752,7 @@ export default {
       currentColor: 'rgba(123, 255, 213, 0.25)',
       currentPath: '/',
       currentFile: null,
+      entityBeingModified: null,
       events: {
         asyncImages: [
           ['Name', 'Data'],
@@ -767,6 +786,16 @@ export default {
           ['Name', 'Data'],
           ['`close`', ''],
           ['`entity-created`', 'The name of the newly created entity'],
+        ],
+        entityMoveModals: [
+          ['Name', 'Data'],
+          ['`close`', ''],
+          ['`entity-moved`', 'The old and new paths of the modified entity'],
+        ],
+        entityRenameModals: [
+          ['Name', 'Data'],
+          ['`close`', ''],
+          ['`entity-renamed`', 'The old and new paths of the modified entity'],
         ],
         fileLists: [
           ['Name', 'Data'],
@@ -921,12 +950,28 @@ export default {
         ],
         entityCreationModals: [
           ['Name', 'Type', 'Default', 'Notes'],
-          ['`dark`', 'boolean', '`false`', ''],
+          ['`dark`', 'Boolean', '`false`', ''],
           ['`fileContent`', 'String', '`undefined`', 'The text-content that should be written into the new file'],
           ['`fileExtension`', 'String or Array', '`undefined`', 'Either a single file extension such as json, or an array of them'],
           ['`only`', 'String', '`undefined`', 'Should be either ‘file’ or ‘directory’, will allow only the creation of the specified entity'],
           ['`path`', 'String', '`/`', 'The path where the entity should be created'],
           ['`title`', 'String', "`'Create new…'`", ''],
+          ['`visible`', 'Boolean', '`false`', ''],
+        ],
+        entityMoveModals: [
+          ['Name', 'Type', 'Default', 'Notes'],
+          ['`dark`', 'Boolean', '`false`', ''],
+          ['`oldPath`', 'String', '`undefined`', 'The path to the entity that is to be modified'],
+          ['`prettyFilenames`', 'Boolean', '`false`', 'If active, filenames will have their extensions stripped and dashes converted to spaces'],
+          ['`root`', 'String', '`\'/\'`', 'The uppermost path to which entities can be moved'],
+          ['`title`', 'String', '`\'Move to…\'`', ''],
+          ['`visible`', 'Boolean', '`false`', ''],
+        ],
+        entityRenameModals: [
+          ['Name', 'Type', 'Default', 'Notes'],
+          ['`dark`', 'Boolean', '`false`', ''],
+          ['`oldPath`', 'String', '`undefined`', 'The path to the entity that is to be modified'],
+          ['`title`', 'String', '`\'Rename…\'`', ''],
           ['`visible`', 'Boolean', '`false`', ''],
         ],
         fileLists: [
@@ -1204,6 +1249,8 @@ export default {
       ],
       showGitLoginModal: false,
       showEntityCreationModal: false,
+      showEntityMove: false,
+      showEntityRename: false,
       showFilePreviewModal: false,
       simulateLoading: false,
       slots: {
@@ -1290,6 +1337,14 @@ export default {
       if (data) this.$store.commit('addToast', { message: `Submitted login as ${data.user} opting to ${data.savePassword ? '' : 'not'} save the password.`, type: 'positive' });
       else this.$store.commit('addToast', { message: 'Login cancelled', type: 'negative' });
       this.showGitLoginModal = false;
+    },
+    moveEntity(path) {
+      this.entityBeingModified = path;
+      this.showEntityMove = true;
+    },
+    renameEntity(path) {
+      this.entityBeingModified = path;
+      this.showEntityRename = true;
     },
     refreshFileList() {
       return this.$refs.fileList.refresh();
