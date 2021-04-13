@@ -46,7 +46,7 @@ export default {
           return;
         }
       } catch (err) {
-        this.$store.commit('addToast', { message: `Something went wrong while moving the entity: ${err.message}` });
+        this.$store.commit('addToast', { message: `Something went wrong while moving the entity: ${err.message}`, type: 'error' });
         return;
       }
 
@@ -55,7 +55,7 @@ export default {
         this.$emit('close');
         this.$emit('entity-moved', { oldPath, newPath });
       } catch (err) {
-        this.$store.commit('addToast', { message: `Something went wrong while moving the entity: ${err.message}` });
+        this.$store.commit('addToast', { message: `Something went wrong while moving the entity: ${err.message}`, type: 'error' });
       }
     },
     handleCancel() {

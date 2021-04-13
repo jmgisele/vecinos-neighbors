@@ -69,7 +69,7 @@ export default {
           this.$emit('close');
           this.$emit('entity-created', fullName);
         } catch (err) {
-          this.$store.commit('addToast', { message: `Something went wrong while creating the directory: ${err.message}` });
+          this.$store.commit('addToast', { message: `Something went wrong while creating the directory: ${err.message}`, type: 'error' });
         }
       } else {
         try {
@@ -78,7 +78,7 @@ export default {
           this.$emit('close');
           this.$emit('entity-created', fullName);
         } catch (err) {
-          this.$store.commit('addToast', { message: `Something went wrong while creating the file: ${err.message}` });
+          this.$store.commit('addToast', { message: `Something went wrong while creating the file: ${err.message}`, type: 'error' });
         }
       }
     },
