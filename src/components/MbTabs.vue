@@ -110,6 +110,7 @@ export default {
 
         &.add-option
           line-height: 0
+          vertical-align: top
 
         &:hover,
         &:focus
