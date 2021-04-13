@@ -64,6 +64,7 @@ export default {
   white-space: nowrap
   position: relative
   vertical-align: middle
+  overflow: hidden
   transition: background-color 200ms ease
 
   &:hover,
