@@ -11,21 +11,32 @@
       </div>
     </header>
     <MbTabs v-model="activeTab" :dark="dark" show-add-option :tabs="cleanTabs" @add-tab="handleAddTab" />
-    <TabContent :dark="dark" :show-split="fieldBeingEdited" @split-close="fieldBeingEdited = null">
+    <TabContent :dark="dark" :show-split="showSplit" @split-close="showSplit = false" @split-closed="handleSplitClosed">
       <div v-if="schema.fields && schema.fields.length === 0" class="empty-state" :class="{ dark }">
         <h2>There’s nothing here yet</h2>
         <p>This schema currently has no fields. You can start adding some with the button below, or have Mattrbld automatically generate a set of fields for you based on a piece of content.</p>
         <footer>
           <MbButton :dark="dark" icon="document">Generate from content</MbButton>
-          <MbButton :dark="dark" icon="plus" type="positive">Add field</MbButton>
+          <MbButton :dark="dark" icon="plus" type="positive" @click="handleAddField">Add field</MbButton>
         </footer>
       </div>
       <div v-else-if="fieldsForTab.length === 0" class="empty-state" :class="{ dark }">
         <h2>There’s nothing here yet</h2>
         <footer>
-          <MbButton :dark="dark" icon="plus" type="positive">Add field</MbButton>
+          <MbButton :dark="dark" icon="plus" type="positive" @click="handleAddField">Add field</MbButton>
         </footer>
       </div>
+      <!-- TODO: insert field arrangement component with v-else and fieldsForTab -->
+
+      <template #right>
+        <div v-if="currentOperation === 'add-field'" class="add-field">
+          <header>
+            <h2>Add a field</h2>
+            <MbInput v-model="fieldFilter" :dark="dark" icon="search" placeholder="Search field…" type="search" />
+          </header>
+          <!-- TODO: add field picker component for every default field + custom field sorted by group -->
+        </div>
+      </template>
     </TabContent>
   </div>
 </template>
@@ -80,14 +91,25 @@ export default {
   data() {
     return {
       activeTab: -1,
+      currentOperation: null,
       fieldBeingEdited: null,
       fileStatus: null,
+      fieldFilter: '',
       schema: {},
+      showSplit: false,
     };
   },
   methods: {
+    handleAddField() {
+      this.currentOperation = 'add-field';
+      this.showSplit = true;
+    },
     handleAddTab() {
       console.log('new tab at index');
+    },
+    handleSplitClosed() {
+      if (this.fieldBeingEdited) this.fieldBeingEdited = null;
+      this.currentOperation = null;
     },
   },
   mounted() {
@@ -115,7 +137,7 @@ export default {
   @media $mobile
     height: "calc(100vh - %s)" % (82 / 16)rem
 
-  header
+  > header
     display: flex
     padding: 0 2rem 2rem 2rem
 
@@ -237,4 +259,15 @@ export default {
 
           @media $mobile
             margin-right: 0.5rem
+
+    .add-field
+      header
+        max-width: 40rem
+        margin-left: auto
+        margin-right: auto
+
+        .input
+          display: flex
+          width: 100%
+          margin-bottom: 2rem
 </style>
