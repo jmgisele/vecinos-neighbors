@@ -3,13 +3,13 @@
     <div class="content-wrapper" :class="{ dark, padded }">
       <slot />
     </div>
-    <transition>
+    <transition @after-leave="$emit('split-closed')">
       <div v-if="!isMobile" v-show="showSplit" class="content-wrapper right" :class="{ dark, padded }">
         <MbButton class="close-button" :dark="dark" icon="cross" rounded @click="$emit('split-close')" />
         <slot name="right" />
       </div>
     </transition>
-    <MbModal v-if="isMobile" :dark="dark" :visible="showSplit" @close="$emit('split-close')">
+    <MbModal v-if="isMobile" :dark="dark" :visible="showSplit" @after-close="$emit('split-closed')" @close="$emit('split-close')">
       <slot name="right" />
     </MbModal>
   </main>
@@ -27,7 +27,7 @@ export default {
       entering: false,
     };
   },
-  emits: ['split-close'],
+  emits: ['split-close', 'split-closed'],
   props: {
     dark: Boolean,
     padded: {

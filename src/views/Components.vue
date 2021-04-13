@@ -858,6 +858,7 @@ export default {
         tabContent: [
           ['Name', 'Data'],
           ['`split-close`', ''],
+          ['`split-closed`', ''],
         ],
         tagInputs: [
           ['Name', 'Data'],
