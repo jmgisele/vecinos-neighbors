@@ -6,17 +6,23 @@
         <MbChip :color="status.color" :label="status.message" :loading="status.loading" />
       </div>
       <div class="right">
-        <MbButton :dark="dark" icon="settings">Settings</MbButton>
-        <MbButton :dark="dark" icon="save" :icon-first="true" type="primary">Save</MbButton>
+        <MbButton :dark="dark" icon="settings">{{isTablet && !isMobile ? '' : 'Settings'}}</MbButton>
+        <MbButton :dark="dark" icon="save" :icon-first="true" type="primary">{{isTablet && !isMobile ? '' : 'Save'}}</MbButton>
       </div>
     </header>
     <MbTabs v-model="activeTab" :dark="dark" show-add-option :tabs="cleanTabs" @add-tab="handleAddTab" />
     <TabContent :dark="dark" :show-split="fieldBeingEdited" @split-close="fieldBeingEdited = null">
-      <div class="empty-state">
+      <div v-if="schema.fields && schema.fields.length === 0" class="empty-state" :class="{ dark }">
         <h2>There’s nothing here yet</h2>
         <p>This schema currently has no fields. You can start adding some with the button below, or have Mattrbld automatically generate a set of fields for you based on a piece of content.</p>
         <footer>
           <MbButton :dark="dark" icon="document">Generate from content</MbButton>
+          <MbButton :dark="dark" icon="plus" type="positive">Add field</MbButton>
+        </footer>
+      </div>
+      <div v-else-if="fieldsForTab.length === 0" class="empty-state" :class="{ dark }">
+        <h2>There’s nothing here yet</h2>
+        <footer>
           <MbButton :dark="dark" icon="plus" type="positive">Add field</MbButton>
         </footer>
       </div>
@@ -54,8 +60,16 @@ export default {
       if (!this.schema.tabs) return [];
       return this.schema.tabs.map((tab) => tab.label);
     },
+    fieldsForTab() {
+      if (!this.schema.fields) return [];
+      if (this.activeTab === 0) return this.schema.fields.filter((field) => field.tab === this.cleanTabs[0] || !field.tab); // first tab shows all fields without tab, too
+      return this.schema.fields.filter((field) => field.tab === this.cleanTabs[this.activeTab]);
+    },
     isMobile() {
       return this.$store.state.application.mobile;
+    },
+    isTablet() {
+      return this.$store.state.application.tablet;
     },
     status() {
       if (!this.fileStatus) return { color: 'warning', loading: true };
@@ -65,7 +79,7 @@ export default {
   },
   data() {
     return {
-      activeTab: 0,
+      activeTab: -1,
       fieldBeingEdited: null,
       fileStatus: null,
       schema: {},
@@ -76,6 +90,11 @@ export default {
       console.log('new tab at index');
     },
   },
+  mounted() {
+    this.$nextTick(() => { // needed so the active indicator looks right
+      this.activeTab = 0;
+    });
+  },
   props: {
     dark: Boolean,
   },
@@ -84,6 +103,7 @@ export default {
 
 <style lang="stylus" scoped>
 @require '../assets/styles/breakpoints'
+@require '../assets/styles/colors'
 
 .edit-schema // 100% minus the height of the app-header
   height: "calc(100vh - %s)" % (116 / 16)rem
@@ -99,9 +119,11 @@ export default {
     display: flex
     padding: 0 2rem 2rem 2rem
 
-    @media $mobile
+    @media $tablet
       padding: 1rem
       padding-top: 0
+
+    @media $mobile
       display: block
 
     .left
@@ -109,29 +131,45 @@ export default {
       align-items: center
       margin-right: auto
 
+      @media $tablet
+        margin-left: 1rem
+
       @media $mobile
         margin-bottom: 1rem
-        display: block
+        margin-left: 0
 
       h1
         margin: 0
         margin-right: 1.5rem
         margin-left: 1rem
+        white-space: nowrap
+        overflow: hidden
+        text-overflow: ellipsis
 
         @media $tablet
           margin-left: 0
 
         @media $mobile
           font-size: 1.5rem
-          margin-right: 1rem
-          margin-bottom: 0.5rem
+          margin-right: 0.5rem
+
+      .chip
+        @media $mobile
+          order: -1
+          width: 1rem
+          height: @width
+          padding: 0
+          margin-right: 0.5rem
+
+          &::v-deep(span)
+            display: none
 
     .right
       display: flex
       align-items: center
-      align-self: flex-start
       overflow: hidden
       margin-left: 1rem
+      padding-bottom: 0.125rem
 
       @media $mobile
         margin-left: 0
@@ -149,7 +187,7 @@ export default {
     z-index: 1
 
   .tab-content
-    height: "calc(100% - %s)" % ((84 + 56) / 16)rem // header + tabs
+    height: "calc(100% - %s)" % ((86 + 56) / 16)rem // header + tabs
 
     @media $mobile
       height: auto
@@ -160,7 +198,43 @@ export default {
       margin-left: auto
       margin-right: auto
 
+      @media $mobile
+        margin-top: 0
+
+      &.dark
+        h2, p
+          color: $text-secondary-dark
+
+      h2,
+      p
+        text-align: center
+        color: $text-secondary
+
+      p
+        max-width: 32rem
+        margin-left: auto
+        margin-right: auto
+
+        @media $mobile
+          text-align: left
+
       footer
+        text-align: center
+        margin-top: 2rem
+
+        @media $mobile
+          margin: -0.5rem
+          margin-top: 1.5rem
+          display: flex
+          flex-wrap: wrap
+
+          .button
+            margin: 0.5rem
+            flex-grow: 1
+
         .button:not(:last-child)
           margin-right: 1rem
+
+          @media $mobile
+            margin-right: 0.5rem
 </style>
