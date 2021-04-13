@@ -80,6 +80,9 @@ export default {
     isSamePath(nv) {
       if (nv) this.$store.commit('addToast', { message: 'You’re trying to move a folder into itself or one of it’s sub-directories!', type: 'warning' });
     },
+    visible(nv) {
+      if (nv) this.$refs.fileList.refresh();
+    },
   },
 };
 </script>
