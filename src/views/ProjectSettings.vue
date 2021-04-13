@@ -74,6 +74,7 @@ export default {
   },
   watch: {
     $route(nv) {
+      if (nv.name !== 'Project.Settings') return;
       if (nv.query.tab) this.activeTab = Math.max(this.tabs.findIndex((tab) => tab.value === nv.query.tab), 0);
       else this.activeTab = 0;
     },
