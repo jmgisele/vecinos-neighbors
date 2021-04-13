@@ -80,7 +80,7 @@ const routes = [
       },
       {
         name: 'Project.MediaLibrary',
-        path: 'media', // this sub-route will be loaded when we enter the parent route
+        path: 'media',
         component: () => import(/* webpackChunkName: "project" */ '../views/ProjectMediaLibrary.vue'),
         meta: {
           label: 'Media Library',
@@ -97,6 +97,20 @@ const routes = [
         },
       },
     ],
+    beforeEnter: (to) => {
+      if (!Store.state.user.projects.includes(to.params.id)) return { name: 'Forbidden', replace: true };
+      return true;
+    },
+  },
+  {
+    path: '/edit-schema/:id/:path',
+    name: 'Edit Schema',
+    component: () => import(/* webpackChunkName: "editors" */ '../views/EditSchema.vue'),
+    meta: {
+      label: 'Edit Schema',
+      showBack: true,
+      title: 'Edit Schema',
+    },
     beforeEnter: (to) => {
       if (!Store.state.user.projects.includes(to.params.id)) return { name: 'Forbidden', replace: true };
       return true;
@@ -144,7 +158,7 @@ router.afterEach((to) => {
 });
 
 router.onError((err) => {
-  router.push({ name: 'Error', params: { error: err } });
+  router.push({ name: 'Error', params: { code: err.code, message: err.message, name: err.name } });
 });
 
 export default router;
