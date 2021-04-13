@@ -35,7 +35,6 @@ export default {
   color: $text-dark
   white-space: nowrap
   overflow: hidden
-  text-overflow: ellipsis
   font-size: (12 / 16)rem
   font-weight: 700
   letter-spacing: 0.05em
@@ -62,7 +61,9 @@ export default {
     height: (12 / 16)rem
 
   span
-    display: inline-block
+    display: block
+    overflow: hidden
+    text-overflow: ellipsis
 
     &.v-enter-active,
     &.v-leave-active
