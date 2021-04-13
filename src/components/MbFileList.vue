@@ -54,7 +54,7 @@
 import { formatDistanceToNowStrict } from 'date-fns';
 import { debounce } from 'lodash-es';
 
-import fs, { joinPath } from '../fs';
+import fs, { pathDirname, joinPath } from '../fs';
 
 export default {
   computed: {
@@ -209,6 +209,7 @@ export default {
         }
       } catch (err) {
         this.$store.commit('addToast', { message: `Something went wrong while reading files: ${err.message}`, type: 'error' });
+        if (this.currentPath !== this.root) this.currentPath = pathDirname(this.currentPath);
       }
     },
     formattedUpdatedAt(updatedAt) {
