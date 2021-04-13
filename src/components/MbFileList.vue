@@ -144,7 +144,7 @@ export default {
       reverseOrder: false,
     };
   },
-  emits: ['fileclick', 'path-change'],
+  emits: ['fileclick', 'list-change', 'path-change'],
   methods: {
     back() {
       if (this.currentPath === this.root) return;
@@ -347,6 +347,12 @@ export default {
         if (this.$refs.folderWrapper) this.$refs.folderWrapper.$refs.scrollArea.scrollTo({ left: 0 });
         this.$emit('path-change', nv);
       }
+    },
+    filteredFolders(nv, ov) {
+      if (nv !== ov) this.$emit('list-change', { files: this.filteredFiles.length, folders: this.filteredFolders.length });
+    },
+    filteredFiles(nv, ov) {
+      if (nv !== ov) this.$emit('list-change', { files: this.filteredFiles.length, folders: this.filteredFolders.length });
     },
   },
 };

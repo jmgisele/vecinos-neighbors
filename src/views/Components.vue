@@ -771,6 +771,7 @@ export default {
         fileLists: [
           ['Name', 'Data'],
           ['`fileclick`', 'The full path of the clicked file'],
+          ['`list-change`', 'A { files: Number, folders: Number } object, containing the amount of files / folders listed'],
           ['`path-change`', 'The full new path'],
         ],
         filePickers: [
