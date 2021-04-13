@@ -2,8 +2,8 @@
   <TabContent class="schema-settings" :class="{ dark }" :dark="dark">
     <section class="wrapper wide">
       <h1 class="h2">Schemas</h1>
-      <MbFileList v-if="initialised" :action="createSchemaAction" :dark="dark" empty-state="There are no schemas in this folder" :file-actions="schemaActions" file-list-label="Schemas" pretty-filenames ref="fileList" :root="schemaDir" @fileclick="openSchema" @path-change="currentPath = $event" />
-      <MbButton v-show="$refs.fileList && $refs.fileList.filteredFiles.length === 0" :dark="dark" icon="plus" type="positive" @click="showEntityCreation = true">Create one</MbButton>
+      <MbFileList v-if="initialised" :action="createSchemaAction" :dark="dark" empty-state="There are no schemas in this folder" :file-actions="schemaActions" file-list-label="Schemas" pretty-filenames ref="fileList" :root="schemaDir" @fileclick="openSchema" @list-change="listedFiles = $event.files" @path-change="currentPath = $event" />
+      <MbButton v-show="listedFiles === 0" :dark="dark" icon="plus" type="positive" @click="showEntityCreation = true">Create one</MbButton>
     </section>
     <EntityCreationModal :dark="dark" :file-content="JSON.stringify(defaultSchemaContent, null, 2)" file-extension="json" :path="currentPath" title="Add new…" :visible="showEntityCreation" @close="showEntityCreation = false" @entity-created="handleEntityCreated" />
     <EntityMoveModal v-if="initialised" :dark="dark" :old-path="entityBeingModified" pretty-filenames :root="schemaDir" :visible="showEntityMove" @close="showEntityMove = false; entityBeingModified = null" @entity-moved="handleEntityMoved" />
@@ -56,6 +56,7 @@ export default {
       },
       entityBeingModified: null,
       initialised: false,
+      listedFiles: 0,
       schemaActions: [
         {
           action: this.openSchema,
