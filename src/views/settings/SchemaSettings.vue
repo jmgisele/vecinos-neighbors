@@ -6,7 +6,8 @@
       <MbButton v-show="$refs.fileList && $refs.fileList.filteredFiles.length === 0" :dark="dark" icon="plus" type="positive" @click="showEntityCreation = true">Create one</MbButton>
     </section>
     <EntityCreationModal :dark="dark" :file-content="JSON.stringify(defaultSchemaContent, null, 2)" file-extension="json" :path="currentPath" title="Add new…" :visible="showEntityCreation" @close="showEntityCreation = false" @entity-created="handleEntityCreated" />
-    <EntityMoveModal v-if="initialised" :dark="dark" :old-path="entityBeingModified" pretty-filenames :root="schemaDir" :visible="showEntityMove" @close="showEntityMove = false" @entity-moved="handleEntityMoved" />
+    <EntityMoveModal v-if="initialised" :dark="dark" :old-path="entityBeingModified" pretty-filenames :root="schemaDir" :visible="showEntityMove" @close="showEntityMove = false; entityBeingModified = null" @entity-moved="handleEntityMoved" />
+    <EntityRenameModal :dark="dark" :old-path="entityBeingModified" :visible="showEntityRename" @close="showEntityRename = false; entityBeingModified = null" @entity-renamed="handleEntityRenamed" />
   </TabContent>
 </template>
 
@@ -14,12 +15,14 @@
 import fs, { exists, joinPath } from '../../fs';
 import EntityCreationModal from '../../components/utility/EntityCreationModal.vue';
 import EntityMoveModal from '../../components/utility/EntityMoveModal.vue';
+import EntityRenameModal from '../../components/utility/EntityRenameModal.vue';
 import TabContent from '../../components/utility/TabContent.vue';
 
 export default {
   components: {
     EntityCreationModal,
     EntityMoveModal,
+    EntityRenameModal,
     TabContent,
   },
   computed: {
@@ -79,6 +82,7 @@ export default {
       ],
       showEntityCreation: false,
       showEntityMove: false,
+      showEntityRename: false,
     };
   },
   methods: {
@@ -110,6 +114,18 @@ export default {
       }
       this.$store.dispatch('saveAppData');
     },
+    handleEntityRenamed({ oldPath, newPath }) {
+      this.$refs.fileList.refresh();
+      this.entityBeingModified = null;
+
+      this.$store.state.application.locallyChangedFiles.forEach((path) => {
+        if (path.startsWith(oldPath)) {
+          this.$store.commit('removeLocallyChangedFile', path);
+          this.$store.commit('addLocallyChangedFile', path.replace(oldPath, newPath));
+        }
+      });
+      this.$store.dispatch('saveAppData');
+    },
     moveEntity(path) {
       this.entityBeingModified = path;
       this.showEntityMove = true;
@@ -118,7 +134,8 @@ export default {
       console.log('open', path);
     },
     renameFolder(path) {
-      console.log('rename', path);
+      this.entityBeingModified = path;
+      this.showEntityRename = true;
     },
     async updateLocallyChangedFiles(path) {
       const entities = await fs.readdir(path);
