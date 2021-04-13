@@ -160,7 +160,7 @@ export default {
       this.showEntityMove = true;
     },
     openSchema(path) {
-      console.log('open', path);
+      this.$router.push({ name: 'Edit Schema', params: { id: this.currentProject.id, path } });
     },
     renameFolder(path) {
       this.entityBeingModified = path;
