@@ -65,7 +65,7 @@ const GIT_STATUS_MESSAGES = {
   PULLING: 'Fetching remote changes',
   PUSHING: 'Pushing changes to remote',
   CHANGES: 'You have some unpublished local changes',
-  READY: 'Everything is in sync',
+  SYNCED: 'Everything is in sync',
 };
 
 export default {
@@ -219,9 +219,9 @@ export default {
     gitStatus() {
       const status = {
         color: 'positive',
-        label: 'ready',
+        label: 'synced',
         loading: this.gitLoading,
-        message: GIT_STATUS_MESSAGES.READY,
+        message: GIT_STATUS_MESSAGES.SYNCED,
       };
 
       const { progress, step, type } = this.currentOperation;
