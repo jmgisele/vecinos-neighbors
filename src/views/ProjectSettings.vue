@@ -82,7 +82,7 @@ export default {
       if (nv > ov) this.tabTransition = 'to-left';
       else this.tabTransition = 'to-right';
 
-      this.$router.push({ query: { tab: this.tabs[nv].value } });
+      this.$router.replace({ query: { tab: this.tabs[nv].value } });
     },
     isPrivilegedUser(nv) {
       if (!this.leaving && !nv) this.$router.replace({ name: 'Project' });
