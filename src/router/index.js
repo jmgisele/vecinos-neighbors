@@ -129,6 +129,8 @@ router.beforeEach(async (to) => {
     return false;
   }
 
+  Store.dispatch('startApplicationLoading');
+
   // Initialise App if it hasn’t yet
   if (!Store.state.application.initialised) {
     try {
@@ -153,6 +155,7 @@ router.beforeEach(async (to) => {
 });
 
 router.afterEach((to) => {
+  Store.dispatch('stopApplicationLoading');
   if (to.meta && to.meta.title) document.title = `${to.meta.title} | Mattrbld`;
   else document.title = 'Mattrbld';
 });

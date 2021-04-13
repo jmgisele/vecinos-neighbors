@@ -28,6 +28,8 @@ export default createStore({
       corsProxy: null,
       initialised: false,
       locallyChangedFiles: [],
+      loading: false,
+      loadingTimeout: null,
       mobile: false,
       tablet: false,
       openModals: [],
@@ -128,6 +130,9 @@ export default createStore({
     setAppData(state, data) {
       state.application = data;
     },
+    setApplicationLoading(state, value) {
+      state.application.loading = value;
+    },
     setAppProperty(state, { key, value }) {
       state.application[key] = value;
     },
@@ -136,6 +141,9 @@ export default createStore({
     },
     setCurrentProjectProperty(state, { key, value }) {
       state.currentProject[key] = value;
+    },
+    setLoadingTimeout(state, value) {
+      state.application.loadingTimeout = value;
     },
     setLocallyChangedFiles(state, value) {
       state.application.locallyChangedFiles = value;
@@ -222,6 +230,21 @@ export default createStore({
         commit('addToast', { message: `Something went wrong while saving the active user: ${err.message}`, type: 'error' });
         return false;
       }
+    },
+    startApplicationLoading({ commit, state }) {
+      if (state.application.loadingTimeout) {
+        window.clearTimeout(state.application.loadingTimeout);
+        commit('setLoadingTimeout', null);
+      }
+      const timeoutId = window.setTimeout(() => commit('setApplicationLoading', true), 100);
+      commit('setLoadingTimeout', timeoutId);
+    },
+    stopApplicationLoading({ commit, state }) {
+      if (state.application.loadingTimeout) {
+        window.clearTimeout(state.application.loadingTimeout);
+        commit('setLoadingTimeout', null);
+      }
+      commit('setApplicationLoading', false);
     },
   },
   modules: {

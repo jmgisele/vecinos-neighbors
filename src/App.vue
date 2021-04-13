@@ -9,6 +9,7 @@
   </header>
   <router-view :dark="dark" />
   <ModalOverlay :dark="dark" />
+  <LoadingOverlay :dark="dark" />
   <Snackbar :dark="dark" />
   <MbModal id="componentsModal" :dark="dark" :padded-body="false" :visible="showComponentsModal" @close="showComponentsModal = false">
     <Components :dark="dark" />
@@ -18,6 +19,7 @@
 <script>
 import GlobalTooltipController from './components/utility/GlobalTooltipController.vue';
 import Components from './views/Components.vue';
+import LoadingOverlay from './components/utility/LoadingOverlay.vue';
 import ModalOverlay from './components/utility/ModalOverlay.vue';
 import Snackbar from './components/utility/Snackbar.vue';
 import SvgSprite from './components/utility/SvgSprite.vue';
@@ -27,6 +29,7 @@ export default {
   components: {
     GlobalTooltipController,
     Components,
+    LoadingOverlay,
     ModalOverlay,
     Snackbar,
     SvgSprite,
