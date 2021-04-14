@@ -52,7 +52,7 @@ export default {
       defaultSchemaContent: {
         fields: [],
         name: 'Untitled Schema',
-        tabs: [{ label: 'Untitled Tab', fieldGroupName: null }],
+        tabs: [{ label: 'Untitled Tab', groupAs: null }],
       },
       entityBeingModified: null,
       initialised: false,
