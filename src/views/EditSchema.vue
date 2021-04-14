@@ -241,24 +241,17 @@ export default {
           text-align: left
 
       footer
-        text-align: center
-        margin-top: 2rem
+        margin: -0.5rem
+        margin-top: 1.5rem
+        display: flex
+        flex-wrap: wrap
+        justify-content: center
 
-        @media $mobile
-          margin: -0.5rem
-          margin-top: 1.5rem
-          display: flex
-          flex-wrap: wrap
-
-          .button
-            margin: 0.5rem
-            flex-grow: 1
-
-        .button:not(:last-child)
-          margin-right: 1rem
+        .button
+          margin: 0.5rem
 
           @media $mobile
-            margin-right: 0.5rem
+            flex-grow: 1
 
     .add-field
       header
