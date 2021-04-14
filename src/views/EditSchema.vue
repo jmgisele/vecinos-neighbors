@@ -31,7 +31,7 @@
       <template #right>
         <div v-if="currentOperation === 'add-field'" class="add-field">
           <header>
-            <h2>Add a field</h2>
+            <h2 :class="{ h3: isMobile }">Add a field</h2>
             <MbInput v-model="fieldFilter" :dark="dark" icon="search" placeholder="Search field…" type="search" />
           </header>
           <!-- TODO: add field picker component for every default field + custom field sorted by group -->
@@ -253,14 +253,25 @@ export default {
           @media $mobile
             flex-grow: 1
 
-    .add-field
-      header
-        max-width: 40rem
-        margin-left: auto
-        margin-right: auto
+.add-field // needs to be toplevel since modal teleports
+  header
+    margin-top: 8rem
+    max-width: 40rem
+    margin-left: auto
+    margin-right: auto
 
-        .input
-          display: flex
-          width: 100%
-          margin-bottom: 2rem
+    @media $tablet
+      margin-top: 4rem
+
+    @media $mobile
+      margin-top: 0
+      text-align: center
+
+    h2
+      margin-top: 0
+
+    .input
+      display: flex
+      width: 100%
+      margin-bottom: 2rem
 </style>
