@@ -19,10 +19,10 @@ interface Field {
     },
   ],
   tab: String,
-  validation: { max: Number, min: Number, regex: String, required: Boolean },
+  validation: { max: Number, min: Number, regex: String, regexError: String, required: Boolean },
   value: Any,
   visibility: { hidden: false, limitToGroups: Array, showByValue: { field: String, value: Any } },
-  visualOnly: Boolean!, // excluded from content files, serves purely visual function
+  visualOnly: Boolean, // excluded from content files, serves purely visual function
 },
 
 */
@@ -53,7 +53,7 @@ export default [
     tab: null,
     validation: { required: true },
     value: null,
-    visibility: { hidden: false, limitToGroups: [], showByValue: { field: null, value: null } },
+    visibility: { hidden: false },
   },
   {
     type: 'languages',
@@ -66,6 +66,34 @@ export default [
     tab: null,
     validation: { min: 1 },
     value: null,
-    visibility: { hidden: false, limitToGroups: [], showByValue: { field: null, value: null } },
+    visibility: { hidden: false },
+  },
+  {
+    type: 'text',
+    default: null,
+    description: 'A simple text input with configurable support for wrapping and multiple lines',
+    group: 'basic',
+    icon: 'text-input',
+    key: '',
+    label: 'Simple Text',
+    localised: false,
+    options: [
+      {
+        component: 'MbToggle',
+        key: 'wrapping',
+        slot: 'Wrap the text if its wider than the input field',
+        value: true,
+      },
+      {
+        component: 'MbToggle',
+        key: 'multiline',
+        slot: 'Allow line breaks',
+        value: false,
+      },
+    ],
+    tab: null,
+    validation: {},
+    value: null,
+    visibility: { hidden: false },
   },
 ];
