@@ -139,6 +139,10 @@ export default {
   box-shadow: inset 0 0 0 0.0625rem $text-tertiary
   overflow: hidden
   background-color: $bg
+  touch-action: none
+
+  @media $mobile
+    touch-action: auto
 
   &.dragging
     opacity: 0.25
