@@ -12,7 +12,7 @@
     </header>
     <MbTabs v-model="activeTab" :dark="dark" show-add-option :tabs="cleanTabs" @add-tab="handleAddTab" />
     <TabContent :dark="dark" :show-split="showSplit" @split-close="showSplit = false" @split-closed="handleSplitClosed">
-      <div v-if="schema.fields && schema.fields.length === 0" class="empty-state" :class="{ dark }">
+      <div v-if="currentOperation !== 'add-field' && schema.fields && schema.fields.length === 0" class="empty-state" :class="{ dark }">
         <h2>There’s nothing here yet</h2>
         <p>This schema currently has no fields. You can start adding some with the button below, or have Mattrbld automatically generate a set of fields for you based on a piece of content.</p>
         <footer>
@@ -20,13 +20,13 @@
           <MbButton :dark="dark" icon="plus" type="positive" @click="handleAddField">Add field</MbButton>
         </footer>
       </div>
-      <div v-else-if="fieldsForTab.length === 0" class="empty-state" :class="{ dark }">
+      <div v-else-if="currentOperation !== 'add-field' && fieldsForTab.length === 0" class="empty-state" :class="{ dark }">
         <h2>There’s nothing here yet</h2>
         <footer>
           <MbButton :dark="dark" icon="plus" type="positive" @click="handleAddField">Add field</MbButton>
         </footer>
       </div>
-      <!-- TODO: insert field arrangement component with v-else and fieldsForTab -->
+      <FieldArrangementList v-else :dark="dark" :fields="fieldsForTab" parent-key="___toplevel" />
 
       <template #right>
         <div v-if="currentOperation === 'add-field'" class="add-field" :class="{ dark }">
@@ -44,7 +44,6 @@
                 <h3>{{key}}</h3>
                 <FieldThumbnail v-for="(field, index) in filteredFields.get(key)" :dark="dark" :description="field.description" :icon="field.icon" :key="index" :name="field.label" @add-field="addFieldToSchema(field)" @field-over="handleFieldOver" />
               </div>
-              <!-- TODO: add field picker component for every default field + custom field sorted by group -->
             </div>
           </transition>
         </div>
@@ -59,6 +58,7 @@ import fs, { PlainFS, readdirDeep, joinPath } from '../fs';
 
 import defaultFields from '../data/defaultFields';
 
+import FieldArrangementList from '../components/utility/FieldArrangementList.vue';
 import FieldThumbnail from '../components/utility/FieldThumbnail.vue';
 import TabContent from '../components/utility/TabContent.vue';
 
@@ -79,6 +79,7 @@ export default {
     }
   },
   components: {
+    FieldArrangementList,
     FieldThumbnail,
     TabContent,
   },
@@ -123,6 +124,8 @@ export default {
       activeTab: -1,
       availableFields: null,
       currentOperation: null,
+      fieldAddIndex: null,
+      fieldAddParent: null,
       fieldBeingEdited: null,
       fileStatus: null,
       fieldFilter: '',
@@ -133,7 +136,23 @@ export default {
   },
   methods: {
     addFieldToSchema(field) {
-      console.log(field.type);
+      if (!this.schema.fields) this.schema.fields = [];
+      if (this.fieldAddIndex && this.fieldAddParent) {
+        if (this.fieldAddParent === '___toplevel') this.schema.fields.splice(this.fieldAddIndex, 0, field);
+        else this.getField(this.fieldAddParent).value.splice(this.fieldAddIndex, 0, field);
+      } else {
+        this.schema.fields.push(field);
+      }
+      this.fieldAddIndex = null;
+      this.fieldAddParent = null;
+    },
+    getField(path) {
+      const segments = path.split('.');
+      let next = this.schema.fields.find((field) => field.key === segments[0]);
+      segments.slice(1).forEach((segment) => {
+        next = next.value.find((field) => field.key === segment);
+      });
+      return next;
     },
     async handleAddField() {
       this.currentOperation = 'add-field';
@@ -170,7 +189,8 @@ export default {
       console.log('new tab at index');
     },
     handleFieldOver({ parent, index }) {
-      console.log(parent, index);
+      this.fieldAddParent = parent;
+      this.fieldAddIndex = index;
     },
     handleSplitClosed() {
       if (this.fieldBeingEdited) this.fieldBeingEdited = null;
@@ -279,12 +299,14 @@ export default {
     @media $mobile
       height: auto
 
-    .empty-state
+    .empty-state,
+    .field-arrangement-list
       max-width: 40rem
       margin-top: 8rem
       margin-left: auto
       margin-right: auto
 
+    .empty-state
       @media $mobile
         margin-top: 0
 
