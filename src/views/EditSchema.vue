@@ -34,8 +34,8 @@
             <h2 :class="{ h3: isMobile }">Add a field</h2>
             <MbInput v-model="fieldFilter" :dark="dark" icon="search" placeholder="Search field…" type="search" />
           </header>
-          <transition>
-            <div v-if="fieldsLoading" class="loader">
+          <transition mode="out-in">
+            <div v-if="fieldsLoading" class="loader-wrapper">
               <MbLoader />
               <p>Loading available fields…</p>
             </div>
@@ -367,6 +367,23 @@ export default {
     .input
       display: flex
       width: 100%
+
+  .loader-wrapper,
+  .fields-list
+    &.v-enter-active,
+    &.v-leave-active
+      transition: opacity 200ms ease
+
+      &.v-enter-from,
+      &.v-leave-to
+        opacity: 0
+
+  .loader-wrapper
+    margin: 4rem 0
+    text-align: center
+
+    p
+      opacity: 0.5
 
   .fields-list
     max-width: 40rem
