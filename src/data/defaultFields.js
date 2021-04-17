@@ -33,7 +33,7 @@ export default [
     default: null,
     description: 'Adds a unique ID to the content',
     group: 'basic',
-    icon: 'hashtag',
+    icon: 'hash',
     key: '',
     label: 'Unique ID',
     options: [
