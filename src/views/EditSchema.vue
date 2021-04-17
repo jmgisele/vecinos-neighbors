@@ -70,7 +70,7 @@ export default {
       const fileStatus = await status({ fs: PlainFS, dir: `/projects/${id}`, filepath: path.replace(`/projects/${id}/`, '') }); // filepath needs to be relative
 
       return next((vm) => {
-        vm.schema = schema; // eslint-disable-line no-param-reassign
+        vm.schema = { fields: [], tabs: [{ label: 'Untitled Tab', groupAs: null }], ...schema }; // eslint-disable-line no-param-reassign
         vm.fileStatus = fileStatus; // eslint-disable-line no-param-reassign
       });
     } catch (err) {
