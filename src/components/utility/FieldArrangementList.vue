@@ -53,6 +53,8 @@ export default {
 @require '../../assets/styles/corners'
 
 .field-arrangement-list
+  position: relative
+
   &.dark
     .empty-state
       border-color: $text-tertiary-dark
@@ -99,6 +101,17 @@ export default {
   .add-indicator
     padding: 1rem
 
+    &.v-enter-active,
+    &.v-leave-active
+      transition: opacity 200ms ease
+
+      &.v-enter-from,
+      &.v-leave-to
+        opacity: 0
+
+    &.v-leave-active
+      position: absolute
+
     > div
       height: 0.25rem
       background-color: $accent
@@ -111,4 +124,7 @@ export default {
 
       & + .add-indicator
         margin-top: -1rem
+
+    &.v-move
+      transition: transform 200ms ease
 </style>
