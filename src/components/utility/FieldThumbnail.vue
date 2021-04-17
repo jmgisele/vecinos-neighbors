@@ -27,10 +27,10 @@ export default {
   },
   data() {
     return {
+      activeDropzone: null,
       cloneClickDelta: null,
       dragging: false,
       draggingClone: null,
-      droppable: false,
     };
   },
   emits: ['add-field', 'field-over'],
@@ -39,19 +39,23 @@ export default {
       const el = document.elementFromPoint(e.clientX, e.clientY);
       this.draggingClone.style.left = `${e.clientX - this.cloneClickDelta.x}px`;
       this.draggingClone.style.top = `${e.clientY - this.cloneClickDelta.y}px`;
-      this.droppable = false;
-      if (!el || !el.dataset.index || !el.dataset.parent || el === this.dragging) return;
+      if (el === this.activeDropzone) return; // no need to spam events
+      if (!el || !el.dataset.index || !el.dataset.parent || el === this.dragging) {
+        this.activeDropzone = null;
+        return;
+      }
       const index = Number.parseInt(el.dataset.index, 10);
       const { parent } = el.dataset;
       const elRect = el.getBoundingClientRect();
       const isBottomHalf = (e.clientY - elRect.top) > elRect.height / 2;
       if (isBottomHalf) this.$emit('field-over', { parent, index: index + 1 });
       else this.$emit('field-over', { parent, index });
-      this.droppable = true;
+      this.activeDropzone = el;
     },
     startDrag(e) {
       if (this.isMobile) return; // no drag-n-drop when modal is open
       if (this.draggingClone) this.destroyClone();
+      this.$store.commit('setAppProperty', { key: 'dragActive', value: true });
       this.dragging = e.currentTarget;
       const rect = e.currentTarget.getBoundingClientRect();
       const clone = e.currentTarget.cloneNode(true);
@@ -83,10 +87,12 @@ export default {
       window.removeEventListener('pointerup', this.stopDrag);
       window.removeEventListener('pointermove', this.handlePointerMove, { passive: true });
       document.getElementById('fieldThumbnailGrabbingStyle').remove();
+      this.$store.commit('setAppProperty', { key: 'dragActive', value: false });
       const targetRect = this.dragging.getBoundingClientRect();
       const { left: currentLeft, top: currentTop } = this.draggingClone.style;
-      if (this.droppable && (Number.parseInt(currentLeft, 10) === Math.floor(targetRect.left) && Number.parseInt(currentTop, 10) === Math.floor(targetRect.top))) {
+      if (this.activeDropzone || (Number.parseInt(currentLeft, 10) === Math.floor(targetRect.left) && Number.parseInt(currentTop, 10) === Math.floor(targetRect.top))) {
         this.destroyClone();
+        if (this.activeDropzone) this.$emit('add-field');
         return;
       }
       this.draggingClone.style.transition = 'left 200ms ease, top 200ms ease';
