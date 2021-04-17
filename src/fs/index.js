@@ -45,6 +45,27 @@ async function mkdirp(filepath, _selfCall = false) {
   }
 }
 
+/*
+Return a flat list of all the files nested inside a directory
+
+Based on an elegant concurrent recursive solution from SO
+https://stackoverflow.com/a/45130990/2168416
+
+Adapted from https://github.com/isomorphic-git/isomorphic-git/blob/main/src/models/FileSystem.js
+*/
+async function readdirDeep(dir) {
+  const subdirs = await fs.promises.readdir(dir);
+  const files = await Promise.all(
+    subdirs.map(async (subdir) => {
+      const res = `${dir}/${subdir}`;
+      return (await fs.promises.stat(res)).isDirectory()
+        ? readdirDeep(res)
+        : res;
+    }),
+  );
+  return files.reduce((a, f) => a.concat(f), []);
+}
+
 async function rmrf(path) {
   if (!path || typeof path !== 'string' || !path.trim()) throw new Error('Invalid directory');
   if (path.trim() === '/') throw new Error('You may not delete the root directory');
@@ -70,5 +91,6 @@ export {
   fs as PlainFS,
   join as joinPath,
   mkdirp,
+  readdirDeep,
   rmrf,
 };
