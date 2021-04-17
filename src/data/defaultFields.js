@@ -71,11 +71,11 @@ export default [
   {
     type: 'text',
     default: null,
-    description: 'A simple text input with configurable support for wrapping and multiple lines',
+    description: 'Basic text input field with support for wrapping and multiple lines',
     group: 'basic',
     icon: 'text-input',
     key: '',
-    label: 'Simple Text',
+    label: 'Unformatted Text',
     localised: false,
     options: [
       {
