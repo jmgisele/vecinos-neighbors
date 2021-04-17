@@ -29,7 +29,7 @@
       <!-- TODO: insert field arrangement component with v-else and fieldsForTab -->
 
       <template #right>
-        <div v-if="currentOperation === 'add-field'" class="add-field">
+        <div v-if="currentOperation === 'add-field'" class="add-field" :class="{ dark }">
           <header>
             <h2 :class="{ h3: isMobile }">Add a field</h2>
             <MbInput v-model="fieldFilter" :dark="dark" icon="search" placeholder="Search field…" type="search" />
@@ -41,10 +41,8 @@
             </div>
             <div v-else class="fields-list">
               <div v-for="key in filteredFields.keys()" class="field-group" :key="key">
-                <p>{{key}}</p>
-                <ul>
-                  <li v-for="(field, index) in filteredFields.get(key)" :key="index">{{field.label}} ({{field.type}}): {{field.description}}</li>
-                </ul>
+                <h3>{{key}}</h3>
+                <FieldThumbnail v-for="(field, index) in filteredFields.get(key)" :dark="dark" :description="field.description" :icon="field.icon" :key="index" :name="field.label" @add-field="addFieldToSchema(field)" @field-over="handleFieldOver" />
               </div>
               <!-- TODO: add field picker component for every default field + custom field sorted by group -->
             </div>
@@ -61,6 +59,7 @@ import fs, { PlainFS, readdirDeep, joinPath } from '../fs';
 
 import defaultFields from '../data/defaultFields';
 
+import FieldThumbnail from '../components/utility/FieldThumbnail.vue';
 import TabContent from '../components/utility/TabContent.vue';
 
 export default {
@@ -80,6 +79,7 @@ export default {
     }
   },
   components: {
+    FieldThumbnail,
     TabContent,
   },
   computed: {
@@ -132,6 +132,9 @@ export default {
     };
   },
   methods: {
+    addFieldToSchema(field) {
+      console.log(field.type);
+    },
     async handleAddField() {
       this.currentOperation = 'add-field';
       this.showSplit = true;
@@ -165,6 +168,9 @@ export default {
     },
     handleAddTab() {
       console.log('new tab at index');
+    },
+    handleFieldOver({ parent, index }) {
+      console.log(parent, index);
     },
     handleSplitClosed() {
       if (this.fieldBeingEdited) this.fieldBeingEdited = null;
@@ -313,6 +319,13 @@ export default {
             flex-grow: 1
 
 .add-field // needs to be toplevel since modal teleports
+  &.dark
+    header .input
+      background-color: $bg-tertiary-dark
+
+    .fields-list .field-group h3
+      color: $text-secondary-dark
+
   header
     margin-top: 8rem
     max-width: 40rem
@@ -332,5 +345,19 @@ export default {
     .input
       display: flex
       width: 100%
-      margin-bottom: 2rem
+
+  .fields-list
+    max-width: 40rem
+    margin-left: auto
+    margin-right: auto
+
+    .field-group
+      margin-top: 4rem
+
+      @media $mobile
+        margin-top: 2rem
+
+      h3
+        text-transform: capitalize
+        color: $text-secondary
 </style>
