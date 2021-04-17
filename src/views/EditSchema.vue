@@ -26,7 +26,10 @@
           <MbButton :dark="dark" icon="plus" type="positive" @click="handleAddField">Add field</MbButton>
         </footer>
       </div>
-      <FieldArrangementList v-else :dark="dark" :fields="fieldsForTab" parent-key="___toplevel" />
+      <div v-else class="added-fields-list">
+        <FieldArrangementList :dark="dark" :field-being-edited="fieldBeingEdited" :fields="fieldsForTab" parent-key="___toplevel" />
+        <MbButton v-show="!showSplit" :dark="dark" icon="plus" type="positive" @click="handleAddField">Add field</MbButton>
+      </div>
 
       <template #right>
         <div v-if="currentOperation === 'add-field'" class="add-field" :class="{ dark }">
@@ -136,12 +139,46 @@ export default {
   },
   methods: {
     addFieldToSchema(field) {
-      if (!this.schema.fields) this.schema.fields = [];
-      if (this.fieldAddIndex && this.fieldAddParent) {
-        if (this.fieldAddParent === '___toplevel') this.schema.fields.splice(this.fieldAddIndex, 0, field);
-        else this.getField(this.fieldAddParent).value.splice(this.fieldAddIndex, 0, field);
+      const cleanField = {};
+
+      Object.entries(field).forEach(([key, value]) => {
+        if (key === 'options' && value.length > 0) {
+          cleanField.options = {};
+          value.forEach((option) => {
+            cleanField.options[option.key] = option.value;
+          });
+        } else cleanField[key] = value;
+      });
+
+      cleanField.tab = this.cleanTabs[this.activeTab];
+      delete cleanField.description; // not needed, so let’s save space
+      delete cleanField.group; // not needed, so let’s save space
+
+      if (this.fieldAddIndex !== null && this.fieldAddParent) {
+        let parentFieldFields;
+        if (this.fieldAddParent === '___toplevel') parentFieldFields = this.schema.fields;
+        else parentFieldFields = this.getField(this.fieldAddParent).value;
+
+        parentFieldFields.splice(this.fieldAddIndex, 1); // remove the add indicator
+
+        if (parentFieldFields.length === 0) {
+          cleanField.key = field.type || 'unknown';
+          parentFieldFields.push(cleanField);
+        } else {
+          const potentialKey = field.type || 'unknown';
+          if (!parentFieldFields.find((existingField) => existingField.key === potentialKey)) cleanField.key = potentialKey;
+          else {
+            let counter = 1;
+            // NOTE: this loop actually works as intended, despite the warning by eslint – and I wouldn’t really know how to write it otherwise
+            while (parentFieldFields.find((existingField) => existingField.key === `${potentialKey}-${counter}`)) { // eslint-disable-line no-loop-func
+              counter += 1;
+            }
+            cleanField.key = `${potentialKey}-${counter}`;
+          }
+          parentFieldFields.splice(this.fieldAddIndex, 0, cleanField);
+        }
       } else {
-        this.schema.fields.push(field);
+        this.schema.fields.push(cleanField);
       }
       this.fieldAddIndex = null;
       this.fieldAddParent = null;
@@ -191,6 +228,18 @@ export default {
       console.log('new tab at index');
     },
     handleFieldOver({ parent, index }) {
+      if (parent && index !== null) {
+        let parentFieldFields;
+        if (parent === '___toplevel') parentFieldFields = this.schema.fields;
+        else parentFieldFields = this.getField(parent).value;
+
+        const addIndicatorIndex = parentFieldFields.findIndex((field) => field.key === '___addIndicator');
+        if (addIndicatorIndex !== -1) parentFieldFields.splice(addIndicatorIndex, 1);
+
+        if (parentFieldFields.length > 0) parentFieldFields.splice(index, 0, { key: '___addIndicator' });
+      } else if (this.fieldAddParent === '___toplevel') this.schema.fields.splice(this.fieldAddIndex, 1);
+      else if (this.fieldAddParent) this.getField(this.fieldAddParent).value.splice(this.fieldAddIndex, 1);
+
       this.fieldAddParent = parent;
       this.fieldAddIndex = index;
     },
@@ -307,7 +356,7 @@ export default {
       height: auto
 
     .empty-state,
-    .field-arrangement-list
+    .added-fields-list
       max-width: 40rem
       margin-top: 8rem
       margin-left: auto
@@ -346,6 +395,21 @@ export default {
 
           @media $mobile
             flex-grow: 1
+
+    .added-fields-list
+      @media $tablet
+        margin-top: 4rem
+
+      @media $mobile
+        margin-top: 2rem
+
+      .field-arrangement-list
+        margin-bottom: 1rem
+
+      .button
+        display: flex
+        margin-left: auto
+        margin-right: auto
 
 .add-field // needs to be toplevel since modal teleports
   &.dark

@@ -31,26 +31,51 @@ export default {
       cloneClickDelta: null,
       dragging: false,
       draggingClone: null,
+      lastIndex: null,
+      lastParent: null,
+      lastY: 0,
+      wasBottomHalf: false,
     };
   },
   emits: ['add-field', 'field-over'],
   methods: {
     handlePointerMove(e) {
-      const el = document.elementFromPoint(e.clientX, e.clientY);
       this.draggingClone.style.left = `${e.clientX - this.cloneClickDelta.x}px`;
       this.draggingClone.style.top = `${e.clientY - this.cloneClickDelta.y}px`;
-      if (el === this.activeDropzone) return; // no need to spam events
+
+      if (Math.abs(e.clientY - this.lastY) < 36) return; // stop addIndicator jitter when only moving the mouse slowly
+
+      this.lastY = e.clientY;
+
+      const el = document.elementFromPoint(e.clientX, e.clientY);
+      if (typeof el.dataset.addIndicator !== 'undefined') return; // fix jitter when over an add indicator
       if (!el || !el.dataset.index || !el.dataset.parent || el === this.dragging) {
-        this.activeDropzone = null;
+        if (this.activeDropzone) {
+          this.$emit('field-over', { parent: null, index: null });
+          this.activeDropzone = null;
+        }
         return;
       }
       const index = Number.parseInt(el.dataset.index, 10);
       const { parent } = el.dataset;
+
+      if (el.classList.contains('empty-state')) { // if it’s empty we don’t need to check the position
+        this.$emit('field-over', { parent, index });
+        this.activeDropzone = el;
+        return;
+      }
+
       const elRect = el.getBoundingClientRect();
       const isBottomHalf = (e.clientY - elRect.top) > elRect.height / 2;
+
+      if (el === this.activeDropzone && isBottomHalf === this.wasBottomHalf && this.lastIndex === index && this.lastParent === parent) return;
+
       if (isBottomHalf) this.$emit('field-over', { parent, index: index + 1 });
       else this.$emit('field-over', { parent, index });
       this.activeDropzone = el;
+      this.lastIndex = index;
+      this.lastParent = parent;
+      this.wasBottomHalf = isBottomHalf;
     },
     startDrag(e) {
       if (this.isMobile) return; // no drag-n-drop when modal is open
