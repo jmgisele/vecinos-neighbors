@@ -34,7 +34,21 @@
             <h2 :class="{ h3: isMobile }">Add a field</h2>
             <MbInput v-model="fieldFilter" :dark="dark" icon="search" placeholder="Search field…" type="search" />
           </header>
-          <!-- TODO: add field picker component for every default field + custom field sorted by group -->
+          <transition>
+            <div v-if="fieldsLoading" class="loader">
+              <MbLoader />
+              <p>Loading available fields…</p>
+            </div>
+            <div v-else class="fields-list">
+              <div v-for="key in filteredFields.keys()" class="field-group" :key="key">
+                <p>{{key}}</p>
+                <ul>
+                  <li v-for="(field, index) in filteredFields.get(key)" :key="index">{{field.label}} ({{field.type}}): {{field.description}}</li>
+                </ul>
+              </div>
+              <!-- TODO: add field picker component for every default field + custom field sorted by group -->
+            </div>
+          </transition>
         </div>
       </template>
     </TabContent>
@@ -43,7 +57,9 @@
 
 <script>
 import { status } from 'isomorphic-git';
-import fs, { PlainFS } from '../fs';
+import fs, { PlainFS, readdirDeep, joinPath } from '../fs';
+
+import defaultFields from '../data/defaultFields';
 
 import TabContent from '../components/utility/TabContent.vue';
 
@@ -76,6 +92,20 @@ export default {
       if (this.activeTab === 0) return this.schema.fields.filter((field) => field.tab === this.cleanTabs[0] || !field.tab); // first tab shows all fields without tab, too
       return this.schema.fields.filter((field) => field.tab === this.cleanTabs[this.activeTab]);
     },
+    filteredFields() {
+      if (!this.availableFields) return new Map();
+      if (!this.fieldFilter) return this.availableFields;
+      return Array.from(this.availableFields).reduce((newMap, [group, fields]) => {
+        const lowercaseFieldFilter = this.fieldFilter.toLowerCase();
+        if (group.includes(lowercaseFieldFilter)) {
+          newMap.set(group, fields);
+          return newMap;
+        }
+        const filteredFields = fields.filter((field) => field.label.toLowerCase().includes(lowercaseFieldFilter) || field.type.includes(lowercaseFieldFilter));
+        if (filteredFields.length > 0) newMap.set(group, filteredFields);
+        return newMap;
+      }, new Map());
+    },
     isMobile() {
       return this.$store.state.application.mobile;
     },
@@ -91,18 +121,47 @@ export default {
   data() {
     return {
       activeTab: -1,
+      availableFields: null,
       currentOperation: null,
       fieldBeingEdited: null,
       fileStatus: null,
       fieldFilter: '',
+      fieldsLoading: false,
       schema: {},
       showSplit: false,
     };
   },
   methods: {
-    handleAddField() {
+    async handleAddField() {
       this.currentOperation = 'add-field';
       this.showSplit = true;
+
+      if (!this.availableFields) {
+        this.fieldsLoading = true;
+
+        let customFieldsData = [];
+
+        try {
+          const customFieldsPath = `/projects/${this.$route.params.id}/.mattrbld/custom-fields`;
+          const customFieldFiles = await readdirDeep(customFieldsPath);
+          customFieldsData = await Promise.all(customFieldFiles.map((file) => fs.readFile(joinPath(customFieldsPath, file), 'utf8')));
+        } catch (err) {
+          // the directory might not exist, but that is okay
+          if (err.code !== 'ENOENT') this.$store.commit('addToast', { message: `Something went wrong while loading the custom fields: ${err.message}`, type: 'error' });
+        }
+
+        this.availableFields = [...defaultFields, ...customFieldsData].reduce((map, data) => {
+          const field = typeof data === 'string' ? JSON.parse(data) : data;
+          let { group } = field;
+          if (!group) group = 'miscellaneous';
+
+          if (map.has(group)) map.get(group).push(field);
+          else map.set(group, [field]);
+
+          return map;
+        }, new Map());
+        this.fieldsLoading = false;
+      }
     },
     handleAddTab() {
       console.log('new tab at index');
