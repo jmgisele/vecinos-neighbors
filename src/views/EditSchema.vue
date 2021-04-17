@@ -196,6 +196,11 @@ export default {
       if (this.fieldBeingEdited) this.fieldBeingEdited = null;
       this.currentOperation = null;
     },
+    validateSchema() {
+      // TODO: add schema validation
+      // Step 1: check if all fields have keys
+      // Step 2: make sure there are no errors within any fields
+    },
   },
   mounted() {
     this.$nextTick(() => { // needed so the active indicator looks right
