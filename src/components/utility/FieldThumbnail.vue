@@ -32,8 +32,11 @@ export default {
       dragging: false,
       draggingClone: null,
       lastIndex: null,
+      lastMove: {
+        x: 0,
+        y: 0,
+      },
       lastParent: null,
-      lastY: 0,
       wasBottomHalf: false,
     };
   },
@@ -43,9 +46,12 @@ export default {
       this.draggingClone.style.left = `${e.clientX - this.cloneClickDelta.x}px`;
       this.draggingClone.style.top = `${e.clientY - this.cloneClickDelta.y}px`;
 
-      if (Math.abs(e.clientY - this.lastY) < 36) return; // stop addIndicator jitter when only moving the mouse slowly
+      const deltaX = Math.abs(e.clientX - this.lastMove.x);
+      const deltaY = Math.abs(e.clientY - this.lastMove.y);
+      if (Math.sqrt(deltaX * deltaX + deltaY * deltaY) < 36) return; // stop addIndicator jitter when only moving the mouse slowly
 
-      this.lastY = e.clientY;
+      this.lastMove.x = e.clientX;
+      this.lastMove.y = e.clientY;
 
       const el = document.elementFromPoint(e.clientX, e.clientY);
       if (typeof el.dataset.addIndicator !== 'undefined') return; // fix jitter when over an add indicator
