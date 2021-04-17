@@ -26,6 +26,7 @@ export default createStore({
     application: {
       activeUser: null,
       corsProxy: null,
+      dragActive: false,
       initialised: false,
       locallyChangedFiles: [],
       loading: false,
