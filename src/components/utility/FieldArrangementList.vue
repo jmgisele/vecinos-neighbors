@@ -9,7 +9,7 @@
       </div>
       <FieldArrangementItem
         v-else
-        :active="fieldBeingEdited === field"
+        :active="field.active"
         :dark="dark"
         :data-index="index"
         :data-parent="parentKey"
@@ -42,7 +42,6 @@ export default {
   name: 'FieldArrangementList', // since technically it’s recursively calling itself (FieldArrangementItems might have a list)
   props: {
     dark: Boolean,
-    fieldBeingEdited: Object,
     fields: Array,
     parentKey: String,
   },
@@ -72,6 +71,9 @@ export default {
     position: relative
     text-align: center
     color: $text-secondary
+
+    &.v-leave-active
+      display: none
 
     &.drag-active
       > *

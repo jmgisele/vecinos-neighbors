@@ -1,6 +1,6 @@
 <template lang="html">
   <div class="field-arrangement-item" :class="{ 'drag-active': $store.state.application.dragActive }">
-    <div class="info" :class="{ dark }">
+    <div class="info" :class="{ active, dark }">
       <MbIcon class="drag-handle" icon="drag-handle" />
       <div class="field-icon">
         <MbIcon :icon="icon" />
@@ -84,6 +84,24 @@ export default {
       span
         &.chip
           background-color: $bg-dark
+
+        &.type
+          color: $text-secondary-dark
+
+      .hidden
+        color: $text-tertiary-dark
+
+    &.active
+      background-color: $accent
+      color: $text-dark
+
+      .field-icon
+        box-shadow: inset 0 0 0 0.0625rem $text-dark
+
+      span
+        &.chip
+          background-color: $accent-secondary
+          color: $text
 
         &.type
           color: $text-secondary-dark
