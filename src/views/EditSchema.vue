@@ -126,6 +126,7 @@ export default {
     return {
       activeTab: -1,
       availableFields: null,
+      currentAddIndicator: null,
       currentOperation: null,
       fieldAddIndex: null,
       fieldAddParent: null,
@@ -147,7 +148,8 @@ export default {
           value.forEach((option) => {
             cleanField.options[option.key] = option.value;
           });
-        } else cleanField[key] = value;
+        } else if (key === 'value' && value) cleanField.value = [];
+        else cleanField[key] = value;
       });
 
       cleanField.tab = this.cleanTabs[this.activeTab];
@@ -159,7 +161,7 @@ export default {
         if (this.fieldAddParent === '___toplevel') parentFieldFields = this.schema.fields;
         else parentFieldFields = this.getField(this.fieldAddParent).value;
 
-        parentFieldFields.splice(this.fieldAddIndex, 1); // remove the add indicator
+        this.removeCurrentAddIndicator();
 
         if (parentFieldFields.length === 0) {
           cleanField.key = field.type || 'unknown';
@@ -230,17 +232,17 @@ export default {
       console.log('new tab at index');
     },
     handleFieldOver({ parent, index }) {
+      if (this.currentAddIndicator) this.removeCurrentAddIndicator();
       if (parent && index !== null) {
         let parentFieldFields;
         if (parent === '___toplevel') parentFieldFields = this.schema.fields;
         else parentFieldFields = this.getField(parent).value;
 
-        const addIndicatorIndex = parentFieldFields.findIndex((field) => field.key === '___addIndicator');
-        if (addIndicatorIndex !== -1) parentFieldFields.splice(addIndicatorIndex, 1);
-
-        if (parentFieldFields.length > 0) parentFieldFields.splice(index, 0, { key: '___addIndicator' });
-      } else if (this.fieldAddParent === '___toplevel') this.schema.fields.splice(this.fieldAddIndex, 1);
-      else if (this.fieldAddParent) this.getField(this.fieldAddParent).value.splice(this.fieldAddIndex, 1);
+        if (parentFieldFields.length > 0) {
+          parentFieldFields.splice(index, 0, { key: '___addIndicator' });
+          this.currentAddIndicator = { parent, index };
+        }
+      }
 
       this.fieldAddParent = parent;
       this.fieldAddIndex = index;
@@ -248,6 +250,13 @@ export default {
     handleSplitClosed() {
       if (this.fieldBeingEdited) this.fieldBeingEdited = null;
       this.currentOperation = null;
+    },
+    removeCurrentAddIndicator() {
+      if (!this.currentAddIndicator) return;
+      const { parent, index } = this.currentAddIndicator;
+      const parentFieldFields = parent === '___toplevel' ? this.schema.fields : this.getField(parent).value;
+      parentFieldFields.splice(index, 1);
+      this.currentAddIndicator = null;
     },
     validateSchema() {
       // TODO: add schema validation
