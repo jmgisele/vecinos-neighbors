@@ -111,8 +111,12 @@ export default {
       this.draggingClone.remove();
       this.draggingClone = null;
       this.dragging = false;
-      this.draggedIndex = -1;
       this.cloneClickDelta = null;
+      this.activeDropzone = null;
+      this.lastIndex = null;
+      this.lastMove = { x: 0, y: 0 };
+      this.lastParent = null;
+      this.wasBottomHalf = false;
     },
     stopDrag() {
       window.removeEventListener('pointerup', this.stopDrag);
@@ -122,8 +126,8 @@ export default {
       const targetRect = this.dragging.getBoundingClientRect();
       const { left: currentLeft, top: currentTop } = this.draggingClone.style;
       if (this.activeDropzone || (Number.parseInt(currentLeft, 10) === Math.floor(targetRect.left) && Number.parseInt(currentTop, 10) === Math.floor(targetRect.top))) {
-        this.destroyClone();
         if (this.activeDropzone) this.$emit('add-field');
+        this.destroyClone();
         return;
       }
       this.draggingClone.style.transition = 'left 200ms ease, top 200ms ease';
