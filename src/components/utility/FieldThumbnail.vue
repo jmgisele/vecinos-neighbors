@@ -31,13 +31,7 @@ export default {
       cloneClickDelta: null,
       dragging: false,
       draggingClone: null,
-      lastIndex: null,
-      lastMove: {
-        x: 0,
-        y: 0,
-      },
-      lastParent: null,
-      wasBottomHalf: false,
+      wasBottomHalf: null,
     };
   },
   emits: ['add-field', 'field-over'],
@@ -46,19 +40,13 @@ export default {
       this.draggingClone.style.left = `${e.clientX - this.cloneClickDelta.x}px`;
       this.draggingClone.style.top = `${e.clientY - this.cloneClickDelta.y}px`;
 
-      const deltaX = Math.abs(e.clientX - this.lastMove.x);
-      const deltaY = Math.abs(e.clientY - this.lastMove.y);
-      if (Math.sqrt(deltaX * deltaX + deltaY * deltaY) < 36) return; // stop addIndicator jitter when only moving the mouse slowly
-
-      this.lastMove.x = e.clientX;
-      this.lastMove.y = e.clientY;
-
       const el = document.elementFromPoint(e.clientX, e.clientY);
       if (typeof el.dataset.addIndicator !== 'undefined') return; // fix jitter when over an add indicator
-      if (!el || !el.dataset.index || !el.dataset.parent || el === this.dragging) {
+      if (!el || !el.dataset.index || !el.dataset.parent || el === this.dragging) { // we have left a valid dropzone
         if (this.activeDropzone) {
           this.$emit('field-over', { parent: null, index: null });
           this.activeDropzone = null;
+          this.wasBottomHalf = null;
         }
         return;
       }
@@ -66,6 +54,7 @@ export default {
       const { parent } = el.dataset;
 
       if (el.classList.contains('empty-state')) { // if it’s empty we don’t need to check the position
+        if (this.activeDropzone === el) return; // no need to re-emit, we’re already on it
         this.$emit('field-over', { parent, index });
         this.activeDropzone = el;
         return;
@@ -74,13 +63,11 @@ export default {
       const elRect = el.getBoundingClientRect();
       const isBottomHalf = (e.clientY - elRect.top) > elRect.height / 2;
 
-      if (el === this.activeDropzone && isBottomHalf === this.wasBottomHalf && this.lastIndex === index && this.lastParent === parent) return;
+      if (el === this.activeDropzone && isBottomHalf === this.wasBottomHalf) return; // nothing has changed, we don’t need to emit again
 
       if (isBottomHalf) this.$emit('field-over', { parent, index: index + 1 });
       else this.$emit('field-over', { parent, index });
       this.activeDropzone = el;
-      this.lastIndex = index;
-      this.lastParent = parent;
       this.wasBottomHalf = isBottomHalf;
     },
     startDrag(e) {
@@ -113,10 +100,7 @@ export default {
       this.dragging = false;
       this.cloneClickDelta = null;
       this.activeDropzone = null;
-      this.lastIndex = null;
-      this.lastMove = { x: 0, y: 0 };
-      this.lastParent = null;
-      this.wasBottomHalf = false;
+      this.wasBottomHalf = null;
     },
     stopDrag() {
       window.removeEventListener('pointerup', this.stopDrag);
