@@ -26,6 +26,7 @@
         :required="field.validation && field.validation.required"
         :type="field.type"
         @fieldclick="handleClick(parentKey, index)"
+        @fieldmove="handleFieldMove(parentKey, index, $event)"
       />
     </template>
   </transition-group>
@@ -46,6 +47,9 @@ export default {
     handleClick(parent, index) {
       // using a custom event here so we can have bubbling (since these can theoretically be nested infinitely deep)
       this.$el.dispatchEvent(new CustomEvent('fieldclick', { detail: { parent, index }, bubbles: true, composed: true }));
+    },
+    handleFieldMove(parent, index, target) {
+      this.$el.dispatchEvent(new CustomEvent('fieldmove', { detail: { parent, index, target }, bubbles: true, composed: true }));
     },
   },
   name: 'FieldArrangementList', // since technically it’s recursively calling itself (FieldArrangementItems might have a list)
@@ -113,6 +117,9 @@ export default {
 
   .add-indicator
     padding: 1rem
+
+    &:first-child
+      padding-top: 0
 
     &.v-enter-active,
     &.v-leave-active
