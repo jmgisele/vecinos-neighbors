@@ -435,6 +435,8 @@ export default {
         margin-top: 2rem
 
       .field-arrangement-list
+        margin-bottom: 1rem
+
         &::v-deep(> .field-arrangement-item:last-child)
           padding-bottom: 2rem
 
