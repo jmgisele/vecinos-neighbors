@@ -10,6 +10,7 @@
       <FieldArrangementItem
         v-else
         :active="fieldBeingEdited === field"
+        :class="{ 'drag-active': $store.state.application.dragActive }"
         :dark="dark"
         :data-index="index"
         :data-parent="parentKey"
@@ -137,6 +138,6 @@ export default {
       & + .add-indicator
         margin-top: -1rem
 
-    &.v-move
+    &.v-move:not(.drag-active)
       transition: transform 200ms ease
 </style>
