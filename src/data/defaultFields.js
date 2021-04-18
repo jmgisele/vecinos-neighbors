@@ -96,4 +96,17 @@ export default [
     value: null,
     visibility: { hidden: false },
   },
+  {
+    type: 'group',
+    default: null,
+    description: 'Groups multiple fields under a common key, ideal for objects',
+    group: 'structure',
+    icon: 'group',
+    key: '',
+    label: 'Field Group',
+    tab: null,
+    validation: {},
+    value: [],
+    visibility: { hidden: false },
+  },
 ];
