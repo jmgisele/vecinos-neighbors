@@ -148,7 +148,7 @@ export default {
         display: none
 
   .field-arrangement-list
-    margin-top: 1rem
+    padding-top: 1rem // so it still counts as field space
     margin-right: 0.125rem
     margin-left: 2rem
 </style>
