@@ -212,7 +212,7 @@ export default {
           if (err.code !== 'ENOENT') this.$store.commit('addToast', { message: `Something went wrong while loading the custom fields: ${err.message}`, type: 'error' });
         }
 
-        this.availableFields = [...defaultFields, ...customFieldsData].reduce((map, data) => {
+        const unsortedMap = [...defaultFields, ...customFieldsData].reduce((map, data) => {
           const field = typeof data === 'string' ? JSON.parse(data) : data;
           let { group } = field;
           if (!group) group = 'miscellaneous';
@@ -222,6 +222,7 @@ export default {
 
           return map;
         }, new Map());
+        this.availableFields = new Map([...unsortedMap].sort((a, b) => a[0].localeCompare(b[0])));
         this.fieldsLoading = false;
       }
     },
