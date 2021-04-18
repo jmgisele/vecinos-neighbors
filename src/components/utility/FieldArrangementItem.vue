@@ -1,6 +1,6 @@
 <template lang="html">
   <div class="field-arrangement-item" :class="{ 'drag-active': $store.state.application.dragActive }">
-    <div class="info" :class="{ active, dark }">
+    <div class="info" :class="{ active, dark }" @click="$emit('fieldclick')">
       <MbIcon class="drag-handle" icon="drag-handle" />
       <div class="field-icon">
         <MbIcon :icon="icon" />
@@ -12,7 +12,7 @@
       <MbIcon v-if="hidden" class="hidden" icon="hide" />
       <MbIcon class="action" :icon="active ? 'cross' : 'pencil'" />
     </div>
-    <FieldArrangementList v-if="nestedFields" :dark="dark" :fields="nestedFields" :parent-key="parentKey !== '___toplevel'  ? `${parentKey}.${fieldKey}` : fieldKey" />
+    <FieldArrangementList v-if="nestedFields" :dark="dark" :field-being-edited="fieldBeingEdited" :fields="nestedFields" :parent-key="parentKey !== '___toplevel'  ? `${parentKey}.${fieldKey}` : fieldKey" />
   </div>
 </template>
 
@@ -28,9 +28,11 @@ export default {
     return {
     };
   },
+  emits: ['fieldclick'],
   props: {
     active: Boolean,
     dark: Boolean,
+    fieldBeingEdited: Object,
     fieldKey: String,
     hidden: Boolean,
     icon: {
@@ -94,6 +96,9 @@ export default {
     &.active
       background-color: $accent
       color: $text-dark
+
+      &:hover
+        background-color: $accent-secondary
 
       .field-icon
         box-shadow: inset 0 0 0 0.0625rem $text-dark

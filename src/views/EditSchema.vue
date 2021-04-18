@@ -27,7 +27,7 @@
         </footer>
       </div>
       <div v-else class="added-fields-list">
-        <FieldArrangementList :dark="dark" :field-being-edited="fieldBeingEdited" :fields="fieldsForTab" parent-key="___toplevel" />
+        <FieldArrangementList :dark="dark" :field-being-edited="fieldBeingEdited" :fields="fieldsForTab" parent-key="___toplevel" @fieldclick="handleFieldClick" />
         <MbButton v-show="!showSplit" :dark="dark" icon="plus" type="positive" @click="handleAddField">Add field</MbButton>
       </div>
 
@@ -249,6 +249,18 @@ export default {
 
       this.fieldAddParent = parent;
       this.fieldAddIndex = index;
+    },
+    handleFieldClick({ detail }) {
+      const { parent, index } = detail;
+      const parentFieldFields = parent === '___toplevel' ? this.schema.fields : this.getField(parent).value;
+      const field = parentFieldFields[index];
+      if (field === this.fieldBeingEdited) {
+        this.showSplit = false;
+        return;
+      }
+      this.fieldBeingEdited = parentFieldFields[index];
+      this.currentOperation = 'edit-field';
+      if (!this.showSplit) this.showSplit = true;
     },
     handleSplitClosed() {
       if (this.fieldBeingEdited) this.fieldBeingEdited = null;

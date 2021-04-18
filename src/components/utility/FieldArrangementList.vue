@@ -9,11 +9,12 @@
       </div>
       <FieldArrangementItem
         v-else
-        :active="field.active"
+        :active="fieldBeingEdited === field"
         :dark="dark"
         :data-index="index"
         :data-parent="parentKey"
-        :fieldKey="field.key"
+        :field-being-edited="fieldBeingEdited"
+        :field-key="field.key"
         :hidden="field.visibility && field.visibility.hidden"
         :icon="field.icon"
         :key="field.key"
@@ -23,6 +24,7 @@
         :parent-key="parentKey"
         :required="field.validation && field.validation.required"
         :type="field.type"
+        @fieldclick="handleClick(parentKey, index)"
       />
     </template>
   </transition-group>
@@ -39,9 +41,16 @@ export default {
     return {
     };
   },
+  methods: {
+    handleClick(parent, index) {
+      // using a custom event here so we can have bubbling (since these can theoretically be nested infinitely deep)
+      this.$el.dispatchEvent(new CustomEvent('fieldclick', { detail: { parent, index }, bubbles: true, composed: true }));
+    },
+  },
   name: 'FieldArrangementList', // since technically it’s recursively calling itself (FieldArrangementItems might have a list)
   props: {
     dark: Boolean,
+    fieldBeingEdited: Object,
     fields: Array,
     parentKey: String,
   },
