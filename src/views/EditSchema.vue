@@ -186,6 +186,7 @@ export default {
     getField(path) {
       const segments = path.split('.');
       let next = this.schema.fields.find((field) => field.key === segments[0]);
+      if (segments.length === 1) return next;
       for (let index = 1; index < segments.length; index += 1) {
         const segment = segments[index];
         if (next) next = next.value.find((field) => field.key === segment);
