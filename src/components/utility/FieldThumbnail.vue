@@ -55,7 +55,7 @@ export default {
 
       if (el.classList.contains('empty-state')) { // if it’s empty we don’t need to check the position
         if (this.activeDropzone === el) return; // no need to re-emit, we’re already on it
-        this.$emit('field-over', { parent, index });
+        this.$emit('field-over', { parent, index, dropzone: true });
         this.activeDropzone = el;
         return;
       }

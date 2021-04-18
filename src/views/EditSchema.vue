@@ -234,8 +234,8 @@ export default {
     handleAddTab() {
       console.log('new tab at index');
     },
-    handleFieldOver({ parent, index }) {
-      if (parent && index !== null) {
+    handleFieldOver({ parent, index, dropzone }) {
+      if (parent && index !== null && !dropzone) {
         const parentFieldFields = parent === '___toplevel' ? this.schema.fields : this.getField(parent).value;
 
         if (parentFieldFields.length > 0) {
@@ -435,7 +435,8 @@ export default {
         margin-top: 2rem
 
       .field-arrangement-list
-        margin-bottom: 2rem
+        &::v-deep(> .field-arrangement-item:last-child)
+          padding-bottom: 2rem
 
       .button
         display: flex
