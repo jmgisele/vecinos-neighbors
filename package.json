@@ -9,7 +9,7 @@
   },
   "dependencies": {
     "@isomorphic-git/lightning-fs": "^4.4.1",
-    "@sindresorhus/slugify": "^1.1.0",
+    "@sindresorhus/slugify": "^2.0.0",
     "core-js": "^3.9.1",
     "date-fns": "^2.19.0",
     "isomorphic-git": "^1.8.1",
