@@ -126,7 +126,8 @@ export default {
     return {
       activeTab: -1,
       availableFields: null,
-      currentAddIndicator: null,
+      currentAddIndicatorId: null,
+      currentAddIndicatorParent: null,
       currentOperation: null,
       fieldAddIndex: null,
       fieldAddParent: null,
@@ -234,17 +235,17 @@ export default {
       console.log('new tab at index');
     },
     handleFieldOver({ parent, index }) {
-      if (this.currentAddIndicator) this.removeCurrentAddIndicator();
       if (parent && index !== null) {
-        let parentFieldFields;
-        if (parent === '___toplevel') parentFieldFields = this.schema.fields;
-        else parentFieldFields = this.getField(parent).value;
+        const parentFieldFields = parent === '___toplevel' ? this.schema.fields : this.getField(parent).value;
 
         if (parentFieldFields.length > 0) {
-          parentFieldFields.splice(index, 0, { key: '___addIndicator' });
-          this.currentAddIndicator = { parent, index };
+          const id = Math.random().toString(36).slice(2, 9);
+          parentFieldFields.splice(index, 0, { id, key: '___addIndicator' });
+          this.removeCurrentAddIndicator();
+          this.currentAddIndicatorParent = parent;
+          this.currentAddIndicatorId = id;
         }
-      }
+      } else this.removeCurrentAddIndicator();
 
       this.fieldAddParent = parent;
       this.fieldAddIndex = index;
@@ -254,11 +255,11 @@ export default {
       this.currentOperation = null;
     },
     removeCurrentAddIndicator() {
-      if (!this.currentAddIndicator) return;
-      const { parent, index } = this.currentAddIndicator;
-      const parentFieldFields = parent === '___toplevel' ? this.schema.fields : this.getField(parent).value;
-      parentFieldFields.splice(index, 1);
-      this.currentAddIndicator = null;
+      if (!this.currentAddIndicatorParent) return;
+      const parentFieldFields = this.currentAddIndicatorParent === '___toplevel' ? this.schema.fields : this.getField(this.currentAddIndicatorParent).value;
+      parentFieldFields.splice(parentFieldFields.findIndex((field) => field.key === '___addIndicator' && field.id === this.currentAddIndicatorId), 1);
+      this.currentAddIndicatorParent = null;
+      this.currentAddIndicatorId = null;
     },
     validateSchema() {
       // TODO: add schema validation
