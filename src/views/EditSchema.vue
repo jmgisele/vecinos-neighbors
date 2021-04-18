@@ -27,7 +27,7 @@
         </footer>
       </div>
       <div v-else class="added-fields-list">
-        <FieldArrangementList :dark="dark" :field-being-edited="fieldBeingEdited" :fields="fieldsForTab" parent-key="___toplevel" @fieldclick="handleFieldClick" />
+        <FieldArrangementList :dark="dark" :field-being-edited="fieldBeingEdited" :fields="fieldsForTab" parent-key="___toplevel" @fieldclick="handleFieldClick" @fieldmove="handleFieldMove" />
         <MbButton v-show="currentOperation !== 'add-field'" :dark="dark" icon="plus" type="positive" @click="handleAddField">Add field</MbButton>
       </div>
 
@@ -134,6 +134,7 @@ export default {
       fieldBeingEdited: null,
       fileStatus: null,
       fieldFilter: '',
+      fieldToTransfer: null,
       fieldsLoading: false,
       schema: {},
       showSplit: false,
@@ -261,6 +262,33 @@ export default {
       this.fieldBeingEdited = parentFieldFields[index];
       this.currentOperation = 'edit-field';
       if (!this.showSplit) this.showSplit = true;
+    },
+    handleFieldMove({ detail }) {
+      const { parent, index, target } = detail;
+      const parentFieldFields = parent === '___toplevel' ? this.schema.fields : this.getField(parent).value;
+      const targetFieldFields = target.parent === '___toplevel' ? this.schema.fields : this.getField(target.parent).value;
+      this.removeCurrentAddIndicator();
+      if (parent === target.parent) {
+        const [field] = parentFieldFields.splice(index, 1);
+        if (field) targetFieldFields.splice(target.index, 0, field);
+      } else {
+        // TODO: handle moving fields between targets
+        const id = Math.random().toString(36).slice(2, 9);
+        targetFieldFields.splice(target.index, 0, { id, key: '___addIndicator' });
+        this.currentAddIndicatorParent = target.parent;
+        this.currentAddIndicatorId = id;
+        this.fieldToTransfer = { parent, index };
+        window.addEventListener('pointerup', this.transferField, { once: true, capture: true });
+      }
+    },
+    transferField() {
+      if (this.currentAddIndicatorParent && this.fieldToTransfer) {
+        const { parent, index } = this.fieldToTransfer;
+        const parentFieldFields = parent === '___toplevel' ? this.schema.fields : this.getField(parent).value;
+        const targetFieldFields = this.currentAddIndicatorParent === '___toplevel' ? this.schema.fields : this.getField(this.currentAddIndicatorParent).value;
+        const targetIndex = targetFieldFields.findIndex((field) => field.key === '___addIndicator' && field.id === this.currentAddIndicatorId);
+        targetFieldFields.splice(targetIndex, 1, parentFieldFields.splice(index, 1)[0]);
+      }
     },
     handleSplitClosed() {
       if (this.fieldBeingEdited) this.fieldBeingEdited = null;
@@ -437,7 +465,7 @@ export default {
       .field-arrangement-list
         margin-bottom: 1rem
 
-        &::v-deep(> .field-arrangement-item:last-child)
+        &::v-deep(> .field-arrangement-item:last-child:not(.dragging))
           padding-bottom: 2rem
 
       .button
