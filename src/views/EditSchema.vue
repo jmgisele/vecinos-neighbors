@@ -28,7 +28,7 @@
       </div>
       <div v-else class="added-fields-list">
         <FieldArrangementList :dark="dark" :field-being-edited="fieldBeingEdited" :fields="fieldsForTab" parent-key="___toplevel" @fieldclick="handleFieldClick" />
-        <MbButton v-show="!showSplit" :dark="dark" icon="plus" type="positive" @click="handleAddField">Add field</MbButton>
+        <MbButton v-show="currentOperation !== 'add-field'" :dark="dark" icon="plus" type="positive" @click="handleAddField">Add field</MbButton>
       </div>
 
       <template #right>
@@ -287,6 +287,11 @@ export default {
   props: {
     dark: Boolean,
   },
+  watch: {
+    currentOperation(nv, ov) {
+      if (nv && ov === 'edit-field') this.fieldBeingEdited = null;
+    },
+  },
 };
 </script>
 
@@ -430,12 +435,15 @@ export default {
         margin-top: 2rem
 
       .field-arrangement-list
-        margin-bottom: 1rem
+        margin-bottom: 2rem
 
       .button
         display: flex
         margin-left: auto
         margin-right: auto
+
+        @media $mobile
+          width: 100%
 
 .add-field // needs to be toplevel since modal teleports
   &.dark
@@ -490,7 +498,7 @@ export default {
     .field-group
       margin-top: 4rem
 
-      @media $mobile
+      @media $tablet
         margin-top: 2rem
 
       h3
