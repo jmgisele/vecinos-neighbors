@@ -12,7 +12,7 @@
       <MbIcon v-if="hidden" class="hidden" icon="hide" />
       <MbIcon class="action" :icon="active ? 'cross' : 'pencil'" />
     </div>
-    <FieldArrangementList v-if="nestedFields" :dark="dark" :fields="nestedFields" :parent-key="`${parentKey}.${fieldKey}`" />
+    <FieldArrangementList v-if="nestedFields" :dark="dark" :fields="nestedFields" :parent-key="parentKey !== '___toplevel'  ? `${parentKey}.${fieldKey}` : fieldKey" />
   </div>
 </template>
 
