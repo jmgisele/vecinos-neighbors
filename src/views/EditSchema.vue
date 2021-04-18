@@ -184,6 +184,8 @@ export default {
       }
       this.fieldAddIndex = null;
       this.fieldAddParent = null;
+
+      if (this.isMobile && this.showSplit) this.showSplit = false;
     },
     getField(path) {
       const segments = path.split('.');
