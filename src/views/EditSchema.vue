@@ -169,19 +169,11 @@ export default {
           cleanField.key = field.type || 'unknown';
           parentFieldFields.push(cleanField);
         } else {
-          const potentialKey = field.type || 'unknown';
-          if (!parentFieldFields.find((existingField) => existingField.key === potentialKey)) cleanField.key = potentialKey;
-          else {
-            let counter = 1;
-            // NOTE: this loop actually works as intended, despite the warning by eslint – and I wouldn’t really know how to write it otherwise
-            while (parentFieldFields.find((existingField) => existingField.key === `${potentialKey}-${counter}`)) { // eslint-disable-line no-loop-func
-              counter += 1;
-            }
-            cleanField.key = `${potentialKey}-${counter}`;
-          }
+          cleanField.key = this.generateUniqueFieldKey(parentFieldFields, field.type);
           parentFieldFields.splice(this.fieldAddIndex, 0, cleanField);
         }
       } else {
+        cleanField.key = this.generateUniqueFieldKey(this.schema.fields, cleanField.type);
         this.schema.fields.push(cleanField);
       }
       this.fieldAddIndex = null;
@@ -199,6 +191,15 @@ export default {
         else break;
       }
       return next;
+    },
+    generateUniqueFieldKey(otherFields, potentialKey = 'unknown') {
+      if (!otherFields.find((existingField) => existingField.key === potentialKey)) return potentialKey;
+      let counter = 1;
+      // NOTE: this loop actually works as intended, despite the warning by eslint – and I wouldn’t really know how to write it otherwise
+      while (otherFields.find((existingField) => existingField.key === `${potentialKey}-${counter}`)) { // eslint-disable-line no-loop-func
+        counter += 1;
+      }
+      return `${potentialKey}-${counter}`;
     },
     async handleAddField() {
       this.currentOperation = 'add-field';
@@ -301,15 +302,7 @@ export default {
         const targetFieldFields = this.fieldAddParent === '___toplevel' ? this.schema.fields : this.getField(this.fieldAddParent).value;
         const [field] = parentFieldFields.splice(index, 1);
 
-        if (targetFieldFields.find((existingField) => existingField.key === field.key)) {
-          const { key: originalKey } = field;
-          let counter = 1;
-          // NOTE: this loop actually works as intended, despite the warning by eslint – and I wouldn’t really know how to write it otherwise
-          while (targetFieldFields.find((existingField) => existingField.key === `${originalKey}-${counter}`)) { // eslint-disable-line no-loop-func
-            counter += 1;
-          }
-          field.key = `${originalKey}-${counter}`;
-        }
+        field.key = this.generateUniqueFieldKey(targetFieldFields, field.key);
 
         this.removeCurrentAddIndicator();
         targetFieldFields.splice(this.fieldAddIndex, 0, field);
