@@ -185,9 +185,7 @@ export default {
       delete cleanField.group; // not needed, so let’s save space
 
       if (this.fieldAddIndex !== null && this.fieldAddParent) {
-        let parentFieldFields;
-        if (this.fieldAddParent === '___toplevel') parentFieldFields = this.schema.fields;
-        else parentFieldFields = this.getField(this.fieldAddParent).value;
+        const parentFieldFields = this.fieldAddParent === '___toplevel' ? this.schema.fields : this.getField(this.fieldAddParent).value;
 
         this.removeCurrentAddIndicator();
 
