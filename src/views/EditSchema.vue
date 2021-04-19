@@ -299,8 +299,20 @@ export default {
         const { parent, index } = this.fieldToTransfer;
         const parentFieldFields = parent === '___toplevel' ? this.schema.fields : this.getField(parent).value;
         const targetFieldFields = this.fieldAddParent === '___toplevel' ? this.schema.fields : this.getField(this.fieldAddParent).value;
+        const [field] = parentFieldFields.splice(index, 1);
+
+        if (targetFieldFields.find((existingField) => existingField.key === field.key)) {
+          const { key: originalKey } = field;
+          let counter = 1;
+          // NOTE: this loop actually works as intended, despite the warning by eslint – and I wouldn’t really know how to write it otherwise
+          while (targetFieldFields.find((existingField) => existingField.key === `${originalKey}-${counter}`)) { // eslint-disable-line no-loop-func
+            counter += 1;
+          }
+          field.key = `${originalKey}-${counter}`;
+        }
+
         this.removeCurrentAddIndicator();
-        targetFieldFields.splice(this.fieldAddIndex, 0, parentFieldFields.splice(index, 1)[0]);
+        targetFieldFields.splice(this.fieldAddIndex, 0, field);
         this.fieldAddIndex = null;
         this.fieldAddParent = null;
         this.fieldToTransfer = null;
