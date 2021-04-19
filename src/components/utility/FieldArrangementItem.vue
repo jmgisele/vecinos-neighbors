@@ -201,7 +201,7 @@ export default {
   &.dark
     background-color: $bg-secondary-dark
 
-    &:hover
+    &:hover:not(.active)
       background-color: $bg-tertiary-dark
 
     span
