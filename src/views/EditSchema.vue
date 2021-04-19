@@ -10,7 +10,7 @@
         <MbButton :dark="dark" icon="save" :icon-first="true" type="primary">{{isTablet && !isMobile ? '' : 'Save'}}</MbButton>
       </div>
     </header>
-    <MbTabs v-model="activeTab" :dark="dark" show-add-option :tabs="cleanTabs" @add-tab="handleAddTab" />
+    <MbTabs v-model="activeTab" :dark="dark" show-add-option :tabs="cleanTabs" @add-tab="showEditTab = true" />
     <TabContent :dark="dark" :show-split="showSplit" @split-close="showSplit = false" @split-closed="handleSplitClosed">
       <div v-if="currentOperation !== 'add-field' && schema.fields && schema.fields.length === 0" class="empty-state" :class="{ dark }">
         <h2>There’s nothing here yet</h2>
@@ -27,7 +27,9 @@
         </footer>
       </div>
       <div v-else class="added-fields-list">
-        <FieldArrangementList :dark="dark" :field-being-edited="fieldBeingEdited" :fields="fieldsForTab" parent-key="___toplevel" @fieldclick="handleFieldClick" @fieldmove="handleFieldMove" />
+        <transition mode="out-in">
+          <FieldArrangementList :dark="dark" :field-being-edited="fieldBeingEdited" :fields="fieldsForTab" parent-key="___toplevel" :key="activeTab" @fieldclick="handleFieldClick" @fieldmove="handleFieldMove" />
+        </transition>
         <MbButton v-show="currentOperation !== 'add-field'" :dark="dark" icon="plus" type="positive" @click="handleAddField">Add field</MbButton>
       </div>
 
@@ -52,6 +54,17 @@
         </div>
       </template>
     </TabContent>
+    <MbModal class="edit-tab-modal" :dark="dark" slim :title="tabBeingEdited.index !== null ? 'Edit Tab' : 'Add Tab'" :visible="showEditTab" @close="showEditTab = false" @after-close="resetTabBeingEdited" @after-open="$refs.tabLabelInput.focus()">
+      <MbInput v-model="tabBeingEdited.data.label" :dark="dark" :error="errors.tabLabel" icon="text-input" label="Tab label" ref="tabLabelInput" @blur="validate('tabLabel')" @keyup.ctrl.enter="saveTab" />
+      <MbToggle v-model="enableGroupAs" :dark="dark" :icons="['cross', 'check']" @update:model-value="!$event ? tabBeingEdited.data.groupAs = '' : $nextTick(() => $refs.tabGroupAsInput.focus())">Group fields in this tab as an object</MbToggle>
+      <transition>
+        <MbInput v-show="enableGroupAs" v-model="tabBeingEdited.data.groupAs" :dark="dark" :error="errors.tabGroupAs" icon="group" label="Key to group fields under" ref="tabGroupAsInput" @keyup.ctrl.enter="saveTab" @blur="validate('tabGroupAs')" />
+      </transition>
+      <template #actions>
+        <MbButton :dark="dark" @click="showEditTab = false">Cancel</MbButton>
+        <MbButton :dark="dark" :disabled="Boolean(errors.tabLabel || errors.tabGroupAs)" type="primary" @click="saveTab">{{tabBeingEdited.index !== null ? 'Save' : 'Add'}}</MbButton>
+      </template>
+    </MbModal>
   </div>
 </template>
 
@@ -94,7 +107,7 @@ export default {
     fieldsForTab() {
       if (!this.schema.fields) return [];
       if (this.activeTab === 0) return this.schema.fields.filter((field) => field.tab === this.cleanTabs[0] || !field.tab); // first tab shows all fields without tab, too
-      return this.schema.fields.filter((field) => field.tab === this.cleanTabs[this.activeTab]);
+      return this.schema.fields.filter((field) => field.tab === this.cleanTabs[this.activeTab] || field.key === '___addIndicator');
     },
     filteredFields() {
       if (!this.availableFields) return new Map();
@@ -129,6 +142,11 @@ export default {
       currentAddIndicatorId: null,
       currentAddIndicatorParent: null,
       currentOperation: null,
+      enableGroupAs: false,
+      errors: {
+        tabGroupAs: '',
+        tabLabel: '',
+      },
       fieldAddIndex: null,
       fieldAddParent: null,
       fieldBeingEdited: null,
@@ -137,7 +155,15 @@ export default {
       fieldToTransfer: null,
       fieldsLoading: false,
       schema: {},
+      showEditTab: false,
       showSplit: false,
+      tabBeingEdited: {
+        index: null,
+        data: {
+          label: '',
+          groupAs: '',
+        },
+      },
     };
   },
   methods: {
@@ -233,9 +259,6 @@ export default {
         this.fieldsLoading = false;
       }
     },
-    handleAddTab() {
-      console.log('new tab at index');
-    },
     handleFieldOver({ parent, index, dropzone }) {
       if (parent && index !== null && !dropzone) {
         const parentFieldFields = parent === '___toplevel' ? this.schema.fields : this.getField(parent).value;
@@ -294,6 +317,43 @@ export default {
         window.addEventListener('pointerup', this.transferField, { once: true, capture: true });
       }
     },
+    handleSplitClosed() {
+      if (this.fieldBeingEdited) this.fieldBeingEdited = null;
+      this.currentOperation = null;
+    },
+    removeCurrentAddIndicator() {
+      if (!this.currentAddIndicatorParent) return;
+      const parentFieldFields = this.currentAddIndicatorParent === '___toplevel' ? this.schema.fields : this.getField(this.currentAddIndicatorParent).value;
+      parentFieldFields.splice(parentFieldFields.findIndex((field) => field.key === '___addIndicator' && field.id === this.currentAddIndicatorId), 1);
+      this.currentAddIndicatorParent = null;
+      this.currentAddIndicatorId = null;
+    },
+    resetTabBeingEdited() {
+      this.tabBeingEdited = {
+        index: null,
+        data: {
+          label: '',
+          groupAs: '',
+        },
+      };
+      this.enableGroupAs = false;
+      this.errors.tabLabel = '';
+      this.errors.tabGroupAs = '';
+    },
+    saveTab() {
+      this.validate('tabLabel');
+      this.validate('tabGroupAs');
+      if (this.errors.tabLabel) return;
+
+      const cleanTab = {
+        label: this.tabBeingEdited.data.label.trim(),
+        groupAs: this.tabBeingEdited.data.groupAs || null,
+      };
+
+      if (this.tabBeingEdited.index !== null) this.schema.tabs.splice(this.tabBeingEdited.index, 1, cleanTab);
+      else this.schema.tabs.push(cleanTab);
+      this.showEditTab = false;
+    },
     transferField() {
       if (this.fieldAddParent && this.fieldToTransfer) {
         this.$store.commit('setAppProperty', { key: 'dragActive', value: false });
@@ -311,16 +371,20 @@ export default {
         this.fieldToTransfer = null;
       }
     },
-    handleSplitClosed() {
-      if (this.fieldBeingEdited) this.fieldBeingEdited = null;
-      this.currentOperation = null;
-    },
-    removeCurrentAddIndicator() {
-      if (!this.currentAddIndicatorParent) return;
-      const parentFieldFields = this.currentAddIndicatorParent === '___toplevel' ? this.schema.fields : this.getField(this.currentAddIndicatorParent).value;
-      parentFieldFields.splice(parentFieldFields.findIndex((field) => field.key === '___addIndicator' && field.id === this.currentAddIndicatorId), 1);
-      this.currentAddIndicatorParent = null;
-      this.currentAddIndicatorId = null;
+    validate(field) {
+      let error = '';
+      switch (field) {
+        case 'tabLabel':
+          if (!this.tabBeingEdited.data.label) error = 'A label is required';
+          else if (this.schema.tabs.find((tab) => tab.label === this.tabBeingEdited.data.label)) error = 'A tab with this label already exists';
+          break;
+        case 'tabGroupAs':
+          if (this.schema.tabs.find((tab) => tab.groupAs === this.tabBeingEdited.data.groupAs)) error = 'A tab with this key already exists';
+          break;
+        default:
+          // no op
+      }
+      this.errors[field] = error;
     },
     validateSchema() {
       // TODO: add schema validation
@@ -486,6 +550,14 @@ export default {
       .field-arrangement-list
         margin-bottom: 1rem
 
+        &.v-enter-active,
+        &.v-leave-active
+          transition: opacity 200ms ease
+
+          &.v-enter-from,
+          &.v-leave-to
+            opacity: 0
+
         &::v-deep(> .field-arrangement-item:last-child:not(.dragging))
           padding-bottom: 2rem
 
@@ -556,4 +628,20 @@ export default {
       h3
         text-transform: capitalize
         color: $text-secondary
+
+.edit-tab-modal
+  .input
+    width: 100%
+
+    &.v-enter-active,
+    &.v-leave-active
+      transition: opacity 200ms ease
+
+      &.v-enter-from,
+      &.v-leave-to
+        opacity: 0
+
+  .toggle
+    margin-top: 1.5rem
+
 </style>
