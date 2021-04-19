@@ -257,13 +257,16 @@ export default {
         this.fieldsLoading = false;
       }
     },
-    handleFieldOver({ parent, index, dropzone }) {
+    handleFieldOver({ parent, index, dropzone, isBottomHalf }) { // eslint-disable-line object-curly-newline
+      let realIndex = parent === '___toplevel' ? this.schema.fields.indexOf(this.fieldsForTab[index]) : index;
+      if (realIndex === -1) realIndex = this.schema.fields.length; // happens when hovering a dropzone when toplevel is empty
+      else if (isBottomHalf) realIndex += 1;
       if (parent && index !== null && !dropzone) {
         const parentFieldFields = parent === '___toplevel' ? this.schema.fields : this.getField(parent).value;
 
         if (parentFieldFields.length > 0) {
           const id = Math.random().toString(36).slice(2, 9);
-          parentFieldFields.splice(index, 0, { id, key: '___addIndicator' });
+          parentFieldFields.splice(realIndex, 0, { id, key: '___addIndicator' });
           this.removeCurrentAddIndicator();
           this.currentAddIndicatorParent = parent;
           this.currentAddIndicatorId = id;
@@ -271,11 +274,11 @@ export default {
       } else this.removeCurrentAddIndicator();
 
       this.fieldAddParent = parent;
-      this.fieldAddIndex = index;
+      this.fieldAddIndex = realIndex;
     },
     handleFieldClick({ detail }) {
       const { parent, index } = detail;
-      const parentFieldFields = parent === '___toplevel' ? this.schema.fields : this.getField(parent).value;
+      const parentFieldFields = parent === '___toplevel' ? this.fieldsForTab : this.getField(parent).value;
       const field = parentFieldFields[index];
       if (field === this.fieldBeingEdited) {
         this.showSplit = false;
@@ -289,19 +292,21 @@ export default {
       const { parent, index, target } = detail;
       const parentFieldFields = parent === '___toplevel' ? this.schema.fields : this.getField(parent).value;
       const targetFieldFields = target.parent === '___toplevel' ? this.schema.fields : this.getField(target.parent).value;
+      const realIndex = parent === '___toplevel' ? this.schema.fields.indexOf(this.fieldsForTab[index]) : index;
+      const realTargetIndex = target.parent === '___toplevel' ? this.schema.fields.indexOf(this.fieldsForTab[target.index]) : target.index;
       this.removeCurrentAddIndicator();
       if (parent === target.parent) {
-        if ((index < target.index && target.isBottomHalf) || (index > target.index && !target.isBottomHalf)) {
-          const [field] = parentFieldFields.splice(index, 1);
-          if (field) targetFieldFields.splice(target.index, 0, field);
+        if ((realIndex < realTargetIndex && target.isBottomHalf) || (realIndex > realTargetIndex && !target.isBottomHalf)) {
+          const [field] = parentFieldFields.splice(realIndex, 1);
+          if (field) targetFieldFields.splice(realTargetIndex, 0, field);
         }
-        window.addEventListener('pointerup', this.transferField, { once: true, capture: true });
+        window.removeEventListener('pointerup', this.transferField, { once: true, capture: true });
         this.fieldAddIndex = null;
         this.fieldAddParent = null;
         this.fieldToTransfer = null;
       } else {
-        const targetIndex = (!target.dropzone && target.isBottomHalf) ? target.index + 1 : target.index;
-        this.fieldToTransfer = { parent, index };
+        const targetIndex = (!target.dropzone && target.isBottomHalf) ? realTargetIndex + 1 : realTargetIndex;
+        this.fieldToTransfer = { parent, index: realIndex };
         this.fieldAddParent = target.parent;
         this.fieldAddIndex = targetIndex;
 
