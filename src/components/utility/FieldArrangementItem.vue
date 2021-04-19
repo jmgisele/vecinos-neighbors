@@ -180,7 +180,7 @@ export default {
     padding-top: 1rem // so it still counts as field space
     margin-right: 0.125rem
     margin-left: 2rem
-    transition: opacity 200ms ease, transform 200ms ease
+    transition: opacity 100ms ease, transform 100ms ease
 
 // needs to be outdented so the styles work on the clone
 .info
