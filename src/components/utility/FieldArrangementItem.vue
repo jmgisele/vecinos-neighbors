@@ -171,7 +171,6 @@ export default {
   &.hide-outline
     height: 0
     overflow: hidden
-    background-color: red
 
   .field-arrangement-list
     padding-top: 1rem // so it still counts as field space
