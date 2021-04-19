@@ -356,7 +356,9 @@ export default {
       if (this.tabBeingEdited.index !== null) this.schema.tabs.splice(this.tabBeingEdited.index, 1, cleanTab);
       else {
         this.schema.tabs.push(cleanTab);
-        this.activeTab = this.schema.tabs.length - 1;
+        this.$nextTick(() => { // wait a tick so the underline can update correctly
+          this.activeTab = this.schema.tabs.length - 1;
+        });
       }
       this.showEditTab = false;
     },
