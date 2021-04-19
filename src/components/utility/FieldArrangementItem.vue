@@ -8,7 +8,7 @@
       <span class="label"><strong>{{label}}</strong></span>
       <span v-if="localised" class="chip">Localised</span>
       <span v-if="required" class="chip">Required</span>
-      <span class="type">{{type}} field</span>
+      <span class="key">{{fieldKey}}</span>
       <MbIcon v-if="hidden" class="hidden" icon="hide" />
       <MbIcon class="action" :icon="active ? 'cross' : 'pencil'" />
     </div>
@@ -185,7 +185,7 @@ export default {
         &.chip
           background-color: $bg-dark
 
-        &.type
+        &.key
           color: $text-secondary-dark
 
       .hidden
@@ -206,7 +206,7 @@ export default {
           background-color: $accent-secondary
           color: $text
 
-        &.type
+        &.key
           color: $text-secondary-dark
 
       .hidden
@@ -248,8 +248,7 @@ export default {
         @media $tablet
           display: none
 
-      &.type
-        text-transform: capitalize
+      &.key
         margin-left: auto
         margin-right: 0.5rem
         color: $text-secondary
