@@ -1,5 +1,5 @@
 <template lang="html">
-  <div class="field-arrangement-item" :class="{ 'drag-active': $store.state.application.dragActive, dragging }">
+  <div class="field-arrangement-item" :class="{ 'drag-active': $store.state.application.dragActive, dragging, 'hide-outline': hideOutline }">
     <div class="info" :class="{ active, dark }" @click="$emit('fieldclick')" @pointerdown.left="startDrag">
       <MbIcon class="drag-handle" icon="drag-handle" ref="dragHandle" />
       <div class="field-icon">
@@ -34,8 +34,9 @@ export default {
       cloneClickDelta: null,
       dragging: false,
       draggingClone: null,
-      wasBottomHalf: null,
+      hideOutline: false,
       lastEl: null,
+      wasBottomHalf: null,
     };
   },
   emits: ['fieldclick', 'fieldmove'],
@@ -49,6 +50,9 @@ export default {
       const index = Number.parseInt(el.dataset.index, 10);
       const { parent } = el.dataset;
 
+      if (parent !== this.parentKey) this.hideOutline = true;
+      else this.hideOutline = false;
+
       if (el.classList.contains('empty-state')) { // if it’s empty we don’t need to check the position
         if (el === this.lastEl) return;
         this.$emit('fieldmove', { parent, index, dropzone: true });
@@ -61,7 +65,7 @@ export default {
 
       if (el === this.lastEl && isBottomHalf === this.wasBottomHalf) return;
 
-      if (isBottomHalf) this.$emit('fieldmove', { parent, index: index + 1 });
+      if (isBottomHalf) this.$emit('fieldmove', { parent, index, isBottomHalf });
       else this.$emit('fieldmove', { parent, index });
       this.wasBottomHalf = isBottomHalf;
       this.lastEl = el;
@@ -95,8 +99,9 @@ export default {
       this.draggingClone = null;
       this.dragging = false;
       this.cloneClickDelta = null;
-      this.wasBottomHalf = null;
+      this.hideOutline = false;
       this.lastEl = null;
+      this.wasBottomHalf = null;
     },
     stopDrag() {
       window.removeEventListener('pointerup', this.stopDrag);
@@ -105,7 +110,7 @@ export default {
       this.$store.commit('setAppProperty', { key: 'dragActive', value: false });
       const targetRect = this.dragging.getBoundingClientRect();
       const { left: currentLeft, top: currentTop } = this.draggingClone.style;
-      if (Number.parseInt(currentLeft, 10) === Math.floor(targetRect.left) && Number.parseInt(currentTop, 10) === Math.floor(targetRect.top)) {
+      if (this.hideOutline || (Number.parseInt(currentLeft, 10) === Math.floor(targetRect.left) && Number.parseInt(currentTop, 10) === Math.floor(targetRect.top))) {
         this.destroyClone();
         return;
       }
@@ -147,130 +152,136 @@ export default {
 @require '../../assets/styles/corners'
 
 .field-arrangement-item
-    &.drag-active
-      > .info
-        pointer-events: none
-
-    &.dragging
-      border-radius: $radius-l
-      box-shadow: inset 0 0 0 0.125rem $accent
+  &.drag-active
+    > .info
       pointer-events: none
 
-      > .info,
-      > .field-arrangement-list
-        opacity: 0
-
-      > .field-arrangement-list
-        transform: translateY(-2rem)
-
-  .info
-    display: flex
-    align-items: center
-    padding: 1rem
-    background-color: $bg-secondary
+  &.dragging
     border-radius: $radius-l
-    cursor: pointer
-    transition: background-color 200ms ease
+    box-shadow: inset 0 0 0 0.125rem $accent
+    pointer-events: none
 
-    &:hover
-      background-color: $bg
+    > .info,
+    > .field-arrangement-list
+      opacity: 0
 
-    &.dark
-      background-color: $bg-secondary-dark
+    > .field-arrangement-list
+      transform: translateY(-2rem)
 
-      &:hover
-        background-color: $bg-tertiary-dark
-
-      span
-        &.chip
-          background-color: $bg-dark
-
-        &.key
-          color: $text-secondary-dark
-
-      .hidden
-        color: $text-tertiary-dark
-
-    &.active
-      background-color: $accent
-      color: $text-dark
-
-      &:hover
-        background-color: $accent-secondary
-
-      .field-icon
-        box-shadow: inset 0 0 0 0.0625rem $text-dark
-
-      span
-        &.chip
-          background-color: $accent-secondary
-          color: $text
-
-        &.key
-          color: $text-secondary-dark
-
-      .hidden
-        color: $text-tertiary-dark
-
-    .drag-handle
-      margin-right: 1rem
-      cursor: move
-      flex-shrink: 0
-      touch-action: none
-
-    .field-icon
-      padding: 0.5rem
-      background-color: $accent
-      color: $text-dark
-      border-radius: $radius-m
-      margin-right: 1rem
-
-      .icon
-        display: block
-
-    span
-      white-space: nowrap
-      overflow: hidden
-      text-overflow: ellipsis
-
-      &.label
-        margin-right: 1rem
-
-        @media $tablet
-          margin-right: auto
-
-      &.chip
-        padding: (4 / 16)rem (12 / 16)rem
-        background-color: $bg
-        margin-right: 0.5rem
-        border-radius: 1rem
-
-        @media $tablet
-          display: none
-
-      &.key
-        margin-left: auto
-        margin-right: 0.5rem
-        color: $text-secondary
-
-        @media $tablet
-          display: none
-
-    .hidden
-      flex-shrink: 0
-      color: $text-tertiary
-      margin: 0 0.5rem
-
-    .action
-      margin: 0 0.5rem
-      flex-shrink: 0
-
-      @media $mobile
-        display: none
+  &.hide-outline
+    height: 0
+    overflow: hidden
+    background-color: red
 
   .field-arrangement-list
     padding-top: 1rem // so it still counts as field space
     margin-right: 0.125rem
     margin-left: 2rem
     transition: opacity 200ms ease, transform 200ms ease
+
+// needs to be outdented so the styles work on the clone
+.info
+  display: flex
+  align-items: center
+  padding: 1rem
+  background-color: $bg-secondary
+  border-radius: $radius-l
+  cursor: pointer
+  transition: background-color 200ms ease
+
+  &:hover
+    background-color: $bg
+
+  &.dark
+    background-color: $bg-secondary-dark
+
+    &:hover
+      background-color: $bg-tertiary-dark
+
+    span
+      &.chip
+        background-color: $bg-dark
+
+      &.key
+        color: $text-secondary-dark
+
+    .hidden
+      color: $text-tertiary-dark
+
+  &.active
+    background-color: $accent
+    color: $text-dark
+
+    &:hover
+      background-color: $accent-secondary
+
+    .field-icon
+      box-shadow: inset 0 0 0 0.0625rem $text-dark
+
+    span
+      &.chip
+        background-color: $accent-secondary
+        color: $text
+
+      &.key
+        color: $text-secondary-dark
+
+    .hidden
+      color: $text-tertiary-dark
+
+  .drag-handle
+    margin-right: 1rem
+    cursor: move
+    flex-shrink: 0
+    touch-action: none
+
+  .field-icon
+    padding: 0.5rem
+    background-color: $accent
+    color: $text-dark
+    border-radius: $radius-m
+    margin-right: 1rem
+
+    .icon
+      display: block
+
+  span
+    white-space: nowrap
+    overflow: hidden
+    text-overflow: ellipsis
+
+    &.label
+      margin-right: 1rem
+
+      @media $tablet
+        margin-right: auto
+
+    &.chip
+      padding: (4 / 16)rem (12 / 16)rem
+      background-color: $bg
+      margin-right: 0.5rem
+      border-radius: 1rem
+
+      @media $tablet
+        display: none
+
+    &.key
+      margin-left: auto
+      margin-right: 0.5rem
+      color: $text-secondary
+
+      @media $tablet
+        display: none
+
+  .hidden
+    flex-shrink: 0
+    color: $text-tertiary
+    margin: 0 0.5rem
+
+  .action
+    margin: 0 0.5rem
+    flex-shrink: 0
+
+    @media $mobile
+      display: none
 </style>

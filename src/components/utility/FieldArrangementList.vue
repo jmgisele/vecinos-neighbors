@@ -139,7 +139,7 @@ export default {
       pointer-events: none
 
   .field-arrangement-item
-    &:not(:last-child)
+    &:not(:last-child):not(.hide-outline)
       margin-bottom: 1rem
 
       & + .add-indicator
