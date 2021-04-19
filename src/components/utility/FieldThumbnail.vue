@@ -65,8 +65,7 @@ export default {
 
       if (el === this.activeDropzone && isBottomHalf === this.wasBottomHalf) return; // nothing has changed, we don’t need to emit again
 
-      if (isBottomHalf) this.$emit('field-over', { parent, index: index + 1 });
-      else this.$emit('field-over', { parent, index });
+      this.$emit('field-over', { parent, index, isBottomHalf });
       this.activeDropzone = el;
       this.wasBottomHalf = isBottomHalf;
     },
