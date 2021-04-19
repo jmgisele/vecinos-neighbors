@@ -269,25 +269,41 @@ export default {
       const targetFieldFields = target.parent === '___toplevel' ? this.schema.fields : this.getField(target.parent).value;
       this.removeCurrentAddIndicator();
       if (parent === target.parent) {
-        const [field] = parentFieldFields.splice(index, 1);
-        if (field) targetFieldFields.splice(target.index, 0, field);
+        if ((index < target.index && target.isBottomHalf) || (index > target.index && !target.isBottomHalf)) {
+          const [field] = parentFieldFields.splice(index, 1);
+          if (field) targetFieldFields.splice(target.index, 0, field);
+        }
+        window.addEventListener('pointerup', this.transferField, { once: true, capture: true });
+        this.fieldAddIndex = null;
+        this.fieldAddParent = null;
+        this.fieldToTransfer = null;
       } else {
-        // TODO: handle moving fields between targets
-        const id = Math.random().toString(36).slice(2, 9);
-        targetFieldFields.splice(target.index, 0, { id, key: '___addIndicator' });
-        this.currentAddIndicatorParent = target.parent;
-        this.currentAddIndicatorId = id;
+        const targetIndex = (!target.dropzone && target.isBottomHalf) ? target.index + 1 : target.index;
         this.fieldToTransfer = { parent, index };
+        this.fieldAddParent = target.parent;
+        this.fieldAddIndex = targetIndex;
+
+        if (!target.dropzone) {
+          const id = Math.random().toString(36).slice(2, 9);
+          targetFieldFields.splice(targetIndex, 0, { id, key: '___addIndicator' });
+          this.currentAddIndicatorParent = target.parent;
+          this.currentAddIndicatorId = id;
+        }
+
         window.addEventListener('pointerup', this.transferField, { once: true, capture: true });
       }
     },
     transferField() {
-      if (this.currentAddIndicatorParent && this.fieldToTransfer) {
+      if (this.fieldAddParent && this.fieldToTransfer) {
+        this.$store.commit('setAppProperty', { key: 'dragActive', value: false });
         const { parent, index } = this.fieldToTransfer;
         const parentFieldFields = parent === '___toplevel' ? this.schema.fields : this.getField(parent).value;
-        const targetFieldFields = this.currentAddIndicatorParent === '___toplevel' ? this.schema.fields : this.getField(this.currentAddIndicatorParent).value;
-        const targetIndex = targetFieldFields.findIndex((field) => field.key === '___addIndicator' && field.id === this.currentAddIndicatorId);
-        targetFieldFields.splice(targetIndex, 1, parentFieldFields.splice(index, 1)[0]);
+        const targetFieldFields = this.fieldAddParent === '___toplevel' ? this.schema.fields : this.getField(this.fieldAddParent).value;
+        this.removeCurrentAddIndicator();
+        targetFieldFields.splice(this.fieldAddIndex, 0, parentFieldFields.splice(index, 1)[0]);
+        this.fieldAddIndex = null;
+        this.fieldAddParent = null;
+        this.fieldToTransfer = null;
       }
     },
     handleSplitClosed() {
