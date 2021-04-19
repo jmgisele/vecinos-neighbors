@@ -1,6 +1,6 @@
 <template lang="html">
-  <div class="field-arrangement-item" :class="{ 'drag-active': $store.state.application.dragActive, dragging, 'hide-outline': hideOutline }">
-    <div class="info" :class="{ active, dark }" @click="$emit('fieldclick')" @pointerdown.left="startDrag">
+  <div class="field-arrangement-item" :class="{ 'drag-active': $store.state.application.dragActive, dragging: beingDragged, 'hide-outline': hideOutline }">
+    <div class="info" :class="{ active, dark }" tabindex="0" @keydown.space.prevent @keyup.space.enter="$emit('fieldclick')" @click="$emit('fieldclick')" @pointerdown.left="startDrag">
       <MbIcon class="drag-handle" icon="drag-handle" ref="dragHandle" />
       <div class="field-icon">
         <MbIcon :icon="icon" />
@@ -31,6 +31,7 @@ export default {
   },
   data() {
     return {
+      beingDragged: false,
       cloneClickDelta: null,
       dragging: false,
       draggingClone: null,
@@ -42,6 +43,7 @@ export default {
   emits: ['fieldclick', 'fieldmove'],
   methods: {
     handlePointerMove(e) {
+      this.beingDragged = true; // we moved the cursor
       this.draggingClone.style.left = `${e.clientX - this.cloneClickDelta.x}px`;
       this.draggingClone.style.top = `${e.clientY - this.cloneClickDelta.y}px`;
 
@@ -100,6 +102,7 @@ export default {
       this.dragging = false;
       this.cloneClickDelta = null;
       this.hideOutline = false;
+      this.beingDragged = false;
       this.lastEl = null;
       this.wasBottomHalf = null;
     },
@@ -108,6 +111,7 @@ export default {
       window.removeEventListener('pointermove', this.handlePointerMove, { passive: true });
       document.getElementById('fieldThumbnailGrabbingStyle').remove();
       this.$store.commit('setAppProperty', { key: 'dragActive', value: false });
+      if (!this.beingDragged) this.$emit('fieldclick');
       const targetRect = this.dragging.getBoundingClientRect();
       const { left: currentLeft, top: currentTop } = this.draggingClone.style;
       if (this.hideOutline || (Number.parseInt(currentLeft, 10) === Math.floor(targetRect.left) && Number.parseInt(currentTop, 10) === Math.floor(targetRect.top))) {
@@ -188,6 +192,9 @@ export default {
   cursor: pointer
   transition: background-color 200ms ease
 
+  &:focus-visible
+    box-shadow: inset 0 0 0 0.125rem $accent
+
   &:hover
     background-color: $bg
 
@@ -210,9 +217,6 @@ export default {
   &.active
     background-color: $accent
     color: $text-dark
-
-    &:hover
-      background-color: $accent-secondary
 
     .field-icon
       box-shadow: inset 0 0 0 0.0625rem $text-dark
