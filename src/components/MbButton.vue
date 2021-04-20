@@ -54,6 +54,7 @@ export default {
 @require '../assets/styles/corners'
 
 .button
+  display: inline-flex
   padding: 1rem 1.5rem
   border: 1px solid $accent
   border-radius: $radius-m
@@ -87,7 +88,6 @@ export default {
       background-color: $bg-secondary-dark
 
   &.icon
-    display: inline-flex
     align-items: center
     padding-right: 2.5rem
     padding-left: 1rem
