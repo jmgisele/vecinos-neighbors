@@ -55,6 +55,7 @@ import { formatDistanceToNowStrict } from 'date-fns';
 import { debounce } from 'lodash-es';
 
 import fs, { pathDirname, joinPath } from '../fs';
+import prettifyEntityName from '../assets/js/prettifyEntityName';
 
 export default {
   computed: {
@@ -255,9 +256,7 @@ export default {
       this.popover.show = true;
     },
     prettify(name) {
-      const dotindex = name.indexOf('.', 1); // ignoring leading dots of hidden files
-      if (dotindex !== -1) return name.replace(/-/g, ' ').substring(0, name.indexOf('.', 1));
-      return name.replace(/-/g, ' ');
+      return prettifyEntityName(name);
     },
     async refresh() {
       await this.fetchData();
