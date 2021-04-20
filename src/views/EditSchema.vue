@@ -86,7 +86,7 @@
       </MbHighlightBox>
       <template #actions>
         <MbButton :dark="dark" @click="showSchemaSettings = false">Cancel</MbButton>
-        <MbButton :dark="dark" :disabled="Boolean(errors.schemaName)" type="primary" @click="setSchemaSettings">Save</MbButton>
+        <MbButton :dark="dark" :disabled="Boolean(errors.schemaName)" type="primary" @click="renameSchema">Save</MbButton>
       </template>
     </MbModal>
   </div>
@@ -486,7 +486,7 @@ export default {
       }
       this.showEditTab = false;
     },
-    async setSchemaSettings() {
+    async renameSchema() {
       if (this.newSchemaName === this.schemaName) {
         this.showSchemaSettings = false;
         return;
@@ -504,8 +504,10 @@ export default {
       }
 
       await fs.rename(this.$route.params.path, newPath);
-      this.$router.replace({ params: { id: this.$route.params.id, path: newPath } });
+      this.$store.commit('removeLocallyChangedFile', this.$route.params.path);
+      this.$store.commit('addLocallyChangedFile', newPath);
       this.showSchemaSettings = false;
+      this.$router.replace({ params: { id: this.$route.params.id, path: newPath } });
     },
     transferField() {
       if (this.fieldAddParent && this.fieldToTransfer) {
