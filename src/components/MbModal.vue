@@ -80,7 +80,7 @@ export default {
       } else this.transform = null;
     },
     swipeStart(e) {
-      if (this.permanent) return; // permanent modals cannot be swiped
+      if (this.permanent || e.target.closest('[data-drag-handle]')) return; // permanent modals cannot be swiped
       if (this.$refs.body.scrollTop !== 0) return; // we’ll be scrolling
       this.maxSwipeDistance = this.$refs.el.getBoundingClientRect().height;
       this.startY = e.changedTouches[0].clientY;
