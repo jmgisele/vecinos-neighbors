@@ -82,7 +82,7 @@
       <MbButton class="add-tab-button" :dark="dark" icon="plus" type="positive" @click="showEditTab = true">Add Tab</MbButton>
       <MbHighlightBox color="negative" :dark="dark" label="Danger Zone">
         <p>Deleting a Schema that is still used for content elements will cause them to not be displayed correctly. Please make sure to only delete this schema, if you know what you’re doing.</p>
-        <MbButton class="delete-tab-button" :dark="dark" icon="trash" type="negative">Delete Schema</MbButton>
+        <MbButton class="delete-tab-button" :dark="dark" icon="trash" type="negative" @click="deleteSchema">Delete Schema</MbButton>
       </MbHighlightBox>
       <template #actions>
         <MbButton :dark="dark" @click="showSchemaSettings = false">Cancel</MbButton>
@@ -243,6 +243,37 @@ export default {
         field.tab = newTab; // eslint-disable-line no-param-reassign
         if (Array.isArray(field.value)) this.changeTabOfFields(field.value, newTab);
       });
+    },
+    deleteSchema() {
+      const { id, path } = this.$route.params;
+      const timeout = 5000;
+      const timeoutId = window.setTimeout(async () => {
+        try {
+          await fs.unlink(path);
+          this.$store.commit('removeLocallyChangedFile', path);
+          this.$store.dispatch('saveAppData');
+        } catch (err) {
+          this.$store.commit('addToast', { message: `Something went wrong while deleting the schema: ${err.message}`, type: 'error' });
+        } finally {
+          window.clearTimeout(timeoutId);
+          this.$store.commit('removeFromSoftDeleted', path);
+        }
+      }, timeout);
+
+      this.showSchemaSettings = false;
+      this.$store.commit('addToSoftDeleted', path);
+      this.$store.commit('addToast', {
+        action: () => {
+          window.clearTimeout(timeoutId);
+          this.$store.commit('removeFromSoftDeleted', path);
+          this.$router.replace({ name: 'Edit Schema', params: { id, path } });
+        },
+        actionLabel: 'Undo',
+        message: `The schema “${this.schemaName}” was deleted`,
+        timeout: timeout - 200,
+        type: 'warning',
+      });
+      this.$router.replace({ name: 'Project.Settings', params: { id }, query: { tab: 'schemas' } });
     },
     deleteTab() {
       if (this.tabBeingEdited.index === null || this.schema.tabs.length === 1) return;
