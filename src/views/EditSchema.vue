@@ -398,15 +398,16 @@ export default {
     },
     handleTabMove({ activeItem, index, isBottomHalf }) {
       const currentIndex = this.schema.tabs.indexOf(activeItem);
+      const isActiveTab = this.activeTab === currentIndex;
       if ((currentIndex < index && isBottomHalf) || (currentIndex > index && !isBottomHalf)) {
         this.schema.tabs.splice(index, 0, this.schema.tabs.splice(currentIndex, 1)[0]);
-        if (this.activeTab === currentIndex) this.activeTab = index;
+        if (isActiveTab) this.activeTab = index;
       } else if (currentIndex < index && !isBottomHalf) {
         this.schema.tabs.splice(Math.max(0, index - 1), 0, this.schema.tabs.splice(currentIndex, 1)[0]);
-        if (this.activeTab === currentIndex) this.activeTab = Math.max(0, index - 1);
+        if (isActiveTab) this.activeTab = Math.max(0, index - 1);
       } else if (currentIndex > index && isBottomHalf) {
         this.schema.tabs.splice(Math.min(index + 1, this.schema.tabs.length - 1), 0, this.schema.tabs.splice(currentIndex, 1)[0]);
-        if (this.activeTab === currentIndex) this.activeTab = Math.min(index + 1, this.schema.tabs.length - 1);
+        if (isActiveTab) this.activeTab = Math.min(index + 1, this.schema.tabs.length - 1);
       }
     },
     removeCurrentAddIndicator() {
