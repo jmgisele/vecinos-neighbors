@@ -816,8 +816,11 @@ export default {
   .highlight-box
     margin-top: 2rem
 
-    @media $mobile
-      .button
+    .button
+      display: flex
+      margin-left: auto
+
+      @media $mobile
         width: 100%
 
 .edit-schema-modal
