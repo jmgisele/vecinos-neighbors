@@ -1,7 +1,7 @@
 <template lang="html">
   <transition-group class="sortable-list" :class="{ dragging }" tag="div">
     <div v-for="(item, index) in items" class="drag-item" :data-area="areaId" :data-index="index" :key="item[keyName] || item" @click="handleClick(index)" @pointerdown.left="startDrag($event, index)">
-      <slot :being-dragged="index === activeItem" :item="item" />
+      <slot :active-item="activeItem" :index="index" :item="item" />
     </div>
   </transition-group>
 </template>
@@ -53,7 +53,7 @@ export default {
       if (!closestDragHandle || !this.$el.contains(closestDragHandle) || (closestIgnoreZone && this.$el.contains(closestIgnoreZone))) return;
       if (this.draggingClone) this.destroyClone();
       this.dragging = e.currentTarget;
-      this.activeItem = index;
+      this.activeItem = this.items[index];
       const rect = e.currentTarget.getBoundingClientRect();
       const clone = e.currentTarget.cloneNode(true);
       this.cloneClickDelta = { x: e.clientX - rect.left, y: e.clientY - rect.top };
@@ -112,6 +112,10 @@ export default {
     > .drag-item > *
       pointer-events: none
 
-  > .drag-item [data-drag-handle]
-      touch-action: none
+  > .drag-item
+      &.v-move
+        transition: transform 200ms ease
+
+      [data-drag-handle]
+        touch-action: none
 </style>
