@@ -111,4 +111,7 @@ export default {
   &.dragging
     > .drag-item > *
       pointer-events: none
+
+  > .drag-item [data-drag-handle]
+      touch-action: none
 </style>
