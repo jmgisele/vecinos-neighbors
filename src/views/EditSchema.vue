@@ -2,11 +2,11 @@
   <div class="edit-schema">
     <header>
       <div class="left">
-        <h1>{{schema.name}}</h1>
+        <h1>{{schemaName}}</h1>
         <MbChip :color="status.color" :label="status.message" :loading="status.loading" />
       </div>
       <div class="right">
-        <MbButton :dark="dark" icon="settings">{{isTablet && !isMobile ? '' : 'Settings'}}</MbButton>
+        <MbButton :dark="dark" icon="settings" @click="showSchemaSettings = true">{{isTablet && !isMobile ? '' : 'Settings'}}</MbButton>
         <MbButton :dark="dark" icon="save" :icon-first="true" type="primary">{{isTablet && !isMobile ? '' : 'Save'}}</MbButton>
       </div>
     </header>
@@ -65,12 +65,21 @@
         <MbButton :dark="dark" :disabled="Boolean(errors.tabLabel || errors.tabGroupAs)" type="primary" @click="saveTab">{{tabBeingEdited.index !== null ? 'Save' : 'Add'}}</MbButton>
       </template>
     </MbModal>
+    <MbModal class="edit-schema-modal" :dark="dark" slim title="Schema Settings" :visible="showSchemaSettings" @close="showSchemaSettings = false" @after-close="resetSchemaName">
+      <MbInput v-model="newSchemaName" :dark="dark" :error="errors.schemaName" icon="text-input" label="Name" @blur="validate('schemaName')" />
+      <template #actions>
+        <MbButton :dark="dark" @click="showSchemaSettings = false">Cancel</MbButton>
+        <MbButton :dark="dark" :disabled="Boolean(errors.schemaName)" type="primary" @click="setSchemaSettings">Save</MbButton>
+      </template>
+    </MbModal>
   </div>
 </template>
 
 <script>
 import { status } from 'isomorphic-git';
-import fs, { PlainFS, readdirDeep, joinPath } from '../fs';
+import slugify from '@sindresorhus/slugify';
+import fs, { exists, PlainFS, readdirDeep, joinPath, pathBasename, pathDirname } from '../fs'; // eslint-disable-line object-curly-newline
+import prettifyEntityName from '../assets/js/prettifyEntityName';
 
 import defaultFields from '../data/defaultFields';
 
@@ -88,6 +97,7 @@ export default {
       return next((vm) => {
         vm.schema = { fields: [], tabs: [{ label: 'Untitled Tab', groupAs: null }], ...schema }; // eslint-disable-line no-param-reassign
         vm.fileStatus = fileStatus; // eslint-disable-line no-param-reassign
+        vm.newSchemaName = prettifyEntityName(pathBasename(path)); // eslint-disable-line no-param-reassign
       });
     } catch (err) {
       if (err.code === 'ENOENT') return next({ name: 'NotFound' });
@@ -129,6 +139,9 @@ export default {
     isTablet() {
       return this.$store.state.application.tablet;
     },
+    schemaName() {
+      return prettifyEntityName(pathBasename(this.$route.params.path));
+    },
     status() {
       if (!this.fileStatus) return { color: 'warning', loading: true };
       if (this.fileStatus !== 'unmodified') return { color: 'warning', message: 'local changes' };
@@ -144,6 +157,7 @@ export default {
       currentOperation: null,
       enableGroupAs: false,
       errors: {
+        schemaName: '',
         tabGroupAs: '',
         tabLabel: '',
       },
@@ -154,8 +168,10 @@ export default {
       fieldFilter: '',
       fieldToTransfer: null,
       fieldsLoading: false,
+      newSchemaName: '',
       schema: {},
       showEditTab: false,
+      showSchemaSettings: false,
       showSplit: false,
       tabBeingEdited: {
         index: null,
@@ -331,6 +347,10 @@ export default {
       this.currentAddIndicatorParent = null;
       this.currentAddIndicatorId = null;
     },
+    resetSchemaName() {
+      this.newSchemaName = this.schemaName;
+      this.errors.schemaName = '';
+    },
     resetTabBeingEdited() {
       this.tabBeingEdited = {
         index: null,
@@ -346,7 +366,7 @@ export default {
     saveTab() {
       this.validate('tabLabel');
       this.validate('tabGroupAs');
-      if (this.errors.tabLabel) return;
+      if (this.errors.tabLabel || this.errors.tabGroupAs) return;
 
       const cleanTab = {
         label: this.tabBeingEdited.data.label.trim(),
@@ -361,6 +381,23 @@ export default {
         });
       }
       this.showEditTab = false;
+    },
+    async setSchemaSettings() {
+      this.validate('schemaName');
+      if (this.errors.schemaName) return;
+
+      const newName = slugify(this.newSchemaName, this.$store.state.currentProject.slugifyOptions || { lowercase: false, decamelize: false, preserveLeadingUnderscore: true });
+      const newPath = joinPath(pathDirname(this.$route.params.path), `${newName}.json`);
+      const alreadyExists = await exists(newPath);
+
+      if (alreadyExists) {
+        this.errors.schemaName = 'A schema with this name already exists';
+        return;
+      }
+
+      await fs.rename(this.$route.params.path, newPath);
+      this.$router.replace({ params: { id: this.$route.params.id, path: newPath } });
+      this.showSchemaSettings = false;
     },
     transferField() {
       if (this.fieldAddParent && this.fieldToTransfer) {
@@ -382,6 +419,9 @@ export default {
     validate(field) {
       let error = '';
       switch (field) {
+        case 'schemaName':
+          if (!this.newSchemaName || !this.newSchemaName.trim()) error = 'A name is required';
+          break;
         case 'tabLabel':
           if (!this.tabBeingEdited.data.label) error = 'A label is required';
           else if (this.schema.tabs.find((tab) => tab.label === this.tabBeingEdited.data.label)) error = 'A tab with this label already exists';
@@ -637,7 +677,8 @@ export default {
         text-transform: capitalize
         color: $text-secondary
 
-.edit-tab-modal
+.edit-tab-modal,
+.edit-schema-modal
   .input
     width: 100%
 
