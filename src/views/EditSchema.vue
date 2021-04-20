@@ -12,26 +12,28 @@
     </header>
     <MbTabs v-model="activeTab" :dark="dark" show-add-option :tabs="cleanTabs" @add-tab="showEditTab = true" />
     <TabContent :dark="dark" :show-split="showSplit" @split-close="showSplit = false" @split-closed="handleSplitClosed">
-      <div v-if="currentOperation !== 'add-field' && schema.fields && schema.fields.length === 0" class="empty-state" :class="{ dark }">
-        <h2>There’s nothing here yet</h2>
-        <p>This schema currently has no fields. You can start adding some with the button below, or have Mattrbld automatically generate a set of fields for you based on a piece of content.</p>
-        <footer>
-          <MbButton :dark="dark" icon="document">Generate from content</MbButton>
-          <MbButton :dark="dark" icon="plus" type="positive" @click="handleAddField">Add field</MbButton>
-        </footer>
-      </div>
-      <div v-else-if="currentOperation !== 'add-field' && fieldsForTab.length === 0" class="empty-state" :class="{ dark }">
-        <h2>There’s nothing here yet</h2>
-        <footer>
-          <MbButton :dark="dark" icon="plus" type="positive" @click="handleAddField">Add field</MbButton>
-        </footer>
-      </div>
-      <div v-else class="added-fields-list">
-        <transition mode="out-in">
-          <FieldArrangementList :dark="dark" :field-being-edited="fieldBeingEdited" :fields="fieldsForTab" parent-key="___toplevel" :key="activeTab" @fieldclick="handleFieldClick" @fieldmove="handleFieldMove" />
-        </transition>
-        <MbButton v-show="currentOperation !== 'add-field'" :dark="dark" icon="plus" type="positive" @click="handleAddField">Add field</MbButton>
-      </div>
+      <transition mode="out-in">
+        <div v-if="!showSplit && schema.fields && schema.fields.length === 0" class="empty-state" :class="{ dark }">
+          <h2>There’s nothing here yet</h2>
+          <p>This schema currently has no fields. You can start adding some with the button below, or have Mattrbld automatically generate a set of fields for you based on a piece of content.</p>
+          <footer>
+            <MbButton :dark="dark" icon="document">Generate from content</MbButton>
+            <MbButton :dark="dark" icon="plus" type="positive" @click="handleAddField">Add field</MbButton>
+          </footer>
+        </div>
+        <div v-else-if="!showSplit && fieldsForTab.length === 0" class="empty-state" :class="{ dark }">
+          <h2>There’s nothing here yet</h2>
+          <footer>
+            <MbButton :dark="dark" icon="plus" type="positive" @click="handleAddField">Add field</MbButton>
+          </footer>
+        </div>
+        <div v-else class="added-fields-list">
+          <transition mode="out-in">
+            <FieldArrangementList :dark="dark" :field-being-edited="fieldBeingEdited" :fields="fieldsForTab" parent-key="___toplevel" :key="activeTab" @fieldclick="handleFieldClick" @fieldmove="handleFieldMove" />
+          </transition>
+          <MbButton v-show="currentOperation !== 'add-field'" :dark="dark" icon="plus" type="positive" @click="handleAddField">Add field</MbButton>
+        </div>
+      </transition>
 
       <template #right>
         <div v-if="currentOperation === 'add-field'" class="add-field" :class="{ dark }">
@@ -669,6 +671,14 @@ export default {
       margin-top: 8rem
       margin-left: auto
       margin-right: auto
+
+      &.v-enter-active,
+      &.v-leave-active
+        transition: opacity 100ms ease
+
+        &.v-enter-from,
+        &.v-leave-to
+          opacity: 0
 
     .empty-state
       @media $mobile
