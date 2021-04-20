@@ -1,7 +1,7 @@
 <template lang="html">
   <MbScroller class="tabs" :class="{ dark }">
     <div class="scroll-wrapper">
-      <transition-group ref="tabs" tag="ul" @after-leave="resetActiveTab">
+      <transition-group ref="tabs" tag="ul" @enter="refresh = !refresh" @after-leave="resetActiveTab">
         <li v-for="(tab, index) in tabs" :data-index="index" :key="tab.value || tab" tabindex="0" @click.left="activateTab($event, index)" @keydown.space.prevent @keyup.enter.space="activateTab($event, index)">{{tab.label || tab}}</li>
         <li v-if="showAddOption" class="add-option" key="mbTabsAddOption" tabindex="0" @click="addTab" @keydown.space.prevent @keyup.enter.space="addTab" @mouseenter="handleTooltip" @focus="handleTooltip"><MbIcon icon="plus" /></li>
       </transition-group>
@@ -16,6 +16,9 @@ export default {
     indicatorTransform() {
       if (!this.mounted || !this.$refs.tabs) return 'translateX(0) scaleX(0)';
 
+      // mention so it triggers the function again
+      this.refresh; // eslint-disable-line no-unused-expressions
+
       const tabElement = this.$refs.tabs.$el.children[this.modelValue];
       if (!tabElement) return 'translateX(0) scaleX(0)';
 
@@ -27,6 +30,7 @@ export default {
   data() {
     return {
       mounted: false,
+      refresh: false,
     };
   },
   emits: ['add-tab', 'update:modelValue'],
@@ -46,6 +50,7 @@ export default {
       const activeTabBackup = this.modelValue;
       if (el.dataset.index > activeTabBackup) this.$emit('update:modelValue', activeTabBackup);
       else this.$emit('update:modelValue', Math.max(0, activeTabBackup - 1));
+      this.refresh = !this.refresh;
     },
     scrollTabIntoView(el) {
       el.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
