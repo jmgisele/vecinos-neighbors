@@ -397,6 +397,12 @@ export default {
         if ((realIndex < realTargetIndex && target.isBottomHalf) || (realIndex > realTargetIndex && !target.isBottomHalf)) {
           const [field] = parentFieldFields.splice(realIndex, 1);
           if (field) targetFieldFields.splice(realTargetIndex, 0, field);
+        } else if (realIndex < realTargetIndex && !target.isBottomHalf) {
+          const [field] = parentFieldFields.splice(realIndex, 1);
+          targetFieldFields.splice(Math.max(0, realTargetIndex - 1), 0, field);
+        } else if (realIndex > realTargetIndex && target.isBottomHalf) {
+          const [field] = parentFieldFields.splice(realIndex, 1);
+          targetFieldFields.splice(Math.min(index + 1, targetFieldFields.length - 1), 0, field);
         }
         window.removeEventListener('pointerup', this.transferField, { once: true, capture: true });
         this.fieldAddIndex = null;
@@ -724,7 +730,7 @@ export default {
         margin-top: 2rem
 
       .field-arrangement-list
-        margin-bottom: 1rem
+        margin-bottom: 0
 
         &.v-enter-active,
         &.v-leave-active
@@ -737,10 +743,13 @@ export default {
         &::v-deep(> .field-arrangement-item:last-child:not(.dragging))
           padding-bottom: 2rem
 
+        &::v-deep(> .field-arrangement-item:last-child.dragging)
+          margin-bottom: 2rem
+
       .button
         display: flex
         margin-left: auto
-        margin-right: auto
+        // margin-right: auto
 
         @media $mobile
           width: 100%
