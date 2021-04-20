@@ -1,6 +1,6 @@
 <template lang="html">
   <transition-group class="sortable-list" :class="{ dragging }" tag="div">
-    <div v-for="(item, index) in items" class="drag-item" :data-area="areaId" :data-index="index" :key="item[keyName] || item" @click="$emit('itemclick', index)" @pointerdown.left="startDrag($event, index)">
+    <div v-for="(item, index) in items" class="drag-item" :data-area="areaId" :data-index="index" :key="item[keyName] || item" @click="handleClick(index)" @pointerdown.left="startDrag($event, index)">
       <slot :being-dragged="index === activeItem" :item="item" />
     </div>
   </transition-group>
@@ -26,6 +26,9 @@ export default {
   },
   emits: ['itemclick', 'itemmove'],
   methods: {
+    handleClick(index) {
+      if (!this.beingDragged) this.$emit('itemclick', index);
+    },
     handlePointerMove(e) {
       this.beingDragged = true; // we moved the cursor
       this.draggingClone.style.left = `${e.clientX - this.cloneClickDelta.x}px`;
@@ -84,7 +87,6 @@ export default {
       window.removeEventListener('pointerup', this.stopDrag);
       window.removeEventListener('pointermove', this.handlePointerMove, { passive: true });
       document.getElementById(`${this.areaId}-grabbingStyle`).remove();
-      // if (!this.beingDragged) this.$emit('itemclick', this.activeItem);
       const targetRect = this.dragging.getBoundingClientRect();
       const { left: currentLeft, top: currentTop } = this.draggingClone.style;
       if (Number.parseInt(currentLeft, 10) === Math.floor(targetRect.left) && Number.parseInt(currentTop, 10) === Math.floor(targetRect.top)) {
