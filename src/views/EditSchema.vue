@@ -67,6 +67,13 @@
     </MbModal>
     <MbModal class="edit-schema-modal" :dark="dark" slim title="Schema Settings" :visible="showSchemaSettings" @close="showSchemaSettings = false" @after-close="resetSchemaName">
       <MbInput v-model="newSchemaName" :dark="dark" :error="errors.schemaName" icon="text-input" label="Name" @blur="validate('schemaName')" />
+      <MbSortableList v-slot="{ beingDragged, item }" :items="schema.tabs" key-name="label" @itemclick="handleTabClick" @itemmove="handleTabMove">
+        <div class="edit-tab-element" :class="{ 'being-dragged': beingDragged, dark }">
+          <MbIcon data-drag-handle icon="drag-handle" />
+          <span>{{item.label}}</span>
+          <MbButton data-ignore-drag :dark="dark" icon="pencil" rounded />
+        </div>
+      </MbSortableList>
       <template #actions>
         <MbButton :dark="dark" @click="showSchemaSettings = false">Cancel</MbButton>
         <MbButton :dark="dark" :disabled="Boolean(errors.schemaName)" type="primary" @click="setSchemaSettings">Save</MbButton>
@@ -340,6 +347,12 @@ export default {
       if (this.fieldBeingEdited) this.fieldBeingEdited = null;
       this.currentOperation = null;
     },
+    handleTabClick(index) {
+      console.log('clicked tab', index);
+    },
+    handleTabMove({ activeItem, index, isBottomHalf }) {
+      console.log('dragged tab', activeItem, 'to', index, 'which is bottom half:', isBottomHalf);
+    },
     removeCurrentAddIndicator() {
       if (!this.currentAddIndicatorParent) return;
       const parentFieldFields = this.currentAddIndicatorParent === '___toplevel' ? this.schema.fields : this.getField(this.currentAddIndicatorParent).value;
@@ -459,6 +472,7 @@ export default {
 <style lang="stylus" scoped>
 @require '../assets/styles/breakpoints'
 @require '../assets/styles/colors'
+@require '../assets/styles/corners'
 
 .edit-schema // 100% minus the height of the app-header
   height: "calc(100vh - %s)" % (116 / 16)rem
@@ -692,5 +706,44 @@ export default {
 
   .toggle
     margin-top: 1.5rem
+
+.edit-schema-modal
+  .input
+    margin-bottom: 1rem
+
+  .sortable-list
+    &::v-deep(.drag-item:not(:last-child))
+      margin-bottom: 0.5rem
+
+// needs to be toplevel so dragging clone can have its styles
+.edit-tab-element
+  padding: 1rem
+  padding-right: 0.5rem
+  box-shadow: inset 0 0 0 0.0625rem $text-tertiary
+  border-radius: $radius-m
+  display: flex
+  align-items: center
+  background-color: $bg
+
+  &.dark
+    background-color: $bg-secondary-dark
+    box-shadow: inset 0 0 0 0.0625rem $bg-tertiary-dark
+
+  .icon:not(.button)
+    flex-shrink: 0
+    margin-right: 1rem
+
+  span
+    margin-right: auto
+    text-overflow: ellipsis
+    white-space: nowrap
+    overflow: hidden
+
+  .button
+    flex-shrink: 0
+    margin-left: 0.5rem
+
+  &.being-dragged
+    opacity: 0.25
 
 </style>
