@@ -51,7 +51,6 @@ export default {
       currentPath: this.schemaDir,
       defaultSchemaContent: {
         fields: [],
-        name: 'Untitled Schema',
         tabs: [{ label: 'Untitled Tab', groupAs: null }],
       },
       entityBeingModified: null,
@@ -73,7 +72,6 @@ export default {
           action: this.renameFolder,
           label: 'Rename',
           icon: 'text-input',
-          foldersOnly: true,
         },
         {
           action: this.deleteEntity,
