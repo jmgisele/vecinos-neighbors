@@ -5,7 +5,9 @@
     </div>
     <transition @after-leave="$emit('split-closed')">
       <div v-if="!isMobile" v-show="showSplit" class="content-wrapper right" :class="{ dark, padded }">
-        <MbButton class="close-button" :dark="dark" icon="cross" rounded @click="$emit('split-close')" />
+        <div class="close-wrapper">
+          <MbButton class="close-button" :dark="dark" icon="cross" rounded @click="$emit('split-close')" />
+        </div>
         <slot name="right" />
       </div>
     </transition>
@@ -101,8 +103,13 @@ export default {
       &.v-leave-active
         transition-timing-function: cubic-bezier(0.645, 0.045, 0.355, 1.000)
 
-      .close-button
-        position: absolute
+      .close-wrapper // HACK: this is needed to get the button positioned absolute **and** sticky
+        position: sticky
         top: 1rem
-        right: 1rem
+        z-index: 1
+
+        .close-button
+          position: absolute
+          top: 0
+          right: -1rem
 </style>
