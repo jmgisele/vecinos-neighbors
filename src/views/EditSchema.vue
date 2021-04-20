@@ -54,26 +54,36 @@
         </div>
       </template>
     </TabContent>
-    <MbModal class="edit-tab-modal" :dark="dark" slim :title="tabBeingEdited.index !== null ? 'Edit Tab' : 'Add Tab'" :visible="showEditTab" @close="showEditTab = false" @after-close="resetTabBeingEdited" @after-open="$refs.tabLabelInput.focus()">
-      <MbInput v-model="tabBeingEdited.data.label" :dark="dark" :error="errors.tabLabel" icon="text-input" label="Tab label" ref="tabLabelInput" @blur="showEditTab && validate('tabLabel')" @keyup.ctrl.enter="saveTab" />
+    <MbModal class="edit-tab-modal" :dark="dark" slim :title="tabBeingEdited.index !== null ? 'Edit Tab' : 'Add Tab'" :visible="showEditTab" @close="showEditTab = false" @after-close="resetTabBeingEdited" @after-open="!tabBeingEdited.data.label && $refs.tabLabelInput.focus()">
+      <MbInput v-model="tabBeingEdited.data.label" :dark="dark" :error="errors.tabLabel" icon="tag" label="Tab label" ref="tabLabelInput" @blur="showEditTab && validate('tabLabel')" @keyup.ctrl.enter="saveTab" />
       <MbToggle v-model="enableGroupAs" :dark="dark" :icons="['cross', 'check']" @update:model-value="!$event ? tabBeingEdited.data.groupAs = '' : $nextTick(() => $refs.tabGroupAsInput.focus())">Group fields in this tab as an object</MbToggle>
       <transition>
         <MbInput v-show="enableGroupAs" v-model="tabBeingEdited.data.groupAs" :dark="dark" :error="errors.tabGroupAs" icon="group" label="Key to group fields under" ref="tabGroupAsInput" @keyup.ctrl.enter="saveTab" @blur="validate('tabGroupAs')" />
       </transition>
+      <MbHighlightBox v-if="tabBeingEdited.index !== null && schema.tabs.length > 1" color="negative" :dark="dark" label="Danger Zone">
+        <p>Deleting a tab also removes all fields contained within from the Schema.</p>
+        <MbButton class="delete-tab-button" :dark="dark" icon="trash" type="negative" @click="deleteTab">Delete Tab</MbButton>
+      </MbHighlightBox>
       <template #actions>
         <MbButton :dark="dark" @click="showEditTab = false">Cancel</MbButton>
         <MbButton :dark="dark" :disabled="Boolean(errors.tabLabel || errors.tabGroupAs)" type="primary" @click="saveTab">{{tabBeingEdited.index !== null ? 'Save' : 'Add'}}</MbButton>
       </template>
     </MbModal>
     <MbModal class="edit-schema-modal" :dark="dark" slim title="Schema Settings" :visible="showSchemaSettings" @close="showSchemaSettings = false" @after-close="resetSchemaName">
-      <MbInput v-model="newSchemaName" :dark="dark" :error="errors.schemaName" icon="text-input" label="Name" @blur="validate('schemaName')" />
-      <MbSortableList v-slot="{ beingDragged, item }" :items="schema.tabs" key-name="label" @itemclick="handleTabClick" @itemmove="handleTabMove">
-        <div class="edit-tab-element" :class="{ 'being-dragged': beingDragged, dark }">
+      <MbInput v-model="newSchemaName" :dark="dark" :error="errors.schemaName" icon="document" label="Name" @blur="validate('schemaName')" />
+      <p><strong>Tabs</strong></p>
+      <MbSortableList v-slot="{ activeItem, item }" :items="schema.tabs" key-name="label" @itemclick="handleTabClick" @itemmove="handleTabMove">
+        <div class="edit-tab-element" :class="{ 'being-dragged': activeItem === item, dark }" :data-drag-handle="isMobile ? undefined : true">
           <MbIcon data-drag-handle icon="drag-handle" />
           <span>{{item.label}}</span>
-          <MbButton data-ignore-drag :dark="dark" icon="pencil" rounded />
+          <MbIcon icon="pencil" />
         </div>
       </MbSortableList>
+      <MbButton class="add-tab-button" :dark="dark" icon="plus" type="positive" @click="showEditTab = true">Add Tab</MbButton>
+      <MbHighlightBox color="negative" :dark="dark" label="Danger Zone">
+        <p>Deleting a Schema that is still used for content elements will cause them to not be displayed correctly. Please make sure to only delete this schema, if you know what you’re doing.</p>
+        <MbButton class="delete-tab-button" :dark="dark" icon="trash" type="negative">Delete Schema</MbButton>
+      </MbHighlightBox>
       <template #actions>
         <MbButton :dark="dark" @click="showSchemaSettings = false">Cancel</MbButton>
         <MbButton :dark="dark" :disabled="Boolean(errors.schemaName)" type="primary" @click="setSchemaSettings">Save</MbButton>
@@ -228,6 +238,36 @@ export default {
 
       if (this.isMobile && this.showSplit) this.showSplit = false;
     },
+    changeTabOfFields(fields, newTab) {
+      fields.forEach((field) => {
+        field.tab = newTab; // eslint-disable-line no-param-reassign
+        if (Array.isArray(field.value)) this.changeTabOfFields(field.value, newTab);
+      });
+    },
+    deleteTab() {
+      if (this.tabBeingEdited.index === null || this.schema.tabs.length === 1) return;
+      const { data: backup, index } = this.tabBeingEdited;
+      const lastActiveTab = this.activeTab;
+      const timeout = 5000;
+      const timeoutId = window.setTimeout(() => {
+        this.schema.fields = this.schema.fields.filter((field) => field.tab !== backup.label);
+      }, timeout);
+
+      this.schema.tabs.splice(this.tabBeingEdited.index, 1);
+
+      this.showEditTab = false;
+      this.$store.commit('addToast', {
+        action: () => {
+          window.clearTimeout(timeoutId);
+          this.schema.tabs.splice(index, 0, backup);
+          this.activeTab = lastActiveTab;
+        },
+        actionLabel: 'Undo',
+        message: `The tab “${backup.label}” and all its fields were deleted`,
+        timeout: timeout - 200,
+        type: 'warning',
+      });
+    },
     getField(path) {
       const segments = path.split('.');
       let next = this.schema.fields.find((field) => field.key === segments[0]);
@@ -348,10 +388,26 @@ export default {
       this.currentOperation = null;
     },
     handleTabClick(index) {
-      console.log('clicked tab', index);
+      const data = this.schema.tabs[index];
+      this.tabBeingEdited = {
+        index,
+        data: { ...data },
+      };
+      if (data.groupAs) this.enableGroupAs = true;
+      this.showEditTab = true;
     },
     handleTabMove({ activeItem, index, isBottomHalf }) {
-      console.log('dragged tab', activeItem, 'to', index, 'which is bottom half:', isBottomHalf);
+      const currentIndex = this.schema.tabs.indexOf(activeItem);
+      if ((currentIndex < index && isBottomHalf) || (currentIndex > index && !isBottomHalf)) {
+        this.schema.tabs.splice(index, 0, this.schema.tabs.splice(currentIndex, 1)[0]);
+        if (this.activeTab === currentIndex) this.activeTab = index;
+      } else if (currentIndex < index && !isBottomHalf) {
+        this.schema.tabs.splice(Math.max(0, index - 1), 0, this.schema.tabs.splice(currentIndex, 1)[0]);
+        if (this.activeTab === currentIndex) this.activeTab = Math.max(0, index - 1);
+      } else if (currentIndex > index && isBottomHalf) {
+        this.schema.tabs.splice(Math.min(index + 1, this.schema.tabs.length - 1), 0, this.schema.tabs.splice(currentIndex, 1)[0]);
+        if (this.activeTab === currentIndex) this.activeTab = Math.min(index + 1, this.schema.tabs.length - 1);
+      }
     },
     removeCurrentAddIndicator() {
       if (!this.currentAddIndicatorParent) return;
@@ -386,16 +442,23 @@ export default {
         groupAs: this.tabBeingEdited.data.groupAs || null,
       };
 
-      if (this.tabBeingEdited.index !== null) this.schema.tabs.splice(this.tabBeingEdited.index, 1, cleanTab);
-      else {
+      if (this.tabBeingEdited.index !== null) {
+        const { label: oldLabel } = this.schema.tabs[this.tabBeingEdited.index];
+        this.changeTabOfFields(this.schema.fields.filter((field) => field.tab === oldLabel), cleanTab.label);
+        this.schema.tabs.splice(this.tabBeingEdited.index, 1, cleanTab);
+        const lastActiveTab = this.activeTab;
+        this.$nextTick(() => { this.activeTab = lastActiveTab; });
+      } else {
         this.schema.tabs.push(cleanTab);
-        this.$nextTick(() => { // wait a tick so the underline can update correctly
-          this.activeTab = this.schema.tabs.length - 1;
-        });
+        this.activeTab = this.schema.tabs.length - 1;
       }
       this.showEditTab = false;
     },
     async setSchemaSettings() {
+      if (this.newSchemaName === this.schemaName) {
+        this.showSchemaSettings = false;
+        return;
+      }
       this.validate('schemaName');
       if (this.errors.schemaName) return;
 
@@ -437,10 +500,15 @@ export default {
           break;
         case 'tabLabel':
           if (!this.tabBeingEdited.data.label) error = 'A label is required';
-          else if (this.schema.tabs.find((tab) => tab.label === this.tabBeingEdited.data.label)) error = 'A tab with this label already exists';
+          else if (
+            ((this.tabBeingEdited.index !== null && this.tabBeingEdited.data.label !== this.schema.tabs[this.tabBeingEdited.index].label) || this.tabBeingEdited.index === null)
+            && this.schema.tabs.find((tab) => tab.label === this.tabBeingEdited.data.label)) error = 'A tab with this label already exists';
           break;
         case 'tabGroupAs':
-          if (this.schema.tabs.find((tab) => tab.groupAs === this.tabBeingEdited.data.groupAs)) error = 'A tab with this key already exists';
+          if (
+            this.tabBeingEdited.data.groupAs
+            && ((this.tabBeingEdited.index !== null && this.tabBeingEdited.data.groupAs !== this.schema.tabs[this.tabBeingEdited.index].groupAs) || this.tabBeingEdited.index === null)
+            && this.schema.tabs.find((tab) => tab.groupAs === this.tabBeingEdited.data.groupAs)) error = 'A tab with this key already exists';
           break;
         default:
           // no op
@@ -680,6 +748,7 @@ export default {
     max-width: 40rem
     margin-left: auto
     margin-right: auto
+    margin-bottom: 4rem
 
     .field-group
       margin-top: 4rem
@@ -707,41 +776,52 @@ export default {
   .toggle
     margin-top: 1.5rem
 
+  .highlight-box
+    margin-top: 2rem
+
 .edit-schema-modal
   .input
     margin-bottom: 1rem
 
   .sortable-list
-    &::v-deep(.drag-item:not(:last-child))
+    &::v-deep(.drag-item)
       margin-bottom: 0.5rem
+
+  .add-tab-button
+    width: 100%
 
 // needs to be toplevel so dragging clone can have its styles
 .edit-tab-element
   padding: 1rem
-  padding-right: 0.5rem
   box-shadow: inset 0 0 0 0.0625rem $text-tertiary
   border-radius: $radius-m
   display: flex
   align-items: center
   background-color: $bg
+  cursor: pointer
+
+  &:hover
+    background-color: $bg-secondary
 
   &.dark
     background-color: $bg-secondary-dark
     box-shadow: inset 0 0 0 0.0625rem $bg-tertiary-dark
 
-  .icon:not(.button)
+  .icon
     flex-shrink: 0
-    margin-right: 1rem
+
+    &:first-child
+      margin-right: 1rem
+      cursor: move
+
+    &:last-child
+      margin-right: 0
 
   span
     margin-right: auto
     text-overflow: ellipsis
     white-space: nowrap
     overflow: hidden
-
-  .button
-    flex-shrink: 0
-    margin-left: 0.5rem
 
   &.being-dragged
     opacity: 0.25
