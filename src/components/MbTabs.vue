@@ -30,6 +30,7 @@ export default {
   data() {
     return {
       mounted: false,
+      oldLength: 0,
       refresh: false,
     };
   },
@@ -47,10 +48,11 @@ export default {
       this.$store.commit('setTooltip', { message: 'Add new tab', target: e.currentTarget });
     },
     resetActiveTab(el) {
+      this.refresh = !this.refresh;
+      if (this.oldLength === this.tabs.length) return;
       const activeTabBackup = this.modelValue;
       if (el.dataset.index > activeTabBackup) this.$emit('update:modelValue', activeTabBackup);
       else this.$emit('update:modelValue', Math.max(0, activeTabBackup - 1));
-      this.refresh = !this.refresh;
     },
     scrollTabIntoView(el) {
       el.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
@@ -68,6 +70,12 @@ export default {
       default: () => [],
     },
     modelValue: Number,
+  },
+  watch: {
+    tabs(nv, ov) {
+      this.oldLength = ov.length;
+      this.$nextTick(() => { this.refresh = !this.refresh; });
+    },
   },
 };
 </script>
