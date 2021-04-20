@@ -284,7 +284,7 @@ export default {
         this.showSplit = false;
         return;
       }
-      this.fieldBeingEdited = parentFieldFields[index];
+      this.fieldBeingEdited = field;
       this.currentOperation = 'edit-field';
       if (!this.showSplit) this.showSplit = true;
     },
