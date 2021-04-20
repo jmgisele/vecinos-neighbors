@@ -31,7 +31,9 @@
           <transition mode="out-in">
             <FieldArrangementList :dark="dark" :field-being-edited="fieldBeingEdited" :fields="fieldsForTab" parent-key="___toplevel" :key="activeTab" @fieldclick="handleFieldClick" @fieldmove="handleFieldMove" />
           </transition>
-          <MbButton v-show="currentOperation !== 'add-field'" :dark="dark" icon="plus" type="positive" @click="handleAddField">Add field</MbButton>
+          <transition>
+            <MbButton v-show="currentOperation !== 'add-field'" :dark="dark" icon="plus" type="positive" @click="handleAddField">Add field</MbButton>
+          </transition>
         </div>
       </transition>
 
@@ -742,6 +744,15 @@ export default {
 
         @media $mobile
           width: 100%
+
+        &.v-leave-active
+          display: none
+
+        &.v-enter-active
+          transition: opacity 200ms ease
+
+          &.v-enter-from
+            opacity: 0
 
 .add-field // needs to be toplevel since modal teleports
   &.dark
