@@ -415,4 +415,5 @@ export default {
 
   .back-button
     margin-top: auto
+    flex-shrink: 0
 </style>

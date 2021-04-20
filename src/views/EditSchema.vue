@@ -784,6 +784,9 @@ export default {
     margin-right: auto
     margin-bottom: 4rem
 
+    @media $mobile
+      margin-bottom: 0
+
     .field-group
       margin-top: 4rem
 
@@ -813,6 +816,10 @@ export default {
   .highlight-box
     margin-top: 2rem
 
+    @media $mobile
+      .button
+        width: 100%
+
 .edit-schema-modal
   .input
     margin-bottom: 1rem
@@ -822,7 +829,14 @@ export default {
       margin-bottom: 0.5rem
 
   .add-tab-button
-    width: 100%
+    display: flex
+    margin-left: auto
+
+    @media $mobile
+      width: 100%
+
+    &.dark
+      margin-top: 0.75rem
 
 // needs to be toplevel so dragging clone can have its styles
 .edit-tab-element
