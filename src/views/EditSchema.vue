@@ -21,7 +21,7 @@
             <MbButton :dark="dark" icon="plus" type="positive" @click="handleAddField">Add field</MbButton>
           </footer>
         </div>
-        <div v-else-if="!showSplit && fieldsForTab.length === 0" class="empty-state" :class="{ dark }">
+        <div v-else-if="currentOperation !== 'add-field' && fieldsForTab.length === 0" class="empty-state" :class="{ dark }">
           <h2>There’s nothing here yet</h2>
           <footer>
             <MbButton :dark="dark" icon="plus" type="positive" @click="handleAddField">Add field</MbButton>
@@ -37,7 +37,7 @@
         </div>
       </transition>
 
-      <template #right>
+      <template #right="{ isModal }">
         <div v-if="currentOperation === 'add-field'" class="add-field" :class="{ dark }">
           <header>
             <h2 :class="{ h3: isMobile }">Add a field</h2>
@@ -55,6 +55,44 @@
               </div>
             </div>
           </transition>
+        </div>
+        <div v-else-if="currentOperation === 'edit-field'" class="edit-field" :class="{ dark, 'in-modal': isModal }">
+          <header>
+            <h2 :class="{ h3: isMobile }">{{fieldBeingEdited.label}}<span v-if="!fieldBeingEdited.label">Untitled Field</span></h2>
+            <span>{{fieldBeingEdited.type}} field</span>
+          </header>
+          <section>
+            <h3>General Settings</h3>
+            <div class="input-row">
+              <MbInput v-model.lazy.trim="fieldBeingEdited.label" :dark="dark" :error="fieldErrors.label" icon="tag" label="Label" @update:model-value="validateField('label')" />
+              <MbInput v-model.lazy.trim="fieldBeingEdited.key" :dark="dark" :error="fieldErrors.key" icon="key" label="Content key" @focus="validateField('key')" @update:model-value="validateField('key')" />
+            </div>
+            <div v-if="fieldBeingEditedToplevel" class="select-wrapper">
+              <span>Tab:</span>
+              <MbSelect :dark="dark" :model-value="fieldBeingEdited.tab" :options="tabsForSelect" @update:model-value="moveFieldToTab(fieldBeingEdited, $event)" />
+            </div>
+            <MbToggle v-if="typeof fieldBeingEdited.localised !== 'undefined'" v-model="fieldBeingEdited.localised" :dark="dark">Enable localisation for this field</MbToggle>
+            <p v-if="typeof fieldBeingEdited.default !== 'undefined'"><strong>Todo:</strong> insert an actual field of this type here with the options of <code>fieldBeingEdited</code> to set a default! (Except replace "label" prop with "Default Value")</p>
+          </section>
+          <section v-if="availableFieldOptions.has(fieldBeingEdited.type)">
+            <h3>Field Configuration</h3>
+            <section v-for="option in availableFieldOptions.get(fieldBeingEdited.type)" class="config-option" :key="option.key">
+              <span v-if="option.label">{{option.label}}</span>
+              <component v-bind="option.props" v-model="fieldBeingEdited.options[option.key]" :dark="dark" :is="option.component">{{option.slot}}</component>
+            </section>
+          </section>
+          <section>
+            <h3>Validation</h3>
+          </section>
+          <section>
+            <h3>Visibility</h3>
+          </section>
+          <section>
+            <MbHighlightBox color="negative" :dark="dark" label="Field removal">
+              <p>Deleting a field from a Schema <strong>does not</strong> delete that field in content elements. It only makes it so that field can no longer be edited through Mattrbld.</p>
+              <MbButton :dark="dark" icon="trash" type="negative">Delete field</MbButton>
+            </MbHighlightBox>
+          </section>
         </div>
       </template>
     </TabContent>
@@ -168,16 +206,22 @@ export default {
       if (this.fileStatus !== 'unmodified') return { color: 'warning', message: 'local changes' };
       return { color: 'positive', message: 'synchronised' };
     },
+    tabsForSelect() {
+      return this.cleanTabs.map((tab) => ({ value: tab }));
+    },
   },
   data() {
     return {
       activeTab: -1,
       availableFields: null,
+      availableFieldOptions: new Map(),
       currentAddIndicatorId: null,
       currentAddIndicatorParent: null,
       currentOperation: null,
       enableGroupAs: false,
       errors: {
+        fieldBeingEditedLabel: '',
+        fieldBeingEditedKey: '',
         schemaName: '',
         tabGroupAs: '',
         tabLabel: '',
@@ -185,10 +229,16 @@ export default {
       fieldAddIndex: null,
       fieldAddParent: null,
       fieldBeingEdited: null,
-      fileStatus: null,
+      fieldBeingEditedSiblings: null,
+      fieldBeingEditedToplevel: true,
+      fieldErrors: {
+        key: '',
+        label: '',
+      },
       fieldFilter: '',
       fieldToTransfer: null,
       fieldsLoading: false,
+      fileStatus: null,
       newSchemaName: '',
       schema: {},
       showEditTab: false,
@@ -343,8 +393,11 @@ export default {
 
         const unsortedMap = [...defaultFields, ...customFieldsData].reduce((map, data) => {
           const field = typeof data === 'string' ? JSON.parse(data) : data;
+          const { options, type } = field;
           let { group } = field;
           if (!group) group = 'miscellaneous';
+
+          if (type && options) this.availableFieldOptions.set(type, options); // doing this here so we don’t have to loop over it multiple times
 
           if (map.has(group)) map.get(group).push(field);
           else map.set(group, [field]);
@@ -383,7 +436,16 @@ export default {
         return;
       }
       this.fieldBeingEdited = field;
+      this.fieldBeingEditedSiblings = parentFieldFields;
+      this.fieldBeingEditedToplevel = parent === '___toplevel';
       this.currentOperation = 'edit-field';
+      if (this.fieldBeingEdited.errors) this.fieldBeingEdited.errors.forEach((value, key) => { this.fieldErrors[key] = value; });
+      else {
+        this.fieldErrors = {
+          key: '',
+          label: '',
+        };
+      }
       if (!this.showSplit) this.showSplit = true;
     },
     handleFieldMove({ detail }) {
@@ -425,7 +487,10 @@ export default {
       }
     },
     handleSplitClosed() {
-      if (this.fieldBeingEdited) this.fieldBeingEdited = null;
+      if (this.fieldBeingEdited) {
+        this.fieldBeingEdited = null;
+        this.fieldBeingEditedSiblings = null;
+      }
       this.currentOperation = null;
     },
     handleTabClick(index) {
@@ -450,6 +515,11 @@ export default {
         this.schema.tabs.splice(Math.min(index + 1, this.schema.tabs.length - 1), 0, this.schema.tabs.splice(currentIndex, 1)[0]);
         if (isActiveTab) this.activeTab = Math.min(index + 1, this.schema.tabs.length - 1);
       }
+    },
+    moveFieldToTab(field, tab, recursiveCall) {
+      field.tab = tab; // eslint-disable-line no-param-reassign
+      if (Array.isArray(field.value)) field.value.forEach((childField) => this.moveFieldToTab(childField, tab, true));
+      if (!recursiveCall) this.activeTab = this.cleanTabs.indexOf(tab);
     },
     removeCurrentAddIndicator() {
       if (!this.currentAddIndicatorParent) return;
@@ -558,6 +628,32 @@ export default {
           // no op
       }
       this.errors[field] = error;
+    },
+    validateField(field) {
+      if (field) {
+        let error = '';
+
+        switch (field) {
+          case 'key':
+            if (!this.fieldBeingEdited.key || !this.fieldBeingEdited.key.trim()) error = 'A key is required';
+            else if (['___toplevel', '___addIndicator'].includes(this.fieldBeingEdited.key)) error = 'This is a reserved key';
+            else if (this.fieldBeingEditedSiblings.filter((existingField) => existingField.key === this.fieldBeingEdited.key).length > 1) error = 'A field with this key already exists';
+            break;
+          case 'label':
+            if (!this.fieldBeingEdited.label || !this.fieldBeingEdited.label.trim()) error = 'A label is required';
+            break;
+          default:
+            // no op
+        }
+
+        this.fieldErrors[field] = error;
+        if (error && !this.fieldBeingEdited.errors) this.fieldBeingEdited.errors = new Map([[field, error]]);
+        else if (error) this.fieldBeingEdited.errors.set(field, error);
+        else if (this.fieldBeingEdited.errors) {
+          this.fieldBeingEdited.errors.delete(field);
+          if (this.fieldBeingEdited.errors.size === 0) delete this.fieldBeingEdited.errors;
+        }
+      }
     },
     validateSchema() {
       // TODO: add schema validation
@@ -826,6 +922,122 @@ export default {
       h3
         text-transform: capitalize
         color: $text-secondary
+
+.edit-field // toplevel because of teleport
+  &.dark
+    header span,
+    section h3
+        color: $text-secondary-dark
+
+    section
+      .input
+        background-color: $bg-tertiary-dark
+
+      .highlight-box
+        background-color: $bg-secondary-dark
+
+    &.in-modal
+      section
+        .highlight-box
+          background-color: $bg-dark
+
+        .input
+          background-color: $bg-secondary-dark
+
+  header
+    margin-top: 8rem
+    max-width: 40rem
+    margin-left: auto
+    margin-right: auto
+
+    @media $tablet
+      margin-top: 4rem
+
+    @media $mobile
+      margin-top: 0
+      text-align: center
+
+    h2
+      margin: 0
+
+    span
+      text-transform: capitalize
+      color: $text-secondary
+
+  > section
+    max-width: 40rem
+    margin-left: auto
+    margin-right: auto
+
+    &:not(:last-child)
+      margin-bottom: 4rem
+
+      @media $mobile
+        margin-bottom: 3rem
+
+    h3
+      color: $text-secondary
+
+    .input-row
+      margin-left: -0.5rem
+      margin-right: @margin-left
+      display: flex
+      flex-wrap: wrap
+
+      &:not(:last-child)
+        margin-bottom: 2rem
+
+      .input
+        flex-grow: 1
+        width: calc(50% - 1rem)
+        margin-left: 0.5rem
+        margin-right: @margin-left
+
+        @media $tablet
+          width: 100%
+
+          &:not(:first-child)
+            margin-top: 2rem
+
+    > .toggle
+      margin-bottom: 2rem
+
+    .select-wrapper
+      display: flex
+      align-items: center
+      margin-bottom: 2rem
+
+      > span
+        margin-right: auto
+
+    .highlight-box
+      .button
+        display: flex
+        margin-left: auto
+
+        @media $mobile
+          width: 100%
+
+    .config-option
+      display: flex
+      align-items: center
+      justify-content: space-between
+
+      @media $mobile
+        flex-wrap: wrap
+
+        > span
+          margin-bottom: 0.5rem
+
+        &::v-deep(> .select),
+        > .radio-group.inline::v-deep(label)
+          width: 100%
+
+      &:not(:last-child)
+        margin-bottom: 1rem
+
+      > *:only-child
+        width: 100%
 
 .edit-tab-modal,
 .edit-schema-modal
