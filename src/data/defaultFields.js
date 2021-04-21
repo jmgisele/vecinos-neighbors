@@ -13,6 +13,7 @@ interface Field {
     {
       component: String!,
       key: String!,
+      label: String,
       props: Object,
       slot: String,
       value: Any,
@@ -21,7 +22,7 @@ interface Field {
   tab: String,
   validation: { max: Number, min: Number, regex: String, regexError: String, required: Boolean },
   value: Any,
-  visibility: { hidden: false, limitToGroups: Array, showByValue: { field: String, value: Any } },
+  visibility: { hidden: false, limitToRoles: Array, showByValue: { field: String, value: Any } },
   visualOnly: Boolean, // excluded from content files, serves purely visual function
 },
 
@@ -30,7 +31,6 @@ interface Field {
 export default [
   {
     type: 'id',
-    default: null,
     description: 'Adds a unique ID to the content',
     group: 'basic',
     icon: 'hash',
@@ -40,6 +40,7 @@ export default [
       {
         component: 'MbRadioGroup',
         key: 'type',
+        label: 'Type of id:',
         props: { inline: true, options: [{ label: 'Filepath', value: 'filepath' }, { label: 'Generated UUID', value: 'uuid' }] },
         value: 'filepath',
       },
@@ -92,20 +93,19 @@ export default [
       },
     ],
     tab: null,
-    validation: {},
+    validation: { max: null, min: null, regex: null, regexError: null, required: false }, // eslint-disable-line object-curly-newline
     value: null,
     visibility: { hidden: false },
   },
   {
     type: 'group',
-    default: null,
     description: 'Groups multiple fields under a common key, ideal for objects',
     group: 'structure',
     icon: 'group',
     key: '',
     label: 'Field Group',
     tab: null,
-    validation: {},
+    validation: { max: null, min: null, required: false }, // eslint-disable-line object-curly-newline
     value: [],
     visibility: { hidden: false },
   },
