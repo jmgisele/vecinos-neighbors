@@ -11,7 +11,7 @@
       </div>
     </header>
     <MbTabs v-model="activeTab" :dark="dark" show-add-option :tabs="cleanTabs" @add-tab="showEditTab = true" />
-    <TabContent :dark="dark" :show-split="showSplit" @split-close="showSplit = false" @split-closed="handleSplitClosed">
+    <TabContent :dark="dark" ref="tabContent" :show-split="showSplit" @split-close="showSplit = false" @split-closed="handleSplitClosed">
       <transition mode="out-in">
         <div v-if="!showSplit && schema.fields && schema.fields.length === 0" class="empty-state" :class="{ dark }">
           <h2>There’s nothing here yet</h2>
@@ -108,7 +108,7 @@
           <section>
             <MbHighlightBox color="negative" :dark="dark" label="Field removal">
               <p>Deleting a field from a Schema <strong>does not</strong> delete that field in content elements. It only makes it so that field can no longer be edited through Mattrbld.</p>
-              <MbButton :dark="dark" icon="trash" type="negative">Delete field</MbButton>
+              <MbButton :dark="dark" icon="trash" type="negative" @click="deleteField">Delete field</MbButton>
             </MbHighlightBox>
           </section>
         </div>
@@ -263,6 +263,7 @@ export default {
       fieldErrors: {
         key: '',
         label: '',
+        regex: '',
       },
       fieldFilter: '',
       fieldToTransfer: null,
@@ -325,6 +326,25 @@ export default {
       fields.forEach((field) => {
         field.tab = newTab; // eslint-disable-line no-param-reassign
         if (Array.isArray(field.value)) this.changeTabOfFields(field.value, newTab);
+      });
+    },
+    deleteField() {
+      const fieldPath = this.getFieldPath(this.fieldBeingEdited, this.schema.fields);
+      const parentField = this.getField(fieldPath.substring(0, Math.max(0, fieldPath.lastIndexOf('.')) || Infinity));
+
+      const parentFieldFields = fieldPath === parentField.key ? this.schema.fields : parentField.value;
+      const index = parentFieldFields.indexOf(this.fieldBeingEdited);
+      const [backup] = parentFieldFields.splice(index, 1);
+      this.showSplit = false;
+
+      this.$store.commit('addToast', {
+        action: () => {
+          parentFieldFields.splice(index, 0, backup);
+        },
+        actionLabel: 'Undo',
+        message: `The field “${backup.label}” was deleted`,
+        timeout: 5000 - 200,
+        type: 'warning',
       });
     },
     deleteSchema() {
@@ -400,6 +420,16 @@ export default {
         else break;
       }
       return next;
+    },
+    getFieldPath(field, fields) {
+      let path;
+      for (let index = 0; index < fields.length; index += 1) {
+        const currentField = fields[index];
+        path = currentField.key;
+        if (currentField === field) break;
+        if (Array.isArray(currentField.value)) path = `${path}.${this.getFieldPath(field, currentField.value)}`;
+      }
+      return path;
     },
     generateUniqueFieldKey(otherFields, potentialKey = 'unknown') {
       if (!otherFields.find((existingField) => existingField.key === potentialKey)) return potentialKey;
@@ -481,6 +511,7 @@ export default {
         this.fieldErrors = {
           key: '',
           label: '',
+          regex: '',
         };
       }
       if (!this.showSplit) this.showSplit = true;
