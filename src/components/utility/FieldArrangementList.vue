@@ -14,7 +14,7 @@
         :dark="dark"
         :data-index="index"
         :data-parent="parentKey"
-        :error="field.error"
+        :errors="field.errors"
         :field-being-edited="fieldBeingEdited"
         :field-key="field.key"
         :hidden="field.visibility && field.visibility.hidden"
@@ -148,4 +148,7 @@ export default {
 
     &.v-move:not(.drag-active)
       transition: transform 200ms ease
+
+    &.v-leave-active
+      display: none
 </style>

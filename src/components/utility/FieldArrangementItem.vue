@@ -6,7 +6,7 @@
         <MbIcon :icon="icon" />
       </div>
       <span class="label"><strong>{{label}}</strong></span>
-      <span v-if="error" class="chip error">Error</span>
+      <span v-if="errors" class="chip error">Error</span>
       <span v-if="localised" class="chip">Localised</span>
       <span v-if="required" class="chip">Required</span>
       <span class="key">{{fieldKey}}</span>
@@ -128,7 +128,7 @@ export default {
   props: {
     active: Boolean,
     dark: Boolean,
-    error: String,
+    errors: Map,
     fieldBeingEdited: Object,
     fieldKey: String,
     hidden: Boolean,
