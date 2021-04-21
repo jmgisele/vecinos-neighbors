@@ -88,13 +88,22 @@
               <MbInput v-if="typeof fieldBeingEdited.validation.min !== 'undefined'" v-model.lazy.number="fieldBeingEdited.validation.min" :dark="dark" label="Minimum length (optional)" type="number" />
               <MbInput v-if="typeof fieldBeingEdited.validation.max !== 'undefined'" v-model.lazy.number="fieldBeingEdited.validation.max" :dark="dark" label="Maximum length (optional)" type="number" />
             </div>
+            <MbToggle v-if="fieldBeingEdited.validation && typeof fieldBeingEdited.validation.enforceMinMax !== 'undefined' && (fieldBeingEdited.validation.min || fieldBeingEdited.validation.max)" v-model="fieldBeingEdited.validation.enforceMinMax" :dark="dark">Enforce minimum / maximum length</MbToggle>
             <div v-if="fieldBeingEdited.validation && typeof fieldBeingEdited.validation.regex !== 'undefined'" class="input-row">
-              <MbInput v-model.lazy="fieldBeingEdited.validation.regex" :dark="dark" label="Regular Expression" @update:model-value="validateField('regex')" />
-              <MbInput v-model.lazy="fieldBeingEdited.validation.regexError" :dark="dark" label="Error message (optional)" />
+              <MbInput v-model.lazy="fieldBeingEdited.validation.regex" :dark="dark" label="Regular Expression (optional)" @update:model-value="validateField('regex')" />
+              <MbInput v-show="fieldBeingEdited.validation.regex" v-model.lazy="fieldBeingEdited.validation.regexError" :dark="dark" label="Error message (optional)" />
             </div>
           </section>
           <section>
             <h3>Visibility</h3>
+            <MbToggle v-if="fieldBeingEdited.visibility && typeof fieldBeingEdited.visibility.hidden !== 'undefined'" v-model="fieldBeingEdited.visibility.hidden" :dark="dark">Hide this field</MbToggle>
+            <MbTagInput v-if="fieldBeingEdited.visibility" v-model="fieldBeingEdited.visibility.limitToRoles" :autocomplete-model="projectRoles" autocomplete-property="label" :dark="dark" label="Limit visibility to (optional)" placeholder="Role(s)" />
+            <div v-if="fieldBeingEdited.visibility && fieldBeingEdited.visibility.showByValue" class="conditional-wrapper">
+              <span>Show if</span>
+              <MbSelect v-model="fieldBeingEdited.visibility.showByValue.field" :dark="dark" :options="flattenedFieldKeys" placeholder="Field…" />
+              <span>equals</span>
+              <MbInput v-model.lazy="fieldBeingEdited.visibility.showByValue.value" :dark="dark" label="Value" />
+            </div>
           </section>
           <section>
             <MbHighlightBox color="negative" :dark="dark" label="Field removal">
@@ -149,6 +158,7 @@ import slugify from '@sindresorhus/slugify';
 import fs, { exists, PlainFS, readdirDeep, joinPath, pathBasename, pathDirname } from '../fs'; // eslint-disable-line object-curly-newline
 import prettifyEntityName from '../assets/js/prettifyEntityName';
 
+import availableRoles from '../data/availableRoles';
 import defaultFields from '../data/defaultFields';
 
 import FieldArrangementList from '../components/utility/FieldArrangementList.vue';
@@ -201,11 +211,21 @@ export default {
         return newMap;
       }, new Map());
     },
+    flattenedFieldKeys() {
+      if (!this.fieldBeingEdited) return [];
+      return this.extractFieldKeys(this.schema.fields);
+    },
     isMobile() {
       return this.$store.state.application.mobile;
     },
     isTablet() {
       return this.$store.state.application.tablet;
+    },
+    projectRoles() {
+      return [
+        ...availableRoles,
+        ...this.$store.state.currentProject.customRoles,
+      ];
     },
     schemaName() {
       return prettifyEntityName(pathBasename(this.$route.params.path));
@@ -361,6 +381,14 @@ export default {
         timeout: timeout - 200,
         type: 'warning',
       });
+    },
+    extractFieldKeys(fields, parent) {
+      return fields.reduce((acc, field) => {
+        if (Array.isArray(field.value)) acc.push(...this.extractFieldKeys(field.value, parent ? `${parent}.${field.key}` : field.key));
+        else if (field === this.fieldBeingEdited) return acc;
+        else acc.push({ label: field.label, value: parent ? `${parent}.${field.key}` : field.key });
+        return acc;
+      }, []);
     },
     getField(path) {
       const segments = path.split('.');
@@ -1026,13 +1054,46 @@ export default {
           &:not(:first-child)
             margin-top: 2rem
 
-    .select-wrapper
+    .select-wrapper,
+    .conditional-wrapper
       display: flex
       align-items: center
       margin-bottom: 2rem
 
       > span
         margin-right: auto
+
+    .conditional-wrapper
+      > span
+        margin-right: 1rem
+        flex-shrink: 0
+
+      .input
+        margin-top: 0
+        flex-grow: 1
+
+      &::v-deep(.select)
+        margin-right: 1rem
+        height: (58 / 16)rem
+
+      @media $mobile
+        flex-wrap: wrap
+
+        > span
+          margin-bottom: 0.5rem
+          width: 100%
+
+        &::v-deep(.select)
+          margin-bottom: 1rem
+          width: 100%
+          margin-right: 0
+
+        .input
+          margin-top: 1rem
+
+    .tag-input
+      margin-bottom: 2rem
+      margin-top: 3rem
 
     .highlight-box
       .button
