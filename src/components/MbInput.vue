@@ -1,5 +1,5 @@
 <template lang="html">
-  <label class="input" :class="{ dark, disabled, dirty: error || modelValue || placeholder, error: error || maxLen && modelValue.length > maxLen, icon }">
+  <label class="input" :class="{ dark, disabled, dirty: error || modelValue || modelValue === 0 || placeholder, error: error || maxLen && modelValue.length > maxLen, icon }">
     <MbIcon v-if="icon" :icon="error && !focussed ? 'error' : icon" />
     <span v-if="displayLabel" :class="{ right: !label && maxLen }">{{displayLabel}}</span>
     <input autocomplete="off" :disabled="disabled" :placeholder="placeholder" ref="input" :type="type" :value="modelValue" @blur="handleBlur" @focus="handleFocus" @[emissionevent]="handleUpdate">
@@ -43,7 +43,11 @@ export default {
     },
     handleUpdate(e) {
       if (this.modelModifiers.trim) this.$emit('update:modelValue', e.target.value.trim());
-      else this.$emit('update:modelValue', e.target.value);
+      else if (this.modelModifiers.number) {
+        const num = Number.parseFloat(e.target.value);
+        if (Number.isNaN(num)) this.$emit('update:modelValue', '');
+        else this.$emit('update:modelValue', num);
+      } else this.$emit('update:modelValue', e.target.value);
     },
   },
   mounted() {
