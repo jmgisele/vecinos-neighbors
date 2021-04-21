@@ -22,7 +22,7 @@
       <header>
         <MbButton :dark="dark" icon="plus" type="positive" @click="handleAddRole">Add custom role</MbButton>
       </header>
-      <header v-if="currentProject.customRoles.length > 0" class="legend">
+      <header v-if="customRolesWithoutSoftDeleted.length > 0" class="legend">
         <span>Name</span>
         <span class="secondary">Value</span>
         <span>Access Level</span>
@@ -34,7 +34,7 @@
           <span class="secondary access-level">{{role.accessLevel}}</span>
           <MbButton :dark="dark" icon="trash" rounded tooltip="Delete role" type="negative" @click="removeCustomRole(index, role)" />
         </li>
-        <li v-if="currentProject.customRoles.length === 0" class="empty-state">
+        <li v-if="customRolesWithoutSoftDeleted.length === 0" class="empty-state">
           <span class="secondary">There are currently no custom roles for this project</span>
         </li>
       </transition-group>
@@ -47,8 +47,8 @@
     </section>
     <MbModal class="role-modal" :dark="dark" :title="roleBeingEdited.new ? 'Create new custom role' : 'Edit custom role'" :visible="showRoleModal" @close="showRoleModal = false" @after-close="resetRoleBeingEdited">
       <div class="input-wrapper">
-        <MbInput v-model="roleBeingEdited.label" :dark="dark" :error="errors.roleLabel" icon="tag" label="Role label" :max-len="16" @blur="validate('roleLabel')" />
-        <MbInput v-model="roleBeingEdited.value" :dark="dark" :disabled="!roleBeingEdited.new" :error="errors.roleValue" icon="hash" label="Role value" :max-len="16" @blur="validate('roleValue')" />
+        <MbInput v-model="roleBeingEdited.label" :dark="dark" :error="errors.roleLabel" icon="tag" label="Role label" :max-len="16" @blur="showRoleModal && validate('roleLabel')" />
+        <MbInput v-model="roleBeingEdited.value" :dark="dark" :disabled="!roleBeingEdited.new" :error="errors.roleValue" icon="hash" label="Role value" :max-len="16" @blur="showRoleModal && validate('roleValue')" />
       </div>
       <div class="select-wrapper">
         <span>Access level:</span>
@@ -60,8 +60,8 @@
       </template>
     </MbModal>
     <MbModal class="user-modal" :dark="dark" slim :title="userBeingEdited.new ? 'Add new user' : 'Edit user'" :visible="showUserModal" @close="showUserModal = false" @after-close="resetUserBeingEdited">
-      <MbInput v-model="userBeingEdited.name" class="name-input" :dark="dark" :error="errors.userName" icon="user" label="Full Name" @blur="validate('userName'); checkAvatarRegeneration()" />
-      <MbInput v-model="userBeingEdited.email" :dark="dark" :error="errors.userEmail" icon="mail" label="Email Address" type="email" @blur="validate('userEmail'); checkAvatarRegeneration()" />
+      <MbInput v-model="userBeingEdited.name" class="name-input" :dark="dark" :error="errors.userName" icon="user" label="Full Name" @blur="showUserModal && validate('userName'); checkAvatarRegeneration()" />
+      <MbInput v-model="userBeingEdited.email" :dark="dark" :error="errors.userEmail" icon="mail" label="Email Address" type="email" @blur="showUserModal && validate('userEmail'); checkAvatarRegeneration()" />
       <div class="select-wrapper">
         <span>Role:</span>
         <MbSelect :dark="dark" inline :model-value="userBeingEdited.role" :options="combinedRoles" placeholder="Select a role…" @update:model-value="validateRole" />
@@ -853,5 +853,9 @@ export default {
 
   .highlight-box
     .button
-      width: 100%
+      display: flex
+      margin-left: auto
+
+      @media $mobile
+        width: 100%
 </style>
