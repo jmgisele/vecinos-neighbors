@@ -83,6 +83,15 @@
           </section>
           <section>
             <h3>Validation</h3>
+            <MbToggle v-if="fieldBeingEdited.validation && typeof fieldBeingEdited.validation.required !== 'undefined'" v-model="fieldBeingEdited.validation.required" :dark="dark">Make this field required</MbToggle>
+            <div v-if="fieldBeingEdited.validation && (typeof fieldBeingEdited.validation.min !== 'undefined' || typeof fieldBeingEdited.validation.max !== 'undefined')" class="input-row">
+              <MbInput v-if="typeof fieldBeingEdited.validation.min !== 'undefined'" v-model.lazy.number="fieldBeingEdited.validation.min" :dark="dark" label="Minimum length (optional)" type="number" />
+              <MbInput v-if="typeof fieldBeingEdited.validation.max !== 'undefined'" v-model.lazy.number="fieldBeingEdited.validation.max" :dark="dark" label="Maximum length (optional)" type="number" />
+            </div>
+            <div v-if="fieldBeingEdited.validation && typeof fieldBeingEdited.validation.regex !== 'undefined'" class="input-row">
+              <MbInput v-model.lazy="fieldBeingEdited.validation.regex" :dark="dark" label="Regular Expression" @update:model-value="validateField('regex')" />
+              <MbInput v-model.lazy="fieldBeingEdited.validation.regexError" :dark="dark" label="Error message (optional)" />
+            </div>
           </section>
           <section>
             <h3>Visibility</h3>
@@ -642,6 +651,15 @@ export default {
           case 'label':
             if (!this.fieldBeingEdited.label || !this.fieldBeingEdited.label.trim()) error = 'A label is required';
             break;
+          case 'regex':
+            if (this.fieldBeingEdited.validation && this.fieldBeingEdited.validation.regex) {
+              try {
+                new RegExp(this.fieldBeingEdited.validation.regex); // eslint-disable-line no-new
+              } catch (err) {
+                error = 'Invalid regular expression';
+              }
+            }
+            break;
           default:
             // no op
         }
@@ -978,6 +996,12 @@ export default {
     h3
       color: $text-secondary
 
+    > .toggle
+      margin-bottom: 2rem
+
+      & + .input-row .input
+        margin-top: 0
+
     .input-row
       margin-left: -0.5rem
       margin-right: @margin-left
@@ -986,6 +1010,9 @@ export default {
 
       &:not(:last-child)
         margin-bottom: 2rem
+
+      & + .input-row .input
+        margin-top: 0
 
       .input
         flex-grow: 1
@@ -998,9 +1025,6 @@ export default {
 
           &:not(:first-child)
             margin-top: 2rem
-
-    > .toggle
-      margin-bottom: 2rem
 
     .select-wrapper
       display: flex
