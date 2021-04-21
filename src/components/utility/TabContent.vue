@@ -12,7 +12,7 @@
       </div>
     </transition>
     <MbModal v-if="isMobile" :dark="dark" :visible="showSplit" @after-close="$emit('split-closed')" @close="$emit('split-close')">
-      <slot name="right" />
+      <slot :is-modal="true" name="right" />
       <template #actions>
         <MbButton :dark="dark" @click="$emit('split-close')">Cancel</MbButton>
       </template>
