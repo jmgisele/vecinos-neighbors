@@ -24,7 +24,7 @@
         :localised="field.localised"
         :nested-fields="Array.isArray(field.value) ? field.value : null"
         :parent-key="parentKey"
-        :required="field.validation && field.validation.required"
+        :required="(field.validation && field.validation.required) || (field.validation && field.validation.min > 0)"
         :type="field.type"
         @fieldclick="handleClick(parentKey, index)"
         @fieldmove="handleFieldMove(parentKey, index, $event)"
