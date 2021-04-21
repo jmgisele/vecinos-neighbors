@@ -562,7 +562,7 @@ export default {
     validateSchema() {
       // TODO: add schema validation
       // Step 1: check if all fields have keys
-      // Step 2: make sure there are no errors within any fields
+      // Step 2: make sure there are no errors within any fields (and remove the prop if it’s still there)
     },
   },
   mounted() {

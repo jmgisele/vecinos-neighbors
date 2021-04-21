@@ -14,6 +14,7 @@
         :dark="dark"
         :data-index="index"
         :data-parent="parentKey"
+        :error="field.error"
         :field-being-edited="fieldBeingEdited"
         :field-key="field.key"
         :hidden="field.visibility && field.visibility.hidden"
