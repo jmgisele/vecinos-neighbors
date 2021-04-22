@@ -22,7 +22,7 @@ interface Field {
   tab: String,
   validation: { enforceMinMax: Boolean, max: Number, min: Number, regex: String, regexError: String, required: Boolean },
   value: Any,
-  visibility: { hidden: false, limitToRoles: Array, showByValue: { field: String, value: Any } },
+  visibility: { hidden: false, limitToRoles: Array, showByValue: { comparator: [String, Number], field: String, value: Any } },
   visualOnly: Boolean, // excluded from content files, serves purely visual function
 },
 
@@ -54,7 +54,7 @@ export default [
     tab: null,
     validation: { required: true },
     value: null,
-    visibility: { hidden: false, showByValue: { field: null, value: null } },
+    visibility: { hidden: false, showByValue: { field: null } },
   },
   {
     type: 'languages',
@@ -67,7 +67,7 @@ export default [
     tab: null,
     validation: { min: 1 },
     value: null,
-    visibility: { hidden: false, showByValue: { field: null, value: null } },
+    visibility: { hidden: false, showByValue: { field: null } },
   },
   {
     type: 'text',
@@ -95,7 +95,7 @@ export default [
     tab: null,
     validation: { enforceMinMax: true, max: null, min: null, regex: null, regexError: null, required: false }, // eslint-disable-line object-curly-newline
     value: null,
-    visibility: { hidden: false, showByValue: { field: null, value: null } },
+    visibility: { hidden: false, showByValue: { field: null } },
   },
   {
     type: 'group',
@@ -107,6 +107,17 @@ export default [
     tab: null,
     validation: { max: null, min: null }, // eslint-disable-line object-curly-newline
     value: [],
-    visibility: { hidden: false, showByValue: { field: null, value: null } },
+    visibility: { hidden: false, showByValue: { field: null } },
+  },
+  {
+    type: 'separator',
+    description: 'Adds a line and whitespace between the two sibling fields',
+    group: 'Visual',
+    icon: 'add-separator',
+    key: '',
+    label: 'Separator',
+    tab: null,
+    visibility: { showByValue: { field: null } },
+    visualOnly: true,
   },
 ];
