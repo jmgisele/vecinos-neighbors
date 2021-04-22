@@ -543,7 +543,7 @@ export default {
           targetFieldFields.splice(Math.max(0, realTargetIndex - 1), 0, field);
         } else if (realIndex > realTargetIndex && target.isBottomHalf) {
           const [field] = parentFieldFields.splice(realIndex, 1);
-          targetFieldFields.splice(Math.min(index + 1, targetFieldFields.length - 1), 0, field);
+          targetFieldFields.splice(Math.min(realTargetIndex + 1, targetFieldFields.length - 1), 0, field);
         }
         window.removeEventListener('pointerup', this.transferField, { once: true, capture: true });
         this.fieldAddIndex = null;
