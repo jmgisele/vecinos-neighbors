@@ -131,9 +131,6 @@ export default {
   &.rounded
     border-radius: ((52 / 16) / 2)rem // 52 === Button.height
 
-    &::before
-      border-radius: @border-radius
-
   &.positive
     border-color: $positive
     color: $positive-saturated
@@ -206,7 +203,7 @@ export default {
     bottom: @top
     border: 2px solid $accent
     opacity: 0
-    border-radius: @border-radius
+    border-radius: inherit
     transition: opacity 200ms ease
 
   .label
