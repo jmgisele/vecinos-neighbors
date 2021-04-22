@@ -1103,6 +1103,7 @@ export default {
         ],
         selects: [
           ['Name', 'Type', 'Default', 'Notes'],
+          ['`allowNull`', 'Boolean', '`false`', 'If false shows the placeholder when the value is null'],
           ['`dark`', 'Boolean', '`false`', ''],
           ['`disabled`', 'Boolean', '`false`', ''],
           ['`filterable`', 'Boolean', '`false`', ''],

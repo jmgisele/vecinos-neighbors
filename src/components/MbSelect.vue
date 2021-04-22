@@ -1,5 +1,5 @@
 <template lang="html">
-  <MbButton v-bind="$attrs" class="select" :class="{ placeholder: modelValue === null }" :dark="dark" :disabled="disabled" icon="chevron-down" :icon-first="false" :loading="loading" ref="button" :rounded="rounded" :tooltip="tooltip" @click="activate">
+  <MbButton v-bind="$attrs" class="select" :class="{ placeholder: typeof modelValue === 'undefined' || (!allowNull && modelValue === null) }" :dark="dark" :disabled="disabled" icon="chevron-down" :icon-first="false" :loading="loading" ref="button" :rounded="rounded" :tooltip="tooltip" @click="activate">
     {{currentOption}}
   </MbButton>
   <MbPopover center-x class="item-wrapper" :dark="dark" no-content-padding ref="popover" :style="{ width: `${popoverWidth}px` }" :visible="active" :x="position.x" :y="position.y" @close="deactivate" @keydown.arrow-down.arrow-up.prevent @keyup.arrow-down="focus(1)" @keyup.arrow-up="focus(-1)">
@@ -21,7 +21,7 @@ export default {
   },
   computed: {
     currentOption() {
-      if (this.modelValue === null) return this.placeholder;
+      if (typeof this.modelValue === 'undefined' || (this.modelValue === null && !this.allowNull)) return this.placeholder;
       const activeOption = this.options.find((option) => option.value === this.modelValue);
       if (!activeOption) return this.modelValue;
       return activeOption.label || activeOption.value;
@@ -93,6 +93,7 @@ export default {
     },
   },
   props: {
+    allowNull: Boolean,
     dark: Boolean,
     disabled: Boolean,
     filterable: Boolean,
