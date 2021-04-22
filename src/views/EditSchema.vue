@@ -65,7 +65,7 @@
             <h3>General Settings</h3>
             <div class="input-row">
               <MbInput v-model.lazy.trim="fieldBeingEdited.label" :dark="dark" :error="fieldErrors.label" icon="tag" label="Label" @update:model-value="validateField('label')" />
-              <MbInput v-model.lazy.trim="fieldBeingEdited.key" :dark="dark" :error="fieldErrors.key" icon="key" label="Content key" @focus="validateField('key')" @update:model-value="validateField('key')" />
+              <MbInput v-if="!fieldBeingEdited.visualOnly" v-model.lazy.trim="fieldBeingEdited.key" :dark="dark" :error="fieldErrors.key" icon="key" label="Content key" @focus="validateField('key')" @update:model-value="validateField('key')" />
             </div>
             <div v-if="fieldBeingEditedToplevel" class="select-wrapper">
               <span>Tab:</span>
@@ -81,28 +81,29 @@
               <component v-bind="option.props" v-model="fieldBeingEdited.options[option.key]" :dark="dark" :is="option.component">{{option.slot}}</component>
             </section>
           </section>
-          <section>
+          <section v-if="fieldBeingEdited.validation">
             <h3>Validation</h3>
-            <MbToggle v-if="fieldBeingEdited.validation && typeof fieldBeingEdited.validation.required !== 'undefined'" v-model="fieldBeingEdited.validation.required" :dark="dark">Make this field required</MbToggle>
-            <div v-if="fieldBeingEdited.validation && (typeof fieldBeingEdited.validation.min !== 'undefined' || typeof fieldBeingEdited.validation.max !== 'undefined')" class="input-row">
+            <MbToggle v-if="typeof fieldBeingEdited.validation.required !== 'undefined'" v-model="fieldBeingEdited.validation.required" :dark="dark">Make this field required</MbToggle>
+            <div v-if="typeof fieldBeingEdited.validation.min !== 'undefined' || typeof fieldBeingEdited.validation.max !== 'undefined'" class="input-row">
               <MbInput v-if="typeof fieldBeingEdited.validation.min !== 'undefined'" v-model.lazy.number="fieldBeingEdited.validation.min" :dark="dark" label="Minimum length (optional)" type="number" />
               <MbInput v-if="typeof fieldBeingEdited.validation.max !== 'undefined'" v-model.lazy.number="fieldBeingEdited.validation.max" :dark="dark" label="Maximum length (optional)" type="number" />
             </div>
-            <MbToggle v-if="fieldBeingEdited.validation && typeof fieldBeingEdited.validation.enforceMinMax !== 'undefined' && (fieldBeingEdited.validation.min || fieldBeingEdited.validation.max)" v-model="fieldBeingEdited.validation.enforceMinMax" :dark="dark">Enforce minimum / maximum length</MbToggle>
+            <MbToggle v-if="typeof fieldBeingEdited.validation.enforceMinMax !== 'undefined' && (fieldBeingEdited.validation.min || fieldBeingEdited.validation.max)" v-model="fieldBeingEdited.validation.enforceMinMax" :dark="dark">Enforce minimum / maximum length</MbToggle>
             <div v-if="fieldBeingEdited.validation && typeof fieldBeingEdited.validation.regex !== 'undefined'" class="input-row">
-              <MbInput v-model.lazy="fieldBeingEdited.validation.regex" :dark="dark" label="Regular Expression (optional)" @update:model-value="validateField('regex')" />
+              <MbInput v-model.lazy="fieldBeingEdited.validation.regex" :dark="dark" label="Regular expression (optional)" @update:model-value="validateField('regex')" />
               <MbInput v-show="fieldBeingEdited.validation.regex" v-model.lazy="fieldBeingEdited.validation.regexError" :dark="dark" label="Error message (optional)" />
             </div>
           </section>
-          <section>
+          <section v-if="fieldBeingEdited.visibility">
             <h3>Visibility</h3>
-            <MbToggle v-if="fieldBeingEdited.visibility && typeof fieldBeingEdited.visibility.hidden !== 'undefined'" v-model="fieldBeingEdited.visibility.hidden" :dark="dark">Hide this field</MbToggle>
-            <MbTagInput v-if="fieldBeingEdited.visibility && !fieldBeingEdited.visibility.hidden" v-model="fieldBeingEdited.visibility.limitToRoles" :autocomplete-model="projectRoles" autocomplete-property="label" :dark="dark" label="Limit visibility to (optional)" placeholder="Role(s)" />
-            <div v-if="fieldBeingEdited.visibility && !fieldBeingEdited.visibility.hidden && fieldBeingEdited.visibility.showByValue" class="conditional-wrapper">
+            <MbToggle v-if="typeof fieldBeingEdited.visibility.hidden !== 'undefined'" v-model="fieldBeingEdited.visibility.hidden" :dark="dark">Hide this field</MbToggle>
+            <MbTagInput v-if="!fieldBeingEdited.visibility.hidden" v-model="fieldBeingEdited.visibility.limitToRoles" :autocomplete-model="projectRoles" autocomplete-property="label" :dark="dark" label="Limit visibility to (optional)" placeholder="Role(s)" />
+            <div v-if="flattenedFieldKeys.length > 1 && !fieldBeingEdited.visibility.hidden && fieldBeingEdited.visibility.showByValue" class="conditional-wrapper">
               <span>Show if</span>
               <MbSelect v-model="fieldBeingEdited.visibility.showByValue.field" :dark="dark" :options="flattenedFieldKeys" placeholder="Field…" />
-              <span>equals</span>
-              <MbInput v-model.lazy="fieldBeingEdited.visibility.showByValue.value" :dark="dark" label="Value" />
+              <MbSelect v-model="fieldBeingEdited.visibility.showByValue.value" allow-null class="operator" :dark="dark" :options="showByValueOptions" placeholder="Condition…" />
+              <MbInput v-if="fieldBeingEdited.visibility.showByValue.value === 'matches'" v-model.lazy="fieldBeingEdited.visibility.showByValue.comparator" :dark="dark" placeholder="Regular expression" />
+              <MbInput v-else-if="['equals', 'greater', 'smaller'].includes(fieldBeingEdited.visibility.showByValue.value)" v-model.lazy.number="fieldBeingEdited.visibility.showByValue.comparator" :dark="dark" placeholder="Number" type="number" />
             </div>
           </section>
           <section>
@@ -213,8 +214,8 @@ export default {
       }, new Map());
     },
     flattenedFieldKeys() {
-      if (!this.fieldBeingEdited) return [];
-      return this.extractFieldKeys(this.schema.fields);
+      if (!this.schema || !this.schema.fields || this.schema.fields.length === 0) return [];
+      return this.extractFieldKeys(this.schema.fields).concat([{ label: 'Unset', value: null }]);
     },
     isMobile() {
       return this.$store.state.application.mobile;
@@ -272,6 +273,15 @@ export default {
       fileStatus: null,
       newSchemaName: '',
       schema: {},
+      showByValueOptions: [
+        { label: 'is true', value: true },
+        { label: 'is false', value: false },
+        { label: 'is null', value: null },
+        { label: 'matches', value: 'matches' },
+        { label: 'equals', value: 'equals' },
+        { label: 'is smaller than', value: 'smaller' },
+        { label: 'is greater than', value: 'greater' },
+      ],
       showEditTab: false,
       showSchemaSettings: false,
       showSplit: false,
@@ -406,7 +416,7 @@ export default {
     extractFieldKeys(fields, parent) {
       return fields.reduce((acc, field) => {
         if (Array.isArray(field.value)) acc.push(...this.extractFieldKeys(field.value, parent ? `${parent}.${field.key}` : field.key));
-        else if (field === this.fieldBeingEdited) return acc;
+        else if (field === this.fieldBeingEdited || field.visualOnly) return acc;
         else acc.push({ label: field.label, value: parent ? `${parent}.${field.key}` : field.key });
         return acc;
       }, []);
@@ -1103,10 +1113,25 @@ export default {
       .input
         margin-top: 0
         flex-grow: 1
+        border-top-left-radius: 0
+        border-bottom-left-radius: 0
+        border-color: $accent
 
       &::v-deep(.select)
-        margin-right: 1rem
+        border-top-right-radius: 0
+        border-bottom-right-radius: 0
         height: (58 / 16)rem
+        border-right-width: 0
+
+        &.operator
+          border-radius: 0
+          flex-shrink: 0
+          min-width: (183 / 16)rem
+
+          &:last-child
+            border-top-right-radius: $radius-m
+            border-bottom-right-radius: $radius-m
+            border-right-width: 0.0625rem
 
       @media $mobile
         flex-wrap: wrap
@@ -1116,12 +1141,22 @@ export default {
           width: 100%
 
         &::v-deep(.select)
-          margin-bottom: 1rem
           width: 100%
           margin-right: 0
+          border-right-width: 0.0625rem
+          border-bottom-width: 0
+          border-top-right-radius: $radius-m
+          border-bottom-left-radius: 0
+
+          &.operator:last-child
+            border-top-right-radius: 0
+            border-bottom-left-radius: $radius-m
+            border-bottom-width: 0.0625rem
 
         .input
-          margin-top: 1rem
+          margin-top: 0
+          border-top-right-radius: 0
+          border-bottom-left-radius: $radius-m
 
     .tag-input
       margin-bottom: 2rem
