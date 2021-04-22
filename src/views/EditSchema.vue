@@ -1021,6 +1021,13 @@ export default {
       .input
         background-color: $bg-tertiary-dark
 
+      .editor
+        &::v-deep(.content-wrapper)
+          background-color: $bg-tertiary-dark
+
+          &:not(:focus-within)
+            box-shadow: inset 0 0.0625rem 0 0 lighten($bg-tertiary-dark, 10)
+
       .highlight-box
         background-color: $bg-secondary-dark
 

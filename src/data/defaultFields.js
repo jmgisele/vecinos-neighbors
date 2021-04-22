@@ -120,4 +120,29 @@ export default [
     visibility: { showByValue: { field: null } },
     visualOnly: true,
   },
+  {
+    type: 'heading',
+    description: 'Show a heading and (optional) description between sibling fields',
+    group: 'Visual',
+    icon: 'heading-spaced',
+    key: '',
+    label: 'Heading and Description',
+    options: [
+      {
+        component: 'MbInput',
+        key: 'heading',
+        props: { icon: 'heading-alt', label: 'Heading' },
+        value: '',
+      },
+      {
+        component: 'MbEditor',
+        key: 'description',
+        props: { formats: { block: false, inline: ['code', 'em', 'strong', 'link'] }, label: 'Description', outputFormat: 'html' },
+        value: '',
+      },
+    ],
+    tab: null,
+    visibility: { showByValue: { field: null } },
+    visualOnly: true,
+  },
 ];
