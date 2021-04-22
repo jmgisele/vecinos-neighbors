@@ -1,6 +1,6 @@
 <template lang="html">
   <div class="field-arrangement-item" :class="{ 'drag-active': $store.state.application.dragActive, dragging: beingDragged, 'hide-outline': hideOutline }">
-    <div class="info" :class="{ active, dark }" tabindex="0" @keydown.space.prevent @keyup.space.enter="$emit('fieldclick')" @click="$emit('fieldclick')" @pointerdown.left="startDrag">
+    <div class="info" :class="{ active, dark }" tabindex="0" @keydown.space.prevent @keyup.space.enter="$emit('fieldclick')" @click="handleClick" @contextmenu.prevent="handleContextMenu" @pointerdown.left="startDrag">
       <MbIcon class="drag-handle" icon="drag-handle" ref="dragHandle" />
       <div class="field-icon">
         <MbIcon :icon="icon" />
@@ -41,8 +41,14 @@ export default {
       wasBottomHalf: null,
     };
   },
-  emits: ['fieldclick', 'fieldmove'],
+  emits: ['fieldclick', 'fieldcontextmenu', 'fieldmove'],
   methods: {
+    handleClick() {
+      if (!this.beingDragged) this.$emit('fieldclick');
+    },
+    handleContextMenu(e) {
+      if (!this.beingDragged) this.$emit('fieldcontextmenu', e);
+    },
     handlePointerMove(e) {
       this.beingDragged = true; // we moved the cursor
       this.draggingClone.style.left = `${e.clientX - this.cloneClickDelta.x}px`;

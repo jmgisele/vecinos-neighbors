@@ -27,6 +27,7 @@
         :required="(field.validation && field.validation.required) || (field.validation && field.validation.min > 0)"
         :type="field.type"
         @fieldclick="handleClick(parentKey, index)"
+        @fieldcontextmenu="handleContextMenu(parentKey, index, $event)"
         @fieldmove="handleFieldMove(parentKey, index, $event)"
       />
     </template>
@@ -48,6 +49,10 @@ export default {
     handleClick(parent, index) {
       // using a custom event here so we can have bubbling (since these can theoretically be nested infinitely deep)
       this.$el.dispatchEvent(new CustomEvent('fieldclick', { detail: { parent, index }, bubbles: true, composed: true }));
+    },
+    handleContextMenu(parent, index, e) {
+      // using a custom event here so we can have bubbling (since these can theoretically be nested infinitely deep)
+      this.$el.dispatchEvent(new CustomEvent('fieldcontextmenu', { detail: { parent, index, e }, bubbles: true, composed: true }));
     },
     handleFieldMove(parent, index, target) {
       this.$el.dispatchEvent(new CustomEvent('fieldmove', { detail: { parent, index, target }, bubbles: true, composed: true }));

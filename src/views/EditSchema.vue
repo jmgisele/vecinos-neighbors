@@ -29,7 +29,7 @@
         </div>
         <div v-else class="added-fields-list">
           <transition mode="out-in">
-            <FieldArrangementList :dark="dark" :field-being-edited="fieldBeingEdited" :fields="fieldsForTab" parent-key="___toplevel" :key="activeTab" @fieldclick="handleFieldClick" @fieldmove="handleFieldMove" />
+            <FieldArrangementList :dark="dark" :field-being-edited="fieldBeingEdited" :fields="fieldsForTab" parent-key="___toplevel" :key="activeTab" @fieldclick="handleFieldClick" @fieldcontextmenu="openContextMenu" @fieldmove="handleFieldMove" />
           </transition>
           <transition>
             <MbButton v-show="currentOperation !== 'add-field'" :dark="dark" icon="plus" type="positive" @click="handleAddField">Add field</MbButton>
@@ -109,7 +109,7 @@
           <section>
             <MbHighlightBox color="negative" :dark="dark" label="Field removal">
               <p>Deleting a field from a Schema <strong>does not</strong> delete that field in content elements. It only makes it so that field can no longer be edited through Mattrbld.</p>
-              <MbButton :dark="dark" icon="trash" type="negative" @click="deleteField">Delete field</MbButton>
+              <MbButton :dark="dark" icon="trash" type="negative" @click="deleteField(fieldBeingEdited)">Delete field</MbButton>
             </MbHighlightBox>
           </section>
         </div>
@@ -150,6 +150,7 @@
         <MbButton :dark="dark" :disabled="Boolean(errors.schemaName)" type="primary" @click="renameSchema">Save</MbButton>
       </template>
     </MbModal>
+    <MbContextMenu :dark="dark" :options="fieldContextMenu.options" :show="fieldContextMenu.show" :target="fieldContextMenu.target" :x="fieldContextMenu.x" :y="fieldContextMenu.y" @close="fieldContextMenu.show = false; resetFieldContextMenu()" />
   </div>
 </template>
 
@@ -262,6 +263,27 @@ export default {
       fieldBeingEdited: null,
       fieldBeingEditedSiblings: null,
       fieldBeingEditedToplevel: true,
+      fieldContextMenu: {
+        detail: null,
+        field: null,
+        options: [
+          {
+            action: this.handleContextMenuEdit,
+            label: 'Edit',
+            icon: 'pencil',
+          },
+          {
+            action: this.handleContextMenuDelete,
+            label: 'Delete',
+            icon: 'trash',
+            type: 'negative',
+          },
+        ],
+        show: false,
+        target: null,
+        x: 0,
+        y: 0,
+      },
       fieldErrors: {
         key: '',
         label: '',
@@ -339,14 +361,15 @@ export default {
         if (Array.isArray(field.value)) this.changeTabOfFields(field.value, newTab);
       });
     },
-    deleteField() {
-      const fieldPath = this.getFieldPath(this.fieldBeingEdited, this.schema.fields);
+    deleteField(field) {
+      if (!field) return;
+      const fieldPath = this.getFieldPath(field, this.schema.fields);
       const parentField = this.getField(fieldPath.substring(0, Math.max(0, fieldPath.lastIndexOf('.')) || Infinity));
 
       const parentFieldFields = fieldPath === parentField.key ? this.schema.fields : parentField.value;
-      const index = parentFieldFields.indexOf(this.fieldBeingEdited);
+      const index = parentFieldFields.indexOf(field);
       const [backup] = parentFieldFields.splice(index, 1);
-      this.showSplit = false;
+      if (field === this.fieldBeingEdited) this.showSplit = false;
 
       this.$store.commit('addToast', {
         action: () => {
@@ -486,6 +509,14 @@ export default {
         this.fieldsLoading = false;
       }
     },
+    handleContextMenuDelete() {
+      this.deleteField(this.fieldContextMenu.field);
+      this.fieldContextMenu.show = false;
+    },
+    handleContextMenuEdit() {
+      this.handleFieldClick({ detail: this.fieldContextMenu.detail });
+      this.fieldContextMenu.show = false;
+    },
     handleFieldOver({ parent, index, dropzone, isBottomHalf }) { // eslint-disable-line object-curly-newline
       let realIndex = parent === '___toplevel' ? this.schema.fields.indexOf(this.fieldsForTab[index]) : index;
       if (realIndex === -1) realIndex = this.schema.fields.length; // happens when hovering a dropzone when toplevel is empty
@@ -600,12 +631,29 @@ export default {
       if (Array.isArray(field.value)) field.value.forEach((childField) => this.moveFieldToTab(childField, tab, true));
       if (!recursiveCall) this.activeTab = this.cleanTabs.indexOf(tab);
     },
+    openContextMenu({ detail }) {
+      const { parent, index, e } = detail;
+      const parentFieldFields = parent === '___toplevel' ? this.fieldsForTab : this.getField(parent).value;
+      this.fieldContextMenu.field = parentFieldFields[index];
+      this.fieldContextMenu.detail = { parent, index };
+      this.fieldContextMenu.target = e.currentTarget;
+      this.fieldContextMenu.x = e.clientX;
+      this.fieldContextMenu.y = e.clientY;
+      this.fieldContextMenu.show = true;
+    },
     removeCurrentAddIndicator() {
       if (!this.currentAddIndicatorParent) return;
       const parentFieldFields = this.currentAddIndicatorParent === '___toplevel' ? this.schema.fields : this.getField(this.currentAddIndicatorParent).value;
       parentFieldFields.splice(parentFieldFields.findIndex((field) => field.key === '___addIndicator' && field.id === this.currentAddIndicatorId), 1);
       this.currentAddIndicatorParent = null;
       this.currentAddIndicatorId = null;
+    },
+    resetFieldContextMenu() {
+      this.fieldContextMenu.detail = null;
+      this.fieldContextMenu.field = null;
+      this.fieldContextMenu.target = null;
+      this.fieldContextMenu.x = 0;
+      this.fieldContextMenu.y = 0;
     },
     resetSchemaName() {
       this.newSchemaName = this.schemaName;
