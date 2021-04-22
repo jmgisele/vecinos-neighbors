@@ -97,8 +97,8 @@
           <section>
             <h3>Visibility</h3>
             <MbToggle v-if="fieldBeingEdited.visibility && typeof fieldBeingEdited.visibility.hidden !== 'undefined'" v-model="fieldBeingEdited.visibility.hidden" :dark="dark">Hide this field</MbToggle>
-            <MbTagInput v-if="fieldBeingEdited.visibility" v-model="fieldBeingEdited.visibility.limitToRoles" :autocomplete-model="projectRoles" autocomplete-property="label" :dark="dark" label="Limit visibility to (optional)" placeholder="Role(s)" />
-            <div v-if="fieldBeingEdited.visibility && fieldBeingEdited.visibility.showByValue" class="conditional-wrapper">
+            <MbTagInput v-if="fieldBeingEdited.visibility && !fieldBeingEdited.visibility.hidden" v-model="fieldBeingEdited.visibility.limitToRoles" :autocomplete-model="projectRoles" autocomplete-property="label" :dark="dark" label="Limit visibility to (optional)" placeholder="Role(s)" />
+            <div v-if="fieldBeingEdited.visibility && !fieldBeingEdited.visibility.hidden && fieldBeingEdited.visibility.showByValue" class="conditional-wrapper">
               <span>Show if</span>
               <MbSelect v-model="fieldBeingEdited.visibility.showByValue.field" :dark="dark" :options="flattenedFieldKeys" placeholder="Field…" />
               <span>equals</span>
@@ -153,6 +153,7 @@
 </template>
 
 <script>
+import { cloneDeep } from 'lodash-es';
 import { status } from 'isomorphic-git';
 import slugify from '@sindresorhus/slugify';
 import fs, { exists, PlainFS, readdirDeep, joinPath, pathBasename, pathDirname } from '../fs'; // eslint-disable-line object-curly-newline
@@ -291,10 +292,10 @@ export default {
         if (key === 'options' && value.length > 0) {
           cleanField.options = {};
           value.forEach((option) => {
-            cleanField.options[option.key] = option.value;
+            cleanField.options[option.key] = cloneDeep(option.value);
           });
         } else if (key === 'value' && value) cleanField.value = [];
-        else cleanField[key] = value;
+        else cleanField[key] = cloneDeep(value);
       });
 
       cleanField.tab = this.cleanTabs[this.activeTab];
