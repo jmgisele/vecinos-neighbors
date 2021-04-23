@@ -467,6 +467,7 @@ export default {
           this.$store.dispatch('saveAppData');
         } catch (err) {
           this.$store.commit('addToast', { message: `Something went wrong while deleting the schema: ${err.message}`, type: 'error' });
+          this.$router.replace({ name: 'Edit Schema', params: { id, path } });
         } finally {
           window.clearTimeout(timeoutId);
           this.$store.commit('removeFromSoftDeleted', path);
