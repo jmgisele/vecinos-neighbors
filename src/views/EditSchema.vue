@@ -7,7 +7,7 @@
       </div>
       <div class="right">
         <MbButton :dark="dark" icon="settings" @click="showSchemaSettings = true">{{isTablet && !isMobile ? '' : 'Settings'}}</MbButton>
-        <MbButton :dark="dark" :disabled="!wasChanged" icon="save" :icon-first="true" type="primary" @click="saveChanges">{{isTablet && !isMobile ? '' : 'Save'}}</MbButton>
+        <MbButton :dark="dark" :disabled="!wasChanged" icon="save" :icon-first="true" :loading="saveLoading" type="primary" @click="saveChanges">{{isTablet && !isMobile ? '' : 'Save'}}</MbButton>
       </div>
     </header>
     <MbTabs v-model="activeTab" :dark="dark" show-add-option :tabs="cleanTabs" @add-tab="showEditTab = true" />
@@ -366,6 +366,7 @@ export default {
       forceNavigation: false,
       initialised: false,
       newSchemaName: '',
+      saveLoading: false,
       schema: {},
       showByValueOptions: [
         { label: 'is true', value: true },
@@ -518,6 +519,13 @@ export default {
         if (Array.isArray(field.value)) acc.push(...this.extractFieldKeys(field.value, parent ? `${parent}.${field.key}` : field.key));
         else if (field === this.fieldBeingEdited || field.visualOnly) return acc;
         else acc.push({ label: field.label, value: parent ? `${parent}.${field.key}` : field.key });
+        return acc;
+      }, []);
+    },
+    flattenFields(fields) {
+      return fields.reduce((acc, field) => {
+        acc.push(field);
+        if (Array.isArray(field.value)) acc.push(...this.flattenFields(field.value));
         return acc;
       }, []);
     },
@@ -756,8 +764,21 @@ export default {
       this.errors.tabGroupAs = '';
     },
     async saveChanges() {
-      console.log('saving!');
-      this.wasChanged = false;
+      this.saveLoading = true;
+      const valid = this.validateSchema();
+
+      if (valid) {
+        try {
+          await fs.writeFile(this.$route.params.path, JSON.stringify(this.schema, null, 2), 'utf8');
+          this.$store.commit('addToast', { message: `“${this.schemaName}” was saved successfully`, type: 'positive' });
+          this.wasChanged = false;
+        } catch (err) {
+          this.$store.commit('addToast', { message: `Something went wrong while saving the file: ${err.message}`, type: 'error' });
+        }
+      } else {
+        this.$store.commit('addToast', { message: 'At least one of the fields has errors, please fix them before saving.', type: 'negative' });
+      }
+      this.saveLoading = false;
     },
     saveTab() {
       this.validate('tabLabel');
@@ -857,9 +878,18 @@ export default {
       }
     },
     validateSchema() {
-      // TODO: add schema validation
-      // Step 1: check if all fields have keys
-      // Step 2: make sure there are no errors within any fields (and remove the prop if it’s still there)
+      const flattenedFields = this.flattenFields(this.schema.fields);
+
+      for (let index = 0; index < flattenedFields.length; index += 1) {
+        const field = flattenedFields[index];
+        if (field.errors && field.errors.size > 0) return false;
+        if (!field.key) {
+          field.errors = new Map(['key', 'A key is required']);
+          return false;
+        }
+        if (field.errors) delete field.errors; // clear empty errors properties
+      }
+      return true;
     },
   },
   mounted() {
