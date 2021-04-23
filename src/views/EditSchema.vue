@@ -175,10 +175,38 @@ export default {
       const schema = JSON.parse(await fs.readFile(path, 'utf8'));
       const fileStatus = await status({ fs: PlainFS, dir: `/projects/${id}`, filepath: path.replace(`/projects/${id}/`, '') }); // filepath needs to be relative
 
+      let customFieldsData = [];
+      const availableFieldOptions = new Map();
+
+      try {
+        const customFieldsPath = `/projects/${to.params.id}/.mattrbld/custom-fields`;
+        const customFieldFiles = await readdirDeep(customFieldsPath);
+        customFieldsData = await Promise.all(customFieldFiles.map((file) => fs.readFile(joinPath(customFieldsPath, file), 'utf8')));
+      } catch (err) {
+        // the directory might not exist, but that is okay
+        if (err.code !== 'ENOENT') throw new Error(`Something went wrong while loading the custom fields: ${err.message}`);
+      }
+
+      const unsortedMap = [...defaultFields, ...customFieldsData].reduce((map, data) => {
+        const field = typeof data === 'string' ? JSON.parse(data) : data;
+        const { options, type } = field;
+        let { group } = field;
+        if (!group) group = 'miscellaneous';
+
+        if (type && options) availableFieldOptions.set(type, options); // doing this here so we don’t have to loop over it multiple times
+
+        if (map.has(group)) map.get(group).push(field);
+        else map.set(group, [field]);
+
+        return map;
+      }, new Map());
+
       return next((vm) => {
         vm.schema = { fields: [], tabs: [{ label: 'Untitled Tab', groupAs: null }], ...schema }; // eslint-disable-line no-param-reassign
         vm.fileStatus = fileStatus; // eslint-disable-line no-param-reassign
         vm.newSchemaName = prettifyEntityName(pathBasename(path)); // eslint-disable-line no-param-reassign
+        vm.availableFields = new Map([...unsortedMap].sort((a, b) => a[0].localeCompare(b[0]))); // eslint-disable-line no-param-reassign
+        vm.availableFieldOptions = availableFieldOptions; // eslint-disable-line no-param-reassign
       });
     } catch (err) {
       if (err.code === 'ENOENT') return next({ name: 'NotFound' });
@@ -477,37 +505,6 @@ export default {
     async handleAddField() {
       this.currentOperation = 'add-field';
       this.showSplit = true;
-
-      if (!this.availableFields) {
-        this.fieldsLoading = true;
-
-        let customFieldsData = [];
-
-        try {
-          const customFieldsPath = `/projects/${this.$route.params.id}/.mattrbld/custom-fields`;
-          const customFieldFiles = await readdirDeep(customFieldsPath);
-          customFieldsData = await Promise.all(customFieldFiles.map((file) => fs.readFile(joinPath(customFieldsPath, file), 'utf8')));
-        } catch (err) {
-          // the directory might not exist, but that is okay
-          if (err.code !== 'ENOENT') this.$store.commit('addToast', { message: `Something went wrong while loading the custom fields: ${err.message}`, type: 'error' });
-        }
-
-        const unsortedMap = [...defaultFields, ...customFieldsData].reduce((map, data) => {
-          const field = typeof data === 'string' ? JSON.parse(data) : data;
-          const { options, type } = field;
-          let { group } = field;
-          if (!group) group = 'miscellaneous';
-
-          if (type && options) this.availableFieldOptions.set(type, options); // doing this here so we don’t have to loop over it multiple times
-
-          if (map.has(group)) map.get(group).push(field);
-          else map.set(group, [field]);
-
-          return map;
-        }, new Map());
-        this.availableFields = new Map([...unsortedMap].sort((a, b) => a[0].localeCompare(b[0])));
-        this.fieldsLoading = false;
-      }
     },
     handleContextMenuDelete() {
       this.deleteField(this.fieldContextMenu.field);
