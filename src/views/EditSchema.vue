@@ -614,7 +614,7 @@ export default {
       if (parent === target.parent) {
         if ((realIndex < realTargetIndex && target.isBottomHalf) || (realIndex > realTargetIndex && !target.isBottomHalf)) {
           const [field] = parentFieldFields.splice(realIndex, 1);
-          if (field) targetFieldFields.splice(realTargetIndex, 0, field);
+          targetFieldFields.splice(realTargetIndex, 0, field);
         } else if (realIndex < realTargetIndex && !target.isBottomHalf) {
           const [field] = parentFieldFields.splice(realIndex, 1);
           targetFieldFields.splice(Math.max(0, realTargetIndex - 1), 0, field);
