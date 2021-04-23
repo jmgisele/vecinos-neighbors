@@ -7,7 +7,7 @@
       </div>
       <div class="right">
         <MbButton :dark="dark" icon="settings" @click="showSchemaSettings = true">{{isTablet && !isMobile ? '' : 'Settings'}}</MbButton>
-        <MbButton :dark="dark" icon="save" :icon-first="true" type="primary">{{isTablet && !isMobile ? '' : 'Save'}}</MbButton>
+        <MbButton :dark="dark" :disabled="!wasChanged" icon="save" :icon-first="true" type="primary" @click="saveChanges">{{isTablet && !isMobile ? '' : 'Save'}}</MbButton>
       </div>
     </header>
     <MbTabs v-model="activeTab" :dark="dark" show-add-option :tabs="cleanTabs" @add-tab="showEditTab = true" />
@@ -213,6 +213,23 @@ export default {
       return next({ name: 'Error', params: { code: err.code, message: err.message, name: err.name } });
     }
   },
+  beforeRouteLeave(to, from, next) {
+    if (this.forceNavigation) {
+      next();
+      return;
+    }
+    if (this.wasChanged) {
+      this.$store.commit('addToast', {
+        action: next,
+        actionLabel: 'Discard changes',
+        message: 'You have unsaved changes, do you want to discard them?',
+        type: 'warning',
+      });
+    } else next();
+  },
+  beforeUnmount() {
+    window.removeEventListener('beforeunload', this.preventUnintentionalClose);
+  },
   components: {
     FieldArrangementList,
     FieldThumbnail,
@@ -321,6 +338,7 @@ export default {
       fieldToTransfer: null,
       fieldsLoading: false,
       fileStatus: null,
+      forceNavigation: false,
       newSchemaName: '',
       schema: {},
       showByValueOptions: [
@@ -342,6 +360,7 @@ export default {
           groupAs: '',
         },
       },
+      wasChanged: false,
     };
   },
   methods: {
@@ -382,6 +401,7 @@ export default {
       this.fieldAddParent = null;
 
       if (this.isMobile && this.showSplit) this.showSplit = false;
+      this.wasChanged = true;
     },
     changeTabOfFields(fields, newTab) {
       fields.forEach((field) => {
@@ -397,11 +417,14 @@ export default {
       const parentFieldFields = fieldPath === parentField.key ? this.schema.fields : parentField.value;
       const index = parentFieldFields.indexOf(field);
       const [backup] = parentFieldFields.splice(index, 1);
+      const { wasChanged } = this;
       if (field === this.fieldBeingEdited) this.showSplit = false;
+      this.wasChanged = true;
 
       this.$store.commit('addToast', {
         action: () => {
           parentFieldFields.splice(index, 0, backup);
+          if (!wasChanged) this.wasChanged = false;
         },
         actionLabel: 'Undo',
         message: `The field “${backup.label}” was deleted`,
@@ -426,6 +449,7 @@ export default {
       }, timeout);
 
       this.showSchemaSettings = false;
+      this.forceNavigation = true;
       this.$store.commit('addToSoftDeleted', path);
       this.$store.commit('addToast', {
         action: () => {
@@ -463,6 +487,7 @@ export default {
         timeout: timeout - 200,
         type: 'warning',
       });
+      this.wasChanged = true;
     },
     extractFieldKeys(fields, parent) {
       return fields.reduce((acc, field) => {
@@ -592,6 +617,7 @@ export default {
 
         window.addEventListener('pointerup', this.transferField, { once: true, capture: true });
       }
+      this.wasChanged = true;
     },
     handleSplitClosed() {
       if (this.fieldBeingEdited) {
@@ -622,11 +648,15 @@ export default {
         this.schema.tabs.splice(Math.min(index + 1, this.schema.tabs.length - 1), 0, this.schema.tabs.splice(currentIndex, 1)[0]);
         if (isActiveTab) this.activeTab = Math.min(index + 1, this.schema.tabs.length - 1);
       }
+      this.wasChanged = true;
     },
     moveFieldToTab(field, tab, recursiveCall) {
       field.tab = tab; // eslint-disable-line no-param-reassign
       if (Array.isArray(field.value)) field.value.forEach((childField) => this.moveFieldToTab(childField, tab, true));
-      if (!recursiveCall) this.activeTab = this.cleanTabs.indexOf(tab);
+      if (!recursiveCall) {
+        this.activeTab = this.cleanTabs.indexOf(tab);
+        this.wasChanged = true;
+      }
     },
     openContextMenu({ detail }) {
       const { parent, index, e } = detail;
@@ -638,12 +668,48 @@ export default {
       this.fieldContextMenu.y = e.clientY;
       this.fieldContextMenu.show = true;
     },
+    preventUnintentionalClose(e) {
+      if (this.forceNavigation) return;
+      if (this.wasChanged) {
+        this.$store.commit('addToast', {
+          message: 'You have unsaved changes, save them before exiting if you don’t want to lose them.',
+          type: 'warning',
+          timeout: 10000,
+        });
+        e.preventDefault();
+        e.returnValue = ''; // for chrome
+      }
+    },
     removeCurrentAddIndicator() {
       if (!this.currentAddIndicatorParent) return;
       const parentFieldFields = this.currentAddIndicatorParent === '___toplevel' ? this.schema.fields : this.getField(this.currentAddIndicatorParent).value;
       parentFieldFields.splice(parentFieldFields.findIndex((field) => field.key === '___addIndicator' && field.id === this.currentAddIndicatorId), 1);
       this.currentAddIndicatorParent = null;
       this.currentAddIndicatorId = null;
+    },
+    async renameSchema() {
+      if (this.newSchemaName === this.schemaName) {
+        this.showSchemaSettings = false;
+        return;
+      }
+      this.validate('schemaName');
+      if (this.errors.schemaName) return;
+
+      const newName = slugify(this.newSchemaName, this.$store.state.currentProject.slugifyOptions || { lowercase: false, decamelize: false, preserveLeadingUnderscore: true });
+      const newPath = joinPath(pathDirname(this.$route.params.path), `${newName}.json`);
+      const alreadyExists = await exists(newPath);
+
+      if (alreadyExists) {
+        this.errors.schemaName = 'A schema with this name already exists';
+        return;
+      }
+
+      await fs.rename(this.$route.params.path, newPath);
+      this.$store.commit('removeLocallyChangedFile', this.$route.params.path);
+      this.$store.commit('addLocallyChangedFile', newPath);
+      this.showSchemaSettings = false;
+      this.forceNavigation = true;
+      this.$router.replace({ params: { id: this.$route.params.id, path: newPath } });
     },
     resetFieldContextMenu() {
       this.fieldContextMenu.detail = null;
@@ -668,6 +734,10 @@ export default {
       this.errors.tabLabel = '';
       this.errors.tabGroupAs = '';
     },
+    async saveChanges() {
+      console.log('saving!');
+      this.wasChanged = false;
+    },
     saveTab() {
       this.validate('tabLabel');
       this.validate('tabGroupAs');
@@ -689,29 +759,7 @@ export default {
         this.activeTab = this.schema.tabs.length - 1;
       }
       this.showEditTab = false;
-    },
-    async renameSchema() {
-      if (this.newSchemaName === this.schemaName) {
-        this.showSchemaSettings = false;
-        return;
-      }
-      this.validate('schemaName');
-      if (this.errors.schemaName) return;
-
-      const newName = slugify(this.newSchemaName, this.$store.state.currentProject.slugifyOptions || { lowercase: false, decamelize: false, preserveLeadingUnderscore: true });
-      const newPath = joinPath(pathDirname(this.$route.params.path), `${newName}.json`);
-      const alreadyExists = await exists(newPath);
-
-      if (alreadyExists) {
-        this.errors.schemaName = 'A schema with this name already exists';
-        return;
-      }
-
-      await fs.rename(this.$route.params.path, newPath);
-      this.$store.commit('removeLocallyChangedFile', this.$route.params.path);
-      this.$store.commit('addLocallyChangedFile', newPath);
-      this.showSchemaSettings = false;
-      this.$router.replace({ params: { id: this.$route.params.id, path: newPath } });
+      this.wasChanged = true;
     },
     transferField() {
       if (this.fieldAddParent && this.fieldToTransfer) {
@@ -805,6 +853,10 @@ export default {
   watch: {
     currentOperation(nv, ov) {
       if (nv && ov === 'edit-field') this.fieldBeingEdited = null;
+    },
+    wasChanged(nv) {
+      console.log(nv);
+      if (nv) window.addEventListener('beforeunload', this.preventUnintentionalClose);
     },
   },
 };
