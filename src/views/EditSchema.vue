@@ -880,8 +880,12 @@ export default {
       if (nv && ov === 'edit-field') this.fieldBeingEdited = null;
     },
     wasChanged(nv) {
-      console.log(nv);
-      if (nv) window.addEventListener('beforeunload', this.preventUnintentionalClose);
+      if (nv) {
+        window.addEventListener('beforeunload', this.preventUnintentionalClose);
+        if (this.fileStatus === 'unmodified') this.fileStatus = '*modified';
+      } else {
+        window.removeEventListener('beforeunload', this.preventUnintentionalClose);
+      }
     },
   },
 };
