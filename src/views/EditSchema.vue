@@ -159,6 +159,7 @@ import { cloneDeep } from 'lodash-es';
 import { status } from 'isomorphic-git';
 import slugify from '@sindresorhus/slugify';
 import fs, { exists, PlainFS, readdirDeep, joinPath, pathBasename, pathDirname } from '../fs'; // eslint-disable-line object-curly-newline
+import Store from '../store';
 import prettifyEntityName from '../assets/js/prettifyEntityName';
 
 import availableRoles from '../data/availableRoles';
@@ -172,7 +173,16 @@ export default {
   async beforeRouteEnter(to, from, next) {
     try {
       const { id, path } = to.params;
-      const schema = JSON.parse(await fs.readFile(path, 'utf8'));
+      let schema;
+      let fromBackup = false;
+
+      if (Store.state.application.temporaryStorage) { // if we have a backup
+        schema = Store.state.application.temporaryStorage;
+        fromBackup = true;
+        Store.commit('setAppProperty', { key: 'temporaryStorage', value: null });
+      } else {
+        schema = JSON.parse(await fs.readFile(path, 'utf8'));
+      }
       const fileStatus = await status({ fs: PlainFS, dir: `/projects/${id}`, filepath: path.replace(`/projects/${id}/`, '') }); // filepath needs to be relative
 
       let customFieldsData = [];
@@ -207,6 +217,7 @@ export default {
         vm.newSchemaName = prettifyEntityName(pathBasename(path)); // eslint-disable-line no-param-reassign
         vm.availableFields = new Map([...unsortedMap].sort((a, b) => a[0].localeCompare(b[0]))); // eslint-disable-line no-param-reassign
         vm.availableFieldOptions = availableFieldOptions; // eslint-disable-line no-param-reassign
+        if (fromBackup) vm.wasChanged = true; // eslint-disable-line no-param-reassign
       });
     } catch (err) {
       if (err.code === 'ENOENT') return next({ name: 'NotFound' });
@@ -471,10 +482,12 @@ export default {
         } finally {
           window.clearTimeout(timeoutId);
           this.$store.commit('removeFromSoftDeleted', path);
+          this.$store.commit('setAppProperty', { key: 'temporaryStorage', value: null });
         }
       }, timeout);
 
       this.showSchemaSettings = false;
+      if (this.wasChanged) this.$store.commit('setAppProperty', { key: 'temporaryStorage', value: cloneDeep(this.schema) });
       this.forceNavigation = true;
       this.$store.commit('addToSoftDeleted', path);
       this.$store.commit('addToast', {
