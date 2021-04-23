@@ -213,19 +213,44 @@ export default {
       return next({ name: 'Error', params: { code: err.code, message: err.message, name: err.name } });
     }
   },
-  beforeRouteLeave(to, from, next) {
-    if (this.forceNavigation) {
-      next();
-      return;
-    }
+  async beforeRouteLeave() {
+    // if (this.forceNavigation) {
+    //   next();
+    //   return;
+    // }
+    // if (this.wasChanged) {
+    //   this.$store.commit('addToast', {
+    //     action: next,
+    //     actionLabel: 'Discard changes',
+    //     message: 'You have unsaved changes, do you want to discard them?',
+    //     type: 'warning',
+    //   });
+    // } else next();
+    if (this.forceNavigation) return true;
     if (this.wasChanged) {
+      // Massive HACK, but the old way of just running next() as a Toast-Callback is beyond broken in router-next (I’ve created an issue)
+      const timeout = 5000;
+      let resolvePromise;
+
+      const timeoutId = window.setTimeout(() => resolvePromise(false), timeout);
+
       this.$store.commit('addToast', {
-        action: next,
+        action: () => {
+          window.clearTimeout(timeoutId);
+          resolvePromise(true);
+        },
         actionLabel: 'Discard changes',
         message: 'You have unsaved changes, do you want to discard them?',
+        timeout: timeout - 200,
         type: 'warning',
       });
-    } else next();
+
+      const result = await new Promise((resolve) => {
+        resolvePromise = resolve;
+      });
+      return result;
+    } else return true; // eslint-disable-line no-else-return
+    // return true;
   },
   beforeUnmount() {
     window.removeEventListener('beforeunload', this.preventUnintentionalClose);
