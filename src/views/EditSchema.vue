@@ -364,6 +364,7 @@ export default {
       fieldsLoading: false,
       fileStatus: null,
       forceNavigation: false,
+      initialised: false,
       newSchemaName: '',
       schema: {},
       showByValueOptions: [
@@ -426,7 +427,6 @@ export default {
       this.fieldAddParent = null;
 
       if (this.isMobile && this.showSplit) this.showSplit = false;
-      this.wasChanged = true;
     },
     changeTabOfFields(fields, newTab) {
       fields.forEach((field) => {
@@ -444,7 +444,6 @@ export default {
       const [backup] = parentFieldFields.splice(index, 1);
       const { wasChanged } = this;
       if (field === this.fieldBeingEdited) this.showSplit = false;
-      this.wasChanged = true;
 
       this.$store.commit('addToast', {
         action: () => {
@@ -513,7 +512,6 @@ export default {
         timeout: timeout - 200,
         type: 'warning',
       });
-      this.wasChanged = true;
     },
     extractFieldKeys(fields, parent) {
       return fields.reduce((acc, field) => {
@@ -643,7 +641,6 @@ export default {
 
         window.addEventListener('pointerup', this.transferField, { once: true, capture: true });
       }
-      this.wasChanged = true;
     },
     handleSplitClosed() {
       if (this.fieldBeingEdited) {
@@ -674,14 +671,12 @@ export default {
         this.schema.tabs.splice(Math.min(index + 1, this.schema.tabs.length - 1), 0, this.schema.tabs.splice(currentIndex, 1)[0]);
         if (isActiveTab) this.activeTab = Math.min(index + 1, this.schema.tabs.length - 1);
       }
-      this.wasChanged = true;
     },
     moveFieldToTab(field, tab, recursiveCall) {
       field.tab = tab; // eslint-disable-line no-param-reassign
       if (Array.isArray(field.value)) field.value.forEach((childField) => this.moveFieldToTab(childField, tab, true));
       if (!recursiveCall) {
         this.activeTab = this.cleanTabs.indexOf(tab);
-        this.wasChanged = true;
       }
     },
     openContextMenu({ detail }) {
@@ -785,7 +780,6 @@ export default {
         this.activeTab = this.schema.tabs.length - 1;
       }
       this.showEditTab = false;
-      this.wasChanged = true;
     },
     transferField() {
       if (this.fieldAddParent && this.fieldToTransfer) {
@@ -871,6 +865,7 @@ export default {
   mounted() {
     this.$nextTick(() => { // needed so the active indicator looks right
       this.activeTab = 0;
+      this.initialised = true;
     });
   },
   props: {
@@ -879,6 +874,13 @@ export default {
   watch: {
     currentOperation(nv, ov) {
       if (nv && ov === 'edit-field') this.fieldBeingEdited = null;
+    },
+    schema: {
+      deep: true, // this might cause performance issues in large schemas, but it’s the most simple and robust way to ensure that wasChanged is updated whenever something changes
+      handler() {
+        if (!this.initialised || this.wasChanged) return;
+        this.wasChanged = true;
+      },
     },
     wasChanged(nv) {
       if (nv) {
