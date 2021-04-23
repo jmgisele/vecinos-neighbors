@@ -821,11 +821,11 @@ export default {
       }
       this.errors[field] = error;
     },
-    validateField(field) {
-      if (field) {
+    validateField(property) {
+      if (property) {
         let error = '';
 
-        switch (field) {
+        switch (property) {
           case 'key':
             if (!this.fieldBeingEdited.key || !this.fieldBeingEdited.key.trim()) error = 'A key is required';
             else if (['___toplevel', '___addIndicator'].includes(this.fieldBeingEdited.key)) error = 'This is a reserved key';
@@ -847,11 +847,11 @@ export default {
             // no op
         }
 
-        this.fieldErrors[field] = error;
-        if (error && !this.fieldBeingEdited.errors) this.fieldBeingEdited.errors = new Map([[field, error]]);
-        else if (error) this.fieldBeingEdited.errors.set(field, error);
+        this.fieldErrors[property] = error;
+        if (error && !this.fieldBeingEdited.errors) this.fieldBeingEdited.errors = new Map([[property, error]]);
+        else if (error) this.fieldBeingEdited.errors.set(property, error);
         else if (this.fieldBeingEdited.errors) {
-          this.fieldBeingEdited.errors.delete(field);
+          this.fieldBeingEdited.errors.delete(property);
           if (this.fieldBeingEdited.errors.size === 0) delete this.fieldBeingEdited.errors;
         }
       }
