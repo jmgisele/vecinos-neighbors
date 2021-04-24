@@ -20,6 +20,10 @@
 <script>
 import { defineAsyncComponent } from 'vue';
 
+import findClosestScrollParent from '../../assets/js/findClosestScrollParent';
+
+import autoscroll from '../../mixins/autoscroll';
+
 export default {
   name: 'FieldArrangementItem',
   components: {
@@ -38,6 +42,10 @@ export default {
       draggingClone: null,
       hideOutline: false,
       lastEl: null,
+      scrollParent: {
+        el: null,
+        rect: null,
+      },
       wasBottomHalf: null,
     };
   },
@@ -53,6 +61,8 @@ export default {
       this.beingDragged = true; // we moved the cursor
       this.draggingClone.style.left = `${e.clientX - this.cloneClickDelta.x}px`;
       this.draggingClone.style.top = `${e.clientY - this.cloneClickDelta.y}px`;
+
+      this.autoscroll(this.scrollParent.el, this.scrollParent.rect, e.clientX, e.clientY);
 
       const el = document.elementFromPoint(e.clientX, e.clientY);
       if (!el || !el.dataset.index || !el.dataset.parent || el === this.dragging) return;
@@ -82,8 +92,10 @@ export default {
     startDrag(e) {
       if (this.isMobile && e.target !== this.$refs.dragHandle.$el && !this.$refs.dragHandle.$el.contains(e.target)) return; // only allow dragging on drag handle on mobile
       if (this.draggingClone) this.destroyClone();
+
       this.$store.commit('setAppProperty', { key: 'dragActive', value: true });
       this.dragging = e.currentTarget;
+
       const rect = e.currentTarget.getBoundingClientRect();
       const clone = e.currentTarget.cloneNode(true);
       this.cloneClickDelta = { x: e.clientX - rect.left, y: e.clientY - rect.top };
@@ -96,10 +108,21 @@ export default {
       clone.style.margin = 0;
       document.body.append(clone);
       this.draggingClone = clone;
+
       const style = document.createElement('STYLE');
       style.innerText = '* { cursor: grabbing !important; }';
       style.id = 'fieldThumbnailGrabbingStyle';
       document.querySelector('head').append(style);
+
+      this.scrollParent.el = findClosestScrollParent(this.$el);
+      const parentRect = this.scrollParent.el.getBoundingClientRect();
+      this.scrollParent.rect = {
+        top: Math.max(parentRect.top, 0),
+        left: Math.max(parentRect.left, 0),
+        width: Math.min(parentRect.width, window.innerWidth),
+        height: Math.min(parentRect.height, window.innerHeight),
+      };
+
       window.addEventListener('pointerup', this.stopDrag);
       window.addEventListener('pointermove', this.handlePointerMove, { passive: true });
     },
@@ -118,6 +141,7 @@ export default {
       window.removeEventListener('pointermove', this.handlePointerMove, { passive: true });
       document.getElementById('fieldThumbnailGrabbingStyle').remove();
       this.$store.commit('setAppProperty', { key: 'dragActive', value: false });
+      if (this.autoscrollAnimationFrame) window.cancelAnimationFrame(this.autoscrollAnimationFrame);
       if (!this.beingDragged) this.$emit('fieldclick');
       const targetRect = this.dragging.getBoundingClientRect();
       const { left: currentLeft, top: currentTop } = this.draggingClone.style;
@@ -131,6 +155,7 @@ export default {
       this.draggingClone.addEventListener('transitionend', this.destroyClone, { once: true });
     },
   },
+  mixins: [autoscroll],
   props: {
     active: Boolean,
     dark: Boolean,
