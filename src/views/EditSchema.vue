@@ -631,6 +631,10 @@ export default {
       const targetFieldFields = target.parent === '___toplevel' ? this.schema.fields : this.getField(target.parent).value;
       const realIndex = parent === '___toplevel' ? this.schema.fields.indexOf(this.fieldsForTab[index]) : index;
       const realTargetIndex = target.parent === '___toplevel' ? this.schema.fields.indexOf(this.fieldsForTab[target.index]) : target.index;
+      let lastAddIndicatorIndex;
+      if (this.currentAddIndicatorParent === target.parent) {
+        lastAddIndicatorIndex = targetFieldFields.findIndex((field) => field.key === '___addIndicator' && field.id === this.currentAddIndicatorId);
+      }
       this.removeCurrentAddIndicator();
       if (parent === target.parent) {
         if ((realIndex < realTargetIndex && target.isBottomHalf) || (realIndex > realTargetIndex && !target.isBottomHalf)) {
@@ -648,7 +652,15 @@ export default {
         this.fieldAddParent = null;
         this.fieldToTransfer = null;
       } else {
-        const targetIndex = (!target.dropzone && target.isBottomHalf) ? realTargetIndex + 1 : realTargetIndex;
+        let targetIndex;
+        if (target.dropzone) targetIndex = realTargetIndex;
+        else if (typeof lastAddIndicatorIndex !== 'undefined') {
+          if ((lastAddIndicatorIndex < realTargetIndex && target.isBottomHalf) || (lastAddIndicatorIndex > realTargetIndex && !target.isBottomHalf)) {
+            targetIndex = realTargetIndex;
+          } else if (lastAddIndicatorIndex < realTargetIndex && !target.isBottomHalf) targetIndex = Math.max(0, realTargetIndex - 1);
+          else if (lastAddIndicatorIndex > realTargetIndex && target.isBottomHalf) targetIndex = Math.min(realTargetIndex + 1, targetFieldFields.length - 1);
+        } else targetIndex = realTargetIndex;
+
         this.fieldToTransfer = { parent, index: realIndex };
         this.fieldAddParent = target.parent;
         this.fieldAddIndex = targetIndex;
