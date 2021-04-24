@@ -15,6 +15,10 @@
 </template>
 
 <script>
+import findClosestScrollParent from '../../assets/js/findClosestScrollParent';
+
+import autoscroll from '../../mixins/autoscroll';
+
 export default {
   beforeUnmount() {
     window.removeEventListener('pointerup', this.stopDrag);
@@ -31,6 +35,11 @@ export default {
       cloneClickDelta: null,
       dragging: false,
       draggingClone: null,
+      lastHoveredEl: null,
+      scrollParent: {
+        el: null,
+        rect: null,
+      },
       wasBottomHalf: null,
     };
   },
@@ -41,6 +50,19 @@ export default {
       this.draggingClone.style.top = `${e.clientY - this.cloneClickDelta.y}px`;
 
       const el = document.elementFromPoint(e.clientX, e.clientY);
+      if (!this.lastHoveredEl || (this.lastHoveredEl !== el && !this.lastHoveredEl.contains(el))) {
+        this.scrollParent.el = findClosestScrollParent(el);
+        const parentRect = this.scrollParent.el.getBoundingClientRect();
+        this.scrollParent.rect = {
+          top: Math.max(parentRect.top, 0),
+          left: Math.max(parentRect.left, 0),
+          width: Math.min(parentRect.width, window.innerWidth),
+          height: Math.min(parentRect.height, window.innerHeight),
+        };
+        this.lastHoveredEl = el;
+      }
+      if (this.scrollParent.el) this.autoscroll(this.scrollParent.el, this.scrollParent.rect, e.clientX, e.clientY);
+
       if (typeof el.dataset.addIndicator !== 'undefined') return; // fix jitter when over an add indicator
       if (!el || !el.dataset.index || !el.dataset.parent || el === this.dragging) { // we have left a valid dropzone
         if (this.activeDropzone) {
@@ -74,6 +96,7 @@ export default {
       if (this.draggingClone) this.destroyClone();
       this.$store.commit('setAppProperty', { key: 'dragActive', value: true });
       this.dragging = e.currentTarget;
+
       const rect = e.currentTarget.getBoundingClientRect();
       const clone = e.currentTarget.cloneNode(true);
       this.cloneClickDelta = { x: e.clientX - rect.left, y: e.clientY - rect.top };
@@ -86,10 +109,12 @@ export default {
       clone.style.margin = 0;
       document.body.append(clone);
       this.draggingClone = clone;
+
       const style = document.createElement('STYLE');
       style.innerText = '* { cursor: grabbing !important; }';
       style.id = 'fieldThumbnailGrabbingStyle';
       document.querySelector('head').append(style);
+
       window.addEventListener('pointerup', this.stopDrag);
       window.addEventListener('pointermove', this.handlePointerMove, { passive: true });
     },
@@ -106,6 +131,7 @@ export default {
       window.removeEventListener('pointermove', this.handlePointerMove, { passive: true });
       document.getElementById('fieldThumbnailGrabbingStyle').remove();
       this.$store.commit('setAppProperty', { key: 'dragActive', value: false });
+      if (this.autoscrollAnimationFrame) window.cancelAnimationFrame(this.autoscrollAnimationFrame);
       const targetRect = this.dragging.getBoundingClientRect();
       const { left: currentLeft, top: currentTop } = this.draggingClone.style;
       if (this.activeDropzone || (Number.parseInt(currentLeft, 10) === Math.floor(targetRect.left) && Number.parseInt(currentTop, 10) === Math.floor(targetRect.top))) {
@@ -119,6 +145,7 @@ export default {
       this.draggingClone.addEventListener('transitionend', this.destroyClone, { once: true });
     },
   },
+  mixins: [autoscroll],
   props: {
     dark: Boolean,
     description: String,
