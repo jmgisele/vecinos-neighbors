@@ -115,12 +115,6 @@ export default [
         value: 'html',
       },
       {
-        component: 'MbToggle',
-        key: 'allowRaw',
-        slot: 'Allow editing the raw source-code',
-        value: false,
-      },
-      {
         component: 'MbCheckboxGroup',
         key: 'blockFormats',
         label: 'Allowed block formats:',
@@ -175,7 +169,7 @@ export default [
             { label: 'Prevent double spaces', value: 'noDoubleSpace' },
           ],
         },
-        value: ['allowQuoteFooters', 'allowNestedLists'],
+        value: ['autoquotes', 'dashes', 'ellipsis', 'noDoubleCaps', 'noDoubleSpace'],
       },
       {
         component: 'MbSelect',
@@ -208,6 +202,12 @@ export default [
           ],
         },
         value: 4,
+      },
+      {
+        component: 'MbToggle',
+        key: 'allowRaw',
+        slot: 'Allow editing the raw source-code',
+        value: false,
       },
     ],
     tab: null,
