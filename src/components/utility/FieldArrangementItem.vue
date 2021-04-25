@@ -1,6 +1,6 @@
 <template lang="html">
-  <div class="field-arrangement-item" :class="{ 'drag-active': $store.state.application.dragActive, dragging: beingDragged, 'hide-outline': hideOutline }">
-    <div class="info" :class="{ active, dark }" tabindex="0" @keydown.space.prevent @keyup.space.enter="$emit('fieldclick')" @click="handleClick" @contextmenu.prevent="handleContextMenu" @pointerdown.left="startDrag">
+  <div class="field-arrangement-item" :class="{ 'drag-active': dragActive, dragging: beingDragged, 'hide-outline': hideOutline }">
+    <div class="info" :class="{ active, dark }" tabindex="0" @keydown.space.prevent @keyup.space.enter="$emit('fieldclick')" @click.left="handleClick" @contextmenu.prevent="handleContextMenu" @pointerdown.left="startDrag">
       <MbIcon class="drag-handle" icon="drag-handle" ref="dragHandle" />
       <div class="field-icon">
         <MbIcon :icon="icon" />
@@ -30,6 +30,9 @@ export default {
     FieldArrangementList: defineAsyncComponent(() => import('./FieldArrangementList.vue')),
   },
   computed: {
+    dragActive() {
+      return this.$store.state.application.dragActive;
+    },
     isMobile() {
       return this.$store.state.application.mobile;
     },
@@ -55,10 +58,14 @@ export default {
       if (!this.beingDragged) this.$emit('fieldclick');
     },
     handleContextMenu(e) {
-      if (!this.beingDragged) this.$emit('fieldcontextmenu', e);
+      if (!this.beingDragged) {
+        if (this.dragging) this.stopDrag();
+        this.$emit('fieldcontextmenu', e);
+      }
     },
     handlePointerMove(e) {
       this.beingDragged = true; // we moved the cursor
+      if (!this.dragActive) this.$store.commit('setAppProperty', { key: 'dragActive', value: true });
       this.draggingClone.style.left = `${e.clientX - this.cloneClickDelta.x}px`;
       this.draggingClone.style.top = `${e.clientY - this.cloneClickDelta.y}px`;
 
@@ -93,7 +100,6 @@ export default {
       if (this.isMobile && e.target !== this.$refs.dragHandle.$el && !this.$refs.dragHandle.$el.contains(e.target)) return; // only allow dragging on drag handle on mobile
       if (this.draggingClone) this.destroyClone();
 
-      this.$store.commit('setAppProperty', { key: 'dragActive', value: true });
       this.dragging = e.currentTarget;
 
       const rect = e.currentTarget.getBoundingClientRect();
