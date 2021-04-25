@@ -435,6 +435,7 @@ export default {
         width: calc(100% / 7 - 0.375rem)
         height: (40 / 16)rem
         border: none
+        display: inline-block;
 
         &.other-month
           color: $text-secondary
