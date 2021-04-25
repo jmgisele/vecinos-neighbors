@@ -26,6 +26,27 @@ interface Field {
   visualOnly: Boolean, // excluded from content files, serves purely visual function
 },
 
+For easy copy paste with defaults:
+
+{
+  type: String!,
+  default: null,
+  description: String,
+  group: String,
+  icon: String,
+  key: '',
+  label: String!,
+  localised: false,
+  options: [],
+  tab: null,
+  validation: {
+    enforceMinMax: false, max: null, min: null, regex: null, regexError: null, required: false,
+  },
+  value: null,
+  visibility: { hidden: false, limitToRoles: [], showByValue: { field: null } },
+  visualOnly: Boolean, // excluded from content files, serves purely visual function
+},
+
 */
 
 export default [
@@ -98,7 +119,7 @@ export default [
     visibility: { hidden: false, showByValue: { field: null } },
   },
   {
-    type: 'richtext',
+    type: 'rich text',
     default: null,
     description: 'Configurable rich text editor field',
     group: 'content',
@@ -303,6 +324,20 @@ export default [
       enforceMinMax: true, max: null, min: null, required: false,
     },
     value: null,
+    visibility: { hidden: false, limitToRoles: [], showByValue: { field: null } },
+  },
+  {
+    type: 'content zone',
+    default: null,
+    description: 'Allows to add one or more of the contained fields in a custom order',
+    group: 'helpers',
+    icon: 'content-zone',
+    key: '',
+    label: 'Content Zone',
+    options: [],
+    tab: null,
+    validation: { enforceMinMax: false, max: null, min: null },
+    value: [],
     visibility: { hidden: false, limitToRoles: [], showByValue: { field: null } },
   },
 ];
