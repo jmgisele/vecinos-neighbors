@@ -76,7 +76,7 @@
           </section>
           <section v-if="availableFieldOptions.has(fieldBeingEdited.type)">
             <h3>Field Configuration</h3>
-            <section v-for="option in availableFieldOptions.get(fieldBeingEdited.type)" class="config-option" :key="option.key">
+            <section v-for="option in availableFieldOptions.get(fieldBeingEdited.type)" class="config-option" :class="[option.component]" :key="option.key">
               <span v-if="option.label">{{option.label}}</span>
               <component v-bind="option.props" v-model="fieldBeingEdited.options[option.key]" :dark="dark" :is="option.component">{{option.slot}}</component>
             </section>
@@ -1363,6 +1363,16 @@ export default {
       align-items: center
       justify-content: space-between
 
+      &.MbCheckboxGroup
+        align-items: flex-start
+
+        > span
+          margin-right: 1rem
+
+        > .checkbox-group
+          width: 100%
+          max-width: (192 / 16)rem
+
       @media $mobile
         flex-wrap: wrap
 
@@ -1375,6 +1385,9 @@ export default {
 
       &:not(:last-child)
         margin-bottom: 1rem
+
+        &.MbCheckboxGroup
+          margin-bottom: 2rem
 
       > *:only-child
         width: 100%
