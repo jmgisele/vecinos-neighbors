@@ -142,7 +142,6 @@ export default {
       document.getElementById('fieldThumbnailGrabbingStyle').remove();
       this.$store.commit('setAppProperty', { key: 'dragActive', value: false });
       if (this.autoscrollAnimationFrame) window.cancelAnimationFrame(this.autoscrollAnimationFrame);
-      if (!this.beingDragged) this.$emit('fieldclick');
       const targetRect = this.dragging.getBoundingClientRect();
       const { left: currentLeft, top: currentTop } = this.draggingClone.style;
       if (this.hideOutline || (Number.parseInt(currentLeft, 10) === Math.floor(targetRect.left) && Number.parseInt(currentTop, 10) === Math.floor(targetRect.top))) {
