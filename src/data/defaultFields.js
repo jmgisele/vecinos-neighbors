@@ -263,4 +263,46 @@ export default [
     visibility: { showByValue: { field: null } },
     visualOnly: true,
   },
+  {
+    type: 'date',
+    default: null,
+    description: 'Add a date (and optionally a time) to the content',
+    group: 'content',
+    icon: 'calendar',
+    key: '',
+    label: 'Date and Time',
+    options: [
+      {
+        component: 'MbRadioGroup',
+        key: 'outputFormat',
+        label: 'Output format:',
+        props: { inline: true, options: [{ label: 'Milliseconds', value: 'ms' }, { label: 'ISO Format', value: 'iso' }] },
+        value: 'iso',
+      },
+      {
+        component: 'MbToggle',
+        key: 'removable',
+        slot: 'Allow the date to be removed once set',
+        value: false,
+      },
+      {
+        component: 'MbToggle',
+        key: 'showTime',
+        slot: 'Show a time selector as well',
+        value: true,
+      },
+      {
+        component: 'MbToggle',
+        key: 'defaultToNow',
+        slot: 'Default to the current time when no value is set',
+        value: true,
+      },
+    ],
+    tab: null,
+    validation: {
+      enforceMinMax: true, max: null, min: null, required: false,
+    },
+    value: null,
+    visibility: { hidden: false, limitToRoles: [], showByValue: { field: null } },
+  },
 ];
