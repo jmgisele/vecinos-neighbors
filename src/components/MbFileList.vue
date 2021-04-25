@@ -208,6 +208,10 @@ export default {
             else this.files.push(entity);
           });
         }
+        if (!this.foldersOnly && this.filetypes && this.filetypes.length > 0) {
+          const allowedEndingsRegex = new RegExp(`\\.(${this.filetypes.join('|')})$`, 'i');
+          this.files = this.files.filter((file) => allowedEndingsRegex.test(file.name));
+        }
       } catch (err) {
         this.$store.commit('addToast', { message: `Something went wrong while reading files: ${err.message}`, type: 'error' });
         if (this.currentPath !== this.root) this.currentPath = pathDirname(this.currentPath);
@@ -314,6 +318,7 @@ export default {
       type: String,
       default: 'Files',
     },
+    filetypes: Array,
     filterable: {
       type: Boolean,
       default: true,

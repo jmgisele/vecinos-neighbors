@@ -575,7 +575,7 @@
         <p>These components can be used to pick a file or a folder from a given root path.</p>
         <p>The currently picked value is: <code>{{filePickerTest}}</code></p>
         <MbFilePicker v-model="filePickerTest" :dark="dark" />
-        <MbFilePicker v-model="filePickerTest" :dark="dark" mode="file" removable root="/projects" />
+        <MbFilePicker v-model="filePickerTest" :dark="dark" :filetypes="['json', 'md']" mode="file" removable root="/projects" />
         <h3>Props</h3>
         <MbTable :data="props.filePickers" />
         <h3>Events</h3>
@@ -982,6 +982,7 @@ export default {
           ['`emptyState`', 'String, Object', '`{ noFiles: \'There are no files in this directory\', noFolders: \'There are no folders in this directory\', empty: \'This directory is empty\' }`', 'If a string is passed, all three states will show that string'],
           ['`fileActions`', 'Array', '`[]`', 'Takes objects with Context-Menu options including an action, which will be called with the file’s path. If filesOnly / foldersOnly are specified for an action, it will only show up in the respective type’s menu. If there’s only one, it’ll be displayed instead of the overflow menu'],
           ['`flieListLabel`', 'String', '`\'Files\'`', ''],
+          ['`filetypes`', 'Array', '`undefined`', 'Supply an array of file endings (no dot) to limit what types of files will be shown'],
           ['`filterable`', 'Boolean', '`true`', ''],
           ['`foldersFirst`', 'Boolean', '`true`', ''],
           ['`foldersOnly`', 'Boolean', '`false`', ''],
@@ -995,6 +996,7 @@ export default {
         filePickers: [
           ['Name', 'Type', 'Default'],
           ['`dark`', 'Boolean', '`false`'],
+          ['`filetypes`', 'Array', '`undefined`'],
           ['`mode`', 'String', '`folder`'],
           ['`modelValue`', 'String', ''],
           ['`placeholder`', 'String', '`undefined`'],
