@@ -590,6 +590,16 @@
         <h3>Props</h3>
         <MbTable :data="props.chips" />
       </section>
+      <section v-else-if="activeTabValue === 'checkbox-groups'" class="tab checkbox-groups">
+        <h2>Checkbox Grops</h2>
+        <p>This component allows to group checkboxes together and returns an array of which have been selected.</p>
+        <p>The currently selected checkboxes are: <code>{{checkboxGroupTest}}</code></p>
+        <MbCheckboxGroup v-model="checkboxGroupTest" :checkboxes="[{ label: 'First Value', value: 'first' },{ label: 'Second Value', value: 'second' },{ disabled: true, label: 'Disabled Value', value: 'disabled' },{ label: 'Third Value', value: 'third' },]" :dark="dark" />
+        <h3>Props</h3>
+        <MbTable :data="props.checkboxGroups" />
+        <h3>Events</h3>
+        <MbTable :data="events.checkboxGroups" />
+      </section>
       <section v-else class="tab" key="exampleTab">
         <p>This is just an empty test-tab.</p>
         <p>To delete it, click the button in the “<u @click="activeTab = tabs.findIndex((tab) => tab.value === 'tabs')">Tabs</u>”-tab.</p>
@@ -640,6 +650,7 @@ export default {
       activeTab: 0,
       availableIcons: require.context('@/assets/icons', false, /\w+\.svg$/i).keys().map((path) => path.replace(/^\.\/(.*)\.\w+$/, '$1')),
       centerPopover: false,
+      checkboxGroupTest: [],
       colorPalette: [
         {
           label: 'Accent',
@@ -769,6 +780,10 @@ export default {
         checkboxes: [
           ['Name', 'Data'],
           ['`update:modelValue`', '`!value`'],
+        ],
+        checkboxGroups: [
+          ['Name', 'Data'],
+          ['`update:modelValue`', '`An array containing the values of all checked boxes`'],
         ],
         colorPickers: [
           ['Name', 'Data'],
@@ -913,6 +928,12 @@ export default {
           ['`dark`', 'Boolean', '`false`'],
           ['`disabled`', 'Boolean', '`false`'],
           ['`modelValue`', 'Boolean', '`false`'],
+        ],
+        checkboxGroups: [
+          ['Name', 'Type', 'Default', 'Notes'],
+          ['`checkboxes`', 'Array', '`[]`', 'Should be an array of { disabled, label, value } objects'],
+          ['`dark`', 'Boolean', '`false`'],
+          ['`modelValue`', 'Array', '`undefined`'],
         ],
         chips: [
           ['Name', 'Type', 'Default'],
@@ -1294,6 +1315,7 @@ export default {
         { label: 'Styles and Colors', value: 'design' },
         { label: 'Buttons', value: 'buttons' },
         { label: 'Checkboxes', value: 'checkboxes' },
+        { label: 'Checkbox Groups', value: 'checkbox-groups' },
         { label: 'Chips', value: 'chips' },
         { label: 'Color Pickers', value: 'color-pickers' },
         { label: 'Context Menus', value: 'context-menus' },
