@@ -449,6 +449,9 @@ export default {
     deleteField(field) {
       if (!field) return;
       const fieldPath = this.getFieldPath(field, this.schema.fields);
+
+      if (!fieldPath) return; // the field is not valid / doesn’t exist
+
       const parentField = this.getField(fieldPath.substring(0, Math.max(0, fieldPath.lastIndexOf('.')) || Infinity));
 
       const parentFieldFields = fieldPath === parentField.key ? this.schema.fields : parentField.value;
@@ -554,14 +557,27 @@ export default {
       return next;
     },
     getFieldPath(field, fields) {
-      let path;
-      for (let index = 0; index < fields.length; index += 1) {
-        const currentField = fields[index];
-        path = currentField.key;
-        if (currentField === field) break;
-        if (Array.isArray(currentField.value)) path = `${path}.${this.getFieldPath(field, currentField.value)}`;
+      const path = [];
+      let found = false;
+
+      function search(subfields) { // we need an inner function here because otherwise the variables in the outer scope would constantly be overwritten
+        for (let index = 0; index < subfields.length; index += 1) {
+          const currentField = subfields[index];
+          path.push(currentField.key);
+          if (currentField === field) {
+            found = true;
+            break;
+          }
+          if (Array.isArray(currentField.value)) {
+            search(currentField.value);
+            if (found) break;
+          }
+          path.pop();
+        }
       }
-      return path;
+
+      search(fields);
+      return path.join('.');
     },
     generateUniqueFieldKey(otherFields, potentialKey = 'unknown') {
       if (!otherFields.find((existingField) => existingField.key === potentialKey)) return potentialKey;
