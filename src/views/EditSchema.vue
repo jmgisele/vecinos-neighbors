@@ -6,7 +6,7 @@
         <MbChip :color="status.color" :label="status.message" :loading="status.loading" />
       </div>
       <div class="right">
-        <MbButton :dark="dark" icon="settings" @click="showSchemaSettings = true">{{isTablet && !isMobile ? '' : 'Settings'}}</MbButton>
+        <MbButton :dark="dark" icon="settings" @click="showSchemaSettings = true">{{isTablet ? '' : 'Settings'}}</MbButton>
         <MbButton :dark="dark" :disabled="!wasChanged" icon="save" :icon-first="true" :loading="saveLoading" type="primary" @click="saveChanges">{{isTablet && !isMobile ? '' : 'Save'}}</MbButton>
       </div>
     </header>
@@ -1024,9 +1024,6 @@ export default {
         margin-left: 0
 
       .button
-        @media $tablet
-          width: 100%
-
         &:not(:last-child)
           margin-right: 1rem
 
