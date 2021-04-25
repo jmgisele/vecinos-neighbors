@@ -224,6 +224,10 @@ export default {
   border-radius: $radius-l
   cursor: pointer
   transition: background-color 200ms ease
+  touch-action: none
+
+  @media $mobile
+    touch-action: auto
 
   &:focus-visible
     box-shadow: inset 0 0 0 0.125rem $accent
