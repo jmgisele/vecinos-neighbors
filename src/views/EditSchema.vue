@@ -89,8 +89,8 @@
             <h3>Validation</h3>
             <MbToggle v-if="typeof fieldBeingEdited.validation.required !== 'undefined'" v-model="fieldBeingEdited.validation.required" :dark="dark">Make this field required</MbToggle>
             <div v-if="typeof fieldBeingEdited.validation.min !== 'undefined' || typeof fieldBeingEdited.validation.max !== 'undefined'" class="input-row">
-              <MbInput v-if="typeof fieldBeingEdited.validation.min !== 'undefined'" v-model.lazy.number="fieldBeingEdited.validation.min" :dark="dark" label="Minimum length (optional)" type="number" />
-              <MbInput v-if="typeof fieldBeingEdited.validation.max !== 'undefined'" v-model.lazy.number="fieldBeingEdited.validation.max" :dark="dark" label="Maximum length (optional)" type="number" />
+              <MbInput v-if="typeof fieldBeingEdited.validation.min !== 'undefined'" v-model.lazy.number="fieldBeingEdited.validation.min" :dark="dark" :label="`Minimum ${ fieldBeingEdited.validation.unit || ''} (optional)`" type="number" />
+              <MbInput v-if="typeof fieldBeingEdited.validation.max !== 'undefined'" v-model.lazy.number="fieldBeingEdited.validation.max" :dark="dark" :label="`Maximum ${ fieldBeingEdited.validation.unit || ''} (optional)`" type="number" />
             </div>
             <MbToggle v-if="typeof fieldBeingEdited.validation.enforceMinMax !== 'undefined' && (fieldBeingEdited.validation.min || fieldBeingEdited.validation.max)" v-model="fieldBeingEdited.validation.enforceMinMax" :dark="dark">Enforce minimum / maximum length</MbToggle>
             <div v-if="fieldBeingEdited.validation && typeof fieldBeingEdited.validation.regex !== 'undefined'" class="input-row">
@@ -243,7 +243,7 @@ export default {
     // } else next();
     if (this.forceNavigation) return true;
     if (this.wasChanged) {
-      // Massive HACK, but the old way of just running next() as a Toast-Callback is beyond broken in router-next (I’ve created an issue)
+      // Massive HACK, but the old way of just running next() as a Toast-Callback is beyond broken in router-next (I’ve created an issue, but apparently it’s the desired behavior)
       const timeout = 5000;
       let resolvePromise;
 

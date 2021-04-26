@@ -21,7 +21,7 @@ interface Field {
     },
   ],
   tab: String,
-  validation: { enforceMinMax: Boolean, max: Number, min: Number, regex: String, regexError: String, required: Boolean },
+  validation: { enforceMinMax: Boolean, max: Number, min: Number, regex: String, regexError: String, required: Boolean, unit: String },
   value: Any,
   visibility: { hidden: false, limitToRoles: Array, showByValue: { comparator: [String, Number], field: String, value: Any } },
   visualOnly: Boolean, // excluded from content files, serves purely visual function
@@ -88,7 +88,7 @@ export default [
     key: '',
     label: 'Content Languages',
     tab: null,
-    validation: { min: 1 },
+    validation: { min: 1, unit: 'languages' },
     value: null,
     visibility: { hidden: false, showByValue: { field: null } },
   },
@@ -116,7 +116,7 @@ export default [
       },
     ],
     tab: null,
-    validation: { enforceMinMax: true, max: null, min: null, regex: null, regexError: null, required: false }, // eslint-disable-line object-curly-newline
+    validation: { enforceMinMax: true, max: null, min: null, regex: null, regexError: null, required: false, unit: 'length' }, // eslint-disable-line object-curly-newline
     value: null,
     visibility: { hidden: false, showByValue: { field: null } },
   },
@@ -248,7 +248,7 @@ export default [
       },
     ],
     tab: null,
-    validation: { enforceMinMax: true, max: null, min: null, regex: null, regexError: null, required: false }, // eslint-disable-line object-curly-newline
+    validation: { enforceMinMax: true, max: null, min: null, regex: null, regexError: null, required: false, unit: 'length' }, // eslint-disable-line object-curly-newline
     value: null,
     visibility: { hidden: false, showByValue: { field: null } },
   },
@@ -261,7 +261,6 @@ export default [
     key: '',
     label: 'Field Group',
     tab: null,
-    validation: { max: null, min: null }, // eslint-disable-line object-curly-newline
     value: [],
     visibility: { hidden: false, showByValue: { field: null } },
   },
@@ -338,7 +337,7 @@ export default [
     ],
     tab: null,
     validation: {
-      enforceMinMax: true, max: null, min: null, required: false,
+      enforceMinMax: true, max: null, min: null, required: false, unit: 'date',
     },
     value: null,
     visibility: { hidden: false, showByValue: { field: null } },
@@ -360,7 +359,7 @@ export default [
       },
     ],
     tab: null,
-    validation: { max: null, min: null },
+    validation: { max: null, min: null, unit: 'columns' },
     value: [],
     visibility: { hidden: false, showByValue: { field: null } },
   },
@@ -381,7 +380,7 @@ export default [
       },
     ],
     tab: null,
-    validation: { max: null, min: null },
+    validation: { max: null, min: null, unit: 'rows' },
     value: [],
     visibility: { hidden: false, showByValue: { field: null } },
   },
