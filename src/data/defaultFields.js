@@ -45,7 +45,7 @@ For easy copy paste with defaults:
     enforceMinMax: false, max: null, min: null, regex: null, regexError: null, required: false,
   },
   value: null,
-  visibility: { hidden: false, limitToRoles: [], showByValue: { field: null } },
+  visibility: { hidden: false, showByValue: { field: null } },
   visualOnly: Boolean, // excluded from content files, serves purely visual function
 },
 
@@ -117,6 +117,20 @@ export default [
     ],
     tab: null,
     validation: { enforceMinMax: true, max: null, min: null, regex: null, regexError: null, required: false }, // eslint-disable-line object-curly-newline
+    value: null,
+    visibility: { hidden: false, showByValue: { field: null } },
+  },
+  {
+    type: 'number',
+    default: null,
+    description: 'Basic number input field',
+    group: 'content',
+    icon: 'number',
+    key: '',
+    label: 'Number',
+    localised: false,
+    tab: null,
+    validation: { enforceMinMax: true, max: null, min: null, required: false }, // eslint-disable-line object-curly-newline
     value: null,
     visibility: { hidden: false, showByValue: { field: null } },
   },
@@ -327,7 +341,7 @@ export default [
       enforceMinMax: true, max: null, min: null, required: false,
     },
     value: null,
-    visibility: { hidden: false, limitToRoles: [], showByValue: { field: null } },
+    visibility: { hidden: false, showByValue: { field: null } },
   },
   {
     type: 'columns',
@@ -348,7 +362,7 @@ export default [
     tab: null,
     validation: { max: null, min: null },
     value: [],
-    visibility: { hidden: false, limitToRoles: [], showByValue: { field: null } },
+    visibility: { hidden: false, showByValue: { field: null } },
   },
   {
     type: 'rows',
@@ -369,12 +383,12 @@ export default [
     tab: null,
     validation: { max: null, min: null },
     value: [],
-    visibility: { hidden: false, limitToRoles: [], showByValue: { field: null } },
+    visibility: { hidden: false, showByValue: { field: null } },
   },
   {
     type: 'image',
     default: null,
-    description: 'Add an image from the Media Library, or upload a new one',
+    description: 'An image picker with (optional) resolution hints and size limits',
     group: 'content',
     icon: 'image',
     key: '',
@@ -397,7 +411,7 @@ export default [
     tab: null,
     validation: { required: false },
     value: null,
-    visibility: { hidden: false, limitToRoles: [], showByValue: { field: null } },
+    visibility: { hidden: false, showByValue: { field: null } },
   },
   {
     type: 'toggle',
@@ -409,6 +423,6 @@ export default [
     label: 'Toggle',
     tab: null,
     value: null,
-    visibility: { hidden: false, limitToRoles: [], showByValue: { field: null } },
+    visibility: { hidden: false, showByValue: { field: null } },
   },
 ];
