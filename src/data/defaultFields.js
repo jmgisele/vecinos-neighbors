@@ -4,6 +4,7 @@ interface Field {
   type: String!,
   default: Any,
   description: String,
+  displayField: String!
   group: String,
   icon: String,
   key: String!,
@@ -31,9 +32,10 @@ For easy copy paste with defaults:
 {
   type: String!,
   default: null,
-  description: String,
-  group: String,
-  icon: String,
+  description: String!,
+  displayField: String!
+  group: String!,
+  icon: String!,
   key: '',
   label: String!,
   localised: false,
@@ -239,6 +241,7 @@ export default [
   {
     type: 'group',
     description: 'Groups multiple fields under a common key, ideal for objects',
+    displayField: null,
     group: 'structure',
     icon: 'group',
     key: '',
@@ -332,6 +335,7 @@ export default [
     description: 'Allows to add one or more of the contained fields in a custom order',
     group: 'helpers',
     icon: 'content-zone',
+    displayField: null,
     key: '',
     label: 'Content Zone',
     options: [],

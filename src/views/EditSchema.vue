@@ -71,6 +71,10 @@
               <span>Tab:</span>
               <MbSelect :dark="dark" :model-value="fieldBeingEdited.tab" :options="tabsForSelect" @update:model-value="moveFieldToTab(fieldBeingEdited, $event)" />
             </div>
+            <div v-if="typeof fieldBeingEdited.displayField !== 'undefined'" class="select-wrapper">
+              <span>Field value to display in compact mode:</span>
+              <MbSelect v-model="fieldBeingEdited.displayField" :dark="dark" :options="childFieldKeys" />
+            </div>
             <MbToggle v-if="typeof fieldBeingEdited.localised !== 'undefined'" v-model="fieldBeingEdited.localised" :dark="dark">Enable localisation for this field</MbToggle>
             <p v-if="typeof fieldBeingEdited.default !== 'undefined'"><strong>Todo:</strong> insert an actual field of this type here with the options of <code>fieldBeingEdited</code> to set a default! (Except replace "label" prop with "Default Value")</p>
           </section>
@@ -313,6 +317,10 @@ export default {
     },
     schemaName() {
       return prettifyEntityName(pathBasename(this.$route.params.path));
+    },
+    childFieldKeys() {
+      if (!this.schema || !this.schema.fields || this.schema.fields.length === 0 || !this.fieldBeingEdited || !Array.isArray(this.fieldBeingEdited.value)) return [];
+      return this.extractFieldKeys(this.fieldBeingEdited.value).concat([{ label: 'None', value: null }]);
     },
     status() {
       if (!this.fileStatus) return { color: 'warning', loading: true };
