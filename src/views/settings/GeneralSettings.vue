@@ -46,6 +46,10 @@
       <p>Mattrbld uses <a href="https://github.com/sindresorhus/slugify" rel="noopener noreferrer nofollow" target="_blank">@sindresorhus/slugify</a> internally, so all options for that are valid here, too.</p>
     </section>
     <section class="wrapper">
+      <h2>Brand Colours</h2>
+      <p>The colour palette you set up below will be available as an option while setting up colour picker fields. It can be used to ensure that your content stays on brand, while still giving your editors the option to add a splash of colour here and there.</p>
+    </section>
+    <section class="wrapper">
       <h2>Repository</h2>
       <MbInput v-model="projectRepo" :dark="dark" disabled :error="errors.repo" icon="repo" label="Repository URL" @blur="changeRepo" @keyup.enter="changeRepo" />
       <div class="select-wrapper">
