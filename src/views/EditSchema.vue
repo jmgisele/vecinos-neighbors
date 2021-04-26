@@ -433,14 +433,14 @@ export default {
         this.removeCurrentAddIndicator();
 
         if (parentFieldFields.length === 0) {
-          cleanField.key = field.type || 'unknown';
+          cleanField.key = (field.type && field.type.replace(/ /g, '-')) || 'unknown';
           parentFieldFields.push(cleanField);
         } else {
-          cleanField.key = this.generateUniqueFieldKey(parentFieldFields, field.type);
+          cleanField.key = this.generateUniqueFieldKey(parentFieldFields, field.type.replace(/ /g, '-'));
           parentFieldFields.splice(this.fieldAddIndex, 0, cleanField);
         }
       } else {
-        cleanField.key = this.generateUniqueFieldKey(this.schema.fields, cleanField.type);
+        cleanField.key = this.generateUniqueFieldKey(this.schema.fields, cleanField.type.replace(/ /g, '-'));
         this.schema.fields.push(cleanField);
       }
       this.fieldAddIndex = null;
