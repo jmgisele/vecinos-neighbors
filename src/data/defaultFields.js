@@ -371,4 +371,32 @@ export default [
     value: [],
     visibility: { hidden: false, limitToRoles: [], showByValue: { field: null } },
   },
+  {
+    type: 'image',
+    default: null,
+    description: 'Adds a field for uploading an image / picking it from the Media Library',
+    group: 'content',
+    icon: 'image',
+    key: '',
+    label: 'Image',
+    localised: false,
+    options: [
+      {
+        component: 'MbInput',
+        key: 'resolutionHint',
+        props: { icon: 'resolution', label: 'Ideal resolution', placeholder: '640x360' },
+        value: '',
+      },
+      {
+        component: 'MbInput',
+        key: 'maxSize',
+        props: { icon: 'document-size', modelModifiers: { number: true }, label: 'Maximum filesize (MB)' },
+        value: 1,
+      },
+    ],
+    tab: null,
+    validation: { required: false },
+    value: null,
+    visibility: { hidden: false, limitToRoles: [], showByValue: { field: null } },
+  },
 ];
