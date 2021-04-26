@@ -332,7 +332,7 @@ export default [
   {
     type: 'columns',
     default: null,
-    description: 'Allows to add one or more of the contained fields in a custom order',
+    description: 'Add one or more of the contained fields as columns in a custom order',
     group: 'structure',
     icon: 'columns',
     key: '',
@@ -353,7 +353,7 @@ export default [
   {
     type: 'rows',
     default: null,
-    description: 'Allows to add one or more of the contained fields in a custom order',
+    description: 'Add one or more of the contained fields as rows in a custom order',
     group: 'structure',
     icon: 'rows',
     key: '',
