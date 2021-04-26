@@ -73,7 +73,7 @@
             </div>
             <div v-if="typeof fieldBeingEdited.displayField !== 'undefined'" class="select-wrapper">
               <span>Field value to display in compact mode:</span>
-              <MbSelect v-model="fieldBeingEdited.displayField" :dark="dark" :options="childFieldKeys" />
+              <MbSelect v-model="fieldBeingEdited.displayField" :dark="dark" :options="childFieldKeys" placeholder="Select a field…" />
             </div>
             <MbToggle v-if="typeof fieldBeingEdited.localised !== 'undefined'" v-model="fieldBeingEdited.localised" :dark="dark">Enable localisation for this field</MbToggle>
             <p v-if="typeof fieldBeingEdited.default !== 'undefined'"><strong>Todo:</strong> insert an actual field of this type here with the options of <code>fieldBeingEdited</code> to set a default! (Except replace "label" prop with "Default Value")</p>
@@ -953,6 +953,9 @@ export default {
   watch: {
     currentOperation(nv, ov) {
       if (nv && ov === 'edit-field') this.fieldBeingEdited = null;
+    },
+    fieldBeingEdited() {
+      this.$nextTick(() => this.$refs.tabContent.scrollSplit());
     },
     schema: {
       deep: true, // this might cause performance issues in large schemas, but it’s the most simple and robust way to ensure that wasChanged is updated whenever something changes
