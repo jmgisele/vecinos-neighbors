@@ -4,7 +4,7 @@
       <slot />
     </div>
     <transition @after-leave="$emit('split-closed')">
-      <div v-if="!isMobile" v-show="showSplit" class="content-wrapper right" :class="{ dark, padded }">
+      <div v-if="!isMobile" v-show="showSplit" class="content-wrapper right" :class="{ dark, padded }" ref="scrollerRight">
         <div class="close-wrapper">
           <MbButton class="close-button" :dark="dark" icon="cross" rounded @click="$emit('split-close')" />
         </div>
@@ -33,6 +33,12 @@ export default {
     };
   },
   emits: ['split-close', 'split-closed'],
+  methods: {
+    scrollSplit(amount = 0) {
+      if (!this.$refs.scrollerRight) return;
+      this.$refs.scrollerRight.scrollTop = amount;
+    },
+  },
   props: {
     dark: Boolean,
     padded: {
@@ -40,6 +46,11 @@ export default {
       default: true,
     },
     showSplit: Boolean,
+  },
+  watch: {
+    showSplit(nv) {
+      if (nv && this.$refs.scrollerRight) this.$nextTick(() => { this.$refs.scrollerRight.scrollTop = 0; });
+    },
   },
 };
 </script>
