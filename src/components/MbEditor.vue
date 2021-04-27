@@ -25,10 +25,10 @@
       <span v-if="displayLabel" class="label" :class="{ right: !label && maxLen }">{{displayLabel}}</span>
       <div v-if="outputFormat === 'text' || raw" class="autogrow-area" ref="autogrow">
         <pre ref="pre"></pre>
-        <textarea autocomplete="off" :disabled="disabled" :placeholder="placeholder" ref="textarea" :value="cleanValue" @input="handleTextareaInput" @[preventEnter].enter.prevent></textarea>
+        <textarea autocomplete="off" :disabled="disabled" :lang="lang" :placeholder="placeholder" ref="textarea" :value="cleanValue" @input="handleTextareaInput" @[preventEnter].enter.prevent></textarea>
       </div>
       <template v-else>
-        <div class="editor-wrapper" ref="editor" />
+        <div class="editor-wrapper" :lang="lang" ref="editor" />
         <div v-if="placeholder && showPlaceholder" class="placeholder" :class="[ placeholderFormatting ]">{{placeholder}}</div>
         <div v-show="caretVisible" class="fake-caret" :class="[ placeholderFormatting ]" :style="{ height: caretHeight, transform: caretTransform }" />
       </template>
@@ -37,10 +37,16 @@
       <template #header>
         <h3>{{linkPopover.editing ? 'Edit' : 'Add'}} Link</h3>
       </template>
-      <MbInput v-model="linkPopover.href" :dark="dark" icon="link" label="Link URL" ref="linkHref" />
+      <MbSegmentedSelector v-if="linkTypeOptions.length > 1" v-model="linkPopover.type" :dark="dark" :options="linkTypeOptions" />
+      <transition mode="out-in">
+        <MbInput v-if="linkPopover.type === 'external'" v-model="linkPopover.href" :dark="dark" icon="link" label="Link URL" ref="linkHref" @keyup.ctrl.enter="addLink" />
+        <div v-else class="internal-link">
+          <p>Todo: implement internal linking</p>
+        </div>
+      </transition>
       <MbInput v-model="linkPopover.title" :dark="dark" icon="text" label="Link Title (optional)" />
-      <MbToggle v-if="outputFormat === 'html'" v-model="linkPopover.newTab" :dark="dark">Open link in a new tab</MbToggle>
-      <MbToggle v-if="outputFormat === 'html'" v-show="linkPopover.newTab" v-model="linkPopover.nofollow" :dark="dark">Include “nofollow” hint</MbToggle>
+      <MbToggle v-if="outputFormat === 'html' && !this.linkOptions.forceBlankTarget" v-model="linkPopover.newTab" :dark="dark">Open link in a new tab</MbToggle>
+      <MbToggle v-if="outputFormat === 'html' && !this.linkOptions.forceNofollow" v-model="linkPopover.nofollow" :dark="dark">Include “nofollow” hint</MbToggle>
       <MbButton v-show="linkPopover.editing" class="remove-link" :dark="dark" icon="trash" :icon-first="false" type="negative" @click="removeLink">Remove Link</MbButton>
       <template #footer>
         <MbButton :dark="dark" @click="closeLinkPopover">Cancel</MbButton>
@@ -127,6 +133,11 @@ export default {
       if (this.label) return this.label;
       return false;
     },
+    linkTypeOptions() {
+      if (this.linkOptions.only === 'external') return [{ label: 'External', value: 'external' }];
+      if (this.linkOptions.only === 'internal') return [{ label: 'Internal', value: 'internal' }];
+      return [{ label: 'External', value: 'external' }, { label: 'Internal', value: 'internal' }];
+    },
     mac() {
       const mac = typeof navigator !== 'undefined' ? /Mac/.test(navigator.platform) : false;
       return mac;
@@ -210,6 +221,7 @@ export default {
         newTab: false,
         nofollow: true,
         title: '',
+        type: 'external',
         visible: false,
         x: 0,
         y: 0,
@@ -238,10 +250,10 @@ export default {
         title: title || null,
       };
 
-      if (newTab) {
-        if (nofollow) attrs.rel = 'nofollow noopener noreferrer';
-        else attrs.rel = 'noreferrer noopener';
-      }
+      if (nofollow) {
+        if (newTab) attrs.rel = 'nofollow noopener noreferrer';
+        else attrs.rel = 'nofollow';
+      } else if (newTab) attrs.rel = 'noreferrer noopener';
 
       const linkType = this.editorState.schema.marks.link;
       if (this.activeMarks.includes('link')) this.setMark(linkType); // toggle it off, hacky
@@ -255,6 +267,7 @@ export default {
         newTab: false,
         nofollow: true,
         title: '',
+        type: 'external',
         visible: false,
         x: 0,
         y: 0,
@@ -507,8 +520,17 @@ export default {
           else this.linkPopover.newTab = false;
           if (rel && rel.includes('nofollow')) this.linkPopover.nofollow = true;
           else this.linkPopover.nofollow = false;
+          if (href && href.startsWith('http')) this.linkPopover.type = 'external';
+          else this.linkPopover.type = 'internal';
         }
       }
+
+      // force the link type to internal if it’s the only type allowed
+      if (!this.linkOptions.only === 'internal') this.linkPopover.type = 'internal';
+
+      // force target and nofollow if set
+      if (this.linkOptions.forceBlankTarget) this.linkPopover.newTab = true;
+      if (this.linkOptions.forceNofollow) this.linkPopover.nofollow = true;
 
       const start = this.editorView.coordsAtPos(selection.from);
       const end = this.editorView.coordsAtPos(selection.to);
@@ -517,7 +539,7 @@ export default {
       this.linkPopover.x = left;
       this.linkPopover.y = bottom + 0.5 * Number.parseInt(window.getComputedStyle(document.documentElement).fontSize, 10);
       this.linkPopover.visible = true;
-      this.$nextTick(() => this.$refs.linkHref.$refs.input.focus());
+      if (this.linkPopover.type === 'external') this.$nextTick(() => this.$refs.linkHref.$refs.input.focus());
       return true; // mark the event as handled
     },
     prettifyCode() {
@@ -640,6 +662,18 @@ export default {
     },
     inputRuleOptions: Object,
     label: String,
+    lang: String,
+    linkOptions: {
+      type: Object,
+      default: () => ({
+        forceBlankTarget: false,
+        forceNofollow: false,
+        only: null,
+        urlSuffix: null,
+        urlTemplate: null,
+        useFilePath: false,
+      }),
+    },
     maxLen: Number,
     modelValue: String,
     outputFormat: {
@@ -1035,6 +1069,9 @@ export default {
         visibility: hidden
 
 .popover.add-link
+  h3
+    text-align: center
+
   .input
     width: 100%
     display: flex
@@ -1044,6 +1081,16 @@ export default {
 
     & + .remove-link
       margin-top: 2rem
+
+  .input,
+  .internal-link
+    &.v-enter-active,
+    &.v-leave-active
+      transition:  opacity 200ms ease
+
+      &.v-enter-from,
+      &.v-leave-to
+        opacity: 0
 
   .toggle
     margin-top: 1rem
