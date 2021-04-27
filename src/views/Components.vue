@@ -600,6 +600,15 @@
         <h3>Events</h3>
         <MbTable :data="events.checkboxGroups" />
       </section>
+      <section v-else-if="activeTabValue === 'palettes'" class="tab palettes">
+        <h2>Color Palettes</h2>
+        <p>This component allows to create and edit lists of named colors</p>
+        <MbPalette v-model="colorPalette" :dark="dark" format="rgba" />
+        <h3>Props</h3>
+        <MbTable :data="props.palettes" />
+        <h3>Events</h3>
+        <MbTable :data="events.palettes" />
+      </section>
       <section v-else class="tab" key="exampleTab">
         <p>This is just an empty test-tab.</p>
         <p>To delete it, click the button in the “<u @click="activeTab = tabs.findIndex((tab) => tab.value === 'tabs')">Tabs</u>”-tab.</p>
@@ -839,6 +848,10 @@ export default {
           ['`after-open`', ''],
           ['`close`', ''],
         ],
+        palettes: [
+          ['Name', 'Data'],
+          ['`update:modelValue`', 'The new palette array'],
+        ],
         popovers: [
           ['Name', 'Data'],
           ['`close`', ''],
@@ -1067,6 +1080,12 @@ export default {
         modalOverlays: [
           ['Name', 'Type', 'Default'],
           ['`dark`', 'Boolean', '`false`'],
+        ],
+        palettes: [
+          ['Name', 'Type', 'Default'],
+          ['`dark`', 'Boolean', '`false`'],
+          ['`format`', 'String', '`undefined`'],
+          ['`modelValue`', 'Array', '`undefined`'],
         ],
         popovers: [
           ['Name', 'Type', 'Default'],
@@ -1319,6 +1338,7 @@ export default {
         { label: 'Checkbox Groups', value: 'checkbox-groups' },
         { label: 'Chips', value: 'chips' },
         { label: 'Color Pickers', value: 'color-pickers' },
+        { label: 'Color Palettes', value: 'palettes' },
         { label: 'Context Menus', value: 'context-menus' },
         { label: 'Date Pickers', value: 'date-pickers' },
         { label: 'File Lists', value: 'file-lists' },
