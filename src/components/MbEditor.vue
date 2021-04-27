@@ -33,13 +33,13 @@
         <div v-show="caretVisible" class="fake-caret" :class="[ placeholderFormatting ]" :style="{ height: caretHeight, transform: caretTransform }" />
       </template>
     </label>
-    <MbPopover class="add-link" center-x :dark="dark" :visible="linkPopover.visible" :x="linkPopover.x" :y="linkPopover.y" @close="closeLinkPopover" @keyup.esc="closeLinkPopover">
+    <MbPopover class="add-link" center-x :dark="dark" :visible="linkPopover.visible" :x="linkPopover.x" :y="linkPopover.y" @close="linkPopover.visible = false" @after-close="closeLinkPopover" @keyup.ctrl.enter="addLink">
       <template #header>
         <h3>{{linkPopover.editing ? 'Edit' : 'Add'}} Link</h3>
       </template>
       <MbSegmentedSelector v-if="linkTypeOptions.length > 1" v-model="linkPopover.type" :dark="dark" :options="linkTypeOptions" />
       <transition mode="out-in">
-        <MbInput v-if="linkPopover.type === 'external'" v-model="linkPopover.href" :dark="dark" icon="link" label="Link URL" ref="linkHref" @keyup.ctrl.enter="addLink" />
+        <MbInput v-if="linkPopover.type === 'external'" v-model="linkPopover.href" :dark="dark" icon="link" label="Link URL" ref="linkHref" />
         <div v-else class="internal-link">
           <p>Todo: implement internal linking</p>
         </div>
@@ -49,7 +49,7 @@
       <MbToggle v-if="outputFormat === 'html' && !this.linkOptions.forceNofollow" v-model="linkPopover.nofollow" :dark="dark">Include “nofollow” hint</MbToggle>
       <MbButton v-show="linkPopover.editing" class="remove-link" :dark="dark" icon="trash" :icon-first="false" type="negative" @click="removeLink">Remove Link</MbButton>
       <template #footer>
-        <MbButton :dark="dark" @click="closeLinkPopover">Cancel</MbButton>
+        <MbButton :dark="dark" @click="linkPopover.visible = false">Cancel</MbButton>
         <MbButton :dark="dark" :disabled="!linkPopover.href" type="primary" @click="addLink">{{linkPopover.editing ? 'Save' : 'Add'}}</MbButton>
       </template>
     </MbPopover>
@@ -243,6 +243,7 @@ export default {
       const {
         href, newTab, nofollow, title,
       } = this.linkPopover;
+      if (!href) return;
       const attrs = {
         href,
         rel: null,
@@ -258,7 +259,7 @@ export default {
       const linkType = this.editorState.schema.marks.link;
       if (this.activeMarks.includes('link')) this.setMark(linkType); // toggle it off, hacky
       this.setMark(linkType, attrs);
-      this.closeLinkPopover();
+      this.linkPopover.visible = false;
     },
     closeLinkPopover() {
       this.linkPopover = {
@@ -615,7 +616,7 @@ export default {
     },
     removeLink() {
       this.setMark(this.editorState.schema.marks.link);
-      this.closeLinkPopover();
+      this.linkPopover.visible = false;
     },
     setCodeBlockLang(lang) {
       setBlockType(this.editorState.schema.nodes.codeBlock, { lang })(this.editorState, this.editorView.dispatch);
@@ -1080,7 +1081,7 @@ export default {
       background-color: $bg-tertiary-dark
 
     & + .remove-link
-      margin-top: 2rem
+      margin-top: 1.5rem
 
   .input,
   .internal-link
