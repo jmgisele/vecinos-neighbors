@@ -1390,7 +1390,8 @@ export default {
       align-items: center
       justify-content: space-between
 
-      &.MbCheckboxGroup
+      &.MbCheckboxGroup,
+      &.MbPalette
         align-items: flex-start
 
         > span
@@ -1399,6 +1400,14 @@ export default {
         > .checkbox-group
           width: 100%
           max-width: (192 / 16)rem
+
+      &.MbPalette
+        > span
+          margin-top: 1rem
+
+        > .palette
+          width: 100%
+          max-width: (355 / 16)rem
 
       @media $mobile
         flex-wrap: wrap
