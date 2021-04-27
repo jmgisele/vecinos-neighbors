@@ -292,7 +292,9 @@ export default [
       {
         component: 'MbEditor',
         key: 'description',
-        props: { formats: { block: false, inline: ['code', 'em', 'strong', 'link'] }, label: 'Description', outputFormat: 'html' },
+        props: {
+          formats: { block: false, inline: ['code', 'em', 'strong', 'link'] }, label: 'Description', linkOptions: { forceBlankTarget: true, forceNofollow: true, only: 'external' }, outputFormat: 'html',
+        },
         value: '',
       },
     ],
