@@ -464,6 +464,7 @@ export default [
         component: 'MbPalette',
         key: 'palette',
         label: 'Custom palette:',
+        props: { format: 'rgba' },
         value: [],
       },
     ],
