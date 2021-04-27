@@ -6,7 +6,7 @@
       <MbButton :dark="dark" icon="trash" type="negative" @click="deleteColor(color)" />
     </li>
     <li :class="{ error: newColor.error }" key="addColorItem">
-      <MbColorPicker v-model="newColor.value" :dark="dark" :format="format" :hide-label="$store.state.application.mobile" />
+      <MbColorPicker v-model="newColor.value" :dark="dark" :format="format" hide-label />
       <MbInput v-model.lazy="newColor.label" :dark="dark" :error="newColor.error" placeholder="Color name" @keyup.enter="addColor" @update:modelValue="newColor.error = validateLabel($event)" />
       <MbButton :dark="dark" :disabled="Boolean(newColor.error)" icon="plus" type="positive" @click="addColor"/>
     </li>
@@ -38,7 +38,7 @@ export default {
       if (this.newColor.error) return;
 
       this.$emit('update:modelValue', [...this.modelValue, { label: this.newColor.label.trim(), value: this.newColor.value }]);
-      this.newColor.value = null;
+      this.newColor.value = 'rgba(255, 255, 255, 0)';
       this.newColor.label = '';
     },
     deleteColor(color) {
