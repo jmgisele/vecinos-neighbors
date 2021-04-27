@@ -857,6 +857,7 @@ export default {
         ],
         popovers: [
           ['Name', 'Data'],
+          ['`after-close`', ''],
           ['`close`', ''],
         ],
         projectCards: [

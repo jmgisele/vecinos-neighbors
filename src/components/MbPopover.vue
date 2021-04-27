@@ -1,6 +1,6 @@
 <template lang="html">
   <teleport to="body">
-    <transition>
+    <transition @after-leave="$emit('after-close')">
       <div v-show="visible" v-bind="$attrs" class="popover" :class="{ dark, right: fromRight, transition }" ref="el" :style="{ left, top, transformOrigin }" tabindex="-1" @keyup.esc="close">
         <header v-if="$slots.header" :class="{ 'no-padding': noContentPadding }">
           <slot name="header" />
@@ -31,7 +31,7 @@ export default {
       transformOrigin: null,
     };
   },
-  emits: ['close'],
+  emits: ['after-close', 'close'],
   inheritAttrs: false, // because this technically qualifies as a fragment since it teleports
   mounted() {
     if (this.visible) {
