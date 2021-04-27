@@ -1,8 +1,8 @@
 <template lang="html">
   <transition-group class="palette" tag="ul">
     <li v-for="(color, index) in colorsWithoutSoftDeleted" :class="{ error: errors.has(color) }" :key="color.label">
-      <MbColorPicker v-model="color.value" :dark="dark" :format="format" hide-label />
-      <MbInput :dark="dark" :error="errors.get(color)" :model-modifiers="{ lazy: true }" :model-value="color.label" placeholder="Color name" @update:model-value="handleChange($event, index)" />
+      <MbColorPicker :dark="dark" :format="format" hide-label :model-value="color.value" @update:model-value="handleChange($event, index, 'value')" />
+      <MbInput :dark="dark" :error="errors.get(color)" :model-modifiers="{ lazy: true }" :model-value="color.label" placeholder="Color name" @update:model-value="handleChange($event, index, 'label')" />
       <MbButton :dark="dark" icon="trash" type="negative" @click="deleteColor(color)" />
     </li>
     <li :class="{ error: newColor.error }" key="addColorItem">
@@ -60,15 +60,21 @@ export default {
         type: 'warning',
       });
     },
-    handleChange(newVal, index) {
+    handleChange(newVal, index, prop) {
       const color = this.modelValue[index];
-      const error = this.validateLabel(newVal);
-      if (error) {
-        this.errors.set(color, error);
-        return;
+      if (prop === 'label') {
+        const error = this.validateLabel(newVal);
+        if (error) {
+          this.errors.set(color, error);
+          return;
+        }
+        if (this.errors.has(color)) this.errors.delete(color);
+        color.label = newVal.trim();
       }
-      if (this.errors.has(color)) this.errors.delete(color);
-      color.label = newVal.trim();
+
+      if (prop === 'value') {
+        color.value = newVal;
+      }
       this.$emit('update:modelValue', this.modelValue);
     },
     validateLabel(label) {
