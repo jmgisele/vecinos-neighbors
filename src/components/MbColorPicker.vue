@@ -1,6 +1,6 @@
 <template lang="html">
-  <button class="color-picker" :class="{ dark }" @click="activate">
-    <div class="color-swatch">
+  <button class="color-picker" :class="{ dark, 'no-label': hideLabel }" @click="activate">
+    <div class="color-swatch" :class="{ 'no-label': hideLabel }">
       <div v-show="Boolean(modelValue)" class="old-color" :style="{ backgroundImage: `linear-gradient(to right, ${currentColorNoAlpha} 50%, ${modelValue} 50%)` }" />
       <transition @after-leave="updateModel">
         <div v-show="popover.show && newColor && newColor !== modelValue" class="new-color" :class="{ cancelled: newColor === modelValue || (removable && !modelValue && workingColor.a === 0) }">
@@ -8,7 +8,7 @@
         </div>
       </transition>
     </div>
-    <span>{{label}}</span>
+    <span v-if="!hideLabel">{{label}}</span>
     <MbPopover center-x class="color-popover" :dark="dark" no-content-padding ref="popover" :style="{ minWidth: `${popover.minWidth}px`}" :visible="popover.show" :x="popover.x" :y="popover.y" @close="deactivate" @focusout="handleFocusout" @keydown.arrow-down.arrow-up.prevent @keyup.arrow-down="focus(1)" @keyup.arrow-up="focus(-1)">
       <div v-if="!paletteOnly" class="padder" :class="[format, {removable}]">
         <div class="saturation-picker" ref="saturationPicker" :style="{backgroundColor: saturationPickerBG}" @pointerdown="activateSaturationPicker" @touchstart.stop>
@@ -321,6 +321,7 @@ export default {
       default: 'hex',
       validator: (v) => ['hex', 'rgb', 'rgba'].includes(v),
     },
+    hideLabel: Boolean,
     modelValue: String,
     palette: Array,
     paletteOnly: Boolean,
@@ -361,6 +362,9 @@ $checkerboardBG(color, size = 1rem)
   white-space: nowrap
   max-width: 100%
 
+  &.no-label
+    padding-right: 0.5rem
+
   &:hover
     background-color: $bg-tertiary
 
@@ -391,7 +395,7 @@ $checkerboardBG(color, size = 1rem)
     bottom: @top
     box-shadow: inset 0 0 0 0.125rem $accent
     opacity: 0
-    border-radius: @border-radius
+    border-radius: inherit
     transition: opacity 200ms ease
 
   .color-swatch
@@ -405,6 +409,9 @@ $checkerboardBG(color, size = 1rem)
     flex-shrink: 0
     padding: 0.0625rem
     background-clip: content-box
+
+    &.no-label
+      margin-right: 0
 
     .old-color,
     .new-color

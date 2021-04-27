@@ -945,6 +945,7 @@ export default {
           ['Name', 'Type', 'Default', 'Allowed Values'],
           ['`dark`', 'Boolean', '`false`', ''],
           ['`format`', 'String', '`hex`', 'hex, rgb, rgba'],
+          ['`hideLabel`', 'Boolean', '`false`', ''],
           ['`modelValue`', 'String', '', ''],
           ['`palette`', 'Array', '`undefined`', 'Valid hex or rgb colors'],
           ['`paletteOnly`', 'Boolean', '`false`', ''],
