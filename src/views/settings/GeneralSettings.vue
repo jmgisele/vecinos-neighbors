@@ -48,6 +48,7 @@
     <section class="wrapper">
       <h2>Brand Colours</h2>
       <p>The colour palette you set up below will be available as an option while setting up colour picker fields. It can be used to ensure that your content stays on brand, while still giving your editors the option to add a splash of colour here and there.</p>
+      <MbPalette v-model="brandColors" :dark="dark" format="rgba" />
     </section>
     <section class="wrapper">
       <h2>Repository</h2>
@@ -81,6 +82,15 @@ export default {
     TabContent,
   },
   computed: {
+    brandColors: {
+      get() {
+        return this.$store.state.currentProject.brandColors;
+      },
+      set(v) {
+        this.$store.commit('setCurrentProjectProperty', { key: 'brandColors', value: v });
+        this.$store.dispatch('saveCurrentProject');
+      },
+    },
     currentProject() {
       return this.$store.state.currentProject;
     },
