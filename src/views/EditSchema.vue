@@ -1226,7 +1226,8 @@ export default {
         color: $text-secondary-dark
 
     section
-      .input
+      .input,
+      .tag-input
         background-color: $bg-tertiary-dark
 
       .editor
@@ -1244,7 +1245,8 @@ export default {
         .highlight-box
           background-color: $bg-dark
 
-        .input
+        .input,
+        .tag-input
           background-color: $bg-secondary-dark
 
   header
@@ -1402,6 +1404,11 @@ export default {
           max-width: (192 / 16)rem
 
       &.MbPalette
+        .palette
+          &::v-deep(li > .input.dark),
+          &::v-deep(li > .color-picker.dark)
+            background-color: $bg-tertiary-dark
+
         > span
           margin-top: 1rem
 
@@ -1415,6 +1422,9 @@ export default {
         > span
           margin-bottom: 0.5rem
 
+          & + .input
+            width: 100%
+
         &::v-deep(> .select),
         > .radio-group.inline::v-deep(label)
           width: 100%
@@ -1427,6 +1437,9 @@ export default {
 
       > *:only-child
         width: 100%
+
+      > span + .input
+        margin-top: 0
 
 .edit-tab-modal,
 .edit-schema-modal
