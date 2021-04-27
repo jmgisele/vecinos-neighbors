@@ -1,6 +1,6 @@
 <template lang="html">
   <div class="checkbox-group">
-    <MbCheckbox v-for="(checkbox, index) in checkboxes" :disabled="checkbox.disabled" :key="index" :model-value="modelValue.indexOf(checkbox.value) > -1" @update:model-value="handleChange($event, checkbox.value)">{{checkbox.label}}</MbCheckbox>
+    <MbCheckbox v-for="(checkbox, index) in checkboxes" :dark="dark" :disabled="checkbox.disabled" :key="index" :model-value="modelValue.indexOf(checkbox.value) > -1" @update:model-value="handleChange($event, checkbox.value)">{{checkbox.label}}</MbCheckbox>
   </div>
 </template>
 
