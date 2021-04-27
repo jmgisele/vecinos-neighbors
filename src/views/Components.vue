@@ -612,6 +612,15 @@
         <h3>Events</h3>
         <MbTable :data="events.palettes" />
       </section>
+      <section v-else-if="activeTabValue === 'editable-lists'" class="tab editable-lists">
+        <h2>Editable Lists</h2>
+        <p>This component allows to create and edit simple arrays or label/value object arrays.</p>
+        <MbEditableList v-model="editableListTest" :dark="dark" />
+        <h3>Props</h3>
+        <MbTable :data="props.editableLists" />
+        <h3>Events</h3>
+        <MbTable :data="events.editableLists" />
+      </section>
       <section v-else class="tab" key="exampleTab">
         <p>This is just an empty test-tab.</p>
         <p>To delete it, click the button in the “<u @click="activeTab = tabs.findIndex((tab) => tab.value === 'tabs')">Tabs</u>”-tab.</p>
@@ -775,6 +784,7 @@ export default {
       currentColor: 'rgba(123, 255, 213, 0.25)',
       currentPath: '/',
       currentFile: null,
+      editableListTest: [],
       entityBeingModified: null,
       events: {
         asyncImages: [
@@ -813,6 +823,10 @@ export default {
           ['Name', 'Data'],
           ['`close`', ''],
           ['`entity-created`', 'The name of the newly created entity'],
+        ],
+        editableLists: [
+          ['Name', 'Data'],
+          ['`update:modelValue`', 'The new list array / object'],
         ],
         entityMoveModals: [
           ['Name', 'Data'],
@@ -987,6 +1001,11 @@ export default {
           ['`placeholder`', 'String', 'Choose a date…'],
           ['`removable`', 'Boolean', '`false`'],
           ['`showTime`', 'Boolean', '`false`'],
+        ],
+        editableLists: [
+          ['Name', 'Type', 'Default'],
+          ['`dark`', 'Boolean', '`false`'],
+          ['`modelValue`', 'Array, Object', '`undefined`'],
         ],
         entityCreationModals: [
           ['Name', 'Type', 'Default', 'Notes'],
@@ -1347,6 +1366,7 @@ export default {
         { label: 'Color Palettes', value: 'palettes' },
         { label: 'Context Menus', value: 'context-menus' },
         { label: 'Date Pickers', value: 'date-pickers' },
+        { label: 'Editable Lists', value: 'editable-lists' },
         { label: 'File Lists', value: 'file-lists' },
         { label: 'File Pickers', value: 'file-pickers' },
         { label: 'Highlight Boxes', value: 'highlight-boxes' },
