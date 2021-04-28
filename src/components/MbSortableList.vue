@@ -139,6 +139,7 @@ export default {
   > .drag-item
       &.v-move
         transition: transform 200ms ease
+        pointer-events: none
 
       [data-drag-handle]
         touch-action: none
