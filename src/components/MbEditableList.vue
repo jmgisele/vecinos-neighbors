@@ -17,9 +17,9 @@
           <div class="item-icon">
             <MbIcon :icon="newItem.error ? 'error' : 'document-add'" />
           </div>
-          <MbInput v-if="mode === 'advanced'" v-model.lazy="newItem.label" :dark="dark" placeholder="Label" ref="labelInput" />
-          <MbInput v-model.lazy="newItem.value" :dark="dark" :placeholder="mode === 'simple' ? 'New item' : 'Value'" @keyup.enter="addItem" />
-          <MbButton :dark="dark" :disabled="newItem.error" icon="plus" type="positive" @click="addItem" />
+          <MbInput v-if="mode === 'advanced'" v-model.lazy="newItem.label" :dark="dark" placeholder="Label" ref="labelInput" @update:model-value="validate('label', $event)" />
+          <MbInput v-model.lazy="newItem.value" :dark="dark" :placeholder="mode === 'simple' ? 'New item' : 'Value'" @keyup.enter="addItem" @update:model-value="validate('value', $event)" />
+          <MbButton :dark="dark" :disabled="Boolean(newItem.error)" icon="plus" type="positive" @click="addItem" />
         </div>
       </div>
     </transition>
@@ -53,7 +53,7 @@ export default {
       mode: null,
       model: null,
       newItem: {
-        error: 'Cheese',
+        error: '',
         label: '',
         value: '',
       },
@@ -63,6 +63,9 @@ export default {
   emits: ['update:modelValue'],
   methods: {
     addItem() {
+      if (this.mode === 'advanced') this.validate('label', this.newItem.label);
+      this.validate('value', this.newItem.value);
+      if (this.newItem.error) return;
       if (this.mode === 'simple') this.model.items.push({ label: '', value: this.newItem.value });
       else if (this.mode === 'advanced') this.model.items.push({ label: this.newItem.label, value: this.newItem.value });
       this.updateModelValue();
@@ -102,6 +105,8 @@ export default {
       this.updateModelValue();
     },
     handleItemUpdate(newVal, index, type) {
+      this.validate(type, newVal, this.model.items[index]);
+      if (this.errors.size > 0) return;
       this.model.items[index][type] = newVal;
       this.updateModelValue();
     },
@@ -110,6 +115,16 @@ export default {
       if (this.mode === 'file') this.$emit('update:modelValue', this.model.file);
       else if (this.mode === 'simple') this.$emit('update:modelValue', this.model.items.map((item) => item.value));
       else this.$emit('update:modelValue', this.model.items);
+    },
+    validate(field, value, item) {
+      let error = '';
+
+      if (!value || !value.trim()) error = `A ${field} is required`;
+      else if (field === 'value' && this.model.items.find((existingItem) => existingItem.value === value) && (!item || item.value !== value)) error = 'This value already exists';
+
+      if (!item) this.newItem.error = error;
+      else if (error) this.errors.set(item, error);
+      else this.errors.delete(item);
     },
   },
   mounted() {
