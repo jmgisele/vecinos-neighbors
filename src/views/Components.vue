@@ -615,6 +615,8 @@
       <section v-else-if="activeTabValue === 'editable-lists'" class="tab editable-lists">
         <h2>Editable Lists</h2>
         <p>This component allows to create and edit simple arrays or label/value object arrays.</p>
+        <p>The current value is: <code>{{editableListTest}}</code></p>
+        <MbButton :dark="dark" @click="editableListTest = []" style="margin-bottom: 1rem;">Reset Model</MbButton>
         <MbEditableList v-model="editableListTest" :dark="dark" />
         <h3>Props</h3>
         <MbTable :data="props.editableLists" />
