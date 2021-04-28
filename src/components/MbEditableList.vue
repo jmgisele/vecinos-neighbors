@@ -14,8 +14,11 @@
           </div>
         </MbSortableList>
         <div class="item" :class="[mode]">
-          <MbInput v-if="mode === 'advanced'" v-model.lazy="newItem.label" :dark="dark" :errors="newItem.error" placeholder="New item label" />
-          <MbInput v-model.lazy="newItem.value" :dark="dark" :errors="newItem.error" :placeholder="mode === 'simple' ? 'New item' : 'New item value'" @keyup.enter="addItem" />
+          <div class="item-icon">
+            <MbIcon icon="document-add" />
+          </div>
+          <MbInput v-if="mode === 'advanced'" v-model.lazy="newItem.label" :dark="dark" :errors="newItem.error" placeholder="Label" />
+          <MbInput v-model.lazy="newItem.value" :dark="dark" :errors="newItem.error" :placeholder="mode === 'simple' ? 'New item' : 'Value'" @keyup.enter="addItem" />
           <MbButton :dark="dark" icon="plus" type="positive" @click="addItem" />
         </div>
       </div>
@@ -30,10 +33,23 @@ export default {
       return this.$store.state.application.mobile;
     },
   },
+  created() {
+    if (Array.isArray(this.modelValue)) {
+      if (typeof this.modelValue[0] === 'object') this.mode = 'advanced';
+      else this.mode = 'simple';
+    } else this.mode = 'file';
+
+    this.backups[this.mode] = this.modelValue;
+  },
   data() {
     return {
+      backups: {
+        simple: null,
+        advanced: null,
+        file: null,
+      },
       errors: new Map(),
-      mode: 'simple',
+      mode: null,
       newItem: {
         error: '',
         label: '',
@@ -59,17 +75,19 @@ export default {
       console.log(newVal, item, index);
     },
   },
+  mounted() {
+    this.initialised = true;
+  },
   props: {
     dark: Boolean,
     modelValue: [Array, Object],
   },
   watch: {
     mode(nv, ov) {
-      if (nv === 'file' || ov === 'file') {
-        this.$emit('update:modelValue', []);
-        return;
-      }
-      if (nv === 'simple') this.$emit('update:modelValue', this.modelValue.map((item) => item.value));
+      if (!ov) return; // initial change
+      if (ov === 'file') this.$emit('update:modelValue', []);
+      else if (nv === 'file') this.$emit('update:modelValue', { path: null, key: '' });
+      else if (nv === 'simple') this.$emit('update:modelValue', this.modelValue.map((item) => item.value));
       else if (nv === 'advanced') this.$emit('update:modelValue', this.modelValue.map((item) => ({ label: '', value: item })));
     },
   },
@@ -77,6 +95,9 @@ export default {
 </script>
 
 <style lang="stylus" scoped>
+@require '../assets/styles/colors'
+@require '../assets/styles/corners'
+
 .editable-list
   .segmented-selector
     margin-bottom: 1rem
@@ -91,11 +112,14 @@ export default {
         opacity: 0
 
     .sortable-list::v-deep(.drag-item)
-      margin-bottom: 1rem
+      margin-bottom: 0.5rem
 
 .item
   display: flex
   align-items: center
+  background-color: $bg-secondary
+  border-radius: $radius-m
+  padding-right: 0.25rem
 
   &.being-dragged
     opacity: 0.25
@@ -104,26 +128,28 @@ export default {
     .input
       &:first-of-type
         margin-right: 0
-        border-bottom-right-radius: 0
-        border-top-right-radius: 0
+        border-right: none
 
-      &:last-of-type
-        border-top-left-radius: 0
-        border-bottom-left-radius: 0
-        margin-left: 0.0625rem
+  .drag-handle,
+  .item-icon
+    padding: 1rem
 
   .drag-handle
-    padding: 1rem
     cursor: move
 
   .input
     margin-top: 0
     flex-grow: 1
-    margin-right: 1rem
+    margin-right: 0.25rem
+    border-left: 0.0625rem solid $bg
+    border-right: @border-left
 
     &:first-child
       margin-left: 3.5rem
 
     &.error
       margin-top: 1.5rem
+
+  .button
+    flex-shrink: 0
 </style>
