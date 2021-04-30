@@ -1,11 +1,11 @@
 <template lang="html">
   <transition-group class="palette" tag="ul">
-    <li v-for="(color, index) in colorsWithoutSoftDeleted" :class="{ error: errors.has(color) }" :key="color.label">
+    <li v-for="(color, index) in colorsWithoutSoftDeleted" :class="{ dark, error: errors.has(color) }" :key="color.label">
       <MbColorPicker :dark="dark" :format="format" hide-label :model-value="color.value" @update:model-value="handleChange($event, index, 'value')" />
       <MbInput :dark="dark" :error="errors.get(color)" :model-modifiers="{ lazy: true }" :model-value="color.label" placeholder="Color name" @update:model-value="handleChange($event, index, 'label')" />
       <MbButton :dark="dark" icon="trash" type="negative" @click="deleteColor(color)" />
     </li>
-    <li :class="{ error: newColor.error }" key="addColorItem">
+    <li :class="{ dark, error: newColor.error }" key="addColorItem">
       <MbColorPicker v-model="newColor.value" :dark="dark" :format="format" hide-label />
       <MbInput v-model.lazy="newColor.label" :dark="dark" :error="newColor.error" placeholder="Color name" @keyup.enter="addColor" @update:modelValue="newColor.error = validateLabel($event)" />
       <MbButton :dark="dark" :disabled="Boolean(newColor.error)" icon="plus" type="positive" @click="addColor"/>
@@ -94,6 +94,8 @@ export default {
 
 <style lang="stylus" scoped>
 @require '../assets/styles/breakpoints'
+@require '../assets/styles/colors'
+@require '../assets/styles/corners'
 
 .palette
   list-style: none
@@ -104,6 +106,15 @@ export default {
   > li
     display: flex
     align-items: center
+    background-color: $bg-secondary
+    border-radius: $radius-m
+
+    &.dark
+      background-color: $bg-secondary-dark
+
+      > .input
+        border-left-color: $bg-dark
+        border-right-color: @border-left-color
 
     &:not(:last-child)
       margin-bottom: 1rem
@@ -133,14 +144,15 @@ export default {
     > .input
       margin-top: 0
       margin-left: 0.0625rem
-      border-top-left-radius: 0
-      border-bottom-left-radius: 0
       flex-grow: 1
+      border-left-color: $bg
+      border-right-color: $bg
+
+      &:not(:focus-within)
+        border-radius: 0
 
     > .button.icon
-      margin-left: 1rem
+      margin: 0.25rem
       flex-shrink: 0
 
-      @media $mobile
-        margin-left: 0.5rem
 </style>
