@@ -172,6 +172,7 @@ export default {
       border-top-left-radius: 0
       border-bottom-left-radius: @border-top-left-radius
       min-width: auto
+      flex-shrink: 0
       border: none
       background-color: $bg-secondary
       margin-left: 0.0625rem
