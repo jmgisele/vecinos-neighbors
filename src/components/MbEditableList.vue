@@ -22,11 +22,17 @@
           <MbButton :dark="dark" :disabled="Boolean(newItem.error)" icon="plus" type="positive" @click="addItem" />
         </div>
       </div>
+      <div v-else class="mode file" key="fileMode">
+        <MbFilePicker :dark="dark" :filetypes="['json']" mode="file" :model-value="model.file.path && relativeToRoot ? `${rootPath}${model.file.path}` : model.file.path" placeholder="Pick a JSON-file…" removable :root="rootPath" @update:model-value="handleFilePick" />
+        <MbSelect :dark="dark" :disabled="fileKeys.length === 0" :loading="keysLoading" :model-value="model.file.key" :options="fileKeys" placeholder="Select a key…" @update:model-value="handleKeySelect" />
+      </div>
     </transition>
   </div>
 </template>
 
 <script>
+import fs from '../fs';
+
 export default {
   computed: {
     isMobile() {
@@ -49,7 +55,9 @@ export default {
   data() {
     return {
       errors: new Map(),
+      fileKeys: [],
       internalChange: false,
+      keysLoading: false,
       mode: null,
       model: null,
       newItem: {
@@ -93,6 +101,33 @@ export default {
         type: 'warning',
       });
     },
+    async handleFilePick(path) {
+      if (path === null) this.model.file = { path: null };
+      else {
+        try {
+          this.keysLoading = true;
+          const fileContent = JSON.parse(await fs.readFile(path, 'utf8'));
+          this.fileKeys = Object.entries(fileContent).reduce((acc, [key, value]) => {
+            if (Array.isArray(value)
+              && value.every((element) => typeof element !== 'object' || (typeof element.label === 'string' && typeof element.value !== 'object' && typeof element.value !== 'undefined'))
+            ) acc.push(key);
+            return acc;
+          }, []);
+          if (this.fileKeys.length === 0) this.$store.commit('addToast', { message: 'The file you selected doesn’t seem to have any eligible keys. Please select a different one', type: 'warning' });
+        } catch (err) {
+          if (err.name === 'SyntaxError') {
+            this.$store.commit('addToast', { message: 'The file you selected is not a valid JSON file', type: 'error' });
+            this.keysLoading = false;
+            return;
+          }
+          this.$store.commit('addToast', { message: `Something went wrong while reading the selected file: ${err.message}`, type: 'error' });
+        }
+        this.keysLoading = false;
+        if (this.relativeToRoot && this.rootPath) this.model.file.path = path.replace(this.rootPath, ''); // eslint-disable-line no-lonely-if
+        else this.model.file.path = path;
+      }
+      this.updateModelValue();
+    },
     handleItemMove({ activeItem, index, isBottomHalf }) {
       const currentIndex = this.model.items.indexOf(activeItem);
       if ((currentIndex < index && isBottomHalf) || (currentIndex > index && !isBottomHalf)) {
@@ -108,6 +143,10 @@ export default {
       this.validate(type, newVal, this.model.items[index]);
       if (this.errors.size > 0) return;
       this.model.items[index][type] = newVal;
+      this.updateModelValue();
+    },
+    handleKeySelect(key) {
+      this.model.file.key = key;
       this.updateModelValue();
     },
     updateModelValue() {
@@ -133,6 +172,11 @@ export default {
   props: {
     dark: Boolean,
     modelValue: [Array, Object],
+    relativeToRoot: Boolean,
+    rootPath: {
+      type: String,
+      default: '/',
+    },
   },
   watch: {
     mode(nv, ov) {
@@ -146,8 +190,11 @@ export default {
         return;
       }
 
-      if (this.mode === 'file') this.model.file = nv;
-      else if (this.mode === 'simple') this.model.items = nv.map((value) => ({ label: '', value }));
+      if (this.mode === 'file') {
+        if (this.rootPath && this.relativeToRoot && nv.path) this.model.file = { ...nv, path: `${this.rootPath}${nv.path}` };
+        else this.model.file = nv;
+        this.fileKeys = [];
+      } else if (this.mode === 'simple') this.model.items = nv.map((value) => ({ label: '', value }));
       else this.model.items = nv;
     },
   },
@@ -155,6 +202,7 @@ export default {
 </script>
 
 <style lang="stylus" scoped>
+@require '../assets/styles/breakpoints'
 @require '../assets/styles/colors'
 @require '../assets/styles/corners'
 
@@ -170,6 +218,23 @@ export default {
       &.v-enter-from,
       &.v-leave-to
         opacity: 0
+
+    &.file
+      display: flex
+
+      @media $mobile
+        display: block
+
+        > .file-picker
+          margin-right: 0
+          margin-bottom: 1rem
+
+        ::v-deep(> .select)
+          width: 100%
+
+      > .file-picker
+        width: 100%
+        margin-right: 1rem
 
     .sortable-list
       position: relative
