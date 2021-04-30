@@ -156,6 +156,7 @@ export default {
     margin-left: 0.75rem
     overflow: hidden
     text-overflow: ellipsis
+    margin-right: auto
 
     &.placeholder
       color: $text-secondary
