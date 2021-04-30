@@ -115,6 +115,7 @@ export default {
   text-align: left
   white-space: nowrap
   max-width: 100%
+  overflow: hidden
 
   &:hover
     background-color: $bg-tertiary
