@@ -1008,6 +1008,8 @@ export default {
           ['Name', 'Type', 'Default'],
           ['`dark`', 'Boolean', '`false`'],
           ['`modelValue`', 'Array, Object', '`undefined`'],
+          ['`relativeToRoot`', 'Boolean', '`false`'],
+          ['`rootPath`', 'String', '`\'/\'`'],
         ],
         entityCreationModals: [
           ['Name', 'Type', 'Default', 'Notes'],
