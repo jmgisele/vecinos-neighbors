@@ -366,7 +366,7 @@
         <h3>Notes</h3>
         <p>The component offers an async <code>refresh</code> method that can be used to refresh the current directory if needed. To use it you will need a <code>$ref</code> for the component.</p>
         <MbModal class="file-preview-modal" :dark="dark" :title="currentFile" :visible="showFilePreviewModal" @after-close="resetFilePreview" @close="showFilePreviewModal = false">
-          <pre>{{fileContent}}</pre>
+          <MbEditor v-model="fileContent" :dark="dark" @keyup.ctrl.enter="saveCurrentFileContent" />
         </MbModal>
       </section>
       <section v-else-if="activeTabValue === 'tables'" class="tab">
@@ -1427,6 +1427,10 @@ export default {
     removeTab() {
       const lastTab = this.tabs[this.tabs.length - 1];
       if (lastTab.value.startsWith('untitled')) this.tabs.pop();
+    },
+    async saveCurrentFileContent() {
+      await fs.writeFile(this.currentFile, this.fileContent, 'utf8');
+      this.$store.commit('addToast', { message: 'File Saved!', type: 'positive' });
     },
     sayHi() {
       this.$store.commit('addToast', { message: 'Hi from Toast!' });
