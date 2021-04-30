@@ -151,9 +151,9 @@ export default {
     },
     updateModelValue() {
       this.internalChange = true;
-      if (this.mode === 'file') this.$emit('update:modelValue', this.model.file);
+      if (this.mode === 'file') this.$emit('update:modelValue', { ...this.model.file });
       else if (this.mode === 'simple') this.$emit('update:modelValue', this.model.items.map((item) => item.value));
-      else this.$emit('update:modelValue', this.model.items);
+      else this.$emit('update:modelValue', [...this.model.items]);
     },
     validate(field, value, item) {
       let error = '';
