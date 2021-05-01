@@ -629,4 +629,27 @@ export default [
     value: null,
     visibility: { hidden: false, showByValue: { field: null } },
   },
+  {
+    type: 'checkboxes',
+    default: null,
+    description: 'A custom list of boxes to be checked',
+    group: 'helpers',
+    icon: 'checkbox-list',
+    key: '',
+    label: 'Checkboxes',
+    options: [
+      {
+        component: 'MbEditableList',
+        key: 'checkboxes',
+        label: 'Checkboxes:',
+        value: [],
+      },
+    ],
+    tab: null,
+    validation: {
+      enforceMinMax: false, max: null, min: null, unit: 'boxes selected',
+    },
+    value: null,
+    visibility: { hidden: false, showByValue: { field: null } },
+  },
 ];
