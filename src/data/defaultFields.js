@@ -652,4 +652,40 @@ export default [
     value: null,
     visibility: { hidden: false, showByValue: { field: null } },
   },
+  {
+    type: 'radio-group',
+    default: null,
+    description: 'A list of values of which only one may be selected',
+    group: 'helpers',
+    icon: 'radio-group-list',
+    key: '',
+    label: 'Radio Group',
+    options: [
+      {
+        component: 'MbSelect',
+        key: 'type',
+        label: 'Display type:',
+        props: {
+          options: [
+            { label: 'Inline', value: 'inline' },
+            { label: 'Wide', value: 'wide' },
+            { label: 'Segmened', value: 'segmented' },
+          ],
+        },
+        value: 'inline',
+      },
+      {
+        component: 'MbEditableList',
+        key: 'options',
+        label: 'Options:',
+        value: [],
+      },
+    ],
+    tab: null,
+    validation: {
+      required: false,
+    },
+    value: null,
+    visibility: { hidden: false, showByValue: { field: null } },
+  },
 ];
