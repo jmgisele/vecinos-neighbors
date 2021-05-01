@@ -82,7 +82,8 @@
             <h3>Field Configuration</h3>
             <section v-for="option in availableFieldOptions.get(fieldBeingEdited.type)" class="config-option" :class="[option.component]" :key="option.key">
               <span v-if="option.label">{{option.label}}</span>
-              <component v-bind="option.props" v-model="fieldBeingEdited.options[option.key]" :dark="dark" :is="option.component">{{option.slot}}</component>
+              <MbEditableList v-if="option.component === 'MbEditableList'" v-model="fieldBeingEdited.options[option.key]" :dark="dark" relative-to-root :root-path="`/projects/${$route.params.id}`" />
+              <component v-else v-bind="option.props" v-model="fieldBeingEdited.options[option.key]" :dark="dark" :is="option.component">{{option.slot}}</component>
             </section>
           </section>
           <section v-if="fieldBeingEdited.validation">
@@ -1405,9 +1406,16 @@ export default {
 
       &.MbPalette
         .palette
-          &::v-deep(li > .input.dark),
-          &::v-deep(li > .color-picker.dark)
+          &::v-deep(li.dark)
             background-color: $bg-tertiary-dark
+
+            .input,
+            .color-picker
+              background-color: $bg-tertiary-dark
+
+            .input
+              border-left-color: $bg-secondary-dark
+              border-right-color: @border-left-color
 
         > span
           margin-top: 1rem
@@ -1415,6 +1423,29 @@ export default {
         > .palette
           width: 100%
           max-width: (355 / 16)rem
+
+      &.MbRadioGroup
+        .radio-group.dark::v-deep(label .fake-radio::after)
+          background-color: $bg-secondary-dark
+
+      &.MbEditableList
+        .editable-list
+          &::v-deep(.segmented-selector.dark)
+            background-color: $bg-tertiary-dark
+
+          &::v-deep(.item.dark)
+            background-color: $bg-tertiary-dark
+
+            .input
+              background-color: $bg-tertiary-dark
+              border-left-color: $bg-secondary-dark
+              border-right-color: @border-left-color
+
+          &::v-deep(.file-picker.dark)
+            background-color: $bg-tertiary-dark
+
+            &:hover
+              background-color: lighten($bg-tertiary-dark, 5)
 
       @media $mobile
         flex-wrap: wrap
