@@ -599,4 +599,41 @@ export default [
     value: null,
     visibility: { hidden: false, showByValue: { field: null } },
   },
+  {
+    type: 'file',
+    default: null,
+    description: 'A file picker to pick certain types of files',
+    group: 'content',
+    icon: 'attachment',
+    key: '',
+    label: 'File',
+    localised: false,
+    options: [
+      {
+        component: 'MbToggle',
+        key: 'removable',
+        slot: 'Allow the file to be removed once set',
+        value: false,
+      },
+      {
+        component: 'MbFilePicker',
+        key: 'root',
+        label: 'Only allow picking files from this folder:',
+        props: { removable: true },
+        value: null,
+      },
+      {
+        component: 'MbTagInput',
+        key: 'filetypes',
+        props: { allowUnsuggested: true, label: 'Allowed file extensions (no dot)', placeholder: 'New extension…' },
+        value: ['pdf', 'zip'],
+      },
+    ],
+    tab: null,
+    validation: {
+      max: null, required: false, unit: 'size (MB)',
+    },
+    value: null,
+    visibility: { hidden: false, showByValue: { field: null } },
+  },
 ];

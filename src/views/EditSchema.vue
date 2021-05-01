@@ -83,6 +83,7 @@
             <section v-for="option in availableFieldOptions.get(fieldBeingEdited.type)" class="config-option" :class="[option.component]" :key="option.key">
               <span v-if="option.label">{{option.label}}</span>
               <MbEditableList v-if="option.component === 'MbEditableList'" v-model="fieldBeingEdited.options[option.key]" :dark="dark" relative-to-root :root-path="`/projects/${$route.params.id}`" />
+              <MbFilePicker v-if="option.component === 'MbFilePicker'" v-bind="option.props" v-model="fieldBeingEdited.options[option.key]" :dark="dark" :root="`/projects/${$route.params.id}`" />
               <component v-else v-bind="option.props" v-model="fieldBeingEdited.options[option.key]" :dark="dark" :is="option.component">{{option.slot}}</component>
             </section>
           </section>
@@ -1456,6 +1457,23 @@ export default {
               border-right-color: @border-left-color
 
           &::v-deep(.file-picker.dark)
+            background-color: $bg-tertiary-dark
+
+            &:hover
+              background-color: lighten($bg-tertiary-dark, 5)
+
+      &.MbTagInput
+        .tag-input
+          margin-top: 0.5rem
+          margin-bottom: 0
+
+      &.MbFilePicker
+        .file-picker
+          &:not(:only-child)
+            width: 100%
+            max-width: (320 / 16)rem
+
+          &.dark
             background-color: $bg-tertiary-dark
 
             &:hover
