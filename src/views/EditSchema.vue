@@ -91,10 +91,10 @@
             <h3>Validation</h3>
             <MbToggle v-if="typeof fieldBeingEdited.validation.required !== 'undefined'" v-model="fieldBeingEdited.validation.required" :dark="dark">Make this field required</MbToggle>
             <div v-if="typeof fieldBeingEdited.validation.min !== 'undefined' || typeof fieldBeingEdited.validation.max !== 'undefined'" class="input-row">
-              <MbInput v-if="typeof fieldBeingEdited.validation.min !== 'undefined'" v-model.lazy.number="fieldBeingEdited.validation.min" :dark="dark" :label="`Minimum ${ fieldBeingEdited.validation.unit || ''} (optional)`" type="number" />
-              <MbInput v-if="typeof fieldBeingEdited.validation.max !== 'undefined'" v-model.lazy.number="fieldBeingEdited.validation.max" :dark="dark" :label="`Maximum ${ fieldBeingEdited.validation.unit || ''} (optional)`" type="number" />
+              <MbInput v-if="typeof fieldBeingEdited.validation.min !== 'undefined'" v-model="fieldBeingEdited.validation.min" :dark="dark" :label="`Minimum ${ fieldBeingEdited.validation.unit || ''} (optional)`" :model-modifiers="{ lazy: true, number: !fieldBeingEdited.validation.isString }" :type="fieldBeingEdited.validation.isString ? 'text' : 'number'" />
+              <MbInput v-if="typeof fieldBeingEdited.validation.max !== 'undefined'" v-model="fieldBeingEdited.validation.max" :dark="dark" :label="`Maximum ${ fieldBeingEdited.validation.unit || ''} (optional)`" :model-modifiers="{ lazy: true, number: !fieldBeingEdited.validation.isString }" :type="fieldBeingEdited.validation.isString ? 'text' : 'number'" />
             </div>
-            <MbToggle v-if="typeof fieldBeingEdited.validation.enforceMinMax !== 'undefined' && (fieldBeingEdited.validation.min || fieldBeingEdited.validation.max)" v-model="fieldBeingEdited.validation.enforceMinMax" :dark="dark">Enforce minimum / maximum length</MbToggle>
+            <MbToggle v-if="typeof fieldBeingEdited.validation.enforceMinMax !== 'undefined' && (fieldBeingEdited.validation.min || fieldBeingEdited.validation.max)" v-model="fieldBeingEdited.validation.enforceMinMax" :dark="dark">Enforce minimum / maximum {{fieldBeingEdited.validation.unit}}</MbToggle>
             <div v-if="fieldBeingEdited.validation && typeof fieldBeingEdited.validation.regex !== 'undefined'" class="input-row">
               <MbInput v-model.lazy="fieldBeingEdited.validation.regex" :dark="dark" label="Regular expression (optional)" @update:model-value="validateField('regex')" />
               <MbInput v-show="fieldBeingEdited.validation.regex" v-model.lazy="fieldBeingEdited.validation.regexError" :dark="dark" label="Error message (optional)" />

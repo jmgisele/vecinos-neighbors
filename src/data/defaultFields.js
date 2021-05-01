@@ -21,7 +21,7 @@ interface Field {
     },
   ],
   tab: String,
-  validation: { enforceMinMax: Boolean, max: Number, min: Number, regex: String, regexError: String, required: Boolean, unit: String },
+  validation: { enforceMinMax: Boolean, max: Number, min: Number, regex: String, regexError: String, required: Boolean, unit: String, isString: Boolean },
   value: Any,
   visibility: { hidden: false, limitToRoles: Array, showByValue: { comparator: [String, Number], field: String, value: Any } },
   visualOnly: Boolean, // excluded from content files, serves purely visual function
@@ -368,7 +368,7 @@ export default [
     ],
     tab: null,
     validation: {
-      enforceMinMax: true, max: null, min: null, required: false, unit: 'date',
+      enforceMinMax: true, max: null, min: null, required: false, unit: 'date', isString: true,
     },
     value: null,
     visibility: { hidden: false, showByValue: { field: null } },
