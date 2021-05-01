@@ -1,5 +1,6 @@
 import { isValid, parseISO } from 'date-fns';
 import { isEqual } from 'lodash-es';
+import pluralize from 'pluralize';
 
 import defaultFields from '../../data/defaultFields';
 
@@ -20,7 +21,7 @@ function isLanguageCode(code) {
   return (code.length === 2 && /[a-zA-Z]{2}/.test(code)) || (code.length === 5 && /[a-zA-Z]{2}-[a-zA-Z]{2}/.test(code));
 }
 
-function identifyFieldTypeByValue(value) {
+function identifyFieldTypeByValue(value, key) {
   const candidate = { type: null, typeCandidates: [] }; // may also contain localised and children if necessary
   const valueType = typeof value;
   if (value === null) candidate.typeCandidates = generateAllTypesArray();
@@ -70,7 +71,7 @@ function identifyFieldTypeByValue(value) {
     } else { // it’s a repeating field group
       candidate.type = 'rows';
       candidate.typeCandidates = generateTypeCandidatesArray('rows', 'columns');
-      candidate.children = value.reduce((acc, subvalue, index) => {
+      candidate.children = value.reduce((acc, subvalue) => {
         const childCandidateDetails = identifyFieldTypeByValue(subvalue); // we have to see what type it is before we can filter, because the values might be different from each other despite technically being the same type since their details vary
 
         // once we know the details we can see if they already exist in the accumulator
@@ -80,8 +81,15 @@ function identifyFieldTypeByValue(value) {
           return acc;
         }
 
+        let keyCandidate;
+
+        if (key && pluralize.isPlural(key)) keyCandidate = pluralize.singular(key);
+        else keyCandidate = `${key}-element`;
+
+        const usageAmount = acc.map((existingChildCandidate) => existingChildCandidate.key === keyCandidate).length;
+
         const childCandidate = {
-          key: index === 0 ? childCandidateDetails.type : `${childCandidateDetails.type}-${index}`,
+          key: usageAmount === 0 ? keyCandidate : `${keyCandidate}-${usageAmount}`,
           type: childCandidateDetails.type,
           typeCandidates: childCandidateDetails.typeCandidates,
         };
@@ -96,7 +104,7 @@ function identifyFieldTypeByValue(value) {
   } else if (Object.keys(value).every((subkey) => isLanguageCode(subkey))) { // it’s a localised field
     const { type, typeCandidates } = identifyFieldTypeByValue(Object.values(value)[0]); // look at the first entry and use the type of that
     candidate.type = type;
-    candidate.typeCandidates = [...typeCandidates, generateTypeCandidatesArray('group')];
+    candidate.typeCandidates = [...typeCandidates, ...generateTypeCandidatesArray('group')];
     candidate.localised = true;
   } else if (typeof value.src === 'string' && typeof value.alt !== 'undefined') { // it’s probably an image
     candidate.type = 'image';
@@ -114,7 +122,7 @@ export function generateFieldCandidates(obj) {
     const candidate = { key, type: null, typeCandidates: [] };
     const {
       type, typeCandidates, localised, children,
-    } = identifyFieldTypeByValue(value);
+    } = identifyFieldTypeByValue(value, key);
 
     candidate.type = type;
     candidate.typeCandidates = typeCandidates;
