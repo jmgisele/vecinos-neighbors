@@ -1,4 +1,5 @@
 import { isValid, parseISO } from 'date-fns';
+import { isEqual } from 'lodash-es';
 
 import defaultFields from '../../data/defaultFields';
 
@@ -69,7 +70,28 @@ function identifyFieldTypeByValue(value) {
     } else { // it’s a repeating field group
       candidate.type = 'rows';
       candidate.typeCandidates = generateTypeCandidatesArray('rows', 'columns');
-      candidate.children = value.map((subvalue) => identifyFieldTypeByValue(subvalue));
+      candidate.children = value.reduce((acc, subvalue, index) => {
+        const childCandidateDetails = identifyFieldTypeByValue(subvalue); // we have to see what type it is before we can filter, because the values might be different from each other despite technically being the same type since their details vary
+
+        // once we know the details we can see if they already exist in the accumulator
+        // if so, we don’t need to add them again
+        // we can’t just do a general isEqual, because existing childCandidates have a key
+        if (acc.some((existingChildCandidate) => existingChildCandidate.type === childCandidateDetails.type && isEqual(existingChildCandidate.typeCandidates, childCandidateDetails.typeCandidates) && existingChildCandidate.localised === childCandidateDetails.localised && isEqual(existingChildCandidate.children, childCandidateDetails.children))) {
+          return acc;
+        }
+
+        const childCandidate = {
+          key: index === 0 ? childCandidateDetails.type : `${childCandidateDetails.type}-${index}`,
+          type: childCandidateDetails.type,
+          typeCandidates: childCandidateDetails.typeCandidates,
+        };
+
+        if (childCandidateDetails.localised) childCandidate.localised = childCandidateDetails.localised;
+        if (childCandidateDetails.children) childCandidate.children = childCandidateDetails.children;
+
+        acc.push(childCandidate);
+        return acc;
+      }, []);
     }
   } else if (Object.keys(value).every((subkey) => isLanguageCode(subkey))) { // it’s a localised field
     const { type, typeCandidates } = identifyFieldTypeByValue(Object.values(value)[0]); // look at the first entry and use the type of that
