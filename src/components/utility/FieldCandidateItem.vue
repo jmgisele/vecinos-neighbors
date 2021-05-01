@@ -1,5 +1,5 @@
 <template lang="html">
-  <div class="field-candidate-item" :class="{ dark }">
+  <div class="field-candidate-item" :class="{ 'has-children': children && children.length > 0, dark }">
     <section class="field-candidate">
       <span>{{fieldKey}}</span>
       <MbIcon v-if="localised" icon="language"  />
@@ -35,12 +35,24 @@ export default {
 @require '../../assets/styles/corners'
 
 .field-candidate-item
-  padding: 1rem
-  border-radius: $radius-m
-  border: 0.0625rem solid alpha($text, 0.1)
+  &.has-children
+    > .field-candidate
+      background-color: $bg-secondary
+      margin-bottom: 0
+      padding: 0.5rem 0.5rem 0.5rem 1rem
+      border: 0.0625rem solid $bg-tertiary
+      border-bottom: none
+      border-top-left-radius: $radius-m
+      border-top-right-radius: $radius-m
+
+    &.dark
+      > .field-candidate
+        border-color: $bg-tertiary-dark
+        background-color: $bg-secondary-dark
 
   &.dark
-    border-color: alpha($text-dark, 0.1)
+    .children
+      border-color: $bg-secondary-dark
 
   .field-candidate
     display: flex
@@ -53,9 +65,15 @@ export default {
 
     ::v-deep(.select)
       margin-left: auto
+      min-width: auto
 
   .children
-    margin-top: 1rem
+    border-bottom-left-radius: $radius-m
+    border-bottom-right-radius: $radius-m
+    border: 0.0625rem solid $bg-secondary
+    padding: 0.5rem
+    padding-left: 1rem
+    padding-top: 1rem
 
     > .field-candidate-item:not(:last-child)
       margin-bottom: 1rem

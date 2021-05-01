@@ -160,7 +160,7 @@
       <MbFilePicker :dark="dark" :filetypes="['json']" mode="file" :model-value="generateSchema.file" placeholder="Pick a content file…" :root="`/projects/${$route.params.id}`" @update:model-value="handleFilePick" />
       <MbToggle v-model="generateSchema.tabs" :dark="dark">Convert top level object fields into tabs</MbToggle>
       <div class="field-candidates">
-        <h2 class="h3">Field Candidates</h2>
+        <h2 v-show="generateSchema.fieldCandidates.length > 0" class="h3">Field Candidates</h2>
         <FieldCandidateItem v-for="candidate in generateSchema.fieldCandidates" :children="candidate.children" :dark="dark" :field-key="candidate.key" :key="candidate.key" :localised="candidate.localised" :type="candidate.type" :type-candidates="candidate.typeCandidates" @typechange="candidate.type = $event" />
       </div>
       <template #actions>
