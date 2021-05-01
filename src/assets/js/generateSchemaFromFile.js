@@ -30,22 +30,22 @@ function identifyFieldTypeByValue(value, key) {
       case 'string':
         if (value.startsWith('/') && value.includes('.')) { // it’s likely a file
           candidate.type = 'file';
-          candidate.typeCandidates = generateTypeCandidatesArray('file', 'text', 'rich text', 'id', 'radio group', 'select');
-        } else if ((value.startsWith('http') || value.startsWith('www')) && value.includes('.')) { // it’s likely some sort of url, but since we don’t have a url type, we use a plain textfield instead
-          candidate.type = 'text';
-          candidate.typeCandidates = generateTypeCandidatesArray('text', 'rich text', 'id', 'radio group', 'color', 'select');
+          candidate.typeCandidates = generateTypeCandidatesArray('file', 'text', 'rich text', 'id', 'radio group', 'select', 'link');
+        } else if (((value.startsWith('http') || value.startsWith('www')) && value.includes('.')) || value.startsWith('/')) { // it’s likely some sort of url
+          candidate.type = 'link';
+          candidate.typeCandidates = generateTypeCandidatesArray('link', 'text', 'rich text', 'id', 'radio group', 'color', 'select', 'link');
         } else if (isValid(parseISO(value)) || (value.length >= 8 && value.length <= 11 && isValid(new Date(Number.parseInt(value, 10))))) { // it’s likely a date (we’re checking if the string is shorter than 12 characters, which should be enough to cover most reasonable dates according to https://stackoverflow.com/questions/4415631/timestamp-string-length)
           candidate.type = 'date';
-          candidate.typeCandidates = generateTypeCandidatesArray('date', 'text', 'rich text', 'id', 'radio group', 'select');
+          candidate.typeCandidates = generateTypeCandidatesArray('date', 'text', 'rich text', 'id', 'radio group', 'select', 'link');
         } else if ((value.startsWith('#') && (value.length === 4 || value.length === 7)) || value.startsWith('rgb') || value.startsWith('hsl')) { // it’s likely a color
           candidate.type = 'color';
-          candidate.typeCandidates = generateTypeCandidatesArray('color', 'text', 'rich text', 'id', 'radio group', 'select');
+          candidate.typeCandidates = generateTypeCandidatesArray('color', 'text', 'rich text', 'id', 'radio group', 'select', 'link');
         } else if (/([\n*>]|_{2,}|<\/|^#+ )/.test(value)) { // it’s likely a rich text-field (with multiple lines, markdown or html in it)
           candidate.type = 'rich text';
-          candidate.typeCandidates = generateTypeCandidatesArray('rich text', 'text', 'id', 'radio group', 'file', 'select');
+          candidate.typeCandidates = generateTypeCandidatesArray('rich text', 'text', 'id', 'radio group', 'file', 'select', 'link');
         } else { // it’s likely a plain text input
           candidate.type = 'text';
-          candidate.typeCandidates = generateTypeCandidatesArray('text', 'rich text', 'id', 'radio group', 'color', 'select');
+          candidate.typeCandidates = generateTypeCandidatesArray('text', 'rich text', 'id', 'radio group', 'color', 'select', 'link');
         }
         break;
       case 'number':
