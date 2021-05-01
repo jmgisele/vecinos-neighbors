@@ -504,4 +504,33 @@ export default [
     value: null,
     visibility: { hidden: false, showByValue: { field: null } },
   },
+  {
+    type: 'tags',
+    default: null,
+    description: 'An input field for a sortable list of items',
+    group: 'content',
+    icon: 'tags',
+    key: '',
+    label: 'Tags',
+    localised: false,
+    options: [
+      {
+        component: 'MbToggle',
+        key: 'allowUnsuggested',
+        slot: 'Allow values not defined in the model below',
+        value: true,
+      },
+      {
+        component: 'MbEditableList',
+        key: 'autocompleteModel',
+        value: [],
+      },
+    ],
+    tab: null,
+    validation: {
+      enforceMinMax: false, max: null, min: null, required: false, unit: 'tags',
+    },
+    value: null,
+    visibility: { hidden: false, showByValue: { field: null } },
+  },
 ];
