@@ -18,7 +18,7 @@
             <MbIcon :icon="newItem.error ? 'error' : 'document-add'" />
           </div>
           <MbInput v-if="mode === 'advanced'" v-model.lazy.trim="newItem.label" :dark="dark" placeholder="Label" ref="labelInput" @update:model-value="validate('label', $event)" />
-          <MbInput v-model.lazy.trim="newItem.value" :dark="dark" :placeholder="mode === 'simple' ? 'New item' : 'Value'" @keyup.enter="addItem" @update:model-value="validate('value', $event)" />
+          <MbInput v-model.lazy.trim="newItem.value" :dark="dark" placeholder="Value" @keyup.enter="addItem" @update:model-value="validate('value', $event)" />
           <MbButton :dark="dark" :disabled="Boolean(newItem.error)" icon="plus" type="positive" @click="addItem" />
         </div>
       </div>
