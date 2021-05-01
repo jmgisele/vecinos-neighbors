@@ -653,7 +653,7 @@ export default [
     visibility: { hidden: false, showByValue: { field: null } },
   },
   {
-    type: 'radio-group',
+    type: 'radio group',
     default: null,
     description: 'A list of values of which only one may be selected',
     group: 'helpers',
