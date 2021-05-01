@@ -528,7 +528,36 @@ export default [
     ],
     tab: null,
     validation: {
-      enforceMinMax: false, max: null, min: null, required: false, unit: 'tags',
+      max: null, min: null, unit: 'tags',
+    },
+    value: null,
+    visibility: { hidden: false, showByValue: { field: null } },
+  },
+  {
+    type: 'list',
+    default: null,
+    description: 'A sortable list of custom values',
+    group: 'content',
+    icon: 'bullet-list',
+    key: '',
+    label: 'Sortable list',
+    localised: false,
+    options: [
+      {
+        component: 'MbToggle',
+        key: 'limitToModel',
+        slot: 'Only allow values defined in the model below',
+        value: false,
+      },
+      {
+        component: 'MbEditableList',
+        key: 'model',
+        value: [],
+      },
+    ],
+    tab: null,
+    validation: {
+      enforceMinMax: false, max: null, min: null, unit: 'list items',
     },
     value: null,
     visibility: { hidden: false, showByValue: { field: null } },
