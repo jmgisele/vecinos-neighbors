@@ -688,4 +688,42 @@ export default [
     value: null,
     visibility: { hidden: false, showByValue: { field: null } },
   },
+  {
+    type: 'link',
+    default: null,
+    description: 'A field for linking to an external or internal document',
+    group: 'helpers',
+    icon: 'link',
+    key: '',
+    label: 'Link',
+    localised: false,
+    options: [
+      {
+        component: 'MbRadioGroup',
+        key: 'type',
+        label: 'Type:',
+        props: { inline: true, options: [{ label: 'Internal', value: 'internal' }, { label: 'External', value: 'external' }, { label: 'Both', value: 'both' }] },
+        value: 'both',
+      },
+      {
+        component: 'MbToggle',
+        key: 'byFilePath',
+        slot: 'Use file path for internal links',
+        value: false,
+      },
+      {
+        component: 'MbInput',
+        key: 'urlTemplate',
+        label: 'Internal URL template:',
+        props: { modelModifiers: { trim: true, lazy: true }, placeholder: 'e.g. /:date/:title.html' },
+        value: '',
+      },
+    ],
+    tab: null,
+    validation: {
+      required: false,
+    },
+    value: null,
+    visibility: { hidden: false, showByValue: { field: null } },
+  },
 ];
