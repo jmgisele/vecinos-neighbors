@@ -17,7 +17,7 @@
           <h2>There’s nothing here yet</h2>
           <p>This schema currently has no fields. You can start adding some with the button below, or have Mattrbld automatically generate a set of fields for you based on a piece of content.</p>
           <footer>
-            <MbButton :dark="dark" icon="document">Generate from content</MbButton>
+            <MbButton :dark="dark" icon="document" @click="generateSchema.show = true">Generate from content</MbButton>
             <MbButton :dark="dark" icon="plus" type="positive" @click="handleAddField">Add field</MbButton>
           </footer>
         </div>
@@ -156,6 +156,20 @@
         <MbButton :dark="dark" :disabled="Boolean(errors.schemaName)" type="primary" @click="renameSchema">Save</MbButton>
       </template>
     </MbModal>
+    <MbModal class="generate-schema-modal" :dark="dark" title="Schema from Content" :permanent="generateSchema.loading" :visible="generateSchema.show" @close="generateSchema.show = false" @after-close="resetGenerateSchema">
+      <MbFilePicker :dark="dark" :filetypes="['json']" mode="file" :model-value="generateSchema.file" placeholder="Pick a content file…" :root="`/projects/${$route.params.id}`" @update:model-value="handleFilePick" />
+      <MbToggle v-model="generateSchema.tabs" :dark="dark">Convert top level object fields into tabs</MbToggle>
+      <ul class="field-candidates">
+        <li v-for="candidate in generateSchema.fieldCandidates" :key="candidate.key">
+          <span>{{candidate.key}}</span>
+          <MbSelect v-model="candidate.type" :dark="dark" :options="candidate.typeCandidates" />
+        </li>
+      </ul>
+      <template #actions>
+        <MbButton :dark="dark" :disabled="generateSchema.loading" @click="generateSchema.show = false">Cancel</MbButton>
+        <MbButton :dark="dark" :disabled="!generateSchema.file" :loading="generateSchema.loading" type="primary" @click="generateSchemaFromFile">Generate</MbButton>
+      </template>
+    </MbModal>
     <MbContextMenu :dark="dark" :options="fieldContextMenu.options" :show="fieldContextMenu.show" :target="fieldContextMenu.target" :x="fieldContextMenu.x" :y="fieldContextMenu.y" @close="fieldContextMenu.show = false; resetFieldContextMenu()" />
   </div>
 </template>
@@ -167,6 +181,7 @@ import slugify from '@sindresorhus/slugify';
 import fs, { exists, PlainFS, readdirDeep, joinPath, pathBasename, pathDirname } from '../fs'; // eslint-disable-line object-curly-newline
 import Store from '../store';
 import prettifyEntityName from '../assets/js/prettifyEntityName';
+import { generateFieldCandidates, generateSchemaFromCandidates } from '../assets/js/generateSchemaFromFile';
 
 import availableRoles from '../data/availableRoles';
 import defaultFields from '../data/defaultFields';
@@ -385,6 +400,13 @@ export default {
       fieldsLoading: false,
       fileStatus: null,
       forceNavigation: false,
+      generateSchema: {
+        fieldCandidates: [],
+        file: null,
+        loading: false,
+        show: false,
+        tabs: false,
+      },
       initialised: false,
       newSchemaName: '',
       saveLoading: false,
@@ -589,6 +611,9 @@ export default {
       search(fields);
       return path.join('.');
     },
+    generateSchemaFromFile() {
+      this.schema = generateSchemaFromCandidates(this.generateSchema.fieldCandidates);
+    },
     generateUniqueFieldKey(otherFields, potentialKey = 'unknown') {
       if (!otherFields.find((existingField) => existingField.key === potentialKey)) return potentialKey;
       let counter = 1;
@@ -701,6 +726,22 @@ export default {
         window.addEventListener('pointerup', this.transferField, { once: true, capture: true });
       }
     },
+    async handleFilePick(file) {
+      this.generateSchema.loading = true;
+      try {
+        const fileContent = JSON.parse(await fs.readFile(file, 'utf8'));
+        this.generateSchema.fieldCandidates = generateFieldCandidates(fileContent);
+      } catch (err) {
+        if (err.name === 'SyntaxError') {
+          this.$store.commit('addToast', { message: 'The file you selected is not a valid JSON file', type: 'error' });
+          this.generateSchema.loading = false;
+          return;
+        }
+        this.$store.commit('addToast', { message: `Something went wrong while reading the selected file: ${err.message}`, type: 'error' });
+      }
+      this.generateSchema.loading = false;
+      this.generateSchema.file = file;
+    },
     handleSplitClosed() {
       if (this.fieldBeingEdited) {
         this.fieldBeingEdited = null;
@@ -797,6 +838,15 @@ export default {
       this.fieldContextMenu.target = null;
       this.fieldContextMenu.x = 0;
       this.fieldContextMenu.y = 0;
+    },
+    resetGenerateSchema() {
+      this.generateSchema = {
+        fieldCandidates: [],
+        file: null,
+        loading: false,
+        tabs: false,
+        show: false,
+      };
     },
     resetSchemaName() {
       this.newSchemaName = this.schemaName;
@@ -1548,6 +1598,16 @@ export default {
 
     &.dark
       margin-top: 0.75rem
+
+.generate-schema-modal
+  .file-picker
+    display: flex
+    margin-bottom: 2rem
+
+  .field-candidates
+    .candidate
+      display: flex
+      align-items: center
 
 // needs to be toplevel so dragging clone can have its styles
 .edit-tab-element
