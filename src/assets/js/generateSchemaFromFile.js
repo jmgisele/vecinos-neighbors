@@ -14,7 +14,7 @@ function generateTypeCandidatesArray(...types) {
 }
 
 function generateAllTypesArray() {
-  return [...labelledTypes.entries().map(([type, label]) => ({ label, value: type })), { label: 'Ignore field', value: null }];
+  return [...Array.from(labelledTypes.entries()).map(([type, label]) => ({ label, value: type })), { label: 'Ignore field', value: null }];
 }
 
 function isLanguageCode(code) {
