@@ -102,8 +102,10 @@ export default {
       });
     },
     async handleFilePick(path) {
-      if (path === null) this.model.file = { path: null };
-      else {
+      if (path === null) {
+        this.model.file = { path: null };
+        this.fileKeys = [];
+      } else {
         try {
           this.keysLoading = true;
           const fileContent = JSON.parse(await fs.readFile(path, 'utf8'));
