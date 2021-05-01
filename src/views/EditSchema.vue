@@ -159,12 +159,10 @@
     <MbModal class="generate-schema-modal" :dark="dark" title="Schema from Content" :permanent="generateSchema.loading" :visible="generateSchema.show" @close="generateSchema.show = false" @after-close="resetGenerateSchema">
       <MbFilePicker :dark="dark" :filetypes="['json']" mode="file" :model-value="generateSchema.file" placeholder="Pick a content file…" :root="`/projects/${$route.params.id}`" @update:model-value="handleFilePick" />
       <MbToggle v-model="generateSchema.tabs" :dark="dark">Convert top level object fields into tabs</MbToggle>
-      <ul class="field-candidates">
-        <li v-for="candidate in generateSchema.fieldCandidates" :key="candidate.key">
-          <span>{{candidate.key}}</span>
-          <MbSelect v-model="candidate.type" :dark="dark" :options="candidate.typeCandidates" />
-        </li>
-      </ul>
+      <div class="field-candidates">
+        <h2 class="h3">Field Candidates</h2>
+        <FieldCandidateItem v-for="candidate in generateSchema.fieldCandidates" :children="candidate.children" :dark="dark" :field-key="candidate.key" :key="candidate.key" :localised="candidate.localised" :type="candidate.type" :type-candidates="candidate.typeCandidates" @typechange="candidate.type = $event" />
+      </div>
       <template #actions>
         <MbButton :dark="dark" :disabled="generateSchema.loading" @click="generateSchema.show = false">Cancel</MbButton>
         <MbButton :dark="dark" :disabled="!generateSchema.file" :loading="generateSchema.loading" type="primary" @click="generateSchemaFromFile">Generate</MbButton>
@@ -187,6 +185,7 @@ import availableRoles from '../data/availableRoles';
 import defaultFields from '../data/defaultFields';
 
 import FieldArrangementList from '../components/utility/FieldArrangementList.vue';
+import FieldCandidateItem from '../components/utility/FieldCandidateItem.vue';
 import FieldThumbnail from '../components/utility/FieldThumbnail.vue';
 import TabContent from '../components/utility/TabContent.vue';
 
@@ -289,6 +288,7 @@ export default {
   },
   components: {
     FieldArrangementList,
+    FieldCandidateItem,
     FieldThumbnail,
     TabContent,
   },
@@ -612,7 +612,7 @@ export default {
       return path.join('.');
     },
     generateSchemaFromFile() {
-      this.schema = generateSchemaFromCandidates(this.generateSchema.fieldCandidates);
+      this.schema = generateSchemaFromCandidates(this.generateSchema.fieldCandidates, this.generateSchema.tabs);
     },
     generateUniqueFieldKey(otherFields, potentialKey = 'unknown') {
       if (!otherFields.find((existingField) => existingField.key === potentialKey)) return potentialKey;
@@ -1606,9 +1606,11 @@ export default {
     margin-bottom: 2rem
 
   .field-candidates
-    .candidate
-      display: flex
-      align-items: center
+    .field-candidate-item
+      margin-bottom: 0.125rem
+
+      &:not(:last-child)
+        margin-bottom: 1rem
 
 // needs to be toplevel so dragging clone can have its styles
 .edit-tab-element
