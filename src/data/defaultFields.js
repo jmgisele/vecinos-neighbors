@@ -562,4 +562,41 @@ export default [
     value: null,
     visibility: { hidden: false, showByValue: { field: null } },
   },
+  {
+    type: 'select',
+    default: null,
+    description: 'A dropdown field to select a single value',
+    group: 'helpers',
+    icon: 'dropdown',
+    key: '',
+    label: 'Dropdown',
+    localised: false,
+    options: [
+      {
+        component: 'MbToggle',
+        key: 'filterable',
+        slot: 'Make the dropdown searchable',
+        value: false,
+      },
+      {
+        component: 'MbInput',
+        key: 'placeholder',
+        label: 'Placeholder text when empty:',
+        props: { icon: 'placeholder', modelModifiers: { trim: true, lazy: true } },
+        value: 'Select a value…',
+      },
+      {
+        component: 'MbEditableList',
+        key: 'options',
+        label: 'Options:',
+        value: [],
+      },
+    ],
+    tab: null,
+    validation: {
+      required: false,
+    },
+    value: null,
+    visibility: { hidden: false, showByValue: { field: null } },
+  },
 ];

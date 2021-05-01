@@ -1394,7 +1394,8 @@ export default {
       justify-content: space-between
 
       &.MbCheckboxGroup,
-      &.MbPalette
+      &.MbPalette,
+      &.MbEditableList
         align-items: flex-start
 
         > span
@@ -1403,6 +1404,10 @@ export default {
         > .checkbox-group
           width: 100%
           max-width: (192 / 16)rem
+
+        > .editable-list:not(:only-child)
+          width: 100%
+          max-width: (400 / 16)rem
 
       &.MbPalette
         .palette
@@ -1420,6 +1425,9 @@ export default {
         > span
           margin-top: 1rem
 
+          @media $mobile
+            margin-top: 0
+
         > .palette
           width: 100%
           max-width: (355 / 16)rem
@@ -1429,6 +1437,12 @@ export default {
           background-color: $bg-secondary-dark
 
       &.MbEditableList
+        > span
+          margin-top: 0.75rem
+
+          @media $mobile
+            margin-top: 0
+
         .editable-list
           &::v-deep(.segmented-selector.dark)
             background-color: $bg-tertiary-dark
@@ -1458,6 +1472,7 @@ export default {
 
         &::v-deep(> .select),
         > .radio-group.inline::v-deep(label)
+        > .editable-list
           width: 100%
 
       &:not(:last-child)
