@@ -3,6 +3,7 @@
     <MbTabs v-model="activeTab" :dark="dark" :tabs="tabs" />
     <transition mode="out-in" :name="tabTransition">
       <GeneralSettings v-if="activeTabValue === 'general'" :dark="dark" />
+      <CollectionSettings v-else-if="activeTabValue === 'collections'" :dark="dark" />
       <SchemaSettings v-else-if="activeTabValue === 'schemas'" :dark="dark" />
       <UserSettings v-else-if="activeTabValue === 'users'" :dark="dark" />
     </transition>
@@ -10,6 +11,7 @@
 </template>
 
 <script>
+import CollectionSettings from './settings/CollectionSettings.vue';
 import GeneralSettings from './settings/GeneralSettings.vue';
 import SchemaSettings from './settings/SchemaSettings.vue';
 import UserSettings from './settings/UserSettings.vue';
@@ -42,6 +44,7 @@ export default {
     this.leaving = true; // this is needed so we don’t get redirected to dashboard as soon as we try leaving the project from here
   },
   components: {
+    CollectionSettings,
     GeneralSettings,
     SchemaSettings,
     UserSettings,
