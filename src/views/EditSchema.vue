@@ -157,7 +157,7 @@
       </template>
     </MbModal>
     <MbModal class="generate-schema-modal" :dark="dark" title="Schema from Content" :permanent="generateSchema.loading" :visible="generateSchema.show" @close="generateSchema.show = false" @after-close="resetGenerateSchema">
-      <MbFilePicker :dark="dark" :filetypes="['json']" mode="file" :model-value="generateSchema.file" placeholder="Pick a content file…" :root="`/projects/${$route.params.id}`" @update:model-value="handleFilePick" />
+      <MbFilePicker :dark="dark" :empty-state="{ noFolders: 'This directory is empty', empty: 'This directory is empty', noFiles: 'There are no eligible files in this folder' }" :filetypes="['json']" mode="file" :model-value="generateSchema.file" placeholder="Pick a content file…" :root="`/projects/${$route.params.id}`" @update:model-value="handleFilePick" />
       <MbToggle v-model="generateSchema.tabs" :dark="dark">Convert top level object fields into tabs</MbToggle>
       <div class="field-candidates">
         <h2 v-show="generateSchema.fieldCandidates.length > 0" class="h3">Field Candidates</h2>
