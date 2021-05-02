@@ -30,10 +30,10 @@ function identifyFieldTypeByValue(value, key) {
       case 'string':
         if (value.startsWith('/') && value.includes('.')) { // it’s likely a file
           candidate.type = 'file';
-          candidate.typeCandidates = generateTypeCandidatesArray('file', 'text', 'rich text', 'id', 'radio group', 'select', 'link');
+          candidate.typeCandidates = generateTypeCandidatesArray('file', 'text', 'rich text', 'id', 'radio group', 'select', 'link', 'image');
         } else if (((value.startsWith('http') || value.startsWith('www')) && value.includes('.')) || value.startsWith('/')) { // it’s likely some sort of url
           candidate.type = 'link';
-          candidate.typeCandidates = generateTypeCandidatesArray('link', 'text', 'rich text', 'id', 'radio group', 'color', 'select', 'link');
+          candidate.typeCandidates = generateTypeCandidatesArray('link', 'text', 'rich text', 'id', 'radio group', 'color', 'select', 'link', 'image');
         } else if (isValid(parseISO(value)) || (value.length >= 8 && value.length <= 11 && isValid(new Date(Number.parseInt(value, 10))))) { // it’s likely a date (we’re checking if the string is shorter than 12 characters, which should be enough to cover most reasonable dates according to https://stackoverflow.com/questions/4415631/timestamp-string-length)
           candidate.type = 'date';
           candidate.typeCandidates = generateTypeCandidatesArray('date', 'text', 'rich text', 'id', 'radio group', 'select', 'link');
