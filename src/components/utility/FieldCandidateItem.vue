@@ -31,6 +31,7 @@ export default {
 </script>
 
 <style lang="stylus" scoped>
+@require '../../assets/styles/breakpoints'
 @require '../../assets/styles/colors'
 @require '../../assets/styles/corners'
 
@@ -65,7 +66,10 @@ export default {
 
     ::v-deep(.select)
       margin-left: auto
-      min-width: auto
+      min-width: 8rem
+
+      @media $mobile
+        min-width: auto
 
   .children
     border-bottom-left-radius: $radius-m
