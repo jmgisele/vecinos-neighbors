@@ -168,9 +168,6 @@ export default {
       else this.errors.delete(item);
     },
   },
-  mounted() {
-    this.initialised = true;
-  },
   props: {
     dark: Boolean,
     modelValue: [Array, Object],
