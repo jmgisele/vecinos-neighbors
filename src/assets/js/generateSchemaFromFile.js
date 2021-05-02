@@ -65,7 +65,7 @@ function identifyFieldTypeByValue(value, key) {
         candidate.typeCandidates = generateAllTypesArray();
     }
   } else if (Array.isArray(value)) { // that narrows it down a little
-    if (value.every((subvalue) => typeof subvalue === 'string' && isLanguageCode(subvalue))) { // it’s likely a content languages field
+    if (value.length > 0 && value.every((subvalue) => typeof subvalue === 'string' && isLanguageCode(subvalue))) { // it’s likely a content languages field
       candidate.type = 'languages';
       candidate.typeCandidates = generateTypeCandidatesArray('languages', 'list', 'tags', 'checkboxes');
     } else if (value.every((subvalue) => typeof subvalue !== 'object')) { // it’s probably a list of sorts
@@ -168,6 +168,7 @@ export function generateSchemaFromCandidates(fieldCandidates, createTabs) {
   const tabs = [{ label: defaultTab, groupAs: null }];
   const fields = [];
   fieldCandidates.forEach((candidate) => {
+    if (!candidate.type) return;
     if (createTabs && candidate.type === 'group') {
       tabs.push({ label: candidate.key, groupAs: candidate.key });
       fields.push(...candidate.children.map((child) => createFieldFromCandidate(child, candidate.key)));
