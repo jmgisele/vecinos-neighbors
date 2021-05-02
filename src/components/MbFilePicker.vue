@@ -5,7 +5,7 @@
     <MbButton v-if="removable" v-show="modelValue" :dark="dark" icon="cross" ref="removeButton" rounded tooltip="Clear path" @click="$emit('update:modelValue', null)" />
     <MbPopover center-x class="picker-popover" :dark="dark" no-content-padding ref="popover" :visible="showPicker" :x="popover.x" :y="popover.y" @close="deactivate">
       <div class="content-wrapper">
-        <MbFileList :dark="dark" :filterable="false" :folders-first="mode === 'file'" :folders-only="mode === 'folder'" ref="fileList" :root="root" :show-hidden="true" :sortable="false" :filetypes="filetypes" @fileclick="pickEntity" />
+        <MbFileList :dark="dark" :filetypes="filetypes" :filterable="false" :folders-first="mode === 'file'" :folders-only="mode === 'folder'" ref="fileList" :root="root" :show-hidden="true" :sortable="false" :style="{ width: `${listWidth}rem` }" @fileclick="pickEntity" />
         <MbButton v-if="mode === 'folder'" class="create-button" :dark="dark" icon="plus" type="positive" @click="handleFolderCreation">Add Folder</MbButton>
       </div>
       <template #footer>
@@ -37,6 +37,7 @@ export default {
   data() {
     return {
       currentPath: null,
+      listWidth: 20,
       popover: {
         x: 0,
         y: 0,
@@ -51,6 +52,7 @@ export default {
       if (e && this.removable && (e.target === this.$refs.removeButton.$el || this.$refs.removeButton.$el.contains(e.target))) return;
       const rect = this.$el.getBoundingClientRect();
       const remBase = Number.parseInt(window.getComputedStyle(document.documentElement).fontSize, 10);
+      this.listWidth = Math.max(20, rect.width / remBase);
       this.popover.x = rect.left + rect.width / 2;
       this.popover.y = rect.bottom + 0.5 * remBase;
       window.addEventListener('scroll', this.deactivate, { capture: true, passive: true });
