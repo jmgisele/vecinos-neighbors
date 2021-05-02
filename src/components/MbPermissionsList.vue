@@ -88,7 +88,10 @@ export default {
       }, {}));
     },
     updateRules(newValue) {
-      this.rules = Object.entries(newValue).map(([role, permissions]) => permissions.map((permission) => ({ id: uid(), role, permission })));
+      this.rules = Object.entries(newValue).reduce((acc, [role, permissions]) => {
+        acc.push(...permissions.map((permission) => ({ id: uid(), role, permission })));
+        return acc;
+      }, []);
     },
   },
   props: {
