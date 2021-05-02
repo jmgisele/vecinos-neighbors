@@ -623,6 +623,17 @@
         <h3>Events</h3>
         <MbTable :data="events.editableLists" />
       </section>
+      <section v-else-if="activeTabValue === 'permissions-lists'" class="tab permissions-lists">
+        <h2>Permission Lists</h2>
+        <p>This component allows to create and edit lists of custom permissions per custom role.</p>
+        <p>The current value is: <code>{{permissionListTest}}</code></p>
+        <MbButton :dark="dark" @click="permissionListTest = []" style="margin-bottom: 1rem;">Reset Model</MbButton>
+        <MbPermissionsList v-model="permissionListTest" :dark="dark" :permissions="['edit', 'create', 'delete', 'rename']" :roles="['Everybody', 'Admins', 'Developers', 'Editors']" />
+        <h3>Props</h3>
+        <MbTable :data="props.permissionsLists" />
+        <h3>Events</h3>
+        <MbTable :data="events.permissionsLists" />
+      </section>
       <section v-else class="tab" key="exampleTab">
         <p>This is just an empty test-tab.</p>
         <p>To delete it, click the button in the “<u @click="activeTab = tabs.findIndex((tab) => tab.value === 'tabs')">Tabs</u>”-tab.</p>
@@ -871,6 +882,10 @@ export default {
           ['Name', 'Data'],
           ['`update:modelValue`', 'The new palette array'],
         ],
+        permissionsLists: [
+          ['Name', 'Data'],
+          ['`update:modelValue`', 'The new permissions object'],
+        ],
         popovers: [
           ['Name', 'Data'],
           ['`after-close`', ''],
@@ -929,6 +944,7 @@ export default {
       modalVisible2: false,
       modalVisible3: false,
       modalVisible4: false,
+      permissionListTest: {},
       popover: null,
       popover2: null,
       popoverFromRight: false,
@@ -1114,6 +1130,13 @@ export default {
           ['`dark`', 'Boolean', '`false`'],
           ['`format`', 'String', '`undefined`'],
           ['`modelValue`', 'Array', '`undefined`'],
+        ],
+        permissionsLists: [
+          ['Name', 'Type', 'Default', 'Notes'],
+          ['`dark`', 'Boolean', '`false`', ''],
+          ['`modelValue`', 'Object', '`undefined`', 'An object with a role matching to an array of permissions'],
+          ['`permissions`', 'Array', '`undefined`', 'Either a string array or a label/value object'],
+          ['`roles`', 'Array', '`undefined`', 'Either a string array or a label/value object'],
         ],
         popovers: [
           ['Name', 'Type', 'Default'],
@@ -1379,6 +1402,7 @@ export default {
         { label: 'Inputs', value: 'inputs' },
         { label: 'Loaders', value: 'loaders' },
         { label: 'Modals', value: 'modals' },
+        { label: 'Permissions Lists', value: 'permissions-lists' },
         { label: 'Popovers', value: 'popovers' },
         { label: 'Progress Bars', value: 'progress-bars' },
         { label: 'Project Avatars', value: 'project-avatars' },
