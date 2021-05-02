@@ -150,6 +150,7 @@ export default {
         }
       }, timeout);
 
+      if (this.collectionBeingModified === path) this.showSplit = false;
       this.$store.commit('addToSoftDeleted', path);
       this.$store.commit('addToast', {
         action: () => {
