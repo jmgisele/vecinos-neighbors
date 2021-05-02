@@ -44,6 +44,13 @@
       <h2>Slugify Options</h2>
       <p>These options will be passed to the internal slugifier that is used for creating url-safe filenames, slugs and internal links. You should make sure that the options Mattrbld uses are the same that you use when building your project to ensure consistent paths / slugs.</p>
       <p>Mattrbld uses <a href="https://github.com/sindresorhus/slugify" rel="noopener noreferrer nofollow" target="_blank">@sindresorhus/slugify</a> internally, so all options for that are valid here, too.</p>
+      <MbToggle v-model="slugifyOptions_lowercase" :dark="dark" :icons="['cross', 'check']">Make the slug lowercase</MbToggle>
+      <MbToggle v-model="slugifyOptions_decamelize" :dark="dark" :icons="['cross', 'check']">Convert camelCase to separate words</MbToggle>
+      <MbToggle v-model="slugifyOptions_preserveLeadingUnderscore" :dark="dark" :icons="['cross', 'check']">Preserve leading underscores</MbToggle>
+      <div class="input-wrapper">
+        <span>Separator:</span>
+        <MbInput v-model="slugifyOptions_separator" :dark="dark" placeholder="-" />
+      </div>
     </section>
     <section class="wrapper">
       <h2>Brand Colours</h2>
@@ -144,6 +151,55 @@ export default {
       },
       set(v) {
         this.$store.commit('setCurrentProjectProperty', { key: 'languages', value: v });
+        this.$store.dispatch('saveCurrentProject');
+      },
+    },
+    slugifyOptions_lowercase: {
+      get() {
+        return this.currentProject.slugifyOptions && this.currentProject.slugifyOptions.lowercase;
+      },
+      set(v) {
+        let newOptions;
+        if (!this.currentProject.slugifyOptions) newOptions = { lowercase: v };
+        else newOptions = { ...this.currentProject.slugifyOptions, lowercase: v };
+        this.$store.commit('setCurrentProjectProperty', { key: 'slugifyOptions', value: newOptions });
+        this.$store.dispatch('saveCurrentProject');
+      },
+    },
+    slugifyOptions_decamelize: {
+      get() {
+        return this.currentProject.slugifyOptions && this.currentProject.slugifyOptions.decamelize;
+      },
+      set(v) {
+        let newOptions;
+        if (!this.currentProject.slugifyOptions) newOptions = { decamelize: v };
+        else newOptions = { ...this.currentProject.slugifyOptions, decamelize: v };
+        this.$store.commit('setCurrentProjectProperty', { key: 'slugifyOptions', value: newOptions });
+        this.$store.dispatch('saveCurrentProject');
+      },
+    },
+    slugifyOptions_preserveLeadingUnderscore: {
+      get() {
+        return this.currentProject.slugifyOptions && this.currentProject.slugifyOptions.preserveLeadingUnderscore;
+      },
+      set(v) {
+        let newOptions;
+        if (!this.currentProject.slugifyOptions) newOptions = { preserveLeadingUnderscore: v };
+        else newOptions = { ...this.currentProject.slugifyOptions, preserveLeadingUnderscore: v };
+        this.$store.commit('setCurrentProjectProperty', { key: 'slugifyOptions', value: newOptions });
+        this.$store.dispatch('saveCurrentProject');
+      },
+    },
+    slugifyOptions_separator: {
+      get() {
+        if (this.currentProject.slugifyOptions && typeof this.currentProject.slugifyOptions.separator !== 'undefined') return this.currentProject.slugifyOptions.separator;
+        return '-';
+      },
+      set(v) {
+        let newOptions;
+        if (!this.currentProject.slugifyOptions) newOptions = { separator: v };
+        else newOptions = { ...this.currentProject.slugifyOptions, separator: v };
+        this.$store.commit('setCurrentProjectProperty', { key: 'slugifyOptions', value: newOptions });
         this.$store.dispatch('saveCurrentProject');
       },
     },
@@ -359,7 +415,8 @@ export default {
       margin-bottom: 1rem
 
     .select-wrapper,
-    .file-picker-wrapper
+    .file-picker-wrapper,
+    .input-wrapper
       display: flex
       align-items: center
       justify-content: space-between
@@ -380,4 +437,9 @@ export default {
       > .file-picker
         max-width: none
         overflow: hidden
+
+    .input-wrapper .input
+      margin-top: 0
+      margin-bottom: 0
+      width: auto
 </style>
