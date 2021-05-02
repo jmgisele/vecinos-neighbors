@@ -612,7 +612,10 @@ export default {
       return path.join('.');
     },
     generateSchemaFromFile() {
+      this.generateSchema.loading = true;
       this.schema = generateSchemaFromCandidates(this.generateSchema.fieldCandidates, this.generateSchema.tabs);
+      this.generateSchema.loading = false;
+      this.generateSchema.show = false;
     },
     generateUniqueFieldKey(otherFields, potentialKey = 'unknown') {
       if (!otherFields.find((existingField) => existingField.key === potentialKey)) return potentialKey;

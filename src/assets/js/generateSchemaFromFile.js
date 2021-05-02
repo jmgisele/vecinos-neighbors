@@ -1,20 +1,20 @@
 import { isValid, parseISO } from 'date-fns';
-import { isEqual } from 'lodash-es';
+import { cloneDeep, isEqual } from 'lodash-es';
 import pluralize from 'pluralize';
 
 import defaultFields from '../../data/defaultFields';
 
 const labelledTypes = new Map();
-defaultFields.forEach((field) => !field.visualOnly && labelledTypes.set(field.type, field.label));
+defaultFields.forEach((field) => !field.visualOnly && labelledTypes.set(field.type, field));
 
 function generateTypeCandidatesArray(...types) {
-  const array = types.map((type) => ({ label: labelledTypes.get(type), value: type }));
+  const array = types.map((type) => ({ label: labelledTypes.get(type).label, value: type }));
   array.push({ label: 'Ignore field', value: null });
   return array;
 }
 
 function generateAllTypesArray() {
-  return [...Array.from(labelledTypes.entries()).map(([type, label]) => ({ label, value: type })), { label: 'Ignore field', value: null }];
+  return [...Array.from(labelledTypes.entries()).map(([type, field]) => ({ label: field.label, value: type })), { label: 'Ignore field', value: null }];
 }
 
 function isLanguageCode(code) {
@@ -137,8 +137,41 @@ export function generateFieldCandidates(obj) {
   }, []);
 }
 
-export function generateSchemaFromCandidates(fieldCandidates, tabs) {
-  console.log(tabs);
-  const schema = fieldCandidates;
-  return schema;
+function createFieldFromCandidate(candidate, tab) {
+  const {
+    key, type, localised, children,
+  } = candidate;
+
+  const cleanField = {};
+  Object.entries(labelledTypes.get(type)).forEach(([prop, value]) => {
+    if (prop === 'options' && value.length > 0) {
+      cleanField.options = {};
+      value.forEach((option) => {
+        cleanField.options[option.key] = cloneDeep(option.value);
+      });
+    } else if (prop === 'value' && value) cleanField.value = [];
+    else cleanField[prop] = cloneDeep(value);
+  });
+
+  delete cleanField.description; // not needed, so let’s save space
+  delete cleanField.group; // not needed, so let’s save space
+
+  cleanField.key = key;
+  if (localised) cleanField.localised = localised;
+  if (tab) cleanField.tab = tab;
+  if (children && children.length > 0) cleanField.value = children.map((child) => createFieldFromCandidate(child, tab));
+  return cleanField;
+}
+
+export function generateSchemaFromCandidates(fieldCandidates, createTabs) {
+  const defaultTab = 'ungrouped';
+  const tabs = [{ label: defaultTab, groupAs: null }];
+  const fields = [];
+  fieldCandidates.forEach((candidate) => {
+    if (createTabs && candidate.type === 'group') {
+      tabs.push({ label: candidate.key, groupAs: candidate.key });
+      fields.push(...candidate.children.map((child) => createFieldFromCandidate(child, candidate.key)));
+    } else fields.push(createFieldFromCandidate(candidate, defaultTab));
+  });
+  return { fields, tabs };
 }
