@@ -107,7 +107,7 @@ export default {
           return;
         }
       }
-      this.$emit('update:modelValue', newUrl);
+      this.$emit('update:modelValue', newUrl.replace(/\\\./g, '.')); // we’re replacing escaped dots here since that’s the only way to separate a dot from a property-path
       this.view = 'url';
     },
   },
