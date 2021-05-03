@@ -52,10 +52,6 @@ export default {
       this.view = 'collections';
     },
     handleCollectionClick(dir) {
-      if (!dir) {
-        this.$store.commit('addToast', { message: 'This collection has no content directory associated with it yet, please choose a different one', type: 'warning' });
-        return;
-      }
       this.currentRoot = dir;
       this.view = 'files';
     },
@@ -116,7 +112,7 @@ export default {
         const collectionStrings = await Promise.all(collectionFiles.map((file) => fs.readFile(`${this.collectionsPath}/${file}`, 'utf8')));
         const collections = collectionStrings.map((collection) => collection && JSON.parse(collection)).filter((collection) => typeof collection !== 'undefined');
         this.linkableCollections = collections.reduce((acc, collection, index) => {
-          if (collection.linkable) acc.push({ label: prettifyEntityName(collectionFiles[index]), value: collection.dir });
+          if (collection.linkable && collection.dir) acc.push({ label: prettifyEntityName(collectionFiles[index]), value: collection.dir });
           return acc;
         }, []);
       } catch (err) {
