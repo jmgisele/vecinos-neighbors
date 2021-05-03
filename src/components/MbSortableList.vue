@@ -1,6 +1,6 @@
 <template lang="html">
   <transition-group class="sortable-list" :class="{ dragging }" tag="div">
-    <div v-for="(item, index) in items" class="drag-item" :data-area="areaId" :data-index="index" :key="item[keyName] || item" @click="handleClick(index)" @pointerdown.left="startDrag($event, index)">
+    <div v-for="(item, index) in items" class="drag-item" :class="{ transitions: enableTransitions }" :data-area="areaId" :data-index="index" :key="item[keyName] || item" @click="handleClick(index)" @pointerdown.left="startDrag($event, index)">
       <slot :active-item="activeItem" :index="index" :item="item" />
     </div>
   </transition-group>
@@ -126,17 +126,33 @@ export default {
   props: {
     items: Array,
     keyName: String,
+    enableTransitions: Boolean,
   },
 };
 </script>
 
 <style lang="stylus">
 .sortable-list
+  position: relative
+
   &.dragging
     > .drag-item > *
       pointer-events: none
 
   > .drag-item
+      &.transitions
+        &.v-enter-active,
+        &.v-leave-active
+          transition: opacity 200ms ease
+
+          &.v-enter-from,
+          &.v-leave-to
+            opacity: 0
+
+        &.v-leave-active
+          position: absolute
+          width: 100%
+
       &.v-move
         transition: transform 200ms ease
         pointer-events: none
