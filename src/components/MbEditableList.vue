@@ -10,7 +10,7 @@
             </div>
             <MbInput v-if="mode === 'advanced'" :dark="dark" :model-modifiers="{ lazy: true, trim: true }" :model-value="item.label" placeholder="Label" @update:model-value="handleItemUpdate($event, index, 'label')" />
             <MbInput :dark="dark" :model-modifiers="{ lazy: true, trim: true }" :model-value="item.value" placeholder="Value" @update:model-value="handleItemUpdate($event, index, 'value')" />
-            <MbButton :dark="dark" icon="trash" type="negative" @click="deleteItem(item)" />
+            <MbButton :dark="dark" icon="trash" tooltip="Delete item" type="negative" @click="deleteItem(item)" />
           </div>
         </MbSortableList>
         <div class="item" :class="[mode, { dark, error: newItem.error }]" :data-error="newItem.error">
@@ -19,7 +19,7 @@
           </div>
           <MbInput v-if="mode === 'advanced'" v-model.lazy.trim="newItem.label" :dark="dark" placeholder="Label" ref="labelInput" @update:model-value="validate('label', $event)" />
           <MbInput v-model.lazy.trim="newItem.value" :dark="dark" placeholder="Value" @keyup.enter="addItem" @update:model-value="validate('value', $event)" />
-          <MbButton :dark="dark" :disabled="Boolean(newItem.error)" icon="plus" type="positive" @click="addItem" />
+          <MbButton :dark="dark" :disabled="Boolean(newItem.error)" icon="plus" tooltip="Add item" type="positive" @click="addItem" />
         </div>
       </div>
       <div v-else class="mode file" key="fileMode">
