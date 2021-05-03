@@ -6,8 +6,8 @@
       <MbButton v-show="listedFiles === 0" :dark="dark" icon="plus" type="positive" @click="showEntityCreation = true">Create one</MbButton>
     </section>
     <template #right>
-      <transition>
-        <div v-if="!splitLoading" class="edit-collection" :class="{ dark }">
+      <transition mode="out-in">
+        <div v-if="!splitLoading" class="edit-collection" :class="{ dark }" :key="collectionBeingModifiedName">
           <header>
             <h2 :class="{ h3: isMobile }">{{collectionBeingModifiedName}}</h2>
             <span>Edit Collection</span>
@@ -143,7 +143,7 @@ export default {
       showEntityCreation: false,
       showEntityRename: false,
       showSplit: false,
-      splitLoading: false,
+      splitLoading: true,
     };
   },
   methods: {
@@ -196,9 +196,10 @@ export default {
       this.collectionDetails.schemas = [];
       this.collectionDetails.linkable = false;
       this.collectionDetails.permissions = {};
+      this.splitLoading = true;
     },
     async openCollectionSettings(path) {
-      this.splitLoading = true;
+      if (this.collectionBeingModified === path) return;
       this.showSplit = true;
       this.collectionDetails = JSON.parse(await fs.readFile(path, 'utf8'));
       this.collectionBeingModified = path;
@@ -341,6 +342,8 @@ export default {
   &.dark
     background-color: $bg-secondary-dark
 
+.edit-collection,
+.loader
   &.v-enter-active,
   &.v-leave-active
     transition: opacity 200ms ease
