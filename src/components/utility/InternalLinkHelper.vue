@@ -5,14 +5,14 @@
         <MbIcon icon="document-link" />
         <span class="label" :class="{ placeholder: !modelValue }">{{modelValue || placeholder}}</span>
       </div>
-      <div v-else-if="view === 'collections'" class="view collections" :class="{ dark }" key="collections">
+      <div v-else-if="view === 'collections'" class="view collections" key="collections">
         <p>Linkable Collections</p>
         <ul>
-          <li v-for="collection in linkableCollections" :key="collection.value" tabindex="0" @click="handleCollectionClick(collection.value)" @keyup.space.prevent @keyup.space.enter="handleCollectionClick(collection.value)">
+          <li v-for="collection in linkableCollections" :class="{ dark }" :key="collection.value" tabindex="0" @click="handleCollectionClick(collection.value)" @keyup.space.prevent @keyup.space.enter="handleCollectionClick(collection.value)">
             <MbIcon icon="folder" />
             <span class="label">{{collection.label}}</span>
           </li>
-          <li tabindex="0" @click="view = 'url'" @keyup.space.prevent @keyup.space.enter="view = 'url'">
+          <li :class="{ dark }" tabindex="0" @click="view = 'url'" @keyup.space.prevent @keyup.space.enter="view = 'url'">
             <MbIcon icon="chevron-left" />
             <span class="label">Cancel</span>
           </li>
