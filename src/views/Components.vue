@@ -634,6 +634,17 @@
         <h3>Events</h3>
         <MbTable :data="events.permissionsLists" />
       </section>
+      <section v-else-if="activeTabValue === 'item-lists'" class="tab item-lists">
+        <h2>Item Lists</h2>
+        <p>This component allows to create and edit lists of items chosen from a limited set of predefined items.</p>
+        <p>The current value is: <code>{{itemListTest}}</code></p>
+        <MbButton :dark="dark" @click="itemListTest = []" style="margin-bottom: 1rem;">Reset Model</MbButton>
+        <MbItemList v-model="itemListTest" :dark="dark" :options="['simple', 'options', 'first']" />
+        <h3>Props</h3>
+        <MbTable :data="props.itemLists" />
+        <h3>Events</h3>
+        <MbTable :data="events.itemLists" />
+      </section>
       <section v-else class="tab" key="exampleTab">
         <p>This is just an empty test-tab.</p>
         <p>To delete it, click the button in the “<u @click="activeTab = tabs.findIndex((tab) => tab.value === 'tabs')">Tabs</u>”-tab.</p>
@@ -872,6 +883,10 @@ export default {
           ['`focus`', ''],
           ['`update:modelValue`', 'The new text content'],
         ],
+        itemLists: [
+          ['Name', 'Data'],
+          ['`update:modelValue`', 'The new items array'],
+        ],
         modals: [
           ['Name', 'Data'],
           ['`after-close`', ''],
@@ -940,6 +955,7 @@ export default {
       },
       fileContent: null,
       idCounter: 0,
+      itemListTest: [],
       modalVisible: false,
       modalVisible2: false,
       modalVisible3: false,
@@ -1111,6 +1127,13 @@ export default {
           ['`modelValue`', 'String', "`''`"],
           ['`placeholder`', 'String', ''],
           ['`type`', 'String', "`'text'`"],
+        ],
+        itemLists: [
+          ['Name', 'Type', 'Default'],
+          ['`dark`', 'Boolean', '`false`'],
+          ['`modelValue`', 'Array', '`undefined`'],
+          ['`options`', 'Array', '`undefined`'],
+          ['`placeholder`', 'String', ''],
         ],
         modals: [
           ['Name', 'Type', 'Default'],
@@ -1400,6 +1423,7 @@ export default {
         { label: 'Highlight Boxes', value: 'highlight-boxes' },
         { label: 'Icons', value: 'icons' },
         { label: 'Inputs', value: 'inputs' },
+        { label: 'Item Lists', value: 'item-lists' },
         { label: 'Loaders', value: 'loaders' },
         { label: 'Modals', value: 'modals' },
         { label: 'Permissions Lists', value: 'permissions-lists' },
