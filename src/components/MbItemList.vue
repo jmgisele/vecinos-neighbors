@@ -1,6 +1,6 @@
 <template lang="html">
   <div class="item-list">
-    <MbSortableList v-slot="{ activeItem, item }" :items="modelValue" @itemmove="handleItemMove">
+    <MbSortableList v-slot="{ activeItem, item }" enable-transitions :items="modelValue" @itemmove="handleItemMove">
       <div class="item" :class="{ 'being-dragged': activeItem === item, dark }" >
         <div class="drag-handle" data-drag-handle>
           <MbIcon icon="drag-handle" />
@@ -9,10 +9,7 @@
         <MbButton :dark="dark" icon="trash" tooltip="Delete item" type="negative" @click="deleteItem(item)" />
       </div>
     </MbSortableList>
-    <div class="new-item">
-      <MbSelect v-model="newItem" :dark="dark" :options="filteredOptions" :placeholder="placeholder" />
-      <MbButton :dark="dark" icon="plus" tooltip="Add item" type="positive" @click="addItem" />
-    </div>
+    <MbSelect :dark="dark" :disabled="filteredOptions.length === 0" :options="filteredOptions" :placeholder="placeholder" @update:modelValue="addItem" />
   </div>
 </template>
 
@@ -28,10 +25,12 @@ export default {
   },
   data() {
     return {
-      newItem: null,
     };
   },
   methods: {
+    addItem(item) {
+      this.$emit('update:modelValue', [...this.modelValue, item]);
+    },
     deleteItem(item) {
       this.$emit('update:modelValue', this.modelValue.filter((existingItem) => existingItem !== item));
     },
@@ -62,4 +61,41 @@ export default {
 </script>
 
 <style lang="stylus" scoped>
+@require '../assets/styles/colors'
+@require '../assets/styles/corners'
+
+.item-list
+  ::v-deep(.select)
+    width: 100%
+
+.item
+  display: flex
+  align-items: center
+  border-radius: $radius-m
+  padding-right: 1rem
+  flex-grow: 1
+  box-shadow: inset 0 0 0 0.0625rem $text-tertiary
+  overflow: hidden
+  background-color: $bg
+  margin-bottom: 0.5rem
+  padding-right: 0.25rem
+
+  &.dark
+    background-color: $bg-secondary-dark
+    box-shadow: inset 0 0 0 0.0625rem $bg-tertiary-dark
+
+  &.being-dragged
+    opacity: 0.25
+
+  .drag-handle
+    padding: 1rem
+    cursor: move
+
+  .button
+    flex-shrink: 0
+    border-radius: $radius-s
+
+  > span
+    flex-grow: 1
+
 </style>

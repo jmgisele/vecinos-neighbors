@@ -639,7 +639,7 @@
         <p>This component allows to create and edit lists of items chosen from a limited set of predefined items.</p>
         <p>The current value is: <code>{{itemListTest}}</code></p>
         <MbButton :dark="dark" @click="itemListTest = []" style="margin-bottom: 1rem;">Reset Model</MbButton>
-        <MbItemList v-model="itemListTest" :dark="dark" :options="['simple', 'options', 'first']" />
+        <MbItemList v-model="itemListTest" :dark="dark" :options="[{ label: 'Labelled simple', value: 'simple'}, { label: 'Labelled options', value: 'options'}, { label: 'Labelled first', value: 'first'}]" placeholder="Select an option…"/>
         <h3>Props</h3>
         <MbTable :data="props.itemLists" />
         <h3>Events</h3>
