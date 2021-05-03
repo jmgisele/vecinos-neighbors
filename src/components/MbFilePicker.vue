@@ -147,13 +147,13 @@ export default {
   &::before
     content: ''
     position: absolute
-    top: -1px
+    top: 0px
     left: @top
     right: @top
     bottom: @top
     box-shadow: inset 0 0 0 0.125rem $accent
     opacity: 0
-    border-radius: @border-radius
+    border-radius: inherit
     transition: opacity 200ms ease
 
   .label
