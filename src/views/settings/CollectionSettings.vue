@@ -6,28 +6,31 @@
       <MbButton v-show="listedFiles === 0" :dark="dark" icon="plus" type="positive" @click="showEntityCreation = true">Create one</MbButton>
     </section>
     <template #right>
-      <div class="edit-collection" :class="{ dark }">
-        <header>
-          <h2 :class="{ h3: isMobile }">{{collectionBeingModifiedName}}</h2>
-          <span>Edit Collection</span>
-        </header>
-        <section>
-          <h3>Content</h3>
-          <div class="input-row">
-            <span>Content directory:</span>
-            <MbFilePicker v-model="collectionDetails.dir" :dark="dark" placeholder="Select the folder with your content…" :root="`/projects/${currentProject.id}`" />
-          </div>
-          <div class="input-row schemas">
-            <span>Allowed Schemas:</span>
-            <MbItemList v-model="collectionDetails.schemas" :dark="dark" :options="availableSchemas" placeholder="Select a Schema…" />
-          </div>
-          <MbToggle v-model="collectionDetails.linkable" :dark="dark">Allow content in this collection to be linked</MbToggle>
-        </section>
-        <section>
-          <h3>Permissions</h3>
-          <MbPermissionsList v-model="collectionDetails.permissions" :dark="dark" :permissions="permissions" :roles="roles" />
-        </section>
-      </div>
+      <transition>
+        <div v-if="!splitLoading" class="edit-collection" :class="{ dark }">
+          <header>
+            <h2 :class="{ h3: isMobile }">{{collectionBeingModifiedName}}</h2>
+            <span>Edit Collection</span>
+          </header>
+          <section>
+            <h3>Content</h3>
+            <div class="input-row">
+              <span>Content directory:</span>
+              <MbFilePicker v-model="collectionDetails.dir" :dark="dark" placeholder="Select the folder with your content…" :root="`/projects/${currentProject.id}`" />
+            </div>
+            <div class="input-row schemas">
+              <span>Allowed Schemas:</span>
+              <MbItemList v-model="collectionDetails.schemas" :dark="dark" :options="availableSchemas" placeholder="Select a Schema…" />
+            </div>
+            <MbToggle v-model="collectionDetails.linkable" :dark="dark">Allow content in this collection to be linked</MbToggle>
+          </section>
+          <section>
+            <h3>Permissions</h3>
+            <MbPermissionsList v-model="collectionDetails.permissions" :dark="dark" :permissions="permissions" :roles="roles" />
+          </section>
+        </div>
+        <MbLoader :class="{ dark }" v-else />
+      </transition>
     </template>
     <EntityCreationModal :dark="dark" :file-content="JSON.stringify(defaultCollectionContent, null, 2)" file-extension="json" only="file" :path="collectionDir" title="Add new Collection" :visible="showEntityCreation" @close="showEntityCreation = false" @entity-created="handleCollectionCreated" />
     <EntityRenameModal :dark="dark" :old-path="collectionBeingModified" title="Rename Collection" :visible="showEntityRename" @close="showEntityRename = false; collectionBeingModified = null" @entity-renamed="handleEntityRenamed" />
@@ -140,6 +143,7 @@ export default {
       showEntityCreation: false,
       showEntityRename: false,
       showSplit: false,
+      splitLoading: false,
     };
   },
   methods: {
@@ -194,9 +198,11 @@ export default {
       this.collectionDetails.permissions = {};
     },
     async openCollectionSettings(path) {
+      this.splitLoading = true;
+      this.showSplit = true;
       this.collectionDetails = JSON.parse(await fs.readFile(path, 'utf8'));
       this.collectionBeingModified = path;
-      this.showSplit = true;
+      this.splitLoading = false;
     },
     renameCollection(path) {
       if (this.showSplit) this.showSplit = false;
@@ -322,5 +328,25 @@ export default {
           margin-left: 0
           margin-top: 0.5rem
           width: 100%
+
+.loader
+  position: absolute
+  width: 100%
+  height: 100%
+  top: 0
+  left: 0
+  background-color: $bg
+  z-index: 1
+
+  &.dark
+    background-color: $bg-secondary-dark
+
+  &.v-enter-active,
+  &.v-leave-active
+    transition: opacity 200ms ease
+
+    &.v-enter-from,
+    &.v-leave-to
+      opacity: 0
 
 </style>
