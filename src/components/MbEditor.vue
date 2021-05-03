@@ -40,9 +40,7 @@
       <MbSegmentedSelector v-if="linkTypeOptions.length > 1" v-model="linkPopover.type" :dark="dark" :options="linkTypeOptions" />
       <transition mode="out-in">
         <MbInput v-if="linkPopover.type === 'external'" v-model="linkPopover.href" :dark="dark" icon="link" label="Link URL" ref="linkHref" />
-        <div v-else class="internal-link">
-          <p>Todo: implement internal linking</p>
-        </div>
+        <InternalLinkHelper v-else v-model="linkPopover.href" class="internal-link" :collections-path="linkOptions.collectionsPath" :dark="dark" :lang="lang" :url-suffix="linkOptions.urlSuffix" :url-template="linkOptions.urlTemplate" :use-file-path="linkOptions.useFilePath" />
       </transition>
       <MbInput v-model="linkPopover.title" :dark="dark" icon="text" label="Link Title (optional)" />
       <MbToggle v-if="outputFormat === 'html' && !this.linkOptions.forceBlankTarget" v-model="linkPopover.newTab" :dark="dark">Open link in a new tab</MbToggle>
@@ -78,9 +76,14 @@ import MarkdownParser from '../assets/js/MarkdownParser';
 import MarkdownSerializer from '../assets/js/MarkdownSerializer';
 import generateSchema from '../assets/js/generateSchema';
 
+import InternalLinkHelper from './utility/InternalLinkHelper.vue';
+
 export default {
   beforeUnmount() {
     if (this.outputFormat !== 'text' && !this.raw) this.destroyProseMirror();
+  },
+  components: {
+    InternalLinkHelper,
   },
   computed: {
     cleanActiveParagraphType() {
@@ -134,7 +137,7 @@ export default {
       return false;
     },
     linkTypeOptions() {
-      if (this.linkOptions.only === 'external') return [{ label: 'External', value: 'external' }];
+      if (this.linkOptions.only === 'external' || !this.linkOptions.collectionsPath) return [{ label: 'External', value: 'external' }];
       if (this.linkOptions.only === 'internal') return [{ label: 'Internal', value: 'internal' }];
       return [{ label: 'External', value: 'external' }, { label: 'Internal', value: 'internal' }];
     },
@@ -667,6 +670,7 @@ export default {
     linkOptions: {
       type: Object,
       default: () => ({
+        collectionsPath: null,
         forceBlankTarget: false,
         forceNofollow: false,
         only: null,
@@ -1092,6 +1096,13 @@ export default {
       &.v-enter-from,
       &.v-leave-to
         opacity: 0
+
+  .internal-link
+    margin-top: 1.5rem
+    max-width: (309 / 16)rem
+
+  .segmented-selector.dark
+    background-color: $bg-tertiary-dark
 
   .toggle
     margin-top: 1rem
