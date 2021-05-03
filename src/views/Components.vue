@@ -463,7 +463,7 @@
         <p>A set of one-shot or just plain utility components that don’t need to be listed in a separate category.</p>
         <p>Many of these components are purely functional, meant to appear only once throughout the app, or require special data structures in place in order to function, which is why not all of them have interactive examples.</p>
         <h3>Table of Contents</h3>
-        <ol>
+        <ol class="toc" :class="{ dark }">
           <li v-for="item in utilityToc" :key="item.hash"><a :href="`#${item.hash}`" @click.prevent="item.el.scrollIntoView()">{{item.label}}</a></li>
         </ol>
         <h3 id="async image">Async Image</h3>
@@ -982,7 +982,7 @@ export default {
       },
       fileContent: null,
       idCounter: 0,
-      internalLinkTest: '/foo/baer/',
+      internalLinkTest: null,
       itemListTest: [],
       modalVisible: false,
       modalVisible2: false,
@@ -1852,6 +1852,15 @@ export default {
       h3:not(:first-of-type)
         margin-top: 6rem
         scroll-margin-top: 6rem
+
+      .toc
+        &.dark
+          li::marker
+            color: $text-tertiary-dark
+
+        li::marker
+          font-size: 0.875rem
+          color: $text-tertiary
 
     &.segmented-selectors
       .segmented-selector
