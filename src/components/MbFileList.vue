@@ -210,7 +210,7 @@ export default {
         }
         if (!this.foldersOnly && this.filetypes && this.filetypes.length > 0) {
           const allowedEndingsRegex = new RegExp(`\\.(${this.filetypes.join('|')})$`, 'i');
-          this.files = this.files.filter((file) => allowedEndingsRegex.test(file.name));
+          this.files = this.files.filter((file) => file.isFolder || allowedEndingsRegex.test(file.name));
         }
       } catch (err) {
         this.$store.commit('addToast', { message: `Something went wrong while reading files: ${err.message}`, type: 'error' });
