@@ -178,7 +178,7 @@ export default {
       this.$store.dispatch('saveAppData');
     },
     handleSplitClosed() {
-      this.collectionBeingModified = null;
+      if (!this.showEntityRename) this.collectionBeingModified = null; // split closes when whe rename, but we dont want to reset the collectionBeingModified so we still know which one we’re renaming
       this.collectionDetails.dir = null;
       this.collectionDetails.schemas = [];
       this.collectionDetails.linkable = false;
@@ -201,7 +201,7 @@ export default {
   watch: {
     collectionDetails: {
       async handler() {
-        if (this.collectionBeingModified) {
+        if (!this.showEntityRename && this.collectionBeingModified) { // we don’t want to save empty details after the rename modal shows
           await fs.writeFile(this.collectionBeingModified, JSON.stringify(this.collectionDetails, null, 2), 'utf8');
         }
       },
