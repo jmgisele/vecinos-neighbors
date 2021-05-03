@@ -1,22 +1,27 @@
 <template lang="html">
   <div class="internal-link-helper">
     <transition mode="out-in">
-      <div v-if="view === 'collection'" class="view collection" key="collection">
+      <div v-if="view === 'url'" class="view url" :class="{ dark }" key="url" tabindex="0" @click="activate" @keydown.space.prevent @keyup.space.enter="activate">
+        <MbIcon icon="document-link" />
+        <span class="label" :class="{ placeholder: !modelValue }">{{modelValue || placeholder}}</span>
+      </div>
+      <div v-else-if="view === 'collections'" class="view collections" :class="{ dark }" key="collections">
+        <p>Linkable Collections</p>
         <ul>
-          <li v-for="collection in linkableCollections" :key="collection.value" @click="handleCollectionClick(collection.value)">
+          <li v-for="collection in linkableCollections" :key="collection.value" tabindex="0" @click="handleCollectionClick(collection.value)" @keyup.space.prevent @keyup.space.enter="handleCollectionClick(collection.value)">
             <MbIcon icon="folder" />
-            <span>{{collection.label}}</span>
+            <span class="label">{{collection.label}}</span>
+          </li>
+          <li tabindex="0" @click="view = 'url'" @keyup.space.prevent @keyup.space.enter="view = 'url'">
+            <MbIcon icon="chevron-left" />
+            <span class="label">Cancel</span>
           </li>
         </ul>
       </div>
-      <div v-else-if="view === 'files'" class="view files" key="files">
-        <MbFileList :dark="dark"  :empty-state="{ noFiles: 'There are no content items in this directory', noFolders: 'There are no folders in this directory', empty: 'There are no content items in this collection' }" file-list-label="content items" :filetypes="['json']" pretty-filenames :root="currentRoot" :sortable="false" @fileclick="handleFileClick" />
+      <div v-else-if="view === 'files'" class="view files" :class="{ dark }" key="files">
+        <MbFileList :action="{ callback: () => view = 'url', label: 'Cancel', type: 'negative' }" :dark="dark" :empty-state="{ noFiles: 'There are no content items in this directory', noFolders: 'There are no folders in this directory', empty: 'There are no content items in this collection' }" file-list-label="Content Items" :filetypes="['json']" pretty-filenames :root="currentRoot" :sortable="false" @fileclick="handleFileClick" />
       </div>
-      <div v-else-if="view === 'url'" class="view url" key="url">
-        <span>{{modelValue}}</span>
-        <MbButton :dark="dark" icon="replace-alt" tooltip="Change link" @click="view = 'collection'" />
-      </div>
-      <div v-else class="loading" key="loading">
+      <div v-else-if="view === 'loading'" class="loading" key="loading">
         <MbLoader />
       </div>
     </transition>
@@ -32,31 +37,25 @@ import fs, { pathDirname } from '../../fs';
 import prettifyEntityName from '../../assets/js/prettifyEntityName';
 
 export default {
-  async created() {
-    if (this.modelValue) this.view = 'url'; // if we have a value already, we can just show it
-    try {
-      const collectionFiles = await fs.readdir(this.collectionsPath);
-      const collectionStrings = await Promise.all(collectionFiles.map((file) => fs.readFile(`${this.collectionsPath}/${file}`, 'utf8')));
-      const collections = collectionStrings.map((collection) => collection && JSON.parse(collection)).filter((collection) => typeof collection !== 'undefined');
-      this.linkableCollections = collections.reduce((acc, collection, index) => {
-        if (collection.linkable) acc.push({ label: prettifyEntityName(collectionFiles[index]), value: collection.dir });
-        return acc;
-      }, []);
-      if (!this.modelValue) this.view = 'collection';
-    } catch (err) {
-      this.$store.commit('addToast', { message: `Somethin went wrong while fetching all linkable collections: ${err.message}`, type: 'error' });
-    }
-  },
   data() {
     return {
       currentRoot: '/',
       linkableCollections: [],
-      view: null,
+      view: 'url',
     };
   },
   emits: ['update:modelValue'],
   methods: {
+    async activate() {
+      this.view = 'loading';
+      await this.loadCollections();
+      this.view = 'collections';
+    },
     handleCollectionClick(dir) {
+      if (!dir) {
+        this.$store.commit('addToast', { message: 'This collection has no content directory associated with it yet, please choose a different one', type: 'warning' });
+        return;
+      }
       this.currentRoot = dir;
       this.view = 'files';
     },
@@ -110,6 +109,20 @@ export default {
       this.$emit('update:modelValue', newUrl.replace(/\\\./g, '.')); // we’re replacing escaped dots here since that’s the only way to separate a dot from a property-path
       this.view = 'url';
     },
+    async loadCollections() {
+      if (this.linkableCollections.length > 0) return; // we don’t need to load them again
+      try {
+        const collectionFiles = await fs.readdir(this.collectionsPath);
+        const collectionStrings = await Promise.all(collectionFiles.map((file) => fs.readFile(`${this.collectionsPath}/${file}`, 'utf8')));
+        const collections = collectionStrings.map((collection) => collection && JSON.parse(collection)).filter((collection) => typeof collection !== 'undefined');
+        this.linkableCollections = collections.reduce((acc, collection, index) => {
+          if (collection.linkable) acc.push({ label: prettifyEntityName(collectionFiles[index]), value: collection.dir });
+          return acc;
+        }, []);
+      } catch (err) {
+        this.$store.commit('addToast', { message: `Somethin went wrong while fetching all linkable collections: ${err.message}`, type: 'error' });
+      }
+    },
   },
   props: {
     collectionsPath: {
@@ -131,4 +144,98 @@ export default {
 </script>
 
 <style lang="stylus" scoped>
+@require '../../assets/styles/breakpoints'
+@require '../../assets/styles/colors'
+@require '../../assets/styles/corners'
+
+.internal-link-helper
+  .view
+    &.collections
+      p
+        font-weight: bold
+      ul
+        margin: 0
+        list-style: none
+
+        > li:not(:last-child)
+          margin-bottom: 0.5rem
+
+    &.collections ul > li
+    &.url
+      position: relative
+      border: none
+      background-color: $bg-secondary
+      color: inherit
+      border-radius: $radius-m
+      padding: 1rem
+      padding-right: 1.5rem
+      display: flex
+      align-items: center
+      cursor: pointer
+      transition: background-color 200ms ease
+      user-select: none
+      text-align: left
+      white-space: nowrap
+      max-width: 100%
+      overflow: hidden
+
+      &:hover
+        background-color: $bg-tertiary
+
+      &:focus
+        background-color: $bg-secondary
+
+        &::before
+          opacity: 1
+
+      &:active
+        transform: translateY(2px)
+
+      &.dark
+        background-color: $bg-secondary-dark
+
+        &:hover
+          background-color: $bg-tertiary-dark
+
+        &:focus
+          background-color: $bg-secondary-dark
+
+        .label.placeholder
+          color: $text-secondary-dark
+
+      &::before
+        content: ''
+        position: absolute
+        top: 0px
+        left: @top
+        right: @top
+        bottom: @top
+        box-shadow: inset 0 0 0 0.125rem $accent
+        opacity: 0
+        border-radius: @border-radius
+        transition: opacity 200ms ease
+
+      .label
+        margin-left: 0.75rem
+        overflow: hidden
+        text-overflow: ellipsis
+        margin-right: auto
+
+        &.placeholder
+          color: $text-secondary
+
+      .icon
+        flex-shrink: 0
+
+    &.files
+      .file-list::v-deep(header .actions)
+        .input
+          flex-grow: 1
+          margin-right: 1rem
+
+          @media $mobile
+            margin-right: 0
+
+        .button
+          margin-left: 0
 </style>
