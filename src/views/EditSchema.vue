@@ -114,7 +114,7 @@
           </section>
           <section>
             <MbHighlightBox color="negative" :dark="dark" label="Field removal">
-              <p>Deleting a field from a Schema <strong>does not</strong> delete that field in content elements. It only makes it so that field can no longer be edited through Mattrbld.</p>
+              <p>Deleting a field from a Schema <strong>does not</strong> delete that field in content items. It only makes it so that field can no longer be edited through Mattrbld.</p>
               <MbButton :dark="dark" icon="trash" type="negative" @click="deleteField(fieldBeingEdited)">Delete field</MbButton>
             </MbHighlightBox>
           </section>
@@ -148,7 +148,7 @@
       </MbSortableList>
       <MbButton class="add-tab-button" :dark="dark" icon="plus" type="positive" @click="showEditTab = true">Add Tab</MbButton>
       <MbHighlightBox color="negative" :dark="dark" label="Danger Zone">
-        <p>Deleting a Schema that is still used for content elements will cause them to not be displayed correctly. Please make sure to only delete this schema, if you know what you’re doing.</p>
+        <p>Deleting a Schema that is still used for content items will cause them to not be displayed correctly. Please make sure to only delete this schema, if you know what you’re doing.</p>
         <MbButton class="delete-tab-button" :dark="dark" icon="trash" type="negative" @click="deleteSchema">Delete Schema</MbButton>
       </MbHighlightBox>
       <template #actions>

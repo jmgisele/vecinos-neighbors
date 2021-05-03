@@ -10,7 +10,7 @@
         </ul>
       </div>
       <div v-else-if="view === 'files'" class="view files" key="files">
-        <MbFileList :dark="dark"  :empty-state="{ noFiles: 'There are no content elements in this directory', noFolders: 'There are no folders in this directory', empty: 'There are no content elements in this collection' }" file-list-label="Content elements" :filetypes="['json']" pretty-filenames :root="currentRoot" :sortable="false" @fileclick="handleFileClick" />
+        <MbFileList :dark="dark"  :empty-state="{ noFiles: 'There are no content items in this directory', noFolders: 'There are no folders in this directory', empty: 'There are no content items in this collection' }" file-list-label="content items" :filetypes="['json']" pretty-filenames :root="currentRoot" :sortable="false" @fileclick="handleFileClick" />
       </div>
       <div v-else-if="view === 'url'" class="view url" key="url">
         <span>{{modelValue}}</span>

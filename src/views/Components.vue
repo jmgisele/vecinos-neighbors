@@ -172,7 +172,7 @@
         <MbTable :data="events.textareas" />
         <h3>Notes</h3>
         <p>Like inputs, editors can be focussed externally by calling <code>focus()</code> on a reference of them.</p>
-        <p>The <code>linkOptions</code> prop can, if passed, influence how links are created with the integrated link popover. <code>urlSuffix</code>, <code>urlTemplate</code> and <code>useFilePath</code> can be used to influence how the URL is generated from the selected content element for internal links.</p>
+        <p>The <code>linkOptions</code> prop can, if passed, influence how links are created with the integrated link popover. <code>urlSuffix</code>, <code>urlTemplate</code> and <code>useFilePath</code> can be used to influence how the URL is generated from the selected content item for internal links.</p>
         <p>While <code>useFilePath</code> simply uses the path of the file within the project, slugified and with the optional <code>urlSuffix</code>, <code>urlTemplate</code> can be used to grab field values from the content item as follows:</p>
         <p><code>/blog/:createdAt__year/:createdAt__month/:title</code> would for example look for a <code>createdAt</code> field and test if it is a date, if so it would extract <code>year</code> and <code>month</code> and use those in the respective area of the URL. If it wasn’t a date, it would try to read the properties of the object. <code>title</code> would simply be slufigied and used.</p>
       </section>
