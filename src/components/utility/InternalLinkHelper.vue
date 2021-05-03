@@ -21,7 +21,7 @@
       <div v-else-if="view === 'files'" class="view files" :class="{ dark }" key="files">
         <MbFileList :action="{ callback: () => view = 'url', label: 'Cancel', type: 'negative' }" :dark="dark" :empty-state="{ noFiles: 'There are no content items in this directory', noFolders: 'There are no folders in this directory', empty: 'There are no content items in this collection' }" file-list-label="Content Items" :filetypes="['json']" pretty-filenames :root="currentRoot" :sortable="false" @fileclick="handleFileClick" />
       </div>
-      <div v-else-if="view === 'loading'" class="loading" key="loading">
+      <div v-else-if="view === 'loading'" class="view loading" key="loading">
         <MbLoader />
       </div>
     </transition>
@@ -150,6 +150,9 @@ export default {
 
 .internal-link-helper
   .view
+    &.loading
+      padding: 2rem 0
+
     &.collections
       p
         font-weight: bold
@@ -238,4 +241,12 @@ export default {
 
         .button
           margin-left: 0
+
+    &.v-enter-active,
+    &.v-leave-active
+      transition: opacity 200ms ease
+
+      &.v-enter-from,
+      &.v-leave-to
+        opacity: 0
 </style>
