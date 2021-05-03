@@ -119,6 +119,10 @@ export default {
     dark: Boolean,
     lang: String,
     modelValue: String,
+    placeholder: {
+      type: String,
+      default: 'Select a content item…',
+    },
     urlSuffix: String,
     urlTemplate: String,
     useFilePath: Boolean,

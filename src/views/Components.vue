@@ -1149,6 +1149,7 @@ export default {
           ['`dark`', 'Boolean', '`false`'],
           ['`lang`', 'String', '`undefined`'],
           ['`modelValue`', 'String', '`undefined`'],
+          ['`placeholder`', 'String', '`Select a content item…`'],
           ['`urlSuffix`', 'String', '`undefined`'],
           ['`urlTemplate`', 'String', '`undefined`'],
           ['`useFilePath`', 'Boolean', '`undefined`'],
