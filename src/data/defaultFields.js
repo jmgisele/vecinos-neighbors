@@ -713,6 +713,13 @@ export default [
       },
       {
         component: 'MbInput',
+        key: 'urlSuffix',
+        label: 'URL suffix (when file path is used):',
+        props: { modelModifiers: { trim: true, lazy: true }, placeholder: 'e.g. .html' },
+        value: '/',
+      },
+      {
+        component: 'MbInput',
         key: 'urlTemplate',
         label: 'Internal URL template:',
         props: { modelModifiers: { trim: true, lazy: true }, placeholder: 'e.g. /:date/:title.html' },
