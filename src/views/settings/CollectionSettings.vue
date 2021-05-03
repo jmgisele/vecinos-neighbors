@@ -17,9 +17,9 @@
             <span>Content directory:</span>
             <MbFilePicker v-model="collectionDetails.dir" :dark="dark" placeholder="Select the folder with your content…" :root="`/projects/${currentProject.id}`" />
           </div>
-          <div class="input-row">
-            <span>Available Schemas:</span>
-            <span><strong>Todo</strong>: add list selection field with a model that has all schemas in it</span>
+          <div class="input-row schemas">
+            <span>Allowed Schemas:</span>
+            <MbItemList v-model="collectionDetails.schemas" :dark="dark" :options="availableSchemas" placeholder="Select a Schema…" />
           </div>
           <MbToggle v-model="collectionDetails.linkable" :dark="dark">Allow content in this collection to be linked</MbToggle>
         </section>
@@ -35,7 +35,7 @@
 </template>
 
 <script>
-import fs, { exists } from '../../fs';
+import fs, { exists, readdirDeep } from '../../fs';
 
 import prettifyEntityName from '../../assets/js/prettifyEntityName';
 
@@ -72,10 +72,19 @@ export default {
   async created() {
     const dirExists = await exists(this.collectionDir);
     if (!dirExists) await fs.mkdir(this.collectionDir);
+
+    try {
+      const schemas = await readdirDeep(`/projects/${this.currentProject.id}/.mattrbld/schemas`);
+      this.availableSchemas = schemas.map((schema) => ({ label: prettifyEntityName(schema.split('/').slice(-1)[0]), value: schema }));
+    } catch (err) {
+      if (err.code !== 'ENOENT') this.$store.commit('addToast', { message: `Something went wrong while trying to get all Schemas: ${err.message}`, type: 'error' }); // it’s okay if /schemas doesn’t exist yet
+    }
+
     this.initialised = true;
   },
   data() {
     return {
+      availableSchemas: [],
       collectionActions: [
         {
           action: this.openCollectionSettings,
@@ -288,6 +297,14 @@ export default {
       align-items: center
       margin-bottom: 1rem
 
+      &.schemas
+        > span:first-child
+          align-self: flex-start
+          margin-top: 1rem
+
+        .item-list
+          margin-bottom: 1rem
+
       @media $mobile
         flex-wrap: wrap
         margin-bottom: 2rem
@@ -298,6 +315,8 @@ export default {
 
       > :last-child:not(:only-child)
         margin-left: 1rem
+        width: 100%
+        max-width: (400 / 16)rem
 
         @media $mobile
           margin-left: 0
