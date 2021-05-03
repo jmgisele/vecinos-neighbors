@@ -514,7 +514,7 @@
         <p>It offers no configuration.</p>
         <h3 id="internal link helper">Internal Link Helper</h3>
         <p>A component to generate a link from a file in a collection.</p>
-        <InternalLinkHelper v-model="internalLinkTest" :collections-path="$route.params.id ? `/projects/${$route.params.id}/.mattrbld/collections` : '/'" :dark="dark" url-suffix=".html" url-template="/:date[year]/:title/" :use-file-path="true" />
+        <InternalLinkHelper v-model="internalLinkTest" :collections-path="$route.params.id ? `/projects/${$route.params.id}/.mattrbld/collections` : '/'" :dark="dark" url-suffix=".html" url-template="/projects/:date[year]/:title\.html" :use-file-path="false" />
         <h4>Props</h4>
         <MbTable :data="props.internalLinkHelpers" />
         <h4>Events</h4>
