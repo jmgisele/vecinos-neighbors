@@ -6,7 +6,13 @@
     </header>
     <MbTabs v-model="activeTab" :dark="dark" :tabs="tabs" show-add-option @add-tab="addTab" />
     <transition mode="out-in">
-      <section v-if="activeTabValue === 'design'" class="tab" key="design">
+      <section v-if="activeTabValue === 'toc'" class="tab toc" key="toc">
+        <h2>Table of Contents</h2>
+        <ul>
+          <li v-for="(tab, index) in tabs" :key="index" @click="activeTab = index"><a href="#" @click.prevent>{{tab.label}}</a></li>
+        </ul>
+      </section>
+      <section v-else-if="activeTabValue === 'design'" class="tab" key="design">
         <h2>Styles and Colors</h2>
         <div class="swatches">
           <div v-for="swatch in swatches" :key="swatch" class="swatch-wrapper">
@@ -1408,6 +1414,7 @@ export default {
         'warning-saturated',
       ],
       tabs: [
+        { label: 'Table of Contents', value: 'toc' },
         { label: 'Styles and Colors', value: 'design' },
         { label: 'Buttons', value: 'buttons' },
         { label: 'Checkboxes', value: 'checkboxes' },
@@ -1773,6 +1780,29 @@ export default {
         @media only screen and (max-width: 64rem)
           margin-left: -1rem
           margin-right: @margin-left
+
+    &.toc
+      > ul
+        columns: 3
+        column-gap: 1rem
+        margin: 0
+        list-style: none
+        counter-reset: listCounter
+
+        @media $mobile
+          columns: 1
+
+        li
+          counter-increment: listCounter
+          margin-bottom: 0.5rem
+          white-space: nowrap
+          text-overflow: ellipsis;
+          overflow: hidden
+
+          &::before
+            content: counters(listCounter, '.') '. '
+            opacity: 0.38
+            font-size: 0.875rem
 
     &.utility
       h3:not(:first-of-type)
