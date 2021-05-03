@@ -19,7 +19,7 @@
         </ul>
       </div>
       <div v-else-if="view === 'files'" class="view files" :class="{ dark }" key="files">
-        <MbFileList :action="{ callback: () => view = 'url', label: 'Cancel', type: 'negative' }" :dark="dark" :empty-state="{ noFiles: 'There are no content items in this directory', noFolders: 'There are no folders in this directory', empty: 'There are no content items in this collection' }" file-list-label="Content Items" :filetypes="['json']" pretty-filenames :root="currentRoot" :sortable="false" @fileclick="handleFileClick" />
+        <MbFileList :action="{ callback: () => view = 'url', label: 'Cancel', type: 'negative' }" :dark="dark" :empty-state="{ noFiles: 'There are no content items in this directory', noFolders: 'There are no folders in this directory', empty: 'There are no content items in this collection' }" file-list-label="Content Items" :filetypes="['json']" :folders-first="false" pretty-filenames :root="currentRoot" :sortable="false" @fileclick="handleFileClick" />
       </div>
       <div v-else-if="view === 'loading'" class="view loading" key="loading">
         <MbLoader />
