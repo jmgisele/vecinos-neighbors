@@ -1135,6 +1135,7 @@ export default {
           ['`dark`', 'Boolean', '`false`'],
           ['`emptyState`', 'String, Object', '`{ noFiles: \'There are no files in this directory\', noFolders: \'There are no folders in this directory\', empty: \'This directory is empty\' }`', 'If a string is passed, all three states will show that string'],
           ['`filetypes`', 'Array', '`undefined`'],
+          ['`foldersFirst`', 'Boolean', '`true`'],
           ['`mode`', 'String', '`folder`'],
           ['`modelValue`', 'String', ''],
           ['`placeholder`', 'String', '`undefined`'],
