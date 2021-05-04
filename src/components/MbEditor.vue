@@ -524,7 +524,7 @@ export default {
           else this.linkPopover.newTab = false;
           if (rel && rel.includes('nofollow')) this.linkPopover.nofollow = true;
           else this.linkPopover.nofollow = false;
-          if (href && href.startsWith('http')) this.linkPopover.type = 'external';
+          if (!this.linkOptions.collectionsPath || (href && href.startsWith('http'))) this.linkPopover.type = 'external'; // default to external link if we don’t have a collections path
           else this.linkPopover.type = 'internal';
         }
       }
