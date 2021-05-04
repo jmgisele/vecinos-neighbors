@@ -5,6 +5,7 @@
       <GeneralSettings v-if="activeTabValue === 'general'" :dark="dark" />
       <CollectionSettings v-else-if="activeTabValue === 'collections'" :dark="dark" />
       <SchemaSettings v-else-if="activeTabValue === 'schemas'" :dark="dark" />
+      <SidebarSettings v-else-if="activeTabValue === 'sidebar'" :dark="dark" />
       <UserSettings v-else-if="activeTabValue === 'users'" :dark="dark" />
     </transition>
   </div>
@@ -14,6 +15,7 @@
 import CollectionSettings from './settings/CollectionSettings.vue';
 import GeneralSettings from './settings/GeneralSettings.vue';
 import SchemaSettings from './settings/SchemaSettings.vue';
+import SidebarSettings from './settings/SidebarSettings.vue';
 import UserSettings from './settings/UserSettings.vue';
 
 import Store from '../store';
@@ -47,6 +49,7 @@ export default {
     CollectionSettings,
     GeneralSettings,
     SchemaSettings,
+    SidebarSettings,
     UserSettings,
   },
   computed: {
