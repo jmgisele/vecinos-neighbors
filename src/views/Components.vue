@@ -520,6 +520,7 @@
         <h4>Events</h4>
         <MbTable :data="events.internalLinkHelpers" />
         <h4>Notes</h4>
+        <p>If <code>useFilePath</code> and <code>fullPath</code> are <code>true</code>, the returned file path will be the full path of the content item, otherwise it will be the path with the optional <code>urlSuffix</code> <em>realative</em> to the collection directory.</p>
         <p><code>urlTemplate</code> will be ignored if <code>useFilePath</code> is <code>true</code>. If no <code>lang</code> is passed, localised fields will return <code>undefined</code>.</p>
         <p>Any string between a colon (:) and the first non word character in the <code>urlTemplate</code> will be interpreted as a field-path passed to <code>_.get</code>. The field’s value will be slugified and used in the URL instead.</p>
         <p>If a <code>[year|month|day]</code> modifier is used on a dynamic part of the <code>urlTemplate</code>, the field value will be converted to a date and return the specified modifier or undefined if the date is invalid</p>
@@ -1170,6 +1171,7 @@ export default {
           ['Name', 'Type', 'Default'],
           ['`collectionsPath`', 'String', '`undefined`'],
           ['`dark`', 'Boolean', '`false`'],
+          ['`fullPath`', 'Boolean', '`false`'],
           ['`lang`', 'String', '`undefined`'],
           ['`modelValue`', 'String', '`undefined`'],
           ['`placeholder`', 'String', '`Select a content item…`'],

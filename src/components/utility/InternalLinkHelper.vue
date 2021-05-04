@@ -59,10 +59,13 @@ export default {
     async handleFileClick(path) {
       let newUrl;
       if (this.useFilePath || !this.urlTemplate) {
-        const pathWithoutExtension = path.substring(0, path.lastIndexOf('.')); // we know there’s a .json at the end that we want to strip off, and since in the future we might also have .md or .yml / .yaml, let’s use this more ambiguous approach
-        const fileRoot = pathDirname(this.currentRoot);
-        newUrl = pathWithoutExtension.replace(fileRoot, '');
-        if (typeof this.urlSuffix !== 'undefined') newUrl = `${pathWithoutExtension.replace(fileRoot, '')}${this.urlSuffix}`;
+        if (this.fullPath) newUrl = path;
+        else {
+          const pathWithoutExtension = path.substring(0, path.lastIndexOf('.')); // we know there’s a .json at the end that we want to strip off, and since in the future we might also have .md or .yml / .yaml, let’s use this more ambiguous approach
+          const fileRoot = pathDirname(this.currentRoot);
+          newUrl = pathWithoutExtension.replace(fileRoot, '');
+          if (typeof this.urlSuffix !== 'undefined') newUrl = `${pathWithoutExtension.replace(fileRoot, '')}${this.urlSuffix}`;
+        }
       } else {
         try {
           const fields = JSON.parse(await fs.readFile(path, 'utf8'));
@@ -127,6 +130,7 @@ export default {
       required: true,
     },
     dark: Boolean,
+    fullPath: Boolean,
     lang: String,
     modelValue: String,
     placeholder: {
