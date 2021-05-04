@@ -40,7 +40,7 @@
       <MbSegmentedSelector v-if="linkTypeOptions.length > 1" v-model="linkPopover.type" :dark="dark" :options="linkTypeOptions" />
       <transition mode="out-in">
         <MbInput v-if="linkPopover.type === 'external'" v-model="linkPopover.href" :dark="dark" icon="link" label="Link URL" ref="linkHref" />
-        <InternalLinkHelper v-else v-model="linkPopover.href" class="internal-link" :collections-path="linkOptions.collectionsPath" :dark="dark" :lang="lang" :url-suffix="linkOptions.urlSuffix" :url-template="linkOptions.urlTemplate" :use-file-path="linkOptions.useFilePath" />
+        <InternalLinkHelper v-else v-model="linkPopover.href" class="internal-link" :class="{ dark }" :collections-path="linkOptions.collectionsPath" :dark="dark" :lang="lang" :url-suffix="linkOptions.urlSuffix" :url-template="linkOptions.urlTemplate" :use-file-path="linkOptions.useFilePath" />
       </transition>
       <MbInput v-model="linkPopover.title" :dark="dark" icon="text" label="Link Title (optional)" />
       <MbToggle v-if="outputFormat === 'html' && !this.linkOptions.forceBlankTarget" v-model="linkPopover.newTab" :dark="dark">Open link in a new tab</MbToggle>
@@ -1100,6 +1100,50 @@ export default {
   .internal-link
     margin-top: 1.5rem
     max-width: (309 / 16)rem
+
+    &.dark
+      background-color: $bg-secondary-dark
+
+      .url,
+      .collections ul li:not(:last-child)
+        background-color: $bg-tertiary-dark
+
+        &:hover
+          background-color: lighten($bg-tertiary-dark, 5)
+
+      .view.files
+        .file-list
+          .files
+            background-color: $bg-secondary-dark
+
+            .file
+              background-color: $bg-tertiary-dark
+
+              &:hover
+                background-color: lighten($bg-tertiary-dark, 5)
+
+              &:active
+                background-color: $bg-secondary-dark
+
+    .view.files
+      .file-list
+        header
+          .actions
+            flex-direction: column-reverse
+            align-items: flex-start
+
+            .input
+              width: 100%
+              margin-right: 0
+              margin-top: 0.5rem
+
+            .button
+              width: 100%
+              margin: 0
+
+        .files
+          max-height: (400 / 16)rem
+          overflow-y: auto
 
   .segmented-selector.dark
     background-color: $bg-tertiary-dark
