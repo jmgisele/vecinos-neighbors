@@ -733,4 +733,29 @@ export default [
     value: null,
     visibility: { hidden: false, showByValue: { field: null } },
   },
+  {
+    type: 'reference',
+    default: null,
+    description: 'Reference a value from another content item',
+    group: 'helpers',
+    icon: 'document-link',
+    key: '',
+    label: 'Content Reference',
+    localised: false,
+    options: [
+      {
+        component: 'MbInput',
+        key: 'field',
+        label: 'Field to reference:',
+        props: { modelModifiers: { trim: true, lazy: true }, placeholder: 'e.g. id' },
+        value: '',
+      },
+    ],
+    tab: null,
+    validation: {
+      required: false,
+    },
+    value: null,
+    visibility: { hidden: false, showByValue: { field: null } },
+  },
 ];
