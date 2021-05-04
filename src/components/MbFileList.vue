@@ -194,8 +194,8 @@ export default {
         this.files = [];
         if (this.foldersOnly && this.foldersFirst) this.folders = entities.filter((entity) => entity.isFolder && entity.name !== '.git');
         else if (this.foldersOnly && !this.foldersFirst) this.files = entities.filter((entity) => entity.isFolder && entity.name !== '.git');
-        else if (!this.foldersFirst && this.showHidden) this.files = entities.filter((entity) => entity.name !== '.git');
-        else if (!this.foldersFirst && !this.showHidden) this.files = entities.filter((entity) => !entity.name.startsWith('.'));
+        else if (!this.foldersFirst && this.showHidden) this.files = entities.filter((entity) => entity.name !== '.git').sort((a, b) => b.isFolder - a.isFolder); // subtracting booleans from each other works to return -1, 1, or 0 respectively…for some reason
+        else if (!this.foldersFirst && !this.showHidden) this.files = entities.filter((entity) => !entity.name.startsWith('.')).sort((a, b) => b.isFolder - a.isFolder); // subtracting booleans from each other works to return -1, 1, or 0 respectively…for some reason
         else if (this.showHidden) {
           entities.forEach((entity) => {
             if (entity.isFolder && entity.name !== '.git') this.folders.push(entity);
@@ -292,6 +292,9 @@ export default {
             return 0;
         }
       });
+
+      // OPTIMIZE: this could probably be factored into the sort above to avoid iterating over everything twice, but all the solutions I could come up with were much less readable, so I went with this instead
+      if (!this.foldersFirst || !this.foldersOnly) this[type].sort((a, b) => b.isFolder - a.isFolder); // we want folders listed before files, but in the same list
     },
     updateOffsets: debounce(function () { // eslint-disable-line func-names
       this.$refs.folderWrapper.$el.querySelectorAll('.folder').forEach((el) => {
