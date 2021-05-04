@@ -1,6 +1,6 @@
 <template lang="html">
   <transition-group class="sortable-list" :class="{ dragging }" tag="div">
-    <div v-for="(item, index) in items" class="drag-item" :class="{ transitions: enableTransitions }" :data-area="areaId" :data-index="index" :key="item[keyName] || item" @click="handleClick(index)" @pointerdown.left="startDrag($event, index)">
+    <div v-for="(item, index) in items" class="drag-item" :class="{ transitions: enableTransitions }" :data-area="areaId" :data-index="index" :key="item[keyName] || item" @click="handleClick(index, $event)" @pointerdown.left="startDrag($event, index)">
       <slot :active-item="activeItem" :index="index" :item="item" />
     </div>
   </transition-group>
@@ -34,8 +34,8 @@ export default {
   },
   emits: ['itemclick', 'itemmove'],
   methods: {
-    handleClick(index) {
-      if (!this.beingDragged) this.$emit('itemclick', index);
+    handleClick(index, e) {
+      if (!this.beingDragged && typeof e.target.dataset.ignoreDrag === 'undefined') this.$emit('itemclick', index);
     },
     handlePointerMove(e) {
       this.beingDragged = true; // we moved the cursor
