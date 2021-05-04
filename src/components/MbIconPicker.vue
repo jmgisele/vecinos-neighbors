@@ -173,7 +173,7 @@ export default {
     ul
       user-select: none
       max-height: 30rem
-      margin: 0 auto
+      margin: 0
       padding: 0.5rem
       padding-top: 0
       list-style: none
@@ -181,7 +181,7 @@ export default {
       background-color: inherit
       display: flex
       flex-wrap: wrap
-      max-width: (320 / 16)rem
+      max-width: ((3 * (88 + 16) + 16) / 16)rem
 
       li
         margin: 0.5rem
@@ -191,7 +191,7 @@ export default {
         align-items: center
         background-color: $bg-secondary
         border-radius: $radius-m
-        width: calc(33.33% - 1rem)
+        width: (88 / 16)rem
         overflow: hidden
         cursor: pointer
         transition: background-color 200ms ease
