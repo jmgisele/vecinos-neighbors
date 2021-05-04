@@ -8,18 +8,19 @@
       <div v-else-if="view === 'collections'" class="view collections" key="collections">
         <p>Linkable Collections</p>
         <ul>
-          <li v-for="collection in linkableCollections" :class="{ dark }" :key="collection.value" tabindex="0" @click="handleCollectionClick(collection.value)" @keyup.space.prevent @keyup.space.enter="handleCollectionClick(collection.value)">
+          <li v-for="collection in linkableCollections" :class="{ dark }" :key="collection.value" tabindex="0" @click="handleCollectionClick(collection.value)" @keydown.space.prevent @keyup.space.enter="handleCollectionClick(collection.value)">
             <MbIcon icon="folder" />
             <span class="label">{{collection.label}}</span>
           </li>
-          <li :class="{ dark }" tabindex="0" @click="view = 'url'" @keyup.space.prevent @keyup.space.enter="view = 'url'">
+          <li :class="{ dark }" tabindex="0" @click="view = 'url'" @down.space.prevent @keyup.space.enter="view = 'url'">
             <MbIcon icon="chevron-left" />
-            <span class="label">Cancel</span>
+            <span class="label">Back</span>
           </li>
         </ul>
       </div>
       <div v-else-if="view === 'files'" class="view files" :class="{ dark }" key="files">
-        <MbFileList :action="{ callback: () => view = 'url', label: 'Cancel', type: 'negative' }" :dark="dark" :empty-state="{ noFiles: 'There are no content items in this directory', noFolders: 'There are no folders in this directory', empty: 'There are no content items in this collection' }" file-list-label="Content Items" :filetypes="['json']" :folders-first="false" pretty-filenames :root="currentRoot" :sortable="false" @fileclick="handleFileClick" />
+        <MbFileList :dark="dark" :empty-state="{ noFiles: 'There are no content items in this directory', noFolders: 'There are no folders in this directory', empty: 'There are no content items in this collection' }" file-list-label="Content Items" :filetypes="['json']" :folders-first="false" pretty-filenames :root="currentRoot" :sortable="false" @fileclick="handleFileClick" />
+        <MbButton :dark="dark" icon="chevron-left" @click="view = 'collections'">Back</MbButton>
       </div>
       <div v-else-if="view === 'loading'" class="view loading" key="loading">
         <MbLoader />
@@ -226,17 +227,51 @@ export default {
       .icon
         flex-shrink: 0
 
+    &.collections ul > li:last-child
+      background-color: transparent
+      border: 0.0625rem solid $accent
+      padding: 1rem 2.5rem 1rem 1rem
+      height: (52 / 16)rem
+      margin-top: 1rem
+
+      &.dark
+        &:hover
+          background-color: $bg-tertiary-dark
+
+        &:active
+          background-color: $bg-secondary-dark
+
+      &:hover
+        background-color: $bg-tertiary
+
+      &:active
+        background-color: $bg-secondary
+
+      &::before
+        top: -1px
+        left: @top
+        right: @top
+        bottom: @top
+
+      .label
+        flex-grow: 1
+        text-align: center
+
     &.files
       .file-list::v-deep(header .actions)
         .input
           flex-grow: 1
-          margin-right: 1rem
+          margin-right: 0
 
           @media $mobile
             margin-right: 0
 
         .button
           margin-left: 0
+
+      .button
+        width: 100%
+        margin-top: 1rem
 
     &.v-enter-active,
     &.v-leave-active
