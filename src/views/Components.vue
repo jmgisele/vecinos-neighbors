@@ -666,6 +666,16 @@
         <h3>Events</h3>
         <MbTable :data="events.itemLists" />
       </section>
+      <section v-else-if="activeTabValue === 'icon-pickers'" class="tab icon-pickers">
+        <h2>Icon Pickers</h2>
+        <p>A component for picking an icon from all available icons.</p>
+        <MbIconPicker v-model="iconPickertest" :dark="dark" removable />
+        <MbIconPicker v-model="iconPickertest" :dark="dark" />
+        <h3>Props</h3>
+        <MbTable :data="props.iconPickers" />
+        <h3>Events</h3>
+        <MbTable :data="events.iconPickers" />
+      </section>
       <section v-else class="tab" key="exampleTab">
         <p>This is just an empty test-tab.</p>
         <p>To delete it, click the button in the “<u @click="activeTab = tabs.findIndex((tab) => tab.value === 'tabs')">Tabs</u>”-tab.</p>
@@ -900,6 +910,10 @@ export default {
           ['`cancel`', ''],
           ['`submit`', ' An object with the following structure: { user, password, save\ufeffPassword }'],
         ],
+        iconPickers: [
+          ['Name', 'Data'],
+          ['`update:modelValue`', 'The new icon'],
+        ],
         inputs: [
           ['Name', 'Data'],
           ['`blur`', ''],
@@ -981,6 +995,7 @@ export default {
         ],
       },
       fileContent: null,
+      iconPickertest: null,
       idCounter: 0,
       internalLinkTest: null,
       itemListTest: [],
@@ -1142,6 +1157,13 @@ export default {
           ['Name', 'Type', 'Default'],
           ['`icon`', 'String', "`'mattrbld'`"],
           ['`noTransition`', 'Boolean', '`false`'],
+        ],
+        iconPickers: [
+          ['Name', 'Type', 'Default'],
+          ['`dark`', 'Boolean', '`false`'],
+          ['`modelValue`', 'String', '`false`'],
+          ['`placeholder`', 'String', "`'mattrbld'`"],
+          ['`removable`', 'Boolean', '`false`'],
         ],
         internalLinkHelpers: [
           ['Name', 'Type', 'Default'],
@@ -1462,6 +1484,7 @@ export default {
         { label: 'File Pickers', value: 'file-pickers' },
         { label: 'Highlight Boxes', value: 'highlight-boxes' },
         { label: 'Icons', value: 'icons' },
+        { label: 'Icon Pickers', value: 'icon-pickers' },
         { label: 'Inputs', value: 'inputs' },
         { label: 'Item Lists', value: 'item-lists' },
         { label: 'Loaders', value: 'loaders' },
