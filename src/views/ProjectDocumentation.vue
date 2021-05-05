@@ -1,7 +1,7 @@
 <template lang="html">
   <div class="project-documentation">
     <article v-html="content" />
-    <pre v-if="Object.keys(frontmatter).length > 0" :class="{ dark }">{{frontmatter}}</pre>
+    <pre v-if="frontmatter && Object.keys(frontmatter).length > 0" :class="{ dark }">{{frontmatter}}</pre>
   </div>
 </template>
 
