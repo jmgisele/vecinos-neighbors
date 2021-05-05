@@ -212,6 +212,15 @@ export default {
     margin-left: auto
     margin-right: auto
 
+    &:first-child
+      margin-top: 8rem
+
+      @media $tablet
+        margin-top: 4rem
+
+      @media $mobile
+        margin-top: 0
+
     footer
       margin-top: 1.5rem
       display: flex
