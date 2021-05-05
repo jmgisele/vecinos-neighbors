@@ -88,6 +88,15 @@ const routes = [
         },
       },
       {
+        name: 'Project.Collection',
+        path: 'collection/:path',
+        component: () => import(/* webpackChunkName: "project" */ '../views/ProjectCollection.vue'),
+        meta: {
+          label: 'Collection',
+          title: 'Collection Details',
+        },
+      },
+      {
         name: 'Project.Documentation',
         path: 'documentation/:path',
         component: () => import(/* webpackChunkName: "project" */ '../views/ProjectDocumentation.vue'),
@@ -119,6 +128,20 @@ const routes = [
       label: 'Edit Schema',
       showBack: true,
       title: 'Edit Schema',
+    },
+    beforeEnter: (to) => {
+      if (!Store.state.user.projects.includes(to.params.id)) return { name: 'Forbidden', replace: true };
+      return true;
+    },
+  },
+  {
+    path: '/edit-content/:id/:path',
+    name: 'Edit Content',
+    component: () => import(/* webpackChunkName: "editors" */ '../views/EditContent.vue'),
+    meta: {
+      label: 'Edit Content',
+      showBack: true,
+      title: 'Edit Content',
     },
     beforeEnter: (to) => {
       if (!Store.state.user.projects.includes(to.params.id)) return { name: 'Forbidden', replace: true };
