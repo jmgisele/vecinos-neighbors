@@ -88,6 +88,15 @@ const routes = [
         },
       },
       {
+        name: 'Project.Documentation',
+        path: 'documentation/:path',
+        component: () => import(/* webpackChunkName: "project" */ '../views/ProjectDocumentation.vue'),
+        meta: {
+          label: 'Documentation',
+          title: 'Project Documentation',
+        },
+      },
+      {
         name: 'Project.Settings',
         path: 'settings',
         component: () => import(/* webpackChunkName: "project" */ '../views/ProjectSettings.vue'),
