@@ -51,7 +51,6 @@ export default createStore({
       name: null,
       projectAccessDates: {},
       projects: [],
-      role: null,
       theme: 'auto',
       uiScale: 'auto',
     },

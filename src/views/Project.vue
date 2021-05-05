@@ -160,9 +160,7 @@ export default {
       const users = userJsonStrings.map((string) => JSON.parse(string));
 
       if (!users.find((user) => user.email === Store.state.user.email)) { // this user isn’t a member of this project yet
-        const {
-          email, name, role,
-        } = Store.state.user;
+        const { email, name } = Store.state.user;
         let id = slugify(email.trim()); // could lead to collisions with similar addresses, so we check if it exists in the next step, but we don’t use the id of the current user since that’s only unique to the current device
         while (userFiles.includes(`${id}.json`)) id += `-${Math.random().toString(36).slice(2, 9)}`; // add a random sequence after to make it unique
 
@@ -170,7 +168,7 @@ export default {
           email,
           id,
           name,
-          role: role === 'owner' ? 'dev' : role, // take the users default role for the moment, but shouldn’t it be better to have all new users be at first Editors?
+          role: 'editor',
         };
 
         const path = `${usersPath}/${id}.json`;

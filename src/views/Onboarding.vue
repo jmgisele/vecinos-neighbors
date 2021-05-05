@@ -50,11 +50,8 @@
           <p class="blurb">While the project is being imported, let’s set up your local user. This data will be used to let your collaborators know who you are.</p>
           <MbInput v-model="userName" :autofocus="!isMobile" :dark="dark" :error="errors.userName" icon="user" label="Full Name" @blur="validate('userName')" />
           <MbInput v-model="userEmail" :dark="dark" :error="errors.userEmail" icon="mail" label="Email Address" type="email" @blur="validate('userEmail')" />
-          <h2>What’s your typical role in projects?</h2>
-          <p>This can be overridden on a project-by-project basis.</p>
-          <MbRadioGroup v-model="userRole" :dark="dark" :options="roleOptions" />
           <footer>
-            <MbButton :dark="dark" :disabled="Boolean(!userName || !userEmail || !userRole || errors.userName || errors.userEmail)" type="primary" @click="createUser">Create User</MbButton>
+            <MbButton :dark="dark" :disabled="Boolean(!userName || !userEmail || errors.userName || errors.userEmail)" type="primary" @click="createUser">Create User</MbButton>
           </footer>
         </div>
         <div v-else-if="currentSlide === 2" class="slide">
@@ -89,8 +86,6 @@
 
 <script>
 import slugify from '@sindresorhus/slugify';
-
-import availableRoles from '../data/availableRoles';
 
 import generateAvatar from '../assets/js/generateAvatar';
 import isMattrbldProject from '../assets/js/isMattrbldProject';
@@ -140,7 +135,6 @@ export default {
       repoURL: '',
       repoBranch: null,
       repoBranches: [],
-      roleOptions: availableRoles,
       showAdvancedSettings: false,
       showPrivacyPolicy: false,
       steps: [
@@ -164,7 +158,6 @@ export default {
       userEmail: '',
       userId: '',
       userName: '',
-      userRole: '',
     };
   },
   methods: {
@@ -203,7 +196,6 @@ export default {
           id: this.userId,
           name: this.userName.trim(),
           projects: [this.projectName],
-          role: this.userRole,
         };
         try {
           await fs.mkdir('/users');

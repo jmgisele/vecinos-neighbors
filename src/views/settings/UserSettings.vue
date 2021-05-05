@@ -217,16 +217,8 @@ export default {
         listRemotes({ fs: PlainFS, dir }),
         currentBranch({ fs: PlainFS, dir }),
       ]);
-      let accessLevel;
 
-      if (['editor', 'dev', 'owner'].includes(user.role)) accessLevel = user.role;
-      else {
-        const customRole = this.currentProject.customRoles.find((role) => role.value === user.role);
-        if (customRole) accessLevel = customRole.accessLevel;
-        else accessLevel = 'editor';
-      }
-
-      return `${window.location.protocol}//${window.location.host}/import?name=${window.encodeURIComponent(user.name)}&email=${window.encodeURIComponent(user.email)}&al=${window.encodeURIComponent(accessLevel)}&repo=${window.encodeURIComponent(remotes[0].url)}&branch=${window.encodeURIComponent(branch)}&proxy=${window.encodeURIComponent(this.currentProject.corsProxy)}`;
+      return `${window.location.protocol}//${window.location.host}/import?name=${window.encodeURIComponent(user.name)}&email=${window.encodeURIComponent(user.email)}&repo=${window.encodeURIComponent(remotes[0].url)}&branch=${window.encodeURIComponent(branch)}&proxy=${window.encodeURIComponent(this.currentProject.corsProxy)}`;
     },
     handleAddRole() {
       this.roleBeingEdited.new = true;

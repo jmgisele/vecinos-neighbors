@@ -30,10 +30,6 @@
       <p>These settings are used as defaults when you join a project, but can be overridden on a per-project basis.</p>
       <MbInput v-model="newUserData.name" class="name" :dark="dark" :error="errors.userName" icon="user" label="Full Name" @blur="validate('userName'); checkAvatarRegeneration()" />
       <MbInput v-model="newUserData.email" :dark="dark" :error="errors.userEmail" icon="mail" label="Email Address" type="email" @blur="validate('userEmail'); checkAvatarRegeneration()" />
-      <div class="row">
-        <p>Default role:</p>
-        <MbSelect v-model="newUserData.role" :dark="dark" inline :options="roleOptions" />
-      </div>
       <p class="h3">Avatar</p>
       <div class="row avatar">
         <AvatarUploader ref="uploader" @ready="handleAvatarReady" />
@@ -62,10 +58,6 @@
       <p class="h3">Default Details</p>
       <MbInput v-model="newUserData.name" :autofocus="!isMobile" :dark="dark" :error="errors.userName" icon="user" label="Full Name" @blur="validate('userName'); checkAvatarRegeneration()" />
       <MbInput v-model="newUserData.email" :dark="dark" :error="errors.userEmail" icon="mail" label="Email Address" type="email" @blur="validate('userEmail'); checkAvatarRegeneration()" />
-      <div class="row">
-        <p>Default role:</p>
-        <MbSelect v-model="newUserData.role" :dark="dark" inline :options="roleOptions" placeholder="Select a role…" />
-      </div>
       <p class="h3">Avatar</p>
       <div class="row avatar">
         <AsyncImage :src="newUserData.avatar" :alt="`${newUserData.name}’s avatar`" />
@@ -89,7 +81,6 @@ import slugify from '@sindresorhus/slugify';
 import fs from '../../fs';
 import { rmrf } from '../../fs/workerFS';
 
-import availableRoles from '../../data/availableRoles';
 import generateAvatar from '../../assets/js/generateAvatar';
 
 import AsyncImage from './AsyncImage.vue';
@@ -146,7 +137,6 @@ export default {
         email: '',
         id: null,
         name: '',
-        role: '',
       },
       errors: {
         userName: '',
@@ -156,7 +146,6 @@ export default {
         avatar: null,
         email: null,
         name: null,
-        role: null,
       },
       popover: {
         show: false,
@@ -165,7 +154,6 @@ export default {
       },
       previousScale: null,
       previousTheme: null,
-      roleOptions: availableRoles,
       scaleOptions: [
         { label: 'OS Default', value: 'auto' },
         { label: '100%', value: 1 },
@@ -215,7 +203,6 @@ export default {
           id: newUserId,
           name: this.newUserData.name.trim(),
           projects: [],
-          role: this.newUserData.role || 'editor',
         };
         await fs.writeFile(`/users/${newUserId}.json`, JSON.stringify(user, null, 2), 'utf8');
         await fs.writeFile(`/users/${newUserId}.jpg`, avatarData, 'utf8'); // we know it’s a image/jpeg because we converted it ourselves in AvatarUploader / generateAvatar
@@ -271,7 +258,6 @@ export default {
       this.activeUser.avatar = URL.createObjectURL(new Blob([activeUserAvatarData], { type: 'image/jpeg' }));
       this.activeUser.email = this.$store.state.user.email;
       this.activeUser.name = this.$store.state.user.name;
-      this.activeUser.role = this.$store.state.user.role;
       this.activeUser.id = this.currentActiveUser;
     },
     async fetchUsers() {
@@ -321,7 +307,6 @@ export default {
         avatar: null,
         email: null,
         name: null,
-        role: null,
       };
       if (this.previousScale) {
         this.scale = this.previousScale;
@@ -354,7 +339,6 @@ export default {
         avatar: this.activeUser.avatar,
         email: this.activeUser.email,
         name: this.activeUser.name,
-        role: this.activeUser.role,
       };
       this.showUserSettings = true;
     },
@@ -383,13 +367,12 @@ export default {
         }
       }
 
-      const { email, name, role } = this.newUserData;
+      const { email, name } = this.newUserData;
 
       this.$store.commit('setUserData', {
         ...this.$store.state.user,
         email: email.trim(),
         name: name.trim(),
-        role,
         theme: this.theme,
         uiScale: this.scale,
       });
@@ -403,13 +386,11 @@ export default {
           avatar: this.activeUser.avatar,
           email: email.trim(),
           name: name.trim(),
-          role,
           theme: this.theme,
           uiScale: this.scale,
         };
         this.activeUser.email = email;
         this.activeUser.name = name;
-        this.activeUser.role = role;
         this.previousScale = this.scale; // so it doesn’t get overwritten
         this.previousTheme = this.theme; // so it doesn’t get overwritten
         this.handleSettingsModalClose();
