@@ -12,11 +12,30 @@ import fs from '../fs';
 import MarkdownParser from '../assets/js/MarkdownParser';
 
 const md = new MarkdownParser();
+let imageUrls; // needs to be defined out here so we can free those urls when we leave again
 
-async function readAndParseFile(path) {
+async function readAndParseFile(path, id) {
   try {
-    const file = matter(await fs.readFile(path, 'utf8'));
-    const renderedMd = md.parse(file.content);
+    const file = matter(await fs.readFile(path, 'utf8')); // load the file and pipe it through gray-matter
+
+    // We search for all local image URLs starting with a / and replace them with the image loaded from the browser filesystem
+    const imageFinder = /!\[.*?\]\((\/.+?)\)/g;
+    const allImageUrls = Array.from(file.content.matchAll(imageFinder), (match) => match[1]); // we just need the content of the first capturing group
+    const imageData = await Promise.allSettled(allImageUrls.map((url) => fs.readFile(`/projects/${id}/${url}`))); // Images might not exist, we will just ignore those
+
+    imageUrls = imageData.map((data) => {
+      if (data.status !== 'rejected') return URL.createObjectURL(new Blob([data.value]));
+      return '';
+    });
+
+    let matchNo = 0; // we need to keep track of which image belongs to which original url
+    const contentWithReplacedImages = file.content.replace(imageFinder, (match, firstGroup) => {
+      const url = imageUrls[matchNo];
+      matchNo += 1;
+      return match.replace(firstGroup, url);
+    });
+
+    const renderedMd = md.parse(contentWithReplacedImages);
     const unparsedFrontmatter = file.data;
     return { content: renderedMd, error: null, frontmatter: unparsedFrontmatter };
   } catch (err) {
@@ -27,7 +46,7 @@ async function readAndParseFile(path) {
 export default {
   async beforeRouteEnter(to, from, next) {
     if (to.params.path) {
-      const { content, error, frontmatter } = await readAndParseFile(to.params.path);
+      const { content, error, frontmatter } = await readAndParseFile(to.params.path, to.params.id);
 
       if (!error) {
         next((vm) => {
@@ -41,9 +60,12 @@ export default {
     }
     next({ name: 'NotFound' });
   },
+  beforeRouteLeave() {
+    if (imageUrls && imageUrls.length > 0) imageUrls.forEach((url) => url && URL.revokeObjectURL(url));
+  },
   async beforeRouteUpdate(to) {
     if (to.params.path) {
-      const { content, error, frontmatter } = await readAndParseFile(to.params.path);
+      const { content, error, frontmatter } = await readAndParseFile(to.params.path, to.params.id);
       if (error) return error;
       this.frontmatter = frontmatter;
       this.content = content;
@@ -92,5 +114,7 @@ export default {
       margin-top: 0
 
     ::v-deep(img)
+      display: block
       max-width: 100%
+      margin: 2rem auto
 </style>
