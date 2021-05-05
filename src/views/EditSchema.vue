@@ -178,8 +178,12 @@ import { status } from 'isomorphic-git';
 import slugify from '@sindresorhus/slugify';
 import fs, { exists, PlainFS, readdirDeep, joinPath, pathBasename, pathDirname } from '../fs'; // eslint-disable-line object-curly-newline
 import Store from '../store';
+import hasAccess from '../assets/js/hasAccess';
+import loadProject from '../assets/js/loadProject';
 import prettifyEntityName from '../assets/js/prettifyEntityName';
 import { generateFieldCandidates, generateSchemaFromCandidates } from '../assets/js/generateSchemaFromFile';
+
+import isPrivilegedUser from '../mixins/isPrivilegedUser';
 
 import availableRoles from '../data/availableRoles';
 import defaultFields from '../data/defaultFields';
@@ -192,6 +196,18 @@ import TabContent from '../components/utility/TabContent.vue';
 export default {
   async beforeRouteEnter(to, from, next) {
     try {
+      // Check if the user is allowed to edit schemas in the current project. To do that we currently need to load all users and the project itself if they aren’t currently loaded
+      if (!Store.state.currentProject.id) { // currentProject is not loaded
+        const { project, users, avatarUrl } = await loadProject(to.params.id, fs);
+        Store.commit('setCurrentProject', {
+          ...Store.state.currentProject,
+          ...project,
+          users,
+          avatarUrl,
+        });
+      }
+      if (!hasAccess(Store.state.user.email, Store.state.currentProject.users, Store.state.currentProject.customRoles)) return next({ name: 'Forbidden', replace: true });
+
       const { id, path } = to.params;
       let schema;
       let fromBackup = false;
@@ -997,6 +1013,7 @@ export default {
       return true;
     },
   },
+  mixins: [isPrivilegedUser],
   mounted() {
     this.$nextTick(() => { // needed so the active indicator looks right
       this.activeTab = 0;
@@ -1012,6 +1029,9 @@ export default {
     },
     fieldBeingEdited() {
       this.$nextTick(() => this.$refs.tabContent.scrollSplit());
+    },
+    isPrivilegedUser(nv) {
+      if (!nv) this.$router.replace({ name: 'Project' });
     },
     schema: {
       deep: true, // this might cause performance issues in large schemas, but it’s the most simple and robust way to ensure that wasChanged is updated whenever something changes
