@@ -97,6 +97,7 @@ export default {
     max-width: 60rem
     margin-left: auto
     margin-right: auto
+    margin-bottom: 4rem
     background-color: transparent
     color: $text-secondary
     border: 0.0625rem dashed $text-tertiary
@@ -107,6 +108,7 @@ export default {
 
   > article
     padding: 4rem 0
+    padding-bottom: 0
     max-width: 40rem
     margin: 0 auto
 
