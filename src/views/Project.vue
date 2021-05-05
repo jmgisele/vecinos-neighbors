@@ -55,6 +55,7 @@ import fs, { PlainFS, exists } from '../fs';
 import { addAllAndCommit, pull, push } from '../git';
 import Store from '../store';
 import isMattrbldProject from '../assets/js/isMattrbldProject';
+import loadProject from '../assets/js/loadProject';
 
 import ProjectSidebar from '../components/utility/ProjectSidebar.vue';
 
@@ -145,24 +146,13 @@ export default {
 
     // if we’re here the project was initialised before
     try {
-      let userFiles;
-      try {
-        userFiles = await fs.readdir(usersPath);
-      } catch (err) {
-        if (err.code !== 'ENOENT') throw err;
-      }
-
-      const [projectJsonString, ...userJsonStrings] = await Promise.all([
-        fs.readFile(`/projects/${to.params.id}/.mattrbld/config.json`, 'utf8'),
-        ...userFiles.filter((userFile) => userFile.endsWith('.json')).map((userFile) => fs.readFile(`${usersPath}/${userFile}`, 'utf8')),
-      ]);
-
-      const users = userJsonStrings.map((string) => JSON.parse(string));
+      const { project, users, avatarUrl } = await loadProject(to.params.id, fs);
 
       if (!users.find((user) => user.email === Store.state.user.email)) { // this user isn’t a member of this project yet
         const { email, name } = Store.state.user;
         let id = slugify(email.trim()); // could lead to collisions with similar addresses, so we check if it exists in the next step, but we don’t use the id of the current user since that’s only unique to the current device
-        while (userFiles.includes(`${id}.json`)) id += `-${Math.random().toString(36).slice(2, 9)}`; // add a random sequence after to make it unique
+        // eslint-disable-next-line no-await-in-loop
+        while (await exists(`${usersPath}/${id}.json`)) id += `-${Math.random().toString(36).slice(2, 9)}`; // add a random sequence after to make it unique
 
         const user = {
           email,
@@ -178,18 +168,9 @@ export default {
         users.push(user);
       }
 
-      let avatarData;
-      let avatarUrl;
-      try {
-        avatarData = await fs.readFile(`/projects/${to.params.id}/.mattrbld/avatar.jpg`);
-        avatarUrl = URL.createObjectURL(new Blob([avatarData], { type: 'image/jpeg' })); // revoking is handled by the ProjectAvatar component
-      } catch (err) {
-        if (err.code !== 'ENOENT') throw err;
-      }
-
       Store.commit('setCurrentProject', {
         ...Store.state.currentProject,
-        ...JSON.parse(projectJsonString),
+        ...project,
         avatar: avatarUrl,
         users,
       });
