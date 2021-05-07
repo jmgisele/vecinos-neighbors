@@ -149,6 +149,10 @@ export default {
       this.entryError = '';
       this.entryBeingModified = null;
     },
+    handleTypePick() {
+      this.entryDetails.target = null; // reset the target
+      this.updateEntry();
+    },
     openEntry(index) {
       const entry = this.sidebarOptions[index];
       if (entry === this.entryBeingModified) this.entryBeingModified = null;
