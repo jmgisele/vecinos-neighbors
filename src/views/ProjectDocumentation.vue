@@ -39,6 +39,7 @@ async function readAndParseFile(path, id) {
     const unparsedFrontmatter = file.data;
     return { content: renderedMd, error: null, frontmatter: unparsedFrontmatter };
   } catch (err) {
+    if (err.code === 'ENOENT') return { content: null, error: { name: 'NotFound', query: { type: 'document' }, replace: true }, frontmatter: null };
     return { content: null, error: err, frontmatter: null };
   }
 }
@@ -58,7 +59,7 @@ export default {
       next(error);
       return;
     }
-    next({ name: 'NotFound' });
+    next({ name: 'NotFound', query: { type: 'document' }, replace: true });
   },
   beforeRouteLeave() {
     if (imageUrls && imageUrls.length > 0) imageUrls.forEach((url) => url && URL.revokeObjectURL(url));
@@ -71,7 +72,7 @@ export default {
       this.content = content;
       return true;
     }
-    return { name: 'NotFound' };
+    return { name: 'NotFound', query: { type: 'document' }, replace: true };
   },
   data() {
     return {
