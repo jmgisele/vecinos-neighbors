@@ -36,13 +36,14 @@
     </MbScroller>
     <p v-if="foldersFirst && !foldersOnly" class="h3">{{fileListLabel}}</p>
     <transition-group v-show="filteredFiles.length > 0" class="files" tag="ul">
-      <li v-for="file in filteredFiles" class="file" :class="{ 'no-actions': modifiedFileActions.length === 0 }" :key="file.name" tabindex="0" @click="file.isFolder ? openFolder(file.name, $event) : handleFileClick(file.name, $event)" @contextmenu.prevent="openMenu($event, joinPath(currentPath, file.name), file.isFolder)" @keyup.space.enter="file.isFolder ? openFolder(file.name, $event) : handleFileClick(file.name, $event)" @keydown.space.prevent>
+      <li v-for="file in filteredFiles" class="file" :class="{ 'no-actions': modifiedFileActions.length === 0 }" :key="file.name" tabindex="0" @click="file.isFolder ? openFolder(file.name, $event) : handleFileClick(file.name, $event, file.isDraft)" @contextmenu.prevent="openMenu($event, joinPath(file.isDraft ? cleanDraftsDir : currentPath, file.name), file.isFolder)" @keyup.space.enter="file.isFolder ? openFolder(file.name, $event) : handleFileClick(file.name, $event, file.isDraft)" @keydown.space.prevent>
         <MbIcon :icon="file.isFolder ? 'folder' : imageRegExp.test(file.name) ? 'image' : 'document'" />
         <span v-show="file.localChanges" class="local-changes-indicator"/>
         <span>{{prettyFilenames ? prettify(file.name) : file.name}}</span>
+        <MbChip v-if="file.isDraft" color="accent" label="Draft" />
         <span class="meta">{{formattedUpdatedAt(file.updatedAt)}}</span>
-        <MbButton v-if="modifiedFileActions.length > 1" :dark="dark" icon="more-vertical" rounded tooltip="More" @click="openMenu($event, joinPath(currentPath, file.name), file.isFolder)" />
-        <MbButton v-else-if="modifiedFileActions.length === 1" :dark="dark" :icon="modifiedFileActions[0].icon" rounded :tooltip="modifiedFileActions[0].label" :type="modifiedFileActions[0].type" @click="executeAction(modifiedFileActions[0].action, joinPath(currentPath, file.name))" />
+        <MbButton v-if="modifiedFileActions.length > 1" :dark="dark" icon="more-vertical" rounded tooltip="More" @click="openMenu($event, joinPath(file.isDraft ? cleanDraftsDir : currentPath, file.name), file.isFolder)" />
+        <MbButton v-else-if="modifiedFileActions.length === 1" :dark="dark" :icon="modifiedFileActions[0].icon" rounded :tooltip="modifiedFileActions[0].label" :type="modifiedFileActions[0].type" @click="executeAction(modifiedFileActions[0].action, joinPath(file.isDraft ? cleanDraftsDir : currentPath, file.name))" />
       </li>
     </transition-group>
     <p v-show="filteredFiles.length === 0 && ((foldersFirst && !foldersOnly) || filteredFolders.length === 0)" class="empty-state">{{emptyStateMessage}}</p>
@@ -68,6 +69,10 @@ export default {
       else steps = this.currentPath.split('/').slice(1);
 
       return [rootName, ...steps].slice(-4); // so it doesn’t get too long
+    },
+    cleanDraftsDir() {
+      if (!this.draftsDir) return null;
+      return joinPath(this.draftsDir, this.currentPath.replace(this.root, ''));
     },
     emptyStateMessage() {
       if (typeof this.emptyState === 'string') return this.emptyState;
@@ -161,17 +166,43 @@ export default {
     },
     async fetchData() {
       try {
+        let drafts = [];
+
+        if (this.cleanDraftsDir) {
+          try {
+            const draftNames = await fs.readdir(this.cleanDraftsDir);
+            const draftStats = await Promise.all(draftNames.map((name) => fs.stat(joinPath(this.cleanDraftsDir, name))));
+            drafts = draftNames.reduce((acc, name, index) => {
+              if (!draftStats[index].isDirectory()) {
+                acc.push({
+                  isDraft: true,
+                  isFolder: false,
+                  localChanges: this.$store.getters.hasLocalChanges(joinPath(this.cleanDraftsDir, name)),
+                  name,
+                  size: draftStats[index].size,
+                  updatedAt: draftStats[index].mtimeMs,
+                });
+              }
+              return acc;
+            }, []);
+          } catch (err) {
+            if (err.code !== 'ENOENT') throw err;
+          }
+        }
+
         const contents = await fs.readdir(this.currentPath);
+
         const statPromises = [];
         contents.forEach((entity) => statPromises.push(fs.stat(`${this.currentPath}/${entity}`)));
         const stats = await Promise.all(statPromises);
         const entities = contents.map((name, index) => ({
+          isDraft: false,
           isFolder: stats[index].isDirectory(),
           localChanges: this.$store.getters.hasLocalChanges(`${this.currentPath}/${name}`),
           name,
           size: stats[index].size,
           updatedAt: stats[index].mtimeMs,
-        }));
+        })).concat(drafts);
 
         entities.sort((a, b) => {
           let nameA;
@@ -222,9 +253,9 @@ export default {
       if (distance !== '0 seconds ago') return distance;
       return 'just now';
     },
-    handleFileClick(name, e) {
+    handleFileClick(name, e, isDraft) {
       if (e.target.classList.contains('button')) return; // buttons have a ::before that covers them completely, so this is enough
-      this.$emit('fileclick', joinPath(this.currentPath, name));
+      this.$emit('fileclick', joinPath(isDraft ? this.cleanDraftsDir : this.currentPath, name));
     },
     jumpTo(index) {
       if (this.currentPath === this.root) return;
@@ -305,6 +336,7 @@ export default {
   props: {
     action: Object,
     dark: Boolean,
+    draftsDir: String,
     emptyState: {
       type: [String, Object],
       default: () => ({
@@ -360,6 +392,9 @@ export default {
     },
     filteredFiles(nv, ov) {
       if (nv !== ov) this.$emit('list-change', { files: this.filteredFiles.length, folders: this.filteredFolders.length });
+    },
+    root(nv) {
+      this.currentPath = nv;
     },
   },
 };
@@ -654,6 +689,13 @@ export default {
           margin-left: auto
           font-size: 0.875rem
           color: $text-secondary
+
+      .chip
+        margin-left: 0.5rem
+        margin-right: 0.5rem
+        margin-top: -0.125rem // so the entry stays the same height despite the chip
+        margin-bottom: @margin-top
+        flex-shrink: 0
 
       .button
         margin-left: 1rem

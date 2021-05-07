@@ -1117,6 +1117,7 @@ export default {
           ['Name', 'Type', 'Default', 'Notes'],
           ['`action`', 'Object', '', 'Takes Button Props and a Label and Callback, will be shown at the top right as a primary action such as "create new" and "move here" (called with currentPath)'],
           ['`dark`', 'Boolean', '`false`', ''],
+          ['`draftsDir`', 'String', '`undefined`', 'If passed, files in the drafts dir will be shown in the list alongside other content, but marked as drafts'],
           ['`emptyState`', 'String, Object', '`{ noFiles: \'There are no files in this directory\', noFolders: \'There are no folders in this directory\', empty: \'This directory is empty\' }`', 'If a string is passed, all three states will show that string'],
           ['`fileActions`', 'Array', '`[]`', 'Takes objects with Context-Menu options including an action, which will be called with the file’s path. If filesOnly / foldersOnly are specified for an action, it will only show up in the respective type’s menu. If there’s only one, it’ll be displayed instead of the overflow menu'],
           ['`flieListLabel`', 'String', '`\'Files\'`', ''],
