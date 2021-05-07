@@ -38,6 +38,7 @@
 </template>
 
 <script>
+import { cloneDeep } from 'lodash-es';
 import fs, { exists, readdirDeep } from '../../fs';
 
 import prettifyEntityName from '../../assets/js/prettifyEntityName';
@@ -152,7 +153,7 @@ export default {
       const timeoutId = window.setTimeout(async () => {
         try {
           await fs.unlink(path);
-          await this.$refs.fileList.refresh();
+          if (this.$refs.fileList) await this.$refs.fileList.refresh(); // we might be somewhere else already
           this.$store.commit('removeLocallyChangedFile', path);
           this.$store.dispatch('saveAppData');
         } catch (err) {
@@ -189,6 +190,26 @@ export default {
       this.$store.commit('removeLocallyChangedFile', oldPath);
       this.$store.commit('addLocallyChangedFile', newPath);
       this.$store.dispatch('saveAppData');
+
+      if (this.currentProject.sidebar && this.currentProject.sidebar.length > 0) {
+        // the collection might have been a target in a sidebar entry, so we need to update that
+        const sidebarEntries = this.currentProject.sidebar.reduce((acc, entry) => {
+          if (entry.target && entry.target.name === 'Project.Collection' && entry.target.params && entry.target.params.path === oldPath) acc.push(entry);
+          return acc;
+        }, []);
+
+        if (sidebarEntries && sidebarEntries.length > 0) {
+          const sidebarClone = cloneDeep(this.currentProject.sidebar);
+          sidebarEntries.forEach((entry) => {
+            const entryClone = cloneDeep(entry);
+            entryClone.target.params.path = newPath;
+            sidebarClone.splice(this.currentProject.sidebar.indexOf(entry), 1, entryClone);
+          });
+
+          this.$store.commit('setCurrentProjectProperty', { key: 'sidebar', value: sidebarClone });
+          this.$store.dispatch('saveCurrentProject');
+        }
+      }
     },
     handleSplitClosed() {
       if (!this.showEntityRename) this.collectionBeingModified = null; // split closes when whe rename, but we dont want to reset the collectionBeingModified so we still know which one we’re renaming
