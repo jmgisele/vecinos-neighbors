@@ -63,7 +63,7 @@ export default {
         this.$emit('close');
         this.$emit('entity-renamed', { oldPath, newPath });
       } catch (err) {
-        this.$store.commit('addToast', { message: `Something went wrong while creating the file: ${err.message}`, type: 'error' });
+        this.$store.commit('addToast', { message: `Something went wrong while renaming the file: ${err.message}`, type: 'error' });
       }
     },
     validateName: debounce(async function () { // eslint-disable-line func-names
