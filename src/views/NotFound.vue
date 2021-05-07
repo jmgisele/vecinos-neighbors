@@ -2,8 +2,17 @@
   <div class="not-found">
     <div class="wrapper">
       <MbIcon icon="warning" />
-      <h1>Page Not Found</h1>
-      <p>
+      <h1>{{type}} Not Found</h1>
+      <p v-if="type === 'collection'">
+        The collection you were looking for doesn’t exist. Was it perhaps renamed or deleted? 🤔
+      </p>
+      <p v-else-if="type === 'document'">
+        The document you were looking for doesn’t exist. Was it perhaps renamed or deleted? 🤔
+      </p>
+      <p v-else-if="type === 'content item'">
+        The content item you were looking for doesn’t exist. Was it perhaps renamed or deleted? 🤔
+      </p>
+      <p v-else>
         The page you were looking for does not exist. Perhaps you’d like to build it? 😉
       </p>
       <footer>
@@ -16,6 +25,12 @@
 
 <script>
 export default {
+  computed: {
+    type() {
+      if (!this.$route.query || !this.$route.query.type) return 'page';
+      return this.$route.query.type;
+    },
+  },
   props: {
     dark: Boolean,
   },
@@ -46,6 +61,7 @@ export default {
 
   h1
     margin-top: 2rem
+    text-transform: capitalize
 
   footer
     margin-top: 2rem
