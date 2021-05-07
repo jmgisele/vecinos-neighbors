@@ -14,7 +14,7 @@
           <router-link v-if="option.target" custom :to="option.target" v-slot="{ isExactActive, navigate }">
             <!-- the :class below is an ugly hack since isExactActive ignores queries on nested routes apparently -->
             <li :class="{ active: option.target && option.target.query && option.target.query.tab ? isExactActive && $route.query.tab === option.target.query.tab : isExactActive }" role="link" tabindex="0" @click="goTo(navigate)" @keydown.space.prevent @keyup.enter.space="goTo(navigate)">
-              <MbIcon :icon="option.icon || 'document'" />
+              <MbIcon :icon="option.icon || (option.target && option.target.name === 'Project.Collection' && 'folder') || 'document'" />
               <span>{{option.label}}</span>
             </li>
           </router-link>

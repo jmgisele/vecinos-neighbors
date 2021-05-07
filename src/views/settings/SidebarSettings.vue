@@ -7,7 +7,7 @@
           <div class="drag-handle" data-drag-handle>
             <MbIcon icon="drag-handle" />
           </div>
-          <MbIcon :icon="entry.icon || (entry.target ? 'document' : 'heading')" />
+          <MbIcon :icon="entry.icon || (entry.target ? entry.target.name === 'Project.Collection' ? 'folder' : 'document' : 'heading')" />
           <span>{{entry.label}}</span>
           <MbButton :dark="dark" data-ignore-drag icon="trash" rounded tooltip="Delete entry" type="negative" @click="deleteEntry(entry)" />
         </div>
@@ -33,14 +33,14 @@
           </div>
           <div class="input-row">
             <span>Icon:</span>
-            <MbIconPicker v-model.trim="entryDetails.icon" :dark="dark" @update:model-value="updateEntry"/>
+            <MbIconPicker v-model="entryDetails.icon" :dark="dark" removable @update:model-value="updateEntry"/>
           </div>
         </section>
         <section>
           <h3>Functionality</h3>
           <div class="input-row">
             <span>Type:</span>
-            <MbSelect v-model="entryDetails.type" :dark="dark" :options="[{ label: 'Heading', value: 'heading' }, { label: 'Collection', value: 'collection' }, { label: 'Content item', value: 'content' }, { label: 'Document', value: 'document' }]" />
+            <MbSelect v-model="entryDetails.type" :dark="dark" :options="[{ label: 'Heading', value: 'heading' }, { label: 'Collection', value: 'collection' }, { label: 'Content item', value: 'content' }, { label: 'Document', value: 'document' }]" @update:model-value="handleTypePick" />
           </div>
           <div v-show="entryDetails.type !== 'heading'" class="input-row target">
             <span>Target:</span>
