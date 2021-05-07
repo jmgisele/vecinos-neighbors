@@ -177,7 +177,7 @@ export default {
 
       if (isEqual(modifiedEntry, this.entryBeingModified)) return;
 
-      if (entryIndex < -1) shallowCopy.splice(entryIndex, 1, modifiedEntry);
+      if (entryIndex > -1) shallowCopy.splice(entryIndex, 1, modifiedEntry);
       this.entryBeingModified = modifiedEntry;
       this.sidebarOptions = shallowCopy;
     },
