@@ -19,7 +19,7 @@ export default {
       return this.currentPath === pathDirname(this.oldPath);
     },
     isSamePath() {
-      return this.oldPath === this.currentPath || this.currentPath.startsWith(this.oldPath); // don’t allow moving into itself or one of its descendants
+      return this.oldPath === this.currentPath || pathDirname(this.currentPath).startsWith(this.oldPath); // don’t allow moving into itself or one of its descendants
     },
   },
   data() {
