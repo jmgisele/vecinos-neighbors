@@ -1,17 +1,30 @@
 <template lang="html">
   <div class="collection">
     <h1>{{collection.name}}</h1>
-    <MbFileList v-if="typeof collection.dir !== 'undefined'" :action="action" :dark="dark" :drafts-dir="draftsDir" :empty-state="emptyState" :file-actions="fileActions" :file-list-label="fileListLabel" :filetypes="['json']" pretty-filenames :root="collection.dir" @fileclick="handleFileClick" @list-change="listedFiles = $event.files" @path-change="currentPath = $event" />
-    <MbButton v-if="userPermissions.has('createContent') && listedFiles === 0" :dark="dark" icon="plus" type="positive" @click="showEntityCreation = true">Create one</MbButton>
+    <MbFileList v-if="typeof collection.dir !== 'undefined'" :action="action" :dark="dark" :drafts-dir="draftsDir" :empty-state="emptyState" :file-actions="fileActions" :file-list-label="fileListLabel" :filetypes="[collection.type]" pretty-filenames ref="fileList" :root="collection.dir" @fileclick="handleFileClick" @list-change="listedFiles = $event.files" @path-change="currentPath = $event" />
+    <MbButton v-if="(userPermissions.has('everything') || userPermissions.has('createContent')) && listedFiles === 0" :dark="dark" icon="plus" type="positive" @click="createEntity">Create one</MbButton>
+    <EntityCreationModal :dark="dark" :file-content="typeof defaultCollectionContent !== 'string' ? JSON.stringify(defaultCollectionContent, null, 2) : defaultCollectionContent" :file-extension="collection.type" :only="createOnly" :path="currentPath" :title="entityCreationTitle" :visible="showEntityCreation" @close="handleEntityCreationClose" @entity-created="handleEntityCreated" />
+    <EntityMoveModal :dark="dark" :old-path="entityBeingModified" pretty-filenames :root="moveRootDir" :visible="showEntityMove" @close="showEntityMove = false; entityBeingModified = null" @entity-moved="handleEntityMoved" />
+    <EntityRenameModal :dark="dark" :old-path="entityBeingModified" :visible="showEntityRename" @close="showEntityRename = false; entityBeingModified = null" @entity-renamed="handleEntityRenamed" />
   </div>
 </template>
 
 <script>
 import pluralize from 'pluralize';
+import { dump as toYAML } from 'js-yaml';
 
-import fs, { joinPath, pathBasename } from '../fs';
+import fs, {
+  exists, joinPath, mkdirp, pathBasename,
+} from '../fs';
 
+import generateDefaultContentFromSchema from '../assets/js/generateDefaultContentFromSchema';
 import prettifyEntityName from '../assets/js/prettifyEntityName';
+
+import updateLocallyChangedFiles from '../mixins/updateLocallyChangedFiles';
+
+import EntityCreationModal from '../components/utility/EntityCreationModal.vue';
+import EntityMoveModal from '../components/utility/EntityMoveModal.vue';
+import EntityRenameModal from '../components/utility/EntityRenameModal.vue';
 
 export default {
   async beforeRouteEnter(to, from, next) {
@@ -45,6 +58,11 @@ export default {
       return { name: 'Error', replace: true };
     }
   },
+  components: {
+    EntityCreationModal,
+    EntityMoveModal,
+    EntityRenameModal,
+  },
   computed: {
     action() {
       if (this.userPermissions.has('everything') || this.userPermissions.has('createFolder') || this.userPermissions.has('createContent')) {
@@ -54,7 +72,7 @@ export default {
         else if (this.userPermissions.has('createContent')) label = `Add ${pluralize.singular(this.collection.name)}`;
 
         return {
-          callback: () => { this.showEntityCreation = true; },
+          callback: this.createEntity,
           label,
           icon: 'plus',
           iconFirst: true,
@@ -63,9 +81,19 @@ export default {
       }
       return null;
     },
+    createOnly() {
+      if (!this.userPermissions.has('everything') && this.userPermissions.has('createContent')) return 'file';
+      if (!this.userPermissions.has('everything') && this.userPermissions.has('createFolder')) return 'folder';
+      return null;
+    },
     draftsDir() {
       if (!this.collection.dir || !this.$store.state.currentProject.draftsDir) return null;
       return joinPath(this.$store.state.currentProject.draftsDir, 'collection', pathBasename(this.collection.dir));
+    },
+    entityCreationTitle() {
+      if (this.userPermissions.has('everything') || (this.userPermissions.has('createContent') && this.userPermissions.has('createFolder'))) return 'Add new…';
+      if (this.userPermissions.has('createContent')) return `Add new ${pluralize.singular(this.collection.name)}…`;
+      return 'Add new folder…';
     },
     fileActions() {
       const actions = [];
@@ -174,7 +202,7 @@ export default {
       return pluralize.plural(this.collection.name);
     },
     userPermissions() {
-      if (!this.collection.permissions) return new Set();
+      if (!this.collection.permissions || !this.$store.getters.userInCurrentProject) return new Set();
 
       const { role } = this.$store.getters.userInCurrentProject;
 
@@ -188,6 +216,7 @@ export default {
     return {
       collection: {},
       currentPath: null,
+      defaultCollectionContent: {},
       emptyState: {
         empty: 'There’s no content in this Collection',
         noFiles: 'There are no content items in this folder',
@@ -195,28 +224,171 @@ export default {
       },
       entityBeingModified: null,
       listedFiles: 0,
+      moveRootDir: null,
       showEntityCreation: false,
       showEntityMove: false,
       showEntityRename: false,
     };
   },
   methods: {
-    deleteEntity(path) {
-      console.log(path);
+    async createEntity() {
+      // make sure to set currentPath to the draftsDir if draftByDefault is true and there is a drafts dir
+      if (this.draftsDir && this.collection.draftByDefault) this.currentPath = joinPath(this.draftsDir, this.currentPath.replace(this.collection.dir, ''));
+      // check if there’s only one schema and if so, load that schema, set all default fields and the schema field in defaultCollectionContent
+      if (this.collection.schemas.length === 1) {
+        try {
+          const schema = JSON.parse(await fs.readFile(this.collection.schemas[0], 'utf8'));
+          const content = generateDefaultContentFromSchema(schema);
+          const relativeSchemaPath = this.collection.schemas[0].replace(`/projects/${this.$store.state.currentProject.id}, ''`);
+
+          if (this.collection.type === 'json') this.defaultSchemaContent = { ...content, ___mb_schema: relativeSchemaPath };
+          else if (this.collection.type === 'md') {
+            const markdownContent = content.content;
+            delete content.content; // content is the markdown body, so we don’t need that in the frontmatter
+            const frontmatter = toYAML({ ...content, ___mb_schema: relativeSchemaPath });
+            this.defaultSchemaContent = `---\n${frontmatter}\n---\n${markdownContent || ''}`;
+          }
+        } catch (err) {
+          if (err.code !== 'ENOENT') this.$store.commit('addToast', { message: `Something went wrong while loading the default Schema: ${err.message}`, type: 'error' });
+        }
+      } else if (this.collection.type === 'md') this.defaultSchemaContent = '---\n---\n'; // json content gets an empty object instead, which is why we only handle md here
+
+      this.showEntityCreation = true;
+    },
+    async deleteEntity(path) {
+      const timeout = 5000;
+      const isFile = (await fs.stat(path)).isFile();
+      const timeoutId = window.setTimeout(async () => {
+        try {
+          // TODO: actually delete the file / folder and check if there are any drafts to be deleted if it was a folder
+          // await rmrf(path);
+          await this.$refs.fileList.refresh();
+          if (isFile) this.$store.commit('removeLocallyChangedFile', path);
+          else this.$store.commit('removeLocallyChangedFolder', path);
+          this.$store.dispatch('saveAppData');
+        } catch (err) {
+          this.$store.commit('addToast', { message: `Something went wrong while deleting the ${isFile ? 'schema' : 'folder'}: ${err.message}`, type: 'error' });
+        } finally {
+          window.clearTimeout(timeoutId);
+          this.$store.commit('removeFromSoftDeleted', path);
+        }
+      }, timeout);
+
+      this.$store.commit('addToSoftDeleted', path);
+      this.$store.commit('addToast', {
+        action: () => {
+          window.clearTimeout(timeoutId);
+          this.$store.commit('removeFromSoftDeleted', path);
+        },
+        actionLabel: 'Undo',
+        message: isFile ? `The ${pluralize.singular(this.collection.name)} “${prettifyEntityName(pathBasename(path))}” was deleted` : `The folder and all ${pluralize.plural(this.collection.name)} within have been deleted`,
+        timeout: timeout - 200,
+        type: 'warning',
+      });
+    },
+    handleEntityCreationClose() {
+      this.showEntityCreation = false;
+      this.defaultSchemaContent = {};
+    },
+    async handleEntityCreated(name) {
+      const isFile = (await fs.stat(joinPath(this.currentPath, name))).isFile();
+
+      if (!isFile) this.$refs.fileList.refresh();
+      else {
+        this.$store.commit('addLocallyChangedFile', `${this.currentPath}/${name}`);
+        this.$store.dispatch('saveAppData');
+        if (this.userPermissions.has('everything') || this.userPermissions.has('editContent')) this.openContentItem(`${this.currentPath}/${name}`);
+        else this.$refs.fileList.refresh();
+        this.currentPath = this.$refs.fileList.currentPath;
+      }
+    },
+    async handleEntityMoved({ oldPath, newPath }) {
+      this.$refs.fileList.refresh();
+      this.entityBeingModified = null;
+
+      const isFile = (await fs.stat(newPath)).isFile();
+
+      if (isFile) {
+        this.$store.commit('removeLocallyChangedFile', oldPath);
+        this.$store.commit('addLocallyChangedFile', newPath);
+      } else { // we moved a directory
+        this.$store.commit('removeLocallyChangedFolder', oldPath);
+        try {
+          await this.updateLocallyChangedFiles(newPath);
+        } catch (err) {
+          this.$store.commit('addToast', { message: `Something went wrong while updating locally changed files: ${err.message}`, type: 'error' });
+        }
+      }
+      this.$store.dispatch('saveAppData');
+    },
+    async handleEntityRenamed({ oldPath, newPath }) {
+      this.$refs.fileList.refresh();
+      this.entityBeingModified = null;
+
+      const isFile = (await fs.stat(newPath)).isFile();
+
+      if (isFile) {
+        this.$store.commit('removeLocallyChangedFile', oldPath);
+        this.$store.commit('addLocallyChangedFile', newPath);
+      } else {
+        const oldDraftPath = joinPath(this.draftsDir, oldPath.replace(this.collection.dir, ''));
+        const newDraftPath = joinPath(this.draftsDir, newPath.replace(this.collection.dir, ''));
+
+        if (this.draftsDir) {
+          const oldPathExistsAsDraft = await exists(oldDraftPath);
+
+          if (oldPathExistsAsDraft) {
+            try {
+              await fs.rename(oldDraftPath, newDraftPath);
+            } catch (err) {
+              this.$store.commit('addToast', { message: `Something went wrong while renaming the draft directory: ${err.message}`, type: 'error' });
+            }
+          }
+        }
+        this.$store.state.application.locallyChangedFiles.forEach((path) => {
+          if (path.startsWith(oldPath)) {
+            this.$store.commit('removeLocallyChangedFile', path);
+            this.$store.commit('addLocallyChangedFile', path.replace(oldPath, newPath));
+          } else if (path.startsWith(oldDraftPath)) {
+            this.$store.commit('removeLocallyChangedFile', path);
+            this.$store.commit('addLocallyChangedFile', path.replace(oldDraftPath, newDraftPath));
+          }
+        });
+      }
+
+      this.$store.dispatch('saveAppData');
     },
     handleFileClick(path) {
-      console.log(path);
-    },
-    renameEntity(path) {
-      console.log(path);
+      if (this.userPermissions.has('everything') || this.userPermissions.has('editContent')) this.openContentItem(path);
     },
     moveEntity(path) {
-      console.log(path);
+      const isDraft = this.draftsDir && path.startsWith(this.draftsDir);
+      if (isDraft) this.moveRootDir = this.draftsDir;
+      else this.moveRootDir = this.collection.dir;
+
+      this.entityBeingModified = path;
+      this.showEntityMove = true;
     },
-    toggleDraft(path) {
-      console.log(path);
+    openContentItem(path) {
+      this.$router.push({ name: 'Edit Content', params: { id: this.$store.state.currentProject.id, path } });
+    },
+    renameEntity(path) {
+      this.entityBeingModified = path;
+      this.showEntityRename = true;
+    },
+    async toggleDraft(path) {
+      const isDraft = path.startsWith(this.draftsDir);
+      let newPath;
+      if (isDraft) newPath = path.replace(this.draftsDir, this.collection.dir); // we do not need to ensure that newPath exists here, because a draft in a folder that only exists in draftsDir wouldn’t show up here
+      else {
+        newPath = joinPath(this.draftsDir, path.replace(this.collection.dir, ''));
+        await mkdirp(newPath); // ensure new path exists in the draftsDir
+      }
+      await fs.rename(path, newPath);
+      this.handleEntityMoved({ oldPath: path, newPath });
     },
   },
+  mixins: [updateLocallyChangedFiles],
   props: {
     dark: Boolean,
   },
