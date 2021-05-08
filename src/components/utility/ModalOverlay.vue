@@ -23,10 +23,10 @@ export default {
     visible(nv) {
       // lock the scroll of the body
       if (nv) {
-        document.documentElement.style.setProperty('overflow', 'hidden');
+        // document.documentElement.style.setProperty('overflow', 'hidden'); // NOTE: disabled since it messes up the scroll position, need to see if we even need it (on iOS probably)
         document.body.style.setProperty('overflow', 'hidden');
       } else {
-        document.documentElement.style.removeProperty('overflow');
+        // document.documentElement.style.removeProperty('overflow'); // NOTE: disabled since it messes up the scroll position, need to see if we even need it (on iOS probably)
         document.body.style.removeProperty('overflow');
       }
     },
