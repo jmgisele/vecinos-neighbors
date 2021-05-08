@@ -1560,8 +1560,8 @@ export default {
     },
     async previewFile(path) {
       this.currentFile = path;
-      this.fileContent = await fs.readFile(this.currentFile, 'utf8');
       this.showFilePreviewModal = true;
+      this.fileContent = await fs.readFile(this.currentFile, 'utf8');
     },
     async softDeleteFile(path) {
       const timeout = 5000;
