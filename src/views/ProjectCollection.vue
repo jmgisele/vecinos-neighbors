@@ -243,17 +243,18 @@ export default {
           const content = generateDefaultContentFromSchema(schema);
           const relativeSchemaPath = this.collection.schemas[0].replace(`/projects/${this.$store.state.currentProject.id}, ''`);
 
-          if (this.collection.type === 'json') this.defaultSchemaContent = { ...content, ___mb_schema: relativeSchemaPath };
+          if (this.collection.type === 'json') this.defaultCollectionContent = { ...content, ___mb_schema: relativeSchemaPath };
           else if (this.collection.type === 'md') {
             const markdownContent = content.content;
             delete content.content; // content is the markdown body, so we don’t need that in the frontmatter
             const frontmatter = toYAML({ ...content, ___mb_schema: relativeSchemaPath });
-            this.defaultSchemaContent = `---\n${frontmatter}\n---\n${markdownContent || ''}`;
+            this.defaultCollectionContent = `---\n${frontmatter}\n---\n${markdownContent || ''}`;
           }
         } catch (err) {
           if (err.code !== 'ENOENT') this.$store.commit('addToast', { message: `Something went wrong while loading the default Schema: ${err.message}`, type: 'error' });
         }
-      } else if (this.collection.type === 'md') this.defaultSchemaContent = '---\n---\n'; // json content gets an empty object instead, which is why we only handle md here
+      } else if (this.collection.type === 'md') this.defaultCollectionContent = '---\n---\n';
+      else this.defaultCollectionContent = {};
 
       this.showEntityCreation = true;
     },
@@ -301,7 +302,6 @@ export default {
     },
     handleEntityCreationClose() {
       this.showEntityCreation = false;
-      this.defaultSchemaContent = {};
     },
     async handleEntityCreated(name, type) {
       const wasDraft = type === 'file' && this.draftsDir && this.collection.draftByDefault;
@@ -313,6 +313,7 @@ export default {
         if (this.userPermissions.has('everything') || this.userPermissions.has('editContent')) this.openContentItem(`${wasDraft ? this.currentDraftsPath : this.currentPath}/${name}`);
         else this.$refs.fileList.refresh();
       }
+      this.defaultCollectionContent = {};
     },
     async handleEntityMoved({ oldPath, newPath }) {
       this.$refs.fileList.refresh();
