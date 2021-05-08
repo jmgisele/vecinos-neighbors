@@ -1093,7 +1093,7 @@ export default {
           ['`fileContent`', 'String', '`undefined`', 'The text-content that should be written into the new file'],
           ['`fileExtension`', 'String or Array', '`undefined`', 'Either a single file extension such as json, or an array of them'],
           ['`only`', 'String', '`undefined`', 'Should be either ‘file’ or ‘directory’, will allow only the creation of the specified entity'],
-          ['`path`', 'String', '`/`', 'The path where the entity should be created'],
+          ['`path`', 'String, Object', '`/`', 'The path where the entity should be created. Passing an object allows passing different paths based on what entity is created. Format: { file: path, folder: path}'],
           ['`title`', 'String', "`'Create new…'`", ''],
           ['`visible`', 'Boolean', '`false`', ''],
         ],

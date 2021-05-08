@@ -20,7 +20,7 @@
 import slugify from '@sindresorhus/slugify';
 import { debounce } from 'lodash-es';
 
-import fs, { joinPath } from '../../fs';
+import fs, { joinPath, mkdirp } from '../../fs';
 
 export default {
   computed: {
@@ -64,7 +64,7 @@ export default {
 
       if (this.entity === 'directory') {
         try {
-          await fs.mkdir(joinPath(path, fullName));
+          await mkdirp(joinPath(typeof path !== 'string' ? path[this.entity] : path, fullName));
           this.reInitialize();
           this.$emit('close');
           this.$emit('entity-created', fullName);
@@ -73,7 +73,8 @@ export default {
         }
       } else {
         try {
-          await fs.writeFile(joinPath(path, fullName), this.fileContent || '', 'utf8');
+          await mkdirp(typeof path !== 'string' ? path[this.entity] : path);
+          await fs.writeFile(joinPath(typeof path !== 'string' ? path[this.entity] : path, fullName), this.fileContent || '', 'utf8');
           this.reInitialize();
           this.$emit('close');
           this.$emit('entity-created', fullName);
@@ -89,7 +90,7 @@ export default {
     validateName: debounce(async function () { // eslint-disable-line func-names
       let existingEntities = [];
       try {
-        existingEntities = await fs.readdir(this.path);
+        existingEntities = await fs.readdir(typeof this.path !== 'string' ? this.path[this.entity] : this.path);
       } catch (err) {
         // don’t do anything, it’ll fail and be handled when trying to create
       }
@@ -109,7 +110,7 @@ export default {
       validator: (v) => ['file', 'directory'].includes(v),
     },
     path: {
-      type: String,
+      type: [String, Object],
       default: '/',
     },
     title: {
