@@ -89,9 +89,9 @@ export default {
     };
   },
   methods: {
-    deleteEntity(path) {
+    async deleteEntity(path) {
       const timeout = 5000;
-      const isFile = path.endsWith('.json'); // fine since Schemas are always json and there can’t be a folder with .json as a name
+      const isFile = (await fs.stat(path)).isFile();
       const timeoutId = window.setTimeout(async () => {
         try {
           await rmrf(path);
