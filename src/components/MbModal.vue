@@ -96,6 +96,7 @@ export default {
       const currentY = e.changedTouches[0].clientY;
       const distance = currentY - this.startY;
       if (distance > 0 && e.cancelable) e.preventDefault();
+      else if (!e.cancelable) this.swipeEnd({ changedTouches: [{ clientY: this.startY }] }); // if it’s not cancelable, we’re scrolling, so abort
       this.transform = `translateY(${Math.max(distance, 0)}px)`;
       if (this.previousModal) this.previousModal.style.transform = `translateY(${this.previousModalTransform - this.previousModalTransform * (Math.max(distance, 0) / this.maxSwipeDistance)}px) scale(${0.8 + 0.2 * (Math.max(distance, 0) / this.maxSwipeDistance)})`;
     },
