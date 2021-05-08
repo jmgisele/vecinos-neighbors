@@ -157,7 +157,7 @@
       </template>
     </MbModal>
     <MbModal class="generate-schema-modal" :dark="dark" title="Schema from Content" :permanent="generateSchema.loading" :visible="generateSchema.show" @close="generateSchema.show = false" @after-close="resetGenerateSchema">
-      <MbFilePicker :dark="dark" :empty-state="{ noFolders: 'This directory is empty', empty: 'This directory is empty', noFiles: 'There are no eligible files in this folder' }" :filetypes="['json']" mode="file" :model-value="generateSchema.file" placeholder="Pick a content file…" :root="`/projects/${$route.params.id}`" @update:model-value="handleFilePick" />
+      <MbFilePicker :dark="dark" :empty-state="{ noFolders: 'This directory is empty', empty: 'This directory is empty', noFiles: 'There are no eligible files in this folder' }" :filetypes="['json', 'md']" mode="file" :model-value="generateSchema.file" placeholder="Pick a content file…" :root="`/projects/${$route.params.id}`" @update:model-value="handleFilePick" />
       <MbToggle v-model="generateSchema.tabs" :dark="dark">Convert top level object fields into tabs</MbToggle>
       <div class="field-candidates">
         <h2 v-show="generateSchema.fieldCandidates.length > 0" class="h3">Field Candidates</h2>
@@ -176,6 +176,8 @@
 import { cloneDeep } from 'lodash-es';
 import { status } from 'isomorphic-git';
 import slugify from '@sindresorhus/slugify';
+import * as matter from 'gray-matter';
+
 import fs, { exists, PlainFS, readdirDeep, joinPath, pathBasename, pathDirname } from '../fs'; // eslint-disable-line object-curly-newline
 import Store from '../store';
 import hasAccess from '../assets/js/hasAccess';
@@ -748,7 +750,8 @@ export default {
     async handleFilePick(file) {
       this.generateSchema.loading = true;
       try {
-        const fileContent = JSON.parse(await fs.readFile(file, 'utf8'));
+        const rawFile = await fs.readFile(file, 'utf8');
+        const fileContent = file.endsWith('.json') ? JSON.parse(rawFile) : { ...matter(rawFile).data, content: '### Some fake markdown\n\n' }; // so the content field can be generated as Rich Text
         this.generateSchema.fieldCandidates = generateFieldCandidates(fileContent);
       } catch (err) {
         if (err.name === 'SyntaxError') {
