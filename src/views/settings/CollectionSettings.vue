@@ -23,6 +23,7 @@
               <MbItemList v-model="collectionDetails.schemas" :dark="dark" :options="availableSchemas" placeholder="Select a Schema…" />
             </div>
             <MbToggle v-model="collectionDetails.linkable" :dark="dark">Allow content in this collection to be linked</MbToggle>
+            <MbToggle v-if="currentProject.draftsDir" v-model="collectionDetails.draftByDefault" :dark="dark">Create new content as drafts</MbToggle>
           </section>
           <section>
             <h3>Permissions</h3>
@@ -68,6 +69,21 @@ export default {
     },
     isMobile() {
       return this.$store.state.application.mobile;
+    },
+    permissions() {
+      const permissions = [
+        { label: 'create content', value: 'createContent' },
+        { label: 'create folders', value: 'createFolder' },
+        { label: 'delete content', value: 'deleteContent' },
+        { label: 'delete folders', value: 'deleteFolder' },
+        { label: 'edit content', value: 'editContent' },
+        { label: 'edit folders', value: 'editFolder' },
+        { label: 'do everything', value: 'everything' },
+      ];
+
+      if (this.currentProject.draftsDir) permissions.push({ label: 'publish drafts', value: 'publishDrafts' });
+
+      return permissions;
     },
     roles() {
       return [{ label: 'Everybody', value: 'everybody' }, ...availableRoles, ...this.currentProject.customRoles];
@@ -117,6 +133,7 @@ export default {
       },
       defaultCollectionContent: {
         dir: null,
+        draftByDefault: false,
         schemas: [],
         linkable: false,
         permissions: {
@@ -126,21 +143,13 @@ export default {
       collectionBeingModified: null,
       collectionDetails: {
         dir: null,
+        draftByDefault: false,
         schemas: [],
         linkable: false,
         permissions: {},
       },
       initialised: false,
       listedFiles: 0,
-      permissions: [
-        { label: 'create content', value: 'createContent' },
-        { label: 'create folders', value: 'createFolder' },
-        { label: 'delete content', value: 'deleteContent' },
-        { label: 'delete folders', value: 'deleteFolder' },
-        { label: 'edit content', value: 'editContent' },
-        { label: 'edit folders', value: 'editFolder' },
-        { label: 'do everything', value: 'everything' },
-      ],
       showEntityCreation: false,
       showEntityRename: false,
       showSplit: false,
@@ -214,6 +223,7 @@ export default {
     handleSplitClosed() {
       if (!this.showEntityRename) this.collectionBeingModified = null; // split closes when whe rename, but we dont want to reset the collectionBeingModified so we still know which one we’re renaming
       this.collectionDetails.dir = null;
+      this.collectionDetails.draftByDefault = false;
       this.collectionDetails.schemas = [];
       this.collectionDetails.linkable = false;
       this.collectionDetails.permissions = {};
@@ -350,6 +360,9 @@ export default {
           margin-left: 0
           margin-top: 0.5rem
           width: 100%
+
+    .toggle:not(:last-child)
+      margin-bottom: 1rem
 
 .loader
   position: absolute
