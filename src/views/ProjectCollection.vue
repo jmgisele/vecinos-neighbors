@@ -3,7 +3,7 @@
     <h1>{{collection.name}}</h1>
     <MbFileList v-if="typeof collection.dir !== 'undefined'" :action="action" :dark="dark" :drafts-dir="draftsDir" :empty-state="emptyState" :file-actions="fileActions" :file-list-label="fileListLabel" :filetypes="[collection.type]" pretty-filenames ref="fileList" :root="collection.dir" @fileclick="handleFileClick" @list-change="listedFiles = $event.files" @path-change="currentPath = $event" />
     <MbButton v-if="(userPermissions.has('everything') || userPermissions.has('createContent')) && listedFiles === 0" :dark="dark" icon="plus" type="positive" @click="createEntity">Create one</MbButton>
-    <EntityCreationModal :dark="dark" :file-content="typeof defaultCollectionContent !== 'string' ? JSON.stringify(defaultCollectionContent, null, 2) : defaultCollectionContent" :file-extension="collection.type" :only="createOnly" :path="currentPath" :title="entityCreationTitle" :visible="showEntityCreation" @close="handleEntityCreationClose" @entity-created="handleEntityCreated" />
+    <EntityCreationModal :dark="dark" :file-content="typeof defaultCollectionContent !== 'string' ? JSON.stringify(defaultCollectionContent, null, 2) : defaultCollectionContent" :file-extension="collection.type" :only="createOnly" :path="{ file: draftsDir && collection.draftByDefault ? currentDraftsPath : currentPath, directory: currentPath }" :title="entityCreationTitle" :visible="showEntityCreation" @close="handleEntityCreationClose" @entity-created="handleEntityCreated" />
     <EntityMoveModal :dark="dark" :old-path="entityBeingModified" pretty-filenames :root="moveRootDir" :visible="showEntityMove" @close="showEntityMove = false; entityBeingModified = null" @entity-moved="handleEntityMoved" />
     <EntityRenameModal :dark="dark" :old-path="entityBeingModified" :visible="showEntityRename" @close="showEntityRename = false; entityBeingModified = null" @entity-renamed="handleEntityRenamed" />
   </div>
@@ -86,6 +86,10 @@ export default {
       if (!this.userPermissions.has('everything') && this.userPermissions.has('createContent')) return 'file';
       if (!this.userPermissions.has('everything') && this.userPermissions.has('createFolder')) return 'directory';
       return null;
+    },
+    currentDraftsPath() {
+      if (!this.draftsDir || !this.currentPath) return null;
+      return joinPath(this.draftsDir, this.currentPath.replace(this.collection.dir, ''));
     },
     draftsDir() {
       if (!this.collection.dir || !this.$store.state.currentProject.draftsDir) return null;
@@ -233,9 +237,6 @@ export default {
   },
   methods: {
     async createEntity() {
-      // make sure to set currentPath to the draftsDir if draftByDefault is true and there is a drafts dir
-      if (this.draftsDir && this.collection.draftByDefault) this.currentPath = joinPath(this.draftsDir, this.currentPath.replace(this.collection.dir, ''));
-      // check if there’s only one schema and if so, load that schema, set all default fields and the schema field in defaultCollectionContent
       if (this.collection.schemas.length === 1) {
         try {
           const schema = JSON.parse(await fs.readFile(this.collection.schemas[0], 'utf8'));
@@ -302,17 +303,15 @@ export default {
       this.showEntityCreation = false;
       this.defaultSchemaContent = {};
     },
-    async handleEntityCreated(name) {
-      const isFile = (await fs.stat(joinPath(this.currentPath, name))).isFile();
+    async handleEntityCreated(name, type) {
+      const wasDraft = type === 'file' && this.draftsDir && this.collection.draftByDefault;
 
-      if (!isFile) this.$refs.fileList.refresh();
+      if (type !== 'file') this.$refs.fileList.refresh();
       else {
-        this.$store.commit('addLocallyChangedFile', joinPath(this.currentPath, name));
+        this.$store.commit('addLocallyChangedFile', joinPath(wasDraft ? this.currentDraftsPath : this.currentPath, name));
         this.$store.dispatch('saveAppData');
-        if (this.userPermissions.has('everything') || this.userPermissions.has('editContent')) this.openContentItem(`${this.currentPath}/${name}`);
+        if (this.userPermissions.has('everything') || this.userPermissions.has('editContent')) this.openContentItem(`${wasDraft ? this.currentDraftsPath : this.currentPath}/${name}`);
         else this.$refs.fileList.refresh();
-
-        if (this.draftsDir && this.collection.draftByDefault) this.currentPath = this.$refs.fileList.currentPath; // HACK: we need to reset the current path, in case we were creating a draft
       }
     },
     async handleEntityMoved({ oldPath, newPath }) {
