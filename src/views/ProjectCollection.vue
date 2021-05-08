@@ -295,11 +295,12 @@ export default {
 
       if (!isFile) this.$refs.fileList.refresh();
       else {
-        this.$store.commit('addLocallyChangedFile', `${this.currentPath}/${name}`);
+        this.$store.commit('addLocallyChangedFile', joinPath(this.currentPath, name));
         this.$store.dispatch('saveAppData');
         if (this.userPermissions.has('everything') || this.userPermissions.has('editContent')) this.openContentItem(`${this.currentPath}/${name}`);
         else this.$refs.fileList.refresh();
-        this.currentPath = this.$refs.fileList.currentPath;
+
+        if (this.draftsDir && this.collection.draftByDefault) this.currentPath = this.$refs.fileList.currentPath; // HACK: we need to reset the current path, in case we were creating a draft
       }
     },
     async handleEntityMoved({ oldPath, newPath }) {
