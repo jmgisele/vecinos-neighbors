@@ -18,6 +18,10 @@
               <span>Content directory:</span>
               <MbFilePicker v-model="collectionDetails.dir" :dark="dark" placeholder="Select the folder with your content…" :root="`/projects/${currentProject.id}`" />
             </div>
+            <div class="input-row">
+              <span>Content type:</span>
+              <MbSelect v-model="collectionDetails.type" :dark="dark" :options="[{ label: 'JSON', value: 'json' }, { label: 'Markdown', value: 'md' }]" />
+            </div>
             <div class="input-row schemas">
               <span>Allowed Schemas:</span>
               <MbItemList v-model="collectionDetails.schemas" :dark="dark" :options="availableSchemas" placeholder="Select a Schema…" />
@@ -139,6 +143,7 @@ export default {
         permissions: {
           everybody: ['everything'],
         },
+        type: 'json',
       },
       collectionBeingModified: null,
       collectionDetails: {
@@ -147,6 +152,7 @@ export default {
         schemas: [],
         linkable: false,
         permissions: {},
+        type: 'json',
       },
       initialised: false,
       listedFiles: 0,
@@ -227,6 +233,7 @@ export default {
       this.collectionDetails.schemas = [];
       this.collectionDetails.linkable = false;
       this.collectionDetails.permissions = {};
+      this.collectionDetails.type = 'json';
       this.splitLoading = true;
     },
     async openCollectionSettings(path) {
