@@ -60,14 +60,14 @@ export default {
 
       if (this.nameError) return;
 
-      const { fullName, path } = this;
+      const { entity: type, fullName, path } = this;
 
       if (this.entity === 'directory') {
         try {
           await mkdirp(joinPath(typeof path !== 'string' ? path[this.entity] : path, fullName));
           this.reInitialize();
           this.$emit('close');
-          this.$emit('entity-created', fullName);
+          this.$emit('entity-created', fullName, type);
         } catch (err) {
           this.$store.commit('addToast', { message: `Something went wrong while creating the directory: ${err.message}`, type: 'error' });
         }
@@ -77,7 +77,7 @@ export default {
           await fs.writeFile(joinPath(typeof path !== 'string' ? path[this.entity] : path, fullName), this.fileContent || '', 'utf8');
           this.reInitialize();
           this.$emit('close');
-          this.$emit('entity-created', fullName);
+          this.$emit('entity-created', fullName, type);
         } catch (err) {
           this.$store.commit('addToast', { message: `Something went wrong while creating the file: ${err.message}`, type: 'error' });
         }

@@ -880,7 +880,7 @@ export default {
         entityCreationModals: [
           ['Name', 'Data'],
           ['`close`', ''],
-          ['`entity-created`', 'The name of the newly created entity'],
+          ['`entity-created`', 'The name and type of the newly created entity'],
         ],
         editableLists: [
           ['Name', 'Data'],
