@@ -119,6 +119,10 @@ export default {
     visible: Boolean,
   },
   watch: {
+    fileExtension(nv) {
+      if (Array.isArray(nv)) [this.currentFileExtension] = nv;
+      else if (typeof nv === 'string') this.currentFileExtension = nv;
+    },
     only(nv) {
       if (nv) this.entity = nv;
       else this.entity = 'file';
