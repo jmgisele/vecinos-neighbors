@@ -16,6 +16,7 @@ import { dump as toYAML } from 'js-yaml';
 import fs, {
   exists, joinPath, mkdirp, pathBasename,
 } from '../fs';
+import { rmrf } from '../fs/workerFS';
 
 import generateDefaultContentFromSchema from '../assets/js/generateDefaultContentFromSchema';
 import prettifyEntityName from '../assets/js/prettifyEntityName';
@@ -260,11 +261,22 @@ export default {
       const isFile = (await fs.stat(path)).isFile();
       const timeoutId = window.setTimeout(async () => {
         try {
-          // TODO: actually delete the file / folder and check if there are any drafts to be deleted if it was a folder
-          // await rmrf(path);
+          const deletionPromises = [];
+          let correspondingDraftsDir;
+          let dirExists;
+          if (!isFile && this.draftsDir) {
+            correspondingDraftsDir = joinPath(this.draftsDir, path.replace(this.collection.dir, ''));
+            dirExists = exists(correspondingDraftsDir);
+            if (dirExists) deletionPromises.push(rmrf(correspondingDraftsDir));
+          }
+          deletionPromises.push(await rmrf(path));
+          await Promise.all(deletionPromises);
           await this.$refs.fileList.refresh();
           if (isFile) this.$store.commit('removeLocallyChangedFile', path);
-          else this.$store.commit('removeLocallyChangedFolder', path);
+          else if (this.draftsDir && correspondingDraftsDir && dirExists) {
+            this.$store.commit('removeLocallyChangedFolder', path);
+            this.$store.commit('removeLocallyChangedFolder', correspondingDraftsDir);
+          } else this.$store.commit('removeLocallyChangedFolder', path);
           this.$store.dispatch('saveAppData');
         } catch (err) {
           this.$store.commit('addToast', { message: `Something went wrong while deleting the ${isFile ? 'schema' : 'folder'}: ${err.message}`, type: 'error' });
