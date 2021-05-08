@@ -84,7 +84,7 @@ export default {
     },
     createOnly() {
       if (!this.userPermissions.has('everything') && this.userPermissions.has('createContent')) return 'file';
-      if (!this.userPermissions.has('everything') && this.userPermissions.has('createFolder')) return 'folder';
+      if (!this.userPermissions.has('everything') && this.userPermissions.has('createFolder')) return 'directory';
       return null;
     },
     draftsDir() {
