@@ -20,7 +20,7 @@
       <transition>
         <div v-show="enableDrafts" class="file-picker-wrapper">
           <span>Drafts folder:</span>
-          <MbFilePicker v-model="draftsDir" :dark="dark" removable :root="`/projects/${currentProject.id}`" />
+          <MbFilePicker v-model="draftsDir" :dark="dark" removable :root="`/projects/${currentProject.id}`" show-hidden />
         </div>
       </transition>
     </section>
