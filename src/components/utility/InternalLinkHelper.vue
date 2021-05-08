@@ -8,7 +8,7 @@
       <div v-else-if="view === 'collections'" class="view collections" key="collections">
         <p>Linkable Collections</p>
         <ul>
-          <li v-for="collection in linkableCollections" :class="{ dark }" :key="collection.value" tabindex="0" @click="handleCollectionClick(collection.value)" @keydown.space.prevent @keyup.space.enter="handleCollectionClick(collection.value)">
+          <li v-for="collection in linkableCollections" :class="{ dark }" :key="collection.value" tabindex="0" @click="handleCollectionClick(collection.value, collection.type)" @keydown.space.prevent @keyup.space.enter="handleCollectionClick(collection.value, collection.type)">
             <MbIcon icon="folder" />
             <span class="label">{{collection.label}}</span>
           </li>
@@ -19,7 +19,7 @@
         </ul>
       </div>
       <div v-else-if="view === 'files'" class="view files" :class="{ dark }" key="files">
-        <MbFileList :dark="dark" :empty-state="{ noFiles: 'There are no content items in this directory', noFolders: 'There are no folders in this directory', empty: 'There are no content items in this collection' }" file-list-label="Content Items" :filetypes="['json']" :folders-first="false" pretty-filenames :root="currentRoot" :sortable="false" @fileclick="handleFileClick" />
+        <MbFileList :dark="dark" :empty-state="{ noFiles: 'There are no content items in this directory', noFolders: 'There are no folders in this directory', empty: 'There are no content items in this collection' }" file-list-label="Content Items" :filetypes="[filetype]" :folders-first="false" pretty-filenames :root="currentRoot" :sortable="false" @fileclick="handleFileClick" />
         <MbButton :dark="dark" icon="chevron-left" @click="view = 'collections'">Back</MbButton>
       </div>
       <div v-else-if="view === 'loading'" class="view loading" key="loading">
@@ -30,6 +30,7 @@
 </template>
 
 <script>
+import * as matter from 'gray-matter';
 import slugify from '@sindresorhus/slugify';
 import { get } from 'lodash-es';
 import { isValid } from 'date-fns';
@@ -41,6 +42,7 @@ export default {
   data() {
     return {
       currentRoot: '/',
+      filetype: 'json',
       linkableCollections: [],
       view: 'url',
     };
@@ -52,8 +54,9 @@ export default {
       await this.loadCollections();
       this.view = 'collections';
     },
-    handleCollectionClick(dir) {
+    handleCollectionClick(dir, type) {
       this.currentRoot = dir;
+      this.filetype = type;
       this.view = 'files';
     },
     async handleFileClick(path) {
@@ -68,8 +71,12 @@ export default {
         }
       } else {
         try {
-          const fields = JSON.parse(await fs.readFile(path, 'utf8'));
+          let fields;
+          if (this.filetype === 'json') fields = JSON.parse(await fs.readFile(path, 'utf8'));
+          else if (this.filetype === 'md') fields = matter(await fs.readFile(path, 'utf8')).data;
+
           const hasParameters = /\[(year|month|day)\]/;
+
           newUrl = this.urlTemplate.replace(
             /:((?:\w|\.)+\[(?:year|month|day|[0-9])\]|(?:\w|\.)+)/g, // this regex matches any word, dot, or parameter in [] between : and a non-word character. It could probably be made more DRY, but I don’t know how
             (match, fieldKey) => { // passing replacer functions to string.replace is a powerful thing
@@ -116,7 +123,7 @@ export default {
         const collectionStrings = await Promise.all(collectionFiles.map((file) => fs.readFile(`${this.collectionsPath}/${file}`, 'utf8')));
         const collections = collectionStrings.map((collection) => collection && JSON.parse(collection)).filter((collection) => typeof collection !== 'undefined');
         this.linkableCollections = collections.reduce((acc, collection, index) => {
-          if (collection.linkable && collection.dir) acc.push({ label: prettifyEntityName(collectionFiles[index]), value: collection.dir });
+          if (collection.linkable && collection.dir) acc.push({ label: prettifyEntityName(collectionFiles[index]), type: collection.type, value: collection.dir });
           return acc;
         }, []);
       } catch (err) {
