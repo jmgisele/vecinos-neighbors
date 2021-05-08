@@ -1142,7 +1142,8 @@ export default {
           ['`modelValue`', 'String', ''],
           ['`placeholder`', 'String', '`undefined`'],
           ['`removable`', 'Boolean', '`false`'],
-          ['`root`', 'String', '`false`'],
+          ['`root`', 'String', '`/`'],
+          ['`showHidden`', 'Boolean', '`false`'],
         ],
         gitLoginModals: [
           ['Name', 'Type', 'Default', 'Notes'],
