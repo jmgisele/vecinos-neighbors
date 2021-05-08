@@ -44,9 +44,9 @@
           </div>
           <div v-show="entryDetails.type !== 'heading'" class="input-row target">
             <span>Target:</span>
-            <MbFilePicker v-if="entryDetails.type === 'collection'" :dark="dark" :filetypes="['json']" :folders-first="false" mode="file" :model-value="entryDetails.target && entryDetails.target.params.path" placeholder="Pick a collection…" removable :root="`/projects/${currentProject.id}/.mattrbld/collections`" @update:model-value="setEntryTarget" />
+            <MbFilePicker v-if="entryDetails.type === 'collection'" :dark="dark" :filetypes="['json']" :folders-first="false" mode="file" :model-value="entryDetails.target && entryDetails.target.params.path" placeholder="Pick a collection…" removable :root="collectionsDir" @update:model-value="setEntryTarget" />
             <MbFilePicker v-if="entryDetails.type === 'document'" :dark="dark" :filetypes="['md']" :folders-first="false" mode="file" :model-value="entryDetails.target && entryDetails.target.params.path" placeholder="Pick a document…" removable :root="`/projects/${currentProject.id}`" @update:model-value="setEntryTarget" />
-            <InternalLinkHelper v-if="entryDetails.type === 'content'" :collections-path="`/projects/${currentProject.id}/.mattrbld/collections`" :dark="dark" full-path :model-value="entryDetails.target && entryDetails.target.params.path" use-file-path @update:model-value="setEntryTarget" />
+            <InternalLinkHelper v-if="entryDetails.type === 'content'" :collections-path="collectionsDir" :dark="dark" full-path :model-value="entryDetails.target && entryDetails.target.params.path" use-file-path @update:model-value="setEntryTarget" />
           </div>
         </section>
       </div>
@@ -56,6 +56,7 @@
 
 <script>
 import { cloneDeep, isEqual } from 'lodash-es';
+import fs, { exists } from '../../fs';
 
 import InternalLinkHelper from '../../components/utility/InternalLinkHelper.vue';
 import TabContent from '../../components/utility/TabContent.vue';
@@ -66,6 +67,9 @@ export default {
     TabContent,
   },
   computed: {
+    collectionsDir() {
+      return `/projects/${this.currentProject.id}/.mattrbld/collections`;
+    },
     currentProject() {
       return this.$store.state.currentProject;
     },
@@ -81,6 +85,10 @@ export default {
         this.$store.dispatch('saveCurrentProject');
       },
     },
+  },
+  async created() {
+    const dirExists = await exists(this.collectionsDir);
+    if (!dirExists) await fs.mkdir(this.collectionsDir);
   },
   data() {
     return {
