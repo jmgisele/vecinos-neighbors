@@ -267,7 +267,7 @@ export default {
           let dirExists;
           if (!isFile && this.draftsDir) {
             correspondingDraftsDir = joinPath(this.draftsDir, path.replace(this.collection.dir, ''));
-            dirExists = exists(correspondingDraftsDir);
+            dirExists = await exists(correspondingDraftsDir);
             if (dirExists) deletionPromises.push(rmrf(correspondingDraftsDir));
           }
           deletionPromises.push(await rmrf(path));
