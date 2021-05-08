@@ -1,7 +1,7 @@
 <template lang="html">
   <MbModal class="entity-move-modal" :dark="dark" :padded-body="false" slim :visible="visible" @after-close="resetPath" @close="$emit('close')">
     <h2 class="h3">{{title}}</h2>
-    <MbFileList :dark="dark" :filterable="false" :folders-first="false" folders-only :pretty-filenames="prettyFilenames" ref="fileList" :root="root" :sortable="false" @path-change="currentPath = $event" />
+    <MbFileList v-if="root" :dark="dark" :filterable="false" :folders-first="false" folders-only :pretty-filenames="prettyFilenames" ref="fileList" :root="root" :sortable="false" @path-change="currentPath = $event" />
     <template #actions>
       <MbButton :dark="dark" @click="handleCancel">Cancel</MbButton>
       <MbButton :dark="dark" :disabled="isInCurrentPath || isSamePath" type="primary" @click="moveEntity">Move here</MbButton>
@@ -19,6 +19,7 @@ export default {
       return this.currentPath === pathDirname(this.oldPath);
     },
     isSamePath() {
+      if (!this.currentPath) return false;
       return this.oldPath === this.currentPath || pathDirname(this.currentPath).startsWith(this.oldPath); // don’t allow moving into itself or one of its descendants
     },
   },
@@ -81,7 +82,7 @@ export default {
       if (nv) this.$store.commit('addToast', { message: 'You’re trying to move a folder into itself or one of it’s sub-directories!', type: 'warning' });
     },
     visible(nv) {
-      if (nv) this.$refs.fileList.refresh();
+      if (nv && this.$refs.fileList) this.$refs.fileList.refresh();
     },
   },
 };
