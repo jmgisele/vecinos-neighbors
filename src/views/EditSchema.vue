@@ -969,7 +969,7 @@ export default {
         switch (property) {
           case 'key':
             if (!this.fieldBeingEdited.key || !this.fieldBeingEdited.key.trim()) error = 'A key is required';
-            else if (['___toplevel', '___addIndicator'].includes(this.fieldBeingEdited.key)) error = 'This is a reserved key';
+            else if (['___toplevel', '___addIndicator'].includes(this.fieldBeingEdited.key) || this.fieldBeingEdited.key.startsWith('___mb_')) error = 'This is a reserved key';
             else if (this.fieldBeingEdited.key.includes('.')) error = 'Keys cannot contain a . (period) character';
             else if (this.fieldBeingEditedSiblings.filter((existingField) => existingField.key === this.fieldBeingEdited.key).length > 1) error = 'A field with this key already exists';
             break;
