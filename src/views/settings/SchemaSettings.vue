@@ -12,8 +12,11 @@
 </template>
 
 <script>
-import fs, { exists, joinPath } from '../../fs';
+import fs, { exists } from '../../fs';
 import { rmrf } from '../../fs/workerFS';
+
+import updateLocallyChangedFiles from '../../mixins/updateLocallyChangedFiles';
+
 import EntityCreationModal from '../../components/utility/EntityCreationModal.vue';
 import EntityMoveModal from '../../components/utility/EntityMoveModal.vue';
 import EntityRenameModal from '../../components/utility/EntityRenameModal.vue';
@@ -164,14 +167,8 @@ export default {
       this.entityBeingModified = path;
       this.showEntityRename = true;
     },
-    async updateLocallyChangedFiles(path) {
-      const entities = await fs.readdir(path);
-      return Promise.all(entities.map((entity) => {
-        if (entity.endsWith('.json')) return this.$store.commit('addLocallyChangedFile', joinPath(path, entity));
-        return this.updateLocallyChangedFiles(joinPath(path, entity));
-      }));
-    },
   },
+  mixins: [updateLocallyChangedFiles],
   props: {
     dark: Boolean,
   },
