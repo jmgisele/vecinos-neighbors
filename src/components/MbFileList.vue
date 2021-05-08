@@ -81,8 +81,8 @@ export default {
       return this.emptyState.empty;
     },
     filteredFiles() {
-      if (!this.searchTerm) return this.files.filter((file) => !this.$store.getters.isSoftDeleted(joinPath(this.currentPath, file.name)));
-      return this.files.filter((file) => file.name.toLowerCase().includes(this.searchTerm.toLowerCase()) && !this.$store.getters.isSoftDeleted(joinPath(this.currentPath, file.name)));
+      if (!this.searchTerm) return this.files.filter((file) => !this.$store.getters.isSoftDeleted(joinPath(file.isDraft ? this.cleanDraftsDir : this.currentPath, file.name)));
+      return this.files.filter((file) => file.name.toLowerCase().includes(this.searchTerm.toLowerCase()) && !this.$store.getters.isSoftDeleted(joinPath(file.isDraft ? this.cleanDraftsDir : this.currentPath, file.name)));
     },
     filteredFolders() {
       if (!this.searchTerm) return this.folders.filter((folder) => !this.$store.getters.isSoftDeleted(joinPath(this.currentPath, folder.name)));
