@@ -248,7 +248,7 @@ export default {
             const markdownContent = content.content;
             delete content.content; // content is the markdown body, so we don’t need that in the frontmatter
             const frontmatter = toYAML({ ...content, ___mb_schema: relativeSchemaPath });
-            this.defaultCollectionContent = `---\n${frontmatter}\n---\n${markdownContent || ''}`;
+            this.defaultCollectionContent = `---\n${frontmatter}${frontmatter.endsWith('\n') ? '' : '\n'}---\n${markdownContent || ''}`;
           }
         } catch (err) {
           if (err.code !== 'ENOENT') this.$store.commit('addToast', { message: `Something went wrong while loading the default Schema: ${err.message}`, type: 'error' });
