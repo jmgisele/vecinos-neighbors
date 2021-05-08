@@ -412,6 +412,7 @@ export default {
 @require '../assets/styles/breakpoints'
 
 .collection
+  height: 100%
   overflow-x: hidden
   padding: 0 2rem 8rem 2rem
 
