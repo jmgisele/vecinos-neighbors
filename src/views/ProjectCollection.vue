@@ -397,8 +397,14 @@ export default {
         newPath = joinPath(this.draftsDir, path.replace(this.collection.dir, ''));
         await mkdirp(newPath); // ensure new path exists in the draftsDir
       }
-      await fs.rename(path, newPath);
-      this.handleEntityMoved({ oldPath: path, newPath });
+      const existsAlready = await exists(newPath);
+
+      if (existsAlready) {
+        this.$store.commit('addToast', { message: `A ${!isDraft ? 'draft' : pluralize.singular(this.collection.name)} with this name exists already, please rename it and try again`, type: 'warning' });
+      } else {
+        await fs.rename(path, newPath);
+        this.handleEntityMoved({ oldPath: path, newPath });
+      }
     },
   },
   mixins: [updateLocallyChangedFiles],
