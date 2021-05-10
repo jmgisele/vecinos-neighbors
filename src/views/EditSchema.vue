@@ -83,7 +83,7 @@
             <section v-for="option in availableFieldOptions.get(fieldBeingEdited.type)" class="config-option" :class="[option.component]" :key="option.key">
               <span v-if="option.label">{{option.label}}</span>
               <MbEditableList v-if="option.component === 'MbEditableList'" v-model="fieldBeingEdited.options[option.key]" :dark="dark" relative-to-root :root-path="`/projects/${$route.params.id}`" />
-              <MbFilePicker v-else-if="option.component === 'MbFilePicker'" v-bind="option.props" v-model="fieldBeingEdited.options[option.key]" :dark="dark" :root="`/projects/${$route.params.id}`" />
+              <MbFilePicker v-else-if="option.component === 'MbFilePicker'" v-bind="option.props" v-model="fieldBeingEdited.options[option.key]" :dark="dark" relative-to-root :root="`/projects/${$route.params.id}`" />
               <component v-else v-bind="option.props" v-model="fieldBeingEdited.options[option.key]" :dark="dark" :is="option.component">{{option.slot}}</component>
             </section>
           </section>
