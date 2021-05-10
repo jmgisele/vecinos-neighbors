@@ -8,6 +8,9 @@
       <div v-else-if="view === 'collections'" class="view collections" key="collections">
         <p>Linkable Collections</p>
         <ul>
+          <li v-if="linkableCollections.length === 0" class="empty-state" :class="{ dark }">
+            <p>There are no linkable collections in this project yet</p>
+          </li>
           <li v-for="collection in linkableCollections" :class="{ dark }" :key="collection.value" tabindex="0" @click="handleCollectionClick(collection.value, collection.type)" @keydown.space.prevent @keyup.space.enter="handleCollectionClick(collection.value, collection.type)">
             <MbIcon icon="folder" />
             <span class="label">{{collection.label}}</span>
@@ -171,7 +174,7 @@ export default {
         > li:not(:last-child)
           margin-bottom: 0.5rem
 
-    &.collections ul > li
+    &.collections ul > li:not(.empty-state),
     &.url
       position: relative
       border: none
@@ -238,35 +241,47 @@ export default {
       .icon
         flex-shrink: 0
 
-    &.collections ul > li:last-child
-      background-color: transparent
-      border: 0.0625rem solid $accent
-      padding: 1rem 2.5rem 1rem 1rem
-      height: (52 / 16)rem
-      margin-top: 1rem
+    &.collections ul > li
+      &.empty-state
+        text-align: center
+        color: $text-secondary
 
-      &.dark
+        &.dark
+          color: $text-secondary-dark
+
+        p
+          font-weight: normal
+          margin: 2rem 0
+
+      &:last-child
+        background-color: transparent
+        border: 0.0625rem solid $accent
+        padding: 1rem 2.5rem 1rem 1rem
+        height: (52 / 16)rem
+        margin-top: 1rem
+
+        &.dark
+          &:hover
+            background-color: $bg-tertiary-dark
+
+          &:active
+            background-color: $bg-secondary-dark
+
         &:hover
-          background-color: $bg-tertiary-dark
+          background-color: $bg-tertiary
 
         &:active
-          background-color: $bg-secondary-dark
+          background-color: $bg-secondary
 
-      &:hover
-        background-color: $bg-tertiary
+        &::before
+          top: -1px
+          left: @top
+          right: @top
+          bottom: @top
 
-      &:active
-        background-color: $bg-secondary
-
-      &::before
-        top: -1px
-        left: @top
-        right: @top
-        bottom: @top
-
-      .label
-        flex-grow: 1
-        text-align: center
+        .label
+          flex-grow: 1
+          text-align: center
 
     &.files
       .file-list::v-deep(header .actions)
