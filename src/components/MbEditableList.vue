@@ -23,7 +23,7 @@
         </div>
       </div>
       <div v-else class="mode file" key="fileMode">
-        <MbFilePicker :dark="dark" :filetypes="['json']" mode="file" :model-value="model.file.path && relativeToRoot ? `${rootPath}${model.file.path}` : model.file.path" placeholder="Pick a JSON-file…" removable :root="rootPath" @update:model-value="handleFilePick" />
+        <MbFilePicker :dark="dark" :filetypes="['json']" mode="file" :model-value="model.file.path" placeholder="Pick a JSON-file…" :relative-to-root="relativeToRoot" removable :root="rootPath" @update:model-value="handleFilePick" />
         <MbSelect :dark="dark" :disabled="fileKeys.length === 0" :loading="keysLoading" :model-value="model.file.key" :options="fileKeys" placeholder="Select a key…" @update:model-value="handleKeySelect" />
       </div>
     </transition>
@@ -31,7 +31,7 @@
 </template>
 
 <script>
-import fs from '../fs';
+import fs, { joinPath } from '../fs';
 
 export default {
   computed: {
@@ -108,7 +108,7 @@ export default {
       } else {
         try {
           this.keysLoading = true;
-          const fileContent = JSON.parse(await fs.readFile(path, 'utf8'));
+          const fileContent = JSON.parse(await fs.readFile(this.relativeToRoot ? joinPath(this.rootPath, path) : path, 'utf8'));
           this.fileKeys = Object.entries(fileContent).reduce((acc, [key, value]) => {
             if (Array.isArray(value)
               && value.every((element) => typeof element !== 'object' || (typeof element.label === 'string' && typeof element.value !== 'object' && typeof element.value !== 'undefined'))
@@ -125,8 +125,7 @@ export default {
           this.$store.commit('addToast', { message: `Something went wrong while reading the selected file: ${err.message}`, type: 'error' });
         }
         this.keysLoading = false;
-        if (this.relativeToRoot && this.rootPath) this.model.file.path = path.replace(this.rootPath, ''); // eslint-disable-line no-lonely-if
-        else this.model.file.path = path;
+        this.model.file.path = path;
       }
       this.updateModelValue();
     },
@@ -190,8 +189,7 @@ export default {
       }
 
       if (this.mode === 'file') {
-        if (this.rootPath && this.relativeToRoot && nv.path) this.model.file = { ...nv, path: `${this.rootPath}${nv.path}` };
-        else this.model.file = nv;
+        this.model.file = nv;
         this.fileKeys = [];
       } else if (this.mode === 'simple') this.model.items = nv.map((value) => ({ label: '', value }));
       else this.model.items = nv;

@@ -600,7 +600,7 @@
         <p>These components can be used to pick a file or a folder from a given root path.</p>
         <p>The currently picked value is: <code>{{filePickerTest}}</code></p>
         <MbFilePicker v-model="filePickerTest" :dark="dark" />
-        <MbFilePicker v-model="filePickerTest" :dark="dark" :filetypes="['json', 'md']" mode="file" removable root="/projects" />
+        <MbFilePicker v-model="filePickerTest" :dark="dark" :filetypes="['json', 'md']" mode="file" relative-to-root removable root="/projects" />
         <h3>Props</h3>
         <MbTable :data="props.filePickers" />
         <h3>Events</h3>
@@ -1141,6 +1141,7 @@ export default {
           ['`mode`', 'String', '`folder`'],
           ['`modelValue`', 'String', ''],
           ['`placeholder`', 'String', '`undefined`'],
+          ['`relativeToRoot`', 'Boolean', '`false`'],
           ['`removable`', 'Boolean', '`false`'],
           ['`root`', 'String', '`/`'],
           ['`showHidden`', 'Boolean', '`false`'],

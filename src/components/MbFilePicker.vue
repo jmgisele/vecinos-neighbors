@@ -73,7 +73,7 @@ export default {
       this.showEntityCreationModal = true;
     },
     pickEntity(path) {
-      this.$emit('update:modelValue', path);
+      this.$emit('update:modelValue', this.relativeToRoot && this.root !== '/' ? path.replace(this.root, '') : path);
       this.showPicker = false;
     },
   },
@@ -92,6 +92,7 @@ export default {
     },
     modelValue: String,
     placeholder: String,
+    relativeToRoot: Boolean,
     removable: Boolean,
     root: {
       type: String,
