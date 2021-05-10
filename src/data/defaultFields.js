@@ -744,6 +744,13 @@ export default [
     localised: false,
     options: [
       {
+        component: 'MbItemList',
+        key: 'collections',
+        label: 'Limit to these Collections:',
+        props: { placeholder: 'Select a Collection…' },
+        value: [],
+      },
+      {
         component: 'MbInput',
         key: 'field',
         label: 'Field to reference:',

@@ -84,6 +84,7 @@
               <span v-if="option.label">{{option.label}}</span>
               <MbEditableList v-if="option.component === 'MbEditableList'" v-model="fieldBeingEdited.options[option.key]" :dark="dark" relative-to-root :root-path="`/projects/${$route.params.id}`" />
               <MbFilePicker v-else-if="option.component === 'MbFilePicker'" v-bind="option.props" v-model="fieldBeingEdited.options[option.key]" :dark="dark" relative-to-root :root="`/projects/${$route.params.id}`" />
+              <MbItemList v-else-if="option.component === 'MbItemList' && option.key === 'collections'" v-bind="option.props" v-model="fieldBeingEdited.options[option.key]" :dark="dark" :options="availableCollections" />
               <component v-else v-bind="option.props" v-model="fieldBeingEdited.options[option.key]" :dark="dark" :is="option.component">{{option.slot}}</component>
             </section>
           </section>
@@ -366,9 +367,13 @@ export default {
       return this.cleanTabs.map((tab) => ({ value: tab }));
     },
   },
+  created() {
+    this.fetchAvailableCollections();
+  },
   data() {
     return {
       activeTab: -1,
+      availableCollections: null,
       availableFields: null,
       availableFieldOptions: new Map(),
       currentAddIndicatorId: null,
@@ -587,6 +592,17 @@ export default {
         else acc.push({ label: field.label, value: parent ? `${parent}.${field.key}` : field.key });
         return acc;
       }, []);
+    },
+    async fetchAvailableCollections() {
+      if (this.availableCollections !== null) return;
+      try {
+        const collections = await fs.readdir(joinPath('/projects', this.$route.params.id, '.mattrbld/collections'));
+        this.availableCollections = collections.map((collection) => ({ label: prettifyEntityName(collection), value: joinPath('/.mattrbld/collections/', collection) }));
+      } catch (err) {
+        // it’s fine if the collections dir doesn’t exist
+        if (err.code !== 'ENOENT') this.$store.commit('addToast', { message: `Something went wrong while fetching available Collections: ${err.message}`, type: 'error' });
+        this.availableCollections = [];
+      }
     },
     flattenFields(fields) {
       return fields.reduce((acc, field) => {
@@ -1473,7 +1489,8 @@ export default {
 
       &.MbCheckboxGroup,
       &.MbPalette,
-      &.MbEditableList
+      &.MbEditableList,
+      &.MbItemList
         align-items: flex-start
 
         > span
