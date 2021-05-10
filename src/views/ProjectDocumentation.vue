@@ -8,7 +8,7 @@
 <script>
 import * as matter from 'gray-matter';
 
-import fs from '../fs';
+import fs, { joinPath } from '../fs';
 import MarkdownParser from '../assets/js/MarkdownParser';
 
 const md = new MarkdownParser();
@@ -16,12 +16,12 @@ let imageUrls; // needs to be defined out here so we can free those urls when we
 
 async function readAndParseFile(path, id) {
   try {
-    const file = matter(await fs.readFile(path, 'utf8')); // load the file and pipe it through gray-matter
+    const file = matter(await fs.readFile(joinPath('/projects', id, path), 'utf8')); // load the file and pipe it through gray-matter
 
     // We search for all local image URLs starting with a / and replace them with the image loaded from the browser filesystem
     const imageFinder = /!\[.*?\]\((\/.+?)\)/g;
     const allImageUrls = Array.from(file.content.matchAll(imageFinder), (match) => match[1]); // we just need the content of the first capturing group
-    const imageData = await Promise.allSettled(allImageUrls.map((url) => fs.readFile(`/projects/${id}/${url}`))); // Images might not exist, we will just ignore those
+    const imageData = await Promise.allSettled(allImageUrls.map((url) => fs.readFile(joinPath('/projects', id, url)))); // Images might not exist, we will just ignore those
 
     imageUrls = imageData.map((data) => {
       if (data.status !== 'rejected') return URL.createObjectURL(new Blob([data.value]));

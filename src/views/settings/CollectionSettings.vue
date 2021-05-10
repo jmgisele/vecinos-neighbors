@@ -16,7 +16,7 @@
             <h3>Content</h3>
             <div class="input-row">
               <span>Content directory:</span>
-              <MbFilePicker v-model="collectionDetails.dir" :dark="dark" placeholder="Select the folder with your content…" :root="`/projects/${currentProject.id}`" />
+              <MbFilePicker v-model="collectionDetails.dir" :dark="dark" placeholder="Select the folder with your content…" relative-to-root :root="`/projects/${currentProject.id}`" />
             </div>
             <div class="input-row">
               <span>Content type:</span>
@@ -89,6 +89,9 @@ export default {
 
       return permissions;
     },
+    projectDir() {
+      return `/projects/${this.currentProject.id}`;
+    },
     roles() {
       return [{ label: 'Everybody', value: 'everybody' }, ...availableRoles, ...this.currentProject.customRoles];
     },
@@ -99,7 +102,7 @@ export default {
 
     try {
       const schemas = await readdirDeep(`/projects/${this.currentProject.id}/.mattrbld/schemas`);
-      this.availableSchemas = schemas.map((schema) => ({ label: prettifyEntityName(schema.split('/').slice(-1)[0]), value: schema }));
+      this.availableSchemas = schemas.map((schema) => ({ label: prettifyEntityName(schema.split('/').slice(-1)[0]), value: schema.replace(this.projectDir, '') }));
     } catch (err) {
       if (err.code !== 'ENOENT') this.$store.commit('addToast', { message: `Something went wrong while trying to get all Schemas: ${err.message}`, type: 'error' }); // it’s okay if /schemas doesn’t exist yet
     }

@@ -37,11 +37,16 @@ import * as matter from 'gray-matter';
 import slugify from '@sindresorhus/slugify';
 import { get } from 'lodash-es';
 import { isValid } from 'date-fns';
-import fs, { pathDirname } from '../../fs';
+import fs, { joinPath, pathDirname } from '../../fs';
 
 import prettifyEntityName from '../../assets/js/prettifyEntityName';
 
 export default {
+  computed: {
+    projectDir() {
+      return this.collectionsPath.replace('/.mattrbld/collections', '');
+    },
+  },
   data() {
     return {
       currentRoot: '/',
@@ -58,19 +63,19 @@ export default {
       this.view = 'collections';
     },
     handleCollectionClick(dir, type) {
-      this.currentRoot = dir;
+      this.currentRoot = joinPath(this.projectDir, dir);
       this.filetype = type;
       this.view = 'files';
     },
     async handleFileClick(path) {
       let newUrl;
       if (this.useFilePath || !this.urlTemplate) {
-        if (this.fullPath) newUrl = path;
+        if (this.fullPath) newUrl = path.replace(this.projectDir, '');
         else {
           const pathWithoutExtension = path.substring(0, path.lastIndexOf('.')); // we know there’s a .json at the end that we want to strip off, and since in the future we might also have .md or .yml / .yaml, let’s use this more ambiguous approach
           const fileRoot = pathDirname(this.currentRoot);
           newUrl = pathWithoutExtension.replace(fileRoot, '');
-          if (typeof this.urlSuffix !== 'undefined') newUrl = `${pathWithoutExtension.replace(fileRoot, '')}${this.urlSuffix}`;
+          if (typeof this.urlSuffix !== 'undefined') newUrl = `${newUrl}${this.urlSuffix}`;
         }
       } else {
         try {

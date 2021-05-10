@@ -20,7 +20,7 @@
       <transition>
         <div v-show="enableDrafts" class="file-picker-wrapper">
           <span>Drafts folder:</span>
-          <MbFilePicker v-model="draftsDir" :dark="dark" removable :root="`/projects/${currentProject.id}`" show-hidden />
+          <MbFilePicker v-model="draftsDir" :dark="dark" relative-to-root removable :root="`/projects/${currentProject.id}`" show-hidden />
         </div>
       </transition>
     </section>
@@ -115,7 +115,7 @@ export default {
         return Boolean(this.$store.state.currentProject.draftsDir);
       },
       set(v) {
-        if (v) this.$store.commit('setCurrentProjectProperty', { key: 'draftsDir', value: `/projects/${this.currentProject.id}/.mattrbld/drafts` });
+        if (v) this.$store.commit('setCurrentProjectProperty', { key: 'draftsDir', value: '/.mattrbld/drafts' });
         else this.$store.commit('setCurrentProjectProperty', { key: 'draftsDir', value: null });
         this.$store.dispatch('saveCurrentProject');
       },

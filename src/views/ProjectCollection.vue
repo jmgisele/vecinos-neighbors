@@ -1,7 +1,7 @@
 <template lang="html">
   <div class="collection">
     <h1>{{collection.name}}</h1>
-    <MbFileList v-if="typeof collection.dir !== 'undefined'" :action="action" :dark="dark" :drafts-dir="draftsDir" :empty-state="emptyState" :file-actions="fileActions" :file-list-label="fileListLabel" :filetypes="[collection.type]" pretty-filenames ref="fileList" :root="collection.dir" @fileclick="handleFileClick" @list-change="listedFiles = $event.files" @path-change="currentPath = $event" />
+    <MbFileList v-if="typeof collection.dir !== 'undefined'" :action="action" :dark="dark" :drafts-dir="draftsDir" :empty-state="emptyState" :file-actions="fileActions" :file-list-label="fileListLabel" :filetypes="[collection.type]" pretty-filenames ref="fileList" :root="contentDir" @fileclick="handleFileClick" @list-change="listedFiles = $event.files" @path-change="currentPath = $event" />
     <MbButton v-if="(userPermissions.has('everything') || userPermissions.has('createContent')) && listedFiles === 0" :dark="dark" icon="plus" type="positive" @click="createEntity">Create one</MbButton>
     <EntityCreationModal :dark="dark" :file-content="typeof defaultCollectionContent !== 'string' ? JSON.stringify(defaultCollectionContent, null, 2) : defaultCollectionContent" :file-extension="collection.type" :only="createOnly" :path="{ file: draftsDir && collection.draftByDefault ? currentDraftsPath : currentPath, directory: currentPath }" :title="entityCreationTitle" :visible="showEntityCreation" @close="handleEntityCreationClose" @entity-created="handleEntityCreated" />
     <EntityMoveModal :dark="dark" :old-path="entityBeingModified" pretty-filenames :root="moveRootDir" :visible="showEntityMove" @close="showEntityMove = false; entityBeingModified = null" @entity-moved="handleEntityMoved" />
@@ -14,7 +14,7 @@ import pluralize from 'pluralize';
 import { dump as toYAML } from 'js-yaml';
 
 import fs, {
-  exists, joinPath, mkdirp, pathBasename,
+  exists, joinPath, mkdirp, pathBasename, pathDirname,
 } from '../fs';
 import { rmrf } from '../fs/workerFS';
 
@@ -34,10 +34,10 @@ export default {
     if (!path) return next({ name: 'NotFound', query: { type: 'collection' }, replace: true });
 
     try {
-      const collection = JSON.parse(await fs.readFile(path, 'utf8'));
+      const collection = JSON.parse(await fs.readFile(joinPath('/projects', to.params.id, path), 'utf8'));
       return next((vm) => {
         vm.collection = { ...collection, name: prettifyEntityName(pathBasename(path)) }; // eslint-disable-line no-param-reassign
-        vm.currentPath = collection.dir; // eslint-disable-line no-param-reassign
+        vm.currentPath = joinPath('/projects', to.params.id, collection.dir); // eslint-disable-line no-param-reassign
       });
     } catch (err) {
       if (err.code === 'ENOENT') return next({ name: 'NotFound', query: { type: 'collection' }, replace: true });
@@ -50,9 +50,9 @@ export default {
     if (!path) return { name: 'NotFound', query: { type: 'collection' }, replace: true };
 
     try {
-      const collection = JSON.parse(await fs.readFile(path, 'utf8'));
+      const collection = JSON.parse(await fs.readFile(joinPath('/projects', to.params.id, path), 'utf8'));
       this.collection = { ...collection, name: prettifyEntityName(pathBasename(path)) };
-      this.currentPath = collection.dir;
+      this.currentPath = joinPath('/projects', to.params.id, collection.dir);
       return true;
     } catch (err) {
       if (err.code === 'ENOENT') return { name: 'NotFound', query: { type: 'collection' }, replace: true };
@@ -82,6 +82,10 @@ export default {
       }
       return null;
     },
+    contentDir() {
+      if (!this.collection.dir) return this.projectDir;
+      return joinPath(this.projectDir, this.collection.dir);
+    },
     createOnly() {
       if (!this.userPermissions.has('everything') && this.userPermissions.has('createContent')) return 'file';
       if (!this.userPermissions.has('everything') && this.userPermissions.has('createFolder')) return 'directory';
@@ -89,11 +93,11 @@ export default {
     },
     currentDraftsPath() {
       if (!this.draftsDir || !this.currentPath) return null;
-      return joinPath(this.draftsDir, this.currentPath.replace(this.collection.dir, ''));
+      return joinPath(this.draftsDir, this.currentPath.replace(this.contentDir, ''));
     },
     draftsDir() {
       if (!this.collection.dir || !this.$store.state.currentProject.draftsDir) return null;
-      return joinPath(this.$store.state.currentProject.draftsDir, 'collection', pathBasename(this.collection.dir));
+      return joinPath(this.projectDir, this.$store.state.currentProject.draftsDir, pathBasename(this.contentDir));
     },
     entityCreationTitle() {
       if (this.userPermissions.has('everything') || (this.userPermissions.has('createContent') && this.userPermissions.has('createFolder'))) return 'Add new…';
@@ -206,6 +210,9 @@ export default {
       if (!this.collection.name) return 'Content Items';
       return pluralize.plural(this.collection.name);
     },
+    projectDir() {
+      return `/projects/${this.$route.params.id}`;
+    },
     userPermissions() {
       if (!this.collection.permissions || !this.$store.getters.userInCurrentProject) return new Set();
 
@@ -239,9 +246,9 @@ export default {
     async createEntity() {
       if (this.collection.schemas.length === 1) {
         try {
-          const schema = JSON.parse(await fs.readFile(this.collection.schemas[0], 'utf8'));
+          const schema = JSON.parse(await fs.readFile(joinPath(this.projectDir, this.collection.schemas[0]), 'utf8'));
           const content = generateDefaultContentFromSchema(schema);
-          const relativeSchemaPath = this.collection.schemas[0].replace(`/projects/${this.$store.state.currentProject.id}, ''`);
+          const relativeSchemaPath = this.collection.schemas[0];
 
           if (this.collection.type === 'json') this.defaultCollectionContent = { ...content, ___mb_schema: relativeSchemaPath };
           else if (this.collection.type === 'md') {
@@ -267,7 +274,7 @@ export default {
           let correspondingDraftsDir;
           let dirExists;
           if (!isFile && this.draftsDir) {
-            correspondingDraftsDir = joinPath(this.draftsDir, path.replace(this.collection.dir, ''));
+            correspondingDraftsDir = joinPath(this.draftsDir, path.replace(this.contentDir, ''));
             dirExists = await exists(correspondingDraftsDir);
             if (dirExists) deletionPromises.push(rmrf(correspondingDraftsDir));
           }
@@ -344,8 +351,8 @@ export default {
         this.$store.commit('removeLocallyChangedFile', oldPath);
         this.$store.commit('addLocallyChangedFile', newPath);
       } else {
-        const oldDraftPath = joinPath(this.draftsDir, oldPath.replace(this.collection.dir, ''));
-        const newDraftPath = joinPath(this.draftsDir, newPath.replace(this.collection.dir, ''));
+        const oldDraftPath = joinPath(this.draftsDir, oldPath.replace(this.contentDir, ''));
+        const newDraftPath = joinPath(this.draftsDir, newPath.replace(this.contentDir, ''));
 
         if (this.draftsDir) {
           const oldPathExistsAsDraft = await exists(oldDraftPath);
@@ -377,7 +384,7 @@ export default {
     moveEntity(path) {
       const isDraft = this.draftsDir && path.startsWith(this.draftsDir);
       if (isDraft) this.moveRootDir = this.draftsDir;
-      else this.moveRootDir = this.collection.dir;
+      else this.moveRootDir = this.contentDir;
 
       this.entityBeingModified = path;
       this.showEntityMove = true;
@@ -392,10 +399,10 @@ export default {
     async toggleDraft(path) {
       const isDraft = path.startsWith(this.draftsDir);
       let newPath;
-      if (isDraft) newPath = path.replace(this.draftsDir, this.collection.dir); // we do not need to ensure that newPath exists here, because a draft in a folder that only exists in draftsDir wouldn’t show up here
+      if (isDraft) newPath = path.replace(this.draftsDir, this.contentDir); // we do not need to ensure that newPath exists here, because a draft in a folder that only exists in draftsDir wouldn’t show up here
       else {
-        newPath = joinPath(this.draftsDir, path.replace(this.collection.dir, ''));
-        await mkdirp(newPath); // ensure new path exists in the draftsDir
+        newPath = joinPath(this.draftsDir, path.replace(this.contentDir, ''));
+        await mkdirp(pathDirname(newPath)); // ensure new path exists in the draftsDir
       }
       const existsAlready = await exists(newPath);
 

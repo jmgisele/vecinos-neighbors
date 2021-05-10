@@ -44,8 +44,8 @@
           </div>
           <div v-show="entryDetails.type !== 'heading'" class="input-row target">
             <span>Target:</span>
-            <MbFilePicker v-if="entryDetails.type === 'collection'" :dark="dark" :filetypes="['json']" :folders-first="false" mode="file" :model-value="entryDetails.target && entryDetails.target.params.path" placeholder="Pick a collection…" removable :root="collectionsDir" @update:model-value="setEntryTarget" />
-            <MbFilePicker v-if="entryDetails.type === 'document'" :dark="dark" :filetypes="['md']" :folders-first="false" mode="file" :model-value="entryDetails.target && entryDetails.target.params.path" placeholder="Pick a document…" removable :root="`/projects/${currentProject.id}`" @update:model-value="setEntryTarget" />
+            <MbFilePicker v-if="entryDetails.type === 'collection'" :dark="dark" :filetypes="['json']" :folders-first="false" mode="file" :model-value="entryDetails.target && entryDetails.target.params.path" placeholder="Pick a collection…" relative-to-root removable :root="collectionsDir" @update:model-value="setEntryTarget" />
+            <MbFilePicker v-if="entryDetails.type === 'document'" :dark="dark" :filetypes="['md']" :folders-first="false" mode="file" :model-value="entryDetails.target && entryDetails.target.params.path" placeholder="Pick a document…" relative-to-root removable :root="`/projects/${currentProject.id}`" @update:model-value="setEntryTarget" />
             <InternalLinkHelper v-if="entryDetails.type === 'content'" :collections-path="collectionsDir" :dark="dark" full-path :model-value="entryDetails.target && entryDetails.target.params.path" use-file-path @update:model-value="setEntryTarget" />
           </div>
         </section>
@@ -56,7 +56,7 @@
 
 <script>
 import { cloneDeep, isEqual } from 'lodash-es';
-import fs, { exists } from '../../fs';
+import fs, { exists, joinPath } from '../../fs';
 
 import InternalLinkHelper from '../../components/utility/InternalLinkHelper.vue';
 import TabContent from '../../components/utility/TabContent.vue';
@@ -177,7 +177,7 @@ export default {
       if (path === null) this.entryDetails.target = null;
       else if (this.entryDetails.type === 'document') this.entryDetails.target = { name: 'Project.Documentation', params: { id: this.currentProject.id, path } };
       else if (this.entryDetails.type === 'content') this.entryDetails.target = { name: 'Edit Content', params: { id: this.currentProject.id, path } };
-      else if (this.entryDetails.type === 'collection') this.entryDetails.target = { name: 'Project.Collection', params: { id: this.currentProject.id, path } };
+      else if (this.entryDetails.type === 'collection') this.entryDetails.target = { name: 'Project.Collection', params: { id: this.currentProject.id, path: joinPath('/.mattrbld/collections', path) } };
       this.updateEntry();
     },
     updateEntry() {
