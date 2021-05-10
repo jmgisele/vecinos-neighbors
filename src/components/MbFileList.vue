@@ -223,10 +223,9 @@ export default {
 
         this.folders = [];
         this.files = [];
-        if (this.foldersOnly && this.foldersFirst) this.folders = entities.filter((entity) => entity.isFolder && entity.name !== '.git');
-        else if (this.foldersOnly && !this.foldersFirst) this.files = entities.filter((entity) => entity.isFolder && entity.name !== '.git');
-        else if (!this.foldersFirst && this.showHidden) this.files = entities.filter((entity) => entity.name !== '.git').sort((a, b) => b.isFolder - a.isFolder); // subtracting booleans from each other works to return -1, 1, or 0 respectively…for some reason
-        else if (!this.foldersFirst && !this.showHidden) this.files = entities.filter((entity) => !entity.name.startsWith('.')).sort((a, b) => b.isFolder - a.isFolder); // subtracting booleans from each other works to return -1, 1, or 0 respectively…for some reason
+        if (this.foldersOnly && this.foldersFirst) this.folders = entities.filter((entity) => (this.showHidden || !entity.name.startsWith('.')) && entity.isFolder && entity.name !== '.git');
+        else if (this.foldersOnly && !this.foldersFirst) this.files = entities.filter((entity) => (this.showHidden || !entity.name.startsWith('.')) && entity.isFolder && entity.name !== '.git');
+        else if (!this.foldersFirst) this.files = entities.filter((entity) => (this.showHidden || !entity.name.startsWith('.')) && entity.name !== '.git').sort((a, b) => b.isFolder - a.isFolder); // subtracting booleans from each other works to return -1, 1, or 0 respectively…for some reason
         else if (this.showHidden) {
           entities.forEach((entity) => {
             if (entity.isFolder && entity.name !== '.git') this.folders.push(entity);
