@@ -182,6 +182,9 @@ export default {
     },
   },
   async created() {
+    this.externalChange = true;
+    this.fields = cloneDeep(this.modelValue) || [];
+
     let customFieldsData = [];
     const availableFieldOptions = new Map();
 
