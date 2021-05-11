@@ -1,10 +1,12 @@
 import { createStore } from 'vuex';
+import { set as _set } from 'lodash-es';
+
 import fs from '../fs';
 
 import observers from './observers';
 
 const persistentAppProperties = ['activeUser', 'corsProxy', 'initialised', 'locallyChangedFiles'];
-const persistentProjectProperties = ['brandColors', 'corsProxy', 'id', 'name', 'sidebar', 'slugifyOptions', 'customRoles', 'draftsDir', 'previewUrl', 'languages'];
+const persistentProjectProperties = ['brandColors', 'corsProxy', 'id', 'name', 'sidebar', 'slugifyOptions', 'customRoles', 'draftsDir', 'previewUrl', 'languages', 'media'];
 const persistentUserProperties = ['email', 'id', 'name', 'projectAccessDates', 'projects', 'role', 'theme', 'uiScale'];
 
 const projectDefaults = {
@@ -15,6 +17,15 @@ const projectDefaults = {
   draftsDir: null,
   id: null,
   languages: [],
+  media: {
+    advanced: false,
+    customFields: null,
+    dir: null,
+    outputPath: null,
+    permissions: {
+      everybody: ['everything'],
+    },
+  },
   name: null,
   previewUrl: null,
   sidebar: [],
@@ -142,7 +153,7 @@ export default createStore({
       state.currentProject = data;
     },
     setCurrentProjectProperty(state, { key, value }) {
-      state.currentProject[key] = value;
+      _set(state.currentProject, key, value);
     },
     setLoadingTimeout(state, value) {
       state.application.loadingTimeout = value;

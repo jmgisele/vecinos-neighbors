@@ -3,9 +3,10 @@
     <MbTabs v-model="activeTab" :dark="dark" :tabs="tabs" />
     <transition mode="out-in" :name="tabTransition">
       <GeneralSettings v-if="activeTabValue === 'general'" :dark="dark" />
-      <CollectionSettings v-else-if="activeTabValue === 'collections'" :dark="dark" />
       <SchemaSettings v-else-if="activeTabValue === 'schemas'" :dark="dark" />
+      <CollectionSettings v-else-if="activeTabValue === 'collections'" :dark="dark" />
       <SidebarSettings v-else-if="activeTabValue === 'sidebar'" :dark="dark" />
+      <MediaSettings v-else-if="activeTabValue === 'media'" :dark="dark" />
       <UserSettings v-else-if="activeTabValue === 'users'" :dark="dark" />
     </transition>
   </div>
@@ -14,6 +15,7 @@
 <script>
 import CollectionSettings from './settings/CollectionSettings.vue';
 import GeneralSettings from './settings/GeneralSettings.vue';
+import MediaSettings from './settings/MediaSettings.vue';
 import SchemaSettings from './settings/SchemaSettings.vue';
 import SidebarSettings from './settings/SidebarSettings.vue';
 import UserSettings from './settings/UserSettings.vue';
@@ -48,6 +50,7 @@ export default {
   components: {
     CollectionSettings,
     GeneralSettings,
+    MediaSettings,
     SchemaSettings,
     SidebarSettings,
     UserSettings,
@@ -63,8 +66,8 @@ export default {
       leaving: false,
       tabs: [
         { label: 'General Settings', value: 'general' },
-        { label: 'Collections', value: 'collections' },
         { label: 'Schemas', value: 'schemas' },
+        { label: 'Collections', value: 'collections' },
         { label: 'Custom Fields', value: 'fields' },
         { label: 'Sidebar', value: 'sidebar' },
         { label: 'Dashboard', value: 'dashboard' },
