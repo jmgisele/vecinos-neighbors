@@ -812,7 +812,8 @@ export default {
 
     section
       .input,
-      .tag-input
+      .tag-input,
+      .icon-picker
         background-color: $bg-tertiary-dark
 
       .editor
@@ -831,7 +832,8 @@ export default {
           background-color: $bg-dark
 
         .input,
-        .tag-input
+        .tag-input,
+        .icon-picker
           background-color: $bg-secondary-dark
 
   header
@@ -1073,8 +1075,9 @@ export default {
             width: 100%
 
         &::v-deep(> .select),
-        > .radio-group.inline::v-deep(label)
-        > .editable-list
+        > .radio-group.inline::v-deep(label),
+        > .editable-list,
+        > .icon-picker
           width: 100%
 
       &:not(:last-child)
