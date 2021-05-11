@@ -423,7 +423,6 @@ export default [
     icon: 'image',
     key: '',
     label: 'Image',
-    localised: false,
     options: [
       {
         component: 'MbInput',
