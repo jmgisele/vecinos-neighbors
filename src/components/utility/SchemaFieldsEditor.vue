@@ -7,7 +7,7 @@
       </div>
       <div v-else-if="!showSplit && fields && fields.length === 0" class="empty-state" :class="{ dark }">
         <h2>There’s nothing here yet</h2>
-        <p>This schema currently has no fields. You can start adding some with the button below, or have Mattrbld automatically generate a set of fields for you based on a piece of content.</p>
+        <p>This schema currently has no fields. You can start adding some with the button below{{ showGenerateButton ? ', or have Mattrbld automatically generate a set of fields for you based on a piece of content' : '' }}.</p>
         <footer>
           <MbButton v-if="showGenerateButton" :dark="dark" icon="document" @click="$emit('generate-click')">Generate from content</MbButton>
           <MbButton :dark="dark" icon="plus" type="positive" @click="handleAddField">Add field</MbButton>
