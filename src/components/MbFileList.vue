@@ -46,7 +46,7 @@
         <MbButton v-else-if="modifiedFileActions.length === 1" :dark="dark" :icon="modifiedFileActions[0].icon" rounded :tooltip="modifiedFileActions[0].label" :type="modifiedFileActions[0].type" @click="executeAction(modifiedFileActions[0].action, joinPath(file.isDraft ? cleanDraftsDir : currentPath, file.name))" />
       </li>
     </transition-group>
-    <p v-show="filteredFiles.length === 0 && ((foldersFirst && !foldersOnly) || filteredFolders.length === 0)" class="empty-state">{{emptyStateMessage}}</p>
+    <p v-show="filteredFiles.length === 0 && ((foldersFirst && !foldersOnly) || filteredFolders.length === 0)" class="empty-state">{{searchTerm ? 'No results…' : emptyStateMessage}}</p>
     <MbContextMenu class="options" :dark="dark" :from-right="popover.fromRight" :options="popover.isFolder ? modifiedFolderActions : modifiedFileActions" :show="popover.show" :target="popover.target" :x="popover.x" :y="popover.y" @close="popover.show = false" />
   </div>
 </template>
