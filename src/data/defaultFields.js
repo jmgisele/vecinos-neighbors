@@ -445,6 +445,22 @@ export default [
     icon: 'toggle-on',
     key: '',
     label: 'Toggle',
+    options: [
+      {
+        component: 'MbIconPicker',
+        key: 'iconLeft',
+        label: 'Icon for the ‘false’ value:',
+        props: { removable: true },
+        value: null,
+      },
+      {
+        component: 'MbIconPicker',
+        key: 'iconRight',
+        label: 'Icon for the ‘true’ value:',
+        props: { removable: true },
+        value: null,
+      },
+    ],
     tab: null,
     value: null,
     visibility: { hidden: false, showByValue: { field: null } },
