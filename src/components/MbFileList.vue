@@ -35,7 +35,7 @@
       </transition-group>
     </MbScroller>
     <p v-if="foldersFirst && !foldersOnly" class="h3">{{fileListLabel}}</p>
-    <transition-group v-show="filteredFiles.length > 0" class="files" tag="ul">
+    <transition-group v-if="!thumbnails" v-show="filteredFiles.length > 0" class="files" tag="ul">
       <li v-for="file in filteredFiles" class="file" :class="{ active: activeFile === `${currentPath}/${file.name}`, 'no-actions': modifiedFileActions.length === 0 }" :key="file.name" tabindex="0" @click="file.isFolder ? openFolder(file.name, $event) : handleFileClick(file.name, $event, file.isDraft)" @contextmenu.prevent="openMenu($event, joinPath(file.isDraft ? cleanDraftsDir : currentPath, file.name), file.isFolder)" @keyup.space.enter="file.isFolder ? openFolder(file.name, $event) : handleFileClick(file.name, $event, file.isDraft)" @keydown.space.prevent>
         <MbIcon :icon="file.isFolder ? 'folder' : imageRegExp.test(file.name) ? 'image' : 'document'" />
         <span v-show="file.localChanges" class="local-changes-indicator"/>
@@ -44,6 +44,25 @@
         <span class="meta">{{formattedUpdatedAt(file.updatedAt)}}</span>
         <MbButton v-if="modifiedFileActions.length > 1" :dark="dark" icon="more-vertical" rounded tooltip="More" @click="openMenu($event, joinPath(file.isDraft ? cleanDraftsDir : currentPath, file.name), file.isFolder)" />
         <MbButton v-else-if="modifiedFileActions.length === 1" :dark="dark" :icon="modifiedFileActions[0].icon" rounded :tooltip="modifiedFileActions[0].label" :type="modifiedFileActions[0].type" @click="executeAction(modifiedFileActions[0].action, joinPath(file.isDraft ? cleanDraftsDir : currentPath, file.name))" />
+      </li>
+    </transition-group>
+    <transition-group v-else v-show="filteredFiles.length > 0" class="files thumbnails" tag="ul" @before-leave="setGridPosition">
+      <li v-for="file in filteredFiles" class="file" :class="{ active: activeFile === `${currentPath}/${file.name}`, 'no-actions': modifiedFileActions.length === 0 }" :key="file.name" tabindex="0" @click="file.isFolder ? openFolder(file.name, $event) : handleFileClick(file.name, $event, file.isDraft)" @contextmenu.prevent="openMenu($event, joinPath(file.isDraft ? cleanDraftsDir : currentPath, file.name), file.isFolder)" @keyup.space.enter="file.isFolder ? openFolder(file.name, $event) : handleFileClick(file.name, $event, file.isDraft)" @keydown.space.prevent>
+        <div class="thumbnail">
+          <MbIcon :icon="file.isFolder ? 'folder' : imageRegExp.test(file.name) ? 'image' : 'document'" />
+        </div>
+        <footer>
+          <div class="left">
+            <header>
+              <span v-show="file.localChanges" class="local-changes-indicator"/>
+              <span>{{prettyFilenames ? prettify(file.name) : file.name}}</span>
+              <MbChip v-if="file.isDraft" color="accent" label="Draft" />
+            </header>
+            <span class="meta">{{formattedUpdatedAt(file.updatedAt)}}</span>
+          </div>
+          <MbButton v-if="modifiedFileActions.length > 1" :dark="dark" icon="more-vertical" rounded tooltip="More" @click="openMenu($event, joinPath(file.isDraft ? cleanDraftsDir : currentPath, file.name), file.isFolder)" />
+          <MbButton v-else-if="modifiedFileActions.length === 1" :dark="dark" :icon="modifiedFileActions[0].icon" rounded :tooltip="modifiedFileActions[0].label" :type="modifiedFileActions[0].type" @click="executeAction(modifiedFileActions[0].action, joinPath(file.isDraft ? cleanDraftsDir : currentPath, file.name))" />
+        </footer>
       </li>
     </transition-group>
     <p v-show="filteredFiles.length === 0 && ((foldersFirst && !foldersOnly) || filteredFolders.length === 0)" class="empty-state">{{searchTerm ? 'No results…' : emptyStateMessage}}</p>
@@ -295,6 +314,14 @@ export default {
     async refresh() {
       await this.fetchData();
     },
+    setGridPosition(el) {
+      el.style.setProperty('top', `${el.offsetTop}px`);
+      el.style.setProperty('left', `${el.offsetLeft}px`);
+      el.style.setProperty('width', `${el.offsetWidth}px`);
+      el.style.setProperty('height', `${el.offsetHeight}px`);
+      el.style.setProperty('margin', '0');
+      el.style.setProperty('position', 'absolute');
+    },
     setRowPosition(el) {
       el.style.setProperty('left', `${el.dataset.offsetLeft}px`);
       el.style.setProperty('position', 'absolute');
@@ -378,6 +405,7 @@ export default {
       type: Boolean,
       default: true,
     },
+    thumbnails: Boolean,
   },
   watch: {
     currentPath(nv, ov) {
@@ -433,6 +461,9 @@ export default {
 
       span.meta
         color: $text-secondary-dark
+
+    .files.thumbnails li .thumbnail
+        background-image: linear-gradient(to right, rgba(0,0,0,0.9), rgba(0,0,0,0.9)), linear-gradient(to right, black 50%, white 50%), linear-gradient(to bottom, black 50%, white 50%)
 
     .empty-state
       color: $text-secondary-dark
@@ -636,6 +667,9 @@ export default {
     & + .files
       margin-top: 1.5rem
 
+      &.thumbnails
+        margin-top: 1rem
+
   .files
     list-style: none
     padding: 0
@@ -723,6 +757,65 @@ export default {
 
       .button
         margin-left: 1rem
+
+    &.thumbnails
+      margin: -0.5rem
+      display: flex
+      flex-wrap: wrap
+
+      li
+        overflow: hidden
+        margin: 0.5rem
+        display: block
+        padding: 0
+        width: calc(33.33% - 1rem)
+
+        @media $tablet
+          width: calc(50% - 1rem)
+
+        @media $mobile
+          width: 100%
+
+        .thumbnail
+          color: $text-dark
+          height: 8rem
+          display: flex
+          align-items: center
+          justify-content: center
+          background-image: linear-gradient(to right, rgba(0,0,0,0.75), rgba(0,0,0,0.75)), linear-gradient(to right, black 50%, white 50%), linear-gradient(to bottom, black 50%, white 50%)
+          background-size: 1.5rem 1.5rem
+          background-blend-mode: normal, difference
+
+          .icon
+            margin: 0
+            width: 3rem
+            height: @width
+
+        footer
+          padding: 0.75rem
+          padding-right: 0.5rem
+          display: flex
+          align-items: center
+          overflow: hidden
+
+          .left
+            margin-right: auto
+            overflow: hidden
+
+            header
+              height: (28 / 16)rem // so chip fits fully
+              margin-top: -0.125rem // to even out the paddings
+              margin-bottom: 0
+              display: flex
+              align-items: center
+
+            .chip
+              margin: 0
+              margin-left: 0.5rem
+              flex-shrink: 0
+
+          .button
+            flex-shrink: 0
 
   .empty-state
     color: $text-secondary
