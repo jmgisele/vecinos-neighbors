@@ -36,7 +36,7 @@
     </MbScroller>
     <p v-if="foldersFirst && !foldersOnly" class="h3">{{fileListLabel}}</p>
     <transition-group v-show="filteredFiles.length > 0" class="files" tag="ul">
-      <li v-for="file in filteredFiles" class="file" :class="{ 'no-actions': modifiedFileActions.length === 0 }" :key="file.name" tabindex="0" @click="file.isFolder ? openFolder(file.name, $event) : handleFileClick(file.name, $event, file.isDraft)" @contextmenu.prevent="openMenu($event, joinPath(file.isDraft ? cleanDraftsDir : currentPath, file.name), file.isFolder)" @keyup.space.enter="file.isFolder ? openFolder(file.name, $event) : handleFileClick(file.name, $event, file.isDraft)" @keydown.space.prevent>
+      <li v-for="file in filteredFiles" class="file" :class="{ active: activeFile === `${currentPath}/${file.name}`, 'no-actions': modifiedFileActions.length === 0 }" :key="file.name" tabindex="0" @click="file.isFolder ? openFolder(file.name, $event) : handleFileClick(file.name, $event, file.isDraft)" @contextmenu.prevent="openMenu($event, joinPath(file.isDraft ? cleanDraftsDir : currentPath, file.name), file.isFolder)" @keyup.space.enter="file.isFolder ? openFolder(file.name, $event) : handleFileClick(file.name, $event, file.isDraft)" @keydown.space.prevent>
         <MbIcon :icon="file.isFolder ? 'folder' : imageRegExp.test(file.name) ? 'image' : 'document'" />
         <span v-show="file.localChanges" class="local-changes-indicator"/>
         <span>{{prettyFilenames ? prettify(file.name) : file.name}}</span>
@@ -334,6 +334,7 @@ export default {
   },
   props: {
     action: Object,
+    activeFile: String,
     dark: Boolean,
     draftsDir: String,
     emptyState: {
@@ -671,6 +672,27 @@ export default {
 
       &:not(:last-child)
         margin-bottom: 1rem
+
+      &.active
+        background-color: $accent
+        color: $text-dark
+
+        &:hover
+          background-color: lighten($accent, 5)
+
+        &:active
+          background-color: $accent-secondary
+
+        &::before
+          border-color: $accent-secondary
+
+        span.meta
+          color: $text-secondary-dark
+
+        .button
+          &:hover,
+          &:focus
+            background-color: $accent-secondary
 
       .icon:not(.button)
         margin-right: 1rem
