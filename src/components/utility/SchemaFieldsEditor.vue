@@ -150,14 +150,13 @@ export default {
     },
     filteredFields() {
       if (!this.availableFields) return new Map();
-      if (!this.fieldFilter) return this.availableFields;
+      if (!this.fieldFilter && !this.noSubfields) return this.availableFields;
       return Array.from(this.availableFields).reduce((newMap, [group, fields]) => {
         const lowercaseFieldFilter = this.fieldFilter.toLowerCase();
-        if (group.includes(lowercaseFieldFilter)) {
-          newMap.set(group, fields);
-          return newMap;
-        }
-        const filteredFields = fields.filter((field) => field.label.toLowerCase().includes(lowercaseFieldFilter) || field.type.includes(lowercaseFieldFilter));
+        let filteredFields;
+        if (group.includes(lowercaseFieldFilter)) filteredFields = fields.filter((field) => !this.noSubfields || !field.value); // fields allowing for subfields have an empty array as a value
+        else filteredFields = fields.filter((field) => (!this.noSubfields || field.value === null) && (field.label.toLowerCase().includes(lowercaseFieldFilter) || field.type.includes(lowercaseFieldFilter)));
+
         if (filteredFields.length > 0) newMap.set(group, filteredFields);
         return newMap;
       }, new Map());
@@ -603,6 +602,7 @@ export default {
     activeTab: Number,
     dark: Boolean,
     modelValue: Array,
+    noSubfields: Boolean,
     projectId: String,
     showGenerateButton: Boolean,
     tabs: Array,
