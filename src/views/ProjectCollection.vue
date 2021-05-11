@@ -427,9 +427,10 @@ export default {
 .collection
   height: 100%
   overflow-x: hidden
-  padding: 0 2rem 8rem 2rem
+  padding: (27 / 16)rem 2rem 8rem 2rem
 
   @media $tablet
+    padding-top: 0
     padding-left: 1rem
     padding-right: 1rem
     padding-bottom: 4rem
