@@ -60,7 +60,7 @@
             <MbInput v-model.lazy.trim="fieldBeingEdited.label" :dark="dark" :error="fieldErrors.label" icon="tag" label="Label" @update:model-value="validateField('label')" />
             <MbInput v-if="!fieldBeingEdited.visualOnly" v-model.lazy.trim="fieldBeingEdited.key" :dark="dark" :error="fieldErrors.key" icon="key" label="Content key" @focus="validateField('key')" @update:model-value="validateField('key')" />
           </div>
-          <div v-if="fieldBeingEditedToplevel" class="select-wrapper">
+          <div v-if="fieldBeingEditedToplevel && tabs && tabs.length > 0" class="select-wrapper">
             <span>Tab:</span>
             <MbSelect :dark="dark" :model-value="fieldBeingEdited.tab" :options="tabsForSelect" @update:model-value="moveFieldToTab(fieldBeingEdited, $event)" />
           </div>
