@@ -28,7 +28,6 @@
         </transition>
       </div>
     </transition>
-    <pre>{{fields}}</pre>
     <slot name="afterFields" />
 
     <template #right="{ isModal }">
