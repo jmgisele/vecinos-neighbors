@@ -83,7 +83,6 @@ const routes = [
         path: 'media',
         component: () => import(/* webpackChunkName: "project" */ '../views/ProjectMediaLibrary.vue'),
         meta: {
-          label: 'Media Library',
           title: 'Project Media Library',
         },
       },
