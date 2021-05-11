@@ -37,7 +37,7 @@
     <p v-if="foldersFirst && !foldersOnly" class="h3">{{fileListLabel}}</p>
     <transition-group v-if="!thumbnails" v-show="filteredFiles.length > 0" class="files" tag="ul">
       <li v-for="file in filteredFiles" class="file" :class="{ active: activeFile === `${currentPath}/${file.name}`, 'no-actions': modifiedFileActions.length === 0 }" :key="file.name" tabindex="0" @click="file.isFolder ? openFolder(file.name, $event) : handleFileClick(file.name, $event, file.isDraft)" @contextmenu.prevent="openMenu($event, joinPath(file.isDraft ? cleanDraftsDir : currentPath, file.name), file.isFolder)" @keyup.space.enter="file.isFolder ? openFolder(file.name, $event) : handleFileClick(file.name, $event, file.isDraft)" @keydown.space.prevent>
-        <MbIcon :icon="file.isFolder ? 'folder' : imageRegExp.test(file.name) ? 'image' : 'document'" />
+        <MbIcon :icon="file.isFolder ? 'folder' : imageRegExp.test(file.name) ? 'image' : archiveRegExp.test(file.name) ? 'folder-archive' : 'document'" />
         <span v-show="file.localChanges" class="local-changes-indicator"/>
         <span>{{prettyFilenames ? prettify(file.name) : file.name}}</span>
         <MbChip v-if="file.isDraft" color="accent" label="Draft" />
@@ -49,7 +49,7 @@
     <transition-group v-else v-show="filteredFiles.length > 0" class="files thumbnails" tag="ul" @before-leave="setGridPosition">
       <li v-for="file in filteredFiles" class="file" :class="{ active: activeFile === `${currentPath}/${file.name}`, 'no-actions': modifiedFileActions.length === 0 }" :key="file.name" tabindex="0" @click="file.isFolder ? openFolder(file.name, $event) : handleFileClick(file.name, $event, file.isDraft)" @contextmenu.prevent="openMenu($event, joinPath(file.isDraft ? cleanDraftsDir : currentPath, file.name), file.isFolder)" @keyup.space.enter="file.isFolder ? openFolder(file.name, $event) : handleFileClick(file.name, $event, file.isDraft)" @keydown.space.prevent>
         <div class="thumbnail">
-          <MbIcon :icon="file.isFolder ? 'folder' : imageRegExp.test(file.name) ? 'image' : 'document'" />
+          <MbIcon :icon="file.isFolder ? 'folder' : imageRegExp.test(file.name) ? 'image' : archiveRegExp.test(file.name) ? 'folder-archive' : 'document'" />
         </div>
         <footer>
           <div class="left">
@@ -145,6 +145,7 @@ export default {
       files: [],
       folders: [],
       imageRegExp: /\.(gif|jpg|jpeg|tiff|png|webp|svg)$/i,
+      archiveRegExp: /\.(zip|tar\.gz|7z|s7z|rar|tgz|gz)$/i,
       joinPath,
       loading: false,
       popover: {
