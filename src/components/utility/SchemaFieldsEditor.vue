@@ -2,7 +2,7 @@
   <TabContent class="schema-fields-editor" :dark="dark" ref="tabContent" :show-split="showSplit" @split-close="showSplit = false" @split-closed="handleSplitClosed">
     <slot name="beforeFields" />
     <transition mode="out-in">
-      <div v-if="loading" class="" key="loading">
+      <div v-if="loading || !activated" class="" key="loading">
         <!-- This is here so we don’t see an empty state while the component is initialising -->
       </div>
       <div v-else-if="!showSplit && fields && fields.length === 0" class="empty-state" :class="{ dark }">
@@ -599,6 +599,10 @@ export default {
     },
   },
   props: {
+    activated: {
+      type: Boolean,
+      default: true,
+    },
     activeTab: Number,
     dark: Boolean,
     modelValue: Array,
