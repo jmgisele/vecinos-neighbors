@@ -2,6 +2,7 @@
   <TabContent class="sidebar-settings" :dark="dark" :show-split="showSplit" @split-close="showSplit = false" @split-closed="handleSplitClosed">
     <section class="wrapper" :class="{ dark }">
       <h1 class="h2">Sidebar</h1>
+      <p>The entries below will show up in the same order in the sidebar to the right. Use custom icons and headings to create different sections.</p>
       <MbSortableList v-slot="{ activeItem, index, item: entry }" enable-transitions :items="sidebarOptions" key-name="label" @itemclick="openEntry" @itemmove="handleItemMove">
         <div class="entry" :class="{ active: entryBeingModified === entry, 'being-dragged': activeItem === entry, dark }" tabindex="0" @keydown.space.prevent @keyup.space.enter="openEntry(index)">
           <div class="drag-handle" data-drag-handle>
