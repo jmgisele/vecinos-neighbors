@@ -486,10 +486,13 @@ export default {
 
       .input
         margin-top: 0
-        margin-right: 1rem
+        margin-right: 4rem
+        flex-grow: 1
+        max-width: (512 / 16)rem
 
         @media $mobile
           margin-right: 0
+          max-width: none
           width: 100%
           margin-bottom: 1rem
 
