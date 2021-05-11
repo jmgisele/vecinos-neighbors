@@ -9,7 +9,7 @@
           <MbFilePicker v-model="dir" :dark="dark" relative-to-root :root="`/projects/${currentProject.id}`" />
         </div>
         <div class="input-row">
-          <span class="label">Output path:</span>
+          <span class="label">Output path (optional):</span>
           <MbInput v-model="outputPath" :dark="dark" placeholder="e.g. /uploads" />
         </div>
         <h3>Permissions</h3>
@@ -42,6 +42,10 @@ export default {
         return this.$store.state.currentProject.media.customFields;
       },
       set(v) {
+        if (v.filter((field) => field.errors).length > 0) {
+          this.$store.commit('addToast', { message: 'Could not save custom fields: at least one field has errors', type: 'negative' });
+          return;
+        }
         this.$store.commit('setCurrentProjectProperty', { key: 'media.customFields', value: v });
         this.$store.dispatch('saveCurrentProject');
       },
@@ -85,9 +89,6 @@ export default {
     roles() {
       return [{ label: 'Everybody', value: 'everybody' }, ...availableRoles, ...this.currentProject.customRoles];
     },
-  },
-  async created() {
-    // foo
   },
   data() {
     return {
