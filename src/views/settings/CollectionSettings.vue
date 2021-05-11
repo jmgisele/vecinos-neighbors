@@ -2,7 +2,7 @@
   <TabContent class="collection-settings" :dark="dark" :show-split="showSplit" @split-close="showSplit = false" @split-closed="handleSplitClosed">
     <section class="wrapper wide">
       <h1 class="h2">Collections</h1>
-      <MbFileList v-if="initialised" :action="createCollectionAction" :dark="dark" empty-state="There are no collections yet" :file-actions="collectionActions" file-list-label="Collections" pretty-filenames ref="fileList" :root="collectionDir" @fileclick="openCollectionSettings" @list-change="listedFiles = $event.files" />
+      <MbFileList v-if="initialised" :action="createCollectionAction" :active-file="collectionBeingModified" :dark="dark" empty-state="There are no collections yet" :file-actions="collectionActions" file-list-label="Collections" pretty-filenames ref="fileList" :root="collectionDir" @fileclick="$event === collectionBeingModified ? showSplit = false : openCollectionSettings($event)" @list-change="listedFiles = $event.files" />
       <MbButton v-show="listedFiles === 0" :dark="dark" icon="plus" type="positive" @click="showEntityCreation = true">Create one</MbButton>
     </section>
     <template #right>
@@ -243,7 +243,7 @@ export default {
       if (this.collectionBeingModified === path) return;
       this.showSplit = true;
       this.collectionDetails = JSON.parse(await fs.readFile(path, 'utf8'));
-      this.collectionBeingModified = path;
+      this.$nextTick(() => { this.collectionBeingModified = path; }); // wait a tick so the save handler doesn’t fire immediately
       this.splitLoading = false;
     },
     renameCollection(path) {
