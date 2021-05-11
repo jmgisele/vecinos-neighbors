@@ -71,6 +71,18 @@ const GIT_STATUS_MESSAGES = {
 
 export default {
   async beforeRouteEnter(to, from, next) {
+    // if the project is already loaded, we just need to reload the avatar (because it got revoked) and are good to go
+    if (Store.state.currentProject.id === to.params.id) {
+      try {
+        const avatarData = await fs.readFile(`/projects/${to.params.id}/.mattrbld/avatar.jpg`);
+        const avatarUrl = URL.createObjectURL(new Blob([avatarData], { type: 'image/jpeg' })); // revoking is handled by the ProjectAvatar component
+        Store.commit('setCurrentProjectProperty', { key: 'avatar', value: avatarUrl });
+        return next();
+      } catch (err) {
+        if (err.code !== 'ENOENT') return next(err);
+      }
+    }
+
     const configPath = `/projects/${to.params.id}/.mattrbld/config.json`;
     const usersPath = `/projects/${to.params.id}/.mattrbld/users`;
     const currentUserId = Store.state.user.id;
