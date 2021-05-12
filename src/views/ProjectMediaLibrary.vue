@@ -1,15 +1,16 @@
 <template lang="html">
-  <div class="media-library" :class="{ dark }">
+  <div class="media-library">
     <header>
       <h1>Media Library</h1>
       <MbChip v-if="currentProject.media.advanced" label="Advanced" @mouseenter="$store.commit('setTooltip', { position: 'right', message: 'The advanced Media Library is active, metadata will be stored', target: $event.target })"/>
     </header>
     <TabContent :dark="dark" :show-split="showSplit" @split-close="showSplit = false">
       <MbFileList v-if="currentProject.media.dir" :action="action" :dark="dark" :file-actions="fileActions" folders-first pretty-filenames ref="fileList" :root="mediaDir" thumbnails @list-change="listedFiles = $event.files" @path-change="currentPath = $event" />
-      <div v-else class="unconfigured-state">
+      <div v-else class="unconfigured-state" :class="{ dark }">
         <h2>The Media Library hasn’t been configured yet</h2>
-        <p>You can do so in the project settings.</p>
-        <MbButton :dark="dark" icon="wrench-and-driver" type="primary" @click="$router.push({ name: 'Project.Settings', params: { id: currentProject.id }, query: { tab: 'media' }})">Configure now</MbButton>
+        <p v-if="isPrivilegedUser">You can do so in the project settings.</p>
+        <p v-else>A developer can do so in the project settings.</p>
+        <MbButton v-if="isPrivilegedUser" :dark="dark" icon="wrench-and-driver" type="primary" @click="$router.push({ name: 'Project.Settings', params: { id: currentProject.id }, query: { tab: 'media' }})">Configure now</MbButton>
       </div>
     </TabContent>
   </div>
@@ -17,6 +18,8 @@
 
 <script>
 import { joinPath } from '../fs';
+
+import isPrivilegedUser from '../mixins/isPrivilegedUser';
 
 import TabContent from '../components/utility/TabContent.vue';
 
@@ -46,6 +49,7 @@ export default {
       showSplit: false,
     };
   },
+  mixins: [isPrivilegedUser],
   props: {
     dark: Boolean,
   },
@@ -64,12 +68,6 @@ export default {
 
   @media $tablet
     padding-top: 0
-
-  &.dark
-    .tab-content .unconfigured-state
-      h2,
-      p
-        color: $text-secondary-dark
 
   header
     display: flex
@@ -116,6 +114,11 @@ export default {
 
     .unconfigured-state
       text-align: center
+
+      &.dark
+        h2,
+        p
+          color: $text-secondary-dark
 
       h2,
       p
