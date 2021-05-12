@@ -1,11 +1,16 @@
 <template lang="html">
-  <div class="media-library">
+  <div class="media-library" :class="{ dark }">
     <header>
       <h1>Media Library</h1>
-      <MbChip v-if="currentProject.media.advanced" label="Advanced" />
+      <MbChip v-if="currentProject.media.advanced" label="Advanced" @mouseenter="$store.commit('setTooltip', { position: 'right', message: 'The advanced Media Library is active, metadata will be stored', target: $event.target })"/>
     </header>
     <TabContent :dark="dark" :show-split="showSplit" @split-close="showSplit = false">
-      <MbFileList v-if="typeof currentProject.media.dir !== 'undefined'" :action="action" :dark="dark" :file-actions="fileActions" folders-first pretty-filenames ref="fileList" :root="mediaDir" thumbnails @list-change="listedFiles = $event.files" @path-change="currentPath = $event" />
+      <MbFileList v-if="currentProject.media.dir" :action="action" :dark="dark" :file-actions="fileActions" folders-first pretty-filenames ref="fileList" :root="mediaDir" thumbnails @list-change="listedFiles = $event.files" @path-change="currentPath = $event" />
+      <div v-else class="unconfigured-state">
+        <h2>The Media Library hasn’t been configured yet</h2>
+        <p>You can do so in the project settings.</p>
+        <MbButton :dark="dark" icon="wrench-and-driver" type="primary" @click="$router.push({ name: 'Project.Settings', params: { id: currentProject.id }, query: { tab: 'media' }})">Configure now</MbButton>
+      </div>
     </TabContent>
   </div>
 </template>
@@ -49,6 +54,7 @@ export default {
 
 <style lang="stylus" scoped>
 @require '../assets/styles/breakpoints'
+@require '../assets/styles/colors'
 
 .media-library
   height: 100%
@@ -58,6 +64,12 @@ export default {
 
   @media $tablet
     padding-top: 0
+
+  &.dark
+    .tab-content .unconfigured-state
+      h2,
+      p
+        color: $text-secondary-dark
 
   header
     display: flex
@@ -101,5 +113,18 @@ export default {
         display: flex
         margin-left: auto
         margin-right: auto
+
+    .unconfigured-state
+      text-align: center
+
+      h2,
+      p
+        color: $text-secondary
+
+      h2
+        margin-top: 8rem
+
+      p
+        margin-bottom: 2rem
 
 </style>
