@@ -47,7 +47,7 @@
       </li>
     </transition-group>
     <transition-group v-else v-show="filteredFiles.length > 0 && !leaving" class="files thumbnails" ref="fileWrapper" tag="ul" @after-enter="updateFileOffsets" @after-leave="updateFileOffsets" @before-leave="setGridPosition">
-      <li v-for="file in filteredFiles" class="file" :class="{ active: activeFile === joinPath(currentPath, file.name), 'no-actions': modifiedFileActions.length === 0 }" :key="file.name" tabindex="0" @click="file.isFolder ? openFolder(file.name, $event) : handleFileClick(file.name, $event, file.isDraft)" @contextmenu.prevent="openMenu($event, joinPath(file.isDraft ? cleanDraftsDir : currentPath, file.name), file.isFolder)" @keyup.space.enter="file.isFolder ? openFolder(file.name, $event) : handleFileClick(file.name, $event, file.isDraft)" @keydown.space.prevent>
+      <li v-for="file in filteredFiles" class="file" :class="{ active: activeFile === joinPath(currentPath, file.name), 'no-actions': modifiedFileActions.length === 0 }" :key="file.name" tabindex="0" @click="file.isFolder ? openFolder(file.name, $event) : handleFileClick(file.name, $event, file.isDraft, file.size, imageCache.get(joinPath(currentPath, file.name)))" @contextmenu.prevent="openMenu($event, joinPath(file.isDraft ? cleanDraftsDir : currentPath, file.name), file.isFolder)" @keyup.space.enter="file.isFolder ? openFolder(file.name, $event) : handleFileClick(file.name, $event, file.isDraft, file.size, imageCache.get(joinPath(currentPath, file.name)))" @keydown.space.prevent>
         <div class="thumbnail">
           <transition appear>
             <img v-if="imageCache.has(joinPath(currentPath, file.name))" alt="Image thumbnail" class="hidden" :src="imageCache.get(joinPath(currentPath, file.name))" @load="$event.target.classList.remove('hidden')">
@@ -336,9 +336,9 @@ export default {
       if (distance !== '0 seconds ago') return distance;
       return 'just now';
     },
-    handleFileClick(name, e, isDraft) {
+    handleFileClick(name, e, isDraft, size, imageUrl) {
       if (e.target.classList.contains('button')) return; // buttons have a ::before that covers them completely, so this is enough
-      this.$emit('fileclick', joinPath(isDraft ? this.cleanDraftsDir : this.currentPath, name));
+      this.$emit('fileclick', joinPath(isDraft ? this.cleanDraftsDir : this.currentPath, name), size, imageUrl);
     },
     jumpTo(index) {
       if (this.currentPath === this.root) return;
