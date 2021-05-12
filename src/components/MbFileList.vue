@@ -46,11 +46,11 @@
         <MbButton v-else-if="modifiedFileActions.length === 1" :dark="dark" :icon="modifiedFileActions[0].icon" rounded :tooltip="modifiedFileActions[0].label" :type="modifiedFileActions[0].type" @click="executeAction(modifiedFileActions[0].action, joinPath(file.isDraft ? cleanDraftsDir : currentPath, file.name))" />
       </li>
     </transition-group>
-    <transition-group v-else v-show="filteredFiles.length > 0" class="files thumbnails" tag="ul" @before-leave="setGridPosition">
-      <li v-for="file in filteredFiles" class="file" :class="{ active: activeFile === `${currentPath}/${file.name}`, 'no-actions': modifiedFileActions.length === 0 }" :key="file.name" tabindex="0" @click="file.isFolder ? openFolder(file.name, $event) : handleFileClick(file.name, $event, file.isDraft)" @contextmenu.prevent="openMenu($event, joinPath(file.isDraft ? cleanDraftsDir : currentPath, file.name), file.isFolder)" @keyup.space.enter="file.isFolder ? openFolder(file.name, $event) : handleFileClick(file.name, $event, file.isDraft)" @keydown.space.prevent>
+    <transition-group v-else v-show="filteredFiles.length > 0 && !leaving" class="files thumbnails" ref="fileWrapper" tag="ul" @after-enter="updateFileOffsets" @after-leave="updateFileOffsets" @before-leave="setGridPosition">
+      <li v-for="file in filteredFiles" class="file" :class="{ active: activeFile === joinPath(currentPath, file.name), 'no-actions': modifiedFileActions.length === 0 }" :key="file.name" tabindex="0" @click="file.isFolder ? openFolder(file.name, $event) : handleFileClick(file.name, $event, file.isDraft)" @contextmenu.prevent="openMenu($event, joinPath(file.isDraft ? cleanDraftsDir : currentPath, file.name), file.isFolder)" @keyup.space.enter="file.isFolder ? openFolder(file.name, $event) : handleFileClick(file.name, $event, file.isDraft)" @keydown.space.prevent>
         <div class="thumbnail">
-          <transition appear mode="out-in">
-            <img v-if="imageCache.has(`${currentPath}/${file.name}`)" alt="Image thumbnail" :src="imageCache.get(`${currentPath}/${file.name}`)">
+          <transition appear>
+            <img v-if="imageCache.has(joinPath(currentPath, file.name))" alt="Image thumbnail" class="hidden" :src="imageCache.get(joinPath(currentPath, file.name))" @load="$event.target.classList.remove('hidden')">
             <MbIcon v-else :icon="file.isFolder ? 'folder' : entityIcon(file.name)" />
           </transition>
         </div>
@@ -61,14 +61,16 @@
               <span>{{prettyFilenames ? prettify(file.name) : file.name}}</span>
               <MbChip v-if="file.isDraft" color="accent" label="Draft" />
             </header>
-            <span class="meta">{{formattedUpdatedAt(file.updatedAt)}}, {{file.size}}, {{file.name.slice(file.name.lastIndexOf('.') + 1).toUpperCase()}}</span>
+            <span class="meta">{{formattedUpdatedAt(file.updatedAt)}}, {{file.size}}, {{file.isFolder ? 'Folder' : file.name.slice(file.name.lastIndexOf('.') + 1).toUpperCase()}}</span>
           </div>
           <MbButton v-if="modifiedFileActions.length > 1" :dark="dark" icon="more-vertical" rounded tooltip="More" @click="openMenu($event, joinPath(file.isDraft ? cleanDraftsDir : currentPath, file.name), file.isFolder)" />
           <MbButton v-else-if="modifiedFileActions.length === 1" :dark="dark" :icon="modifiedFileActions[0].icon" rounded :tooltip="modifiedFileActions[0].label" :type="modifiedFileActions[0].type" @click="executeAction(modifiedFileActions[0].action, joinPath(file.isDraft ? cleanDraftsDir : currentPath, file.name))" />
         </footer>
       </li>
     </transition-group>
-    <p v-show="filteredFiles.length === 0 && ((foldersFirst && !foldersOnly) || filteredFolders.length === 0)" class="empty-state">{{searchTerm ? 'No results…' : emptyStateMessage}}</p>
+    <transition>
+      <p v-show="filteredFiles.length === 0 && ((foldersFirst && !foldersOnly) || filteredFolders.length === 0)" class="empty-state">{{searchTerm ? 'No results…' : emptyStateMessage}}</p>
+    </transition>
     <MbContextMenu class="options" :dark="dark" :from-right="popover.fromRight" :options="popover.isFolder ? modifiedFolderActions : modifiedFileActions" :show="popover.show" :target="popover.target" :x="popover.x" :y="popover.y" @close="popover.show = false" />
   </div>
 </template>
@@ -82,6 +84,12 @@ import humanReadableSize from '../assets/js/humanReadableSize';
 import prettifyEntityName from '../assets/js/prettifyEntityName';
 
 export default {
+  beforeUnmount() {
+    if (this.observer) this.observer.disconnect();
+    if (this.imageCache.size > 0) {
+      this.imageCache.forEach((url) => URL.revokeObjectURL(url));
+    }
+  },
   computed: {
     breadcrumb() {
       const rootName = this.root.split('/').slice(-1)[0] || 'Root';
@@ -149,9 +157,17 @@ export default {
       currentPath: null,
       files: [],
       folders: [],
+      imageCache: new Map(),
       imageRegExp: /\.(gif|jpg|jpeg|tiff|png|webp|svg)$/i,
       joinPath,
+      leaving: false,
       loading: false,
+      observer: null,
+      pagination: {
+        currentPage: 0,
+        pageSize: 6,
+        totalPages: 0,
+      },
       popover: {
         isFolder: false,
         show: false,
@@ -273,10 +289,47 @@ export default {
           const allowedEndingsRegex = new RegExp(`\\.(${this.filetypes.join('|')})$`, 'i');
           this.files = this.files.filter((file) => file.isFolder || allowedEndingsRegex.test(file.name));
         }
+
+        this.leaving = false;
+        if (this.thumbnails) this.$nextTick(() => this.fetchThumbnails());
       } catch (err) {
         this.$store.commit('addToast', { message: `Something went wrong while reading files: ${err.message}`, type: 'error' });
         if (this.currentPath !== this.root) this.currentPath = pathDirname(this.currentPath);
       }
+    },
+    async fetchThumbnails() {
+      if (!this.thumbnails || this.files.length === 0) return;
+
+      if (!this.observer) {
+        this.observer = new IntersectionObserver((entries) => {
+          if (entries[0].isIntersecting) {
+            this.observer.unobserve(entries[0].target);
+            if (this.pagination.currentPage < this.pagination.totalPages) this.fetchThumbnails();
+          }
+        });
+      }
+
+      const nextPage = this.pagination.currentPage + 1;
+
+      const entities = this.files.slice(this.pagination.currentPage * this.pagination.pageSize, nextPage * this.pagination.pageSize);
+      const images = entities.reduce((acc, entity) => {
+        const path = joinPath(this.currentPath, entity.name);
+        if (!entity.isFolder && this.imageRegExp.test(entity.name) && !this.imageCache.has(path)) acc.push(path);
+        return acc;
+      }, []);
+      const imageData = await Promise.all(images.map((path) => fs.readFile(path)));
+      images.forEach((path, i) => this.imageCache.set(path, URL.createObjectURL(new Blob([imageData[i]], path.endsWith('.svg') ? { type: 'image/svg+xml' } : undefined))));
+
+      if (this.pagination.totalPages === 0) { // first run
+        this.pagination.totalPages = Math.ceil(this.files.length / this.pagination.pageSize);
+        const nextTarget = this.$refs.fileWrapper.$el.children[this.pagination.pageSize + 1];
+        if (nextTarget) this.observer.observe(nextTarget);
+      } else if (this.pagination.currentPage < this.pagination.totalPages) {
+        const nextTarget = this.$refs.fileWrapper.$el.children[nextPage * this.pagination.pageSize + 1];
+        if (nextTarget) this.observer.observe(nextTarget);
+      }
+
+      this.pagination.currentPage = nextPage;
     },
     formattedUpdatedAt(updatedAt) {
       const distance = formatDistanceToNowStrict(updatedAt, { addSuffix: true });
@@ -327,11 +380,11 @@ export default {
       await this.fetchData();
     },
     setGridPosition(el) {
-      el.style.setProperty('top', `${el.offsetTop}px`);
-      el.style.setProperty('left', `${el.offsetLeft}px`);
+      el.style.setProperty('top', `${el.dataset.offsetTop}px`);
+      el.style.setProperty('left', `${el.dataset.offsetLeft}px`);
       el.style.setProperty('width', `${el.offsetWidth}px`);
       el.style.setProperty('height', `${el.offsetHeight}px`);
-      el.style.setProperty('margin', '0');
+      el.style.setProperty('margin-left', '0');
       el.style.setProperty('position', 'absolute');
     },
     setRowPosition(el) {
@@ -368,6 +421,12 @@ export default {
     updateOffsets: debounce(function () { // eslint-disable-line func-names
       this.$refs.folderWrapper.$el.querySelectorAll('.folder').forEach((el) => {
         el.dataset.offsetLeft = el.offsetLeft; // eslint-disable-line no-param-reassign
+      });
+    }),
+    updateFileOffsets: debounce(function () { // eslint-disable-line func-names
+      this.$refs.fileWrapper.$el.querySelectorAll('.file').forEach((el) => {
+        el.dataset.offsetLeft = el.offsetLeft; // eslint-disable-line no-param-reassign
+        el.dataset.offsettop = el.offsetTop; // eslint-disable-line no-param-reassign
       });
     }),
   },
@@ -422,6 +481,13 @@ export default {
   watch: {
     currentPath(nv, ov) {
       if (nv !== ov) {
+        this.leaving = true; // to short-circuit the leave-transition by hiding the container element when thumbnails is true
+        if (this.observer) {
+          this.observer.disconnect();
+          this.observer = null;
+          this.pagination.currentPage = 0;
+          this.pagination.totalPages = 0;
+        }
         this.fetchData();
         if (this.$refs.folderWrapper) this.$refs.folderWrapper.$refs.scrollArea.scrollTo({ left: 0 });
         this.$emit('path-change', nv);
@@ -479,6 +545,15 @@ export default {
 
     .empty-state
       color: $text-secondary-dark
+
+      &.v-enter-active
+        transition: opacity 200ms ease
+
+        &.v-enter-from
+          opacity: 0
+
+      &.v-leave-active
+        display: none
 
     .folder-wrapper .folder,
     .files li
@@ -790,18 +865,37 @@ export default {
 
         .thumbnail
           color: $text-dark
-          height: 8rem
+          height: 12rem
           display: flex
           align-items: center
           justify-content: center
           background-image: linear-gradient(to right, rgba(0,0,0,0.75), rgba(0,0,0,0.75)), linear-gradient(to right, black 50%, white 50%), linear-gradient(to bottom, black 50%, white 50%)
           background-size: 1.5rem 1.5rem
           background-blend-mode: normal, difference
+          position: relative
+
+          .icon,
+          img
+            &.v-enter-active,
+            &.v-leave-active
+              position: absolute
+              transition: opacity 200ms ease
+
+              &.v-enter-from,
+              &.v-leave-to
+                opacity: 0
 
           .icon
             margin: 0
             width: 3rem
             height: @width
+
+          img
+            max-width: 100%
+            max-height: 100%
+
+            &.hidden
+              opacity: 0
 
         footer
           padding: 0.75rem
