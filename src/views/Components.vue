@@ -362,7 +362,7 @@
         <h2>File Lists</h2>
         <p>This component is a fully fledged file browser that can display the contents of a folder and offers the ability for custom actions on the files.</p>
         <MbFileList :dark="dark" :file-actions="[{ action: previewFile, icon: 'folder-open', label: 'Open', filesOnly: true }, { disabled: true, icon: 'folder-open', label: 'Open', foldersOnly: true }, { action: moveEntity, icon: 'arrow-right', label: 'Move' }, { action: renameEntity, icon: 'text-input', label: 'Rename' }, { action: softDeleteFile, icon: 'trash', label: 'Delete', type: 'negative' }]" :folders-first="true" :folders-only="false" ref="fileList" root="/" show-hidden :action="{ callback: (path) => { currentPath = path; showEntityCreationModal = true; }, label: 'Add', icon: 'plus', type: 'positive'}" @fileclick="previewFile" />
-        <EntityCreationModal :dark="dark" :file-extension="['json', 'md', 'txt', 'yaml', 'zip']" :path="currentPath" :visible="showEntityCreationModal" @close="showEntityCreationModal = false" @entity-created="refreshFileList" />
+        <EntityCreationModal :dark="dark" :file-extension="['json', 'md', 'txt', 'yaml', 'zip', 'mp4']" :path="currentPath" :visible="showEntityCreationModal" @close="showEntityCreationModal = false" @entity-created="refreshFileList" />
         <EntityMoveModal :dark="dark" :old-path="entityBeingModified" :visible="showEntityMove" @close="showEntityMove = false" @after-close="entityBeingModified = null" @entity-moved="refreshFileList" />
         <EntityRenameModal :dark="dark" :old-path="entityBeingModified" :visible="showEntityRename" @close="showEntityRename = false" @after-close="entityBeingModified = null" @entity-renamed="refreshFileList" />
         <h3>Props</h3>
