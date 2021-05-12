@@ -14,7 +14,7 @@
     <MbModal v-if="isMobile" :dark="dark" :visible="showSplit" @after-close="$emit('split-closed')" @close="$emit('split-close')">
       <slot :is-modal="true" name="right" />
       <template #actions>
-        <MbButton :dark="dark" @click="$emit('split-close')">Cancel</MbButton>
+        <MbButton :dark="dark" @click="$emit('split-close')">Close</MbButton>
       </template>
     </MbModal>
   </main>
