@@ -58,7 +58,7 @@
               <span>{{prettyFilenames ? prettify(file.name) : file.name}}</span>
               <MbChip v-if="file.isDraft" color="accent" label="Draft" />
             </header>
-            <span class="meta">{{formattedUpdatedAt(file.updatedAt)}}</span>
+            <span class="meta">{{formattedUpdatedAt(file.updatedAt)}}, {{file.size}}, {{file.name.slice(file.name.lastIndexOf('.') + 1).toUpperCase()}}</span>
           </div>
           <MbButton v-if="modifiedFileActions.length > 1" :dark="dark" icon="more-vertical" rounded tooltip="More" @click="openMenu($event, joinPath(file.isDraft ? cleanDraftsDir : currentPath, file.name), file.isFolder)" />
           <MbButton v-else-if="modifiedFileActions.length === 1" :dark="dark" :icon="modifiedFileActions[0].icon" rounded :tooltip="modifiedFileActions[0].label" :type="modifiedFileActions[0].type" @click="executeAction(modifiedFileActions[0].action, joinPath(file.isDraft ? cleanDraftsDir : currentPath, file.name))" />
@@ -75,6 +75,7 @@ import { formatDistanceToNowStrict } from 'date-fns';
 import { debounce } from 'lodash-es';
 
 import fs, { pathDirname, joinPath } from '../fs';
+import humanReadableSize from '../assets/js/humanReadableSize';
 import prettifyEntityName from '../assets/js/prettifyEntityName';
 
 export default {
@@ -199,7 +200,7 @@ export default {
                   isFolder: false,
                   localChanges: this.$store.getters.hasLocalChanges(joinPath(this.cleanDraftsDir, name)),
                   name,
-                  size: draftStats[index].size,
+                  size: humanReadableSize(draftStats[index].size),
                   updatedAt: draftStats[index].mtimeMs,
                 });
               }
@@ -220,7 +221,7 @@ export default {
           isFolder: stats[index].isDirectory(),
           localChanges: this.$store.getters.hasLocalChanges(`${this.currentPath}/${name}`),
           name,
-          size: stats[index].size,
+          size: humanReadableSize(stats[index].size),
           updatedAt: stats[index].mtimeMs,
         })).concat(drafts);
 
