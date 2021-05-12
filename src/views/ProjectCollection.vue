@@ -1,8 +1,16 @@
 <template lang="html">
   <div class="collection">
     <h1>{{collection.name}}</h1>
-    <MbFileList v-if="typeof collection.dir !== 'undefined'" :action="action" :dark="dark" :drafts-dir="draftsDir" :empty-state="emptyState" :file-actions="fileActions" :file-list-label="fileListLabel" :filetypes="[collection.type]" pretty-filenames ref="fileList" :root="contentDir" @fileclick="handleFileClick" @list-change="listedFiles = $event.files" @path-change="currentPath = $event" />
-    <MbButton v-if="(userPermissions.has('everything') || userPermissions.has('createContent')) && listedFiles === 0" :dark="dark" icon="plus" type="positive" @click="createEntity">Create one</MbButton>
+    <template v-if="collection.dir">
+      <MbFileList v-if="typeof collection.dir !== 'undefined'" :action="action" :dark="dark" :drafts-dir="draftsDir" :empty-state="emptyState" :file-actions="fileActions" :file-list-label="fileListLabel" :filetypes="[collection.type]" pretty-filenames ref="fileList" :root="contentDir" @fileclick="handleFileClick" @list-change="listedFiles = $event.files" @path-change="currentPath = $event" />
+      <MbButton v-if="(userPermissions.has('everything') || userPermissions.has('createContent')) && listedFiles === 0" :dark="dark" icon="plus" type="positive" @click="createEntity">Create one</MbButton>
+    </template>
+    <div class="unconfigured-state" :class="{ dark }">
+      <h2>This Collection has no content directory</h2>
+      <p v-if="isPrivilegedUser">You can add one in the settings.</p>
+      <p v-else>A developer needs to add one in the settings.</p>
+      <MbButton v-if="isPrivilegedUser" :dark="dark" icon="wrench-and-driver" type="primary" @click="$router.push({ name: 'Project.Settings', params: { id: $route.params.id }, query: { tab: 'collections' }})">Configure now</MbButton>
+    </div>
     <EntityCreationModal :dark="dark" :file-content="typeof defaultCollectionContent !== 'string' ? JSON.stringify(defaultCollectionContent, null, 2) : defaultCollectionContent" :file-extension="collection.type" :only="createOnly" :path="{ file: draftsDir && collection.draftByDefault ? currentDraftsPath : currentPath, directory: currentPath }" :title="entityCreationTitle" :visible="showEntityCreation" @close="handleEntityCreationClose" @entity-created="handleEntityCreated" />
     <EntityMoveModal :dark="dark" :old-path="entityBeingModified" pretty-filenames :root="moveRootDir" :visible="showEntityMove" @close="showEntityMove = false; entityBeingModified = null" @entity-moved="handleEntityMoved" />
     <EntityRenameModal :dark="dark" :old-path="entityBeingModified" :visible="showEntityRename" @close="showEntityRename = false; entityBeingModified = null" @entity-renamed="handleEntityRenamed" />
@@ -21,6 +29,7 @@ import { rmrf } from '../fs/workerFS';
 import generateDefaultContentFromSchema from '../assets/js/generateDefaultContentFromSchema';
 import prettifyEntityName from '../assets/js/prettifyEntityName';
 
+import isPrivilegedUser from '../mixins/isPrivilegedUser';
 import updateLocallyChangedFiles from '../mixins/updateLocallyChangedFiles';
 
 import EntityCreationModal from '../components/utility/EntityCreationModal.vue';
@@ -414,7 +423,7 @@ export default {
       }
     },
   },
-  mixins: [updateLocallyChangedFiles],
+  mixins: [isPrivilegedUser, updateLocallyChangedFiles],
   props: {
     dark: Boolean,
   },
@@ -423,6 +432,7 @@ export default {
 
 <style lang="stylus" scoped>
 @require '../assets/styles/breakpoints'
+@require '../assets/styles/colors'
 
 .collection
   height: 100%
@@ -457,5 +467,23 @@ export default {
       display: flex
       margin-left: auto
       margin-right: auto
+
+  .unconfigured-state
+    text-align: center
+
+    &.dark
+      h2,
+      p
+        color: $text-secondary-dark
+
+    h2,
+    p
+      color: $text-secondary
+
+    h2
+      margin-top: 8rem
+
+    p
+      margin-bottom: 2rem
 
 </style>
