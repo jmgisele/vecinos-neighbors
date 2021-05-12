@@ -863,6 +863,9 @@ export default {
         @media $mobile
           width: 100%
 
+        &.active .thumbnail
+          box-shadow: inset 0 0 0 0.125rem $accent
+
         .thumbnail
           color: $text-dark
           height: 12rem
