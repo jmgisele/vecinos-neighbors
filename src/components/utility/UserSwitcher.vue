@@ -202,6 +202,7 @@ export default {
           email: this.newUserData.email.trim(),
           id: newUserId,
           name: this.newUserData.name.trim(),
+          projectAccessDates: {},
           projects: [],
         };
         await fs.writeFile(`/users/${newUserId}.json`, JSON.stringify(user, null, 2), 'utf8');
