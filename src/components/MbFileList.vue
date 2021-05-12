@@ -172,7 +172,7 @@ export default {
         },
       ],
       reverseOrder: false,
-      videoRegExp: /\.(mp4|avi|mkv|webm|ogv)$/i,
+      videoRegExp: /\.(mp4|avi|mkv|webm|ogv|mov|wmv)$/i,
     };
   },
   emits: ['fileclick', 'list-change', 'path-change'],
@@ -187,7 +187,7 @@ export default {
     }, 150),
     entityIcon(name) {
       if (this.imageRegExp.test(name)) return 'image';
-      if (this.videoRegExp.test(name)) return 'video';
+      if (this.videoRegExp.test(name)) return 'video-camera';
       if (this.archiveRegExp.test(name)) return 'folder-archive';
       return 'document';
     },
