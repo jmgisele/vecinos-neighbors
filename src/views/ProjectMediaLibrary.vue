@@ -86,6 +86,11 @@ import EntityRenameModal from '../components/utility/EntityRenameModal.vue';
 import TabContent from '../components/utility/TabContent.vue';
 
 export default {
+  beforeUnmount() {
+    window.removeEventListener('dragenter', this.handleWindowDragEnter);
+    window.removeEventListener('dragover', this.handleWindowDragOver);
+    window.removeEventListener('dragleave', this.handleWindowDragLeave);
+  },
   components: {
     EntityMoveModal,
     EntityRenameModal,
@@ -226,6 +231,11 @@ export default {
         ...(this.currentProject.media.permissions[role] || []),
       ]);
     },
+  },
+  created() {
+    window.addEventListener('dragenter', this.handleWindowDragEnter);
+    window.addEventListener('dragover', this.handleWindowDragOver);
+    window.addEventListener('dragleave', this.handleWindowDragLeave);
   },
   data() {
     return {
@@ -370,6 +380,24 @@ export default {
         type: null,
         width: null,
       };
+    },
+    handleWindowDragEnter(e) {
+      e.preventDefault();
+      if (!this.showEntityCreation || this.type === 'directory') {
+        this.type = 'upload';
+        this.showEntityCreation = true;
+      }
+    },
+    handleWindowDragLeave(e) {
+      e.preventDefault();
+
+      if (
+        this.showEntityCreation && this.type === 'upload'
+        && e.clientX === 0 && e.clientY === 0 // clientX and clientY are 0 if outside of the window
+      ) this.showEntityCreation = false;
+    },
+    handleWindowDragOver(e) {
+      e.preventDefault();
     },
     moveEntity(path) {
       this.entityBeingModified = path;
