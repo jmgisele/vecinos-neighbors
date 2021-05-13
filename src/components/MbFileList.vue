@@ -322,10 +322,12 @@ export default {
 
       if (this.pagination.totalPages === 0) { // first run
         this.pagination.totalPages = Math.ceil(this.files.length / this.pagination.pageSize);
-        const nextTarget = this.$refs.fileWrapper.$el.children[this.pagination.pageSize + 1];
+        const files = this.$refs.fileWrapper.$el.querySelectorAll('li:not(.v-leave-active)'); // we need only the new files, not those of the previous path (which are still leaving at this point)
+        const nextTarget = files[this.pagination.pageSize];
         if (nextTarget) this.observer.observe(nextTarget);
       } else if (this.pagination.currentPage < this.pagination.totalPages) {
-        const nextTarget = this.$refs.fileWrapper.$el.children[nextPage * this.pagination.pageSize + 1];
+        const files = this.$refs.fileWrapper.$el.querySelectorAll('li:not(.v-leave-active)'); // we need only the new files, not those of the previous path (which are still leaving at this point)
+        const nextTarget = files[nextPage * this.pagination.pageSize];
         if (nextTarget) this.observer.observe(nextTarget);
       }
 
