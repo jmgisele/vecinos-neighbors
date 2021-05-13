@@ -409,7 +409,7 @@ export default {
     },
     handleWindowDragEnter(e) {
       e.preventDefault();
-      if (!this.showEntityCreation || this.type === 'directory') {
+      if ((this.userPermissions.has('everything') || this.userPermissions.has('upload')) && (!this.showEntityCreation || this.type === 'directory')) {
         this.type = 'upload';
         this.showEntityCreation = true;
       }
