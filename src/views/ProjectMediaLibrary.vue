@@ -4,7 +4,7 @@
       <h1>Media Library</h1>
       <MbChip v-if="currentProject.media.advanced" label="Advanced" @mouseenter="$store.commit('setTooltip', { position: 'right', message: 'The advanced Media Library is active, metadata will be stored', target: $event.target })" />
     </header>
-    <TabContent :dark="dark" :show-split="showSplit" @split-close="showSplit = false" @split-closed="handleSplitClosed">
+    <TabContent :dark="dark" :show-split="showSplit" @split-close="entityBeingModified = null" @split-closed="handleSplitClosed">
       <MbFileList v-if="currentProject.media.dir" :action="action" :active-file="entityBeingModified" :dark="dark" :file-actions="fileActions" file-list-label="Media Files" folders-first pretty-filenames ref="fileList" :root="mediaDir" thumbnails @fileclick="handleFileClick" @list-change="listedFiles = $event.files" @path-change="currentPath = $event" />
       <div v-else class="unconfigured-state" :class="{ dark }">
         <h2>The Media Library hasn’t been configured yet</h2>
@@ -12,6 +12,7 @@
         <p v-else>A developer can do so in the project settings.</p>
         <MbButton v-if="isPrivilegedUser" :dark="dark" icon="wrench-and-driver" type="primary" @click="$router.push({ name: 'Project.Settings', params: { id: currentProject.id }, query: { tab: 'media' }})">Configure now</MbButton>
       </div>
+      <input type="file" ref="replaceFileInput" @change="handleReplaceFileInput">
 
       <template #right>
         <transition mode="out-in">
@@ -58,7 +59,8 @@
         </div>
         <div v-else class="dropzone" :class="{ dark, 'drag-active': dragActive }" @dragenter.prevent="dragActive = true" @dragover.prevent @dragleave="dragActive = false" @drop="handleDrop">
           <p>Drop image files here to upload them, or select some by clicking the button below</p>
-          <MbButton :dark="dark" icon="upload">Select files</MbButton>
+          <MbButton :dark="dark" icon="upload" @click="selectFiles('modalFileInput')">Select files</MbButton>
+          <input multiple type="file" ref="modalFileInput" @change="handleFileInput">
         </div>
       </transition>
       <template #actions>
@@ -308,16 +310,12 @@ export default {
         type: 'warning',
       });
     },
-    async handleDrop(e) {
+    handleDrop(e) {
       e.preventDefault();
       e.stopPropagation();
       const files = [...e.dataTransfer.files];
 
-      await this.saveFiles(files);
-
-      this.dragActive = false;
-      this.showEntityCreation = false;
-      this.$refs.fileList.refresh();
+      this.saveFiles(files);
     },
     async handleEntityMoved({ oldPath, newPath }) {
       this.$refs.fileList.refresh();
@@ -359,7 +357,6 @@ export default {
     handleFileClick(path, size, imageUrl) {
       if (this.entityBeingModified === path) {
         this.entityBeingModified = null;
-        this.showSplit = false;
         return;
       }
 
@@ -372,8 +369,35 @@ export default {
       this.fileDetails.type = this.fileDetails.name.slice(this.fileDetails.name.lastIndexOf('.') + 1).toUpperCase();
       this.fileDetails.size = size;
     },
-    handleSplitClosed() {
+    handleFileInput(e) {
+      this.saveFiles([...e.currentTarget.files]);
+      e.currentTarget.value = '';
+    },
+    async handleReplaceFileInput(e) {
+      const replacement = e.currentTarget.files[0];
+      e.currentTarget.value = '';
+
+      function getExtension(path) {
+        const filename = pathBasename(path);
+        return filename.slice((Math.max(0, filename.lastIndexOf('.')) || Infinity) + 1);
+      }
+
+      if (!replacement) {
+        this.$store.commit('addToast', { message: 'No file was selected, the replacement was aborted', type: 'warning' });
+      } else if (getExtension(this.entityBeingModified) !== getExtension(replacement.name)) {
+        this.$store.commit('addToast', { message: 'The file could not be replaced because the selected file isn’t of the same type', type: 'negative' });
+      } else {
+        try {
+          const arrayBuffer = await replacement.arrayBuffer();
+          fs.writeFile(this.entityBeingModified, arrayBuffer);
+          this.$refs.fileList.replaceThumbnail(this.entityBeingModified, URL.createObjectURL(replacement));
+        } catch (err) {
+          this.$store.commit('addToast', { message: `Something went wrong while replacing the file: ${err.message}`, type: 'error' });
+        }
+      }
       this.entityBeingModified = null;
+    },
+    handleSplitClosed() {
       this.fileDetails = {
         height: null,
         image: null,
@@ -411,8 +435,8 @@ export default {
     },
     replaceFile(path) {
       this.entityBeingModified = path;
-      // TODO: warn and abort if new file is not the same type as the old one
-      // TODO: find a way to refresh a single thumbnail
+      this.selectFiles('replaceFileInput');
+      // TODO: entityBeingModified doesn’t get reset when cancel is clicked in the dialog, but detecting that reliably is impossible. Maybe something will show up in the future
     },
     resetEntityCreation() {
       this.dragActive = false;
@@ -439,6 +463,13 @@ export default {
       } catch (err) {
         this.$store.commit('addToast', { message: `Something went wrong while saving files: ${err.message}`, type: 'error' });
       }
+
+      this.dragActive = false;
+      this.showEntityCreation = false;
+      this.$refs.fileList.refresh();
+    },
+    selectFiles(inputRef) {
+      this.$refs[inputRef].click();
     },
     setImageResolution(e) {
       const img = e.target;
@@ -462,6 +493,11 @@ export default {
   mixins: [isPrivilegedUser, updateLocallyChangedFiles],
   props: {
     dark: Boolean,
+  },
+  watch: {
+    entityBeingModified(nv) {
+      if (nv === null && this.showSplit) this.showSplit = false;
+    },
   },
 };
 </script>
@@ -554,6 +590,9 @@ export default {
 
       p
         margin-bottom: 2rem
+
+    input[type=file]
+      display: none
 
 .edit-file
   &.v-enter-active,
@@ -713,6 +752,9 @@ export default {
 
       &.dark
         color: $text-secondary-dark
+
+    input[type=file]
+      display: none
 
   .uploading
     padding: 2rem
