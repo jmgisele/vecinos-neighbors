@@ -14,9 +14,9 @@
       </div>
       <input type="file" ref="replaceFileInput" @change="handleReplaceFileInput">
 
-      <template #right>
+      <template #right="{ isModal }">
         <transition mode="out-in">
-          <div class="edit-file" :class="{ dark }" :key="entityBeingModified">
+          <div v-show="showSplit" class="edit-file" :class="{ dark }" :key="entityBeingModified">
             <div v-if="fileDetails.image" class="thumbnail">
               <img :src="fileDetails.image" :alt="fileDetails.alt || 'Error loading file'" @load="setImageResolution">
             </div>
@@ -39,6 +39,17 @@
               </dl>
             </dl>
             <div class="data">
+              <div v-if="currentProject.media.advanced && imageRegExp.test(entityBeingModified) && (userPermissions.has('everything') || userPermissions.has('editMedia'))" class="field-editor">
+                <p><strong>Todo:</strong> add a field editor for the custom fields and title and alt fields</p>
+              </div>
+              <MbHighlightBox v-if="userPermissions.has('everything') || userPermissions.has('editMedia')" class="replacement" :class="{ 'in-modal': isModal }" :dark="dark" label="Replace File">
+                <p>Replacing a file allows you to change its contents without having to update all content items that refer to it, since the path will remain unchanged.</p>
+                <MbButton :dark="dark" icon="replace-alt" @click="replaceFile">Replace</MbButton>
+              </MbHighlightBox>
+              <MbHighlightBox v-if="userPermissions.has('everything') || userPermissions.has('deleteMedia')" :class="{ 'in-modal': isModal }" color="negative" :dark="dark" label="Delete File">
+                <p>Please note that deleting a file will <strong>not</strong> remove it from content items that reference it! <strong>Make sure to update those as well</strong> to avoid broken links.</p>
+                <MbButton :dark="dark" icon="trash" type="negative" @click="deleteEntity(entityBeingModified)">Delete</MbButton>
+              </MbHighlightBox>
             </div>
           </div>
         </transition>
@@ -77,6 +88,7 @@
 import { debounce } from 'lodash-es';
 import slugify from '@sindresorhus/slugify';
 import fs, { joinPath, pathBasename } from '../fs';
+import { rmrf } from '../fs/workerFS';
 
 import humanReadableSize from '../assets/js/humanReadableSize';
 import prettifyEntityName from '../assets/js/prettifyEntityName';
@@ -287,8 +299,8 @@ export default {
       const isFile = (await fs.stat(path)).isFile();
       const timeoutId = window.setTimeout(async () => {
         try {
-          // await rmrf(path);
-          await this.$refs.fileList.refresh();
+          await rmrf(path);
+          if (this.$refs.fileList) await this.$refs.fileList.refresh();
           if (isFile) this.$store.commit('removeLocallyChangedFile', path);
           else this.$store.commit('removeLocallyChangedFolder', path);
           this.$store.dispatch('saveAppData');
@@ -300,6 +312,7 @@ export default {
         }
       }, timeout);
 
+      if (path === this.entityBeingModified) this.entityBeingModified = null;
       this.$store.commit('addToSoftDeleted', path);
       this.$store.commit('addToast', {
         action: () => {
@@ -451,7 +464,7 @@ export default {
       this.showEntityRename = true;
     },
     replaceFile(path) {
-      this.entityBeingModified = path;
+      if (typeof path === 'string') this.entityBeingModified = path;
       this.selectFiles('replaceFileInput');
       // TODO: entityBeingModified doesn’t get reset when cancel is clicked in the dialog, but detecting that reliably is impossible. Maybe something will show up in the future
     },
@@ -525,6 +538,7 @@ export default {
 @require '../assets/styles/corners'
 
 .media-library
+  user-select: none
   height: 100%
   display: flex
   flex-direction: column
@@ -710,9 +724,28 @@ export default {
         margin-bottom: 0.5rem
 
   .data
-    max-width: 40rem
+    max-width: 44rem
     margin-left: auto
     margin-right: auto
+    padding: 2rem
+
+    @media $mobile
+      padding-left: 0
+      padding-right: 0
+
+    .field-editor
+      margin-bottom:  4rem
+
+    .highlight-box
+      &.dark:not(.in-modal)
+        background-color: $bg-secondary-dark
+
+      .button
+        display: flex
+        margin-left: auto
+
+    .replacement
+      margin-bottom: 4rem
 
 .creation-modal
   .segmented-selector
