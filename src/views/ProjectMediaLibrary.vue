@@ -88,8 +88,9 @@ import TabContent from '../components/utility/TabContent.vue';
 export default {
   beforeUnmount() {
     window.removeEventListener('dragenter', this.handleWindowDragEnter);
-    window.removeEventListener('dragover', this.handleWindowDragOver);
+    window.removeEventListener('dragover', this.preventWindowDragEvent);
     window.removeEventListener('dragleave', this.handleWindowDragLeave);
+    window.removeEventListener('drop', this.preventWindowDragEvent);
   },
   components: {
     EntityMoveModal,
@@ -234,8 +235,9 @@ export default {
   },
   created() {
     window.addEventListener('dragenter', this.handleWindowDragEnter);
-    window.addEventListener('dragover', this.handleWindowDragOver);
+    window.addEventListener('dragover', this.preventWindowDragEvent);
     window.addEventListener('dragleave', this.handleWindowDragLeave);
+    window.addEventListener('drop', this.preventWindowDragEvent);
   },
   data() {
     return {
@@ -396,7 +398,7 @@ export default {
         && e.clientX === 0 && e.clientY === 0 // clientX and clientY are 0 if outside of the window
       ) this.showEntityCreation = false;
     },
-    handleWindowDragOver(e) {
+    preventWindowDragEvent(e) {
       e.preventDefault();
     },
     moveEntity(path) {
