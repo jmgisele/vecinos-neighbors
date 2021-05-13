@@ -384,7 +384,7 @@ export default {
       el.style.setProperty('left', `${el.dataset.offsetLeft}px`);
       el.style.setProperty('width', `${el.offsetWidth}px`);
       el.style.setProperty('height', `${el.offsetHeight}px`);
-      el.style.setProperty('margin-left', '0');
+      el.style.setProperty('margin', '0');
       el.style.setProperty('position', 'absolute');
     },
     setRowPosition(el) {
@@ -426,7 +426,7 @@ export default {
     updateFileOffsets: debounce(function () { // eslint-disable-line func-names
       this.$refs.fileWrapper.$el.querySelectorAll('.file').forEach((el) => {
         el.dataset.offsetLeft = el.offsetLeft; // eslint-disable-line no-param-reassign
-        el.dataset.offsettop = el.offsetTop; // eslint-disable-line no-param-reassign
+        el.dataset.offsetTop = el.offsetTop; // eslint-disable-line no-param-reassign
       });
     }),
   },
