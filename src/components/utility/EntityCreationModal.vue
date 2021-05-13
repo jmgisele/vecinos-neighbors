@@ -11,7 +11,7 @@
     <p class="name-hint" :class="{ dark, hidden: !name || nameError }">Will be created as: <strong>{{fullName}}</strong></p>
     <template #actions>
       <MbButton :dark="dark" @click="handleCancel">Cancel</MbButton>
-      <MbButton :dark="dark" :disabled="!name && Boolean(nameError)" type="primary" @click="createEntity">Create</MbButton>
+      <MbButton :dark="dark" :disabled="!name || Boolean(nameError)" type="primary" @click="createEntity">Create</MbButton>
     </template>
   </MbModal>
 </template>
