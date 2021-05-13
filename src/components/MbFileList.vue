@@ -923,6 +923,11 @@ export default {
               margin-left: 0.5rem
               flex-shrink: 0
 
+            .meta
+              text-overflow: ellipsis
+              overflow: hidden
+              display: block
+
           .button
             flex-shrink: 0
 
