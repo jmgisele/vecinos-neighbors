@@ -291,7 +291,7 @@ export default {
           this.$store.commit('removeFromSoftDeleted', path);
         },
         actionLabel: 'Undo',
-        message: isFile ? `The file “${prettifyEntityName(pathBasename(path))}” was deleted` : 'The folder and all file swithin have been deleted',
+        message: isFile ? `The file “${prettifyEntityName(pathBasename(path))}” was deleted` : 'The folder and all files within have been deleted',
         timeout: timeout - 200,
         type: 'warning',
       });
@@ -397,8 +397,8 @@ export default {
         const writePromises = [];
 
         files.forEach((file, index) => {
-          if (!arrayBuffers[index].value) this.$store.commit('addToast', { message: `The file “${file.name}” is a folder and was not uploaded`, type: 'warning' });
-          else if (existingFiles.includes(file.name)) this.$store.commit('addToast', { message: `The file “${file.name}” exists already in this folder and was not uploaded`, type: 'warning' });
+          if (!arrayBuffers[index].value) this.$store.commit('addToast', { message: `“${file.name}” was not uploaded because it is a folder`, type: 'warning' });
+          else if (existingFiles.includes(file.name)) this.$store.commit('addToast', { message: `The file “${file.name}” was not uploaded because it already exists in this folder`, type: 'warning' });
           else writePromises.push(fs.writeFile(joinPath(this.currentPath, file.name), arrayBuffers[index].value));
         });
 
