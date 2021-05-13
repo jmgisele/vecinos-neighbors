@@ -383,6 +383,12 @@ export default [
     label: 'Columns',
     options: [
       {
+        component: 'MbToggle',
+        key: 'allowEditing',
+        slot: 'Allow adding and deleting columns',
+        value: true,
+      },
+      {
         component: 'MbInput',
         key: 'itemLabel',
         props: { icon: 'tag', label: 'Label for the add and delete buttons' },
@@ -403,6 +409,12 @@ export default [
     key: '',
     label: 'Rows',
     options: [
+      {
+        component: 'MbToggle',
+        key: 'allowEditing',
+        slot: 'Allow adding and deleting rows',
+        value: true,
+      },
       {
         component: 'MbInput',
         key: 'itemLabel',
