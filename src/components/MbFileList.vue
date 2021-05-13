@@ -383,6 +383,11 @@ export default {
       this.pagination.totalPages = 0;
       await this.fetchData();
     },
+    replaceThumbnail(path, url) {
+      const oldUrl = this.imageCache.get(path);
+      if (oldUrl) URL.revokeObjectURL(oldUrl);
+      this.imageCache.set(path, url);
+    },
     setGridPosition(el) {
       el.style.setProperty('top', `${el.dataset.offsetTop}px`);
       el.style.setProperty('left', `${el.dataset.offsetLeft}px`);
