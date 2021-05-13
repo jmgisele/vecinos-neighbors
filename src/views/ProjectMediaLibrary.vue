@@ -78,6 +78,7 @@ import { debounce } from 'lodash-es';
 import slugify from '@sindresorhus/slugify';
 import fs, { joinPath, pathBasename } from '../fs';
 
+import humanReadableSize from '../assets/js/humanReadableSize';
 import prettifyEntityName from '../assets/js/prettifyEntityName';
 
 import isPrivilegedUser from '../mixins/isPrivilegedUser';
@@ -390,12 +391,20 @@ export default {
         try {
           const arrayBuffer = await replacement.arrayBuffer();
           fs.writeFile(this.entityBeingModified, arrayBuffer);
-          this.$refs.fileList.replaceThumbnail(this.entityBeingModified, URL.createObjectURL(replacement));
+          const newUrl = URL.createObjectURL(replacement);
+          this.$refs.fileList.replaceThumbnail(this.entityBeingModified, newUrl);
+          this.$store.commit('addLocallyChangedFile', this.entityBeingModified);
+          if (this.showSplit) {
+            this.fileDetails.width = null; // need to reset these here before the image / file has a chance to load
+            this.fileDetails.height = null; // need to reset these here before the image / file has a chance to load
+            this.fileDetails.image = newUrl;
+            this.fileDetails.name = pathBasename(this.entityBeingModified);
+            this.fileDetails.size = humanReadableSize(replacement.size);
+          } else this.entityBeingModified = null;
         } catch (err) {
           this.$store.commit('addToast', { message: `Something went wrong while replacing the file: ${err.message}`, type: 'error' });
         }
       }
-      this.entityBeingModified = null;
     },
     handleSplitClosed() {
       this.fileDetails = {
