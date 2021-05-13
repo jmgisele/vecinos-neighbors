@@ -5,7 +5,7 @@
       <MbChip v-if="currentProject.media.advanced" label="Advanced" @mouseenter="$store.commit('setTooltip', { position: 'right', message: 'The advanced Media Library is active, metadata will be stored', target: $event.target })" />
     </header>
     <TabContent :dark="dark" :show-split="showSplit" @split-close="showSplit = false" @split-closed="handleSplitClosed">
-      <MbFileList v-if="currentProject.media.dir" :action="action" :active-file="fileBeingModified" :dark="dark" :file-actions="fileActions" folders-first pretty-filenames ref="fileList" :root="mediaDir" thumbnails @fileclick="handleFileClick" @list-change="listedFiles = $event.files" @path-change="currentPath = $event" />
+      <MbFileList v-if="currentProject.media.dir" :action="action" :active-file="entityBeingModified" :dark="dark" :file-actions="fileActions" file-list-label="Media Files" folders-first pretty-filenames ref="fileList" :root="mediaDir" thumbnails @fileclick="handleFileClick" @list-change="listedFiles = $event.files" @path-change="currentPath = $event" />
       <div v-else class="unconfigured-state" :class="{ dark }">
         <h2>The Media Library hasn’t been configured yet</h2>
         <p v-if="isPrivilegedUser">You can do so in the project settings.</p>
@@ -15,7 +15,7 @@
 
       <template #right>
         <transition mode="out-in">
-          <div class="edit-file" :class="{ dark }" :key="fileBeingModified">
+          <div class="edit-file" :class="{ dark }" :key="entityBeingModified">
             <div v-if="fileDetails.image" class="thumbnail">
               <img :src="fileDetails.image" :alt="fileDetails.alt || 'Error loading file'" @load="setImageResolution">
             </div>
@@ -43,39 +43,195 @@
         </transition>
       </template>
     </TabContent>
+
+    <EntityMoveModal :dark="dark" :old-path="entityBeingModified" pretty-filenames :root="mediaDir" :visible="showEntityMove" @close="showEntityMove = false; if (!showSplit) entityBeingModified = null" @entity-moved="handleEntityMoved" />
+    <EntityRenameModal :dark="dark" :old-path="entityBeingModified" :visible="showEntityRename" @close="showEntityRename = false; if (!showSplit) entityBeingModified = null" @entity-renamed="handleEntityRenamed" />
+    <MbModal class="creation-modal" :dark="dark" :permanent="type === 'uploading'" :title="action && action.label !== 'Add' ? action.label : 'Add new…'" :visible="showEntityCreation" @after-close="resetEntityCreation" @close="showEntityCreation = false">
+      <MbSegmentedSelector v-if="userPermissions.has('everything') || (userPermissions.has('upload') && userPermissions.has('createFolder'))" v-model="type" :dark="dark" :options="[{ label: 'Upload', value: 'upload' }, { label: 'Folder', value: 'directory' }]" />
+      <transition mode="out-in">
+        <div v-if="type === 'directory'" class="input-group">
+          <MbInput v-model="newFolderName" :dark="dark" :error="newFolderError" icon="folder-add" label="Name" :max-len="255" ref="nameInput" @keyup.ctrl.enter="createFolder" @update:model-value="validateNewFolderName" />
+          <p class="name-hint" :class="{ dark, hidden: !newFolderName || newFolderError }">Will be created as: <strong>{{slugifiedNewFolderName}}</strong></p>
+        </div>
+        <div v-else-if="type === 'uploading'" class="uploading">
+          <MbLoader />
+        </div>
+        <div v-else class="dropzone" :class="{ dark, 'drag-active': dragActive }" @dragenter.prevent="dragActive = true" @dragover.prevent @dragleave="dragActive = false" @drop="handleDrop">
+          <p>Drop image files here to upload them, or select some by clicking the button below</p>
+          <MbButton :dark="dark" icon="upload">Select files</MbButton>
+        </div>
+      </transition>
+      <template #actions>
+        <MbButton :dark="dark" :disabled="type === 'uploading'" @click="showEntityCreation = false">Cancel</MbButton>
+        <transition>
+          <MbButton v-if="type === 'directory'" :dark="dark" :disabled="!newFolderName || Boolean(newFolderError)" type="primary" @click="createFolder">Create</MbButton>
+        </transition>
+      </template>
+    </MbModal>
   </div>
 </template>
 
 <script>
-import { joinPath, pathBasename } from '../fs';
+import { debounce } from 'lodash-es';
+import slugify from '@sindresorhus/slugify';
+import fs, { joinPath, pathBasename } from '../fs';
+
+import prettifyEntityName from '../assets/js/prettifyEntityName';
 
 import isPrivilegedUser from '../mixins/isPrivilegedUser';
+import updateLocallyChangedFiles from '../mixins/updateLocallyChangedFiles';
 
+import EntityMoveModal from '../components/utility/EntityMoveModal.vue';
+import EntityRenameModal from '../components/utility/EntityRenameModal.vue';
 import TabContent from '../components/utility/TabContent.vue';
 
 export default {
   components: {
+    EntityMoveModal,
+    EntityRenameModal,
     TabContent,
   },
   computed: {
     action() {
-      return {};
+      if (this.userPermissions.has('everything') || this.userPermissions.has('createFolder') || this.userPermissions.has('upload')) {
+        let label;
+        if (this.userPermissions.has('everything') || (this.userPermissions.has('createFolder') && this.userPermissions.has('upload'))) label = 'Add';
+        else if (this.userPermissions.has('createFolder')) label = 'Add folder';
+        else if (this.userPermissions.has('upload')) label = 'Upload files';
+
+        return {
+          callback: () => { this.showEntityCreation = true; },
+          label,
+          icon: label.includes('Add') ? 'plus' : 'upload',
+          iconFirst: true,
+          type: 'primary',
+        };
+      }
+      return null;
     },
     currentProject() {
       return this.$store.state.currentProject;
     },
     fileActions() {
-      return [
-      ];
+      const actions = [];
+
+      if (this.userPermissions.has('everything')) {
+        actions.push(
+          {
+            action: this.replaceFile,
+            label: 'Replace',
+            icon: 'replace-alt',
+            filesOnly: true,
+          },
+          {
+            action: this.renameEntity,
+            label: 'Rename',
+            icon: 'text-input',
+          },
+          {
+            action: this.moveEntity,
+            label: 'Move',
+            icon: 'arrow-right',
+          },
+        );
+
+        // so delete is always last
+        actions.push(
+          {
+            action: this.deleteEntity,
+            label: 'Delete',
+            icon: 'trash',
+            type: 'negative',
+          },
+        );
+
+        return actions;
+      }
+
+      if (this.userPermissions.has('editMedia')) {
+        actions.push(
+          {
+            action: this.replaceFile,
+            label: 'Replace',
+            icon: 'replace-alt',
+            filesOnly: true,
+          },
+          {
+            action: this.renameEntity,
+            label: 'Rename',
+            icon: 'text-input',
+            filesOnly: !this.userPermissions.has('editFolder'),
+          },
+          {
+            action: this.moveEntity,
+            label: 'Move',
+            icon: 'arrow-right',
+            filesOnly: !this.userPermissions.has('editFolder'),
+          },
+        );
+      } else if (this.userPermissions.has('editFolder')) {
+        actions.push(
+          {
+            action: this.renameEntity,
+            label: 'Rename',
+            icon: 'text-input',
+            foldersOnly: true,
+          },
+          {
+            action: this.moveEntity,
+            label: 'Move',
+            icon: 'arrow-right',
+            foldersOnly: true,
+          },
+        );
+      }
+
+      if (this.userPermissions.has('deleteMedia')) {
+        actions.push(
+          {
+            action: this.deleteEntity,
+            label: 'Delete',
+            icon: 'trash',
+            type: 'negative',
+            filesOnly: !this.userPermissions.has('deleteFolder'),
+          },
+        );
+      } else if (this.userPermissions.has('deleteFolder')) {
+        actions.push(
+          {
+            action: this.deleteEntity,
+            label: 'Delete',
+            icon: 'trash',
+            type: 'negative',
+            foldersOnly: true,
+          },
+        );
+      }
+
+      return actions;
     },
     mediaDir() {
       return joinPath('/projects', this.currentProject.id, this.currentProject.media.dir);
+    },
+    slugifiedNewFolderName() {
+      return slugify(this.newFolderName, this.$store.state.currentProject.slugifyOptions || { lowercase: false, decamelize: false, preserveLeadingUnderscore: true });
+    },
+    userPermissions() {
+      if (!this.currentProject.media.permissions || !this.$store.getters.userInCurrentProject) return new Set();
+
+      const { role } = this.$store.getters.userInCurrentProject;
+
+      return new Set([
+        ...(this.currentProject.media.permissions.everybody || []),
+        ...(this.currentProject.media.permissions[role] || []),
+      ]);
     },
   },
   data() {
     return {
       currentPath: '/',
-      fileBeingModified: null,
+      dragActive: false,
+      entityBeingModified: null,
       fileDetails: {
         height: null,
         image: null,
@@ -85,18 +241,117 @@ export default {
         width: null,
       },
       listedFiles: 0,
+      newFolderError: '',
+      newFolderName: '',
+      showEntityCreation: false,
+      showEntityMove: false,
+      showEntityRename: false,
       showSplit: false,
+      type: 'upload',
     };
   },
   methods: {
+    async createFolder() {
+      await this.validateNewFolderName();
+
+      if (this.newFolderError) return;
+
+      const { newFolderName: name, currentPath: path } = this;
+
+      try {
+        await fs.mkdir(joinPath(path, name));
+        this.$refs.fileList.refresh();
+        this.showEntityCreation = false;
+      } catch (err) {
+        this.$store.commit('addToast', { message: `Something went wrong while creating the directory: ${err.message}`, type: 'error' });
+      }
+    },
+    async deleteEntity(path) {
+      const timeout = 5000;
+      const isFile = (await fs.stat(path)).isFile();
+      const timeoutId = window.setTimeout(async () => {
+        try {
+          // await rmrf(path);
+          await this.$refs.fileList.refresh();
+          if (isFile) this.$store.commit('removeLocallyChangedFile', path);
+          else this.$store.commit('removeLocallyChangedFolder', path);
+          this.$store.dispatch('saveAppData');
+        } catch (err) {
+          this.$store.commit('addToast', { message: `Something went wrong while deleting the ${isFile ? 'schema' : 'folder'}: ${err.message}`, type: 'error' });
+        } finally {
+          window.clearTimeout(timeoutId);
+          this.$store.commit('removeFromSoftDeleted', path);
+        }
+      }, timeout);
+
+      this.$store.commit('addToSoftDeleted', path);
+      this.$store.commit('addToast', {
+        action: () => {
+          window.clearTimeout(timeoutId);
+          this.$store.commit('removeFromSoftDeleted', path);
+        },
+        actionLabel: 'Undo',
+        message: isFile ? `The file “${prettifyEntityName(pathBasename(path))}” was deleted` : 'The folder and all file swithin have been deleted',
+        timeout: timeout - 200,
+        type: 'warning',
+      });
+    },
+    async handleDrop(e) {
+      e.preventDefault();
+      e.stopPropagation();
+      const files = [...e.dataTransfer.files];
+
+      await this.saveFiles(files);
+
+      this.dragActive = false;
+      this.showEntityCreation = false;
+      this.$refs.fileList.refresh();
+    },
+    async handleEntityMoved({ oldPath, newPath }) {
+      this.$refs.fileList.refresh();
+      this.entityBeingModified = null;
+
+      const isFile = (await fs.stat(newPath)).isFile();
+
+      if (isFile) {
+        this.$store.commit('removeLocallyChangedFile', oldPath);
+        this.$store.commit('addLocallyChangedFile', newPath);
+      } else { // we moved a directory
+        this.$store.commit('removeLocallyChangedFolder', oldPath);
+        try {
+          await this.updateLocallyChangedFiles(newPath);
+        } catch (err) {
+          this.$store.commit('addToast', { message: `Something went wrong while updating locally changed files: ${err.message}`, type: 'error' });
+        }
+      }
+      this.$store.dispatch('saveAppData');
+    },
+    async handleEntityRenamed({ oldPath, newPath }) {
+      this.$refs.fileList.refresh();
+      this.entityBeingModified = null;
+
+      const isFile = (await fs.stat(newPath)).isFile();
+
+      if (isFile) {
+        this.$store.commit('removeLocallyChangedFile', oldPath);
+        this.$store.commit('addLocallyChangedFile', newPath);
+      } else {
+        this.$store.state.application.locallyChangedFiles.forEach((path) => {
+          this.$store.commit('removeLocallyChangedFile', path);
+          this.$store.commit('addLocallyChangedFile', path.replace(oldPath, newPath));
+        });
+      }
+
+      this.$store.dispatch('saveAppData');
+    },
     handleFileClick(path, size, imageUrl) {
-      if (this.fileBeingModified === path) {
-        this.fileBeingModified = null;
+      if (this.entityBeingModified === path) {
+        this.entityBeingModified = null;
         this.showSplit = false;
         return;
       }
 
-      this.fileBeingModified = path;
+      this.entityBeingModified = path;
       this.showSplit = true;
       this.fileDetails.width = null; // need to reset these here before the image / file has a chance to load
       this.fileDetails.height = null; // need to reset these here before the image / file has a chance to load
@@ -106,6 +361,7 @@ export default {
       this.fileDetails.size = size;
     },
     handleSplitClosed() {
+      this.entityBeingModified = null;
       this.fileDetails = {
         height: null,
         image: null,
@@ -115,13 +371,65 @@ export default {
         width: null,
       };
     },
+    moveEntity(path) {
+      this.entityBeingModified = path;
+      this.showEntityMove = true;
+    },
+    renameEntity(path) {
+      this.entityBeingModified = path;
+      this.showEntityRename = true;
+    },
+    replaceFile(path) {
+      this.entityBeingModified = path;
+      // TODO: warn and abort if new file is not the same type as the old one
+      // TODO: find a way to refresh a single thumbnail
+    },
+    resetEntityCreation() {
+      this.dragActive = false;
+      this.newFolderError = '';
+      this.newFolderName = '';
+      this.type = 'upload';
+    },
+    async saveFiles(files) {
+      try {
+        const arrayBuffers = await Promise.allSettled(files.map((file) => file.arrayBuffer()));
+        const existingFiles = await fs.readdir(this.currentPath);
+        const writePromises = [];
+
+        files.forEach((file, index) => {
+          if (!arrayBuffers[index].value) this.$store.commit('addToast', { message: `The file “${file.name}” is a folder and was not uploaded`, type: 'warning' });
+          else if (existingFiles.includes(file.name)) this.$store.commit('addToast', { message: `The file “${file.name}” exists already in this folder and was not uploaded`, type: 'warning' });
+          else writePromises.push(fs.writeFile(joinPath(this.currentPath, file.name), arrayBuffers[index].value));
+        });
+
+        await Promise.all(writePromises);
+
+        files.forEach((file) => this.$store.commit('addLocallyChangedFile', joinPath(this.currentPath, file.name)));
+        await this.$store.dispatch('saveAppData');
+      } catch (err) {
+        this.$store.commit('addToast', { message: `Something went wrong while saving files: ${err.message}`, type: 'error' });
+      }
+    },
     setImageResolution(e) {
       const img = e.target;
       this.fileDetails.width = img.naturalWidth;
       this.fileDetails.height = img.naturalHeight;
     },
+    validateNewFolderName: debounce(async function () { // eslint-disable-line func-names
+      let existingEntities = [];
+      try {
+        existingEntities = await fs.readdir(this.currentPath);
+      } catch (err) {
+        // don’t do anything, it’ll fail and be handled when trying to create
+      }
+
+      if (!this.slugifiedNewFolderName) this.newFolderError = 'A name is required';
+      else if (this.slugifiedNewFolderName.length > 255) this.newFolderError = 'Name is too long';
+      else if (existingEntities.length > 0 && existingEntities.includes(this.slugifiedNewFolderName)) this.newFolderError = 'A folder with this name already exists';
+      else this.newFolderError = '';
+    }, 250, { leading: true }),
   },
-  mixins: [isPrivilegedUser],
+  mixins: [isPrivilegedUser, updateLocallyChangedFiles],
   props: {
     dark: Boolean,
   },
@@ -319,5 +627,64 @@ export default {
     max-width: 40rem
     margin-left: auto
     margin-right: auto
+
+.creation-modal
+  .segmented-selector
+    margin-bottom: 2rem
+
+  .input-group,
+  .dropzone,
+  .button
+    &.v-enter-active,
+    &.v-leave-active
+      transition: opacity 200ms ease
+
+      &.v-enter-from,
+      &.v-leave-to
+        opacity: 0
+
+  .input-group
+    .input
+      width: 100%
+      margin-bottom: 0.5rem
+
+    .name-hint
+      color: $text-secondary
+      margin: 0
+      font-size: 0.875rem
+      transition: opacity 200ms ease
+
+      &.dark
+        color: $text-secondary-dark
+
+      &.hidden
+        opacity: 0
+
+  .dropzone
+    border: 0.125rem dashed $accent-secondary
+    padding: 2rem
+    text-align: center
+    border-radius: $radius-l
+
+    &.drag-active
+      background-color: $bg-secondary
+
+      &.dark
+        background-color: $bg-secondary-dark
+
+      .button
+        visibility: hidden
+
+    p
+      color: $text-secondary
+      margin-top: 0
+      margin-bottom: 2rem
+      pointer-events: none
+
+      &.dark
+        color: $text-secondary-dark
+
+  .uploading
+    padding: 2rem
 
 </style>
