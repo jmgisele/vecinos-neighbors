@@ -7,7 +7,7 @@
     <p class="name-hint" :class="{ dark, hidden: !name || nameError }">Will be renamed to: <strong>{{fullName}}</strong></p>
     <template #actions>
       <MbButton :dark="dark" @click="$emit('close')">Cancel</MbButton>
-      <MbButton :dark="dark" :disabled="!name && Boolean(nameError)" type="primary" @click="renameEntity">Rename</MbButton>
+      <MbButton :dark="dark" :disabled="!name || Boolean(nameError)" type="primary" @click="renameEntity">Rename</MbButton>
     </template>
   </MbModal>
 </template>
@@ -69,7 +69,7 @@ export default {
     validateName: debounce(async function () { // eslint-disable-line func-names
       let existingEntities = [];
       try {
-        existingEntities = await fs.readdir(this.path);
+        existingEntities = await fs.readdir(pathDirname(this.oldPath));
       } catch (err) {
         // don’t do anything, it’ll fail and be handled when trying to rename
       }
