@@ -255,6 +255,7 @@ export default {
         type: null,
         width: null,
       },
+      imageRegExp: /\.(gif|jpg|jpeg|tiff|png|webp|svg)$/i,
       listedFiles: 0,
       newFolderError: '',
       newFolderName: '',
@@ -390,15 +391,22 @@ export default {
       } else {
         try {
           const arrayBuffer = await replacement.arrayBuffer();
+          const isImage = this.imageRegExp.test(this.entityBeingModified);
+          let newUrl;
           fs.writeFile(this.entityBeingModified, arrayBuffer);
-          const newUrl = URL.createObjectURL(replacement);
-          this.$refs.fileList.replaceThumbnail(this.entityBeingModified, newUrl);
           this.$store.commit('addLocallyChangedFile', this.entityBeingModified);
+
+          if (isImage) {
+            newUrl = URL.createObjectURL(replacement);
+            this.$refs.fileList.replaceThumbnail(this.entityBeingModified, newUrl);
+          }
+
           if (this.showSplit) {
-            this.fileDetails.width = null; // need to reset these here before the image / file has a chance to load
-            this.fileDetails.height = null; // need to reset these here before the image / file has a chance to load
-            this.fileDetails.image = newUrl;
-            this.fileDetails.name = pathBasename(this.entityBeingModified);
+            if (isImage) {
+              this.fileDetails.width = null; // need to reset these here before the image / file has a chance to load
+              this.fileDetails.height = null; // need to reset these here before the image / file has a chance to load
+              this.fileDetails.image = newUrl;
+            }
             this.fileDetails.size = humanReadableSize(replacement.size);
           } else this.entityBeingModified = null;
         } catch (err) {
