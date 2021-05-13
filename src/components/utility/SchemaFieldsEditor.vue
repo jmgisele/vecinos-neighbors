@@ -247,6 +247,11 @@ export default {
             icon: 'pencil',
           },
           {
+            action: this.handleContextMenuDuplicate,
+            label: 'Duplicate',
+            icon: 'duplicate',
+          },
+          {
             action: this.handleContextMenuDelete,
             label: 'Delete',
             icon: 'trash',
@@ -340,6 +345,20 @@ export default {
         type: 'warning',
       });
     },
+    duplicateField(field) {
+      if (!field) return;
+      const fieldPath = this.getFieldPath(field, this.fields);
+
+      if (!fieldPath) return; // the field is not valid / doesn’t exist
+
+      const parentField = this.getField(fieldPath.substring(0, Math.max(0, fieldPath.lastIndexOf('.')) || Infinity));
+
+      const parentFieldFields = fieldPath === parentField.key ? this.fields : parentField.value;
+      const index = parentFieldFields.indexOf(field);
+      const duplicate = cloneDeep(parentFieldFields[index]);
+      duplicate.key = this.generateUniqueFieldKey(parentFieldFields, duplicate.key);
+      parentFieldFields.splice(index + 1, 0, duplicate);
+    },
     extractFieldKeys(fields, parent) {
       return fields.reduce((acc, field) => {
         if (Array.isArray(field.value)) acc.push(...this.extractFieldKeys(field.value, parent ? `${parent}.${field.key}` : field.key));
@@ -408,6 +427,10 @@ export default {
     },
     handleContextMenuDelete() {
       this.deleteField(this.fieldContextMenu.field);
+      this.fieldContextMenu.show = false;
+    },
+    handleContextMenuDuplicate() {
+      this.duplicateField(this.fieldContextMenu.field);
       this.fieldContextMenu.show = false;
     },
     handleContextMenuEdit() {
