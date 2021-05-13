@@ -67,14 +67,14 @@ export default {
           filesOnly: true,
         },
         {
-          action: this.moveEntity,
-          label: 'Move',
-          icon: 'arrow-right',
-        },
-        {
           action: this.renameFolder,
           label: 'Rename',
           icon: 'text-input',
+        },
+        {
+          action: this.moveEntity,
+          label: 'Move',
+          icon: 'arrow-right',
         },
         {
           action: this.deleteEntity,
