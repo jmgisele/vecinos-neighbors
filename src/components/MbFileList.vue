@@ -379,6 +379,8 @@ export default {
       return prettifyEntityName(name);
     },
     async refresh() {
+      this.pagination.currentPage = 0;
+      this.pagination.totalPages = 0;
       await this.fetchData();
     },
     setGridPosition(el) {
@@ -419,6 +421,11 @@ export default {
 
       // OPTIMIZE: this could probably be factored into the sort above to avoid iterating over everything twice, but all the solutions I could come up with were much less readable, so I went with this instead
       if (!this.foldersFirst || !this.foldersOnly) this[type].sort((a, b) => b.isFolder - a.isFolder); // we want folders listed before files, but in the same list
+
+      if (this.thumbnails) {
+        this.pagination.currentPage = 0; // reset pagination
+        this.fetchThumbnails(); // and fetch thumbnails again since the observers broke when shuffling everything around
+      }
     },
     updateOffsets: debounce(function () { // eslint-disable-line func-names
       this.$refs.folderWrapper.$el.querySelectorAll('.folder').forEach((el) => {
