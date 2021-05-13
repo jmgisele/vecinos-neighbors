@@ -10,7 +10,7 @@
         <MbButton :dark="dark" :disabled="!wasChanged" icon="save" :icon-first="true" :loading="saveLoading" type="primary" @click="saveChanges">{{isTablet && !isMobile ? '' : 'Save'}}</MbButton>
       </div>
     </header>
-    <MbTabs v-model="activeTab" :dark="dark" show-add-option :tabs="cleanTabs" @add-tab="showEditTab = true" />
+    <MbTabs v-model="activeTab" :dark="dark" show-add-option :tabs="cleanTabs" @add-tab="resetTabBeingEdited(); showEditTab = true" @contextmenu.prevent="handleTabContextMenu" />
     <SchemaFieldsEditor v-model="schema.fields" :active-tab="activeTab" :dark="dark" :project-id="$route.params.id" show-generate-button :tabs="cleanTabs" @generate-click="generateSchema.show = true" @update:active-tab="activeTab = $event" @update:model-value="wasChanged = true" />
     <MbModal class="edit-tab-modal" :dark="dark" slim :title="tabBeingEdited.index !== null ? 'Edit Tab' : 'Add Tab'" :visible="showEditTab" @close="showEditTab = false" @after-close="resetTabBeingEdited" @after-open="!tabBeingEdited.data.label && $refs.tabLabelInput.focus()">
       <MbInput v-model="tabBeingEdited.data.label" :dark="dark" :error="errors.tabLabel" icon="tag" label="Tab label" ref="tabLabelInput" @blur="showEditTab && validate('tabLabel')" @keyup.ctrl.enter="saveTab" />
@@ -37,7 +37,7 @@
           <MbIcon icon="pencil" />
         </div>
       </MbSortableList>
-      <MbButton class="add-tab-button" :dark="dark" icon="plus" type="positive" @click="showEditTab = true">Add Tab</MbButton>
+      <MbButton class="add-tab-button" :dark="dark" icon="plus" type="positive" @click="resetTabBeingEdited(); showEditTab = true">Add Tab</MbButton>
       <MbHighlightBox color="negative" :dark="dark" label="Danger Zone">
         <p>Deleting a Schema that is still used for content items will cause them to not be displayed correctly. Please make sure to only delete this schema, if you know what you’re doing.</p>
         <MbButton class="delete-tab-button" :dark="dark" icon="trash" type="negative" @click="deleteSchema">Delete Schema</MbButton>
@@ -59,6 +59,7 @@
         <MbButton :dark="dark" :disabled="!generateSchema.file" :loading="generateSchema.loading" type="primary" @click="generateSchemaFromFile">Generate</MbButton>
       </template>
     </MbModal>
+    <MbContextMenu :dark="dark" :options="tabContextMenuOptions" :show="tabContextMenu.show" :target="tabContextMenu.target" :x="tabContextMenu.x" :y="tabContextMenu.y" @close="handleTabContextMenuClose" />
   </div>
 </template>
 
@@ -184,6 +185,21 @@ export default {
       if (this.fileStatus !== 'unmodified') return { color: 'warning', message: 'local changes' };
       return { color: 'positive', message: 'synchronised' };
     },
+    tabContextMenuOptions() {
+      const options = [
+        {
+          action: () => {
+            if (this.tabBeingEdited.data.groupAs) this.enableGroupAs = true;
+            this.showEditTab = true;
+          },
+          label: 'Edit',
+          icon: 'pencil',
+        },
+      ];
+
+      if (this.schema.tabs && this.schema.tabs.length > 1) options.push({ action: this.deleteTab, label: 'Delete', icon: 'trash', type: 'negative' }); // eslint-disable-line object-curly-newline
+      return options;
+    },
   },
   data() {
     return {
@@ -220,6 +236,12 @@ export default {
           label: '',
           groupAs: '',
         },
+      },
+      tabContextMenu: {
+        show: false,
+        target: null,
+        x: 0,
+        y: 0,
       },
       wasChanged: false,
     };
@@ -329,6 +351,29 @@ export default {
       };
       if (data.groupAs) this.enableGroupAs = true;
       this.showEditTab = true;
+    },
+    handleTabContextMenu(e) {
+      if (!e.target || typeof e.target.dataset.index === 'undefined') return;
+
+      const index = Number.parseInt(e.target.dataset.index, 10);
+      const data = this.schema.tabs[index];
+      this.tabBeingEdited = {
+        index,
+        data: { ...data },
+      };
+
+      this.tabContextMenu.target = e.target;
+      this.tabContextMenu.x = e.clientX;
+      this.tabContextMenu.y = e.clientY;
+      this.tabContextMenu.show = true;
+    },
+    async handleTabContextMenuClose() {
+      await this.$nextTick(); // wait a tick so the context menu handler has time to fire
+      // this.resetTabBeingEdited();
+      this.tabContextMenu.target = null;
+      this.tabContextMenu.x = 0;
+      this.tabContextMenu.y = 0;
+      this.tabContextMenu.show = false;
     },
     handleTabMove({ activeItem, index, isBottomHalf }) {
       const currentIndex = this.schema.tabs.indexOf(activeItem);
