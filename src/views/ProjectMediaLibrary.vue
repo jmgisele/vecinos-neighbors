@@ -4,7 +4,7 @@
       <h1>Media Library</h1>
       <MbChip v-if="currentProject.media.advanced" label="Advanced" @mouseenter="$store.commit('setTooltip', { position: 'right', message: 'The advanced Media Library is active, metadata will be stored', target: $event.target })" />
     </header>
-    <TabContent :dark="dark" :show-split="showSplit" @split-close="showSplit = false">
+    <TabContent :dark="dark" :show-split="showSplit" @split-close="showSplit = false" @split-closed="handleSplitClosed">
       <MbFileList v-if="currentProject.media.dir" :action="action" :active-file="fileBeingModified" :dark="dark" :file-actions="fileActions" folders-first pretty-filenames ref="fileList" :root="mediaDir" thumbnails @fileclick="handleFileClick" @list-change="listedFiles = $event.files" @path-change="currentPath = $event" />
       <div v-else class="unconfigured-state" :class="{ dark }">
         <h2>The Media Library hasn’t been configured yet</h2>
@@ -19,7 +19,7 @@
             <div v-if="fileDetails.image" class="thumbnail">
               <img :src="fileDetails.image" :alt="fileDetails.alt || 'Error loading file'" @load="setImageResolution">
             </div>
-            <dl class="meta">
+            <dl v-show="fileDetails.name" class="meta">
               <dl>
                 <dt>Name:</dt>
                 <dd>{{fileDetails.name}}</dd>
@@ -218,6 +218,14 @@ export default {
         margin-bottom: 2rem
 
 .edit-file
+  &.v-enter-active,
+  &.v-leave-active
+    transition: opacity 200ms ease
+
+    &.v-enter-from,
+    &.v-leave-to
+      opacity: 0
+
   &.dark
     .thumbnail
       background-image: linear-gradient(to right, rgba(0,0,0,0.9), rgba(0,0,0,0.9)), linear-gradient(to right, black 50%, white 50%), linear-gradient(to bottom, black 50%, white 50%)
