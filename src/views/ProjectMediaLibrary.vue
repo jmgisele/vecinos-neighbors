@@ -379,7 +379,7 @@ export default {
         const mediaMetaDir = joinPath('/projects', this.currentProject.id, '.mattrbld', 'media');
         const pathInMediaDir = path.replace(this.mediaDir, '');
         try {
-          const metadata = JSON.parse(await fs.readFile(joinPath(mediaMetaDir, pathInMediaDir), 'utf8'));
+          const metadata = JSON.parse(await fs.readFile(joinPath(mediaMetaDir, `${pathInMediaDir}.json`), 'utf8'));
           this.fileDetails.meta = metadata;
         } catch (err) {
           if (err.code !== 'ENOENT') this.$store.commit('addToast', { message: `Something went wrong while reading the metadata for this file: ${err.message}`, type: 'error' });
@@ -529,9 +529,12 @@ export default {
       this.fileDetails.width = img.naturalWidth;
       this.fileDetails.height = img.naturalHeight;
     },
-    async updateMediaMetaFile(newMeta) {
-      console.log(newMeta);
-    },
+    updateMediaMetaFile: debounce(async function (newMeta) { // eslint-disable-line func-names
+      const mediaMetaDir = joinPath('/projects', this.currentProject.id, '.mattrbld', 'media');
+      const pathInMediaDir = this.entityBeingModified.replace(this.mediaDir, '');
+      this.fileDetails.meta = newMeta;
+      await fs.writeFile(joinPath(mediaMetaDir, `${pathInMediaDir}.json`), JSON.stringify(newMeta, null, 2), 'utf8');
+    }, 500),
     validateNewFolderName: debounce(async function () { // eslint-disable-line func-names
       let existingEntities = [];
       try {
