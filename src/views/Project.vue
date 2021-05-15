@@ -1,6 +1,10 @@
 <template lang="html">
   <div class="project">
-    <router-view :dark="dark" @push="openChangesModal" />
+    <router-view v-slot="{ Component }">
+      <transition mode="out-in">
+        <component class="subview" :dark="dark" :is="Component" :key="$route.name" @push="openChangesModal" />
+      </transition>
+    </router-view>
     <ProjectSidebar :dark="dark" :git-status="gitStatus" @git-status-click="handleGitStatusClick" />
     <GitLoginModal :dark="dark" :message="gitLoginMessage" :visible="showGitLoginModal" @cancel="credentialPromise('cancel')" @submit="credentialPromise" />
     <MbModal class="error-modal" :dark="dark" title="Oops…" :visible="showGitErrorModal" @close="showGitErrorModal = false">
@@ -530,6 +534,15 @@ export default {
 
   @media $mobile
     height: "calc(100vh - %s)" % (82 / 16)rem
+
+  .subview
+    &.v-enter-active,
+    &.v-leave-active
+      transition: opacity 200ms ease
+
+      &.v-enter-from,
+      &.v-leave-to
+        opacity: 0
 
 .error-modal
   p
