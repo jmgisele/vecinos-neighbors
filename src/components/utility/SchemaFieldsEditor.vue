@@ -90,7 +90,7 @@
           </div>
           <MbToggle v-if="typeof fieldBeingEdited.validation.enforceMinMax !== 'undefined' && (fieldBeingEdited.validation.min || fieldBeingEdited.validation.max)" v-model="fieldBeingEdited.validation.enforceMinMax" :dark="dark">Enforce minimum / maximum {{fieldBeingEdited.validation.unit}}</MbToggle>
           <div v-if="fieldBeingEdited.validation && typeof fieldBeingEdited.validation.regex !== 'undefined'" class="input-row">
-            <MbInput v-model.lazy="fieldBeingEdited.validation.regex" :dark="dark" label="Regular expression (optional)" @update:model-value="validateField('regex')" />
+            <MbInput v-model.lazy="fieldBeingEdited.validation.regex" :dark="dark" :error="fieldErrors.regex" label="Regular expression (optional)" @update:model-value="validateField('regex')" />
             <MbInput v-show="fieldBeingEdited.validation.regex" v-model.lazy="fieldBeingEdited.validation.regexError" :dark="dark" label="Error message (optional)" />
           </div>
         </section>
@@ -101,8 +101,8 @@
           <div v-if="flattenedFieldKeys.length > 1 && !fieldBeingEdited.visibility.hidden && fieldBeingEdited.visibility.showByValue" class="conditional-wrapper">
             <span>Show if</span>
             <MbSelect v-model="fieldBeingEdited.visibility.showByValue.field" :dark="dark" :options="flattenedFieldKeys" placeholder="Field…" />
-            <MbSelect v-model="fieldBeingEdited.visibility.showByValue.value" allow-null class="operator" :dark="dark" :options="showByValueOptions" placeholder="Condition…" />
-            <MbInput v-if="fieldBeingEdited.visibility.showByValue.value === 'matches'" v-model.lazy="fieldBeingEdited.visibility.showByValue.comparator" :dark="dark" placeholder="Regular expression" />
+            <MbSelect v-model="fieldBeingEdited.visibility.showByValue.value" allow-null class="operator" :dark="dark" :options="showByValueOptions" placeholder="Condition…" @update:model-value="validateField('comparatorRegex')" />
+            <MbInput v-if="fieldBeingEdited.visibility.showByValue.value === 'matches'" v-model.lazy="fieldBeingEdited.visibility.showByValue.comparator" :error="fieldErrors.comparatorRegex" :dark="dark" placeholder="Regular expression" @update:model-value="validateField('comparatorRegex')" />
             <MbInput v-else-if="['equals', 'greater', 'smaller'].includes(fieldBeingEdited.visibility.showByValue.value)" v-model.lazy.number="fieldBeingEdited.visibility.showByValue.comparator" :dark="dark" placeholder="Number" type="number" />
           </div>
         </section>
@@ -474,6 +474,7 @@ export default {
           key: '',
           label: '',
           regex: '',
+          comparatorRegex: '',
         };
       }
       if (!this.showSplit) this.showSplit = true;
@@ -601,6 +602,15 @@ export default {
             if (this.fieldBeingEdited.validation && this.fieldBeingEdited.validation.regex) {
               try {
                 new RegExp(this.fieldBeingEdited.validation.regex); // eslint-disable-line no-new
+              } catch (err) {
+                error = 'Invalid regular expression';
+              }
+            }
+            break;
+          case 'comparatorRegex':
+            if (this.fieldBeingEdited.visibility && this.fieldBeingEdited.visibility.showByValue && this.fieldBeingEdited.visibility.showByValue.value === 'matches' && this.fieldBeingEdited.visibility.showByValue.comparator) {
+              try {
+                new RegExp(this.fieldBeingEdited.visibility.showByValue.comparator); // eslint-disable-line no-new
               } catch (err) {
                 error = 'Invalid regular expression';
               }
