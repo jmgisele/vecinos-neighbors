@@ -3,13 +3,20 @@
     <template v-for="field in visibleFields" :key="field.key">
       <component
         v-model="model[field.key]"
-        v-model:error="errors[field.key]"
+        :children="field.value"
+        :compact="compact"
+        :dark="dark"
+        :default="field.default"
         :display-field="field.displayField"
+        :error="errors.get(field.key)"
+        :in-split="inSplit"
         :is="componentForType(field.type)"
         :label="field.label"
+        :languages="languages"
         :localised="field.localised"
         :options="field.options"
         :validation="field.validation"
+        @update:error="$event ? errors.set(field.key, $event) : errors.delete(field.key)"
       />
     </template>
   </div>
@@ -27,19 +34,25 @@ const components = requireComponent.keys().reduce((acc, path) => {
   const componentConfig = requireComponent(path);
   const componentName = path.split('/').pop().replace(/\.\w+$/, '');
   acc[componentName] = componentConfig.default || componentConfig; // eslint-disable-line no-param-reassign
-  return components;
+  return acc;
 }, {});
 
 export default {
   components,
   computed: {
+    languages() {
+      const languagesField = this.fields.find((field) => field.type === 'languages');
+
+      if (languagesField) return this.model[languagesField.key];
+      return this.$store.state.currentProject.languages;
+    },
     visibleFields() {
       const currentUser = this.$store.getters.userInCurrentProject || {};
 
       return this.fields.filter((field) => (
-        !field.hidden
-        && (!field.limitToRoles || field.limitToRoles.find((role) => role.value === currentUser.role))
-        && (!field.showByValue || !field.showByValue.field || this.fieldShouldBeVisible(field.showByValue))
+        !field.visibility.hidden
+        && (!field.visibility.limitToRoles || field.visibility.limitToRoles.find((role) => role.value === currentUser.role))
+        && (!field.visibility.showByValue || !field.visibility.showByValue.field || this.fieldShouldBeVisible(field.visibility.showByValue))
       ));
     },
   },
@@ -49,7 +62,7 @@ export default {
   },
   data() {
     return {
-      errors: {},
+      errors: new Map(),
       externalChange: false,
       internalChange: false,
       model: {},
@@ -57,7 +70,10 @@ export default {
   },
   methods: {
     componentForType(type) {
-      return fieldTypeToComponent(type);
+      const componentName = fieldTypeToComponent(type);
+
+      if (componentName && this.$options.components && this.$options.components[componentName]) return componentName;
+      return 'UnknownField';
     },
     fieldShouldBeVisible({ comparator, field, value }) { // field is actually a path to a field in the Schema, comparator is a number or string to compare the field value to
       const valueToCompare = _get(this.model, field);
@@ -89,6 +105,7 @@ export default {
   name: 'MbFieldsEditor',
   props: {
     dark: Boolean,
+    compact: Boolean,
     fields: Array,
     inSplit: Boolean,
     modelValue: Object,
@@ -102,7 +119,7 @@ export default {
           return;
         }
 
-        this.updateModelValue();
+        if (!this.errors.size) this.updateModelValue();
       },
     },
     modelValue: {
@@ -122,4 +139,7 @@ export default {
 </script>
 
 <style lang="stylus" scoped>
+.fields-editor
+  .field:not(:last-child)
+    margin-bottom: 2rem
 </style>
