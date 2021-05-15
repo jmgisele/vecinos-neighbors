@@ -66,7 +66,11 @@ export default {
       // if it’s a string things get a little more complex
       switch (value) {
         case 'matches':
-          return userInputToRegex(comparator).test(valueToCompare);
+          try {
+            return userInputToRegex(comparator).test(valueToCompare);
+          } catch (err) {
+            return false; // if there’s an error, it’s because the supplied regex was invalid so we default to not showing the field
+          }
         case 'equals':
           return valueToCompare === comparator;
         case 'smaller':
