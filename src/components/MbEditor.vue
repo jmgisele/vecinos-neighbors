@@ -94,6 +94,7 @@ export default {
       return 'Document Block';
     },
     cleanValue() {
+      if (!this.modelValue) return '';
       if (this.allowNewLines) return this.modelValue;
       return this.modelValue.replace(/\n+/g, ' ');
     },
@@ -146,7 +147,7 @@ export default {
       return mac;
     },
     overlength() {
-      if (this.outputFormat === 'text') return this.modelValue.length > this.maxLen;
+      if (this.outputFormat === 'text') return this.modelValue && this.modelValue.length > this.maxLen;
       return this.contentLength > this.maxLen;
     },
     paragraphTypes() {
