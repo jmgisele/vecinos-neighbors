@@ -1,4 +1,6 @@
-export default function generateDefaultContentFromSchema(schema) {
+import { v4 as uuidv4 } from 'uuid';
+
+export default function generateDefaultContentFromSchema(schema, filepath) {
   if (!schema.fields) return {};
 
   function assembleContent(fields, toplevel) {
@@ -9,8 +11,11 @@ export default function generateDefaultContentFromSchema(schema) {
 
       let value;
       if (field.type === 'group') value = assembleContent(field.value);
-      else if (field.type === 'id') value = null; // it gets set when the content is first edited
-      else if (field.type === 'date' && field.options.defaultToNow) value = field.options.outputFormat === 'iso' ? new Date().toISOString() : Date.now();
+      else if (field.type === 'id') {
+        if (field.options && field.options.type === 'filepath') value = filepath || null; // we need to fall back to null here because undefined fields don’t get saved
+        else if (field.options && field.options.type === 'uuid') value = uuidv4();
+        else value = null;
+      } else if (field.type === 'date' && field.options.defaultToNow) value = field.options.outputFormat === 'iso' ? new Date().toISOString() : Date.now();
       else value = field.default;
 
       // check if field is toplevel and in tab with groupAs → put field under that, otherwise put field in object

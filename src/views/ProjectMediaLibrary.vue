@@ -387,7 +387,7 @@ export default {
             try {
               const mediaMetaDirExists = await exists(joinPath(mediaMetaDir, pathDirname(pathInMediaDir)));
               if (!mediaMetaDirExists) await mkdirp(joinPath(mediaMetaDir, pathDirname(pathInMediaDir)));
-              const defaultMeta = generateDefaultContentFromSchema({ fields: this.currentProject.media.customFields });
+              const defaultMeta = generateDefaultContentFromSchema({ fields: this.currentProject.media.customFields }, path.replace(`/projects/${this.currentProject.id}`, ''));
               await fs.writeFile(joinPath(mediaMetaDir, `${pathInMediaDir}.json`), JSON.stringify(defaultMeta, null, 2), 'utf8');
               this.fileDetails.meta = defaultMeta;
             } catch (innerErr) {
