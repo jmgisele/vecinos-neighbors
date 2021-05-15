@@ -65,6 +65,67 @@ export default {
       },
       set(v) {
         this.$store.commit('setCurrentProjectProperty', { key: 'media.advanced', value: v });
+        if (!this.currentProject.media.customFields || this.currentProject.media.customFields.length === 0) {
+          const defaultFields = [
+            {
+              type: 'text',
+              default: null,
+              icon: 'text-input',
+              key: 'alt',
+              label: 'Alternative Text',
+              localised: false,
+              options: {
+                wrapping: true,
+                multiline: false,
+              },
+              validation: {
+                enforceMinMax: true,
+                max: null,
+                min: null,
+                regex: null,
+                regexError: null,
+                required: false,
+                unit: 'length',
+              },
+              value: null,
+              visibility: {
+                hidden: false,
+                showByValue: {
+                  field: null,
+                },
+              },
+            },
+            {
+              type: 'text',
+              default: null,
+              icon: 'text-input',
+              key: 'title',
+              label: 'Title',
+              localised: false,
+              options: {
+                wrapping: true,
+                multiline: false,
+              },
+              validation: {
+                enforceMinMax: true,
+                max: null,
+                min: null,
+                regex: null,
+                regexError: null,
+                required: false,
+                unit: 'length',
+              },
+              value: null,
+              visibility: {
+                hidden: false,
+                showByValue: {
+                  field: null,
+                },
+              },
+            },
+          ];
+          this.$store.commit('setCurrentProjectProperty', { key: 'media.customFields', value: defaultFields });
+        }
         this.$store.dispatch('saveCurrentProject');
       },
     },
