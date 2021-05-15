@@ -69,7 +69,7 @@
             <MbSelect v-model="fieldBeingEdited.displayField" :dark="dark" :options="childFieldKeys" placeholder="Select a field…" />
           </div>
           <MbToggle v-if="typeof fieldBeingEdited.localised !== 'undefined'" v-model="fieldBeingEdited.localised" :dark="dark">Enable localisation for this field</MbToggle>
-          <p v-if="typeof fieldBeingEdited.default !== 'undefined'"><strong>Todo:</strong> insert an actual field of this type here with the options of <code>fieldBeingEdited</code> to set a default! (Except replace "label" prop with "Default Value")</p>
+          <p v-if="typeof fieldBeingEdited.default !== 'undefined'"><strong>Todo:</strong> insert an actual field of this type here with the options of <code>fieldBeingEdited</code> to set a default! (Except replace "label" prop with "Default Value" and make sure its always removable)</p>
         </section>
         <section v-if="availableFieldOptions.has(fieldBeingEdited.type)">
           <h3>Field Configuration</h3>
