@@ -39,9 +39,7 @@
               </dl>
             </dl>
             <div class="data">
-              <div v-if="currentProject.media.advanced && imageRegExp.test(entityBeingModified) && (userPermissions.has('everything') || userPermissions.has('editMedia'))" class="field-editor">
-                <p><strong>Todo:</strong> add a field editor for the custom fields and title and alt fields</p>
-              </div>
+              <MbFieldsEditor v-if="currentProject.media.advanced && imageRegExp.test(entityBeingModified) && (userPermissions.has('everything') || userPermissions.has('editMedia'))" :dark="dark" compact :fields="currentProject.media.customFields" in-split :model-value="fileDetails.meta" @update:model-value="updateMediaMetaFile" />
               <MbHighlightBox v-if="userPermissions.has('everything') || userPermissions.has('editMedia')" class="replacement" :class="{ 'in-modal': isModal }" :dark="dark" label="Replace File">
                 <p>Replacing a file allows you to change its contents without having to update all content items that refer to it, since the path will remain unchanged.</p>
                 <MbButton :dark="dark" icon="replace-alt" @click="replaceFile">Replace</MbButton>
@@ -87,9 +85,10 @@
 <script>
 import { debounce } from 'lodash-es';
 import slugify from '@sindresorhus/slugify';
-import fs, { joinPath, pathBasename } from '../fs';
+import fs, { exists, joinPath, mkdirp, pathBasename, pathDirname } from '../fs'; // eslint-disable-line object-curly-newline
 import { rmrf } from '../fs/workerFS';
 
+import generateDefaultContentFromSchema from '../assets/js/generateDefaultContentFromSchema';
 import humanReadableSize from '../assets/js/humanReadableSize';
 import prettifyEntityName from '../assets/js/prettifyEntityName';
 
@@ -262,6 +261,7 @@ export default {
       fileDetails: {
         height: null,
         image: null,
+        meta: null,
         name: null,
         size: null,
         type: null,
@@ -369,10 +369,32 @@ export default {
 
       this.$store.dispatch('saveAppData');
     },
-    handleFileClick(path, size, imageUrl) {
+    async handleFileClick(path, size, imageUrl) {
       if (this.entityBeingModified === path) {
         this.entityBeingModified = null;
         return;
+      }
+
+      if (this.currentProject.media.advanced && this.imageRegExp.test(path) && (this.userPermissions.has('everything') || this.userPermissions.has('editMedia'))) {
+        const mediaMetaDir = joinPath('/projects', this.currentProject.id, '.mattrbld', 'media');
+        const pathInMediaDir = path.replace(this.mediaDir, '');
+        try {
+          const metadata = JSON.parse(await fs.readFile(joinPath(mediaMetaDir, pathInMediaDir), 'utf8'));
+          this.fileDetails.meta = metadata;
+        } catch (err) {
+          if (err.code !== 'ENOENT') this.$store.commit('addToast', { message: `Something went wrong while reading the metadata for this file: ${err.message}`, type: 'error' });
+          else {
+            try {
+              const mediaMetaDirExists = await exists(joinPath(mediaMetaDir, pathDirname(pathInMediaDir)));
+              if (!mediaMetaDirExists) await mkdirp(joinPath(mediaMetaDir, pathDirname(pathInMediaDir)));
+              const defaultMeta = generateDefaultContentFromSchema({ fields: this.currentProject.media.customFields });
+              await fs.writeFile(joinPath(mediaMetaDir, `${pathInMediaDir}.json`), JSON.stringify(defaultMeta, null, 2), 'utf8');
+              this.fileDetails.meta = defaultMeta;
+            } catch (innerErr) {
+              this.$store.commit('addToast', { message: `Something went wrong while creating the metadata file: ${innerErr.message}`, type: 'error' });
+            }
+          }
+        }
       }
 
       this.entityBeingModified = path;
@@ -431,6 +453,7 @@ export default {
       this.fileDetails = {
         height: null,
         image: null,
+        meta: null,
         name: null,
         size: null,
         type: null,
@@ -505,6 +528,9 @@ export default {
       const img = e.target;
       this.fileDetails.width = img.naturalWidth;
       this.fileDetails.height = img.naturalHeight;
+    },
+    async updateMediaMetaFile(newMeta) {
+      console.log(newMeta);
     },
     validateNewFolderName: debounce(async function () { // eslint-disable-line func-names
       let existingEntities = [];
@@ -733,7 +759,7 @@ export default {
       padding-left: 0
       padding-right: 0
 
-    .field-editor
+    .fields-editor
       margin-bottom:  4rem
 
     .highlight-box
