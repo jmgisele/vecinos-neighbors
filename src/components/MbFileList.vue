@@ -200,7 +200,11 @@ export default {
     },
     debouncedSearch: debounce(function (v) { // eslint-disable-line func-names
       this.searchTerm = v;
-    }, 150),
+      if (this.thumbnails) {
+        this.pagination.currentPage = 0;
+        this.fetchThumbnails();
+      }
+    }, 250),
     entityIcon(name) {
       if (this.imageRegExp.test(name)) return 'image';
       if (this.videoRegExp.test(name)) return 'video-camera';
@@ -311,7 +315,7 @@ export default {
 
       const nextPage = this.pagination.currentPage + 1;
 
-      const entities = this.files.slice(this.pagination.currentPage * this.pagination.pageSize, nextPage * this.pagination.pageSize);
+      const entities = this.filteredFiles.slice(this.pagination.currentPage * this.pagination.pageSize, nextPage * this.pagination.pageSize);
       const images = entities.reduce((acc, entity) => {
         const path = joinPath(this.currentPath, entity.name);
         if (!entity.isFolder && this.imageRegExp.test(entity.name) && !this.imageCache.has(path)) acc.push(path);
@@ -321,7 +325,7 @@ export default {
       images.forEach((path, i) => this.imageCache.set(path, URL.createObjectURL(new Blob([imageData[i]], path.endsWith('.svg') ? { type: 'image/svg+xml' } : undefined))));
 
       if (this.pagination.totalPages === 0) { // first run
-        this.pagination.totalPages = Math.ceil(this.files.length / this.pagination.pageSize);
+        this.pagination.totalPages = Math.ceil(this.filteredFiles.length / this.pagination.pageSize);
         const files = this.$refs.fileWrapper.$el.querySelectorAll('li:not(.v-leave-active)'); // we need only the new files, not those of the previous path (which are still leaving at this point)
         const nextTarget = files[this.pagination.pageSize];
         if (nextTarget) this.observer.observe(nextTarget);
