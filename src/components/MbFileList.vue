@@ -359,7 +359,6 @@ export default {
     },
     openFolder(name, e) {
       if (e && e.target.classList.contains('button')) return; // buttons have a ::before that covers them completely, so this is enough
-      this.searchTerm = '';
       this.currentPath = joinPath(this.currentPath, name);
     },
     openMenu(e, path, isFolder) {
@@ -500,6 +499,7 @@ export default {
     currentPath(nv, ov) {
       if (nv !== ov) {
         this.leaving = true; // to short-circuit the leave-transition by hiding the container element when thumbnails is true
+        this.searchTerm = '';
         if (this.observer) {
           this.observer.disconnect();
           this.observer = null;
