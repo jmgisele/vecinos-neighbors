@@ -681,7 +681,10 @@ export default {
       }),
     },
     maxLen: Number,
-    modelValue: String,
+    modelValue: {
+      type: String,
+      default: '',
+    },
     outputFormat: {
       type: String,
       default: 'text',
