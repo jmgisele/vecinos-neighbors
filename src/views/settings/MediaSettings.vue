@@ -13,7 +13,7 @@
           <MbInput v-model="outputPath" :dark="dark" placeholder="e.g. /uploads" />
         </div>
         <h3>Permissions</h3>
-        <MbPermissionsList v-model="permissions" :permissions="availablePermissions" :roles="roles" />
+        <MbPermissionsList v-model="permissions" :dark="dark" :permissions="availablePermissions" :roles="roles" />
       </section>
       <section class="wrapper">
         <h2>Advanced Media Library</h2>
