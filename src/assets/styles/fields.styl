@@ -1,0 +1,95 @@
+@require 'colors'
+@require 'corners'
+
+.localised-container
+  display: flex
+  align-items: center
+  background-color: $bg-secondary
+  border-radius: $radius-m
+  padding: 1rem
+  overflow: hidden
+  cursor: pointer
+  position: relative
+  transition: background-color 200ms ease
+
+  &.dark
+    background-color: $bg-secondary-dark
+
+    &.in-split
+      background-color: $bg-tertiary-dark
+
+      &:hover
+        background-color: lighten($bg-tertiary-dark, 5)
+
+      &:active
+        background-color: $bg-secondary-dark
+
+    &:hover
+      background-color: $bg-tertiary-dark
+
+    &:active
+      background-color: $bg-dark
+
+    .left
+      .label
+        color: $text-secondary-dark
+
+      .content.empty
+        color: $text-tertiary-dark
+
+  &.error
+    &::before
+      border-color: $negative
+      opacity: 1
+
+    .left .label,
+    .icon
+      color: $negative-saturated
+
+  &:hover
+    background-color: $bg-tertiary
+
+  &:focus-visible,
+  &:active
+    &::before
+      opacity: 1
+
+  &:active
+    transform: translateY(0.125rem)
+    background-color: $bg
+
+  &::before
+    content: ''
+    position: absolute
+    top: 0px
+    left: @top
+    right: @top
+    bottom: @top
+    border: 0.125rem solid $accent
+    opacity: 0
+    border-radius: inherit
+    z-index: 1
+    pointer-events: none
+    transition: opacity 200ms ease
+
+  .left
+    margin-right: 1rem
+    overflow: hidden
+
+    > p
+      margin-top: 0
+      margin-bottom: 0
+      white-space: nowrap
+      text-overflow: ellipsis
+      overflow: hidden
+
+    .label
+      font-size: 0.875rem
+      color: $text-secondary
+
+    .content.empty
+      color: $text-tertiary
+
+  .icon
+    flex-shrink: 0
+    margin-left: auto
