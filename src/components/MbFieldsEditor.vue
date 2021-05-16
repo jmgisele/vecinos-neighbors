@@ -15,6 +15,7 @@
         :languages="languages"
         :localised="field.localised"
         :options="field.options"
+        :split-target="splitTarget"
         :validation="field.validation"
         @update:error="$event ? errors.set(field.key, $event) : errors.delete(field.key)"
       />
@@ -109,6 +110,7 @@ export default {
     fields: Array,
     inSplit: Boolean,
     modelValue: Object,
+    splitTarget: HTMLElement,
   },
   watch: {
     model: {
@@ -140,6 +142,12 @@ export default {
 
 <style lang="stylus" scoped>
 .fields-editor
-  .field:not(:last-child)
-    margin-bottom: 2rem
+  overflow: hidden
+
+  .field
+    &.text:first-child // so the label is still visible even when it’s floating
+      margin-top: 2rem
+
+    &:not(:last-child)
+      margin-bottom: 2rem
 </style>
