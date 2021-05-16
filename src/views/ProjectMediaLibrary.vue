@@ -389,6 +389,8 @@ export default {
               if (!mediaMetaDirExists) await mkdirp(joinPath(mediaMetaDir, pathDirname(pathInMediaDir)));
               const defaultMeta = generateDefaultContentFromSchema({ fields: this.currentProject.media.customFields }, path.replace(`/projects/${this.currentProject.id}`, ''));
               await fs.writeFile(joinPath(mediaMetaDir, `${pathInMediaDir}.json`), JSON.stringify(defaultMeta, null, 2), 'utf8');
+              this.$store.commit('addLocallyChangedFile', joinPath(mediaMetaDir, `${pathInMediaDir}.json`));
+              this.$store.dispatch('saveAppData');
               this.fileDetails.meta = defaultMeta;
             } catch (innerErr) {
               this.$store.commit('addToast', { message: `Something went wrong while creating the metadata file: ${innerErr.message}`, type: 'error' });
@@ -534,6 +536,8 @@ export default {
       const pathInMediaDir = this.entityBeingModified.replace(this.mediaDir, '');
       this.fileDetails.meta = newMeta;
       await fs.writeFile(joinPath(mediaMetaDir, `${pathInMediaDir}.json`), JSON.stringify(newMeta, null, 2), 'utf8');
+      this.$store.commit('addLocallyChangedFile', joinPath(mediaMetaDir, `${pathInMediaDir}.json`));
+      this.$store.dispatch('saveAppData');
     }, 500),
     validateNewFolderName: debounce(async function () { // eslint-disable-line func-names
       let existingEntities = [];
