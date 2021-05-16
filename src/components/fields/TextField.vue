@@ -4,10 +4,10 @@
       <MbEditor v-if="options && (options.wrapping || options.multiline)" :allow-new-lines="options && options.multiline" :dark="dark" :error="error" :label="label" :max-len="(validation && validation.max) || null" :model-value="modelValue" @update:model-value="handleInput" />
       <MbInput v-else :dark="dark" :error="error" :label="label" :max-len="(validation && validation.max) || null" :model-value="modelValue" @update:model-value="handleInput" />
     </template>
-    <div v-else class="field-group" @click="showModal = true">
+    <div v-else class="localised-container" :class="{ dark, error, 'in-split': inSplit }" tabindex="0" @click="showModal = true" @keyup.enter.space="showModal = true" @keydown.space.prevent>
       <div class="left">
-        <span class="label">{{label}}</span>
-        <span class="content">{{modelValue && modelValue[languages[0]]}}</span>
+        <p class="label">{{errorMessage || `${label} (localised)`}}</p>
+        <p class="content" :class="{ empty: !firstLocalisedValue }">{{firstLocalisedValue || 'Not set'}}</p>
       </div>
       <teleport :disabled="!teleportTarget" :to="teleportTarget">
         <template v-for="lang in languages" :key="lang">
@@ -15,9 +15,12 @@
           <MbInput v-else :dark="dark" :error="error && error[lang]" :label="lang" :max-len="(validation && validation.max) || null" :model-value="modelValue && modelValue[lang]" @update:model-value="handleInput($event, lang)" />
         </template>
       </teleport>
-      <MbIcon icon="pencil" />
-      <MbModal :dark="dark" :title="label" :visible="showModal" @close="showModal = false">
+      <MbIcon :icon="error ? 'error' : 'pencil'" />
+      <MbModal :dark="dark" :title="`${label} (localised)`" :visible="showModal" @close="showModal = false" @after-close="handleModalClose">
         <div class="modal-body" ref="modalBody" />
+        <template #actions>
+          <MbButton :dark="dark" type="primary" @click="showModal = false">Done</MbButton>
+        </template>
       </MbModal>
     </div>
   </section>
@@ -30,6 +33,18 @@ import field from '../../mixins/field';
 
 export default {
   computed: {
+    errorMessage() {
+      if (this.error && typeof this.error === 'string') return this.error;
+      if (this.error && Object.values(this.error).some((value) => value)) return 'One or more subfields have errors';
+      return '';
+    },
+    firstLocalisedValue() {
+      if (typeof this.modelValue === 'string') return this.modelValue;
+      if (this.modelValue) {
+        return Object.values(this.modelValue).find((value) => value) || '';
+      }
+      return '';
+    },
     teleportTarget() {
       if (!this.inSplit && this.splitTarget) return this.splitTarget;
       return this.modalBody;
@@ -49,9 +64,27 @@ export default {
 
         this.$emit('update:modelValue', newValue);
       } else {
-        if (error || (this.error && this.error[lang])) this.$emit('update:error', { ...this.error, [lang]: error });
+        if (error || (this.error && this.error[lang])) {
+          if (error) this.$emit('update:error', { ...this.error, [lang]: error });
+          else if (Object.keys(this.error).every((key) => key === lang || !this.error[key])) this.$emit('update:error', ''); // so it can be cleared
+          else this.$emit('update:error', { ...this.error, [lang]: error });
+        }
         this.$emit('update:modelValue', { ...this.modelValue, [lang]: newValue });
       }
+    },
+    handleModalClose() {
+      const errors = {};
+      let hasErrors = false;
+      this.languages.forEach((lang) => {
+        const error = this.validate((this.modelValue && this.modelValue[lang]) || '');
+        if (error) {
+          hasErrors = true;
+          errors[lang] = error;
+        }
+      });
+      if (hasErrors) this.$emit('update:error', errors);
+      else this.$emit('update:error', '');
+      this.showModal = false;
     },
     validate(value) {
       if (!this.validation) return '';
@@ -83,6 +116,7 @@ export default {
 <style lang="stylus" scoped>
 @require '../../assets/styles/colors'
 @require '../../assets/styles/corners'
+@require '../../assets/styles/fields'
 
 .text.field
   &.in-split.dark
