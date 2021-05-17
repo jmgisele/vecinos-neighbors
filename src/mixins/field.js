@@ -9,6 +9,31 @@ export default {
     },
   },
   emits: ['update:error', 'update:modelValue'],
+  methods: {
+    validate(value) { // very basic validation, most fields will probably override this
+      if (!this.validation) return '';
+
+      let error = '';
+
+      if (this.validation.required && !value) error = 'This field is required';
+      return error;
+    },
+    validateLocalisedValues() {
+      if (!this.validation) return '';
+
+      const errors = {};
+      let hasErrors = false;
+      this.languages.forEach((lang) => {
+        const error = this.validate((this.modelValue && this.modelValue[lang]));
+        if (error) {
+          hasErrors = true;
+          errors[lang] = error;
+        }
+      });
+      if (hasErrors) return errors;
+      return '';
+    },
+  },
   props: {
     children: Array,
     compact: Boolean,
