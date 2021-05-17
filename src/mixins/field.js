@@ -1,4 +1,13 @@
 export default {
+  computed: {
+    showLocalisedOptions() {
+      return this.localised && this.languages && this.languages.length > 0;
+    },
+    teleportTarget() {
+      if (!this.inSplit && this.splitTarget) return this.splitTarget;
+      return null;
+    },
+  },
   emits: ['update:error', 'update:modelValue'],
   props: {
     children: Array,

@@ -59,13 +59,6 @@ export default {
       if (this.modelValue && typeof this.modelValue === 'object') return Object.values(this.modelValue)[0] || '';
       return this.modelValue || '';
     },
-    showLocalisedOptions() {
-      return this.localised && this.languages && this.languages.length > 0;
-    },
-    teleportTarget() {
-      if (!this.inSplit && this.splitTarget) return this.splitTarget;
-      return null;
-    },
   },
   data() {
     return {
