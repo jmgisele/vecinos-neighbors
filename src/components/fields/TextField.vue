@@ -143,8 +143,6 @@ export default {
 
 <style lang="stylus" scoped>
 @require '../../assets/styles/colors'
-@require '../../assets/styles/corners'
-@require '../../assets/styles/fields'
 
 .text.field
   &.in-split.dark
