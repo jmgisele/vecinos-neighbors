@@ -86,7 +86,7 @@
               :validation="fieldBeingEdited.validation"
               @update:error="handleDefaultValueError"
             />
-            <MbButton class="clear-button" :disabled="fieldBeingEdited.default === null" icon="clear" rounded tooltip="Clear default value" @click="clearDefaultValue" />
+            <MbButton class="clear-button" :dark="dark" :disabled="fieldBeingEdited.default === null" icon="clear" rounded tooltip="Clear default value" @click="clearDefaultValue" />
           </div>
         </section>
         <section v-if="availableFieldOptions.has(fieldBeingEdited.type)">
@@ -103,8 +103,10 @@
           <h3>Validation</h3>
           <MbToggle v-if="typeof fieldBeingEdited.validation.required !== 'undefined'" v-model="fieldBeingEdited.validation.required" :dark="dark">Make this field required</MbToggle>
           <div v-if="typeof fieldBeingEdited.validation.min !== 'undefined' || typeof fieldBeingEdited.validation.max !== 'undefined'" class="input-row">
-            <MbInput v-if="typeof fieldBeingEdited.validation.min !== 'undefined'" v-model="fieldBeingEdited.validation.min" :dark="dark" :label="`Minimum ${ fieldBeingEdited.validation.unit || ''} (optional)`" :model-modifiers="{ lazy: true, number: !fieldBeingEdited.validation.isString }" :type="fieldBeingEdited.validation.isString ? 'text' : 'number'" />
-            <MbInput v-if="typeof fieldBeingEdited.validation.max !== 'undefined'" v-model="fieldBeingEdited.validation.max" :dark="dark" :label="`Maximum ${ fieldBeingEdited.validation.unit || ''} (optional)`" :model-modifiers="{ lazy: true, number: !fieldBeingEdited.validation.isString }" :type="fieldBeingEdited.validation.isString ? 'text' : 'number'" />
+            <MbDatePicker v-if="typeof fieldBeingEdited.validation.min !== 'undefined' && fieldBeingEdited.validation.unit === 'date'" v-model="fieldBeingEdited.validation.min" :dark="dark" format="iso" label="Minimum date (optional)" removable />
+            <MbInput v-else-if="typeof fieldBeingEdited.validation.min !== 'undefined'" v-model="fieldBeingEdited.validation.min" :dark="dark" :label="`Minimum ${ fieldBeingEdited.validation.unit || ''} (optional)`" :model-modifiers="{ lazy: true, number: !fieldBeingEdited.validation.isString }" :type="fieldBeingEdited.validation.isString ? 'text' : 'number'" />
+            <MbDatePicker v-if="typeof fieldBeingEdited.validation.max !== 'undefined' && fieldBeingEdited.validation.unit === 'date'" v-model="fieldBeingEdited.validation.max" :dark="dark" format="iso" label="Maximum date (optional)" removable />
+            <MbInput v-else-if="typeof fieldBeingEdited.validation.max !== 'undefined'" v-model="fieldBeingEdited.validation.max" :dark="dark" :label="`Maximum ${ fieldBeingEdited.validation.unit || ''} (optional)`" :model-modifiers="{ lazy: true, number: !fieldBeingEdited.validation.isString }" :type="fieldBeingEdited.validation.isString ? 'text' : 'number'" />
           </div>
           <MbToggle v-if="typeof fieldBeingEdited.validation.enforceMinMax !== 'undefined' && (fieldBeingEdited.validation.min || fieldBeingEdited.validation.max)" v-model="fieldBeingEdited.validation.enforceMinMax" :dark="dark">Enforce minimum / maximum {{fieldBeingEdited.validation.unit}}</MbToggle>
           <div v-if="fieldBeingEdited.validation && typeof fieldBeingEdited.validation.regex !== 'undefined'" class="input-row">
@@ -904,7 +906,8 @@ export default {
     section
       .input,
       .tag-input,
-      .icon-picker
+      .icon-picker,
+      .date-picker
         background-color: $bg-tertiary-dark
 
       .editor
@@ -979,7 +982,8 @@ export default {
       & + .input-row .input
         margin-top: 0
 
-      .input
+      .input,
+      .date-picker
         flex-grow: 1
         width: calc(50% - 1rem)
         margin-left: 0.5rem
