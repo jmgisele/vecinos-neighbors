@@ -25,6 +25,7 @@
 </template>
 
 <script>
+import { debounce } from 'lodash-es';
 import availableRoles from '../../data/availableRoles';
 
 import SchemaFieldsEditor from '../../components/utility/SchemaFieldsEditor.vue';
@@ -41,14 +42,14 @@ export default {
       get() {
         return this.$store.state.currentProject.media.customFields;
       },
-      set(v) {
+      set: debounce(function (v) { // eslint-disable-line  func-names
         if (v.filter((field) => field.errors).length > 0) {
           this.$store.commit('addToast', { message: 'Could not save custom fields: at least one field has errors', type: 'negative' });
           return;
         }
         this.$store.commit('setCurrentProjectProperty', { key: 'media.customFields', value: v });
         this.$store.dispatch('saveCurrentProject');
-      },
+      }, 500),
     },
     dir: {
       get() {
