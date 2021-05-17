@@ -99,7 +99,7 @@ export default {
         cleanDays.push({
           active: isSameDay(this.date, day),
           day: getDate(day),
-          disabled: (this.minDate && day < this.minDate) || (this.maxDate && day > this.maxDate),
+          disabled: (this.minDate && day < this.minDate) || (this.maxDate && day >= this.maxDate),
           month: getMonth(day),
           year: getYear(day),
         });
