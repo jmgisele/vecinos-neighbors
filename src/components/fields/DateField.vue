@@ -1,5 +1,5 @@
 <template lang="html">
-  <section class="date field">
+  <section class="date field" :class="{ dark, 'in-split': inSplit }">
     <span>{{label}}:</span>
     <MbDatePicker :class="{ error }" :dark="dark" :format="options.outputFormat" :label="error" :max="validation && validation.max" :min="validation && validation.min" :model-value="modelValue" :only="options.only" :removable="options.removable" :show-time="options.showTime" @update:model-value="$emit('update:modelValue', $event)" />
   </section>
@@ -16,9 +16,21 @@ export default {
 </script>
 
 <style lang="stylus" scoped>
+@require '../../assets/styles/colors'
+
 .date.field
   display: flex
   align-items: center
+
+  &.in-split.dark
+    > .date-picker
+      background-color: $bg-tertiary-dark
+
+      &:hover
+        background-color: lighten($bg-tertiary-dark, 5)
+
+      &:active
+        background-color: $bg-secondary-dark
 
   > span
     margin-right: auto
