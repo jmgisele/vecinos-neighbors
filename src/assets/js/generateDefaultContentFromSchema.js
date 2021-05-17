@@ -1,4 +1,5 @@
 import { v4 as uuidv4 } from 'uuid';
+import { min, max, parseISO } from 'date-fns';
 
 export default function generateDefaultContentFromSchema(schema, filepath) {
   if (!schema.fields) return {};
@@ -15,8 +16,15 @@ export default function generateDefaultContentFromSchema(schema, filepath) {
         if (field.options && field.options.type === 'filepath') value = filepath || null; // we need to fall back to null here because undefined fields don’t get saved
         else if (field.options && field.options.type === 'uuid') value = uuidv4();
         else value = null;
-      } else if (field.type === 'date' && field.options.defaultToNow) value = field.options.outputFormat === 'iso' ? new Date().toISOString() : Date.now();
-      else value = field.default;
+      } else if (field.type === 'date' && field.options.defaultToNow) {
+        const now = new Date();
+        let possibleDate = now;
+
+        if (field.validation && field.validation.min && field.validation.max) possibleDate = max([min([now, typeof field.validation.max === 'number' ? new Date(field.validation.max) : parseISO(field.validation.max)]), typeof field.validation.min === 'number' ? new Date(field.validation.min) : parseISO(field.validation.min)]);
+        else if (field.validation && field.validation.min) possibleDate = max([now, typeof field.validation.min === 'number' ? new Date(field.validation.min) : parseISO(field.validation.min)]);
+        else if (field.validation && field.validation.max) possibleDate = min([now, typeof field.validation.max === 'number' ? new Date(field.validation.max) : parseISO(field.validation.max)]);
+        value = field.options.outputFormat === 'iso' ? possibleDate.toISOString() : possibleDate.valueOf();
+      } else value = field.default;
 
       // check if field is toplevel and in tab with groupAs → put field under that, otherwise put field in object
       if (toplevel && schema.tabs && field.tab) {
