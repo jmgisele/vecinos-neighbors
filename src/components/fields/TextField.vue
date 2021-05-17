@@ -14,7 +14,7 @@
       :label="label"
       :languages="languages"
       :teleport-target="teleportTarget"
-      @modal-closed="validateLocalisedValues"
+      @modal-closed="$emit('update:error', validateLocalisedValues())"
       @modal-open="handleModalOpen"
     >
       <MbEditor v-if="options && (options.wrapping || options.multiline)" :allow-new-lines="options && options.multiline" :dark="dark" :error="error && error[lang]" :label="lang" :max-len="(validation && validation.max) || null" :model-value="safeModelValue[lang]" :ref="setLanguageFields" @update:model-value="handleInput($event, lang)" />
@@ -108,7 +108,7 @@ export default {
       return error;
     },
     validateLocalisedValues() {
-      if (!this.validation) return;
+      if (!this.validation) return '';
 
       const errors = {};
       let hasErrors = false;
@@ -119,8 +119,8 @@ export default {
           errors[lang] = error;
         }
       });
-      if (hasErrors) this.$emit('update:error', errors);
-      else this.$emit('update:error', '');
+      if (hasErrors) return errors;
+      return '';
     },
   },
   mixins: [field],
@@ -131,7 +131,7 @@ export default {
   },
   watch: {
     showLocalisedOptions(nv) {
-      if (nv) this.validateLocalisedValues();
+      if (nv) this.$emit('update:error', this.validateLocalisedValues());
       else {
         const error = this.validate(this.safeModelValue);
         if (error || this.error) this.$emit('update:error', error); // we only emit if we have an error set or the value is invalid
