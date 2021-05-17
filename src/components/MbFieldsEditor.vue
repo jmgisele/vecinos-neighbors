@@ -53,7 +53,7 @@ export default {
 
       return this.fields.filter((field) => (
         !field.visibility.hidden
-        && (!field.visibility.limitToRoles || field.visibility.limitToRoles.find((role) => role.value === currentUser.role))
+        && (!field.visibility.limitToRoles || field.visibility.limitToRoles.length === 0 || field.visibility.limitToRoles.find((role) => role.value === currentUser.role))
         && (!field.visibility.showByValue || !field.visibility.showByValue.field || this.fieldShouldBeVisible(field.visibility.showByValue))
       ));
     },
@@ -152,4 +152,7 @@ export default {
 
     &:not(:last-child)
       margin-bottom: 2rem
+
+    &:last-child
+      margin-bottom: 0.125rem // so we can still see the active state while :active
 </style>
