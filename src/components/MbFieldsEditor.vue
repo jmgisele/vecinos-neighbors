@@ -45,6 +45,7 @@ export default {
       const languagesField = this.fields.find((field) => field.type === 'languages');
 
       if (languagesField) return this.model[languagesField.key];
+      if (this.parentLanguages) return this.parentLanguages;
       return this.$store.state.currentProject.languages;
     },
     visibleFields() {
@@ -109,6 +110,7 @@ export default {
     compact: Boolean,
     fields: Array,
     inSplit: Boolean,
+    parentLanguages: Array,
     modelValue: Object,
     splitTarget: HTMLElement,
   },
