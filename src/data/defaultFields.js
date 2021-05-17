@@ -362,7 +362,7 @@ export default [
       {
         component: 'MbToggle',
         key: 'defaultToNow',
-        slot: 'Default to the current time when no value is set',
+        slot: 'Default to the current date when no value is set',
         value: true,
       },
       {
