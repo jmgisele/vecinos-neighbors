@@ -428,13 +428,15 @@
         <p>This component allows picking dates and times visually.</p>
         <p>The current date is: <code>{{testdate}}</code></p>
         <MbDatePicker v-model="testdate" :dark="dark" />
-        <MbDatePicker v-model="testdate" :dark="dark" format="iso" placeholder="A custom placeholder" removable show-time />
+        <MbDatePicker v-model="testdate" :dark="dark" format="iso" :min="1621209600000" placeholder="A custom placeholder" removable show-time />
+        <MbDatePicker v-model="testdate" :dark="dark" format="iso" only="past" label="Only past dates" removable show-time />
         <h3>Props</h3>
         <MbTable :data="props.datePickers" />
         <h3>Events</h3>
         <MbTable :data="events.datePickers" />
         <h3>Notes</h3>
         <p>If <code>showTime</code> is not <code>true</code> the resulting date will be at the start of the day (00:00).</p>
+        <p>The <code>only</code> prop can only be set to either <code>'past'</code> (for dates only in the past) or <code>'future'</code> (for dates only in the future). Past and future start at the previous / next day.</p>
       </section>
       <section v-else-if="activeTabValue === 'project-avatars'" class="tab project-avatars">
         <h2>Project Avatars</h2>
@@ -1076,7 +1078,10 @@ export default {
           ['`dark`', 'Boolean', '`false`'],
           ['`format`', 'String', '`ms`'],
           ['`label`', 'String', '`undefined`'],
+          ['`max`', 'String, Number', '`undefined`'],
+          ['`min`', 'String, Number', '`undefined`'],
           ['`modelValue`', 'String, Number', ''],
+          ['`only`', 'String', '`undefined`'],
           ['`placeholder`', 'String', 'Choose a date…'],
           ['`removable`', 'Boolean', '`false`'],
           ['`showTime`', 'Boolean', '`false`'],

@@ -24,7 +24,7 @@
         </header>
         <transition mode="out-in" :name="calendarTransition">
           <div class="days" :key="currentMonth">
-            <MbButton v-for="(day, index) in days" :class="{ 'other-month': day.month !== currentMonth }" :dark="dark" :key="index" rounded :type="day.active ? 'primary' : null" @click="setDay(day.day, day.month, day.year)">{{day.day}}</MbButton>
+            <MbButton v-for="(day, index) in days" :class="{ 'other-month': day.month !== currentMonth }" :dark="dark" :disabled="day.disabled" :key="index" rounded :type="day.active ? 'primary' : null" @click="setDay(day.day, day.month, day.year)">{{day.day}}</MbButton>
           </div>
         </transition>
       </div>
@@ -35,7 +35,7 @@
       </footer>
       <template #footer>
         <MbButton :dark="dark" @click="deactivate">Cancel</MbButton>
-        <MbButton :dark="dark" type="primary" @click="setDate">Set Date</MbButton>
+        <MbButton :dark="dark" :disabled="(minDate && date < minDate) || (maxDate && date > maxDate)" type="primary" @click="setDate">Set Date</MbButton>
       </template>
     </MbPopover>
   </div>
@@ -43,10 +43,12 @@
 
 <script>
 import {
+  addDays,
   addMinutes,
   addMonths,
   eachDayOfInterval,
   eachMonthOfInterval,
+  endOfDay,
   endOfMonth,
   endOfWeek,
   endOfYear,
@@ -97,6 +99,7 @@ export default {
         cleanDays.push({
           active: isSameDay(this.date, day),
           day: getDate(day),
+          disabled: (this.minDate && day < this.minDate) || (this.maxDate && day > this.maxDate),
           month: getMonth(day),
           year: getYear(day),
         });
@@ -121,6 +124,18 @@ export default {
       const dateFormat = 'HH:mm';
       if (typeof this.modelValue === 'string') return format(parseISO(this.modelValue), dateFormat);
       return format(this.modelValue, dateFormat);
+    },
+    maxDate() {
+      if (this.only === 'past') return endOfDay(addDays(new Date(), -1));
+      if (!this.max) return null;
+      if (typeof this.max === 'string') return startOfDay(addDays(parseISO(this.max, 1)));
+      return startOfDay(addDays(new Date(this.max, 1)));
+    },
+    minDate() {
+      if (this.only === 'future') return startOfDay(addDays(new Date(), 1));
+      if (!this.min) return null;
+      if (typeof this.min === 'string') return endOfDay(addDays(parseISO(this.min), -1));
+      return endOfDay(addDays(new Date(this.min), -1));
     },
     mobile() {
       return this.$store.state.application.mobile;
@@ -239,7 +254,13 @@ export default {
       default: 'ms',
     },
     label: String,
+    max: [String, Number],
+    min: [String, Number],
     modelValue: [String, Number],
+    only: {
+      type: String,
+      validator: (v) => ['past', 'future'].includes(v),
+    },
     placeholder: {
       type: String,
       default: 'Choose a date…',
@@ -448,7 +469,7 @@ export default {
         border: none
         display: inline-block;
 
-        &.other-month
+        &.other-month:not(.disabled)
           color: $text-secondary
 
   footer
