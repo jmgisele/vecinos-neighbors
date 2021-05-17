@@ -84,9 +84,9 @@
               :localised="fieldBeingEdited.localised"
               :options="{ ...fieldBeingEdited.options, removable: true }"
               :validation="fieldBeingEdited.validation"
-              @update:error="fieldErrors.default = $event"
+              @update:error="handleDefaultValueError"
             />
-            <MbButton class="clear-button" :disabled="fieldBeingEdited.default === null" icon="cross" rounded tooltip="Clear default value" @click="fieldBeingEdited.default = null" />
+            <MbButton class="clear-button" :disabled="fieldBeingEdited.default === null" icon="cross" rounded tooltip="Clear default value" @click="clearDefaultValue" />
           </div>
         </section>
         <section v-if="availableFieldOptions.has(fieldBeingEdited.type)">
@@ -291,6 +291,7 @@ export default {
         x: 0,
         y: 0,
       },
+      fieldErrors: null,
       fieldFilter: '',
       fieldToTransfer: null,
       fieldsLoading: true,
@@ -347,6 +348,13 @@ export default {
       this.fieldAddParent = null;
 
       if (this.isMobile && this.showSplit) this.showSplit = false;
+    },
+    clearDefaultValue() {
+      this.fieldBeingEdited.default = null;
+      if (this.fieldErrors.default) {
+        this.fieldErrors.default = '';
+        this.setFieldBeingEditedError('default', '');
+      }
     },
     componentForType(type) {
       const componentName = fieldTypeToComponent(type);
@@ -471,6 +479,11 @@ export default {
       this.handleFieldClick({ detail: this.fieldContextMenu.detail });
       this.fieldContextMenu.show = false;
     },
+    handleDefaultValueError(error) {
+      if (this.fieldBeingEdited.default === null) return; // if there’s no default, no need to handle errors
+      this.fieldErrors.default = error;
+      this.setFieldBeingEditedError('default', error);
+    },
     handleFieldOver({ parent, index, dropzone, isBottomHalf }) { // eslint-disable-line object-curly-newline
       let realIndex = parent === '___toplevel' ? this.fields.indexOf(this.fieldsForTab[index]) : index;
       if (realIndex === -1) realIndex = this.fields.length; // happens when hovering a dropzone when toplevel is empty
@@ -509,6 +522,7 @@ export default {
           label: '',
           regex: '',
           comparatorRegex: '',
+          default: '',
         };
       }
       if (!this.showSplit) this.showSplit = true;
@@ -601,6 +615,14 @@ export default {
       this.fieldContextMenu.x = 0;
       this.fieldContextMenu.y = 0;
     },
+    setFieldBeingEditedError(property, error) {
+      if (error && !this.fieldBeingEdited.errors) this.fieldBeingEdited.errors = new Map([[property, error]]);
+      else if (error) this.fieldBeingEdited.errors.set(property, error);
+      else if (this.fieldBeingEdited.errors) {
+        this.fieldBeingEdited.errors.delete(property);
+        if (this.fieldBeingEdited.errors.size === 0) delete this.fieldBeingEdited.errors;
+      }
+    },
     transferField() {
       if (this.fieldAddParent && this.fieldToTransfer) {
         this.$store.commit('setAppProperty', { key: 'dragActive', value: false });
@@ -659,12 +681,7 @@ export default {
         }
 
         this.fieldErrors[property] = error;
-        if (error && !this.fieldBeingEdited.errors) this.fieldBeingEdited.errors = new Map([[property, error]]);
-        else if (error) this.fieldBeingEdited.errors.set(property, error);
-        else if (this.fieldBeingEdited.errors) {
-          this.fieldBeingEdited.errors.delete(property);
-          if (this.fieldBeingEdited.errors.size === 0) delete this.fieldBeingEdited.errors;
-        }
+        this.setFieldBeingEditedError(property, error);
       }
     },
   },
