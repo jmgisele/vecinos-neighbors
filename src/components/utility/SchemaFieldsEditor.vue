@@ -69,7 +69,25 @@
             <MbSelect v-model="fieldBeingEdited.displayField" :dark="dark" :options="childFieldKeys" placeholder="Select a field…" />
           </div>
           <MbToggle v-if="typeof fieldBeingEdited.localised !== 'undefined'" v-model="fieldBeingEdited.localised" :dark="dark">Enable localisation for this field</MbToggle>
-          <p v-if="typeof fieldBeingEdited.default !== 'undefined'"><strong>Todo:</strong> insert an actual field of this type here with the options of <code>fieldBeingEdited</code> to set a default! (Except replace "label" prop with "Default Value" and make sure its always removable)</p>
+          <div v-if="typeof fieldBeingEdited.default !== 'undefined'" class="field-wrapper">
+            <component
+              v-model="fieldBeingEdited.default"
+              :children="fieldBeingEdited.value"
+              compact
+              :dark="dark"
+              :display-field="fieldBeingEdited.displayField"
+              :error="fieldErrors.default"
+              in-split
+              :is="componentForType(fieldBeingEdited.type)"
+              label="Default value"
+              :languages="$store.state.currentProject.languages"
+              :localised="fieldBeingEdited.localised"
+              :options="{ ...fieldBeingEdited.options, removable: true }"
+              :validation="fieldBeingEdited.validation"
+              @update:error="fieldErrors.default = $event"
+            />
+            <MbButton class="clear-button" :disabled="fieldBeingEdited.default === null" icon="cross" rounded tooltip="Clear default value" @click="fieldBeingEdited.default = null" />
+          </div>
         </section>
         <section v-if="availableFieldOptions.has(fieldBeingEdited.type)">
           <h3>Field Configuration</h3>
@@ -124,6 +142,7 @@ import { cloneDeep } from 'lodash-es';
 
 import fs, { readdirDeep, joinPath } from '../../fs';
 import prettifyEntityName from '../../assets/js/prettifyEntityName';
+import fieldTypeToComponent from '../../assets/js/fieldTypeToComponent';
 
 import availableRoles from '../../data/availableRoles';
 import defaultFields from '../../data/defaultFields';
@@ -132,11 +151,20 @@ import FieldArrangementList from './FieldArrangementList.vue';
 import FieldThumbnail from './FieldThumbnail.vue';
 import TabContent from './TabContent.vue';
 
+const requireComponent = require.context('../fields', false, /[A-Z]\w+\.(vue|js)$/);
+const fieldComponents = requireComponent.keys().reduce((acc, path) => {
+  const componentConfig = requireComponent(path);
+  const componentName = path.split('/').pop().replace(/\.\w+$/, '');
+  acc[componentName] = componentConfig.default || componentConfig; // eslint-disable-line no-param-reassign
+  return acc;
+}, {});
+
 export default {
   components: {
     FieldArrangementList,
     FieldThumbnail,
     TabContent,
+    ...fieldComponents,
   },
   computed: {
     childFieldKeys() {
@@ -319,6 +347,12 @@ export default {
       this.fieldAddParent = null;
 
       if (this.isMobile && this.showSplit) this.showSplit = false;
+    },
+    componentForType(type) {
+      const componentName = fieldTypeToComponent(type);
+
+      if (componentName && this.$options.components && this.$options.components[componentName]) return componentName;
+      return 'UnknownField';
     },
     deleteField(field) {
       if (!field) return;
@@ -939,6 +973,17 @@ export default {
 
           &:not(:first-child)
             margin-top: 2rem
+
+    .field-wrapper
+      display: flex
+      align-items: center
+
+      > .field
+        width: 100%
+
+      > .clear-button
+        flex-shrink: 0
+        margin-left: 1rem
 
     .select-wrapper,
     .conditional-wrapper
