@@ -86,7 +86,7 @@
               :validation="fieldBeingEdited.validation"
               @update:error="handleDefaultValueError"
             />
-            <MbButton class="clear-button" :disabled="fieldBeingEdited.default === null" icon="cross" rounded tooltip="Clear default value" @click="clearDefaultValue" />
+            <MbButton class="clear-button" :disabled="fieldBeingEdited.default === null" icon="clear" rounded tooltip="Clear default value" @click="clearDefaultValue" />
           </div>
         </section>
         <section v-if="availableFieldOptions.has(fieldBeingEdited.type)">
@@ -996,11 +996,11 @@ export default {
       align-items: center
 
       > .field
-        width: "calc(100% - %s)" % ((50 / 16) + 1)rem
+        width: "calc(100% - %s)" % ((50 / 16) + 0.5)rem
 
       > .clear-button
         flex-shrink: 0
-        margin-left: 1rem
+        margin-left: 0.5rem
 
     .select-wrapper,
     .conditional-wrapper
