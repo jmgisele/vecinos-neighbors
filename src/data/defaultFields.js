@@ -365,10 +365,19 @@ export default [
         slot: 'Default to the current time when no value is set',
         value: true,
       },
+      {
+        component: 'MbSelect',
+        key: 'only',
+        label: 'Only allow dates in the…',
+        props: {
+          options: ['past', 'future', { label: 'Unset', value: null }],
+        },
+        value: null,
+      },
     ],
     tab: null,
     validation: {
-      enforceMinMax: true, max: null, min: null, required: false, unit: 'date', isString: true,
+      max: null, min: null, required: false, unit: 'date', isString: true,
     },
     value: null,
     visibility: { hidden: false, showByValue: { field: null } },
