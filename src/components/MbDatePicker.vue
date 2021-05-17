@@ -345,11 +345,11 @@ export default {
   &::before
     content: ''
     position: absolute
-    top: -1px
+    top: 0
     left: @top
     right: @top
     bottom: @top
-    box-shadow: inset 0 0 0 0.125rem $accent
+    border: 0.125rem solid $accent
     opacity: 0
     border-radius: @border-radius
     transition: opacity 200ms ease
