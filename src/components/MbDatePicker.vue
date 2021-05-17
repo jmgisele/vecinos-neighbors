@@ -1,5 +1,6 @@
 <template lang="html">
   <div class="date-picker" :class="{dark}" tabindex="0" @click="activate" @keydown.space.prevent @keyup.space.enter="activate">
+    <span v-if="label" class="floating-label">{{label}}</span>
     <MbIcon :icon="modelValue ? 'calendar' : 'calendar-add'" />
     <span class="label" :class="{ placeholder: !formattedDate }">{{formattedDate || placeholder}}</span>
     <MbIcon v-if="showTime" v-show="modelValue" class="clock" icon="clock" />
@@ -237,6 +238,7 @@ export default {
       validator: (v) => ['ms', 'iso'].includes(v),
       default: 'ms',
     },
+    label: String,
     modelValue: [String, Number],
     placeholder: {
       type: String,
@@ -315,6 +317,7 @@ export default {
     &:focus
       background-color: $bg-secondary-dark
 
+    .floating-label
     .label.placeholder
       color: $text-secondary-dark
 
@@ -329,6 +332,13 @@ export default {
     opacity: 0
     border-radius: @border-radius
     transition: opacity 200ms ease
+
+  .floating-label
+    position: absolute
+    top: -1.25rem
+    left: $radius-m
+    font-size: 0.75rem
+    color: $text-secondary
 
   .label
     margin-left: 0.75rem

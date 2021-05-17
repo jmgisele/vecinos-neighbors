@@ -1075,6 +1075,7 @@ export default {
           ['Name', 'Type', 'Default'],
           ['`dark`', 'Boolean', '`false`'],
           ['`format`', 'String', '`ms`'],
+          ['`label`', 'String', '`undefined`'],
           ['`modelValue`', 'String, Number', ''],
           ['`placeholder`', 'String', 'Choose a date…'],
           ['`removable`', 'Boolean', '`false`'],
