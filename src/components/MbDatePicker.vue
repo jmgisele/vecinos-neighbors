@@ -392,8 +392,8 @@ export default {
         color: $text-secondary-dark
 
       .days
-        .button.other-month
-          color: $text-tertiary-dark
+        .button.other-month:not(.disabled)
+          color: $text-secondary-dark
   *
     user-select: none
 
