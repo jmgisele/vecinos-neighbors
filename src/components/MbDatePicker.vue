@@ -128,8 +128,8 @@ export default {
     maxDate() {
       if (this.only === 'past') return endOfDay(addDays(new Date(), -1));
       if (!this.max) return null;
-      if (typeof this.max === 'string') return startOfDay(addDays(parseISO(this.max, 1)));
-      return startOfDay(addDays(new Date(this.max, 1)));
+      if (typeof this.max === 'string') return startOfDay(addDays(parseISO(this.max), 1));
+      return startOfDay(addDays(new Date(this.max), 1));
     },
     minDate() {
       if (this.only === 'future') return startOfDay(addDays(new Date(), 1));
