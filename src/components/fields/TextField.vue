@@ -4,24 +4,22 @@
       <MbEditor v-if="options && (options.wrapping || options.multiline)" :allow-new-lines="options && options.multiline" :dark="dark" :error="error" :label="label" :max-len="(validation && validation.max) || null" :model-value="safeModelValue" ref="editor" @update:model-value="handleInput" />
       <MbInput v-else :dark="dark" :error="error" :label="label" :max-len="(validation && validation.max) || null" :model-value="safeModelValue" @update:model-value="handleInput" />
     </template>
-    <div v-else class="localised-container" :class="{ dark, error, 'in-split': inSplit }" tabindex="0" @click="showModal = true" @keyup.enter.space="showModal = true" @keydown.space.prevent>
-      <div class="left">
-        <p class="label">{{errorMessage || `${label} (localised)`}}</p>
-        <p class="content" :class="{ empty: !firstLocalisedValue }">{{firstLocalisedValue || 'Not set'}}</p>
-      </div>
-      <MbIcon :icon="error ? 'error' : 'pencil'" />
-      <MbModal class="localisation-modal" :dark="dark" :title="`${label} (localised)`" :visible="showModal" @close="showModal = false" @after-close="handleModalClose">
-        <teleport :disabled="!teleportTarget" :to="teleportTarget">
-          <template v-for="lang in languages" :key="lang">
-            <MbEditor v-if="options && (options.wrapping || options.multiline)" :allow-new-lines="options && options.multiline" :dark="dark" :error="error && error[lang]" :label="lang" :max-len="(validation && validation.max) || null" :model-value="safeModelValue[lang]" :ref="setLanguageFields" @update:model-value="handleInput($event, lang)" />
-            <MbInput v-else :dark="dark" :error="error && error[lang]" :label="lang" :max-len="(validation && validation.max) || null" :model-value="safeModelValue[lang]" @update:model-value="handleInput($event, lang)" />
-          </template>
-        </teleport>
-        <template #actions>
-          <MbButton :dark="dark" type="primary" @click="showModal = false">Done</MbButton>
-        </template>
-      </MbModal>
-    </div>
+    <LocalisedFieldsContainer
+      v-else
+      v-slot="{ lang }"
+      :dark="dark"
+      :display-value="firstLocalisedValue"
+      :error="error"
+      :in-split="inSplit"
+      :label="label"
+      :languages="languages"
+      :teleport-target="teleportTarget"
+      @modal-closed="validateLocalisedValues"
+      @modal-open="handleModalOpen"
+    >
+      <MbEditor v-if="options && (options.wrapping || options.multiline)" :allow-new-lines="options && options.multiline" :dark="dark" :error="error && error[lang]" :label="lang" :max-len="(validation && validation.max) || null" :model-value="safeModelValue[lang]" :ref="setLanguageFields" @update:model-value="handleInput($event, lang)" />
+      <MbInput v-else :dark="dark" :error="error && error[lang]" :label="lang" :max-len="(validation && validation.max) || null" :model-value="safeModelValue[lang]" @update:model-value="handleInput($event, lang)" />
+    </LocalisedFieldsContainer>
   </section>
 </template>
 
@@ -30,16 +28,16 @@ import userInputToRegex from '../../assets/js/userInputToRegex';
 
 import field from '../../mixins/field';
 
+import LocalisedFieldsContainer from '../utility/LocalisedFieldsContainer.vue';
+
 export default {
   beforeUpdate() {
     this.editors = [];
   },
+  components: {
+    LocalisedFieldsContainer,
+  },
   computed: {
-    errorMessage() {
-      if (this.error && typeof this.error === 'string') return this.error;
-      if (this.error && Object.values(this.error).some((value) => value)) return 'One or more subfields have errors';
-      return '';
-    },
     firstLocalisedValue() {
       if (typeof this.modelValue === 'string') return this.modelValue;
       if (this.modelValue) {
@@ -62,7 +60,6 @@ export default {
   },
   data() {
     return {
-      showModal: false,
       editors: [],
     };
   },
@@ -79,24 +76,11 @@ export default {
           else if (Object.keys(this.error).every((key) => key === lang || !this.error[key])) this.$emit('update:error', ''); // so it can be cleared
           else this.$emit('update:error', { ...this.error, [lang]: error });
         }
-        this.$emit('update:modelValue', { ...this.modelValue, [lang]: newValue });
+        this.$emit('update:modelValue', { ...this.safeModelValue, [lang]: newValue });
       }
     },
-    handleModalClose() {
-      if (!this.validation) return;
-
-      const errors = {};
-      let hasErrors = false;
-      this.languages.forEach((lang) => {
-        const error = this.validate((this.safeModelValue[lang]) || '');
-        if (error) {
-          hasErrors = true;
-          errors[lang] = error;
-        }
-      });
-      if (hasErrors) this.$emit('update:error', errors);
-      else this.$emit('update:error', '');
-      this.showModal = false;
+    handleModalOpen() {
+      this.$nextTick(this.recalculateEditorSize);
     },
     recalculateEditorSize() {
       this.editors.forEach((editor) => editor.recalculateHeight(editor.modelValue));
@@ -123,6 +107,21 @@ export default {
 
       return error;
     },
+    validateLocalisedValues() {
+      if (!this.validation) return;
+
+      const errors = {};
+      let hasErrors = false;
+      this.languages.forEach((lang) => {
+        const error = this.validate((this.safeModelValue[lang]) || '');
+        if (error) {
+          hasErrors = true;
+          errors[lang] = error;
+        }
+      });
+      if (hasErrors) this.$emit('update:error', errors);
+      else this.$emit('update:error', '');
+    },
   },
   mixins: [field],
   mounted() {
@@ -131,8 +130,12 @@ export default {
     });
   },
   watch: {
-    showModal(nv) {
-      if (nv) this.$nextTick(this.recalculateEditorSize);
+    showLocalisedOptions(nv) {
+      if (nv) this.validateLocalisedValues();
+      else {
+        const error = this.validate(this.safeModelValue);
+        if (error || this.error) this.$emit('update:error', error); // we only emit if we have an error set or the value is invalid
+      }
     },
   },
 };
