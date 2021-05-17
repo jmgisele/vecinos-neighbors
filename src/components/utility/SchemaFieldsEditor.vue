@@ -82,7 +82,7 @@
               label="Default value"
               :languages="$store.state.currentProject.languages"
               :localised="fieldBeingEdited.localised"
-              :options="{ ...fieldBeingEdited.options, removable: true }"
+              :options="fieldBeingEdited.options"
               :validation="fieldBeingEdited.validation"
               @update:error="handleDefaultValueError"
             />
