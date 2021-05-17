@@ -1,7 +1,7 @@
 <template lang="html">
   <section class="date field" :class="{ dark, 'in-split': inSplit }">
     <span>{{label}}:</span>
-    <MbDatePicker :class="{ error }" :dark="dark" :format="options.outputFormat" :label="error" :max="validation && validation.max" :min="validation && validation.min" :model-value="modelValue" :only="options.only" :removable="options.removable" :show-time="options.showTime" @update:model-value="$emit('update:modelValue', $event)" />
+    <MbDatePicker :class="{ error }" :dark="dark" :format="options.outputFormat" :label="error" :max="validation && validation.max" :min="validation && validation.min" :model-value="modelValue" :only="options.only" :removable="options.removable" :show-time="options.showTime" @update:model-value="handleInput" />
   </section>
 </template>
 
@@ -10,6 +10,13 @@ import field from '../../mixins/field';
 
 export default {
   computed: {
+  },
+  methods: {
+    handleInput(newValue) {
+      const error = this.validate(newValue);
+      if (error || this.error) this.$emit('update:error', error);
+      this.$emit('update:modelValue', newValue);
+    },
   },
   mixins: [field],
 };
@@ -37,4 +44,12 @@ export default {
 
   > .date-picker
     margin-left: 1rem
+
+    &.error
+      &::v-deep(.floating-label)
+        color: $negative-saturated
+
+      &:not(:focus)::before
+        opacity: 1
+        border-color: $negative
 </style>
