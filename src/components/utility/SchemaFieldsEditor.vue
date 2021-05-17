@@ -618,6 +618,10 @@ export default {
         this.fieldToTransfer = null;
       }
     },
+    updateModelValue() {
+      this.internalChange = true;
+      this.$emit('update:modelValue', cloneDeep(this.fields)); // creating a deep clone here so we don’t pass any references
+    },
     validateField(property) {
       if (property) {
         let error = '';
@@ -662,10 +666,6 @@ export default {
           if (this.fieldBeingEdited.errors.size === 0) delete this.fieldBeingEdited.errors;
         }
       }
-    },
-    updateModelValue() {
-      this.internalChange = true;
-      this.$emit('update:modelValue', cloneDeep(this.fields)); // creating a deep clone here so we don’t pass any references
     },
   },
   props: {
