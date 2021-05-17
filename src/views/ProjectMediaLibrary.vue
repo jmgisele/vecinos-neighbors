@@ -67,7 +67,7 @@
           <MbLoader />
         </div>
         <div v-else class="dropzone" :class="{ dark, 'drag-active': dragActive }" @dragenter.prevent="dragActive = true" @dragover.prevent @dragleave="dragActive = false" @drop="handleDrop">
-          <p>Drop image files here to upload them, or select some by clicking the button below</p>
+          <p :class="{ dark }">Drop image files here to upload them, or select some by clicking the button below</p>
           <MbButton :dark="dark" icon="upload" @click="selectFiles('modalFileInput')">Select files</MbButton>
           <input multiple type="file" ref="modalFileInput" @change="handleFileInput">
         </div>
