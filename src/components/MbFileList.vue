@@ -50,7 +50,7 @@
       <li v-for="file in filteredFiles" class="file" :class="{ active: activeFile === joinPath(currentPath, file.name), 'no-actions': modifiedFileActions.length === 0 }" :key="file.name" tabindex="0" @click="file.isFolder ? openFolder(file.name, $event) : handleFileClick(file.name, $event, file.isDraft, file.size, imageCache.get(joinPath(currentPath, file.name)))" @contextmenu.prevent="openMenu($event, joinPath(file.isDraft ? cleanDraftsDir : currentPath, file.name), file.isFolder)" @keyup.space.enter="file.isFolder ? openFolder(file.name, $event) : handleFileClick(file.name, $event, file.isDraft, file.size, imageCache.get(joinPath(currentPath, file.name)))" @keydown.space.prevent>
         <div class="thumbnail">
           <transition appear>
-            <img v-if="imageCache.has(joinPath(currentPath, file.name))" alt="Image thumbnail" class="hidden" :src="imageCache.get(joinPath(currentPath, file.name))" @load="$event.target.classList.remove('hidden')">
+            <img v-if="imageCache.has(joinPath(currentPath, file.name))" alt="Image thumbnail" class="hidden" draggable="false" :src="imageCache.get(joinPath(currentPath, file.name))" @load="$event.target.classList.remove('hidden')">
             <MbIcon v-else :icon="file.isFolder ? 'folder' : entityIcon(file.name)" />
           </transition>
         </div>
