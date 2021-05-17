@@ -332,6 +332,7 @@ export default {
 
   .label
     margin-left: 0.75rem
+    margin-right: auto
     overflow: hidden
     text-overflow: ellipsis
 
