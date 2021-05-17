@@ -979,7 +979,7 @@ export default {
       align-items: center
 
       > .field
-        width: 100%
+        width: "calc(100% - %s)" % ((50 / 16) + 1)rem
 
       > .clear-button
         flex-shrink: 0
