@@ -1148,6 +1148,7 @@ export default {
           ['`mode`', 'String', '`folder`'],
           ['`modelValue`', 'String', ''],
           ['`placeholder`', 'String', '`undefined`'],
+          ['`prettyFilenames`', 'Boolean', '`false`'],
           ['`relativeToRoot`', 'Boolean', '`false`'],
           ['`removable`', 'Boolean', '`false`'],
           ['`root`', 'String', '`/`'],
