@@ -100,10 +100,10 @@ export default {
       let schema;
       let fromBackup = false;
 
-      if (Store.state.application.temporaryStorage) { // if we have a backup
-        schema = Store.state.application.temporaryStorage;
+      if (Store.state.application.temporarySchemaStorage) { // if we have a backup
+        schema = Store.state.application.temporarySchemaStorage;
         fromBackup = true;
-        Store.commit('setAppProperty', { key: 'temporaryStorage', value: null });
+        Store.commit('setAppProperty', { key: 'temporarySchemaStorage', value: null });
       } else {
         schema = JSON.parse(await fs.readFile(path, 'utf8'));
       }
@@ -267,12 +267,12 @@ export default {
         } finally {
           window.clearTimeout(timeoutId);
           this.$store.commit('removeFromSoftDeleted', path);
-          this.$store.commit('setAppProperty', { key: 'temporaryStorage', value: null });
+          this.$store.commit('setAppProperty', { key: 'temporarySchemaStorage', value: null });
         }
       }, timeout);
 
       this.showSchemaSettings = false;
-      if (this.wasChanged) this.$store.commit('setAppProperty', { key: 'temporaryStorage', value: cloneDeep(this.schema) });
+      if (this.wasChanged) this.$store.commit('setAppProperty', { key: 'temporarySchemaStorage', value: cloneDeep(this.schema) });
       this.forceNavigation = true;
       this.$store.commit('addToSoftDeleted', path);
       this.$store.commit('addToast', {
