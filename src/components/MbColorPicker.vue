@@ -457,7 +457,7 @@ $checkerboardBG(color, size = 1rem)
 .color-popover
   .padder
     padding: 0.5rem
-    max-width: 16rem
+    max-width: 17rem
 
     &.rgb
       &.removable
@@ -553,6 +553,7 @@ $checkerboardBG(color, size = 1rem)
 
       .button
         margin-left: 0.5rem
+        flex-shrink: 0
 
     .scroller
       margin-top: 0.5rem
