@@ -5,7 +5,7 @@
       <MbFileList v-if="typeof collection.dir !== 'undefined'" :action="action" :dark="dark" :drafts-dir="draftsDir" :empty-state="emptyState" :file-actions="fileActions" :file-list-label="fileListLabel" :filetypes="[collection.type]" pretty-filenames ref="fileList" :root="contentDir" @fileclick="handleFileClick" @list-change="listedFiles = $event.files" @path-change="currentPath = $event" />
       <MbButton v-if="(userPermissions.has('everything') || userPermissions.has('createContent')) && listedFiles === 0" :dark="dark" icon="plus" type="positive" @click="createEntity">Create one</MbButton>
     </template>
-    <div class="unconfigured-state" :class="{ dark }">
+    <div v-else class="unconfigured-state" :class="{ dark }">
       <h2>This Collection has no content directory</h2>
       <p v-if="isPrivilegedUser">You can add one in the settings.</p>
       <p v-else>A developer needs to add one in the settings.</p>
