@@ -7,15 +7,46 @@
       </div>
       <div class="right">
         <MbButton :dark="dark" icon="settings" @click="showSettings = true">{{isTablet ? '' : 'Settings'}}</MbButton>
-        <MbButton :dark="dark" :icon="showPreview ? 'hide' : 'eye'" @click="showPreview = !showPreview">{{isTablet ? '' : showPreview ? 'Hide Preview' : 'Preview'}}</MbButton>
+        <MbButton v-if="previewUrl" :dark="dark" :icon="showPreview ? 'hide' : 'eye'" @click="togglePreview">{{isTablet ? '' : showPreview ? 'Hide Preview' : 'Preview'}}</MbButton>
         <MbButton :dark="dark" :disabled="!wasChanged" icon="save" :icon-first="true" :loading="saveLoading" type="primary" @click="saveChanges">{{isTablet && !isMobile ? '' : 'Save'}}</MbButton>
       </div>
     </header>
     <MbTabs v-if="schema.tabs && schema.tabs.length > 1" v-model="activeTab" :dark="dark" :tabs="cleanTabs" />
-    <TabContent :dark="dark" :show-split="showSplit" @split-close="showSplit = false" @split-closed="handleSplitClosed">
+    <TabContent :class="{ 'preview-in-split': !previewInNewTab && showPreview }" :dark="dark" :show-split="showSplit" @split-close="showSplit = false" @split-closed="handleSplitClosed">
       <pre data-lang="content">{{content}}</pre>
       <pre data-lang="collection">{{collection}}</pre>
       <pre data-lang="schema">{{schema}}</pre>
+
+      <template #right>
+        <div v-if="showPreview" class="preview">
+          <div v-if="errors.preview === 'offline'" class="error-state" :class="{ dark }">
+            <MbIcon icon="offline-alt" />
+            <h2>Could not open preview…</h2>
+            <p>It looks like you are offline at the moment. Please establish an internet connection, so the preview can be displayed.</p>
+            <MbButton :dark="dark">Try again</MbButton>
+          </div>
+          <div v-else-if="previewInNewTab" class="error-state" :class="{ dark }">
+            <MbIcon icon="open-new-window" />
+            <h2>Preview open in a different tab</h2>
+            <p>It looks like the preview is open in a different tab or window.</p>
+            <MbButton :dark="dark" @click="closeOpenPreview">Close</MbButton>
+            <MbButton :dark="dark" @click="focusOpenPreview" type="primary">Focus</MbButton>
+          </div>
+          <teleport v-else :disabled="!fullscreenPreview" to="body">
+            <div class="preview-frame" :class="{ fullscreen: fullscreenPreview }">
+              <header :class="{ dark, 'mobile-preview': mobilePreview }">
+                <MbButton :dark="dark" icon="open-new-window" tooltip="Open preview in new tab / window" @click="openPreviewInNewTab" />
+                <MbButton :dark="dark" :icon="fullscreenPreview ? 'fullscreen-reverse' : 'fullscreen'" tooltip="Toggle fullscreen" @click="fullscreenPreview = !fullscreenPreview" />
+                <MbButton v-if="!isMobile" :dark="dark" :icon="mobilePreview ? 'monitor' : 'phone'" tooltip="Toggle mobile preview" @click="mobilePreview = !mobilePreview" />
+              </header>
+              <transition>
+                <MbLoader v-if="previewLoading" :class="{ dark }" />
+              </transition>
+              <iframe :class="{ mobile: mobilePreview }" name="preview" ref="preview" referrer="no-referrer" sandbox="allow-same-origin allow-scripts" :src="actualPreviewUrl" @load="previewLoading = false" />
+            </div>
+          </teleport>
+        </div>
+      </template>
     </TabContent>
   </div>
 </template>
@@ -156,6 +187,9 @@ export default {
     isTablet() {
       return this.$store.state.application.tablet;
     },
+    previewUrl() {
+      return this.$store.state.currentProject.previewUrl;
+    },
     status() {
       if (!this.fileStatus) return { color: 'warning', loading: true };
       if (this.fileStatus !== 'unmodified') return { color: 'warning', message: 'local changes' };
@@ -165,11 +199,19 @@ export default {
   data() {
     return {
       activeTab: -1,
+      actualPreviewUrl: null,
       content: {},
       collection: {},
+      errors: {
+        name: '',
+      },
       fileStatus: null,
       forceNavigation: false,
+      fullscreenPreview: false,
       newContentName: '',
+      mobilePreview: false,
+      previewLoading: false,
+      previewInNewTab: null,
       saveLoading: false,
       schema: {},
       showPreview: false,
@@ -179,8 +221,20 @@ export default {
     };
   },
   methods: {
+    closeOpenPreview() {
+      this.$options.winref.close();
+      this.$options.winref = null;
+      this.previewInNewTab = false;
+    },
+    focusOpenPreview() {
+      this.$options.winref.focus();
+    },
     handleSplitClosed() {
-
+      if (this.showPreview) this.showPreview = false;
+    },
+    openPreviewInNewTab() {
+      this.$options.winref = window.open(this.previewUrl, `com.mattrbld.app.Project/preview/${this.$route.params.id}`); // this will focus a window of the same name (reverse domain to avoid duplicates) or open a blank new one
+      this.previewInNewTab = true;
     },
     preventUnintentionalClose(e) {
       if (this.forceNavigation) return;
@@ -199,24 +253,24 @@ export default {
         this.showSettings = false;
         return;
       }
-      this.validate('schemaName');
-      if (this.errors.schemaName) return;
+      this.validateNewContentName();
+      if (this.errors.name) return;
 
-      const newName = slugify(this.newSchemaName, this.$store.state.currentProject.slugifyOptions || { lowercase: false, decamelize: false, preserveLeadingUnderscore: true });
+      const newName = slugify(this.newContentName, this.$store.state.currentProject.slugifyOptions || { lowercase: false, decamelize: false, preserveLeadingUnderscore: true });
       const newPath = joinPath(pathDirname(this.$route.params.path), `${newName}.json`);
       const alreadyExists = await exists(newPath);
 
       if (alreadyExists) {
-        this.errors.schemaName = 'A schema with this name already exists';
+        this.errors.name = 'A schema with this name already exists';
         return;
       }
 
       await fs.rename(this.$route.params.path, newPath);
       this.$store.commit('removeLocallyChangedFile', this.$route.params.path);
       this.$store.commit('addLocallyChangedFile', newPath);
-      this.showSchemaSettings = false;
+      this.showSettings = false;
       this.forceNavigation = true;
-      this.$router.replace({ params: { id: this.$route.params.id, path: newPath } });
+      this.$router.replace({ params: { collection: this.$route.params.collection, id: this.$route.params.id, path: newPath } });
     },
     async saveChanges() {
       this.saveLoading = true;
@@ -242,9 +296,26 @@ export default {
       }
       this.saveLoading = false;
     },
+    togglePreview() {
+      if (!this.showPreview) {
+        // TODO: establish a connection to the preview URL and send the content over
+        // Use this to post messages: this.$refs.preview.contentWindow.postMessage (might have to be try/caught)
+        this.previewLoading = true;
+        this.showSplit = true;
+        this.showPreview = true;
+        if (!this.actualPreviewUrl) window.setTimeout(() => { this.actualPreviewUrl = this.previewUrl; }, 300); // give the preview a chance to open smoothly before loading the iframe
+      } else {
+        this.showPreview = false;
+        this.showSplit = false;
+      }
+    },
     validateContent() {
       // TODO: find a way to validate the entire content
       return '';
+    },
+    validateNewContentName() {
+      if (!this.newContentName || !this.newContentName.trim()) this.errors.name = 'A name is required';
+      else this.errors.name = '';
     },
   },
   mounted() {
@@ -274,11 +345,14 @@ export default {
       }
     },
   },
+  winref: null, // keeping this as a non-responsive $option here because of various CORS-issues when this is a data property on the component (and it doesn’t need to be reactive anyway)
 };
 </script>
 
 <style lang="stylus" scoped>
 @require '../assets/styles/breakpoints'
+@require '../assets/styles/colors'
+@require '../assets/styles/corners'
 
 .edit-content // 100% minus the height of the app-header
   height: "calc(100vh - %s)" % (116 / 16)rem
@@ -362,4 +436,112 @@ export default {
 
   .tab-content
     flex-grow: 1
+
+    &.preview-in-split::v-deep(.content-wrapper.right)
+      padding: 0
+
+      .close-button
+        right: 1rem
+
+.preview
+  display: flex
+  flex-direction: column
+  justify-content: center
+  align-items: center
+  height: 100%
+
+  .error-state
+    text-align: center
+    max-width: 40rem
+
+    &.dark
+      .icon,
+      h2,
+      p
+        color: $text-secondary-dark
+
+    .icon
+      width: 6rem
+      height: @width
+
+    .icon,
+    h2,
+    p
+      color: $text-secondary
+
+    h2
+      margin-top: 1rem
+
+    p
+      margin-bottom: 2rem
+
+    .button:not(:last-child)
+      margin-right: 1rem
+
+.preview-frame // toplevel because it can teleport
+  width: 100%
+  height: 100%
+  display: flex
+  flex-direction: column
+  align-items: center
+  justify-content: center
+
+  &.fullscreen
+    position: fixed
+    top: 0
+    left: 0
+    background-color: $bg-dark
+    z-index: 2
+
+  header
+    position: absolute
+    top: 0
+    left: 0
+    width: 100%
+    padding: 1rem
+    background-color: alpha($bg, 0.5)
+    opacity: 0
+    transition: opacity 200ms ease
+
+    &.dark
+      background-color: alpha($bg-dark, 0.5)
+
+    &:hover,
+    &.mobile-preview
+      opacity: 1
+
+    .button:not(:last-child)
+      margin-right: 0.5rem
+
+  iframe
+    border: none
+    width: 100%
+    height: 100%
+
+    &.mobile
+      width: (360 / 16)rem
+      height: (640 / 16)rem
+      max-width: 100%
+      max-height: 100%
+      margin: 1rem
+      border-radius: $radius-xl
+
+  .loader
+    position: absolute
+    top: 0
+    left: 0
+    width: 100%
+    height: 100%
+    background-color: $bg
+
+    &.dark
+      background-color: $bg-secondary-dark
+
+    &.v-enter-active,
+    &.v-leave-active
+      transition: opacity 200ms ease
+
+      &.v-enter-from,
+      &.v-leave-to
+        opacity: 0
 </style>
