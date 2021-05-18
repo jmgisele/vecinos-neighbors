@@ -399,7 +399,7 @@ export default {
       this.showEntityMove = true;
     },
     openContentItem(path) {
-      this.$router.push({ name: 'Edit Content', params: { id: this.$store.state.currentProject.id, path } });
+      this.$router.push({ name: 'Edit Content', params: { collection: pathBasename(this.$route.params.path), id: this.$store.state.currentProject.id, path } });
     },
     renameEntity(path) {
       this.entityBeingModified = path;

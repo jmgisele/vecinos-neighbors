@@ -134,7 +134,7 @@ const routes = [
     },
   },
   {
-    path: '/edit-content/:id/:path',
+    path: '/edit-content/:id/:collection/:path',
     name: 'Edit Content',
     component: () => import(/* webpackChunkName: "editors" */ '../views/EditContent.vue'),
     meta: {
