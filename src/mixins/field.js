@@ -46,7 +46,10 @@ export default {
     languages: Array,
     localised: Boolean,
     modelValue: {}, // can be anything
-    options: Object,
+    options: {
+      type: Object,
+      default: () => ({}),
+    },
     splitTarget: HTMLElement,
     validation: Object,
   },
