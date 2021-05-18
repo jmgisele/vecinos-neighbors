@@ -289,7 +289,7 @@ export default {
           }
           deletionPromises.push(await rmrf(path));
           await Promise.all(deletionPromises);
-          await this.$refs.fileList.refresh();
+          if (this.$refs && this.$refs.fileList) await this.$refs.fileList.refresh();
           if (isFile) this.$store.commit('removeLocallyChangedFile', path);
           else if (this.draftsDir && correspondingDraftsDir && dirExists) {
             this.$store.commit('removeLocallyChangedFolder', path);
@@ -297,7 +297,7 @@ export default {
           } else this.$store.commit('removeLocallyChangedFolder', path);
           this.$store.dispatch('saveAppData');
         } catch (err) {
-          this.$store.commit('addToast', { message: `Something went wrong while deleting the ${isFile ? 'schema' : 'folder'}: ${err.message}`, type: 'error' });
+          this.$store.commit('addToast', { message: `Something went wrong while deleting the ${isFile ? pluralize.singular(this.collection.name) : 'folder'}: ${err.message}`, type: 'error' });
         } finally {
           window.clearTimeout(timeoutId);
           this.$store.commit('removeFromSoftDeleted', path);
