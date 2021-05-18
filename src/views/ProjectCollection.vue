@@ -19,7 +19,7 @@
 
 <script>
 import pluralize from 'pluralize';
-import { dump as toYAML } from 'js-yaml';
+import * as matter from 'gray-matter';
 
 import fs, {
   exists, joinPath, mkdirp, pathBasename, pathDirname,
@@ -263,8 +263,7 @@ export default {
           else if (this.collection.type === 'md') {
             const markdownContent = content.content;
             delete content.content; // content is the markdown body, so we don’t need that in the frontmatter
-            const frontmatter = toYAML({ ...content, ___mb_schema: relativeSchemaPath });
-            this.defaultCollectionContent = `---\n${frontmatter}${frontmatter.endsWith('\n') ? '' : '\n'}---\n${markdownContent || ''}`;
+            this.defaultCollectionContent = matter.stringify(markdownContent || '', { ...content, ___mb_schema: relativeSchemaPath });
           }
         } catch (err) {
           if (err.code !== 'ENOENT') this.$store.commit('addToast', { message: `Something went wrong while loading the default Schema: ${err.message}`, type: 'error' });
