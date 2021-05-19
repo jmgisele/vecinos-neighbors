@@ -29,7 +29,7 @@ export default {
       if (!this.displayField) return null;
       const displayValue = _get(this.modelValue, this.displayField);
 
-      if (displayValue !== null && typeof displayValue === 'object') return Object.values(displayValue)[0];
+      if (displayValue !== null && typeof displayValue === 'object') return Object.values(displayValue).find((value) => value) || '';
       return displayValue;
     },
   },
