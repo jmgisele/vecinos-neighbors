@@ -13,6 +13,19 @@
     </header>
     <MbTabs v-if="schema.tabs && schema.tabs.length > 1" v-model="activeTab" :dark="dark" :tabs="cleanTabs" />
     <TabContent :class="{ 'preview-in-split': !previewInNewTab && showPreview }" :dark="dark" :show-split="showSplit" @split-close="showSplit = false" @split-closed="handleSplitClosed">
+      <transition mode="out-in">
+        <div v-if="noSchema" class="no-schema">
+          <h2>No Schema</h2>
+          <p>This {{contentType}} doesn’t have a valid Schema assigned to it yet. Please select one from the list below.</p>
+          <ul>
+            <li v-for="schema in allowedSchemas" :key="schema.value">
+              <MbButton :dark="dark" icon="document" @click="loadAndAssignSchema(schema.value)">{{schema.label}}</MbButton>
+            </li>
+          </ul>
+        </div>
+        <MbFieldsEditor v-else v-model="contentForTab" :compact="!showPreview" :dark="dark" :fields="fieldsForTab" :key="activeTab" split-target="#splitTarget" />
+      </transition>
+
       <pre data-lang="content">{{content}}</pre>
       <pre data-lang="collection">{{collection}}</pre>
       <pre data-lang="schema">{{schema}}</pre>
@@ -46,6 +59,7 @@
             </div>
           </teleport>
         </div>
+        <div v-else id="splitTarget" />
       </template>
     </TabContent>
     <MbModal class="edit-content-modal" :dark="dark" slim title="Content Settings" :visible="showSettings" @close="showSettings = false" @after-close="resetContentName">
@@ -128,12 +142,14 @@ export default {
       // check if the content already has a Schema assigned and load that as well
       let schema;
       if (content.___mb_schema) {
-        try {
-          schema = JSON.parse(await fs.readFile(joinPath('/projects', id, content.___mb_schema), 'utf8'));
-        } catch (err) {
-          if (err.code !== 'ENOENT') throw err;
-          else Store.commit('addToast', { message: `The Schema “${prettifyEntityName(pathBasename(content.___mb_schema))}” could not be found in this project`, type: 'warning' });
-        }
+        if (collection.schemas.includes(content.___mb_schema)) {
+          try {
+            schema = JSON.parse(await fs.readFile(joinPath('/projects', id, content.___mb_schema), 'utf8'));
+          } catch (err) {
+            if (err.code !== 'ENOENT') throw err;
+            else Store.commit('addToast', { message: `The Schema “${prettifyEntityName(pathBasename(content.___mb_schema))}” could not be found in this project`, type: 'warning' });
+          }
+        } else this.$store.commit('addToast', { message: `The Schema “${prettifyEntityName(pathBasename(content.___mb_schema))}” is not allowed in this Collection`, type: 'warning' });
       }
 
       return next((vm) => {
@@ -182,6 +198,10 @@ export default {
     TabContent,
   },
   computed: {
+    allowedSchemas() {
+      if (!this.collection.schemas) return [];
+      return this.collection.schemas.map((schema) => ({ label: prettifyEntityName(pathBasename(schema)), value: schema }));
+    },
     canDelete() {
       const { permissions } = this.collection;
       if (!this.currentUser) return false;
@@ -194,17 +214,32 @@ export default {
       if (!this.schema.tabs) return [];
       return this.schema.tabs.map((tab) => tab.label);
     },
+    contentForTab() {
+      if (this.schema.tabs[this.activeTab].groupAs) return this.content[this.schema.tabs[this.activeTab].groupAs];
+      return this.content;
+    },
     contentName() {
       return prettifyEntityName(pathBasename(this.$route.params.path));
     },
+    contentType() {
+      return pluralize.singular(prettifyEntityName(this.$route.params.collection));
+    },
     currentUser() {
       return this.$store.getters.userInCurrentProject;
+    },
+    fieldsForTab() {
+      if (!this.schema.fields) return [];
+      if (this.activeTab === 0) return this.schema.fields.filter((field) => field.tab === this.cleanTabs[0] || !field.tab); // first tab shows all fields without tab, too
+      return this.schema.fields.filter((field) => field.tab === this.cleanTabs[this.activeTab]);
     },
     isMobile() {
       return this.$store.state.application.mobile;
     },
     isTablet() {
       return this.$store.state.application.tablet;
+    },
+    noSchema() {
+      return !this.content.___mb_schema;
     },
     previewUrl() {
       return this.$store.state.currentProject.previewUrl;
@@ -256,7 +291,7 @@ export default {
           this.$store.commit('removeLocallyChangedFile', path);
           this.$store.dispatch('saveAppData');
         } catch (err) {
-          this.$store.commit('addToast', { message: `Something went wrong while deleting the ${pluralize.singular(prettifyEntityName(collection))}: ${err.message}`, type: 'error' });
+          this.$store.commit('addToast', { message: `Something went wrong while deleting the ${this.contentType}: ${err.message}`, type: 'error' });
           this.$router.replace({ name: 'Edit Content', params: { collection, id, path } });
         } finally {
           window.clearTimeout(timeoutId);
@@ -276,7 +311,7 @@ export default {
           this.$router.replace({ name: 'Edit Content', params: { collection, id, path } });
         },
         actionLabel: 'Undo',
-        message: `The ${pluralize.singular(prettifyEntityName(collection))} “${this.contentName}” was deleted`,
+        message: `The ${this.contentType} “${this.contentName}” was deleted`,
         timeout: timeout - 200,
         type: 'warning',
       });
@@ -288,6 +323,15 @@ export default {
     },
     handleSplitClosed() {
       if (this.showPreview) this.showPreview = false;
+    },
+    async loadAndAssignSchema(schema) {
+      try {
+        this.schema = JSON.parse(await fs.readFile(joinPath('/projects', this.$route.params.id, schema), 'utf8'));
+        this.content.___mb_schema = schema;
+      } catch (err) {
+        if (err.code !== 'ENOENT') this.$store.commit('addToast', { message: `Something went wrong while loading the Schema: ${err.message}`, type: 'error' });
+        else this.$store.commit('addToast', { message: `The Schema “${prettifyEntityName(pathBasename(schema))}” could not be found in this project, please select a different one`, type: 'warning' });
+      }
     },
     openPreviewInNewTab() {
       this.$options.winref = window.open(this.previewUrl, `com.mattrbld.app.Project/preview/${this.$route.params.id}`); // this will focus a window of the same name (reverse domain to avoid duplicates) or open a blank new one
@@ -503,6 +547,40 @@ export default {
 
       .close-button
         right: 1rem
+
+    &.dark
+      .no-schema
+        h2,
+        p
+          color: $text-secondary-dark
+
+    .no-schema,
+    .fields-editor
+      max-width: 40rem
+      margin: 0 auto
+
+      &.v-enter-active,
+      &.v-leave-active
+        transition: opacity 200ms ease
+
+        &.v-enter-from,
+        &.v-leave-to
+          opacity: 0
+
+    .no-schema
+      text-align: center
+
+      h2,
+      p
+        color: $text-secondary
+
+      ul
+        margin: 0
+        list-style: none
+
+        li .button
+          max-width: 100%
+          width: (320 / 16)rem
 
 .preview
   display: flex
