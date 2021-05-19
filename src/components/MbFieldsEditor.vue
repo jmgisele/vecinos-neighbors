@@ -19,7 +19,7 @@
         :split-target="splitTarget"
         :validation="field.validation"
         @update:active="$event ? activeField = field.key : activeField = null"
-        @update:error="$event ? errors.set(field.key, $event) : errors.delete(field.key)"
+        @update:error="handleError(field.key, $event)"
       />
     </template>
   </div>
@@ -74,7 +74,7 @@ export default {
       model: {},
     };
   },
-  emits: ['update:modelValue', 'update:splitVisible'],
+  emits: ['update:error', 'update:modelValue', 'update:splitVisible'],
   methods: {
     componentForType(type) {
       const componentName = fieldTypeToComponent(type);
@@ -103,6 +103,11 @@ export default {
         default:
           return false;
       }
+    },
+    handleError(key, err) {
+      if (err) this.errors.set(key, err);
+      else this.errors.delete(key);
+      this.$emit('update:error', this.errors);
     },
     updateModelValue() {
       this.internalChange = true;

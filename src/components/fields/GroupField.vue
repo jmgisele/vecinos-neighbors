@@ -2,14 +2,14 @@
   <section class="group field">
     <div class="display-wrapper" :class="{ active, dark, error, 'in-split': inSplit, 'no-display-value': !localisedDisplayValue }" tabindex="0" @click="openGroup" @keyup.enter.space="openGroup" @keydown.space.prevent>
       <div class="left">
-        <p class="label" :class="{ unstyled: !localisedDisplayValue }">{{error ? 'One or more subfields have errors' : label}}</p>
-        <p v-if="localisedDisplayValue" class="content">{{localisedDisplayValue}}</p>
+        <p class="label" :class="{ unstyled: !localisedDisplayValue }">{{error || label}}</p>
+        <p v-if="localisedDisplayValue || error" class="content">{{localisedDisplayValue || label}}</p>
       </div>
-      <MbIcon :icon="error ? 'error' : active ? 'cross' : 'pencil'" />
+      <MbIcon :icon="active ? 'cross' : error ? 'error' : 'pencil'" />
     </div>
     <MbModal class="group-content" :dark="dark" :title="label" :visible="showModal" @close="closeGroup" @keyup.ctrl.enter="closeGroup">
       <teleport v-if="!teleportTarget || active" :disabled="!teleportTarget" :to="teleportTarget">
-        <MbFieldsEditor compact :dark="dark" :fields="children" in-split :model-value="modelValue" :parent-languages="languages" @update:model-value="update" />
+        <MbFieldsEditor compact :dark="dark" :fields="children" :in-split="Boolean(teleportTarget)" :model-value="modelValue" :parent-languages="languages" @update:error="handleError" @update:model-value="update" />
       </teleport>
       <template #actions>
         <MbButton :dark="dark" type="primary" @click="closeGroup">Done</MbButton>
@@ -42,6 +42,10 @@ export default {
     closeGroup() {
       if (this.splitTarget) this.$emit('update:active', false);
       else this.showModal = false;
+    },
+    handleError(err) {
+      if (!err || err.size === 0) this.$emit('update:error', '');
+      else this.$emit('update:error', err.size === 1 ? 'A subfield has errors' : `${err.size} subfields have errors`);
     },
     openGroup() {
       if (this.active) {
