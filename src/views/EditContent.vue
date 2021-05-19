@@ -581,6 +581,7 @@ export default {
     position: sticky
     top: 0
     z-index: 1
+    flex-shrink: 0
 
   .tab-content
     flex-grow: 1
@@ -624,6 +625,15 @@ export default {
         li .button
           max-width: 100%
           width: (320 / 16)rem
+
+    .fields-editor
+      margin-top: 8rem
+
+      @media $tablet
+        margin-top: 4rem
+
+      @media $mobile
+        margin-top: 2rem
 
 .preview
   display: flex
