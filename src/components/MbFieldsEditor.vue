@@ -61,7 +61,7 @@ export default {
   },
   created() {
     this.externalChange = true;
-    this.model = _cloneDeep(this.modelValue);
+    this.model = _cloneDeep(this.modelValue) || {};
   },
   data() {
     return {
@@ -111,8 +111,8 @@ export default {
     dark: Boolean,
     fields: Array,
     inSplit: Boolean,
-    parentLanguages: Array,
     modelValue: Object,
+    parentLanguages: Array,
     splitTarget: [String, HTMLElement],
   },
   watch: {
@@ -136,7 +136,7 @@ export default {
         }
 
         this.externalChange = true;
-        this.model = _cloneDeep(nv);
+        this.model = _cloneDeep(nv) || {};
       },
     },
   },
