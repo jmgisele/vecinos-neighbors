@@ -159,6 +159,11 @@ export default {
         vm.newContentName = prettifyEntityName(pathBasename(path)); // eslint-disable-line no-param-reassign
         if (schema) vm.schema = schema; // eslint-disable-line no-param-reassign
         if (fromBackup) vm.wasChanged = true; // eslint-disable-line no-param-reassign
+        if (!schema && !content.___mb_schema && collection.schemas && collection.schemas.length === 1) {
+          const firstSchema = collection.schemas[0];
+          vm.loadAndAssignSchema(firstSchema);
+          vm.$store.commit('addToast', { message: `Automatically assigned the Schema “${prettifyEntityName(pathBasename(firstSchema))}” to this ${vm.contentType}`, type: 'positive' });
+        }
       });
     } catch (err) {
       if (err.code === 'ENOENT') return next({ name: 'NotFound' });
