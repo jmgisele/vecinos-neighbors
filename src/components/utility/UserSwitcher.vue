@@ -489,12 +489,6 @@ export default {
         background-color: $bg-tertiary-dark
         color: $text-dark
 
-        &.active
-          color: $text-dark
-
-          .email
-            color: $text-secondary-dark
-
       .email
         color: $text-secondary-dark
 
@@ -542,10 +536,11 @@ export default {
         color: $text
 
         &.active
-          box-shadow: inset 0 0 0 (2 / 16)rem $accent
+          color: $text-dark
+          background-color: darken($accent, 5)
 
           .email
-            color: $text-secondary
+            color: $text-secondary-dark
 
       &.disabled:not(.active)
         color: $text-tertiary

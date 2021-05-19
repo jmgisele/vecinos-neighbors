@@ -105,10 +105,13 @@ export default {
       color: $text-dark
       pointer-events: none
 
+      &::before
+        box-shadow: inset 0 0 0 0.125rem lighten($accent, 5)
+
       &.disabled
         color: $text-tertiary-dark
 
-    &:focus,
+    &:focus-visible,
     &:hover
       &::before
         opacity: 1

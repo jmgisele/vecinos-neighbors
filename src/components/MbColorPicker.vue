@@ -595,21 +595,17 @@ $checkerboardBG(color, size = 1rem)
         background-color: $accent
         color: $text-dark
 
-      &:hover,
-      &:focus
-        background-color: $bg-secondary
-
-        &.active
-          color: $text
-          box-shadow: inset 0 0 0 (2 / 16)rem $accent
-
       &.dark
         &:hover,
         &:focus
           background-color: $bg-tertiary-dark
 
-          &.active
-            color: $text-dark
+      &:hover,
+      &:focus
+        background-color: $bg-secondary
+
+        &.active
+          background-color: darken($accent, 5)
 
   .color-swatch
     box-shadow: 0 0 0 0.0625rem $text-secondary

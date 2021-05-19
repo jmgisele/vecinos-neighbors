@@ -71,11 +71,9 @@
       .icon
         color: $text-dark
 
-    &:hover
-      background-color: lighten($accent, 5)
-
-    &::before
-      border-color: lighten($accent, 5)
+    &:hover,
+    &:focus-visible
+      background-color: darken($accent, 5)
 
     .left
       .label:not(.unstyled)

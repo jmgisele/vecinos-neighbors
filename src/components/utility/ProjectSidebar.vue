@@ -318,9 +318,6 @@ export default {
         &:focus-visible
           background-color: $bg-tertiary-dark
 
-          &.active
-            color: $text-dark
-
       li.separator
         color: $text-tertiary-dark
 
@@ -394,8 +391,7 @@ export default {
         background-color: $bg-tertiary
 
         &.active
-          box-shadow: inset 0 0 0 (2 / 16)rem $accent
-          color: $text
+          background-color: darken($accent, 5)
 
       .icon
         margin-right: 1rem

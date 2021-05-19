@@ -275,8 +275,9 @@ export default {
     background-color: $accent
     color: $text-dark
 
-    &:hover
-      background-color: lighten($accent, 3)
+    &:hover,
+    &:focus-visible
+      background-color: darken($accent, 5)
 
   &.being-dragged
     opacity: 0.25

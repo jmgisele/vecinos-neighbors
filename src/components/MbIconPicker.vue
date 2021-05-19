@@ -224,6 +224,10 @@ export default {
           background-color: $accent
           color: $text-dark
 
+          &:hover,
+          &:focus
+            background-color: darken($accent, 5)
+
           span
             color: $text-secondary-dark
 

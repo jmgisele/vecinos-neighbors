@@ -819,22 +819,19 @@ export default {
         background-color: $accent
         color: $text-dark
 
-        &:hover
-          background-color: lighten($accent, 5)
-
-        &:active
-          background-color: $accent-secondary
-
-        &::before
-          border-color: $accent-secondary
+        &:hover,
+        &:focus-visible
+          background-color: darken($accent, 5)
 
         span.meta
           color: $text-secondary-dark
 
         .button
-          &:hover,
-          &:focus
-            background-color: $accent-secondary
+          &:hover
+            background-color: $accent
+
+          &:focus-visible
+            background-color: darken($accent, 5)
 
       .icon:not(.button)
         margin-right: 1rem

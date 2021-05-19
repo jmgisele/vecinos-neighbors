@@ -260,6 +260,10 @@ export default {
     background-color: $accent
     color: $text-dark
 
+    &:focus-visible,
+    &:hover
+      background-color: darken($accent, 5)
+
     .field-icon
       box-shadow: inset 0 0 0 0.0625rem $text-dark
 
