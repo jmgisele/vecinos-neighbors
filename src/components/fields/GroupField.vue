@@ -1,12 +1,13 @@
 <template lang="html">
-  <section class="group field">
-    <div class="display-wrapper" :class="{ active, dark, error, 'in-split': inSplit, 'no-display-value': !localisedDisplayValue }" tabindex="0" @click="openGroup" @keyup.enter.space="openGroup" @keydown.space.prevent>
+  <section class="group field" :class="{ dark, expanded: !compact }">
+    <div class="display-wrapper" :class="{ active, dark, error, 'in-split': inSplit, 'no-display-value': !localisedDisplayValue }" :tabindex="compact ? 0 : null" @click="openGroup" @keyup.enter.space="openGroup" @keydown.space.prevent>
       <div class="left">
         <p class="label" :class="{ unstyled: !localisedDisplayValue }">{{error || label}}</p>
         <p v-if="localisedDisplayValue || error" class="content">{{localisedDisplayValue || label}}</p>
       </div>
-      <MbIcon :icon="active ? 'cross' : error ? 'error' : 'pencil'" />
+      <MbIcon v-if="compact" :icon="active ? 'cross' : error ? 'error' : 'pencil'" />
     </div>
+    <MbFieldsEditor v-if="!compact" compact :dark="dark" :fields="children" :in-split="Boolean(teleportTarget)" :model-value="modelValue" :parent-languages="languages" @update:error="handleError" @update:model-value="update" />
     <MbModal class="group-content" :dark="dark" :title="label" :visible="showModal" @close="closeGroup" @keyup.ctrl.enter="closeGroup">
       <teleport v-if="!teleportTarget || active" :disabled="!teleportTarget" :to="teleportTarget">
         <h2 v-if="teleportTarget" class="h3 split-title">{{label}}</h2>
@@ -49,6 +50,7 @@ export default {
       else this.$emit('update:error', err.size === 1 ? 'A subfield has errors' : `${err.size} subfields have errors`);
     },
     openGroup() {
+      if (!this.compact) return;
       if (this.active) {
         this.closeGroup();
         return;
@@ -68,6 +70,30 @@ export default {
 @require '../../assets/styles/fields'
 
 .group.field
+  &.expanded
+    border: 0.0625rem solid alpha($text, 0.12)
+    border-radius: $radius-l
+    padding: 1rem
+
+    &.dark
+      border-color: alpha($text-dark, 0.12)
+
+    > .display-wrapper
+      background-color: transparent
+      pointer-events: none
+      padding: 0
+      color: $text-secondary
+      margin-bottom: 1rem
+
+      &.dark
+        color: $text-secondary-dark
+
+      &.error::before
+        opacity: 0
+
+      &.no-display-value
+        padding: 0
+
   .display-wrapper
     &.no-display-value // to match height of input fields
       padding-top: 1.0625rem
