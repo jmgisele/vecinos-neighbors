@@ -14,7 +14,7 @@
     <MbTabs v-if="schema.tabs && schema.tabs.length > 1" v-model="activeTab" :dark="dark" :tabs="cleanTabs" />
     <TabContent :class="{ 'preview-in-split': !previewInNewTab && showPreview }" :dark="dark" :show-split="showSplit" @split-close="showSplit = false" @split-closed="handleSplitClosed">
       <transition mode="out-in">
-        <div v-if="initialised && noSchema" class="no-schema">
+        <div v-if="initialised && noSchema" class="no-schema" :class="{ dark }">
           <h2>No Schema</h2>
           <p>This {{contentType}} doesn’t have a valid Schema assigned to it yet. Please select one from the list below.</p>
           <ul>
@@ -594,12 +594,6 @@ export default {
       .close-button
         right: 1rem
 
-    &.dark
-      .no-schema
-        h2,
-        p
-          color: $text-secondary-dark
-
     .no-schema,
     .fields-editor
       max-width: 40rem
@@ -615,6 +609,11 @@ export default {
 
     .no-schema
       text-align: center
+
+      &.dark
+        h2,
+        p
+          color: $text-secondary-dark
 
       h2,
       p
