@@ -14,7 +14,7 @@
     <MbTabs v-if="schema.tabs && schema.tabs.length > 1" v-model="activeTab" :dark="dark" :tabs="cleanTabs" />
     <TabContent :class="{ 'preview-in-split': !previewInNewTab && showPreview }" :dark="dark" :show-split="showSplit" @split-close="showSplit = false" @split-closed="handleSplitClosed">
       <transition mode="out-in">
-        <div v-if="noSchema" class="no-schema">
+        <div v-if="initialised && noSchema" class="no-schema">
           <h2>No Schema</h2>
           <p>This {{contentType}} doesn’t have a valid Schema assigned to it yet. Please select one from the list below.</p>
           <ul>
@@ -229,6 +229,7 @@ export default {
     },
     contentForTab: {
       get() {
+        if (this.activeTab < 0) return this.content;
         if (this.schema.tabs[this.activeTab].groupAs) return this.content[this.schema.tabs[this.activeTab].groupAs];
         return this.content;
       },
@@ -293,6 +294,7 @@ export default {
       fileStatus: null,
       forceNavigation: false,
       fullscreenPreview: false,
+      initialised: false,
       newContentName: '',
       newContentSchema: null,
       mobilePreview: false,
@@ -466,6 +468,7 @@ export default {
   mounted() {
     this.$nextTick(() => { // needed so the active indicator looks right
       this.activeTab = 0;
+      this.initialised = true;
     });
   },
   props: {
