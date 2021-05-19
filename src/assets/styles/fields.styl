@@ -46,6 +46,7 @@
     &:focus-visible::before
       border-color: $accent
 
+    .left .label:not(.unstyled), // needed because the :not makes it more specific in the other cases, but we want styled and unstyled ones to be red
     .left .label,
     .icon
       color: $negative-saturated
