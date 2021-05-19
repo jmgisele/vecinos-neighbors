@@ -49,6 +49,7 @@ export default {
       return this.$store.state.currentProject.languages;
     },
     visibleFields() {
+      if (!this.fields) return [];
       const currentUser = this.$store.getters.userInCurrentProject || {};
 
       return this.fields.filter((field) => (
@@ -106,13 +107,13 @@ export default {
   },
   name: 'MbFieldsEditor',
   props: {
-    dark: Boolean,
     compact: Boolean,
+    dark: Boolean,
     fields: Array,
     inSplit: Boolean,
     parentLanguages: Array,
     modelValue: Object,
-    splitTarget: HTMLElement,
+    splitTarget: [String, HTMLElement],
   },
   watch: {
     model: {
