@@ -3,6 +3,7 @@
     <template v-for="field in visibleFields" :key="field.key">
       <component
         v-model="model[field.key]"
+        :active="field.key === activeField"
         :children="field.value"
         :compact="compact"
         :dark="dark"
@@ -17,6 +18,7 @@
         :options="field.options"
         :split-target="splitTarget"
         :validation="field.validation"
+        @update:active="$event ? activeField = field.key : activeField = null"
         @update:error="$event ? errors.set(field.key, $event) : errors.delete(field.key)"
       />
     </template>
@@ -65,12 +67,14 @@ export default {
   },
   data() {
     return {
+      activeField: null,
       errors: new Map(),
       externalChange: false,
       internalChange: false,
       model: {},
     };
   },
+  emits: ['update:modelValue', 'update:splitVisible'],
   methods: {
     componentForType(type) {
       const componentName = fieldTypeToComponent(type);
@@ -114,8 +118,13 @@ export default {
     modelValue: Object,
     parentLanguages: Array,
     splitTarget: [String, HTMLElement],
+    splitVisible: Boolean,
   },
   watch: {
+    activeField(nv, ov) {
+      if (!ov && nv && !this.splitVisible) this.$emit('update:splitVisible', true);
+      else if (ov && !nv && this.splitVisible) this.$emit('update:splitVisible', false);
+    },
     model: {
       deep: true,
       handler() {
@@ -138,6 +147,9 @@ export default {
         this.externalChange = true;
         this.model = _cloneDeep(nv) || {};
       },
+    },
+    splitVisible(nv) {
+      if (!nv) this.activeField = null;
     },
   },
 };

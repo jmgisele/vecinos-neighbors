@@ -23,7 +23,7 @@
             </li>
           </ul>
         </div>
-        <MbFieldsEditor v-else v-model="contentForTab" :compact="!showPreview" :dark="dark" :fields="fieldsForTab" :key="activeTab" split-target="#splitTarget" />
+        <MbFieldsEditor v-else v-model="contentForTab" v-model:split-visible="showSplit" :compact="!showPreview" :dark="dark" :fields="fieldsForTab" :key="activeTab" split-target="#splitTarget" />
       </transition>
 
       <pre data-lang="content">{{content}}</pre>

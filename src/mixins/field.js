@@ -8,7 +8,7 @@ export default {
       return null;
     },
   },
-  emits: ['update:error', 'update:modelValue'],
+  emits: ['update:active', 'update:error', 'update:modelValue'],
   methods: {
     validate(value) { // very basic validation, most fields will probably override this
       if (!this.validation) return '';
@@ -35,6 +35,7 @@ export default {
     },
   },
   props: {
+    active: Boolean,
     children: Array,
     compact: Boolean,
     dark: Boolean,

@@ -7,6 +7,7 @@
     <LocalisedFieldsContainer
       v-else
       v-slot="{ lang }"
+      :active="active"
       :dark="dark"
       :display-value="firstLocalisedValue"
       :error="error"
@@ -15,6 +16,7 @@
       :languages="languages"
       :teleport-target="teleportTarget"
       @modal-closed="$emit('update:error', validateLocalisedValues())"
+      @update:active="$emit('update:active', $event)"
     >
       <MbEditor v-if="options && (options.wrapping || options.multiline)" :allow-new-lines="options && options.multiline" :dark="dark" :error="error && error[lang]" :label="lang" :max-len="(validation && validation.max) || null" :model-value="safeModelValue[lang]" @update:model-value="handleInput($event, lang)" />
       <MbInput v-else :dark="dark" :error="error && error[lang]" :label="lang" :max-len="(validation && validation.max) || null" :model-value="safeModelValue[lang]" @update:model-value="handleInput($event, lang)" />
@@ -112,6 +114,9 @@ export default {
   },
   mixins: [field],
   watch: {
+    active(nv) {
+      if (!nv) this.$emit('update:error', this.validateLocalisedValues());
+    },
     showLocalisedOptions(nv) {
       if (nv) this.$emit('update:error', this.validateLocalisedValues());
       else {
