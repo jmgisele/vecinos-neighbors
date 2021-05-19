@@ -744,6 +744,7 @@ export default {
   max-width: 40rem
   margin-left: auto
   margin-right: auto
+  overflow-x: hidden
 
   @media $tablet
     padding-top: 4rem
