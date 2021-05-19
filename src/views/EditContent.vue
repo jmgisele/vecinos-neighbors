@@ -230,13 +230,15 @@ export default {
     contentForTab: {
       get() {
         if (this.activeTab < 0) return this.content;
-        if (this.schema.tabs[this.activeTab].groupAs) return this.content[this.schema.tabs[this.activeTab].groupAs];
+        const { groupAs } = this.schema.tabs[this.activeTab];
+        if (groupAs) return this.content[groupAs] || {};
         return this.content;
       },
       set(v) {
         if (!this.wasChanged) this.wasChanged = true;
-        if (this.schema.tabs[this.activeTab].groupAs) this.content[this.schema.tabs[this.activeTab].groupAs] = v;
-        this.content = v;
+        const { groupAs } = this.schema.tabs[this.activeTab];
+        if (groupAs) this.content[groupAs] = v;
+        else this.content = v;
       },
     },
     contentName() {
