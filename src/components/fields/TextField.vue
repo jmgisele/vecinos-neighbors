@@ -15,9 +15,8 @@
       :languages="languages"
       :teleport-target="teleportTarget"
       @modal-closed="$emit('update:error', validateLocalisedValues())"
-      @modal-open="handleModalOpen"
     >
-      <MbEditor v-if="options && (options.wrapping || options.multiline)" :allow-new-lines="options && options.multiline" :dark="dark" :error="error && error[lang]" :label="lang" :max-len="(validation && validation.max) || null" :model-value="safeModelValue[lang]" :ref="setLanguageFields" @update:model-value="handleInput($event, lang)" />
+      <MbEditor v-if="options && (options.wrapping || options.multiline)" :allow-new-lines="options && options.multiline" :dark="dark" :error="error && error[lang]" :label="lang" :max-len="(validation && validation.max) || null" :model-value="safeModelValue[lang]" @update:model-value="handleInput($event, lang)" />
       <MbInput v-else :dark="dark" :error="error && error[lang]" :label="lang" :max-len="(validation && validation.max) || null" :model-value="safeModelValue[lang]" @update:model-value="handleInput($event, lang)" />
     </LocalisedFieldsContainer>
   </section>
@@ -31,9 +30,6 @@ import field from '../../mixins/field';
 import LocalisedFieldsContainer from '../utility/LocalisedFieldsContainer.vue';
 
 export default {
-  beforeUpdate() {
-    this.editors = [];
-  },
   components: {
     LocalisedFieldsContainer,
   },
@@ -79,15 +75,6 @@ export default {
         this.$emit('update:modelValue', { ...this.safeModelValue, [lang]: newValue });
       }
     },
-    handleModalOpen() {
-      this.$nextTick(this.recalculateEditorSize);
-    },
-    recalculateEditorSize() {
-      this.editors.forEach((editor) => editor.recalculateHeight(editor.modelValue));
-    },
-    setLanguageFields(el) {
-      if (el) this.editors.push(el);
-    },
     validate(value) {
       if (!this.validation) return '';
 
@@ -124,11 +111,6 @@ export default {
     },
   },
   mixins: [field],
-  mounted() {
-    this.$nextTick(() => {
-      if (this.$refs.editor) this.$refs.editor.recalculateHeight(this.safeModelValue);
-    });
-  },
   watch: {
     showLocalisedOptions(nv) {
       if (nv) this.$emit('update:error', this.validateLocalisedValues());

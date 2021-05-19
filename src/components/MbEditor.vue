@@ -81,6 +81,10 @@ import InternalLinkHelper from './utility/InternalLinkHelper.vue';
 export default {
   beforeUnmount() {
     if (this.outputFormat !== 'text' && !this.raw) this.destroyProseMirror();
+    if (this.observer) {
+      this.observer.disconnect();
+      this.observer = null;
+    }
   },
   components: {
     InternalLinkHelper,
@@ -232,6 +236,7 @@ export default {
       },
       markdownParser: null,
       markdownSerializer: null,
+      observer: null,
       raw: false,
       redoDepth: 0,
       renderDiv: null,
@@ -639,8 +644,20 @@ export default {
     },
   },
   mounted() {
-    if (this.outputFormat === 'text') this.recalculateHeight(this.cleanValue);
-    else this.reInitializeProseMirror();
+    if (this.outputFormat === 'text') {
+      if (!this.observer) { // this is needed to initially set the height if the component got initialised in a parent with display: none
+        this.observer = new IntersectionObserver((entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+              this.observer.disconnect();
+              this.observer = null;
+              this.recalculateHeight(this.cleanValue);
+            }
+          });
+        });
+      }
+      this.observer.observe(this.$el);
+    } else this.reInitializeProseMirror();
   },
   props: {
     allowNewLines: {
