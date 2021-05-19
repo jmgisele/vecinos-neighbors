@@ -50,7 +50,7 @@ export default {
       type: Object,
       default: () => ({}),
     },
-    splitTarget: HTMLElement,
+    splitTarget: [String, HTMLElement],
     validation: Object,
   },
 };
