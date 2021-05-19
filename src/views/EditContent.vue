@@ -214,9 +214,16 @@ export default {
       if (!this.schema.tabs) return [];
       return this.schema.tabs.map((tab) => tab.label);
     },
-    contentForTab() {
-      if (this.schema.tabs[this.activeTab].groupAs) return this.content[this.schema.tabs[this.activeTab].groupAs];
-      return this.content;
+    contentForTab: {
+      get() {
+        if (this.schema.tabs[this.activeTab].groupAs) return this.content[this.schema.tabs[this.activeTab].groupAs];
+        return this.content;
+      },
+      set(v) {
+        if (!this.wasChanged) this.wasChanged = true;
+        if (this.schema.tabs[this.activeTab].groupAs) this.content[this.schema.tabs[this.activeTab].groupAs] = v;
+        this.content = v;
+      },
     },
     contentName() {
       return prettifyEntityName(pathBasename(this.$route.params.path));
@@ -328,6 +335,7 @@ export default {
       try {
         this.schema = JSON.parse(await fs.readFile(joinPath('/projects', this.$route.params.id, schema), 'utf8'));
         this.content.___mb_schema = schema;
+        this.wasChanged = true;
       } catch (err) {
         if (err.code !== 'ENOENT') this.$store.commit('addToast', { message: `Something went wrong while loading the Schema: ${err.message}`, type: 'error' });
         else this.$store.commit('addToast', { message: `The Schema “${prettifyEntityName(pathBasename(schema))}” could not be found in this project, please select a different one`, type: 'warning' });
