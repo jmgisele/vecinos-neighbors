@@ -64,12 +64,16 @@
     </TabContent>
     <MbModal class="edit-content-modal" :dark="dark" slim title="Content Settings" :visible="showSettings" @close="showSettings = false" @after-close="resetContentName">
       <MbInput v-model="newContentName" :dark="dark" :error="errors.name" icon="document" label="Name" @blur="validateNewContentName" />
+      <div class="select-wrapper">
+        <span>Content Schema:</span>
+        <MbSelect :dark="dark" :model-value="content.___mb_schema" :options="allowedSchemas" placeholder="Select a Schema…" @update:model-value="newContentSchema = $event" />
+      </div>
       <MbHighlightBox v-if="canDelete" color="negative" :dark="dark" label="Danger Zone">
-        <MbButton class="delete-button" :dark="dark" icon="trash" type="negative" @click="deleteContent">Delete {{contentName}}</MbButton>
+        <MbButton class="delete-button" :dark="dark" icon="trash" type="negative" @click="deleteContent">Delete “{{contentName}}”</MbButton>
       </MbHighlightBox>
       <template #actions>
         <MbButton :dark="dark" @click="showSettings = false">Cancel</MbButton>
-        <MbButton :dark="dark" :disabled="Boolean(errors.name)" type="primary" @click="renameContent">Save</MbButton>
+        <MbButton :dark="dark" :disabled="Boolean(errors.name)" type="primary" @click="saveSettings">Save</MbButton>
       </template>
     </MbModal>
   </div>
@@ -219,6 +223,10 @@ export default {
       if (!this.schema.tabs) return [];
       return this.schema.tabs.map((tab) => tab.label);
     },
+    contentDir() {
+      if (!this.collection.dir) return this.projectDir;
+      return joinPath(this.projectDir, this.collection.dir);
+    },
     contentForTab: {
       get() {
         if (this.schema.tabs[this.activeTab].groupAs) return this.content[this.schema.tabs[this.activeTab].groupAs];
@@ -239,10 +247,18 @@ export default {
     currentUser() {
       return this.$store.getters.userInCurrentProject;
     },
+    draftsDir() {
+      if (!this.collection.dir || !this.$store.state.currentProject.draftsDir) return null;
+      return joinPath(this.projectDir, this.$store.state.currentProject.draftsDir, pathBasename(this.contentDir));
+    },
     fieldsForTab() {
       if (!this.schema.fields) return [];
       if (this.activeTab === 0) return this.schema.fields.filter((field) => field.tab === this.cleanTabs[0] || !field.tab); // first tab shows all fields without tab, too
       return this.schema.fields.filter((field) => field.tab === this.cleanTabs[this.activeTab]);
+    },
+    isDraft() {
+      if (!this.draftsDir) return false;
+      return this.$route.params.path.startsWith(this.draftsDir);
     },
     isMobile() {
       return this.$store.state.application.mobile;
@@ -255,6 +271,9 @@ export default {
     },
     previewUrl() {
       return this.$store.state.currentProject.previewUrl;
+    },
+    projectDir() {
+      return `/projects/${this.$route.params.id}`;
     },
     status() {
       if (!this.fileStatus) return { color: 'warning', loading: true };
@@ -275,6 +294,7 @@ export default {
       forceNavigation: false,
       fullscreenPreview: false,
       newContentName: '',
+      newContentSchema: null,
       mobilePreview: false,
       previewLoading: false,
       previewInNewTab: null,
@@ -388,6 +408,7 @@ export default {
     },
     resetContentName() {
       this.newContentName = this.contentName;
+      this.newContentSchema = null;
       this.errors.name = '';
     },
     async saveChanges() {
@@ -413,6 +434,12 @@ export default {
         this.$store.commit('addToast', { message: 'At least one of the fields has errors, please fix them before saving.', type: 'negative' });
       }
       this.saveLoading = false;
+    },
+    async saveSettings() {
+      this.showSettings = false;
+
+      if (this.newContentSchema) await this.loadAndAssignSchema(this.newContentSchema);
+      if (this.newContentName !== this.contentName) this.renameContent();
     },
     togglePreview() {
       if (!this.showPreview) {
@@ -700,7 +727,16 @@ export default {
 .edit-content-modal
   .input
     width: 100%
+    margin-bottom: 1rem
+
+  .select-wrapper
+    display: flex
+    align-items: center
+    justify-content: space-between
     margin-bottom: 2rem
+
+    > span
+      margin-right: 1rem
 
   .highlight-box
     .button
