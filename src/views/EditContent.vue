@@ -739,6 +739,18 @@ export default {
       &.v-leave-to
         opacity: 0
 
+#splitTarget
+  padding-top: 8rem
+  max-width: 40rem
+  margin-left: auto
+  margin-right: auto
+
+  @media $tablet
+    padding-top: 4rem
+
+  @media $mobile
+    padding-top: 0
+
 .edit-content-modal
   .input
     width: 100%
