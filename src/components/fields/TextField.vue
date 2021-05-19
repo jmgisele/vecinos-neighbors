@@ -1,8 +1,8 @@
 <template lang="html">
-  <section class="text field" :class="{ dark, 'in-split': inSplit }">
+  <section class="text field" :class="{ dark }">
     <template v-if="!showLocalisedOptions">
-      <MbEditor v-if="options && (options.wrapping || options.multiline)" :allow-new-lines="options && options.multiline" :dark="dark" :error="error" :label="label" :max-len="(validation && validation.max) || null" :model-value="safeModelValue" ref="editor" @update:model-value="handleInput" />
-      <MbInput v-else :dark="dark" :error="error" :label="label" :max-len="(validation && validation.max) || null" :model-value="safeModelValue" @update:model-value="handleInput" />
+      <MbEditor v-if="options && (options.wrapping || options.multiline)" :allow-new-lines="options && options.multiline" :class="{ 'in-split': inSplit }" :dark="dark" :error="error" :label="label" :max-len="(validation && validation.max) || null" :model-value="safeModelValue" ref="editor" @update:model-value="handleInput" />
+      <MbInput v-else :class="{ 'in-split': inSplit }" :dark="dark" :error="error" :label="label" :max-len="(validation && validation.max) || null" :model-value="safeModelValue" @update:model-value="handleInput" />
     </template>
     <LocalisedFieldsContainer
       v-else
@@ -18,8 +18,8 @@
       @modal-closed="$emit('update:error', validateLocalisedValues())"
       @update:active="$emit('update:active', $event)"
     >
-      <MbEditor v-if="options && (options.wrapping || options.multiline)" :allow-new-lines="options && options.multiline" :dark="dark" :error="error && error[lang]" :label="lang" :max-len="(validation && validation.max) || null" :model-value="safeModelValue[lang]" @update:model-value="handleInput($event, lang)" />
-      <MbInput v-else :dark="dark" :error="error && error[lang]" :label="lang" :max-len="(validation && validation.max) || null" :model-value="safeModelValue[lang]" @update:model-value="handleInput($event, lang)" />
+      <MbEditor v-if="options && (options.wrapping || options.multiline)" :allow-new-lines="options && options.multiline" :class="{ 'in-split': teleportTarget }" :dark="dark" :error="error && error[lang]" :label="lang" :max-len="(validation && validation.max) || null" :model-value="safeModelValue[lang]" @update:model-value="handleInput($event, lang)" />
+      <MbInput v-else :class="{ 'in-split': teleportTarget }" :dark="dark" :error="error && error[lang]" :label="lang" :max-len="(validation && validation.max) || null" :model-value="safeModelValue[lang]" @update:model-value="handleInput($event, lang)" />
     </LocalisedFieldsContainer>
   </section>
 </template>
@@ -132,11 +132,6 @@ export default {
 @require '../../assets/styles/colors'
 
 .text.field
-  &.in-split.dark
-    .input,
-    .editor::v-deep(.content-wrapper)
-      background-color: $bg-tertiary-dark
-
   .input
     margin-top: 0
     width: 100%
@@ -147,4 +142,9 @@ export default {
 .localisation-modal .input
   display: flex
   width: 100%
+
+.in-split.dark
+  &.input,
+  &.editor::v-deep(.content-wrapper)
+    background-color: $bg-tertiary-dark
 </style>
