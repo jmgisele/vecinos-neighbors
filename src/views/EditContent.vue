@@ -48,12 +48,23 @@
         </div>
       </template>
     </TabContent>
+    <MbModal class="edit-content-modal" :dark="dark" slim title="Content Settings" :visible="showSettings" @close="showSettings = false" @after-close="resetContentName">
+      <MbInput v-model="newContentName" :dark="dark" :error="errors.name" icon="document" label="Name" @blur="validateNewContentName" />
+      <MbHighlightBox v-if="canDelete" color="negative" :dark="dark" label="Danger Zone">
+        <MbButton class="delete-button" :dark="dark" icon="trash" type="negative" @click="deleteContent">Delete {{contentName}}</MbButton>
+      </MbHighlightBox>
+      <template #actions>
+        <MbButton :dark="dark" @click="showSettings = false">Cancel</MbButton>
+        <MbButton :dark="dark" :disabled="Boolean(errors.name)" type="primary" @click="renameContent">Save</MbButton>
+      </template>
+    </MbModal>
   </div>
 </template>
 
 <script>
 import { cloneDeep as _cloneDeep } from 'lodash-es';
 import { status } from 'isomorphic-git';
+import pluralize from 'pluralize';
 import slugify from '@sindresorhus/slugify';
 import * as matter from 'gray-matter';
 
@@ -77,7 +88,7 @@ export default {
     const { collection: collectionFile, id, path } = to.params;
 
     try {
-      // Check if the user is allowed to edit schemas in the current project. To do that we currently need to load all users and the project itself if they aren’t currently loaded
+      // Check if the user is allowed to edit content in the current project. To do that we currently need to load all users and the project itself if they aren’t currently loaded
       if (!Store.state.currentProject.id) { // currentProject is not loaded
         const { project, users, avatarUrl } = await loadProject(id, fs);
         Store.commit('setCurrentProject', {
@@ -171,6 +182,14 @@ export default {
     TabContent,
   },
   computed: {
+    canDelete() {
+      const { permissions } = this.collection;
+      if (!this.currentUser) return false;
+      if (!this.currentUser.role || !permissions) return false;
+      if (permissions.everybody && (permissions.everybody.includes('deleteContent') || permissions.everybody.includes('everything'))) return true;
+      if (permissions[this.currentUser.role] && (permissions[this.currentUser.role].includes('deleteContent') || permissions[this.currentUser.role].includes('everything'))) return true;
+      return false;
+    },
     cleanTabs() {
       if (!this.schema.tabs) return [];
       return this.schema.tabs.map((tab) => tab.label);
@@ -226,6 +245,44 @@ export default {
       this.$options.winref = null;
       this.previewInNewTab = false;
     },
+    deleteContent() {
+      if (!this.canDelete) return;
+
+      const { collection, id, path } = this.$route.params;
+      const timeout = 5000;
+      const timeoutId = window.setTimeout(async () => {
+        try {
+          await fs.unlink(path);
+          this.$store.commit('removeLocallyChangedFile', path);
+          this.$store.dispatch('saveAppData');
+        } catch (err) {
+          this.$store.commit('addToast', { message: `Something went wrong while deleting the ${pluralize.singular(prettifyEntityName(collection))}: ${err.message}`, type: 'error' });
+          this.$router.replace({ name: 'Edit Content', params: { collection, id, path } });
+        } finally {
+          window.clearTimeout(timeoutId);
+          this.$store.commit('removeFromSoftDeleted', path);
+          this.$store.commit('setAppProperty', { key: 'temporaryContentStorage', value: null });
+        }
+      }, timeout);
+
+      this.showSettings = false;
+      if (this.wasChanged) this.$store.commit('setAppProperty', { key: 'temporaryContentStorage', value: _cloneDeep(this.content) });
+      this.forceNavigation = true;
+      this.$store.commit('addToSoftDeleted', path);
+      this.$store.commit('addToast', {
+        action: () => {
+          window.clearTimeout(timeoutId);
+          this.$store.commit('removeFromSoftDeleted', path);
+          this.$router.replace({ name: 'Edit Content', params: { collection, id, path } });
+        },
+        actionLabel: 'Undo',
+        message: `The ${pluralize.singular(prettifyEntityName(collection))} “${this.contentName}” was deleted`,
+        timeout: timeout - 200,
+        type: 'warning',
+      });
+      const collectionPath = joinPath('/.mattrbld', 'collections', collection);
+      this.$router.replace({ name: 'Project.Collection', params: { id, path: collectionPath } });
+    },
     focusOpenPreview() {
       this.$options.winref.focus();
     },
@@ -261,7 +318,7 @@ export default {
       const alreadyExists = await exists(newPath);
 
       if (alreadyExists) {
-        this.errors.name = 'A schema with this name already exists';
+        this.errors.name = 'A content item with this name already exists';
         return;
       }
 
@@ -271,6 +328,10 @@ export default {
       this.showSettings = false;
       this.forceNavigation = true;
       this.$router.replace({ params: { collection: this.$route.params.collection, id: this.$route.params.id, path: newPath } });
+    },
+    resetContentName() {
+      this.newContentName = this.contentName;
+      this.errors.name = '';
     },
     async saveChanges() {
       this.saveLoading = true;
@@ -544,4 +605,13 @@ export default {
       &.v-enter-from,
       &.v-leave-to
         opacity: 0
+
+.edit-content-modal
+  .input
+    width: 100%
+    margin-bottom: 2rem
+
+  .highlight-box
+    .button
+      width: 100%
 </style>
