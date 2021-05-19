@@ -1,5 +1,5 @@
 <template lang="html">
-  <section class="text field" :class="{ dark }">
+  <section class="text field" :class="{ dark, localised: showLocalisedOptions }">
     <template v-if="!showLocalisedOptions">
       <MbEditor v-if="options && (options.wrapping || options.multiline)" :allow-new-lines="options && options.multiline" :class="{ 'in-split': inSplit }" :dark="dark" :error="error" :label="label" :max-len="(validation && validation.max) || null" :model-value="safeModelValue" ref="editor" @update:model-value="handleInput" />
       <MbInput v-else :class="{ 'in-split': inSplit }" :dark="dark" :error="error" :label="label" :max-len="(validation && validation.max) || null" :model-value="safeModelValue" @update:model-value="handleInput" />

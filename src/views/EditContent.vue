@@ -30,7 +30,7 @@
       <pre data-lang="collection">{{collection}}</pre>
       <pre data-lang="schema">{{schema}}</pre>
 
-      <template #right>
+      <template #right="{ isModal }">
         <div v-if="showPreview" class="preview">
           <div v-if="errors.preview === 'offline'" class="error-state" :class="{ dark }">
             <MbIcon icon="offline-alt" />
@@ -59,7 +59,7 @@
             </div>
           </teleport>
         </div>
-        <div v-else id="splitTarget" />
+        <div v-else :class="{ 'in-modal': isModal }" id="splitTarget" />
       </template>
     </TabContent>
     <MbModal class="edit-content-modal" :dark="dark" slim title="Content Settings" :visible="showSettings" @close="showSettings = false" @after-close="resetContentName">
@@ -751,6 +751,9 @@ export default {
 
   @media $mobile
     padding-top: 0
+
+  &.in-modal
+    margin-top: -1rem
 
 .edit-content-modal
   .input

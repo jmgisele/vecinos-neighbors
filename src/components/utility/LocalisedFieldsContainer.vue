@@ -7,6 +7,7 @@
     <MbIcon :icon="active ? 'cross' : error ? 'error' : 'pencil'" />
     <MbModal class="localisation-modal" :dark="dark" :title="`${label} (localised)`" :visible="showModal" @close="closeValues" @after-close="$emit('modal-closed')" @keyup.ctrl.enter="closeValues">
       <teleport v-if="!teleportTarget || active" :disabled="!teleportTarget" :to="teleportTarget">
+        <h2 v-if="teleportTarget" class="h3 split-title">{{label}} (localised)</h2>
         <template v-for="lang in languages" :key="lang">
           <slot :lang="lang" />
         </template>

@@ -9,6 +9,7 @@
     </div>
     <MbModal class="group-content" :dark="dark" :title="label" :visible="showModal" @close="closeGroup" @keyup.ctrl.enter="closeGroup">
       <teleport v-if="!teleportTarget || active" :disabled="!teleportTarget" :to="teleportTarget">
+        <h2 v-if="teleportTarget" class="h3 split-title">{{label}}</h2>
         <MbFieldsEditor compact :dark="dark" :fields="children" :in-split="Boolean(teleportTarget)" :model-value="modelValue" :parent-languages="languages" @update:error="handleError" @update:model-value="update" />
       </teleport>
       <template #actions>
