@@ -39,7 +39,7 @@
       </MbSortableList>
       <MbButton class="add-tab-button" :dark="dark" icon="plus" type="positive" @click="resetTabBeingEdited(); showEditTab = true">Add Tab</MbButton>
       <MbHighlightBox color="negative" :dark="dark" label="Danger Zone">
-        <p>Deleting a Schema that is still used for content items will cause them to not be displayed correctly. Please make sure to only delete this schema, if you know what you’re doing.</p>
+        <p>Deleting a Schema that is still used for content items will cause them to not be displayed correctly. Please make sure to only delete this Schema, if you know what you’re doing.</p>
         <MbButton class="delete-tab-button" :dark="dark" icon="trash" type="negative" @click="deleteSchema">Delete Schema</MbButton>
       </MbHighlightBox>
       <template #actions>
