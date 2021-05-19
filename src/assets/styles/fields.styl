@@ -63,6 +63,27 @@
     transform: translateY(0.125rem)
     background-color: $bg
 
+  &.active
+    background-color: $accent
+    color: $text-dark
+
+    &.error
+      .icon
+        color: $text-dark
+
+    &:hover
+      background-color: lighten($accent, 5)
+
+    &::before
+      border-color: lighten($accent, 5)
+
+    .left
+      .label:not(.unstyled)
+        color: $text-secondary-dark
+
+      .content.empty
+        color: $text-tertiary-dark
+
   &::before
     content: ''
     position: absolute
