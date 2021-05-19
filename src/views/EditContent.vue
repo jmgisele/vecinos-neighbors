@@ -477,6 +477,9 @@ export default {
     dark: Boolean,
   },
   watch: {
+    activeTab() {
+      if (this.showSplit && !this.showPreview) this.showSplit = false;
+    },
     currentUser(nv) {
       if (!nv || !hasAccess(nv.role, this.collection.permissions)) {
         if (this.wasChanged) {
