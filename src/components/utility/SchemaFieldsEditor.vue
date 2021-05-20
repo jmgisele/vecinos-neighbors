@@ -68,7 +68,7 @@
             <span>Field value to display in compact mode:</span>
             <MbSelect v-model="fieldBeingEdited.displayField" :dark="dark" :options="childFieldKeys" placeholder="Select a field…" />
           </div>
-          <MbToggle v-if="typeof fieldBeingEdited.localised !== 'undefined'" v-model="fieldBeingEdited.localised" :dark="dark">Enable localisation for this field</MbToggle>
+          <MbToggle v-if="localisationEnabled && typeof fieldBeingEdited.localised !== 'undefined'" v-model="fieldBeingEdited.localised" :dark="dark">Enable localisation for this field</MbToggle>
           <div v-if="typeof fieldBeingEdited.default !== 'undefined'" class="field-wrapper">
             <component
               v-model="fieldBeingEdited.default"
@@ -200,6 +200,9 @@ export default {
     },
     isTablet() {
       return this.$store.state.application.tablet;
+    },
+    localisationEnabled() {
+      return this.$store.state.currentProject.languages && this.$store.state.currentProject.languages.length > 1;
     },
     projectRoles() {
       return [
