@@ -41,7 +41,7 @@ export default {
     dark: Boolean,
     default: {}, // can be anything
     displayField: String,
-    error: [String, Object], // will be an object if localised
+    error: [String, Map], // will be a Map if localised / has subfields
     inSplit: Boolean,
     label: String,
     languages: Array,

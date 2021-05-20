@@ -9,7 +9,7 @@
         :dark="dark"
         :default="field.default"
         :display-field="field.displayField"
-        :error="errors.get(field.key)"
+        :error="error.get(field.key)"
         :in-split="inSplit"
         :is="componentForType(field.type)"
         :label="field.label"
@@ -68,7 +68,6 @@ export default {
   data() {
     return {
       activeField: null,
-      errors: new Map(),
       externalChange: false,
       internalChange: false,
       model: {},
@@ -105,9 +104,10 @@ export default {
       }
     },
     handleError(key, err) {
-      if (err) this.errors.set(key, err);
-      else this.errors.delete(key);
-      this.$emit('update:error', this.errors);
+      const errorClone = _cloneDeep(this.error);
+      if (err) errorClone.set(key, err);
+      else errorClone.delete(key);
+      this.$emit('update:error', errorClone);
     },
     updateModelValue() {
       this.internalChange = true;
@@ -118,6 +118,10 @@ export default {
   props: {
     compact: Boolean,
     dark: Boolean,
+    error: {
+      type: Map,
+      default: () => new Map(),
+    },
     fields: Array,
     inSplit: Boolean,
     modelValue: Object,
@@ -132,13 +136,14 @@ export default {
     },
     model: {
       deep: true,
-      handler() {
+      async handler() {
         if (this.externalChange) {
           this.externalChange = false;
           return;
         }
 
-        if (!this.errors.size) this.updateModelValue();
+        await this.$nextTick(); // we wait a tick so this.error has the correct value before we check it (otherwise it would check an outdated value, causing invalid modelValue to be emitted)
+        if (!this.error.size) this.updateModelValue();
       },
     },
     modelValue: {

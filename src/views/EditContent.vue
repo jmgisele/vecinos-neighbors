@@ -23,7 +23,7 @@
             </li>
           </ul>
         </div>
-        <MbFieldsEditor v-else v-model="contentForTab" v-model:split-visible="showSplit" :compact="!showPreview" :dark="dark" :fields="fieldsForTab" :key="activeTab" :split-target="!showPreview ? '#splitTarget' : null" />
+        <MbFieldsEditor v-else v-model="contentForTab" v-model:error="errors.fields" v-model:split-visible="showSplit" :compact="!showPreview" :dark="dark" :fields="fieldsForTab" :key="activeTab" :split-target="!showPreview ? '#splitTarget' : null" />
       </transition>
 
       <pre data-lang="content">{{content}}</pre>
@@ -292,6 +292,7 @@ export default {
       collection: {},
       errors: {
         name: '',
+        fields: new Map(),
       },
       fileStatus: null,
       forceNavigation: false,

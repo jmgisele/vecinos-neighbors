@@ -27,7 +27,8 @@ export default {
     },
     errorMessage() {
       if (this.error && typeof this.error === 'string') return this.error;
-      if (this.error && Object.values(this.error).some((value) => value)) return 'One or more subfields have errors';
+      if (this.error && this.error.size === 1) return 'A subfield has errors';
+      if (this.error && this.error.size > 1) return `${this.error.size} subfields have errors`;
       return '';
     },
   },
@@ -55,7 +56,7 @@ export default {
     active: Boolean,
     dark: Boolean,
     displayValue: {}, // could be anything
-    error: [String, Object],
+    error: [String, Map],
     inSplit: Boolean,
     label: String,
     languages: Array,

@@ -1,17 +1,17 @@
 <template lang="html">
   <section class="group field" :class="{ dark, expanded: !compact }">
-    <div class="display-wrapper" :class="{ active, dark, error, 'in-split': inSplit, 'no-display-value': !localisedDisplayValue }" :tabindex="compact ? 0 : null" @click="openGroup" @keyup.enter.space="openGroup" @keydown.space.prevent>
+    <div class="display-wrapper" :class="{ active, dark, error: cleanError, 'in-split': inSplit, 'no-display-value': !localisedDisplayValue }" :tabindex="compact ? 0 : null" @click="openGroup" @keyup.enter.space="openGroup" @keydown.space.prevent>
       <div class="left">
-        <p class="label" :class="{ unstyled: !localisedDisplayValue }">{{error || label}}</p>
-        <p v-if="localisedDisplayValue || error" class="content">{{localisedDisplayValue || label}}</p>
+        <p class="label" :class="{ unstyled: !localisedDisplayValue }">{{cleanError || label}}</p>
+        <p v-if="localisedDisplayValue || cleanError" class="content">{{localisedDisplayValue || label}}</p>
       </div>
-      <MbIcon v-if="compact" :icon="active ? 'cross' : error ? 'error' : 'pencil'" />
+      <MbIcon v-if="compact" :icon="active ? 'cross' : cleanError ? 'error' : 'pencil'" />
     </div>
-    <MbFieldsEditor v-if="!compact" compact :dark="dark" :fields="children" :in-split="Boolean(teleportTarget)" :model-value="modelValue" :parent-languages="languages" @update:error="handleError" @update:model-value="update" />
+    <MbFieldsEditor v-if="!compact" compact :dark="dark" :error="error" :fields="children" :in-split="Boolean(teleportTarget)" :model-value="modelValue" :parent-languages="languages" @update:error="handleError" @update:model-value="update" />
     <MbModal class="group-content" :dark="dark" :title="label" :visible="showModal" @close="closeGroup" @keyup.ctrl.enter="closeGroup">
       <teleport v-if="!teleportTarget || active" :disabled="!teleportTarget" :to="teleportTarget">
         <h2 v-if="teleportTarget" class="h3 split-title">{{label}}</h2>
-        <MbFieldsEditor compact :dark="dark" :fields="children" :in-split="Boolean(teleportTarget)" :model-value="modelValue" :parent-languages="languages" @update:error="handleError" @update:model-value="update" />
+        <MbFieldsEditor compact :dark="dark" :error="error" :fields="children" :in-split="Boolean(teleportTarget)" :model-value="modelValue" :parent-languages="languages" @update:error="handleError" @update:model-value="update" />
       </teleport>
       <template #actions>
         <MbButton :dark="dark" type="primary" @click="closeGroup">Done</MbButton>
@@ -27,6 +27,10 @@ import field from '../../mixins/field';
 
 export default {
   computed: {
+    cleanError() {
+      if (!this.error) return '';
+      return this.error.size === 1 ? 'A subfield has errors' : `${this.error.size} subfields have errors`;
+    },
     localisedDisplayValue() {
       if (!this.displayField) return null;
       const displayValue = _get(this.modelValue, this.displayField);
@@ -47,7 +51,7 @@ export default {
     },
     handleError(err) {
       if (!err || err.size === 0) this.$emit('update:error', '');
-      else this.$emit('update:error', err.size === 1 ? 'A subfield has errors' : `${err.size} subfields have errors`);
+      else this.$emit('update:error', err);
     },
     openGroup() {
       if (!this.compact) return;

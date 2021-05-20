@@ -18,13 +18,14 @@
       @modal-closed="$emit('update:error', validateLocalisedValues())"
       @update:active="$emit('update:active', $event)"
     >
-      <MbEditor v-if="options && (options.wrapping || options.multiline)" :allow-new-lines="options && options.multiline" :class="{ 'in-split': teleportTarget }" :dark="dark" :error="error && error[lang]" :label="lang" :max-len="(validation && validation.max) || null" :model-value="safeModelValue[lang]" @update:model-value="handleInput($event, lang)" />
-      <MbInput v-else :class="{ 'in-split': teleportTarget }" :dark="dark" :error="error && error[lang]" :label="lang" :max-len="(validation && validation.max) || null" :model-value="safeModelValue[lang]" @update:model-value="handleInput($event, lang)" />
+      <MbEditor v-if="options && (options.wrapping || options.multiline)" :allow-new-lines="options && options.multiline" :class="{ 'in-split': teleportTarget }" :dark="dark" :error="error instanceof Map ? error.get(lang)  : ''" :label="lang" :max-len="(validation && validation.max) || null" :model-value="safeModelValue[lang]" @update:model-value="handleInput($event, lang)" />
+      <MbInput v-else :class="{ 'in-split': teleportTarget }" :dark="dark" :error="error instanceof Map ? error.get(lang)  : ''" :label="lang" :max-len="(validation && validation.max) || null" :model-value="safeModelValue[lang]" @update:model-value="handleInput($event, lang)" />
     </LocalisedFieldsContainer>
   </section>
 </template>
 
 <script>
+import { cloneDeep as _cloneDeep } from 'lodash-es';
 import userInputToRegex from '../../assets/js/userInputToRegex';
 
 import field from '../../mixins/field';
@@ -69,10 +70,12 @@ export default {
 
         this.$emit('update:modelValue', newValue);
       } else {
-        if (error || (this.error && this.error[lang])) {
-          if (error) this.$emit('update:error', { ...this.error, [lang]: error });
-          else if (Object.keys(this.error).every((key) => key === lang || !this.error[key])) this.$emit('update:error', ''); // so it can be cleared
-          else this.$emit('update:error', { ...this.error, [lang]: error });
+        if (error || (this.error && this.error.get(lang))) {
+          const errorClone = _cloneDeep(this.error) || new Map();
+          if (error) errorClone.set(lang, error);
+          else if (!error && this.error.get(lang)) errorClone.delete(lang);
+          if (errorClone.size > 0) this.$emit('update:error', errorClone);
+          else this.$emit('update:error', '');
         }
         this.$emit('update:modelValue', { ...this.safeModelValue, [lang]: newValue });
       }
@@ -99,13 +102,13 @@ export default {
     validateLocalisedValues() {
       if (!this.validation) return '';
 
-      const errors = {};
+      const errors = new Map();
       let hasErrors = false;
       this.languages.forEach((lang) => {
         const error = this.validate((this.safeModelValue[lang]) || '');
         if (error) {
           hasErrors = true;
-          errors[lang] = error;
+          errors.set(lang, error);
         }
       });
       if (hasErrors) return errors;
