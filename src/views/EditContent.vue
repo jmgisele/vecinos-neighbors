@@ -8,7 +8,7 @@
       <div class="right">
         <MbButton :dark="dark" icon="settings" @click="showSettings = true">{{isTablet ? '' : 'Settings'}}</MbButton>
         <MbButton v-if="previewUrl" :dark="dark" :icon="showPreview ? 'hide' : 'eye'" @click="togglePreview">{{isTablet ? '' : showPreview ? 'Hide Preview' : 'Preview'}}</MbButton>
-        <MbButton :dark="dark" :disabled="!wasChanged" icon="save" :icon-first="true" :loading="saveLoading" type="primary" @click="saveChanges">{{isTablet && !isMobile ? '' : 'Save'}}</MbButton>
+        <MbButton :dark="dark" :disabled="!wasChanged || errors.fields.size > 0" icon="save" :icon-first="true" :loading="saveLoading" type="primary" @click="saveChanges">{{isTablet && !isMobile ? '' : 'Save'}}</MbButton>
       </div>
     </header>
     <MbTabs v-if="schema.tabs && schema.tabs.length > 1" v-model="activeTab" :dark="dark" :tabs="cleanTabs" />
@@ -447,6 +447,7 @@ export default {
           }
           await fs.writeFile(this.$route.params.path, transformedContent, 'utf8');
           this.$store.commit('addToast', { message: `“${this.contentName}” was saved successfully`, type: 'positive' });
+          this.$store.commit('addLocallyChangedFile', this.$route.params.path);
           this.wasChanged = false;
         } catch (err) {
           this.$store.commit('addToast', { message: `Something went wrong while saving the file: ${err.message}`, type: 'error' });
