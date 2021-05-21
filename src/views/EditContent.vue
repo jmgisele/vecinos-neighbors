@@ -249,7 +249,7 @@ export default {
 
       if (languagesField) {
         const fieldTab = this.schema.tabs && this.schema.tabs.find((tab) => tab.label === languagesField.tab);
-        if (fieldTab.groupAs) languages = this.content[fieldTab.groupAs][languagesField.key];
+        if (fieldTab.groupAs) languages = this.content[fieldTab.groupAs] && this.content[fieldTab.groupAs][languagesField.key];
         else languages = this.content[languagesField.key];
       }
 
