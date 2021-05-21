@@ -1,5 +1,5 @@
 <template lang="html">
-  <section class="color field" :class="{ dark, 'in-split': inSplit }">
+  <section class="color field" :class="{ dark, error, 'in-split': inSplit }">
     <span>{{label}}:</span>
     <MbColorPicker :class="{ error }" :dark="dark" :data-error="error" :format="options.format" :model-value="modelValue" :palette="palette" :palette-only="options.paletteOnly" :removable="options.removable" @update:model-value="handleInput" />
   </section>
