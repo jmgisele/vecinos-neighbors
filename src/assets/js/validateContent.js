@@ -1,4 +1,34 @@
-function validate(field, parent, groupAsKey, index) {
+import userInputToRegex from './userInputToRegex';
+
+export function validateField(value, type, rules) {
+  if (!rules) return '';
+
+  let error = '';
+  switch (type) {
+    case 'languages':
+      if (rules.min && value.length < rules.min) {
+        if (rules.min === 1) error = 'At least one language is required';
+        else error = `At least ${rules.min} languages are required`;
+      }
+      break;
+    case 'text':
+      if (rules.required && !value) error = 'This field is required';
+      else if (rules.enforceMinMax && (rules.min || rules.max)) {
+        if (rules.min && value.length < rules.min) error = 'The value is too short';
+        if (rules.max && value.length > rules.max) error = 'The value is too long';
+      } else if (rules.regex) {
+        try {
+          if (!userInputToRegex(rules.regex).test(value)) error = rules.regexError || 'Invalid value';
+        } catch (err) {
+          // do nothing, if we end up here it’s because the user-input regex was invalid
+        }
+      }
+      break;
+    default:
+      if (rules.required && !value) error = 'This field is required';
+  }
+  return error;
+}
   const {
     key, value: subfields, localised, validation,
   } = field;

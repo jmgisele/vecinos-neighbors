@@ -15,7 +15,7 @@
       :label="label"
       :languages="languages"
       :teleport-target="teleportTarget"
-      @modal-closed="$emit('update:error', validateLocalisedValues())"
+      @modal-closed="$emit('update:error', validateLocalisedValues(safeModelValue, ''))"
       @update:active="$emit('update:active', $event)"
     >
       <MbEditor v-if="options && (options.wrapping || options.multiline)" :allow-new-lines="options && options.multiline" :class="{ 'in-split': teleportTarget }" :dark="dark" :error="error instanceof Map ? error.get(lang)  : ''" :label="lang" :max-len="(validation && validation.max) || null" :model-value="safeModelValue[lang]" @update:model-value="handleInput($event, lang)" />
@@ -26,7 +26,6 @@
 
 <script>
 import { cloneDeep as _cloneDeep } from 'lodash-es';
-import userInputToRegex from '../../assets/js/userInputToRegex';
 
 import field from '../../mixins/field';
 
@@ -80,48 +79,14 @@ export default {
         this.$emit('update:modelValue', { ...this.safeModelValue, [lang]: newValue });
       }
     },
-    validate(value) {
-      if (!this.validation) return '';
-
-      let error = '';
-
-      if (this.validation.required && !value) error = 'This field is required';
-      else if (this.validation.enforceMinMax && (this.validation.min || this.validation.max)) {
-        if (this.validation.min && value.length < this.validation.min) error = 'The value is too short';
-        if (this.validation.max && value.length > this.validation.max) error = 'The value is too long';
-      } else if (this.validation.regex) {
-        try {
-          if (!userInputToRegex(this.validation.regex).test(value)) error = this.validation.regexError || 'Invalid value';
-        } catch (err) {
-          // do nothing, if we end up here it’s because the user-input regex was invalid
-        }
-      }
-
-      return error;
-    },
-    validateLocalisedValues() {
-      if (!this.validation) return '';
-
-      const errors = new Map();
-      let hasErrors = false;
-      this.languages.forEach((lang) => {
-        const error = this.validate((this.safeModelValue[lang]) || '');
-        if (error) {
-          hasErrors = true;
-          errors.set(lang, error);
-        }
-      });
-      if (hasErrors) return errors;
-      return '';
-    },
   },
   mixins: [field],
   watch: {
     active(nv) {
-      if (!nv) this.$emit('update:error', this.validateLocalisedValues());
+      if (!nv) this.$emit('update:error', this.validateLocalisedValues(this.safeModelValue, ''));
     },
     showLocalisedOptions(nv) {
-      if (nv) this.$emit('update:error', this.validateLocalisedValues());
+      if (nv) this.$emit('update:error', this.validateLocalisedValues(this.safeModelValue, ''));
       else {
         const error = this.validate(this.safeModelValue);
         if (error || this.error) this.$emit('update:error', error); // we only emit if we have an error set or the value is invalid

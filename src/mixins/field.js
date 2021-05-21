@@ -1,3 +1,5 @@
+import { validateField } from '../assets/js/validateContent';
+
 export default {
   computed: {
     showLocalisedOptions() {
@@ -15,27 +17,18 @@ export default {
       if (error || this.error) this.$emit('update:error', error);
       this.$emit('update:modelValue', newValue);
     },
-    validate(value) { // very basic validation, most fields will probably override this
-      if (!this.validation) return '';
-
-      let error = '';
-
-      if (this.validation.required && !value) error = 'This field is required';
-      return error;
+    validate(value) {
+      return validateField(value, this.type, this.validation);
     },
-    validateLocalisedValues() {
+    validateLocalisedValues(values, defaultValue) {
       if (!this.validation) return '';
 
-      const errors = {};
-      let hasErrors = false;
+      const errors = new Map();
       this.languages.forEach((lang) => {
-        const error = this.validate((this.modelValue && this.modelValue[lang]));
-        if (error) {
-          hasErrors = true;
-          errors[lang] = error;
-        }
+        const error = this.validate((values && values[lang]) || defaultValue);
+        if (error) errors.set(lang, error);
       });
-      if (hasErrors) return errors;
+      if (errors.size > 0) return errors;
       return '';
     },
   },
