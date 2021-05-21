@@ -47,17 +47,22 @@ function validate(field, parent, languages, groupAsKey, index) {
 
   // validate subfields, if any
   if (subfields) {
-    errors = new Map();
     if (Array.isArray(value)) { // rows, columns, etc. (anything  that is an array of object basically)
       value.forEach((subvalue, i) => {
         const fieldType = subfields.find((subfield) => subfield.key === subvalue.___mb_type);
         const error = validate(fieldType, value, languages, null, i);
-        if (error) errors.set(i, error);
+        if (error) {
+          if (!errors) errors = new Map();
+          errors.set(i, error);
+        }
       });
     } else { // field groups (so objects (but not localised fields))
       subfields.forEach((subfield) => {
         const error = validate(subfield, value, languages);
-        if (error) errors.set(subfield.key, error);
+        if (error) {
+          if (!errors) errors = new Map();
+          errors.set(subfield.key, error);
+        }
       });
     }
   }
