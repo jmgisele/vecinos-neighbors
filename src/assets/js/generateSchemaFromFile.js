@@ -24,7 +24,7 @@ function isLanguageCode(code) {
 function identifyFieldTypeByValue(value, key) {
   const candidate = { type: null, typeCandidates: [] }; // may also contain localised and children if necessary
   const valueType = typeof value;
-  if (value === null) candidate.typeCandidates = generateAllTypesArray();
+  if (value === null || (typeof value === 'object' && Object.keys(value).length === 0)) candidate.typeCandidates = generateAllTypesArray();
   else if (valueType !== 'object') {
     switch (valueType) {
       case 'string':
