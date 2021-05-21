@@ -4,28 +4,32 @@ export function validateField(value, type, rules) {
   if (!rules) return '';
 
   let error = '';
+  let valueToCheck = value;
+
   switch (type) {
     case 'languages':
-      if (rules.min && value.length < rules.min) {
+      valueToCheck = value || [];
+      if (rules.min && valueToCheck.length < rules.min) {
         if (rules.min === 1) error = 'At least one language is required';
         else error = `At least ${rules.min} languages are required`;
       }
       break;
     case 'text':
-      if (rules.required && !value) error = 'This field is required';
+      valueToCheck = value || '';
+      if (rules.required && !valueToCheck) error = 'This field is required';
       else if (rules.enforceMinMax && (rules.min || rules.max)) {
-        if (rules.min && value.length < rules.min) error = 'The value is too short';
-        if (rules.max && value.length > rules.max) error = 'The value is too long';
+        if (rules.min && valueToCheck.length < rules.min) error = 'The value is too short';
+        if (rules.max && valueToCheck.length > rules.max) error = 'The value is too long';
       } else if (rules.regex) {
         try {
-          if (!userInputToRegex(rules.regex).test(value)) error = rules.regexError || 'Invalid value';
+          if (!userInputToRegex(rules.regex).test(valueToCheck)) error = rules.regexError || 'Invalid value';
         } catch (err) {
           // do nothing, if we end up here it’s because the user-input regex was invalid
         }
       }
       break;
     default:
-      if (rules.required && !value) error = 'This field is required';
+      if (rules.required && !valueToCheck) error = 'This field is required';
   }
   return error;
 }
@@ -37,7 +41,7 @@ function validate(field, parent, languages, groupAsKey, index) {
   let value;
   let errors;
 
-  if (groupAsKey) value = parent[groupAsKey] && parent[groupAsKey][key];
+  if (groupAsKey) value = (parent[groupAsKey] && parent[groupAsKey][key]) || {}; // need to fall back to an empty object here in case the groupAs-field doesn’t exist
   else if (index) value = parent[index];
   else value = parent[key];
 
@@ -60,9 +64,9 @@ function validate(field, parent, languages, groupAsKey, index) {
 
   // validate the field itself
   if (validation) {
-    if (localised && typeof value === 'object') { // localised field with localised values
+    if (localised) { // localised field with localised values
       languages.forEach((lang) => {
-        const error = validateField(value, type, validation);
+        const error = validateField(value ? value[lang] : null, type, validation);
         if (error) {
           if (!errors) errors = new Map();
           errors.set(lang, error);
