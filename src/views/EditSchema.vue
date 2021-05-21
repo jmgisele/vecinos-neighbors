@@ -323,6 +323,7 @@ export default {
     generateSchemaFromFile() {
       this.generateSchema.loading = true;
       this.schema = generateSchemaFromCandidates(this.generateSchema.fieldCandidates, this.generateSchema.tabs);
+      this.wasChanged = true;
       this.generateSchema.loading = false;
       this.generateSchema.show = false;
     },
