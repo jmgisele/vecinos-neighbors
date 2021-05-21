@@ -1,5 +1,5 @@
 <template lang="html">
-  <div class="checkbox-group">
+  <div class="checkbox-group" :class="{ inline }">
     <MbCheckbox v-for="(checkbox, index) in checkboxes" :dark="dark" :disabled="checkbox.disabled" :key="index" :model-value="modelValue.indexOf(checkbox.value) > -1" @update:model-value="handleChange($event, checkbox.value)">{{checkbox.label}}</MbCheckbox>
   </div>
 </template>
@@ -18,6 +18,7 @@ export default {
       default: () => [],
     },
     dark: Boolean,
+    inline: Boolean,
     modelValue: Array,
   },
 };
@@ -25,6 +26,17 @@ export default {
 
 <style lang="stylus" scoped>
 .checkbox-group
+  display: flex
+  flex-direction: column
+
+  &.inline
+    flex-direction: row
+    flex-wrap: wrap
+    margin: -0.5rem
+
+    .checkbox
+      margin: 0.5rem
+
   .checkbox:not(:last-child)
     margin-bottom: 0.5rem
 </style>

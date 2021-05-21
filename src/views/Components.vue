@@ -622,6 +622,7 @@
         <p>This component allows to group checkboxes together and returns an array of which have been selected.</p>
         <p>The currently selected checkboxes are: <code>{{checkboxGroupTest}}</code></p>
         <MbCheckboxGroup v-model="checkboxGroupTest" :checkboxes="[{ label: 'First Value', value: 'first' },{ label: 'Second Value', value: 'second' },{ disabled: true, label: 'Disabled Value', value: 'disabled' },{ label: 'Third Value', value: 'third' },]" :dark="dark" />
+        <MbCheckboxGroup v-model="checkboxGroupTest" :checkboxes="[{ label: 'First Value', value: 'first' },{ label: 'Second Value', value: 'second' },{ disabled: true, label: 'Disabled Value', value: 'disabled' },{ label: 'Third Value', value: 'third' },]" :dark="dark" inline />
         <h3>Props</h3>
         <MbTable :data="props.checkboxGroups" />
         <h3>Events</h3>
@@ -1044,6 +1045,7 @@ export default {
           ['Name', 'Type', 'Default', 'Notes'],
           ['`checkboxes`', 'Array', '`[]`', 'Should be an array of { disabled, label, value } objects'],
           ['`dark`', 'Boolean', '`false`'],
+          ['`inline`', 'Boolean', '`false`'],
           ['`modelValue`', 'Array', '`undefined`'],
         ],
         chips: [
@@ -1779,6 +1781,10 @@ export default {
 
     &.checkboxes
       .checkbox
+        margin-bottom: 1rem
+
+    &.checkbox-groups
+      .checkbox-group
         margin-bottom: 1rem
 
     &.textareas
