@@ -18,13 +18,6 @@ export default {
       return palette;
     },
   },
-  methods: {
-    handleInput(newValue) {
-      const error = this.validate(newValue);
-      if (error || this.error) this.$emit('update:error', error);
-      this.$emit('update:modelValue', newValue);
-    },
-  },
   mixins: [field],
 };
 </script>

@@ -10,6 +10,11 @@ export default {
   },
   emits: ['update:active', 'update:error', 'update:modelValue'],
   methods: {
+    handleInput(newValue) {
+      const error = this.validate(newValue);
+      if (error || this.error) this.$emit('update:error', error);
+      this.$emit('update:modelValue', newValue);
+    },
     validate(value) { // very basic validation, most fields will probably override this
       if (!this.validation) return '';
 
