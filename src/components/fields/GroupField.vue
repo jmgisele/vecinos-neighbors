@@ -7,11 +7,11 @@
       </div>
       <MbIcon v-if="compact" :icon="active ? 'cross' : cleanError ? 'error' : 'pencil'" />
     </div>
-    <MbFieldsEditor v-if="!compact" compact :dark="dark" :error="error" :fields="children" :in-split="Boolean(teleportTarget)" :model-value="modelValue" :parent-languages="languages" @update:error="handleError" @update:model-value="update" />
+    <MbFieldsEditor v-if="!compact" compact :dark="dark" :error="error" :fields="children" :in-split="Boolean(teleportTarget)" :model-value="modelValue" :languages="languages" @update:error="handleError" @update:model-value="update" />
     <MbModal class="group-content" :dark="dark" :title="label" :visible="showModal" @close="closeGroup" @keyup.ctrl.enter="closeGroup">
       <teleport v-if="!teleportTarget || active" :disabled="!teleportTarget" :to="teleportTarget">
         <h2 v-if="teleportTarget" class="h3 split-title">{{label}}</h2>
-        <MbFieldsEditor compact :dark="dark" :error="error" :fields="children" :in-split="Boolean(teleportTarget)" :model-value="modelValue" :parent-languages="languages" @update:error="handleError" @update:model-value="update" />
+        <MbFieldsEditor compact :dark="dark" :error="error" :fields="children" :in-split="Boolean(teleportTarget)" :model-value="modelValue" :languages="languages" @update:error="handleError" @update:model-value="update" />
       </teleport>
       <template #actions>
         <MbButton :dark="dark" type="primary" @click="closeGroup">Done</MbButton>

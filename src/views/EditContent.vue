@@ -23,9 +23,10 @@
             </li>
           </ul>
         </div>
-        <MbFieldsEditor v-else v-model="contentForTab" v-model:error="errors.fields" v-model:split-visible="showSplit" :compact="!showPreview" :dark="dark" :fields="fieldsForTab" :key="activeTab" :split-target="!showPreview ? '#splitTarget' : null" />
+        <MbFieldsEditor v-else v-model="contentForTab" v-model:error="errors.fields" v-model:split-visible="showSplit" :compact="!showPreview" :dark="dark" :fields="fieldsForTab" :key="activeTab" :languages="contentLanguages" :split-target="!showPreview ? '#splitTarget' : null" />
       </transition>
 
+      <pre data-lang="content langs">{{contentLanguages}}</pre>
       <pre data-lang="content">{{content}}</pre>
       <pre data-lang="collection">{{collection}}</pre>
       <pre data-lang="schema">{{schema}}</pre>
@@ -240,6 +241,20 @@ export default {
         if (groupAs) this.content[groupAs] = v;
         else this.content = v;
       },
+    },
+    contentLanguages() {
+      if (!this.schema.fields) return this.$store.state.currentProject.languages;
+      const languagesField = this.schema.fields.find((field) => field.type === 'languages');
+      let languages;
+
+      if (languagesField) {
+        const fieldTab = this.schema.tabs && this.schema.tabs.find((tab) => tab.label === languagesField.tab);
+        if (fieldTab.groupAs) languages = this.content[fieldTab.groupAs][languagesField.key];
+        else languages = this.content[languagesField.key];
+      }
+
+      if (!languages || languages.length === 0) return this.$store.state.currentProject.languages;
+      return languages;
     },
     contentName() {
       return prettifyEntityName(pathBasename(this.$route.params.path));

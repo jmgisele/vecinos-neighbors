@@ -39,7 +39,7 @@
               </dl>
             </dl>
             <div class="data">
-              <MbFieldsEditor v-if="currentProject.media.advanced && imageRegExp.test(entityBeingModified) && (userPermissions.has('everything') || userPermissions.has('editMedia'))" :dark="dark" compact :fields="currentProject.media.customFields" in-split :model-value="fileDetails.meta" @update:model-value="updateMediaMetaFile" />
+              <MbFieldsEditor v-if="currentProject.media.advanced && imageRegExp.test(entityBeingModified) && (userPermissions.has('everything') || userPermissions.has('editMedia'))" :dark="dark" compact :fields="currentProject.media.customFields" in-split :model-value="fileDetails.meta" :languages="currentProject.languages" @update:model-value="updateMediaMetaFile" />
               <MbHighlightBox v-if="userPermissions.has('everything') || userPermissions.has('editMedia')" class="replacement" :class="{ 'in-modal': isModal }" :dark="dark" label="Replace File">
                 <p>Replacing a file allows you to change its contents without having to update all content items that refer to it, since the path will remain unchanged.</p>
                 <MbButton :dark="dark" icon="replace-alt" @click="replaceFile">Replace</MbButton>

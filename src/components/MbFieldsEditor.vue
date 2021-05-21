@@ -43,19 +43,13 @@ const components = requireComponent.keys().reduce((acc, path) => {
 export default {
   components,
   computed: {
-    languages() {
-      const languagesField = this.fields.find((field) => field.type === 'languages');
-
-      if (languagesField) return this.model[languagesField.key];
-      if (this.parentLanguages) return this.parentLanguages;
-      return this.$store.state.currentProject.languages;
-    },
     visibleFields() {
       if (!this.fields) return [];
       const currentUser = this.$store.getters.userInCurrentProject || {};
 
       return this.fields.filter((field) => (
         !field.visibility.hidden
+        && (!field.type === 'languages' || (this.languages && this.languages.length > 0)) // showing languages fields when there are no languages or localisation is disabled doesn’t make sense
         && (!field.visibility.limitToRoles || field.visibility.limitToRoles.length === 0 || field.visibility.limitToRoles.find((role) => role.value === currentUser.role))
         && (!field.visibility.showByValue || !field.visibility.showByValue.field || this.fieldShouldBeVisible(field.visibility.showByValue))
       ));
@@ -125,7 +119,7 @@ export default {
     fields: Array,
     inSplit: Boolean,
     modelValue: Object,
-    parentLanguages: Array,
+    languages: Array,
     splitTarget: [String, HTMLElement],
     splitVisible: Boolean,
   },
