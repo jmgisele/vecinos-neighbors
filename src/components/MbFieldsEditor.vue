@@ -164,7 +164,8 @@ export default {
   overflow: hidden
 
   .field
-    &.text:not(.localised):first-child // so the label is still visible even when it’s floating
+    &.text:not(.localised):first-child,
+    &.color.error:first-child // so the label is still visible even when it’s floating
       margin-top: 2rem
 
     &:not(:last-child)
