@@ -29,13 +29,15 @@ export function validateField(value, type, rules) {
   }
   return error;
 }
+
+function validate(field, parent, languages, groupAsKey, index) {
   const {
-    key, value: subfields, localised, validation,
+    key, value: subfields, localised, type, validation,
   } = field;
   let value;
   let errors;
 
-  if (groupAsKey) value = parent[groupAsKey][key];
+  if (groupAsKey) value = parent[groupAsKey] && parent[groupAsKey][key];
   else if (index) value = parent[index];
   else value = parent[key];
 
@@ -45,12 +47,12 @@ export function validateField(value, type, rules) {
     if (Array.isArray(value)) { // rows, columns, etc. (anything  that is an array of object basically)
       value.forEach((subvalue, i) => {
         const fieldType = subfields.find((subfield) => subfield.key === subvalue.___mb_type);
-        const error = validate(fieldType, value, null, i);
+        const error = validate(fieldType, value, languages, null, i);
         if (error) errors.set(i, error);
       });
     } else { // field groups (so objects (but not localised fields))
       subfields.forEach((subfield) => {
-        const error = validate(subfield, value);
+        const error = validate(subfield, value, languages);
         if (error) errors.set(subfield.key, error);
       });
     }
@@ -59,17 +61,15 @@ export function validateField(value, type, rules) {
   // validate the field itself
   if (validation) {
     if (localised && typeof value === 'object') { // localised field with localised values
-      const langs = Object.keys(value);
-
-      langs.forEach((lang) => {
-        const error = null; // TODO: validate according to rules
+      languages.forEach((lang) => {
+        const error = validateField(value, type, validation);
         if (error) {
           if (!errors) errors = new Map();
           errors.set(lang, error);
         }
       });
     } else {
-      const error = null; // TODO: validate according to rules
+      const error = validateField(value, type, validation);
       if (error && errors) errors.set(key, error); // this might happen in columns and rows when subfields have errors and the field itself has an error
       else errors = error;
     }
@@ -78,7 +78,7 @@ export function validateField(value, type, rules) {
   return errors;
 }
 
-export default function validateContent(content, schema) {
+export default function validateContent(content, schema, languages) {
   if (typeof content !== 'object') throw new TypeError('content has to be an object');
   if (typeof schema !== 'object') throw new TypeError('schema has to be an object');
 
@@ -87,7 +87,7 @@ export default function validateContent(content, schema) {
 
   if (!tabs || tabs.length === 0) {
     fields.forEach((field) => {
-      const error = validate(field, content);
+      const error = validate(field, content, languages);
       if (error) errors.set(field.key, error);
     });
   } else {
@@ -95,7 +95,7 @@ export default function validateContent(content, schema) {
       fields
         .filter((field) => field.tab === tab.label || (index === 0 && !field.tab))
         .forEach((field) => {
-          const error = validate(field, content, tab.groupAs);
+          const error = validate(field, content, languages, tab.groupAs);
           if (error) errors.set(field.key, error);
         });
     });
