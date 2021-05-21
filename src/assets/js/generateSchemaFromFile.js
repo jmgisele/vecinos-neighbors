@@ -156,6 +156,7 @@ function createFieldFromCandidate(candidate, tab) {
   delete cleanField.description; // not needed, so let’s save space
   delete cleanField.group; // not needed, so let’s save space
 
+  cleanField.label = `${key[0].toUpperCase()}${key.substring(1)}`;
   cleanField.key = key;
   if (localised) cleanField.localised = localised;
   if (tab) cleanField.tab = tab;
