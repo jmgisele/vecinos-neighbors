@@ -17,6 +17,7 @@
         :localised="field.localised"
         :options="field.options"
         :split-target="splitTarget"
+        :type="field.type"
         :validation="field.validation"
         @update:active="$event ? activeField = field.key : activeField = null"
         @update:error="handleError(field.key, $event)"

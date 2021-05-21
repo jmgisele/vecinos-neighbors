@@ -57,6 +57,7 @@ export default {
       default: () => ({}),
     },
     splitTarget: [String, HTMLElement],
+    type: String,
     validation: Object,
   },
 };
