@@ -91,6 +91,7 @@ import fs, { exists, PlainFS, joinPath, pathBasename, pathDirname } from '../fs'
 
 import loadProject from '../assets/js/loadProject';
 import prettifyEntityName from '../assets/js/prettifyEntityName';
+import validateContent from '../assets/js/validateContent';
 import Store from '../store';
 
 import TabContent from '../components/utility/TabContent.vue';
@@ -475,8 +476,8 @@ export default {
       }
     },
     validateContent() {
-      // TODO: find a way to validate the entire content
-      return '';
+      this.errors.fields = validateContent(this.content, this.schema, this.contentLanguages);
+      return this.errors.fields.size === 0;
     },
     validateNewContentName() {
       if (!this.newContentName || !this.newContentName.trim()) this.errors.name = 'A name is required';
