@@ -39,7 +39,7 @@
               </dl>
             </dl>
             <div class="data">
-              <MbFieldsEditor v-if="currentProject.media.advanced && imageRegExp.test(entityBeingModified) && (userPermissions.has('everything') || userPermissions.has('editMedia'))" :dark="dark" compact :fields="currentProject.media.customFields" in-split :model-value="fileDetails.meta" :languages="currentProject.languages" @update:model-value="updateMediaMetaFile" />
+              <MbFieldsEditor v-if="currentProject.media.advanced && imageRegExp.test(entityBeingModified) && (userPermissions.has('everything') || userPermissions.has('editMedia'))" v-model:error="fileDetails.errors" :dark="dark" compact :fields="currentProject.media.customFields" in-split :model-value="fileDetails.meta" :languages="currentProject.languages" @update:model-value="updateMediaMetaFile" />
               <MbHighlightBox v-if="userPermissions.has('everything') || userPermissions.has('editMedia')" class="replacement" :class="{ 'in-modal': isModal }" :dark="dark" label="Replace File">
                 <p>Replacing a file allows you to change its contents without having to update all content items that refer to it, since the path will remain unchanged.</p>
                 <MbButton :dark="dark" icon="replace-alt" @click="replaceFile">Replace</MbButton>
@@ -259,6 +259,7 @@ export default {
       dragActive: false,
       entityBeingModified: null,
       fileDetails: {
+        errors: new Map(),
         height: null,
         image: null,
         meta: null,
@@ -401,6 +402,7 @@ export default {
 
       this.entityBeingModified = path;
       this.showSplit = true;
+      this.fileDetails.errors = new Map(); // clear the errors, they’re not needed since nothing got saved while they were there
       this.fileDetails.width = null; // need to reset these here before the image / file has a chance to load
       this.fileDetails.height = null; // need to reset these here before the image / file has a chance to load
       this.fileDetails.image = imageUrl;
@@ -532,6 +534,7 @@ export default {
       this.fileDetails.height = img.naturalHeight;
     },
     updateMediaMetaFile: debounce(async function (newMeta) { // eslint-disable-line func-names
+      if (this.fileDetails.errors.size > 0) return; // don’t save invalid values
       const mediaMetaDir = joinPath('/projects', this.currentProject.id, '.mattrbld', 'media');
       const pathInMediaDir = this.entityBeingModified.replace(this.mediaDir, '');
       this.fileDetails.meta = newMeta;
