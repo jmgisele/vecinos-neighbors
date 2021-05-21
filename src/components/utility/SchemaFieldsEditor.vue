@@ -202,7 +202,7 @@ export default {
       return this.$store.state.application.tablet;
     },
     localisationEnabled() {
-      return this.$store.state.currentProject.languages && this.$store.state.currentProject.languages.length > 1;
+      return this.$store.state.currentProject.languages && this.$store.state.currentProject.languages.length > 0;
     },
     projectRoles() {
       return [
