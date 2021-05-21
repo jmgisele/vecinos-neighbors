@@ -675,6 +675,18 @@ export default [
     label: 'Checkboxes',
     options: [
       {
+        component: 'MbSelect',
+        key: 'type',
+        label: 'Display type:',
+        props: {
+          options: [
+            { label: 'Inline', value: 'inline' },
+            { label: 'List', value: 'list' },
+          ],
+        },
+        value: 'inline',
+      },
+      {
         component: 'MbEditableList',
         key: 'checkboxes',
         label: 'Checkboxes:',
@@ -705,7 +717,7 @@ export default [
           options: [
             { label: 'Inline', value: 'inline' },
             { label: 'Wide', value: 'wide' },
-            { label: 'Segmened', value: 'segmented' },
+            { label: 'Segmented', value: 'segmented' },
           ],
         },
         value: 'inline',
