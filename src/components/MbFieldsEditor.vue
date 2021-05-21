@@ -131,14 +131,13 @@ export default {
     },
     model: {
       deep: true,
-      async handler() {
+      handler() {
         if (this.externalChange) {
           this.externalChange = false;
           return;
         }
 
-        await this.$nextTick(); // we wait a tick so this.error has the correct value before we check it (otherwise it would check an outdated value, causing invalid modelValue to be emitted)
-        if (!this.error.size) this.updateModelValue();
+        this.updateModelValue();
       },
     },
     modelValue: {
