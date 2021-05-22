@@ -45,7 +45,7 @@ export default {
           if (errorClone.size > 0) this.$emit('update:error', errorClone);
           else this.$emit('update:error', '');
         }
-        if (this.modelValue && typeof this.modelValue === 'object') this.$emit('update:modelValue', { ...this.modelValue, [lang]: newValue });
+        if (this.modelValue && typeof this.modelValue === 'object' && !Array.isArray(this.modelValue)) this.$emit('update:modelValue', { ...this.modelValue, [lang]: newValue });
         else if (this.modelValue && lang !== this.languages[0]) this.$emit('update:modelValue', { [this.languages[0]]: this.modelValue, [lang]: newValue });
         else this.$emit('update:modelValue', { [lang]: newValue });
       }
@@ -90,10 +90,10 @@ export default {
     showLocalisedOptions(nv) {
       let newValue;
       if (nv) {
-        if (this.modelValue !== null && (!this.modelValue || typeof this.modelValue !== 'object')) newValue = this.convertLocalisedValue(true);
+        if (this.modelValue !== null && (!this.modelValue || Array.isArray(this.modelValue) || typeof this.modelValue !== 'object')) newValue = this.convertLocalisedValue(true);
         this.$emit('update:error', this.validateLocalisedValues(newValue || this.modelValue, ''));
       } else {
-        if (this.modelValue && typeof this.modelValue === 'object') newValue = this.convertLocalisedValue(false);
+        if (this.modelValue && !Array.isArray(this.modelValue) && typeof this.modelValue === 'object') newValue = this.convertLocalisedValue(false);
         const error = this.validate(newValue || this.modelValue);
         if (error || this.error) this.$emit('update:error', error); // we only emit if we have an error set or the value is invalid
       }
