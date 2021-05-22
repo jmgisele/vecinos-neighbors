@@ -1355,7 +1355,7 @@ export default {
           ['`inputRuleOptions`', 'Object', "`{ autoquotes: '“”‘’', dashes: true, ellipsis: true, minHeading: 1, maxHeading: 6, noDoubleCaps: true, noDoubleSpace: true, }`", 'Configuration for input rules.'],
           ['`label`', 'String', '', ''],
           ['`lang`', 'String', '`undefined`', 'If passed can be used to have the LinkPopover look up values in localised fields'],
-          ['`linkOptions`', 'Object', '`{ forceBlankTarget: false, forceNofollow: false, only: null, urlSuffix: null, urlTemplate: null, useFilePath: false }`', 'See notes below'],
+          ['`linkOptions`', 'Object', '`{ collectionsPath: null, forceBlankTarget: false, forceNofollow: false, only: null, urlSuffix: null, urlTemplate: null, useFilePath: false }`', 'See notes below'],
           ['`maxLen`', 'Number', '', ''],
           ['`modelValue`', 'String', '', 'Will be either text / html / markdown depending on outputFormat'],
           ['`outputFormat`', 'String', "`'text'`", 'Allowed values: text, html, markdown'],

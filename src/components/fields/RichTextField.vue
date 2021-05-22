@@ -52,10 +52,13 @@
         @update:model-value="handleInput($event, lang)"
       />
     </LocalisedFieldsContainer>
+    <pre>{{linkOptions}}</pre>
   </section>
 </template>
 
 <script>
+import { joinPath } from '../../fs';
+
 import field from '../../mixins/field';
 
 import LocalisedFieldsContainer from '../utility/LocalisedFieldsContainer.vue';
@@ -107,6 +110,7 @@ export default {
     linkOptions() {
       if (!this.options.linkOptions || !Array.isArray(this.options.linkOptions) || this.options.linkOptions.length === 0) {
         return {
+          collectionsPath: this.$store.state.currentProject.id ? joinPath('/projects', this.$store.state.currentProject.id, '.mattrbld', 'collections') : null,
           forceBlankTarget: false,
           forceNofollow: false,
           only: null,
@@ -123,6 +127,7 @@ export default {
       else only = null;
 
       return {
+        collectionsPath: this.$store.state.currentProject.id ? joinPath('/projects', this.$store.state.currentProject.id, '.mattrbld', 'collections') : null,
         forceBlankTarget: this.options.linkOptions.includes('forceBlankTarget'),
         forceNofollow: this.options.linkOptions.includes('forceNofollow'),
         only,
