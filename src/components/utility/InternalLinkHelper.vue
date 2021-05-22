@@ -75,7 +75,7 @@ export default {
           const pathWithoutExtension = path.substring(0, path.lastIndexOf('.')); // we know there’s a .json at the end that we want to strip off, and since in the future we might also have .md or .yml / .yaml, let’s use this more ambiguous approach
           const fileRoot = pathDirname(this.currentRoot);
           newUrl = pathWithoutExtension.replace(fileRoot, '');
-          if (typeof this.urlSuffix !== 'undefined') newUrl = `${newUrl}${this.urlSuffix}`;
+          if (typeof this.urlSuffix === 'string') newUrl = `${newUrl}${this.urlSuffix}`;
         }
       } else {
         try {
