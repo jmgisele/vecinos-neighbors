@@ -44,9 +44,9 @@ export default {
     safeModelValue() {
       if (this.showLocalisedOptions) {
         if (this.modelValue && typeof this.modelValue === 'object') return this.modelValue;
-        if (typeof this.modelValue === 'string') return { [this.languages[0]]: this.modelValue };
-        return this.languages.reduce((acc, lang) => {
-          acc[lang] = '';
+        return this.languages.reduce((acc, lang, index) => {
+          if (index === 0 && this.modelValue) acc[lang] = String(this.modelValue);
+          else acc[lang] = '';
           return acc;
         }, {});
       }
