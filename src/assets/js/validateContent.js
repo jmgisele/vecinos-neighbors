@@ -7,6 +7,15 @@ export function validateField(value, type, rules) {
   let valueToCheck = value;
 
   switch (type) {
+    case 'image':
+      if (rules.required) {
+        if (typeof valueToCheck === 'string' && !valueToCheck) error = 'An image is required';
+        else { // it must be an advanced media library object
+          valueToCheck = value || {};
+          if (!valueToCheck.src) error = 'An image is required';
+        }
+      }
+      break;
     case 'languages':
       valueToCheck = value || [];
       if (rules.min && valueToCheck.length < rules.min) {
