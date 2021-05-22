@@ -15,7 +15,6 @@
         :max-len="(validation && validation.max) || null"
         :model-value="safeModelValue"
         :output-format="options.outputFormat"
-        ref="editor"
         @update:model-value="handleInput"
       />
     </template>
@@ -38,7 +37,7 @@
         :class="{ 'in-split': teleportTarget }"
         :code-langs="options.codeLangs"
         :dark="dark"
-        :error="error instanceof Map ? error.get(lang)  : ''"
+        :error="error instanceof Map ? error.get(lang) : ''"
         :format-options="formatOptions"
         :formats="{ block: blockFormats, inline: inlineFormats }"
         :input-rule-options="{ ...inputRuleOptions, autoquotes: autoquotesForLang(lang) }"
@@ -48,7 +47,6 @@
         :max-len="(validation && validation.max) || null"
         :model-value="safeModelValue[lang]"
         :output-format="options.outputFormat"
-        ref="editor"
         @update:model-value="handleInput($event, lang)"
       />
     </LocalisedFieldsContainer>
@@ -147,11 +145,6 @@ export default {
       if (this.modelValue && typeof this.modelValue === 'object') return Object.values(this.modelValue)[0] || '';
       return this.modelValue || '';
     },
-  },
-  data() {
-    return {
-      editors: [],
-    };
   },
   methods: {
     autoquotesForLang(lang) {

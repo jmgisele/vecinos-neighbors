@@ -1,7 +1,7 @@
 <template lang="html">
   <section class="text field" :class="{ dark, localised: showLocalisedOptions }">
     <template v-if="!showLocalisedOptions">
-      <MbEditor v-if="options && (options.wrapping || options.multiline)" :allow-new-lines="options && options.multiline" :class="{ 'in-split': inSplit }" :dark="dark" :error="error && String(error)" :label="label" :max-len="(validation && validation.max) || null" :model-value="safeModelValue" ref="editor" @update:model-value="handleInput" />
+      <MbEditor v-if="options && (options.wrapping || options.multiline)" :allow-new-lines="options && options.multiline" :class="{ 'in-split': inSplit }" :dark="dark" :error="error && String(error)" :label="label" :max-len="(validation && validation.max) || null" :model-value="safeModelValue" @update:model-value="handleInput" />
       <MbInput v-else :class="{ 'in-split': inSplit }" :dark="dark" :error="error && String(error)" :label="label" :max-len="(validation && validation.max) || null" :model-value="safeModelValue" @update:model-value="handleInput" />
     </template>
     <LocalisedFieldsContainer
@@ -19,7 +19,7 @@
       @update:active="$emit('update:active', $event)"
     >
       <MbEditor v-if="options && (options.wrapping || options.multiline)" :allow-new-lines="options && options.multiline" :class="{ 'in-split': teleportTarget }" :dark="dark" :error="error instanceof Map ? error.get(lang)  : ''" :label="lang" :max-len="(validation && validation.max) || null" :model-value="safeModelValue[lang]" @update:model-value="handleInput($event, lang)" />
-      <MbInput v-else :class="{ 'in-split': teleportTarget }" :dark="dark" :error="error instanceof Map ? error.get(lang)  : ''" :label="lang" :max-len="(validation && validation.max) || null" :model-value="safeModelValue[lang]" @update:model-value="handleInput($event, lang)" />
+      <MbInput v-else :class="{ 'in-split': teleportTarget }" :dark="dark" :error="error instanceof Map ? error.get(lang) : ''" :label="lang" :max-len="(validation && validation.max) || null" :model-value="safeModelValue[lang]" @update:model-value="handleInput($event, lang)" />
     </LocalisedFieldsContainer>
   </section>
 </template>
@@ -46,11 +46,6 @@ export default {
       if (this.modelValue && typeof this.modelValue === 'object') return Object.values(this.modelValue)[0] || '';
       return this.modelValue || '';
     },
-  },
-  data() {
-    return {
-      editors: [],
-    };
   },
   methods: {
     convertLocalisedValue(localised) {
