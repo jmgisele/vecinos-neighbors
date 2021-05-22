@@ -15,6 +15,7 @@ export function validateField(value, type, rules) {
       }
       break;
     case 'text':
+    case 'rich text':
       valueToCheck = value || '';
       if (rules.required && !valueToCheck) error = 'This field is required';
       else if (rules.enforceMinMax && (rules.min || rules.max)) {
