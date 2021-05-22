@@ -83,6 +83,8 @@ import fs, { pathDirname, joinPath } from '../fs';
 import humanReadableSize from '../assets/js/humanReadableSize';
 import prettifyEntityName from '../assets/js/prettifyEntityName';
 
+import { archiveRegExp, imageRegExp, videoRegExp } from '../data/regExps';
+
 export default {
   beforeUnmount() {
     if (this.observer) this.observer.disconnect();
@@ -152,13 +154,13 @@ export default {
   },
   data() {
     return {
-      archiveRegExp: /\.(zip|tar\.gz|7z|s7z|rar|tgz|gz)$/i,
+      archiveRegExp,
       currentFile: null,
       currentPath: null,
       files: [],
       folders: [],
       imageCache: new Map(),
-      imageRegExp: /\.(gif|jpg|jpeg|tiff|png|webp|svg)$/i,
+      imageRegExp,
       joinPath,
       leaving: false,
       loading: false,
@@ -188,7 +190,7 @@ export default {
         },
       ],
       reverseOrder: false,
-      videoRegExp: /\.(mp4|avi|mkv|webm|ogv|mov|wmv)$/i,
+      videoRegExp,
     };
   },
   emits: ['fileclick', 'list-change', 'path-change'],
