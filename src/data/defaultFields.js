@@ -241,6 +241,13 @@ export default [
         value: 4,
       },
       {
+        component: 'MbTagInput',
+        key: 'codeLangs',
+        label: 'Languages for code blocks:',
+        props: { allowUnsuggested: true, placeholder: 'New language…' },
+        value: ['html', 'css', 'javascript', 'markdown'],
+      },
+      {
         component: 'MbToggle',
         key: 'allowRaw',
         slot: 'Allow editing the raw source-code',

@@ -1091,7 +1091,8 @@ export default {
       &.MbCheckboxGroup,
       &.MbPalette,
       &.MbEditableList,
-      &.MbItemList
+      &.MbItemList,
+      &.MbTagInput
         align-items: flex-start
 
         > span
@@ -1158,9 +1159,20 @@ export default {
               background-color: lighten($bg-tertiary-dark, 5)
 
       &.MbTagInput
+        > span
+          margin-top: 1rem
+
+          @media $mobile
+            margin-top: 0
+
         .tag-input
           margin-top: 0.5rem
           margin-bottom: 0
+
+          &:not(:only-child)
+            margin-top: 0
+            width: 100%
+            max-width: (320 / 16)rem
 
       &.MbFilePicker
         .file-picker
@@ -1191,6 +1203,9 @@ export default {
 
       &:not(:last-child)
         margin-bottom: 1rem
+
+        @media $mobile
+          margin-bottom: 2rem
 
         &.MbCheckboxGroup
           margin-bottom: 2rem
