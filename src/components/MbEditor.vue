@@ -535,7 +535,7 @@ export default {
         }
       }
 
-      // force the link type to internal if it’s the only type allowed
+      // force the link type if it’s the only type allowed
       if (this.linkOptions.only === 'internal') this.linkPopover.type = 'internal';
       if (this.linkOptions.only === 'external') this.linkPopover.type = 'external';
 
