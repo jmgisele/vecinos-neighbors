@@ -502,6 +502,7 @@ export default {
       this.type = 'upload';
     },
     async saveFiles(files) {
+      this.type = 'uploading';
       try {
         const arrayBuffers = await Promise.allSettled(files.map((file) => file.arrayBuffer()));
         const existingFiles = await fs.readdir(this.currentPath);
@@ -789,7 +790,8 @@ export default {
 
   .input-group,
   .dropzone,
-  .button
+  .button,
+  .uploading
     &.v-enter-active,
     &.v-leave-active
       transition: opacity 200ms ease
