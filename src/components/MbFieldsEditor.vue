@@ -161,8 +161,6 @@ export default {
 
 <style lang="stylus" scoped>
 .fields-editor
-  overflow: hidden
-
   .field
     &.text:not(.localised):first-child,
     &.color.error:first-child,

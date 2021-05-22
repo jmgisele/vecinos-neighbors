@@ -191,6 +191,7 @@ export default {
 
   .editor::v-deep(.toolbar)
     margin-top: 0
+    top: 0
 
 .localisation-modal .editor:not(:last-child)
   margin-bottom: 2rem
