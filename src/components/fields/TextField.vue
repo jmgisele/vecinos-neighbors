@@ -34,13 +34,6 @@ export default {
     LocalisedFieldsContainer,
   },
   computed: {
-    firstLocalisedValue() {
-      if (typeof this.modelValue === 'string') return this.modelValue;
-      if (this.modelValue) {
-        return Object.values(this.modelValue).find((value) => value) || '';
-      }
-      return '';
-    },
     safeModelValue() {
       if (this.showLocalisedOptions) {
         if (this.modelValue && typeof this.modelValue === 'object') return this.modelValue;
@@ -59,29 +52,22 @@ export default {
       editors: [],
     };
   },
+  methods: {
+    convertLocalisedValue(localised) {
+      if (localised) {
+        return this.languages.reduce((acc, lang, index) => {
+          if (index === 0 && this.modelValue) acc[lang] = this.modelValue;
+          else acc[lang] = '';
+          return acc;
+        }, {});
+      }
+      return Object.values(this.modelValue)[0] || '';
+    },
+  },
   mixins: [field],
   watch: {
     active(nv) {
       if (!nv) this.$emit('update:error', this.validateLocalisedValues(this.safeModelValue, ''));
-    },
-    showLocalisedOptions(nv) {
-      let newValue;
-      if (nv) {
-        if (this.modelValue !== null && (!this.modelValue || typeof this.modelValue !== 'object')) {
-          newValue = this.languages.reduce((acc, lang, index) => {
-            if (index === 0 && this.modelValue) acc[lang] = this.modelValue;
-            else acc[lang] = '';
-            return acc;
-          }, {});
-        }
-        this.$emit('update:error', this.validateLocalisedValues(newValue || this.modelValue, ''));
-      } else {
-        if (this.modelValue && typeof this.modelValue === 'object') newValue = Object.values(this.modelValue)[0] || '';
-        const error = this.validate(newValue || this.modelValue);
-        if (error || this.error) this.$emit('update:error', error); // we only emit if we have an error set or the value is invalid
-      }
-
-      if (typeof newValue !== 'undefined') this.$emit('update:modelValue', newValue);
     },
   },
 };

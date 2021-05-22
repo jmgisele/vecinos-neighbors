@@ -4,6 +4,13 @@ import { validateField } from '../assets/js/validateContent';
 
 export default {
   computed: {
+    firstLocalisedValue() {
+      if (this.modelValue && typeof this.modelValue !== 'object') return this.modelValue;
+      if (this.modelValue) {
+        return Object.values(this.modelValue).find((value) => value) || null;
+      }
+      return null;
+    },
     showLocalisedOptions() {
       return this.localised && this.languages && this.languages.length > 0;
     },
@@ -14,6 +21,16 @@ export default {
   },
   emits: ['update:active', 'update:error', 'update:modelValue'],
   methods: {
+    convertLocalisedValue(localised) {
+      if (localised) {
+        return this.languages.reduce((acc, lang, index) => {
+          if (index === 0 && this.modelValue) acc[lang] = this.modelValue;
+          else acc[lang] = null;
+          return acc;
+        }, {});
+      }
+      return Object.values(this.modelValue)[0] || null;
+    },
     handleInput(newValue, lang) {
       const error = this.validate(newValue);
 
@@ -68,5 +85,20 @@ export default {
     splitTarget: [String, HTMLElement],
     type: String,
     validation: Object,
+  },
+  watch: {
+    showLocalisedOptions(nv) {
+      let newValue;
+      if (nv) {
+        if (this.modelValue !== null && (!this.modelValue || typeof this.modelValue !== 'object')) newValue = this.convertLocalisedValue(true);
+        this.$emit('update:error', this.validateLocalisedValues(newValue || this.modelValue, ''));
+      } else {
+        if (this.modelValue && typeof this.modelValue === 'object') newValue = this.convertLocalisedValue(false);
+        const error = this.validate(newValue || this.modelValue);
+        if (error || this.error) this.$emit('update:error', error); // we only emit if we have an error set or the value is invalid
+      }
+
+      if (typeof newValue !== 'undefined') this.$emit('update:modelValue', newValue);
+    },
   },
 };
