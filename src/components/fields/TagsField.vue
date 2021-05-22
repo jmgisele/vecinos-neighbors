@@ -84,7 +84,13 @@ export default {
     },
     async fetchFileModel() {
       if (!this.options.autocompleteModel.path || !this.options.autocompleteModel.key) this.fileModel = [];
-      else this.fileModel = JSON.parse(await fs.readFile(joinPath('/projects', this.$store.state.currentProject.id, this.options.autocompleteModel.path), 'utf8'))[this.options.autocompleteModel.key];
+      else {
+        try {
+          this.fileModel = JSON.parse(await fs.readFile(joinPath('/projects', this.$store.state.currentProject.id, this.options.autocompleteModel.path), 'utf8'))[this.options.autocompleteModel.key];
+        } catch (err) {
+          this.$store.commit('addToast', { message: `Something went wrong while loading the model for ${this.label}: ${err}`, type: 'error' });
+        }
+      }
     },
   },
   mixins: [field],
