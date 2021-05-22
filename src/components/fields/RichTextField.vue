@@ -52,7 +52,6 @@
         @update:model-value="handleInput($event, lang)"
       />
     </LocalisedFieldsContainer>
-    <pre>{{linkOptions}}</pre>
   </section>
 </template>
 
