@@ -536,7 +536,8 @@ export default {
       }
 
       // force the link type to internal if it’s the only type allowed
-      if (!this.linkOptions.only === 'internal') this.linkPopover.type = 'internal';
+      if (this.linkOptions.only === 'internal') this.linkPopover.type = 'internal';
+      if (this.linkOptions.only === 'external') this.linkPopover.type = 'external';
 
       // force target and nofollow if set
       if (this.linkOptions.forceBlankTarget) this.linkPopover.newTab = true;
