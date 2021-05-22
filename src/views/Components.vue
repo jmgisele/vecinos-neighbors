@@ -1136,6 +1136,7 @@ export default {
           ['`foldersOnly`', 'Boolean', '`false`', ''],
           ['`initialSortBy`', 'String', "`'name'`", 'Allowed values: name, edited'],
           ['`initialReverseSortOrder`', 'Boolean', '`false`', 'If true, the entities will be sorted in descending order initially'],
+          ['`onlyImages`', 'Boolean', '`false`', 'If true, only entities matching the image regexp will be shown (filetypes loses its effect)'],
           ['`prettyFilenames`', 'Booelan', '`false`', 'If set, all names will have dashes replaced with spaces and their extension removed'],
           ['`root`', 'String', '`/`', 'The root folder to start in, will not allow going higher than that'],
           ['`showHidden`', 'Boolean', '`false`', 'By default all files starting with a . are hidden. If this is true, they’ll be shown. .git is always hidden'],

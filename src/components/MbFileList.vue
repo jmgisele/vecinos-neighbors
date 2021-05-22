@@ -291,8 +291,8 @@ export default {
             else this.files.push(entity);
           });
         }
-        if (!this.foldersOnly && this.filetypes && this.filetypes.length > 0) {
-          const allowedEndingsRegex = new RegExp(`\\.(${this.filetypes.join('|')})$`, 'i');
+        if (!this.foldersOnly && (this.onlyImages || (this.filetypes && this.filetypes.length > 0))) {
+          const allowedEndingsRegex = this.onlyImages ? this.imageRegExp : new RegExp(`\\.(${this.filetypes.join('|')})$`, 'i');
           this.files = this.files.filter((file) => file.isFolder || allowedEndingsRegex.test(file.name));
         }
 
@@ -485,6 +485,7 @@ export default {
       default: 'name',
     },
     initialReverseSortOrder: Boolean,
+    onlyImages: Boolean,
     prettyFilenames: Boolean,
     root: {
       type: String,
