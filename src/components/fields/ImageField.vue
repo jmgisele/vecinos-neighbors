@@ -1,19 +1,43 @@
 <template lang="html">
   <section class="image field">
-    <div class="display-wrapper" :class="{ active, dark, error: cleanError, 'in-split': inSplit, 'no-display-value': !localisedDisplayValue }" tabindex="0" @click="openDetails" @keyup.enter.space="openDetails" @keydown.space.prevent>
+    <div class="display-wrapper" :class="{ active, dark, error: cleanError, 'in-split': inSplit, 'no-display-value': !displayValue }" tabindex="0" @click="openDetails" @keyup.enter.space="openDetails" @keydown.space.prevent>
       <div class="image-wrapper" :class="{ dark }">
         <img v-if="image" class="hidden" draggable="false" :src="image" alt="Image not found" @load="$event.target.classList.remove('hidden')">
         <MbIcon v-else icon="image" />
       </div>
       <div class="left">
-        <p class="label" :class="{ unstyled: !localisedDisplayValue }">{{cleanError || labelWithSizeHint}}</p>
-        <p v-if="localisedDisplayValue || cleanError" class="content">{{localisedDisplayValue || labelWithSizeHint}}</p>
+        <p class="label" :class="{ unstyled: !displayValue }">{{cleanError || labelWithSizeHint}}</p>
+        <p v-if="displayValue || cleanError" class="content">{{displayValue || labelWithSizeHint}}</p>
       </div>
       <MbIcon v-if="compact" :icon="active ? 'cross' : cleanError ? 'error' : 'pencil'" />
     </div>
     <MbModal class="image-data" :dark="dark" :title="labelWithSizeHint" :visible="showDetailsModal" @after-close="validateContent" @close="closeDetails" @keyup.ctrl.enter="closeDetails">
       <teleport v-if="!teleportTarget || active" :disabled="!teleportTarget" :to="teleportTarget">
         <h2 v-if="teleportTarget" class="h3 split-title">{{labelWithSizeHint}}</h2>
+        <div class="image-details">
+          <div class="thumbnail" :class="{ dark, empty: !modelValue || !modelValue.src }">
+            <img v-show="image" :src="image" :alt="modelValue && modelValue.alt || 'Error loading file'" @load="setImageResolution">
+            <div class="button-wrapper">
+              <MbButton dark :icon="modelValue ? 'replace-round' : 'plus'" @click="showSelectModal = true">{{ modelValue ? 'Replace image' : 'Add image'}}</MbButton>
+              <MbButton v-if="options.removable && modelValue" dark icon="trash" type="negative" @click="handleInput(null)">Remove image</MbButton>
+            </div>
+          </div>
+          <dl v-show="modelValue && modelValue.src" class="meta" :class="{ dark, 'in-split': teleportTarget }">
+            <dl>
+              <dt>Name:</dt>
+              <dd>{{fileDetails.name}}</dd>
+            </dl>
+            <dl v-show="fileDetails.width !== null && fileDetails.height !== null">
+              <dt>Resolution:</dt>
+              <dd>{{fileDetails.width}}x{{fileDetails.height}}</dd>
+            </dl>
+            <dl>
+              <dt>Type:</dt>
+              <dd>{{fileDetails.type}}</dd>
+            </dl>
+          </dl>
+        <MbFieldsEditor v-show="modelValue && modelValue.src" :dark="dark" compact :error="error instanceof Map ? error : new Map()" :fields="$store.state.currentProject.media.customFields" :in-split="Boolean(teleportTarget)" :model-value="modelValue" :languages="languages" @update:error="handleMetaError" @update:model-value="updateMeta" />
+        </div>
       </teleport>
       <template #actions>
         <MbButton :dark="dark" type="primary" @click="closeDetails">Done</MbButton>
@@ -49,13 +73,20 @@
 </template>
 
 <script>
-import fs, { joinPath } from '../../fs';
+import { cloneDeep as _cloneDeep } from 'lodash-es';
 
+import fs, {
+  exists, joinPath, mkdirp, pathBasename, pathDirname,
+} from '../../fs';
+
+import generateDefaultContentFromSchema from '../../assets/js/generateDefaultContentFromSchema';
 import validateContent from '../../assets/js/validateContent';
 
 import { imageRegExp } from '../../data/regExps';
 
 import field from '../../mixins/field';
+
+const IMAGE_TOO_LARGE_ERROR = 'The selected image is too large';
 
 export default {
   beforeUnmount() {
@@ -69,18 +100,16 @@ export default {
     cleanError() {
       if (!this.error) return '';
       if (typeof this.error === 'string') return this.error;
+      if (this.error instanceof Map && this.error.get(this.fieldKey)) return this.error.get(this.fieldKey);
       return this.error.size === 1 ? 'A subfield has errors' : `${this.error.size} subfields have errors`;
     },
     labelWithSizeHint() {
       if (!this.options.resolutionHint) return this.label;
       return `${this.label} (${this.options.resolutionHint})`;
     },
-    localisedDisplayValue() {
+    displayValue() {
       if (!this.modelValue) return null;
-      const displayValue = this.modelValue.src || this.modelValue;
-
-      if (displayValue !== null && typeof displayValue === 'object') return Object.values(displayValue).find((value) => value) || '';
-      return displayValue;
+      return this.modelValue.src || this.modelValue;
     },
     mediaDir() {
       if (!this.mediaSettings.dir) return null;
@@ -116,11 +145,20 @@ export default {
   },
   created() {
     if (typeof this.modelValue === 'string') this.fetchImage(this.modelValue);
+    else if (this.modelValue) {
+      this.fetchImage(this.modelValue.src);
+    }
   },
   data() {
     return {
       currentPath: '/',
       dragActive: false,
+      fileDetails: {
+        height: null,
+        name: null,
+        type: null,
+        width: null,
+      },
       image: null,
       showDetailsModal: false,
       showSelectModal: false,
@@ -165,13 +203,39 @@ export default {
     },
     async handleFileClick(path) {
       if (!this.mediaSettings.advanced) this.handleInput(path.replace(this.projectsDir, ''));
+      else {
+        let meta;
+        const mediaMetaDir = joinPath(this.projectsDir, '.mattrbld', 'media');
+        const pathInMediaDir = path.replace(this.mediaDir, '');
+        try {
+          const metadata = JSON.parse(await fs.readFile(joinPath(mediaMetaDir, `${pathInMediaDir}.json`), 'utf8'));
+          meta = metadata;
+        } catch (err) {
+          if (err.code !== 'ENOENT') this.$store.commit('addToast', { message: `Something went wrong while reading the metadata for this file: ${err.message}`, type: 'error' });
+          else {
+            try {
+              const mediaMetaDirExists = await exists(joinPath(mediaMetaDir, pathDirname(pathInMediaDir)));
+              if (!mediaMetaDirExists) await mkdirp(joinPath(mediaMetaDir, pathDirname(pathInMediaDir)));
+              const defaultMeta = generateDefaultContentFromSchema({ fields: this.mediaSettings.customFields }, path.replace(this.projectsDir, ''));
+              await fs.writeFile(joinPath(mediaMetaDir, `${pathInMediaDir}.json`), JSON.stringify(defaultMeta, null, 2), 'utf8');
+              this.$store.commit('addLocallyChangedFile', joinPath(mediaMetaDir, `${pathInMediaDir}.json`));
+              this.$store.dispatch('saveAppData');
+              meta = defaultMeta;
+            } catch (innerErr) {
+              this.$store.commit('addToast', { message: `Something went wrong while creating the metadata file: ${innerErr.message}`, type: 'error' });
+            }
+          }
+        }
+
+        this.handleInput({ src: path.replace(this.projectsDir, ''), ...meta });
+      }
 
       if (this.validation && this.validation.max) {
         try {
           const size = await fs.du(path);
           const sizeInMb = size / 1024 / 1024;
 
-          if (sizeInMb > this.validation.max) this.$emit('update:error', 'The selected image is too large');
+          if (sizeInMb > this.validation.max) this.$emit('update:error', (this.error instanceof Map ? _cloneDeep(this.error) : new Map()).set(this.fieldKey, IMAGE_TOO_LARGE_ERROR));
         } catch (err) {
           this.$store.commit('addToast', { message: `Something went wrong when reading the filesize in ${this.label}: ${err.message}`, type: 'error' });
         }
@@ -182,6 +246,25 @@ export default {
     handleFileInput(e) {
       this.saveFile(e.currentTarget.files[0]);
       e.currentTarget.value = '';
+    },
+    handleInput(newVal) {
+      const error = this.validate(newVal);
+      const fieldError = this.error && this.error.get(this.fieldKey);
+
+      if (error) {
+        if ((fieldError && fieldError !== error) || (!fieldError && this.error)) this.$emit('update:error', _cloneDeep(this.error).set(this.fieldKey, error));
+        else if (!fieldError && !this.error) this.$emit('update:error', new Map().set(this.fieldKey, error));
+      } else if (fieldError && this.error) {
+        const clone = _cloneDeep(this.error);
+        clone.delete(this.fieldKey);
+        this.$emit('update:error', clone.size > 0 ? clone : '');
+      }
+
+      this.$emit('update:modelValue', newVal);
+    },
+    handleMetaError(err) {
+      if (!err || err.size === 0) this.$emit('update:error', '');
+      else this.$emit('update:error', err);
     },
     handleWindowDragEnter(e) {
       e.preventDefault();
@@ -202,6 +285,9 @@ export default {
         this.showSelectModal = true;
         return;
       }
+
+      this.fileDetails.name = this.modelValue && this.modelValue.src && pathBasename(this.modelValue && this.modelValue.src);
+      if (this.fileDetails.name) this.fileDetails.type = this.fileDetails.name.slice(this.fileDetails.name.lastIndexOf('.') + 1).toUpperCase();
 
       if (this.splitTarget) this.$emit('update:active', true);
       else this.showDetailsModal = true;
@@ -263,9 +349,22 @@ export default {
     selectFiles(inputRef) {
       this.$refs[inputRef].click();
     },
+    setImageResolution(e) {
+      const img = e.target;
+      this.fileDetails.width = img.naturalWidth;
+      this.fileDetails.height = img.naturalHeight;
+    },
+    updateMeta(newValue) {
+      // TODO: save the changed metadata if permitted?
+      this.handleInput(newValue);
+    },
     validateContent() {
-      // TODO: check if advanced library and validate fields then, otherwise just validate image
-      this.$emit('update:error', validateContent(this.modelValue || {}, { fields: [] }, this.languages));
+      if (!this.modelValue || !this.modelValue.src) return;
+      const errors = validateContent(this.modelValue || {}, { fields: this.mediaSettings.customFields }, this.languages);
+      if (this.error && this.error.get(this.fieldKey)) {
+        if (errors.size === 0) return;
+        this.$emit('update:error', new Map([...this.error, ...errors]));
+      } else this.$emit('update:error', errors.size > 0 ? errors : '');
     },
   },
   mixins: [field],
@@ -276,10 +375,31 @@ export default {
     modelValue(nv, ov) {
       if (nv === null && this.image) {
         URL.revokeObjectURL(this.image);
+        this.fileDetails.height = null;
+        this.fileDetails.name = null;
+        this.fileDetails.type = null;
+        this.fileDetails.width = null;
         this.image = null;
+        if (this.error && this.error.get(this.fieldKey) === IMAGE_TOO_LARGE_ERROR) {
+          const clone = _cloneDeep(this.error);
+          clone.delete(this.fieldKey);
+          this.$emit('update:error', clone.size > 0 ? clone : '');
+        }
       } else if (typeof nv === 'string' && (!ov || nv !== ov || nv !== ov.src)) {
         if (this.image) URL.revokeObjectURL(this.image);
         this.fetchImage(nv);
+      } else if (typeof nv === 'object' && (!ov || !ov.src || nv.src !== ov.src)) {
+        if (this.image) URL.revokeObjectURL(this.image);
+        this.fileDetails.height = null;
+        this.fileDetails.name = this.modelValue && this.modelValue.src && pathBasename(this.modelValue && this.modelValue.src);
+        this.fileDetails.type = this.fileDetails.name.slice(this.fileDetails.name.lastIndexOf('.') + 1).toUpperCase();
+        this.fileDetails.width = null;
+        this.fetchImage(nv.src);
+        if (this.error && this.error.get(this.fieldKey)) {
+          const clone = _cloneDeep(this.error);
+          clone.delete(this.fieldKey);
+          this.$emit('update:error', clone.size > 0 ? clone : '');
+        }
       }
     },
     showSelectModal(nv) {
@@ -307,6 +427,7 @@ export default {
 .image.field
   .display-wrapper
     .image-wrapper
+      flex-shrink: 0
       width: 3rem
       height: @width
       display: flex
@@ -324,7 +445,6 @@ export default {
         background-image: linear-gradient(to right, rgba(0,0,0,0.9), rgba(0,0,0,0.9)), linear-gradient(to right, black 50%, white 50%), linear-gradient(to bottom, black 50%, white 50%)
 
       .icon
-        flex-shrink: 0
         margin-left: 0
 
       img
@@ -394,4 +514,92 @@ export default {
 
   .uploading
     padding: 2rem
+
+.image-details
+  .thumbnail
+    height: 16rem
+    color: $text-dark
+    display: flex
+    align-items: center
+    justify-content: center
+    background-image: linear-gradient(to right, rgba(0,0,0,0.75), rgba(0,0,0,0.75)), linear-gradient(to right, black 50%, white 50%), linear-gradient(to bottom, black 50%, white 50%)
+    background-size: 1.5rem 1.5rem
+    background-blend-mode: normal, difference
+    position: relative
+    border-top-left-radius: $radius-l
+    border-top-right-radius: @border-top-left-radius
+
+    @media $mobile
+      height: 12rem
+
+    &.dark
+      background-image: linear-gradient(to right, rgba(0,0,0,0.9), rgba(0,0,0,0.9)), linear-gradient(to right, black 50%, white 50%), linear-gradient(to bottom, black 50%, white 50%)
+
+    &.empty
+      border-bottom-left-radius: @border-top-left-radius
+      border-bottom-right-radius: @border-bottom-left-radius
+
+    img
+      max-width: 100%
+      max-height: 100%
+
+    .button-wrapper
+      position: absolute
+      align-self: flex-end
+      background-color: alpha($bg-dark, 0.8)
+      width: 100%
+      text-align: center
+
+      .button
+        margin: 0.5rem
+
+  .meta
+    background-color: $bg-secondary
+    margin: 0
+    padding: 1rem
+    display: flex
+    justify-content: center
+    border-bottom-left-radius: $radius-l
+    border-bottom-right-radius: @border-bottom-left-radius
+
+    &.dark
+      background-color: $bg-secondary-dark
+
+      &.in-split
+        background-color: $bg-tertiary-dark
+
+      dl dt
+        color: $text-secondary-dark
+
+    dl
+      margin: 0
+      overflow: hidden
+      flex-shrink: 0
+
+      &:first-child
+          flex-shrink: 1
+
+      &:not(:last-child)
+        margin-right: 4rem
+
+      dt,
+      dd
+        margin: 0
+        white-space: nowrap
+        overflow: hidden
+        text-overflow: ellipsis
+
+      dt
+        color: $text-secondary
+        font-size: 0.875rem
+
+    @media $mobile
+      display: block
+      padding: 1rem
+      border-bottom-left-radius: $radius-m
+      border-bottom-right-radius: $radius-m
+
+      dl:not(:last-child)
+        margin-right: 0
+        margin-bottom: 0.5rem
 </style>
