@@ -1,5 +1,5 @@
 <template lang="html">
-  <div class="tag-input" :class="{dark, error: error || (max && modelValue.length > max), }" @click="$refs.input.focus()" @focusin="handleFocusIn" @focusout="handleFocusOut">
+  <div class="tag-input" :class="{dark, error: error || externalError || (max && modelValue.length > max), }" @click="$refs.input.focus()" @focusin="handleFocusIn" @focusout="handleFocusOut">
     <span v-if="displayLabel" class="label" :class="{ right: !label && max }">{{displayLabel}}</span>
     <transition-group class="tags-wrapper" tag="div" @before-leave="setGridPosition">
       <div v-for="(tag, index) in modelValue" class="tag" :class="{ overflow: max && index + 1 > max, dark, 'being-dragged': index === draggedIndex, 'drag-active': dragging }" :data-area="areaId" :data-index="index" :key="tag[autocompleteProperty] || tag" @pointerdown="startDrag($event, index)">
@@ -33,6 +33,7 @@ export default {
     },
     displayLabel() {
       if (this.error) return this.error;
+      if (this.externalError) return this.externalError;
       if (this.max && (this.error || this.modelValue.length > 0 || this.placeholder)) {
         if (this.label) return `${this.label} (${this.modelValue.length}/${this.max})`;
         return `(${this.modelValue.length}/${this.max})`;
@@ -138,7 +139,6 @@ export default {
     },
     handleFocusOut(e) {
       if (!e.relatedTarget || !this.$el.contains(e.relatedTarget)) {
-        this.validate();
         this.$emit('blur');
       }
     },
@@ -267,18 +267,13 @@ export default {
       this.draggingClone.style.top = `${targetRect.top}px`;
       this.draggingClone.addEventListener('transitionend', this.destroyClone, { once: true });
     },
-    validate() {
-      let error = '';
-      if (this.min && this.modelValue.length < this.min) error = `Must have at minimum ${this.min} entries`;
-      if (this.max && this.modelValue.length > this.max) error = `Must have at maximum ${this.max} entries`;
-      this.error = error;
-    },
   },
   props: {
     allowUnsuggested: Boolean,
     autocompleteModel: Array,
     autocompleteProperty: String,
     dark: Boolean,
+    externalError: String,
     label: String,
     max: Number,
     min: Number,
