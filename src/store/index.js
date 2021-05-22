@@ -91,6 +91,8 @@ export default createStore({
       state.user.projects.push(id);
     },
     addToast(state, toast) {
+      if (toast.id && state.application.toasts.find((existingToast) => toast.id === existingToast.id)) return;
+
       let timeout = 5000;
 
       if (toast.timeout && toast.timeout > 999) timeout = toast.timeout;
