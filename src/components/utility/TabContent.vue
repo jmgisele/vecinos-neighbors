@@ -79,6 +79,7 @@ export default {
   .content-wrapper
     width: 100%
     height: 100%
+    overflow-x: hidden
     overflow-y: auto
     background-color: $bg
 
