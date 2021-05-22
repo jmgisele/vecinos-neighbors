@@ -148,7 +148,7 @@ export default [
         component: 'MbRadioGroup',
         key: 'outputFormat',
         label: 'Output format:',
-        props: { inline: true, options: [{ label: 'HTML', value: 'html' }, { label: 'Markdown', value: 'md' }] },
+        props: { inline: true, options: [{ label: 'HTML', value: 'html' }, { label: 'Markdown', value: 'markdown' }] },
         value: 'html',
       },
       {
