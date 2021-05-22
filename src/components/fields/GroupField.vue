@@ -68,7 +68,8 @@ export default {
       this.$emit('update:modelValue', v);
     },
     validateContent() {
-      this.$emit('update:error', validateContent(this.modelValue || {}, { fields: this.children }, this.languages));
+      const errors = validateContent(this.modelValue || {}, { fields: this.children }, this.languages);
+      this.$emit('update:error', errors.size > 0 ? errors : '');
     },
   },
   mixins: [field],
