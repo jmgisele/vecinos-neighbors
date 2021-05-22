@@ -1,8 +1,8 @@
 <template lang="html">
   <section class="text field" :class="{ dark, localised: showLocalisedOptions }">
     <template v-if="!showLocalisedOptions">
-      <MbEditor v-if="options && (options.wrapping || options.multiline)" :allow-new-lines="options && options.multiline" :class="{ 'in-split': inSplit }" :dark="dark" :error="error" :label="label" :max-len="(validation && validation.max) || null" :model-value="safeModelValue" ref="editor" @update:model-value="handleInput" />
-      <MbInput v-else :class="{ 'in-split': inSplit }" :dark="dark" :error="error" :label="label" :max-len="(validation && validation.max) || null" :model-value="safeModelValue" @update:model-value="handleInput" />
+      <MbEditor v-if="options && (options.wrapping || options.multiline)" :allow-new-lines="options && options.multiline" :class="{ 'in-split': inSplit }" :dark="dark" :error="String(error)" :label="label" :max-len="(validation && validation.max) || null" :model-value="safeModelValue" ref="editor" @update:model-value="handleInput" />
+      <MbInput v-else :class="{ 'in-split': inSplit }" :dark="dark" :error="String(error)" :label="label" :max-len="(validation && validation.max) || null" :model-value="safeModelValue" @update:model-value="handleInput" />
     </template>
     <LocalisedFieldsContainer
       v-else
@@ -65,11 +65,23 @@ export default {
       if (!nv) this.$emit('update:error', this.validateLocalisedValues(this.safeModelValue, ''));
     },
     showLocalisedOptions(nv) {
-      if (nv) this.$emit('update:error', this.validateLocalisedValues(this.safeModelValue, ''));
-      else {
-        const error = this.validate(this.safeModelValue);
+      let newValue;
+      if (nv) {
+        if (this.modelValue !== null && (!this.modelValue || typeof this.modelValue !== 'object')) {
+          newValue = this.languages.reduce((acc, lang, index) => {
+            if (index === 0 && this.modelValue) acc[lang] = this.modelValue;
+            else acc[lang] = '';
+            return acc;
+          }, {});
+        }
+        this.$emit('update:error', this.validateLocalisedValues(newValue || this.modelValue, ''));
+      } else {
+        if (this.modelValue && typeof this.modelValue === 'object') newValue = Object.values(this.modelValue)[0] || '';
+        const error = this.validate(newValue || this.modelValue);
         if (error || this.error) this.$emit('update:error', error); // we only emit if we have an error set or the value is invalid
       }
+
+      if (typeof newValue !== 'undefined') this.$emit('update:modelValue', newValue);
     },
   },
 };
