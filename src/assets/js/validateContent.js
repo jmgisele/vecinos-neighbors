@@ -14,8 +14,8 @@ export function validateField(value, type, rules) {
         else error = `At least ${rules.min} languages are required`;
       }
       break;
-    case 'text':
     case 'rich text':
+    case 'text':
       valueToCheck = value || '';
       if (rules.required && !valueToCheck) error = 'This field is required';
       else if (rules.enforceMinMax && (rules.min || rules.max)) {
@@ -27,6 +27,17 @@ export function validateField(value, type, rules) {
         } catch (err) {
           // do nothing, if we end up here it’s because the user-input regex was invalid
         }
+      }
+      break;
+    case 'tags':
+      valueToCheck = value || [];
+      if (rules.min && valueToCheck.length < rules.min) {
+        if (rules.min === 1) error = 'At least one tag is required';
+        else error = `At least ${rules.min} tags are required`;
+      }
+      if (rules.max && valueToCheck.length > rules.max) {
+        if (rules.max === 1) error = 'Only one tag is allowed';
+        else error = `Only up to ${rules.max} tags are allowed`;
       }
       break;
     default:
