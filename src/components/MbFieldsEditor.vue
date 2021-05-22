@@ -10,6 +10,7 @@
         :default="field.default"
         :display-field="field.displayField"
         :error="error.get(field.key)"
+        :field-key="field.key"
         :in-split="inSplit"
         :is="componentForType(field.type)"
         :label="field.label"

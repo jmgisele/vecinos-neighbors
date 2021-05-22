@@ -73,6 +73,7 @@ export default {
     default: {}, // can be anything
     displayField: String,
     error: [String, Map], // will be a Map if localised / has subfields
+    fieldKey: String,
     inSplit: Boolean,
     label: String,
     languages: Array,

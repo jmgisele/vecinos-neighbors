@@ -77,6 +77,7 @@
               :dark="dark"
               :display-field="fieldBeingEdited.displayField"
               :error="fieldErrors.default"
+              :field-key="fieldBeingEdited.key"
               in-split
               :is="componentForType(fieldBeingEdited.type)"
               label="Default value"
