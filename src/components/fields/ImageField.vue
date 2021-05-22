@@ -11,7 +11,7 @@
       </div>
       <MbIcon v-if="compact" :icon="active ? 'cross' : cleanError ? 'error' : 'pencil'" />
     </div>
-    <MbModal class="image-data" :dark="dark" :title="labelWithSizeHint" :visible="showModal" @after-close="validateContent" @close="closeDetails" @keyup.ctrl.enter="closeDetails">
+    <MbModal class="image-data" :dark="dark" :title="labelWithSizeHint" :visible="showDetailsModal" @after-close="validateContent" @close="closeDetails" @keyup.ctrl.enter="closeDetails">
       <teleport v-if="!teleportTarget || active" :disabled="!teleportTarget" :to="teleportTarget">
         <h2 v-if="teleportTarget" class="h3 split-title">{{labelWithSizeHint}}</h2>
       </teleport>
@@ -30,6 +30,21 @@
         <MbButton v-if="options && options.removable" :dark="dark" :disabled="!modelValue" type="negative" @click="clearImage">Remove current image</MbButton>
       </template>
     </MbModal>
+    <MbModal class="media-upload-modal" :dark="dark" :permanent="uploading" title="Upload image" :visible="showUploadModal" @close="showUploadModal = false">
+      <transition mode="out-in">
+        <div v-if="uploading" class="uploading">
+          <MbLoader />
+        </div>
+        <div v-else class="dropzone" :class="{ dark, 'drag-active': dragActive }" @dragenter.prevent="dragActive = true" @dragover.prevent @dragleave="dragActive = false" @drop="handleDrop">
+          <p :class="{ dark }">Drop image files here to upload them, or select some by clicking the button below</p>
+          <MbButton :dark="dark" icon="upload" @click="selectFiles('modalFileInput')">Select files</MbButton>
+          <input accept="image/*" type="file" ref="modalFileInput" @change="handleFileInput">
+        </div>
+      </transition>
+      <template #actions>
+        <MbButton :dark="dark" :disabled="uploading" @click="showUploadModal = false">Cancel</MbButton>
+      </template>
+    </MbModal>
   </section>
 </template>
 
@@ -38,11 +53,17 @@ import fs, { joinPath } from '../../fs';
 
 import validateContent from '../../assets/js/validateContent';
 
+import { imageRegExp } from '../../data/regExps';
+
 import field from '../../mixins/field';
 
 export default {
   beforeUnmount() {
     if (this.image) URL.revokeObjectURL(this.image);
+    window.removeEventListener('dragenter', this.handleWindowDragEnter);
+    window.removeEventListener('dragover', this.preventWindowDragEvent);
+    window.removeEventListener('dragleave', this.handleWindowDragLeave);
+    window.removeEventListener('drop', this.preventWindowDragEvent);
   },
   computed: {
     cleanError() {
@@ -76,6 +97,20 @@ export default {
       return joinPath(this.projectsDir, this.modelValue.src || this.modelValue);
     },
     uploadAction() {
+      let uploadAllowed = false;
+      if (!this.mediaSettings.permissions) uploadAllowed = true;
+      if (this.mediaSettings.permissions && this.mediaSettings.permissions.everybody && (this.mediaSettings.permissions.everybody.includes('upload') || this.mediaSettings.permissions.everybody.includes('everything'))) uploadAllowed = true;
+      if (this.mediaSettings.permissions && this.mediaSettings.permissions[this.$store.getters.userInCurrentProject.role] && (this.mediaSettings.permissions[this.$store.getters.userInCurrentProject.role].includes('upload') || this.mediaSettings.permissions[this.$store.getters.userInCurrentProject.role].includes('everything'))) uploadAllowed = true;
+
+      if (uploadAllowed) {
+        return {
+          callback: () => { this.showUploadModal = true; },
+          label: 'Upload',
+          icon: 'upload',
+          iconFirst: true,
+          type: 'primary',
+        };
+      }
       return null;
     },
   },
@@ -85,9 +120,12 @@ export default {
   data() {
     return {
       currentPath: '/',
+      dragActive: false,
       image: null,
-      showModal: false,
+      showDetailsModal: false,
       showSelectModal: false,
+      showUploadModal: false,
+      uploading: false,
     };
   },
   methods: {
@@ -106,7 +144,7 @@ export default {
       }
 
       if (this.splitTarget) this.$emit('update:active', false);
-      else this.showModal = false;
+      else this.showDetailsModal = false;
     },
     async fetchImage(path) {
       if (!path) return;
@@ -117,6 +155,13 @@ export default {
       } catch (err) {
         this.$store.commit('addToast', { message: `Something went wrong when fetching the image thumbnail for ${this.label}: ${err.message}`, type: 'error' });
       }
+    },
+    handleDrop(e) {
+      e.preventDefault();
+      e.stopPropagation();
+      const [file] = e.dataTransfer.files;
+
+      this.saveFile(file);
     },
     async handleFileClick(path) {
       if (!this.mediaSettings.advanced) this.handleInput(path.replace(this.projectsDir, ''));
@@ -134,6 +179,19 @@ export default {
 
       this.showSelectModal = false;
     },
+    handleFileInput(e) {
+      this.saveFile(e.currentTarget.files[0]);
+      e.currentTarget.value = '';
+    },
+    handleWindowDragEnter(e) {
+      e.preventDefault();
+      if (this.uploadAction) this.showUploadModal = true; // uploadAction is null if we don’t have permission
+    },
+    handleWindowDragLeave(e) {
+      e.preventDefault();
+
+      if (this.showUploadModal && e.clientX === 0 && e.clientY === 0) this.showUploadModal = false; // clientX and clientY are 0 if outside of the window
+    },
     openDetails() {
       if (this.active) {
         this.closeDetails();
@@ -146,7 +204,64 @@ export default {
       }
 
       if (this.splitTarget) this.$emit('update:active', true);
-      else this.showModal = true;
+      else this.showDetailsModal = true;
+    },
+    preventWindowDragEvent(e) {
+      e.preventDefault();
+    },
+    async saveFile(file) {
+      if (!imageRegExp.test(file.name)) {
+        this.$store.commit('addToast', { message: `“${file.name}” was not uploaded because it is not an image`, type: 'warning' });
+        this.dragActive = false;
+        return;
+      }
+
+      if (this.validation && this.validation.max) {
+        const sizeInMb = file.size / 1024 / 1024;
+        if (sizeInMb > this.validation.max) {
+          this.$store.commit('addToast', { message: `“${file.name}” was not uploaded because it is too large`, type: 'warning' });
+          this.dragActive = false;
+          return;
+        }
+      }
+
+      this.uploading = true;
+      try {
+        const arrayBuffer = await file.arrayBuffer();
+        const existingFiles = await fs.readdir(this.currentPath);
+        const path = joinPath(this.currentPath, file.name);
+
+        if (!arrayBuffer) {
+          this.$store.commit('addToast', { message: `“${file.name}” was not uploaded because it is a folder`, type: 'warning' });
+          this.dragActive = false;
+          this.uploading = false;
+          return;
+        }
+
+        if (existingFiles.includes(file.name)) {
+          this.$store.commit('addToast', { message: `The file “${file.name}” was not uploaded because it already exists in this folder`, type: 'warning' });
+          this.dragActive = false;
+          this.uploading = false;
+          return;
+        }
+
+        await fs.writeFile(path, arrayBuffer);
+
+        this.$store.commit('addLocallyChangedFile', path);
+        await this.$store.dispatch('saveAppData');
+        this.handleInput(path.replace(this.projectsDir, ''));
+      } catch (err) {
+        this.$store.commit('addToast', { message: `Something went wrong while saving a file in ${this.label}: ${err.message}`, type: 'error' });
+      }
+
+      this.uploading = false;
+      this.dragActive = false;
+      this.showUploadModal = false;
+      this.showSelectModal = false;
+      this.$refs.fileList.refresh();
+    },
+    selectFiles(inputRef) {
+      this.$refs[inputRef].click();
     },
     validateContent() {
       // TODO: check if advanced library and validate fields then, otherwise just validate image
@@ -165,6 +280,19 @@ export default {
       } else if (typeof nv === 'string' && (!ov || nv !== ov || nv !== ov.src)) {
         if (this.image) URL.revokeObjectURL(this.image);
         this.fetchImage(nv);
+      }
+    },
+    showSelectModal(nv) {
+      if (nv) {
+        window.addEventListener('dragenter', this.handleWindowDragEnter);
+        window.addEventListener('dragover', this.preventWindowDragEvent);
+        window.addEventListener('dragleave', this.handleWindowDragLeave);
+        window.addEventListener('drop', this.preventWindowDragEvent);
+      } else {
+        window.removeEventListener('dragenter', this.handleWindowDragEnter);
+        window.removeEventListener('dragover', this.preventWindowDragEvent);
+        window.removeEventListener('dragleave', this.handleWindowDragLeave);
+        window.removeEventListener('drop', this.preventWindowDragEvent);
       }
     },
   },
@@ -225,4 +353,45 @@ export default {
 
   .file-list
     min-height: 50vh
+
+.media-upload-modal
+  .uploading,
+  .dropzone
+    &.v-enter-active,
+    &.v-leave-active
+      transition: opacity 200ms ease
+
+      &.v-enter-from,
+      &.v-leave-to
+        opacity: 0
+
+  .dropzone
+    border: 0.125rem dashed $accent-secondary
+    padding: 2rem
+    text-align: center
+    border-radius: $radius-l
+
+    &.drag-active
+      background-color: $bg-secondary
+
+      &.dark
+        background-color: $bg-secondary-dark
+
+      .button
+        visibility: hidden
+
+    p
+      color: $text-secondary
+      margin-top: 0
+      margin-bottom: 2rem
+      pointer-events: none
+
+      &.dark
+        color: $text-secondary-dark
+
+    input[type=file]
+      display: none
+
+  .uploading
+    padding: 2rem
 </style>
