@@ -6,31 +6,35 @@
         <MbIcon v-else icon="image" />
       </div>
       <div class="left">
-        <p class="label" :class="{ unstyled: !localisedDisplayValue }">{{cleanError || label}}</p>
-        <p v-if="localisedDisplayValue || cleanError" class="content">{{localisedDisplayValue || label}}</p>
+        <p class="label" :class="{ unstyled: !localisedDisplayValue }">{{cleanError || labelWithSizeHint}}</p>
+        <p v-if="localisedDisplayValue || cleanError" class="content">{{localisedDisplayValue || labelWithSizeHint}}</p>
       </div>
       <MbIcon v-if="compact" :icon="active ? 'cross' : cleanError ? 'error' : 'pencil'" />
     </div>
-    <MbModal class="image-data" :dark="dark" :title="label" :visible="showModal" @after-close="validateContent" @close="closeDetails" @keyup.ctrl.enter="closeDetails">
+    <MbModal class="image-data" :dark="dark" :title="labelWithSizeHint" :visible="showModal" @after-close="validateContent" @close="closeDetails" @keyup.ctrl.enter="closeDetails">
       <teleport v-if="!teleportTarget || active" :disabled="!teleportTarget" :to="teleportTarget">
-        <h2 v-if="teleportTarget" class="h3 split-title">{{label}}</h2>
+        <h2 v-if="teleportTarget" class="h3 split-title">{{labelWithSizeHint}}</h2>
       </teleport>
       <template #actions>
         <MbButton :dark="dark" type="primary" @click="closeDetails">Done</MbButton>
       </template>
     </MbModal>
-    <MbModal class="media-select-modal" :dark="dark" :style="{ minHeight: '50vh', width: '60rem' }" title="Select an image…" :visible="showSelectModal" @close="showSelectModal = false">
+    <MbModal class="media-select-modal" :dark="dark" :style="{ width: '60rem' }" title="Select an image…" :visible="showSelectModal" @close="showSelectModal = false">
       <div v-if="!mediaSettings.dir" class="unconfigured-state" :class="{ dark }">
         <h2>The Media Library hasn’t been configured yet</h2>
         <p>In order to upload and add images to your content, the Media Library has to be configured. Please ensure an upload directory has been added in the Project Settings.</p>
       </div>
-      <MbFileList v-else :action="uploadAction" :active-file="selectedFilePath" :dark="dark" file-list-label="Media Files" folders-first pretty-filenames ref="fileList" :root="mediaDir" thumbnails @fileclick="handleFileClick" @path-change="currentPath = $event" />
+      <MbFileList v-else :action="uploadAction" :active-file="selectedFilePath" :dark="dark" file-list-label="Media Files" folders-first only-images pretty-filenames ref="fileList" :root="mediaDir" thumbnails @fileclick="handleFileClick" @path-change="currentPath = $event" />
+      <template #actions>
+        <MbButton :dark="dark" @click="showSelectModal = false">Cancel</MbButton>
+        <MbButton v-if="options && options.removable" :dark="dark" :disabled="!modelValue" type="negative" @click="clearImage">Remove current image</MbButton>
+      </template>
     </MbModal>
   </section>
 </template>
 
 <script>
-import { joinPath } from '../../fs';
+import fs, { joinPath } from '../../fs';
 
 import validateContent from '../../assets/js/validateContent';
 
@@ -43,11 +47,16 @@ export default {
   computed: {
     cleanError() {
       if (!this.error) return '';
+      if (typeof this.error === 'string') return this.error;
       return this.error.size === 1 ? 'A subfield has errors' : `${this.error.size} subfields have errors`;
     },
+    labelWithSizeHint() {
+      if (!this.options.resolutionHint) return this.label;
+      return `${this.label} (${this.options.resolutionHint})`;
+    },
     localisedDisplayValue() {
-      if (!this.displayField) return null;
-      const displayValue = this.modelValue.alt || this.modelValue.title;
+      if (!this.modelValue) return null;
+      const displayValue = this.modelValue.src || this.modelValue;
 
       if (displayValue !== null && typeof displayValue === 'object') return Object.values(displayValue).find((value) => value) || '';
       return displayValue;
@@ -70,6 +79,9 @@ export default {
       return null;
     },
   },
+  created() {
+    if (typeof this.modelValue === 'string') this.fetchImage(this.modelValue);
+  },
   data() {
     return {
       currentPath: '/',
@@ -79,6 +91,14 @@ export default {
     };
   },
   methods: {
+    clearImage() {
+      this.$emit('update:modelValue', null);
+      if (this.image) {
+        URL.revokeObjectURL(this.image);
+        this.image = null;
+      }
+      this.showSelectModal = false;
+    },
     closeDetails() {
       if (!this.mediaSettings.advanced) {
         this.showSelectModal = false;
@@ -88,8 +108,31 @@ export default {
       if (this.splitTarget) this.$emit('update:active', false);
       else this.showModal = false;
     },
-    handleFileClick(path) {
-      console.log(path);
+    async fetchImage(path) {
+      if (!path) return;
+      const realPath = path.startsWith(this.projectsDir) ? path : joinPath(this.projectsDir, path);
+      try {
+        const rawImage = await fs.readFile(realPath);
+        this.image = URL.createObjectURL(new Blob([rawImage], realPath.endsWith('.svg') ? { type: 'image/svg+xml' } : undefined));
+      } catch (err) {
+        this.$store.commit('addToast', { message: `Something went wrong when fetching the image thumbnail for ${this.label}: ${err.message}`, type: 'error' });
+      }
+    },
+    async handleFileClick(path) {
+      if (!this.mediaSettings.advanced) this.handleInput(path.replace(this.projectsDir, ''));
+
+      if (this.validation && this.validation.max) {
+        try {
+          const size = await fs.du(path);
+          const sizeInMb = size / 1024 / 1024;
+
+          if (sizeInMb > this.validation.max) this.$emit('update:error', 'The selected image is too large');
+        } catch (err) {
+          this.$store.commit('addToast', { message: `Something went wrong when reading the filesize in ${this.label}: ${err.message}`, type: 'error' });
+        }
+      }
+
+      this.showSelectModal = false;
     },
     openDetails() {
       if (this.active) {
@@ -114,6 +157,15 @@ export default {
   watch: {
     active(nv) {
       if (!nv) this.validateContent();
+    },
+    modelValue(nv, ov) {
+      if (nv === null && this.image) {
+        URL.revokeObjectURL(this.image);
+        this.image = null;
+      } else if (typeof nv === 'string' && (!ov || nv !== ov || nv !== ov.src)) {
+        if (this.image) URL.revokeObjectURL(this.image);
+        this.fetchImage(nv);
+      }
     },
   },
 };
@@ -170,4 +222,7 @@ export default {
 
     h2
       margin-top: 0
+
+  .file-list
+    min-height: 50vh
 </style>
