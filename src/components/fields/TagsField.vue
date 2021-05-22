@@ -66,6 +66,9 @@ export default {
       return this.modelValue || [];
     },
   },
+  created() {
+    if (this.options.autocompleteModel && !Array.isArray(this.options.autocompleteModel)) this.fetchFileModel();
+  },
   data() {
     return {
       fileModel: [],
