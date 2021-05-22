@@ -25,8 +25,6 @@
 </template>
 
 <script>
-import { cloneDeep as _cloneDeep } from 'lodash-es';
-
 import field from '../../mixins/field';
 
 import LocalisedFieldsContainer from '../utility/LocalisedFieldsContainer.vue';
@@ -60,25 +58,6 @@ export default {
     return {
       editors: [],
     };
-  },
-  methods: {
-    handleInput(newValue, lang) {
-      const error = this.validate(newValue);
-      if (!lang) {
-        if (error || this.error) this.$emit('update:error', error); // we only emit if we have an error set or the value is invalid
-
-        this.$emit('update:modelValue', newValue);
-      } else {
-        if (error || (this.error && this.error.get(lang))) {
-          const errorClone = _cloneDeep(this.error) || new Map();
-          if (error) errorClone.set(lang, error);
-          else if (!error && this.error.get(lang)) errorClone.delete(lang);
-          if (errorClone.size > 0) this.$emit('update:error', errorClone);
-          else this.$emit('update:error', '');
-        }
-        this.$emit('update:modelValue', { ...this.safeModelValue, [lang]: newValue });
-      }
-    },
   },
   mixins: [field],
   watch: {

@@ -1,3 +1,5 @@
+import { cloneDeep as _cloneDeep } from 'lodash-es';
+
 import { validateField } from '../assets/js/validateContent';
 
 export default {
@@ -12,10 +14,23 @@ export default {
   },
   emits: ['update:active', 'update:error', 'update:modelValue'],
   methods: {
-    handleInput(newValue) {
+    handleInput(newValue, lang) {
       const error = this.validate(newValue);
-      if (error || this.error) this.$emit('update:error', error);
-      this.$emit('update:modelValue', newValue);
+
+      if (!lang) {
+        if (error || this.error) this.$emit('update:error', error);
+        this.$emit('update:modelValue', newValue);
+      } else {
+        if (error || (this.error && this.error.get(lang))) {
+          const errorClone = _cloneDeep(this.error) || new Map();
+          if (error) errorClone.set(lang, error);
+          else if (!error && this.error.get(lang)) errorClone.delete(lang);
+          if (errorClone.size > 0) this.$emit('update:error', errorClone);
+          else this.$emit('update:error', '');
+        }
+        if (this.modelValue && typeof this.modelValue === 'object') this.$emit('update:modelValue', { ...this.modelValue, [lang]: newValue });
+        else this.$emit('update:modelValue', { [lang]: newValue });
+      }
     },
     validate(value) {
       return validateField(value, this.type, this.validation);
