@@ -459,6 +459,12 @@ export default [
         props: { icon: 'resolution', placeholder: '640x360' },
         value: '',
       },
+      {
+        component: 'MbToggle',
+        key: 'removable',
+        slot: 'Allow the image to be removed once set',
+        value: true,
+      },
     ],
     tab: null,
     validation: { max: 1, required: false, unit: 'filesize (MB)' },
