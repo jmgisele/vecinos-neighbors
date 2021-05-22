@@ -136,8 +136,14 @@ export default function generateSchema(
       }
       // List Item
       if (blockFormats.indexOf('orderedList') > -1 || blockFormats.indexOf('unorderedList') > -1) {
+        let content;
+        if (!options.allowNestedLists) content = 'paragraph';
+        else if (blockFormats.indexOf('orderedList') > -1 && blockFormats.indexOf('unorderedList') === -1) content = 'paragraph (paragraph | orderedList)*';
+        else if (blockFormats.indexOf('unorderedList') > -1 && blockFormats.indexOf('orderedList') === -1) content = 'paragraph (paragraph | unorderedList)*';
+        else content = 'paragraph (paragraph | orderedList | unorderedList)*';
+
         nodes.listItem = {
-          content: options.allowNestedLists ? 'paragraph (paragraph | orderedList | unorderedList)*' : 'paragraph',
+          content,
           defining: true,
           parseDOM: [{ tag: 'li' }],
           toDOM() { return ['li', 0]; },
