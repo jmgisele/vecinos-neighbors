@@ -8,7 +8,7 @@
       <MbIcon v-if="compact" :icon="active ? 'cross' : cleanError ? 'error' : 'pencil'" />
     </div>
     <MbFieldsEditor v-if="!compact" compact :dark="dark" :error="error" :fields="children" :in-split="Boolean(teleportTarget)" :model-value="modelValue" :languages="languages" @update:error="handleError" @update:model-value="update" />
-    <MbModal class="group-content" :dark="dark" :title="label" :visible="showModal" @close="closeGroup" @keyup.ctrl.enter="closeGroup">
+    <MbModal class="group-content" :dark="dark" :title="label" :visible="showModal" @after-close="validateContent" @close="closeGroup" @keyup.ctrl.enter="closeGroup">
       <teleport v-if="!teleportTarget || active" :disabled="!teleportTarget" :to="teleportTarget">
         <h2 v-if="teleportTarget" class="h3 split-title">{{label}}</h2>
         <MbFieldsEditor compact :dark="dark" :error="error" :fields="children" :in-split="Boolean(teleportTarget)" :model-value="modelValue" :languages="languages" @update:error="handleError" @update:model-value="update" />
@@ -22,6 +22,8 @@
 
 <script>
 import { get as _get } from 'lodash-es';
+
+import validateContent from '../../assets/js/validateContent';
 
 import field from '../../mixins/field';
 
@@ -65,8 +67,16 @@ export default {
     update(v) {
       this.$emit('update:modelValue', v);
     },
+    validateContent() {
+      this.$emit('update:error', validateContent(this.modelValue || {}, { fields: this.children }, this.languages));
+    },
   },
   mixins: [field],
+  watch: {
+    active(nv) {
+      if (!nv) this.validateContent();
+    },
+  },
 };
 </script>
 
