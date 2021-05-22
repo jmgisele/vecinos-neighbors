@@ -29,6 +29,7 @@ export default {
           else this.$emit('update:error', '');
         }
         if (this.modelValue && typeof this.modelValue === 'object') this.$emit('update:modelValue', { ...this.modelValue, [lang]: newValue });
+        else if (this.modelValue && lang !== this.languages[0]) this.$emit('update:modelValue', { [this.languages[0]]: this.modelValue, [lang]: newValue });
         else this.$emit('update:modelValue', { [lang]: newValue });
       }
     },
