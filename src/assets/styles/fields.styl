@@ -26,10 +26,10 @@
   &.error
     border-color: $negative
 
-    .label
+    > .label
       color: $negative-saturated
 
-  .label
+  > .label
     margin-top: 0
     margin-bottom: 0.5rem
     color: $text-secondary
@@ -41,7 +41,9 @@
 
 .localised-fields-container,
 .group.field > .display-wrapper,
-.image.field > .display-wrapper
+.image.field > .display-wrapper,
+.row-item,
+.column-item
   display: flex
   align-items: center
   background-color: $bg-secondary
