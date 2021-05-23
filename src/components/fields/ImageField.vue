@@ -570,6 +570,7 @@ export default {
     position: relative
     border-top-left-radius: $radius-l
     border-top-right-radius: @border-top-left-radius
+    overflow: hidden
 
     @media $mobile
       height: 12rem
