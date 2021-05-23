@@ -127,9 +127,7 @@ export default {
     },
     uploadAction() {
       let uploadAllowed = false;
-      if (!this.mediaSettings.permissions) uploadAllowed = true;
-      if (this.mediaSettings.permissions && this.mediaSettings.permissions.everybody && (this.mediaSettings.permissions.everybody.includes('upload') || this.mediaSettings.permissions.everybody.includes('everything'))) uploadAllowed = true;
-      if (this.mediaSettings.permissions && this.mediaSettings.permissions[this.$store.getters.userInCurrentProject.role] && (this.mediaSettings.permissions[this.$store.getters.userInCurrentProject.role].includes('upload') || this.mediaSettings.permissions[this.$store.getters.userInCurrentProject.role].includes('everything'))) uploadAllowed = true;
+      if (!this.mediaSettings.permissions || this.userPermissions.has('everything') || this.userPermissions.has('upload')) uploadAllowed = true;
 
       if (uploadAllowed) {
         return {
@@ -141,6 +139,16 @@ export default {
         };
       }
       return null;
+    },
+    userPermissions() {
+      if (!this.mediaSettings.permissions || !this.$store.getters.userInCurrentProject) return new Set();
+
+      const { role } = this.$store.getters.userInCurrentProject;
+
+      return new Set([
+        ...(this.mediaSettings.permissions.everybody || []),
+        ...(this.mediaSettings.permissions[role] || []),
+      ]);
     },
   },
   created() {
