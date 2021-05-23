@@ -168,6 +168,7 @@ export default {
         width: null,
       },
       image: null,
+      metaIsNew: false,
       showDetailsModal: false,
       showSelectModal: false,
       showUploadModal: false,
@@ -229,6 +230,7 @@ export default {
               this.$store.commit('addLocallyChangedFile', joinPath(mediaMetaDir, `${pathInMediaDir}.json`));
               this.$store.dispatch('saveAppData');
               meta = defaultMeta;
+              this.metaIsNew = true;
             } catch (innerErr) {
               this.$store.commit('addToast', { message: `Something went wrong while creating the metadata file: ${innerErr.message}`, type: 'error' });
             }
@@ -343,15 +345,14 @@ export default {
 
         this.$store.commit('addLocallyChangedFile', path);
         await this.$store.dispatch('saveAppData');
-        this.handleInput(path.replace(this.projectsDir, ''));
+        this.dragActive = false;
+        this.showUploadModal = false;
+        this.handleFileClick(path);
       } catch (err) {
         this.$store.commit('addToast', { message: `Something went wrong while saving a file in ${this.label}: ${err.message}`, type: 'error' });
       }
 
       this.uploading = false;
-      this.dragActive = false;
-      this.showUploadModal = false;
-      this.showSelectModal = false;
       this.$refs.fileList.refresh();
     },
     selectFiles(inputRef) {
@@ -363,7 +364,6 @@ export default {
       this.fileDetails.height = img.naturalHeight;
     },
     updateMeta(newValue) {
-      // TODO: save the changed metadata if permitted?
       this.handleInput(newValue);
     },
     validateContent() {
@@ -377,8 +377,21 @@ export default {
   },
   mixins: [field],
   watch: {
-    active(nv) {
-      if (!nv) this.validateContent();
+    async active(nv) {
+      if (!nv) {
+        this.validateContent();
+        await this.$nextTick(); // need to wait a tick so we have an up-to-date error
+        if (!this.error && this.metaIsNew && (this.userPermissions.has('everything') || this.userPermissions.has('editMedia'))) {
+          this.metaIsNew = false;
+          const mediaMetaDir = joinPath(this.projectsDir, '.mattrbld', 'media');
+          const pathInMediaDir = this.modelValue.src.replace(this.mediaSettings.dir, '');
+          const newMeta = _cloneDeep(this.modelValue);
+          delete newMeta.src;
+          await fs.writeFile(joinPath(mediaMetaDir, `${pathInMediaDir}.json`), JSON.stringify(newMeta, null, 2), 'utf8');
+          this.$store.commit('addLocallyChangedFile', joinPath(mediaMetaDir, `${pathInMediaDir}.json`));
+          this.$store.dispatch('saveAppData');
+        }
+      }
     },
     modelValue(nv, ov) {
       if (nv === null && this.image) {
