@@ -40,6 +40,17 @@ export function validateField(value, type, rules) {
         }
       }
       break;
+    case 'rows':
+      valueToCheck = value || [];
+      if (rules.min && valueToCheck.length < rules.min) {
+        if (rules.min === 1) error = 'At least one item is required';
+        else error = `At least ${rules.min} items are required`;
+      }
+      if (rules.max && valueToCheck.length > rules.max) {
+        if (rules.max === 1) error = 'Only one item is allowed';
+        else error = `Only up to ${rules.max} items are allowed`;
+      }
+      break;
     case 'tags':
       valueToCheck = value || [];
       if (rules.min && valueToCheck.length < rules.min) {

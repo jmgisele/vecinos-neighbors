@@ -10,6 +10,35 @@
     text-align: center
     margin-bottom: 2rem
 
+.rows.field > .container,
+.columns.field > .container
+  border: 0.0625rem solid alpha($text, 0.12)
+  border-radius: $radius-l
+  padding: 1rem
+
+  &.dark
+    border-color: alpha($text-dark, 0.12)
+
+    .label,
+    .empty-state
+      color: $text-secondary-dark
+
+  &.error
+    border-color: $negative
+
+    .label
+      color: $negative-saturated
+
+  .label
+    margin-top: 0
+    margin-bottom: 0.5rem
+    color: $text-secondary
+    font-size: 0.75rem
+
+  .empty-state
+    text-align: center
+    color: $text-secondary
+
 .localised-fields-container,
 .group.field > .display-wrapper,
 .image.field > .display-wrapper
