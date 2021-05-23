@@ -30,10 +30,11 @@
     <MbModal class="item-details" :dark="dark" :title="fieldBeingEdited && fieldBeingEdited.label" :visible="showDetailsModal" @after-close="validateContent" @close="closeDetails" @keyup.ctrl.enter="closeDetails">
       <teleport v-if="!teleportTarget || active" :disabled="!teleportTarget" :to="teleportTarget">
         <h2 v-if="teleportTarget" class="h3 split-title">{{fieldBeingEdited && fieldBeingEdited.label}}</h2>
-        <MbFieldsEditor v-if="modelValue && indexBeingEdited !== null" compact :dark="dark" :error="(error instanceof Map && error.get(indexBeingEdited)) || new Map()" :fields="fieldBeingEdited.type === 'group' ? fieldBeingEdited.value : [fieldBeingEdited]" :in-split="Boolean(teleportTarget)" :model-value="modelValue[indexBeingEdited]" :languages="languages" @update:error="handleFieldBeingEditedError" @update:model-value="updateFieldBeingEdited" />
-        <MbButton v-if="options.allowEditing" class="delete-button" :dark="dark" icon="trash" type="negative" @click="deleteItemBeingEdited">Delete {{options.itemLabel || 'Row'}}</MbButton>
+        <MbFieldsEditor v-if="modelValue && indexBeingEdited !== null" class="field-details-editor" :class="{ 'in-split': teleportTarget }" compact :dark="dark" :error="(error instanceof Map && error.get(indexBeingEdited)) || new Map()" :fields="fieldBeingEdited.type === 'group' ? fieldBeingEdited.value : [fieldBeingEdited]" :in-split="Boolean(teleportTarget)" :model-value="modelValue[indexBeingEdited]" :languages="languages" @update:error="handleFieldBeingEditedError" @update:model-value="updateFieldBeingEdited" />
+        <MbButton v-if="options.allowEditing && teleportTarget" class="delete-button" :dark="dark" icon="trash" type="negative" @click="deleteItemBeingEdited">Delete {{options.itemLabel || 'Row'}}</MbButton>
       </teleport>
       <template #actions>
+        <MbButton v-if="options.allowEditing" :dark="dark" icon="trash" type="negative" @click="deleteItemBeingEdited">Delete {{options.itemLabel || 'Row'}}</MbButton>
         <MbButton :dark="dark" type="primary" @click="closeDetails">Done</MbButton>
       </template>
     </MbModal>
@@ -109,6 +110,7 @@ export default {
       else this.showDetailsModal = false;
     },
     deleteItemBeingEdited() {
+      // TODO: add undo
       this.handleInput(this.modelValue.filter((item, index) => index !== this.indexBeingEdited));
       this.indexBeingEdited = null;
       this.closeDetails();
@@ -250,4 +252,12 @@ export default {
     margin: -1rem
     margin-right: -0.25rem
     cursor: move
+
+.field-details-editor.in-split
+  margin-bottom: 2rem
+
+.delete-button
+  display: flex
+  margin-left: auto
+  margin-bottom: 0.125rem
 </style>
