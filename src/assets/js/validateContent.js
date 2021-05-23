@@ -1,3 +1,5 @@
+import Store from '../../store';
+
 import userInputToRegex from './userInputToRegex';
 
 export function validateField(value, type, rules) {
@@ -57,14 +59,20 @@ export function validateField(value, type, rules) {
 
 function validate(field, parent, languages, groupAsKey, index) {
   const {
-    key, value: subfields, localised, type, validation,
+    key, value: childFields, localised, type, validation,
   } = field;
   let value;
   let errors;
+  let subfields = childFields;
 
   if (groupAsKey) value = (parent[groupAsKey] && parent[groupAsKey][key]) || {}; // need to fall back to an empty object here in case the groupAs-field doesn’t exist
   else if (index) value = parent[index];
   else value = parent[key];
+
+  if (type === 'image' && Store.state.currentProject && Store.state.currentProject.media.advanced && Store.state.currentProject.media.customFields) {
+    if (!value) value = {};
+    subfields = Store.state.currentProject.media.customFields;
+  }
 
   // validate subfields, if any
   if (subfields) {
@@ -101,7 +109,7 @@ function validate(field, parent, languages, groupAsKey, index) {
     } else {
       const error = validateField(value, type, validation);
       if (error && errors) errors.set(key, error); // this might happen in columns and rows when subfields have errors and the field itself has an error
-      else errors = error;
+      else if (error) errors = error;
     }
   }
 
