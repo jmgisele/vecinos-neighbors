@@ -68,7 +68,7 @@ export function validateField(value, type, rules) {
   return error;
 }
 
-function validate(field, parent, languages, groupAsKey, index) {
+function validate(field, parent, languages, groupAsKey, index) { // TODO: index can probably go
   const {
     key, value: childFields, localised, type, validation,
   } = field;
@@ -89,8 +89,10 @@ function validate(field, parent, languages, groupAsKey, index) {
   if (subfields) {
     if (Array.isArray(value)) { // rows, columns, etc. (anything  that is an array of object basically)
       value.forEach((subvalue, i) => {
-        const fieldType = subfields.find((subfield) => subfield.key === subvalue.___mb_type);
-        const error = validate(fieldType, value, languages, null, i);
+        const fieldType = subfields.find((subfield) => subfield.key === subvalue.___mb_type); // // TODO: figure out what happens if there is no field type (because the key got changed and thus ___mb_type is inaccurate)
+        let error;
+        if (fieldType.type === 'group') error = validate(fieldType, { [fieldType.key]: subvalue }, languages); // if it’s a group we have to fake the parent for it to be validated correctly, since the subvalue is technically the group
+        else error = validate(fieldType, subvalue, languages); // otherwise the value lives as a key in the subvalue, so the subvalue can be the parent
         if (error) {
           if (!errors) errors = new Map();
           errors.set(i, error);
