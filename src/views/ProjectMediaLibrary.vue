@@ -18,7 +18,7 @@
         <transition mode="out-in">
           <div v-show="showSplit" class="edit-file" :class="{ dark }" :key="entityBeingModified">
             <div v-if="fileDetails.image" class="thumbnail">
-              <img :src="fileDetails.image" :alt="fileDetails.alt || 'Error loading file'" @load="setImageResolution">
+              <img :src="fileDetails.image" :alt="fileDetails.alt || 'Error loading file'" @load="setImageResolutionAndColor">
             </div>
             <dl v-show="fileDetails.name" class="meta">
               <dl>
@@ -28,6 +28,13 @@
               <dl v-show="fileDetails.width !== null && fileDetails.height !== null">
                 <dt>Resolution:</dt>
                 <dd>{{fileDetails.width}}x{{fileDetails.height}}</dd>
+              </dl>
+              <dl v-show="fileDetails.dominantColor !== null">
+                <dt>Color:</dt>
+                <dd>
+                  <span class="color-indicator" :style="{ backgroundColor: fileDetails.dominantColor }" />
+                  <span class="color-code">{{fileDetails.dominantColor}}</span>
+                </dd>
               </dl>
               <dl>
                 <dt>Size:</dt>
@@ -83,6 +90,7 @@
 </template>
 
 <script>
+import ColorThief from 'colorthief';
 import { debounce } from 'lodash-es';
 import slugify from '@sindresorhus/slugify';
 import fs, { exists, joinPath, mkdirp, pathBasename, pathDirname } from '../fs'; // eslint-disable-line object-curly-newline
@@ -91,6 +99,7 @@ import { rmrf } from '../fs/workerFS';
 import generateDefaultContentFromSchema from '../assets/js/generateDefaultContentFromSchema';
 import humanReadableSize from '../assets/js/humanReadableSize';
 import prettifyEntityName from '../assets/js/prettifyEntityName';
+import rgbToHex from '../assets/js/rgbToHex';
 
 import isPrivilegedUser from '../mixins/isPrivilegedUser';
 import updateLocallyChangedFiles from '../mixins/updateLocallyChangedFiles';
@@ -260,6 +269,7 @@ export default {
       entityBeingModified: null,
       fileDetails: {
         errors: new Map(),
+        dominantColor: null,
         height: null,
         image: null,
         meta: null,
@@ -405,6 +415,7 @@ export default {
       this.fileDetails.errors = new Map(); // clear the errors, they’re not needed since nothing got saved while they were there
       this.fileDetails.width = null; // need to reset these here before the image / file has a chance to load
       this.fileDetails.height = null; // need to reset these here before the image / file has a chance to load
+      this.fileDetails.dominantColor = null; // need to reset these here before the image / file has a chance to load
       this.fileDetails.image = imageUrl;
       this.fileDetails.name = pathBasename(path);
       this.fileDetails.type = this.fileDetails.name.slice(this.fileDetails.name.lastIndexOf('.') + 1).toUpperCase();
@@ -444,6 +455,7 @@ export default {
             if (isImage) {
               this.fileDetails.width = null; // need to reset these here before the image / file has a chance to load
               this.fileDetails.height = null; // need to reset these here before the image / file has a chance to load
+              this.fileDetails.dominantColor = null; // need to reset these here before the image / file has a chance to load
               this.fileDetails.image = newUrl;
             }
             this.fileDetails.size = humanReadableSize(replacement.size);
@@ -455,6 +467,7 @@ export default {
     },
     handleSplitClosed() {
       this.fileDetails = {
+        dominantColor: null,
         height: null,
         image: null,
         meta: null,
@@ -529,10 +542,19 @@ export default {
     selectFiles(inputRef) {
       this.$refs[inputRef].click();
     },
-    setImageResolution(e) {
+    setImageResolutionAndColor(e) {
       const img = e.target;
       this.fileDetails.width = img.naturalWidth;
       this.fileDetails.height = img.naturalHeight;
+
+      try {
+        const ct = new ColorThief();
+        const c = ct.getColor(img, 10);
+        this.fileDetails.dominantColor = rgbToHex(c);
+      } catch (err) {
+        if (process.env.NODE_ENV !== 'production') console.warn(err);
+        // do nothing, it’s not that important
+      }
     },
     updateMediaMetaFile: debounce(async function (newMeta) { // eslint-disable-line func-names
       if (this.fileDetails.errors.size > 0) return; // don’t save invalid values
@@ -678,8 +700,12 @@ export default {
     .meta
       background-color: darken($bg-secondary-dark, 2)
 
-      dl dt
-        color: $text-secondary-dark
+      dl
+        dt
+          color: $text-secondary-dark
+
+        dd .color-indicator
+          box-shadow: inset 0 0 0 0.0625rem $text-tertiary-dark
 
   .thumbnail
     color: $text-dark
@@ -724,7 +750,7 @@ export default {
   .meta
     background-color: $bg-secondary
     margin: 0
-    padding: 1rem 4rem
+    padding: 1rem
     display: flex
     justify-content: center
 
@@ -749,6 +775,20 @@ export default {
       dt
         color: $text-secondary
         font-size: 0.875rem
+
+      dd
+        .color-indicator
+          vertical-align: middle
+          margin-right: 0.5rem
+          display: inline-block
+          width: 1rem
+          height: @width
+          border-radius: 50%
+          box-shadow: inset 0 0 0 0.0625rem $text-tertiary
+
+        .color-code
+          vertical-align: middle
+          user-select: all
 
     @media $mobile
       display: block

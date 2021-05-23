@@ -16,7 +16,7 @@
         <h2 v-if="teleportTarget" class="h3 split-title">{{labelWithSizeHint}}</h2>
         <div class="image-details">
           <div class="thumbnail" :class="{ dark, empty: !modelValue || !modelValue.src }">
-            <img v-show="image" :src="image" :alt="modelValue && modelValue.alt || 'Error loading file'" @load="setImageResolution">
+            <img v-show="image" :src="image" :alt="modelValue && modelValue.alt || 'Error loading file'" @load="setImageResolutionAndColor">
             <div class="button-wrapper">
               <MbButton dark :icon="modelValue ? 'replace-round' : 'plus'" @click="showSelectModal = true">{{ modelValue ? 'Replace image' : 'Add image'}}</MbButton>
               <MbButton v-if="options.removable && modelValue" dark icon="trash" type="negative" @click="handleInput(null)">Remove image</MbButton>
@@ -30,6 +30,13 @@
             <dl v-show="fileDetails.width !== null && fileDetails.height !== null">
               <dt>Resolution:</dt>
               <dd>{{fileDetails.width}}x{{fileDetails.height}}</dd>
+            </dl>
+            <dl v-show="fileDetails.dominantColor !== null">
+              <dt>Color:</dt>
+              <dd>
+                <span class="color-indicator" :style="{ backgroundColor: fileDetails.dominantColor }" />
+                <span class="color-code">{{fileDetails.dominantColor}}</span>
+              </dd>
             </dl>
             <dl>
               <dt>Type:</dt>
@@ -73,6 +80,7 @@
 </template>
 
 <script>
+import ColorThief from 'colorthief';
 import { cloneDeep as _cloneDeep } from 'lodash-es';
 
 import fs, {
@@ -80,6 +88,7 @@ import fs, {
 } from '../../fs';
 
 import generateDefaultContentFromSchema from '../../assets/js/generateDefaultContentFromSchema';
+import rgbToHex from '../../assets/js/rgbToHex';
 import validateContent from '../../assets/js/validateContent';
 
 import { imageRegExp } from '../../data/regExps';
@@ -162,6 +171,7 @@ export default {
       currentPath: '/',
       dragActive: false,
       fileDetails: {
+        dominantColor: null,
         height: null,
         name: null,
         type: null,
@@ -358,10 +368,19 @@ export default {
     selectFiles(inputRef) {
       this.$refs[inputRef].click();
     },
-    setImageResolution(e) {
+    setImageResolutionAndColor(e) {
       const img = e.target;
       this.fileDetails.width = img.naturalWidth;
       this.fileDetails.height = img.naturalHeight;
+
+      try {
+        const ct = new ColorThief();
+        const c = ct.getColor(img, 10);
+        this.fileDetails.dominantColor = rgbToHex(c);
+      } catch (err) {
+        if (process.env.NODE_ENV !== 'production') console.warn(err);
+        // do nothing, it’s not that important
+      }
     },
     updateMeta(newValue) {
       this.handleInput(newValue);
@@ -396,6 +415,7 @@ export default {
     modelValue(nv, ov) {
       if (nv === null && this.image) {
         URL.revokeObjectURL(this.image);
+        this.fileDetails.dominantColor = null;
         this.fileDetails.height = null;
         this.fileDetails.name = null;
         this.fileDetails.type = null;
@@ -411,6 +431,7 @@ export default {
         this.fetchImage(nv);
       } else if (typeof nv === 'object' && (!ov || !ov.src || nv.src !== ov.src)) {
         if (this.image) URL.revokeObjectURL(this.image);
+        this.fileDetails.dominantColor = null;
         this.fileDetails.height = null;
         this.fileDetails.name = this.modelValue && this.modelValue.src && pathBasename(this.modelValue && this.modelValue.src);
         this.fileDetails.type = this.fileDetails.name.slice(this.fileDetails.name.lastIndexOf('.') + 1).toUpperCase();
@@ -589,8 +610,12 @@ export default {
       &.in-split
         background-color: $bg-tertiary-dark
 
-      dl dt
-        color: $text-secondary-dark
+      dl
+        dt
+          color: $text-secondary-dark
+
+        dd .color-indicator
+          box-shadow: inset 0 0 0 0.0625rem $text-tertiary-dark
 
     dl
       margin: 0
@@ -613,6 +638,20 @@ export default {
       dt
         color: $text-secondary
         font-size: 0.875rem
+
+      dd
+        .color-indicator
+          vertical-align: middle
+          margin-right: 0.5rem
+          display: inline-block
+          width: 1rem
+          height: @width
+          border-radius: 50%
+          box-shadow: inset 0 0 0 0.0625rem $text-tertiary
+
+        .color-code
+          vertical-align: middle
+          user-select: all
 
     @media $mobile
       display: block
