@@ -116,9 +116,9 @@ function validate(field, parent, languages, groupAsKey, index) { // TODO: index 
           errors.set(i, error);
         }
       });
-    } else if (value) { // field groups (so objects (but not localised fields))
+    } else { // field groups (so objects (but not localised fields))
       subfields.forEach((subfield) => {
-        const error = validate(subfield, value, languages);
+        const error = validate(subfield, value || {}, languages);
         if (error) {
           if (!errors) errors = new Map();
           errors.set(subfield.key, error);
