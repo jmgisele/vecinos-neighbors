@@ -421,8 +421,8 @@ export default {
       }
     },
     modelValue(nv, ov) {
-      if (nv === null && this.image) {
-        URL.revokeObjectURL(this.image);
+      if (nv === null) {
+        if (this.image) URL.revokeObjectURL(this.image);
         this.fileDetails.dominantColor = null;
         this.fileDetails.height = null;
         this.fileDetails.name = null;
