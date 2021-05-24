@@ -11,7 +11,7 @@
         <MbButton :dark="dark" :disabled="!wasChanged || errors.fields.size > 0" icon="save" :icon-first="true" :loading="saveLoading" type="primary" @click="saveChanges">{{isTablet && !isMobile ? '' : 'Save'}}</MbButton>
       </div>
     </header>
-    <MbTabs v-if="schema.tabs && schema.tabs.length > 1" v-model="activeTab" :dark="dark" :tabs="cleanTabs" />
+    <MbTabs v-if="schema.tabs && schema.tabs.length > 1" v-model="activeTab" :dark="dark" :errors="tabErrors" :tabs="cleanTabs" />
     <TabContent :class="{ 'preview-in-split': !previewInNewTab && showPreview }" :dark="dark" :show-split="showSplit" @split-close="showSplit = false" @split-closed="handleSplitClosed">
       <transition mode="out-in">
         <div v-if="initialised && noSchema" class="no-schema" :class="{ dark }">
@@ -298,6 +298,17 @@ export default {
       if (!this.fileStatus) return { color: 'warning', loading: true };
       if (this.fileStatus !== 'unmodified') return { color: 'warning', message: 'local changes' };
       return { color: 'positive', message: 'synchronised' };
+    },
+    tabErrors() {
+      const errors = new Set();
+      this.errors.fields.forEach((value, key) => {
+        const schemaField = this.schema.fields.find((field) => field.key === key);
+        if (!schemaField) return;
+        let tabIndex = this.cleanTabs.indexOf(schemaField.tab);
+        if (tabIndex === -1) tabIndex = 0; // fields without a tab are shown in the firs tab
+        errors.add(tabIndex);
+      });
+      return errors;
     },
   },
   data() {
