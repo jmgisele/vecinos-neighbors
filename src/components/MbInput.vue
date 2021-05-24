@@ -1,7 +1,7 @@
 <template lang="html">
   <div class="input" :class="{ dark, disabled, dirty: error || modelValue || modelValue === 0 || placeholder, error: error || maxLen && modelValue.length > maxLen, icon }" @mousedown.prevent @click="focus">
     <MbIcon v-if="icon" :icon="error && !focussed ? 'error' : icon" />
-    <span v-if="displayLabel" :class="{ right: !label && maxLen }">{{displayLabel}}</span>
+    <span v-if="displayLabel" :class="{ clearable, right: !label && maxLen, spinners: showSpinner }">{{displayLabel}}</span>
     <input autocomplete="off" :disabled="disabled" :placeholder="placeholder" ref="input" :type="type" :value="modelValue" @blur="handleBlur" @focus="handleFocus" @[emissionevent]="handleUpdate">
     <MbButton v-if="showSpinner" :dark="dark" icon="minus" rounded @click="$emit('update:modelValue', Number(modelValue) - 1)" />
     <MbButton v-if="showSpinner" :dark="dark" icon="plus" rounded @click="$emit('update:modelValue', Number(modelValue) + 1)" />
@@ -118,6 +118,12 @@ export default {
       left: 3rem
       width: calc(100% - 4rem)
 
+      &.clearable
+        width: calc(100% - 4rem - 2.65625rem) // 100% - padding - width of the clear button
+
+      &.spinners
+        width: calc(100% - 4rem - 2.65625rem * 2) // 100% - padding - width of the clear button
+
     > input
       width: calc(100% - 2rem) // firefox doesn’t shrink input fields apparently
 
@@ -154,7 +160,9 @@ export default {
 
   &:focus-within,
   &.dirty
-    span
+    span,
+    span.spinners,
+    span.clearable
       transform: translate((-1rem + $radius-m), calc(-100% - 1.25rem)) scale(0.75)
       width: 'calc(125% + 1rem - %s)' % (2 * $radius-m) // it’s scaled down by 0.75 and we can’t use stylus expressions in calc
 
@@ -183,6 +191,12 @@ export default {
 
     &.right
       text-align: right
+
+    &.clearable
+      width: calc(100% - 2rem - 2.65625rem) // 100% - padding - width of the clear button
+
+    &.spinners
+      width: calc(100% - 2rem - 2.65625rem * 2) // 100% - padding - width of the spinner buttons
 
   > input
     width: 100%
