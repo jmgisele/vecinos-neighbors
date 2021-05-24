@@ -11,7 +11,7 @@
       </div>
       <MbIcon v-if="compact" :icon="active ? 'cross' : cleanError ? 'error' : 'pencil'" />
     </div>
-    <MbModal class="image-data" :dark="dark" :title="labelWithSizeHint" :visible="showDetailsModal" @after-close="validateContent" @close="closeDetails" @keyup.ctrl.enter="closeDetails">
+    <MbModal class="image-data" :dark="dark" :title="labelWithSizeHint" :visible="showDetailsModal" @after-close="handleModalClosed" @close="closeDetails" @keyup.ctrl.enter="closeDetails">
       <teleport v-if="!teleportTarget || active" :disabled="!teleportTarget" :to="teleportTarget">
         <h2 v-if="teleportTarget" class="h3 split-title">{{labelWithSizeHint}}</h2>
         <div class="image-details">
@@ -286,6 +286,11 @@ export default {
       if (!err || err.size === 0) this.$emit('update:error', '');
       else this.$emit('update:error', err);
     },
+    async handleModalClosed() {
+      this.validateContent();
+      await this.$nextTick(); // wait a tick so this.error is up to date
+      this.saveNewMeta();
+    },
     handleWindowDragEnter(e) {
       e.preventDefault();
       if (this.uploadAction) this.showUploadModal = true; // uploadAction is null if we don’t have permission
@@ -365,6 +370,18 @@ export default {
       this.uploading = false;
       this.$refs.fileList.refresh();
     },
+    async saveNewMeta() {
+      if (!this.error && this.metaIsNew && (this.userPermissions.has('everything') || this.userPermissions.has('editMedia'))) {
+        this.metaIsNew = false;
+        const mediaMetaDir = joinPath(this.projectsDir, '.mattrbld', 'media');
+        const pathInMediaDir = this.modelValue.src.replace(this.mediaSettings.dir, '');
+        const newMeta = _cloneDeep(this.modelValue);
+        delete newMeta.src;
+        await fs.writeFile(joinPath(mediaMetaDir, `${pathInMediaDir}.json`), JSON.stringify(newMeta, null, 2), 'utf8');
+        this.$store.commit('addLocallyChangedFile', joinPath(mediaMetaDir, `${pathInMediaDir}.json`));
+        this.$store.dispatch('saveAppData');
+      }
+    },
     selectFiles(inputRef) {
       this.$refs[inputRef].click();
     },
@@ -400,16 +417,7 @@ export default {
       if (!nv) {
         this.validateContent();
         await this.$nextTick(); // need to wait a tick so we have an up-to-date error
-        if (!this.error && this.metaIsNew && (this.userPermissions.has('everything') || this.userPermissions.has('editMedia'))) {
-          this.metaIsNew = false;
-          const mediaMetaDir = joinPath(this.projectsDir, '.mattrbld', 'media');
-          const pathInMediaDir = this.modelValue.src.replace(this.mediaSettings.dir, '');
-          const newMeta = _cloneDeep(this.modelValue);
-          delete newMeta.src;
-          await fs.writeFile(joinPath(mediaMetaDir, `${pathInMediaDir}.json`), JSON.stringify(newMeta, null, 2), 'utf8');
-          this.$store.commit('addLocallyChangedFile', joinPath(mediaMetaDir, `${pathInMediaDir}.json`));
-          this.$store.dispatch('saveAppData');
-        }
+        this.saveNewMeta();
       }
     },
     modelValue(nv, ov) {
