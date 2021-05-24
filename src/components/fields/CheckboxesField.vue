@@ -20,7 +20,7 @@ export default {
       if (!this.modelValue || !this.validation || this.validation.enforceMinMax) return null;
       if (this.validation.min && this.modelValue.length < this.validation.min) {
         if (this.validation.min === 1) return 'You should select at least one box';
-        return `You should at least select ${this.validation.min} boxes`;
+        return `You should select at least ${this.validation.min} boxes`;
       }
 
       if (this.validation.max && this.modelValue.length > this.validation.max) {

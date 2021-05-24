@@ -16,7 +16,7 @@ export function validateField(value, type, rules) {
           if (rules.min === 1) error = 'At least one box needs to be selected';
           else error = `At least ${rules.min} boxes need to be selected`;
         } else if (rules.max && valueToCheck.length > rules.max) {
-          if (rules.max === 1) error = 'At most one box needs to be selected';
+          if (rules.max === 1) error = 'At most one box may to be selected';
           else error = `At most ${rules.max} boxes may be selected`;
         }
       }
