@@ -141,6 +141,7 @@ function validate(field, parent, languages, groupAsKey, index) { // TODO: index 
     } else {
       const error = validateField(value, type, validation);
       if (error && errors) errors.set(key, error); // this might happen in columns and rows when subfields have errors and the field itself has an error
+      else if (error && (type === 'image' || type === 'rows' || type === 'columns')) errors = new Map().set(key, error); // in these fields the error is expected to be a Map with the error under the field’s key
       else if (error) errors = error;
     }
   }
