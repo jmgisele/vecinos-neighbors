@@ -552,9 +552,6 @@ export default {
     dark: Boolean,
   },
   watch: {
-    tabErrors(nv) {
-      console.log(nv);
-    },
     isPrivilegedUser(nv) {
       if (!nv) this.$router.replace({ name: 'Project' });
     },
