@@ -105,8 +105,9 @@ function validate(field, parent, languages, groupAsKey, index) { // TODO: index 
 
   // validate subfields, if any
   if (subfields) {
-    if (Array.isArray(value)) { // rows, columns, etc. (anything  that is an array of object basically)
-      value.forEach((subvalue, i) => {
+    if (type === 'rows' || type === 'columns') { // rows, columns, etc. (anything  that is an array of object basically)
+      const valueToCheck = value || [];
+      valueToCheck.forEach((subvalue, i) => {
         const fieldType = subfields.find((subfield) => subfield.key === subvalue.___mb_type); // // TODO: figure out what happens if there is no field type (because the key got changed and thus ___mb_type is inaccurate)
         let error;
         if (fieldType.type === 'group') error = validate(fieldType, { [fieldType.key]: subvalue }, languages); // if it’s a group we have to fake the parent for it to be validated correctly, since the subvalue is technically the group
