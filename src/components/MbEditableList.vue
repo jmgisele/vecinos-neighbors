@@ -270,10 +270,10 @@ export default {
     opacity: 0.25
 
   &.advanced
-    .input
-      &:first-of-type
-        margin-right: 0
-        border-right: none
+    .drag-handle + .input,
+    .item-icon + .input
+      margin-right: 0
+      border-right: none
 
   &.error
     margin-top: 1.5rem
