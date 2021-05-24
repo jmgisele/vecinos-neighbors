@@ -242,6 +242,9 @@ export default {
     mediaDir() {
       return joinPath('/projects', this.currentProject.id, this.currentProject.media.dir);
     },
+    mediaMetaDir() {
+      return joinPath('/projects', this.currentProject.id, '.mattrbld', 'media');
+    },
     slugifiedNewFolderName() {
       return slugify(this.newFolderName, this.$store.state.currentProject.slugifyOptions || { lowercase: false, decamelize: false, preserveLeadingUnderscore: true });
     },
@@ -311,6 +314,16 @@ export default {
       const timeoutId = window.setTimeout(async () => {
         try {
           await rmrf(path);
+          if (this.currentProject.media.advanced && (this.imageRegExp.test(path) || !isFile)) {
+            const pathInMediaDir = joinPath(this.mediaMetaDir, `${path.replace(this.mediaDir, '')}${isFile ? '.json' : ''}`);
+            try {
+              await rmrf(pathInMediaDir);
+              if (isFile) this.$store.commit('removeLocallyChangedFile', pathInMediaDir);
+              else this.$store.commit('removeLocallyChangedFolder', pathInMediaDir);
+            } catch (err) {
+              if (err.code !== 'ENOENT') throw err;
+            }
+          }
           if (this.$refs.fileList) await this.$refs.fileList.refresh();
           if (isFile) this.$store.commit('removeLocallyChangedFile', path);
           else this.$store.commit('removeLocallyChangedFolder', path);
@@ -361,6 +374,17 @@ export default {
         }
       }
       this.$store.dispatch('saveAppData');
+
+      if (this.currentProject.media.advanced && (this.imageRegExp.test(oldPath) || !isFile)) {
+        const oldPathInMediaDir = joinPath(this.mediaMetaDir, `${oldPath.replace(this.mediaDir, '')}${isFile ? '.json' : ''}`);
+        const newPathInMediaDir = joinPath(this.mediaMetaDir, `${newPath.replace(this.mediaDir, '')}${isFile ? '.json' : ''}`);
+
+        if (await exists(oldPathInMediaDir)) {
+          await mkdirp(pathDirname(newPathInMediaDir)); // since that might not exist
+          await fs.rename(oldPathInMediaDir, newPathInMediaDir);
+          this.handleEntityMoved({ oldPath: oldPathInMediaDir, newPath: newPathInMediaDir });
+        }
+      }
     },
     async handleEntityRenamed({ oldPath, newPath }) {
       this.$refs.fileList.refresh();
@@ -379,6 +403,16 @@ export default {
       }
 
       this.$store.dispatch('saveAppData');
+
+      if (this.currentProject.media.advanced && (this.imageRegExp.test(oldPath) || !isFile)) {
+        const oldPathInMediaDir = joinPath(this.mediaMetaDir, `${oldPath.replace(this.mediaDir, '')}${isFile ? '.json' : ''}`);
+        const newPathInMediaDir = joinPath(this.mediaMetaDir, `${newPath.replace(this.mediaDir, '')}${isFile ? '.json' : ''}`);
+
+        if (await exists(oldPathInMediaDir)) {
+          await fs.rename(oldPathInMediaDir, newPathInMediaDir);
+          this.handleEntityRenamed({ oldPath: oldPathInMediaDir, newPath: newPathInMediaDir });
+        }
+      }
     },
     async handleFileClick(path, size, imageUrl) {
       if (this.entityBeingModified === path) {
@@ -387,7 +421,7 @@ export default {
       }
 
       if (this.currentProject.media.advanced && this.imageRegExp.test(path) && (this.userPermissions.has('everything') || this.userPermissions.has('editMedia'))) {
-        const mediaMetaDir = joinPath('/projects', this.currentProject.id, '.mattrbld', 'media');
+        const { mediaMetaDir } = this;
         const pathInMediaDir = path.replace(this.mediaDir, '');
         try {
           const metadata = JSON.parse(await fs.readFile(joinPath(mediaMetaDir, `${pathInMediaDir}.json`), 'utf8'));
@@ -558,7 +592,7 @@ export default {
     },
     updateMediaMetaFile: debounce(async function (newMeta) { // eslint-disable-line func-names
       if (this.fileDetails.errors.size > 0) return; // don’t save invalid values
-      const mediaMetaDir = joinPath('/projects', this.currentProject.id, '.mattrbld', 'media');
+      const { mediaMetaDir } = this;
       const pathInMediaDir = this.entityBeingModified.replace(this.mediaDir, '');
       this.fileDetails.meta = newMeta;
       await fs.writeFile(joinPath(mediaMetaDir, `${pathInMediaDir}.json`), JSON.stringify(newMeta, null, 2), 'utf8');
