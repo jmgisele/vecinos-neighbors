@@ -95,7 +95,7 @@ export default {
     fieldBeingEditedErrors() {
       if (!(this.error instanceof Map) || !this.error.get(this.indexBeingEdited)) return new Map();
       const errors = this.error.get(this.indexBeingEdited);
-      if (errors instanceof Map) return errors;
+      if (this.fieldBeingEdited.type === 'group') return errors || new Map();
       return new Map().set(this.fieldBeingEdited.key, errors);
     },
     transformedLabel() {
@@ -137,7 +137,12 @@ export default {
     },
     errorForIndex(index) {
       if (!(this.error instanceof Map)) return null;
-      return this.error.get(index);
+      const error = this.error.get(index);
+      if (error instanceof Map) {
+        if (error.size === 1) return 'A subfield has errors';
+        return `${error.size} subfields have errors`;
+      }
+      return error;
     },
     handleAddClick() {
       if (this.children.length === 1) this.addItem(this.children[0]);
@@ -146,7 +151,7 @@ export default {
     handleFieldBeingEditedError(err) {
       const newError = _cloneDeep(this.error) || new Map();
       if (err.size === 0) newError.delete(this.indexBeingEdited);
-      else newError.set(this.indexBeingEdited, err.get(this.fieldBeingEdited.key));
+      else newError.set(this.indexBeingEdited, this.fieldBeingEdited.type === 'group' ? err : err.get(this.fieldBeingEdited.key));
 
       this.$emit('update:error', newError.size > 0 ? newError : '');
     },
