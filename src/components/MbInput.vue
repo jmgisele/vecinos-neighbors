@@ -3,8 +3,8 @@
     <MbIcon v-if="icon" :icon="error && !focussed ? 'error' : icon" />
     <span v-if="displayLabel" :class="{ right: !label && maxLen }">{{displayLabel}}</span>
     <input autocomplete="off" :disabled="disabled" :placeholder="placeholder" ref="input" :type="type" :value="modelValue" @blur="handleBlur" @focus="handleFocus" @[emissionevent]="handleUpdate">
-    <MbButton v-if="showSpinner" :dark="dark" icon="minus" rounded @click="$emit('update:modelValue', modelValue - 1)" />
-    <MbButton v-if="showSpinner" :dark="dark" icon="plus" rounded @click="$emit('update:modelValue', modelValue + 1)" />
+    <MbButton v-if="showSpinner" :dark="dark" icon="minus" rounded @click="$emit('update:modelValue', Number(modelValue) - 1)" />
+    <MbButton v-if="showSpinner" :dark="dark" icon="plus" rounded @click="$emit('update:modelValue', Number(modelValue) + 1)" />
     <MbButton v-if="clearable" :dark="dark" icon="clear" rounded @click="$emit('update:modelValue', '')" />
   </div>
 </template>
