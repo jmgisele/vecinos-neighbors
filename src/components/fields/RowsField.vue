@@ -4,7 +4,7 @@
       <p class="label">{{transformedLabel}}</p>
       <p v-show="empty" class="empty-state">This field is empty</p>
       <MbSortableList v-if="displayItems.length > 0" v-slot="{ activeItem, item, index }" :items="modelValue" enable-transitions @itemclick="openDetails" @itemmove="handleItemMove">
-        <div class="row-item" :class="{ active: active && indexBeingEdited === index, 'being-dragged': item === activeItem, compact: compact || options.compact, dark, 'in-split': inSplit }" tabindex="0" @keydown.space.prevent @keyup.space.enter="openDetails(index)">
+        <div class="row-item" :class="{ active: active && indexBeingEdited === index, 'being-dragged': item === activeItem, compact: compact || options.compact, dark, error: errorForIndex(index), 'in-split': inSplit }" tabindex="0" @keydown.space.prevent @keyup.space.enter="openDetails(index)">
           <div class="drag-handle" data-drag-handle>
             <MbIcon icon="drag-handle" />
           </div>
@@ -27,10 +27,23 @@
         <MbButton :dark="dark" @click="showAddModal = false">Cancel</MbButton>
       </template>
     </MbModal>
-    <MbModal class="item-details" :dark="dark" :title="fieldBeingEdited && fieldBeingEdited.label" :visible="showDetailsModal" @after-close="validateContent" @close="closeDetails" @keyup.ctrl.enter="closeDetails">
+    <MbModal class="item-details" :dark="dark" :title="fieldBeingEdited && fieldBeingEdited.label" :visible="showDetailsModal" @after-close="validateItemBeingEdited" @close="closeDetails" @keyup.ctrl.enter="closeDetails">
       <teleport v-if="!teleportTarget || active" :disabled="!teleportTarget" :to="teleportTarget">
         <h2 v-if="teleportTarget" class="h3 split-title">{{fieldBeingEdited && fieldBeingEdited.label}}</h2>
-        <MbFieldsEditor v-if="modelValue && indexBeingEdited !== null" class="field-details-editor" :class="{ 'in-split': teleportTarget }" compact :dark="dark" :error="(error instanceof Map && error.get(indexBeingEdited)) || new Map()" :fields="fieldBeingEdited.type === 'group' ? fieldBeingEdited.value : [fieldBeingEdited]" :in-split="Boolean(teleportTarget)" :model-value="modelValue[indexBeingEdited]" :languages="languages" @update:error="handleFieldBeingEditedError" @update:model-value="updateFieldBeingEdited" />
+        <MbFieldsEditor
+          v-if="modelValue && indexBeingEdited !== null"
+          class="field-details-editor"
+          :class="{ 'in-split': teleportTarget }"
+          compact
+          :dark="dark"
+          :error="fieldBeingEditedErrors"
+          :fields="fieldBeingEdited.type === 'group' ? fieldBeingEdited.value : [fieldBeingEdited]"
+          :in-split="Boolean(teleportTarget)"
+          :model-value="modelValue[indexBeingEdited]"
+          :languages="languages"
+          @update:error="handleFieldBeingEditedError"
+          @update:model-value="updateFieldBeingEdited"
+        />
         <MbButton v-if="options.allowEditing && teleportTarget" class="delete-button" :dark="dark" icon="trash" type="negative" @click="deleteItemBeingEdited">Delete {{options.itemLabel || 'Row'}}</MbButton>
       </teleport>
       <template #actions>
@@ -79,6 +92,12 @@ export default {
       const childField = this.children.find((child) => child.key === this.modelValue[this.indexBeingEdited].___mb_type);
       return childField;
     },
+    fieldBeingEditedErrors() {
+      if (!(this.error instanceof Map) || !this.error.get(this.indexBeingEdited)) return new Map();
+      const errors = this.error.get(this.indexBeingEdited);
+      if (errors instanceof Map) return errors;
+      return new Map().set(this.fieldBeingEdited.key, errors);
+    },
     transformedLabel() {
       if (this.error instanceof Map && this.error.get(this.fieldKey)) return this.error.get(this.fieldKey);
       if (this.validation && this.validation.max) return `${this.label} (${(this.modelValue && this.modelValue.length) || 0}/${this.validation.max})`;
@@ -111,6 +130,7 @@ export default {
     },
     deleteItemBeingEdited() {
       // TODO: add undo
+      // TODO: if this field had errors, delete them
       this.handleInput(this.modelValue.filter((item, index) => index !== this.indexBeingEdited));
       this.indexBeingEdited = null;
       this.closeDetails();
@@ -124,10 +144,11 @@ export default {
       else this.showAddModal = true;
     },
     handleFieldBeingEditedError(err) {
-      // if (!err || err.size === 0) this.$emit('update:error', '');
-      // else this.$emit('update:error', err);
-      console.log(err);
-      // TODO: merge err with our own errors
+      const newError = _cloneDeep(this.error) || new Map();
+      if (err.size === 0) newError.delete(this.indexBeingEdited);
+      else newError.set(this.indexBeingEdited, err.get(this.fieldBeingEdited.key));
+
+      this.$emit('update:error', newError.size > 0 ? newError : '');
     },
     handleInput(newVal) {
       const error = this.validate(newVal);
@@ -175,29 +196,19 @@ export default {
       newModelValue.splice(this.indexBeingEdited, 1, newVal);
       this.handleInput(newModelValue);
     }, 500),
-    validateContent() {
-      const errors = validateContent(
-        { [this.fieldKey]: this.modelValue || [] },
-        {
-          fields: [ // we have to re-create an approximation of the field here since we don’t have access to the original field
-            {
-              key: this.fieldKey,
-              value: this.children,
-              type: this.type,
-              validation: this.validation,
-            },
-          ],
-        },
-        this.languages,
-      );
-      this.$emit('update:error', errors.size > 0 ? errors : '');
+    validateItemBeingEdited() {
+      if (this.indexBeingEdited === null) return;
+      const fakeFields = this.fieldBeingEdited.type === 'group' ? this.fieldBeingEdited.value : [this.fieldBeingEdited];
+      const errors = validateContent(this.modelValue[this.indexBeingEdited], { fields: fakeFields }, this.languages);
+      this.handleFieldBeingEditedError(errors);
+
       this.indexBeingEdited = null;
     },
   },
   mixins: [field],
   watch: {
     active(nv) {
-      if (!nv) this.validateContent();
+      if (!nv) this.validateItemBeingEdited();
     },
     error(nv) {
       console.log(nv);
