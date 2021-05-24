@@ -716,7 +716,7 @@ export default [
     ],
     tab: null,
     validation: {
-      enforceMinMax: false, max: null, min: null, unit: 'boxes selected',
+      enforceMinMax: false, max: null, min: null, unit: 'selected',
     },
     value: null,
     visibility: { hidden: false, showByValue: { field: null } },

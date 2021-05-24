@@ -9,6 +9,18 @@ export function validateField(value, type, rules) {
   let valueToCheck = value;
 
   switch (type) {
+    case 'checkboxes':
+      valueToCheck = value || [];
+      if (rules.enforceMinMax && (rules.min || rules.max)) {
+        if (rules.min && valueToCheck.length < rules.min) {
+          if (rules.min === 1) error = 'At least one box needs to be selected';
+          else error = `At least ${rules.min} boxes need to be selected`;
+        } else if (rules.max && valueToCheck.length > rules.max) {
+          if (rules.max === 1) error = 'At most one box needs to be selected';
+          else error = `At most ${rules.max} boxes may be selected`;
+        }
+      }
+      break;
     case 'image':
       if (rules.required) {
         if (typeof valueToCheck === 'string' && !valueToCheck) error = 'An image is required';
