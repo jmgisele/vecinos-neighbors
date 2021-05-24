@@ -80,12 +80,13 @@
         <h2>Inputs</h2>
         <MbInput v-model="textTest" :dark="dark" label="Label" placeholder="Placeholder" />
         <MbInput v-model="textTest" :dark="dark" error="With Error" label="Test" />
-        <MbInput v-model="textTest" :dark="dark" icon="plus" label="With Icon" type="password" />
+        <MbInput v-model="textTest" clearable :dark="dark" icon="search" label="With Icon" type="password" />
         <MbInput v-model="textTest" :dark="dark" placeholder="Just a placeholder" />
         <MbInput v-model="textTest" :dark="dark" label="Just a Label" />
         <MbInput v-model="textTest" :dark="dark" label="Label and maximum length" :max-len="20" />
         <MbInput v-model="textTest" :dark="dark" placeholder="Just maximum length" :max-len="10" />
         <MbInput v-model="textTest" :dark="dark" disabled placeholder="mattrbld" label="Disabled" />
+        <MbInput v-model.number="numTest" :dark="dark" icon="number" label="Number Input" type="number" />
         <h3>Props</h3>
         <MbTable :data="props.inputs" />
         <h3>Events</h3>
@@ -1007,6 +1008,7 @@ export default {
       modalVisible2: false,
       modalVisible3: false,
       modalVisible4: false,
+      numTest: '',
       permissionListTest: {},
       popover: null,
       popover2: null,

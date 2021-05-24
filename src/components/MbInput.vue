@@ -1,9 +1,12 @@
 <template lang="html">
-  <label class="input" :class="{ dark, disabled, dirty: error || modelValue || modelValue === 0 || placeholder, error: error || maxLen && modelValue.length > maxLen, icon }">
+  <div class="input" :class="{ dark, disabled, dirty: error || modelValue || modelValue === 0 || placeholder, error: error || maxLen && modelValue.length > maxLen, icon }" @mousedown.prevent @click="focus">
     <MbIcon v-if="icon" :icon="error && !focussed ? 'error' : icon" />
     <span v-if="displayLabel" :class="{ right: !label && maxLen }">{{displayLabel}}</span>
     <input autocomplete="off" :disabled="disabled" :placeholder="placeholder" ref="input" :type="type" :value="modelValue" @blur="handleBlur" @focus="handleFocus" @[emissionevent]="handleUpdate">
-  </label>
+    <MbButton v-if="showSpinner" :dark="dark" icon="minus" rounded @click="$emit('update:modelValue', modelValue - 1)" />
+    <MbButton v-if="showSpinner" :dark="dark" icon="plus" rounded @click="$emit('update:modelValue', modelValue + 1)" />
+    <MbButton v-if="clearable" :dark="dark" icon="clear" rounded @click="$emit('update:modelValue', '')" />
+  </div>
 </template>
 
 <script>
@@ -21,6 +24,9 @@ export default {
     emissionevent() {
       if (this.modelModifiers.lazy) return 'change';
       return 'input';
+    },
+    showSpinner() {
+      return this.type === 'number' && !this.noSpinner;
     },
   },
   data() {
@@ -55,6 +61,7 @@ export default {
   },
   props: {
     autofocus: Boolean,
+    clearable: Boolean,
     dark: Boolean,
     disabled: Boolean,
     error: String,
@@ -65,6 +72,7 @@ export default {
       type: Object,
       default: () => ({}),
     },
+    noSpinner: Boolean,
     placeholder: String,
     type: {
       type: String,
@@ -202,4 +210,12 @@ export default {
       color: $text-secondary
       opacity: 1
       user-select: none
+
+  > .button.icon.no-label
+    margin: (-9 / 16)rem 0
+    margin-left: 0.25rem
+    padding: 0.75rem
+
+    &:last-child
+      margin-right: (-9 / 16)rem
 </style>
