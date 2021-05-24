@@ -3,7 +3,7 @@
     <div class="container" :class="{ dark, empty, error }">
       <p class="label">{{transformedLabel}}</p>
       <p v-show="empty" class="empty-state">This field is empty</p>
-      <MbSortableList v-if="displayItems.length > 0" v-slot="{ activeItem, item, index }" :items="modelValue" enable-transitions @itemclick="openDetails" @itemmove="handleItemMove">
+      <MbSortableList v-if="displayItems.length > 0" v-slot="{ activeItem, item, index }" enable-transitions :items="uniqueItemKeys" @itemclick="openDetails" @itemmove="handleItemMove">
         <div class="row-item" :class="{ active: active && indexBeingEdited === index, 'being-dragged': item === activeItem, compact: compact || options.compact, dark, error: errorForIndex(index), 'in-split': inSplit }" tabindex="0" @keydown.space.prevent @keyup.space.enter="openDetails(index)">
           <div class="drag-handle" data-drag-handle>
             <MbIcon icon="drag-handle" />
@@ -62,6 +62,10 @@ import validateContent from '../../assets/js/validateContent';
 
 import field from '../../mixins/field';
 
+function pseudoId() {
+  return Math.random().toString(36).substring(2, 9);
+}
+
 export default {
   computed: {
     displayItems() {
@@ -104,11 +108,16 @@ export default {
       return this.label;
     },
   },
+  created() {
+    // this is a bit of a HACK to allow unique keys for each element in modelValue, but it will break if modelValue gets changed from the outside after creation (which it shouldn’t, and if that ever changes a clever watcher could help)
+    if (Array.isArray(this.modelValue)) this.uniqueItemKeys = this.modelValue.map(() => pseudoId());
+  },
   data() {
     return {
       indexBeingEdited: null,
       showAddModal: false,
       showDetailsModal: false,
+      uniqueItemKeys: [],
     };
   },
   methods: {
@@ -121,6 +130,7 @@ export default {
         };
       } else contentItem = { ...generateDefaultContentFromSchema({ fields: item.value }), ___mb_type: item.key };
 
+      this.uniqueItemKeys.push(pseudoId());
       this.handleInput((this.modelValue || []).concat([contentItem]));
       if (this.showAddModal) this.showAddModal = false;
     },
@@ -131,6 +141,7 @@ export default {
     deleteItemBeingEdited() {
       // TODO: add undo
       if (this.error instanceof Map && this.error.get(this.indexBeingEdited)) this.handleFieldBeingEditedError(new Map()); // delete the error since the field is now gone
+      this.uniqueItemKeys.splice(this.indexBeingEdited, 1);
       this.handleInput(this.modelValue.filter((item, index) => index !== this.indexBeingEdited));
       this.indexBeingEdited = null;
       this.closeDetails();
@@ -171,7 +182,7 @@ export default {
       this.$emit('update:modelValue', newVal);
     },
     handleItemMove({ activeItem, index, isBottomHalf }) {
-      const currentIndex = this.modelValue.indexOf(activeItem);
+      const currentIndex = this.uniqueItemKeys.indexOf(activeItem);
       const newVal = [...this.modelValue];
       let newIndex;
       if ((currentIndex < index && isBottomHalf) || (currentIndex > index && !isBottomHalf)) newIndex = index;
@@ -183,6 +194,7 @@ export default {
       else if (currentIndex < this.indexBeingEdited && newIndex >= this.indexBeingEdited) this.indexBeingEdited -= 1;
 
       newVal.splice(newIndex, 0, newVal.splice(currentIndex, 1)[0]);
+      this.uniqueItemKeys.splice(newIndex, 0, this.uniqueItemKeys.splice(currentIndex, 1)[0]);
       this.handleInput(newVal);
     },
     openDetails(index) {
