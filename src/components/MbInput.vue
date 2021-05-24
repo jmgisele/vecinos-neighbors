@@ -1,6 +1,6 @@
 <template lang="html">
-  <div class="input" :class="{ dark, disabled, dirty: error || modelValue || modelValue === 0 || placeholder, error: error || maxLen && modelValue.length > maxLen, icon }" @mousedown.prevent @click="focus">
-    <MbIcon v-if="icon" :icon="error && !focussed ? 'error' : icon" />
+  <div class="input" :class="{ dark, disabled, dirty: error || modelValue || modelValue === 0 || placeholder, error: error || maxLen && modelValue.length > maxLen, icon }" @mousedown.self.prevent @click="focus">
+    <MbIcon v-if="icon" :icon="error && !focussed ? 'error' : icon" @mousedown.prevent />
     <span v-if="displayLabel" :class="{ clearable, right: !label && maxLen, spinners: showSpinner }">{{displayLabel}}</span>
     <input autocomplete="off" :disabled="disabled" :placeholder="placeholder" ref="input" :type="type" :value="modelValue" @blur="handleBlur" @focus="handleFocus" @[emissionevent]="handleUpdate">
     <MbButton v-if="showSpinner" :dark="dark" icon="minus" rounded @click="$emit('update:modelValue', Number(modelValue) - 1)" />
