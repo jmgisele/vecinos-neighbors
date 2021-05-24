@@ -25,6 +25,12 @@ export function validateField(value, type, rules) {
         else error = `At least ${rules.min} languages are required`;
       }
       break;
+    case 'number':
+      valueToCheck = typeof value !== 'number' ? '' : value;
+      if (rules.required && valueToCheck === '') error = 'This field is required';
+      else if (typeof rules.min === 'number' && valueToCheck < rules.min) error = `The value is too small (min ${rules.min})`;
+      else if (typeof rules.max === 'number' && valueToCheck > rules.max) error = `The value is too large (max ${rules.max})`;
+      break;
     case 'rich text':
     case 'text':
       valueToCheck = value || '';

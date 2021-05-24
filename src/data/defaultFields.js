@@ -130,7 +130,7 @@ export default [
     label: 'Number',
     localised: false,
     tab: null,
-    validation: { enforceMinMax: true, max: null, min: null, required: false }, // eslint-disable-line object-curly-newline
+    validation: { max: null, min: null, required: false }, // eslint-disable-line object-curly-newline
     value: null,
     visibility: { hidden: false, showByValue: { field: null } },
   },
