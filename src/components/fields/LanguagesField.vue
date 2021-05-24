@@ -15,19 +15,6 @@ export default {
       return this.$store.state.currentProject.languages.map((lang) => ({ label: lang, value: lang }));
     },
   },
-  methods: {
-    validate(value) {
-      if (!this.validation) return '';
-
-      let error = '';
-
-      if (this.validation.min && value.length < this.validation.min) {
-        if (this.validation.min === 1) error = 'At least one language is required';
-        else error = `At least ${this.validation.min} languages are required`;
-      }
-      return error;
-    },
-  },
   mixins: [field],
 };
 </script>
