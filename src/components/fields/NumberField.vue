@@ -43,13 +43,13 @@ export default {
       if (this.showLocalisedOptions) {
         if (this.modelValue && typeof this.modelValue === 'object') return this.modelValue;
         return this.languages.reduce((acc, lang, index) => {
-          if (index === 0 && this.modelValue) acc[lang] = String(this.modelValue);
+          if (index === 0 && this.modelValue) acc[lang] = Number(this.modelValue);
           else acc[lang] = '';
           return acc;
         }, {});
       }
       if (this.modelValue && typeof this.modelValue === 'object') return Object.values(this.modelValue)[0] || '';
-      return this.modelValue || '';
+      return typeof this.modelValue === 'number' ? this.modelValue : '';
     },
   },
   methods: {
