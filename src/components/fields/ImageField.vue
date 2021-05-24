@@ -108,7 +108,6 @@ export default {
   computed: {
     cleanError() {
       if (!this.error) return '';
-      if (typeof this.error === 'string') return this.error;
       if (this.error instanceof Map && this.error.get(this.fieldKey)) return this.error.get(this.fieldKey);
       return this.error.size === 1 ? 'A subfield has errors' : `${this.error.size} subfields have errors`;
     },
