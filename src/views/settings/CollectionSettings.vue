@@ -257,8 +257,8 @@ export default {
   },
   watch: {
     collectionDetails: {
-      async handler() {
-        if (!this.showEntityRename && this.collectionBeingModified) { // we don’t want to save empty details after the rename modal shows
+      async handler(nv, ov) {
+        if (!this.showEntityRename && this.collectionBeingModified && nv === ov) { // we don’t want to save empty details after the rename modal shows and only want to save if we’re referencing the same object (to avoid overwriting when switching between two files)
           await fs.writeFile(this.collectionBeingModified, JSON.stringify(this.collectionDetails, null, 2), 'utf8');
         }
       },
