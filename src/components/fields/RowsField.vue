@@ -130,7 +130,7 @@ export default {
     },
     deleteItemBeingEdited() {
       // TODO: add undo
-      // TODO: if this field had errors, delete them
+      if (this.error instanceof Map && this.error.get(this.indexBeingEdited)) this.handleFieldBeingEditedError(new Map()); // delete the error since the field is now gone
       this.handleInput(this.modelValue.filter((item, index) => index !== this.indexBeingEdited));
       this.indexBeingEdited = null;
       this.closeDetails();
