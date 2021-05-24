@@ -2,7 +2,12 @@
   <MbScroller class="tabs" :class="{ dark }">
     <div class="scroll-wrapper">
       <transition-group ref="tabs" tag="ul" @enter="refresh = !refresh" @after-leave="resetActiveTab">
-        <li v-for="(tab, index) in tabs" :data-index="index" :key="tab.value || tab" tabindex="0" @click.left="activateTab($event, index)" @keydown.space.prevent @keyup.enter.space="activateTab($event, index)">{{tab.label || tab}}</li>
+        <li v-for="(tab, index) in tabs" :data-index="index" :key="tab.value || tab" tabindex="0" @click.left="activateTab($event, index)" @keydown.space.prevent @keyup.enter.space="activateTab($event, index)">
+          <transition>
+            <span v-if="errors.has(index)" class="error-indicator" />
+          </transition>
+          {{tab.label || tab}}
+        </li>
         <li v-if="showAddOption" class="add-option" key="mbTabsAddOption" tabindex="0" @click="addTab" @keydown.space.prevent @keyup.enter.space="addTab" @mouseenter="handleTooltip" @focus="handleTooltip"><MbIcon icon="plus" /></li>
       </transition-group>
       <div class="active-indicator" :style="{ transform: indicatorTransform }"></div>
@@ -64,6 +69,10 @@ export default {
   },
   props: {
     dark: Boolean,
+    errors: {
+      type: Set,
+      default: () => new Set(),
+    },
     showAddOption: Boolean,
     tabs: {
       type: Array,
@@ -113,7 +122,9 @@ export default {
       padding: 0
 
       li
-        display: inline-block
+        display: inline-flex
+        vertical-align: top
+        align-items: center
         padding: 1rem 1.5rem
         cursor: pointer
         border-top-left-radius: $radius-m
@@ -140,6 +151,28 @@ export default {
           &.v-leave-to
             transform: translateY(1rem)
             opacity: 0
+
+        .error-indicator
+          display: inline-block
+          width: 0.5rem
+          height: @width
+          background-color: $negative
+          border-radius: 50%
+          margin-right: 0.5rem
+
+          &.v-enter-active,
+          &.v-leave-active
+            transition: transform 350ms ease
+
+            &.v-enter-from,
+            &.v-leave-to
+              transform: scale(0)
+
+          &.v-enter-active
+            transition-timing-function: cubic-bezier(0.175, 0.885, 0.320, 1.275);;
+
+          &.v-leave-active
+            transition-timing-function: cubic-bezier(0.600, -0.280, 0.735, 0.045);
 
     .active-indicator
       position: absolute
