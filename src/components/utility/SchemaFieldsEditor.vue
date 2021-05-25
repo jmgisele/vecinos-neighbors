@@ -1145,6 +1145,7 @@ export default {
         .editable-list
           &::v-deep(.segmented-selector.dark)
             background-color: $bg-tertiary-dark
+            box-shadow: 0 0 0 0.125rem @background-color
 
           &::v-deep(.item.dark)
             background-color: $bg-tertiary-dark
