@@ -50,6 +50,8 @@ export default {
       this.draggingClone.style.top = `${e.clientY - this.cloneClickDelta.y}px`;
 
       const el = document.elementFromPoint(e.clientX, e.clientY);
+      if (!el) return;
+
       if (!this.lastHoveredEl || (this.lastHoveredEl !== el && !this.lastHoveredEl.contains(el))) {
         this.scrollParent.el = findClosestScrollParent(el);
         const parentRect = this.scrollParent.el.getBoundingClientRect();
