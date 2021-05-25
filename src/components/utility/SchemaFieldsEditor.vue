@@ -34,7 +34,7 @@
       <div v-if="currentOperation === 'add-field'" class="add-field" :class="{ dark }">
         <header>
           <h2 :class="{ h3: isMobile }">Add a field</h2>
-          <MbInput v-model="fieldFilter" :dark="dark" icon="search" placeholder="Search field…" type="search" />
+          <MbInput v-model="fieldFilter" clearable :dark="dark" icon="search" placeholder="Search field…" type="search" />
         </header>
         <transition mode="out-in">
           <div v-if="fieldsLoading" class="loader-wrapper">
