@@ -89,6 +89,7 @@ import * as matter from 'gray-matter';
 
 import fs, { exists, PlainFS, joinPath, pathBasename, pathDirname } from '../fs'; // eslint-disable-line object-curly-newline
 
+import generateDefaultContentFromSchema from '../assets/js/generateDefaultContentFromSchema';
 import loadProject from '../assets/js/loadProject';
 import prettifyEntityName from '../assets/js/prettifyEntityName';
 import validateContent from '../assets/js/validateContent';
@@ -339,6 +340,14 @@ export default {
     };
   },
   methods: {
+    assignSchemaDefaults(content, defaults) {
+      return Object.entries(defaults).reduce((acc, [key, value]) => {
+        if (!content[key]) acc[key] = value;
+        else if (!Array.isArray(content[key]) && typeof content[key] === 'object') acc[key] = this.assignSchemaDefaults(content[key], value);
+        else acc[key] = content[key];
+        return acc;
+      }, {});
+    },
     closeOpenPreview() {
       this.$options.winref.close();
       this.$options.winref = null;
@@ -391,6 +400,8 @@ export default {
     async loadAndAssignSchema(schema) {
       try {
         this.schema = JSON.parse(await fs.readFile(joinPath('/projects', this.$route.params.id, schema), 'utf8'));
+        const defaults = generateDefaultContentFromSchema(this.schema, this.$route.params.path);
+        this.content = this.assignSchemaDefaults(this.content, defaults);
         this.content.___mb_schema = schema;
         this.wasChanged = true;
       } catch (err) {
