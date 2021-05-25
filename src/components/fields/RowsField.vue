@@ -58,6 +58,7 @@
 import { cloneDeep as _cloneDeep, debounce } from 'lodash-es';
 
 import generateDefaultContentFromSchema from '../../assets/js/generateDefaultContentFromSchema';
+import richToPlainText from '../../assets/js/richToPlainText';
 import validateContent from '../../assets/js/validateContent';
 
 import field from '../../mixins/field';
@@ -79,7 +80,12 @@ export default {
         else value = item[item.___mb_type];
 
         if (Array.isArray(value)) displayValue = value.join(', ');
-        else if (value && typeof value === 'object') displayValue = Object.values(value).find((v) => v) || '';
+        else if (value && typeof value === 'object') {
+          const firstValue = Object.values(value).find((subvalue) => subvalue);
+          if (typeof firstValue === 'string') displayValue = richToPlainText(firstValue, 200);
+          if (firstValue === null || typeof firstValue === 'undefined') displayValue = '';
+          displayValue = firstValue;
+        } else if (typeof value === 'string') displayValue = richToPlainText(value, 200); // trimming to 200 characters even though only about 70 are shown because HTML can be quite verbose
         else displayValue = value;
 
         return {

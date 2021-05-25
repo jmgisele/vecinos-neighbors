@@ -23,6 +23,7 @@
 <script>
 import { get as _get } from 'lodash-es';
 
+import richToPlainText from '../../assets/js/richToPlainText';
 import validateContent from '../../assets/js/validateContent';
 
 import field from '../../mixins/field';
@@ -37,7 +38,14 @@ export default {
       if (!this.displayField) return null;
       const displayValue = _get(this.modelValue, this.displayField);
 
-      if (displayValue !== null && typeof displayValue === 'object') return Object.values(displayValue).find((value) => value) || '';
+      if (Array.isArray(displayValue)) return displayValue.join(', ');
+      if (displayValue !== null && typeof displayValue === 'object') {
+        const firstValue = Object.values(displayValue).find((value) => value);
+        if (typeof firstValue === 'string') return richToPlainText(firstValue, 200);
+        if (firstValue === null || typeof firstValue === 'undefined') return '';
+        return firstValue;
+      }
+      if (typeof displayValue === 'string') return richToPlainText(displayValue, 200); // trimming to 200 characters even though only about 70 are shown because HTML can be quite verbose
       return displayValue;
     },
   },

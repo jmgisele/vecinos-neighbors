@@ -1,15 +1,21 @@
 import { cloneDeep as _cloneDeep } from 'lodash-es';
 
 import { validateField } from '../assets/js/validateContent';
+import richToPlainText from '../assets/js/richToPlainText';
 
 export default {
   computed: {
     firstLocalisedValue() {
-      if (this.modelValue && typeof this.modelValue !== 'object') return this.modelValue;
-      if (this.modelValue) {
-        return Object.values(this.modelValue).find((value) => value) || null;
+      if (Array.isArray(this.modelValue)) return this.modelValue.join(', ');
+      if (this.modelValue !== null && typeof this.modelValue === 'object') {
+        const firstValue = Object.values(this.modelValue).find((value) => value);
+        if (typeof firstValue === 'string') return richToPlainText(firstValue, 200);
+        if (firstValue === null || typeof firstValue === 'undefined') return null;
+        return firstValue;
       }
-      return null;
+      if (typeof this.modelValue === 'string') return richToPlainText(this.modelValue, 200); // trimming to 200 characters even though only about 70 are shown because HTML can be quite verbose
+      if (typeof this.modelValue === 'undefined') return null;
+      return this.modelValue;
     },
     showLocalisedOptions() {
       return this.localised && this.languages && this.languages.length > 0;

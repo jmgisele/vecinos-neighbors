@@ -383,6 +383,7 @@ export default {
       const { wasChanged } = this;
       if (field === this.fieldBeingEdited) this.showSplit = false;
 
+      // delete it from the displayField of the direct parent (TODO: also delete it if it’s on any higher parent)
       let parentFieldChanged = false;
       if (parentField.displayField === field.key) {
         parentField.displayField = null;
