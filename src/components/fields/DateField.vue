@@ -1,7 +1,7 @@
 <template lang="html">
   <section class="date field" :class="{ dark, error, 'in-split': inSplit }">
     <span>{{label}}:</span>
-    <MbDatePicker :class="{ error }" :dark="dark" :format="options.outputFormat" :label="error" :max="validation && validation.max" :min="validation && validation.min" :model-value="modelValue" :only="options.only" :removable="options.removable" :show-time="options.showTime" @update:model-value="handleInput" />
+    <MbDatePicker :class="{ error }" :dark="dark" :format="options.outputFormat" :label="error" :max="validation && validation.max" :min="validation && validation.min" :model-value="safeModelValue" :only="options.only" :removable="options.removable" :show-time="options.showTime" @update:model-value="handleInput" />
   </section>
 </template>
 
@@ -10,6 +10,11 @@ import field from '../../mixins/field';
 
 export default {
   computed: {
+    safeModelValue() {
+      // sometimes dates may be parsed as Dates by JS-YAML, so we convert it back to outputFormat here to avoid errors
+      if (this.modelValue instanceof Date) return this.options.outputFormat === 'iso' ? this.modelValue.toISOString() : this.modelValue.valueOf;
+      return this.modelValue;
+    },
   },
   mixins: [field],
 };
