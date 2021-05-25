@@ -67,7 +67,7 @@
       <MbInput v-model="newContentName" :dark="dark" :error="errors.name" icon="document" label="Name" @blur="validateNewContentName" />
       <div class="select-wrapper">
         <span>Content Schema:</span>
-        <MbSelect :dark="dark" :model-value="content.___mb_schema" :options="allowedSchemas" placeholder="Select a Schema…" @update:model-value="newContentSchema = $event" />
+        <MbSelect :dark="dark" :model-value="newContentSchema || content.___mb_schema" :options="allowedSchemas" placeholder="Select a Schema…" @update:model-value="newContentSchema = $event" />
       </div>
       <MbHighlightBox v-if="canDelete" color="negative" :dark="dark" label="Danger Zone">
         <MbButton class="delete-button" :dark="dark" icon="trash" type="negative" @click="deleteContent">Delete “{{contentName}}”</MbButton>
@@ -401,7 +401,7 @@ export default {
       try {
         this.schema = JSON.parse(await fs.readFile(joinPath('/projects', this.$route.params.id, schema), 'utf8'));
         const defaults = generateDefaultContentFromSchema(this.schema, this.$route.params.path);
-        this.content = this.assignSchemaDefaults(this.content, defaults);
+        this.content = { ...this.content, ...this.assignSchemaDefaults(this.content, defaults) };
         this.content.___mb_schema = schema;
         this.wasChanged = true;
       } catch (err) {
