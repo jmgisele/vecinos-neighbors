@@ -28,7 +28,7 @@ export default {
     },
     filteredOptions() {
       if (!this.filter) return this.options;
-      return this.options.filter((option) => (option.label && option.label.toLowerCase().includes(this.filter.toLowerCase())) || String(option.value).toLowerCase().includes(this.filter.toLowerCase()));
+      return this.options.filter((option) => (option.label && option.label.toLowerCase().includes(this.filter.toLowerCase())) || (String(option.value) && String(option.value).toLowerCase().includes(this.filter.toLowerCase())) || String(option).toLowerCase().includes(this.filter.toLowerCase()));
     },
   },
   data() {
