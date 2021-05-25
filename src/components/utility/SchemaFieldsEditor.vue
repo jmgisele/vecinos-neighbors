@@ -383,9 +383,16 @@ export default {
       const { wasChanged } = this;
       if (field === this.fieldBeingEdited) this.showSplit = false;
 
+      let parentFieldChanged = false;
+      if (parentField.displayField === field.key) {
+        parentField.displayField = null;
+        parentFieldChanged = true;
+      }
+
       this.$store.commit('addToast', {
         action: () => {
           parentFieldFields.splice(index, 0, backup);
+          if (parentFieldChanged) parentField.displayField = field.key;
           if (!wasChanged) this.wasChanged = false;
         },
         actionLabel: 'Undo',
