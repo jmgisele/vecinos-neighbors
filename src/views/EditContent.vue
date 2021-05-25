@@ -465,7 +465,7 @@ export default {
           else if (this.collection.type === 'md') {
             const shallowClone = { ...this.content };
             delete shallowClone.content; // not needed in the frontmatter
-            transformedContent = matter.stringify(this.content.content, shallowClone);
+            transformedContent = matter.stringify(this.content.content || '', shallowClone);
           }
           await fs.writeFile(this.$route.params.path, transformedContent, 'utf8');
           this.$store.commit('addToast', { message: `“${this.contentName}” was saved successfully`, type: 'positive' });
