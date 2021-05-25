@@ -620,7 +620,6 @@ export default [
     icon: 'dropdown',
     key: '',
     label: 'Dropdown',
-    localised: false,
     options: [
       {
         component: 'MbToggle',
