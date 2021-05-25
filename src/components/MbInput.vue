@@ -3,8 +3,8 @@
     <MbIcon v-if="icon" :icon="error && !focussed ? 'error' : icon" @mousedown.prevent />
     <span v-if="displayLabel" :class="{ clearable, right: !label && maxLen, spinners: showSpinner }">{{displayLabel}}</span>
     <input autocomplete="off" :disabled="disabled" :placeholder="placeholder" ref="input" :type="type" :value="modelValue" @blur="handleBlur" @focus="handleFocus" @[emissionevent]="handleUpdate">
-    <MbButton v-if="showSpinner" :dark="dark" icon="minus" rounded @click="$emit('update:modelValue', Number(modelValue) - 1)" />
-    <MbButton v-if="showSpinner" :dark="dark" icon="plus" rounded @click="$emit('update:modelValue', Number(modelValue) + 1)" />
+    <MbButton v-if="showSpinner" :dark="dark" icon="minus" rounded @click="$emit('update:modelValue', addStep(-1))" />
+    <MbButton v-if="showSpinner" :dark="dark" icon="plus" rounded @click="$emit('update:modelValue', addStep(+1))" />
     <MbButton v-if="clearable" :dark="dark" icon="clear" rounded @click="$emit('update:modelValue', '')" />
   </div>
 </template>
@@ -36,6 +36,12 @@ export default {
   },
   emits: ['blur', 'focus', 'update:modelValue'],
   methods: {
+    addStep(step) {
+      const value = Number(this.modelValue);
+
+      if (Number.isNaN(value)) return step;
+      return value + step;
+    },
     focus() {
       this.$refs.input.focus();
     },
