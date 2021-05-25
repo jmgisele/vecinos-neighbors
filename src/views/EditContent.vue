@@ -666,9 +666,13 @@ export default {
         margin: 0
         list-style: none
 
-        li .button
-          max-width: 100%
-          width: (320 / 16)rem
+        li
+          &:not(:last-child)
+            margin-bottom: 1rem
+
+          .button
+            max-width: 100%
+            width: (320 / 16)rem
 
     .fields-editor
       margin-top: 8rem
