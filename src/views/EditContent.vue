@@ -343,7 +343,7 @@ export default {
     assignSchemaDefaults(content, defaults) {
       return Object.entries(defaults).reduce((acc, [key, value]) => {
         if (!content[key]) acc[key] = value;
-        else if (!Array.isArray(content[key]) && typeof content[key] === 'object') acc[key] = this.assignSchemaDefaults(content[key], value);
+        else if (!Array.isArray(content[key]) && !(content[key] instanceof Date) && typeof content[key] === 'object') acc[key] = this.assignSchemaDefaults(content[key], value); // some values might end up as dates and we don’t want to handle those
         else acc[key] = content[key];
         return acc;
       }, {});

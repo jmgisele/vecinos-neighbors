@@ -6,13 +6,19 @@
 </template>
 
 <script>
+import { isValid } from 'date-fns';
+
 import field from '../../mixins/field';
 
 export default {
   computed: {
     safeModelValue() {
       // sometimes dates may be parsed as Dates by JS-YAML, so we convert it back to outputFormat here to avoid errors
-      if (this.modelValue instanceof Date) return this.options.outputFormat === 'iso' ? this.modelValue.toISOString() : this.modelValue.valueOf;
+      if (this.modelValue instanceof Date && isValid(this.modelValue)) return this.options.outputFormat === 'iso' ? this.modelValue.toISOString() : this.modelValue.valueOf;
+      if (this.modelValue && typeof this.modelValue === 'object') {
+        if (this.options.defaultToNow) return this.options.outputFormat === 'iso' ? new Date().toISOString() : Date.now();
+        return null;
+      }
       return this.modelValue;
     },
   },
