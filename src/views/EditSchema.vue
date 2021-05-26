@@ -388,18 +388,19 @@ export default {
       this.tabContextMenu.show = false;
     },
     handleTabMove({ activeItem, index, isBottomHalf }) {
+      let newIndex;
       const currentIndex = this.schema.tabs.indexOf(activeItem);
-      const isActiveTab = this.activeTab === currentIndex;
-      if ((currentIndex < index && isBottomHalf) || (currentIndex > index && !isBottomHalf)) {
-        this.schema.tabs.splice(index, 0, this.schema.tabs.splice(currentIndex, 1)[0]);
-        if (isActiveTab) this.activeTab = index;
-      } else if (currentIndex < index && !isBottomHalf) {
-        this.schema.tabs.splice(Math.max(0, index - 1), 0, this.schema.tabs.splice(currentIndex, 1)[0]);
-        if (isActiveTab) this.activeTab = Math.max(0, index - 1);
-      } else if (currentIndex > index && isBottomHalf) {
-        this.schema.tabs.splice(Math.min(index + 1, this.schema.tabs.length - 1), 0, this.schema.tabs.splice(currentIndex, 1)[0]);
-        if (isActiveTab) this.activeTab = Math.min(index + 1, this.schema.tabs.length - 1);
-      }
+
+      if ((currentIndex < index && isBottomHalf) || (currentIndex > index && !isBottomHalf)) newIndex = index;
+      else if (currentIndex < index && !isBottomHalf) newIndex = Math.max(0, index - 1);
+      else if (currentIndex > index && isBottomHalf) newIndex = Math.min(index + 1, this.schema.tabs.length - 1);
+
+      if (currentIndex === this.activeTab) this.activeTab = newIndex;
+      else if (currentIndex > this.activeTab && newIndex <= this.activeTab) this.activeTab += 1;
+      else if (currentIndex < this.activeTab && newIndex >= this.activeTab) this.activeTab -= 1;
+
+      this.schema.tabs.splice(newIndex, 0, this.schema.tabs.splice(currentIndex, 1)[0]);
+
       this.wasChanged = true;
     },
     preventUnintentionalClose(e) {
