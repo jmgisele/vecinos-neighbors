@@ -11,7 +11,7 @@
         </p>
       </nav>
       <div v-if="filterable || sortable || action" class="actions">
-        <MbInput v-if="filterable" :dark="dark" icon="search" label="Search current directory" type="search" :model-value="searchTerm" @update:model-value="debouncedSearch" />
+        <MbInput v-if="filterable" clearable :dark="dark" icon="search" label="Search current directory" type="search" :model-value="searchTerm" @update:model-value="debouncedSearch" />
         <div v-if="sortable" class="sort">
           <span class="select-label">Sort by:</span>
           <MbSelect v-model="sortBy" :dark="dark" :options="sortOptions" @update:model-value="sortEntities" />
