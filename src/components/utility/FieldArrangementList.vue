@@ -11,12 +11,14 @@
         v-else
         :active="fieldBeingEdited === field"
         :class="{ 'drag-active': $store.state.application.dragActive }"
+        :custom-field="field.customField"
         :dark="dark"
         :data-index="index"
         :data-parent="parentKey"
         :errors="field.errors"
         :field-being-edited="fieldBeingEdited"
         :field-key="field.key"
+        :field-versions="fieldVersions"
         :hidden="field.visibility && field.visibility.hidden"
         :icon="field.icon"
         :key="field.key"
@@ -26,6 +28,7 @@
         :parent-key="parentKey"
         :required="(field.validation && field.validation.required) || (field.validation && field.validation.min > 0)"
         :type="field.type"
+        :version="field.version"
         @fieldclick="handleClick(parentKey, index)"
         @fieldcontextmenu="handleContextMenu(parentKey, index, $event)"
         @fieldmove="handleFieldMove(parentKey, index, $event)"
@@ -63,6 +66,7 @@ export default {
     dark: Boolean,
     fieldBeingEdited: Object,
     fields: Array,
+    fieldVersions: Map,
     parentKey: String,
   },
 };

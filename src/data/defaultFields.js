@@ -23,6 +23,7 @@ interface Field {
   tab: String,
   validation: { enforceMinMax: Boolean, max: Number, min: Number, regex: String, regexError: String, required: Boolean, unit: String, isString: Boolean },
   value: Any,
+  version: Number,
   visibility: { hidden: false, limitToRoles: Array, showByValue: { comparator: [String, Number], field: String, value: Any } },
   visualOnly: Boolean, // excluded from content files, serves purely visual function
 },
@@ -45,6 +46,7 @@ For easy copy paste with defaults:
     enforceMinMax: false, max: null, min: null, regex: null, regexError: null, required: false,
   },
   value: null,
+  version: 1,
   visibility: { hidden: false, showByValue: { field: null } },
   visualOnly: Boolean, // excluded from content files, serves purely visual function
 },
@@ -77,6 +79,7 @@ export default [
     tab: null,
     validation: { required: true },
     value: null,
+    version: 1,
     visibility: { hidden: false, showByValue: { field: null } },
   },
   {
@@ -90,6 +93,7 @@ export default [
     tab: null,
     validation: { min: 1, unit: 'languages' },
     value: null,
+    version: 1,
     visibility: { hidden: false, showByValue: { field: null } },
   },
   {
@@ -118,6 +122,7 @@ export default [
     tab: null,
     validation: { enforceMinMax: true, max: null, min: null, regex: null, regexError: null, required: false, unit: 'length' }, // eslint-disable-line object-curly-newline
     value: null,
+    version: 1,
     visibility: { hidden: false, showByValue: { field: null } },
   },
   {
@@ -132,6 +137,7 @@ export default [
     tab: null,
     validation: { max: null, min: null, required: false }, // eslint-disable-line object-curly-newline
     value: null,
+    version: 1,
     visibility: { hidden: false, showByValue: { field: null } },
   },
   {
@@ -286,6 +292,7 @@ export default [
     tab: null,
     validation: { enforceMinMax: true, max: null, min: null, regex: null, regexError: null, required: false, unit: 'length' }, // eslint-disable-line object-curly-newline
     value: null,
+    version: 1,
     visibility: { hidden: false, showByValue: { field: null } },
   },
   {
@@ -298,6 +305,7 @@ export default [
     label: 'Field Group',
     tab: null,
     value: [],
+    version: 1,
     visibility: { hidden: false, showByValue: { field: null } },
   },
   {
@@ -324,6 +332,7 @@ export default [
       },
     ],
     tab: null,
+    version: 1,
     visibility: { showByValue: { field: null } },
     visualOnly: true,
   },
@@ -335,6 +344,7 @@ export default [
     key: '',
     label: 'Separator',
     tab: null,
+    version: 1,
     visibility: { showByValue: { field: null } },
     visualOnly: true,
   },
@@ -387,6 +397,7 @@ export default [
       max: null, min: null, required: false, unit: 'date', isString: true,
     },
     value: null,
+    version: 1,
     visibility: { hidden: false, showByValue: { field: null } },
   },
   {
@@ -415,6 +426,7 @@ export default [
     tab: null,
     validation: { max: null, min: null, unit: 'columns' },
     value: [],
+    version: 1,
     visibility: { hidden: false, showByValue: { field: null } },
   },
   {
@@ -449,6 +461,7 @@ export default [
     tab: null,
     validation: { max: null, min: null, unit: 'rows' },
     value: [],
+    version: 1,
     visibility: { hidden: false, showByValue: { field: null } },
   },
   {
@@ -477,6 +490,7 @@ export default [
     tab: null,
     validation: { max: 1, required: false, unit: 'filesize (MB)' },
     value: null,
+    version: 1,
     visibility: { hidden: false, showByValue: { field: null } },
   },
   {
@@ -505,6 +519,7 @@ export default [
     ],
     tab: null,
     value: null,
+    version: 1,
     visibility: { hidden: false, showByValue: { field: null } },
   },
   {
@@ -552,6 +567,7 @@ export default [
     tab: null,
     validation: { required: false },
     value: null,
+    version: 1,
     visibility: { hidden: false, showByValue: { field: null } },
   },
   {
@@ -581,6 +597,7 @@ export default [
       max: null, min: null, unit: 'tags',
     },
     value: null,
+    version: 1,
     visibility: { hidden: false, showByValue: { field: null } },
   },
   {
@@ -610,6 +627,7 @@ export default [
       enforceMinMax: false, max: null, min: null, unit: 'list items',
     },
     value: null,
+    version: 1,
     visibility: { hidden: false, showByValue: { field: null } },
   },
   {
@@ -646,6 +664,7 @@ export default [
       required: false,
     },
     value: null,
+    version: 1,
     visibility: { hidden: false, showByValue: { field: null } },
   },
   {
@@ -683,6 +702,7 @@ export default [
       max: 1, required: false, unit: 'filesize (MB)',
     },
     value: null,
+    version: 1,
     visibility: { hidden: false, showByValue: { field: null } },
   },
   {
@@ -718,6 +738,7 @@ export default [
       enforceMinMax: false, max: null, min: null, unit: 'selected',
     },
     value: null,
+    version: 1,
     visibility: { hidden: false, showByValue: { field: null } },
   },
   {
@@ -754,6 +775,7 @@ export default [
       required: false,
     },
     value: null,
+    version: 1,
     visibility: { hidden: false, showByValue: { field: null } },
   },
   {
@@ -799,6 +821,7 @@ export default [
       required: false,
     },
     value: null,
+    version: 1,
     visibility: { hidden: false, showByValue: { field: null } },
   },
   {
@@ -831,6 +854,7 @@ export default [
       required: false,
     },
     value: null,
+    version: 1,
     visibility: { hidden: false, showByValue: { field: null } },
   },
 ];

@@ -7,13 +7,14 @@
       </div>
       <span class="label"><strong>{{label}}</strong></span>
       <span v-if="errors" class="chip error">Error</span>
+      <span v-if="outdated" class="chip warning">Outdated</span>
       <span v-if="localised" class="chip">Localised</span>
       <span v-if="required" class="chip">Required</span>
       <span class="key">{{fieldKey}}</span>
       <MbIcon v-if="hidden" class="hidden" icon="hide" />
       <MbIcon class="action" :icon="active ? 'cross' : 'pencil'" />
     </div>
-    <FieldArrangementList v-if="nestedFields" :dark="dark" :field-being-edited="fieldBeingEdited" :fields="nestedFields" :parent-key="parentKey !== '___toplevel'  ? `${parentKey}.${fieldKey}` : fieldKey" />
+    <FieldArrangementList v-if="nestedFields" :dark="dark" :field-being-edited="fieldBeingEdited" :fields="nestedFields" :field-versions="fieldVersions" :parent-key="parentKey !== '___toplevel'  ? `${parentKey}.${fieldKey}` : fieldKey" />
   </div>
 </template>
 
@@ -35,6 +36,9 @@ export default {
     },
     isMobile() {
       return this.$store.state.application.mobile;
+    },
+    outdated() {
+      return !this.version || this.version < this.fieldVersions.get(this.customField || this.type);
     },
   },
   data() {
@@ -163,10 +167,12 @@ export default {
   mixins: [autoscroll],
   props: {
     active: Boolean,
+    customField: String,
     dark: Boolean,
     errors: Map,
     fieldBeingEdited: Object,
     fieldKey: String,
+    fieldVersions: Map,
     hidden: Boolean,
     icon: {
       type: String,
@@ -184,6 +190,7 @@ export default {
       type: String,
       default: 'Unknown',
     },
+    version: Number,
   },
 };
 </script>
@@ -314,7 +321,8 @@ export default {
       @media $tablet
         display: none
 
-      &.error
+      &.error,
+      &.warning
         background-color: $negative
         color: $text
 
@@ -329,6 +337,9 @@ export default {
           padding: 0
           color: transparent // hide the text
           flex-shrink: 0
+
+      &.warning
+        background-color: $warning-saturated
 
     &.key
       margin-left: auto

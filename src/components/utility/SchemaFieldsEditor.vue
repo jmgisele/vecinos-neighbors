@@ -21,7 +21,7 @@
       </div>
       <div v-else class="added-fields-list">
         <transition mode="out-in">
-          <FieldArrangementList :dark="dark" :field-being-edited="fieldBeingEdited" :fields="fieldsForTab" parent-key="___toplevel" :key="activeTab" @fieldclick="handleFieldClick" @fieldcontextmenu="openContextMenu" @fieldmove="handleFieldMove" />
+          <FieldArrangementList :dark="dark" :field-being-edited="fieldBeingEdited" :fields="fieldsForTab" :field-versions="fieldVersions" parent-key="___toplevel" :key="activeTab" @fieldclick="handleFieldClick" @fieldcontextmenu="openContextMenu" @fieldmove="handleFieldMove" />
         </transition>
         <transition>
           <MbButton v-show="currentOperation !== 'add-field'" :dark="dark" icon="plus" type="positive" @click="handleAddField">Add field</MbButton>
@@ -54,6 +54,14 @@
           <h2 :class="{ h3: isMobile }">{{fieldBeingEdited.label}}<span v-if="!fieldBeingEdited.label">Untitled Field</span></h2>
           <span>{{fieldBeingEdited.type}} field</span>
         </header>
+        <transition>
+          <section v-if="!fieldBeingEdited.version || fieldBeingEdited.version < fieldVersions.get(fieldBeingEdited.customField || fieldBeingEdited.type)">
+            <MbHighlightBox color="warning" :dark="dark" label="Outdated Field Version">
+              <p>There are new options and values for this field. You need to upgrade it to the newest version to use these in content items based on this Schema.</p>
+              <MbButton :dark="dark" icon="upgrade" :icon-first="false" type="positive" @click="updateFieldVersion(fieldBeingEdited)">Upgrade</MbButton>
+            </MbHighlightBox>
+          </section>
+        </transition>
         <section>
           <h3>General Settings</h3>
           <div class="input-row">
@@ -222,6 +230,8 @@ export default {
 
     let customFieldsData = [];
     const availableFieldOptions = new Map();
+    const fieldVersions = new Map();
+    const fieldsByType = new Map();
 
     try {
       const customFieldsPath = `/projects/${this.projectId}/.mattrbld/custom-fields`;
@@ -238,7 +248,10 @@ export default {
       let { group } = field;
       if (!group) group = 'miscellaneous';
 
-      if (type && options) availableFieldOptions.set(type, options); // doing this here so we don’t have to loop over it multiple times
+      // doing this here so we don’t have to loop over it multiple times
+      if (type && options) availableFieldOptions.set(type, options);
+      fieldVersions.set(field.customField || field.type, field.version); // customFields have a customField property, default fields don’t
+      fieldsByType.set(field.customField || field.type, field);
 
       if (map.has(group)) map.get(group).push(field);
       else map.set(group, [field]);
@@ -248,6 +261,8 @@ export default {
 
     this.availableFields = new Map([...unsortedMap].sort((a, b) => a[0].localeCompare(b[0]))); // eslint-disable-line no-param-reassign
     this.availableFieldOptions = availableFieldOptions; // eslint-disable-line no-param-reassign
+    this.fieldVersions = fieldVersions;
+    this.fieldsByType = fieldsByType;
 
     this.fetchAvailableCollections();
     this.loading = false;
@@ -301,7 +316,9 @@ export default {
       fieldErrors: null,
       fieldFilter: '',
       fieldToTransfer: null,
+      fieldsByType: null,
       fieldsLoading: true,
+      fieldVersions: null,
       internalChange: false,
       loading: true,
       showByValueOptions: [
@@ -435,6 +452,15 @@ export default {
         this.availableCollections = [];
       }
     },
+    generateUniqueFieldKey(otherFields, potentialKey = 'unknown') {
+      if (!otherFields.find((existingField) => existingField.key === potentialKey)) return potentialKey;
+      let counter = 1;
+      // NOTE: this loop actually works as intended, despite the warning by eslint – and I wouldn’t really know how to write it otherwise
+      while (otherFields.find((existingField) => existingField.key === `${potentialKey}-${counter}`)) { // eslint-disable-line no-loop-func
+        counter += 1;
+      }
+      return `${potentialKey}-${counter}`;
+    },
     getField(path) {
       const segments = path.split('.');
       let next = this.fields.find((field) => field.key === segments[0]);
@@ -468,15 +494,6 @@ export default {
 
       search(fields);
       return path.join('.');
-    },
-    generateUniqueFieldKey(otherFields, potentialKey = 'unknown') {
-      if (!otherFields.find((existingField) => existingField.key === potentialKey)) return potentialKey;
-      let counter = 1;
-      // NOTE: this loop actually works as intended, despite the warning by eslint – and I wouldn’t really know how to write it otherwise
-      while (otherFields.find((existingField) => existingField.key === `${potentialKey}-${counter}`)) { // eslint-disable-line no-loop-func
-        counter += 1;
-      }
-      return `${potentialKey}-${counter}`;
     },
     async handleAddField() {
       this.currentOperation = 'add-field';
@@ -658,6 +675,33 @@ export default {
     updateModelValue() {
       this.internalChange = true;
       this.$emit('update:modelValue', cloneDeep(this.fields)); // creating a deep clone here so we don’t pass any references
+    },
+    updateFieldVersion(field) {
+      const newVersion = this.fieldsByType.get(field.customField || field.type);
+
+      Object.entries(newVersion).forEach(([key, value]) => {
+        if (key === 'group' || key === 'description') return;
+        if (key === 'options' && value.length > 0) {
+          if (!field.options) field.options = {}; // eslint-disable-line no-param-reassign
+          value.forEach((option) => {
+            if (typeof field.options[option.key] === 'undefined') field.options[option.key] = cloneDeep(option.value); // eslint-disable-line no-param-reassign
+          });
+        } else if (key === 'value' && value) field.value = field.customField ? value : []; // eslint-disable-line no-param-reassign
+        else if (value && typeof value === 'object') field[key] = { ...cloneDeep(value), ...field[key] }; // eslint-disable-line no-param-reassign
+        else if (typeof field[key] === 'undefined') field[key] = cloneDeep(value); // eslint-disable-line no-param-reassign
+      });
+
+      Object.keys(field).forEach((key) => {
+        if (key === 'options') {
+          Object.keys(field.options).forEach((optionKey) => {
+            if (!newVersion.options.find((option) => option.key === optionKey)) delete field.options[optionKey]; // eslint-disable-line no-param-reassign
+          });
+        } else if (field[key] && typeof field[key] === 'object') {
+          Object.keys(field[key]).forEach((subkey) => {
+            if (typeof newVersion[key][subkey] === 'undefined') delete field[key][subkey]; // eslint-disable-line no-param-reassign
+          });
+        } else if (typeof newVersion[key] === 'undefined') delete field.key; // eslint-disable-line no-param-reassign
+      });
     },
     validateField(property) {
       if (property) {
@@ -963,6 +1007,10 @@ export default {
       text-transform: capitalize
       color: $text-secondary
 
+    & + section
+      .highlight-box
+        margin-top: 3rem
+
   > section
     max-width: 40rem
     margin-left: auto
@@ -973,6 +1021,14 @@ export default {
 
       @media $mobile
         margin-bottom: 3rem
+
+    &.v-enter-active,
+    &.v-leave-active
+      transition: opacity 200ms ease
+
+      &.v-enter-from,
+      &.v-leave-to
+        opacity: 0
 
     h3
       color: $text-secondary
