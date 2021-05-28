@@ -150,7 +150,7 @@ export default {
   created() {
     this.sortBy = this.initialSortBy;
     this.reverseOrder = this.initialReverseSortOrder;
-    this.currentPath = this.root;
+    this.currentPath = this.initialPath || this.root;
   },
   data() {
     return {
@@ -480,6 +480,7 @@ export default {
       default: true,
     },
     foldersOnly: Boolean,
+    initialPath: String,
     initialSortBy: {
       type: String,
       default: 'name',

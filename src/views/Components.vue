@@ -1136,6 +1136,7 @@ export default {
           ['`filterable`', 'Boolean', '`true`', ''],
           ['`foldersFirst`', 'Boolean', '`true`', ''],
           ['`foldersOnly`', 'Boolean', '`false`', ''],
+          ['`initialPath`', 'String', '`undefined`', 'Make sure it’s under root, it will not be validated, but allows setting the path the list should initially be on'],
           ['`initialSortBy`', 'String', "`'name'`", 'Allowed values: name, edited'],
           ['`initialReverseSortOrder`', 'Boolean', '`false`', 'If true, the entities will be sorted in descending order initially'],
           ['`onlyImages`', 'Boolean', '`false`', 'If true, only entities matching the image regexp will be shown (filetypes loses its effect)'],
