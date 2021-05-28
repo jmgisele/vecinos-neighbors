@@ -65,6 +65,11 @@ export default {
     LocalisedFieldsContainer,
   },
   computed: {
+    autoquotes() {
+      const { autoquotes } = this.$store.state.currentProject;
+      if (autoquotes && typeof autoquotes === 'object') return Object.values(autoquotes).find((value) => value);
+      return '“”‘’';
+    },
     blockFormats() {
       if (!this.options.blockFormats || !Array.isArray(this.options.blockFormats) || this.options.blockFormats.length === 0) return false;
       return this.options.blockFormats;
@@ -84,7 +89,7 @@ export default {
     inputRuleOptions() {
       if (!this.options.inputRuleOptions) {
         return {
-          autoquotes: this.$store.state.currentProject.autoquotes || '“”‘’',
+          autoquotes: this.autoquotes,
           dashes: true,
           ellipsis: true,
           minHeading: this.options.minHeading || 1,
@@ -94,7 +99,7 @@ export default {
         };
       }
       const inputRuleOptions = {
-        autoquotes: this.options.inputRuleOptions.includes('autoquotes') && (this.$store.state.currentProject.autoquotes || '“”‘’'),
+        autoquotes: this.options.inputRuleOptions.includes('autoquotes') && this.autoquotes,
         dashes: this.options.inputRuleOptions.includes('dashes'),
         ellipsis: this.options.inputRuleOptions.includes('ellipsis'),
         maxHeading: this.options.maxHeading || 6,
@@ -151,7 +156,6 @@ export default {
       if (this.options.inputRuleOptions && !this.options.inputRuleOptions.includes('autoquotes')) return false;
       const { autoquotes } = this.$store.state.currentProject;
       if (autoquotes && typeof autoquotes === 'object') return autoquotes[lang] || '“”‘’';
-      if (autoquotes) return autoquotes;
       return '“”‘’';
     },
     convertLocalisedValue(localised) {

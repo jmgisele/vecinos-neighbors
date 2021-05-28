@@ -34,10 +34,18 @@
     </section>
     <section class="wrapper">
       <h2>Internationalisation</h2>
-      <p>Mattrbld is built to support multiple languages. If you enable this feature, you will be able to enable internationalisation per-field, allowing you to specify different values for every language you define in the list below.</p>
+      <p>Mattrbld is built to support multiple languages. If you enable this feature, you will be able to enable internationalisation per-field, allowing you to specify different values for every language you define in the list below. In addition to that you will also be able to set different quote styles per language that may be used in rich text editors with “Smart Quotes” enabled.</p>
       <MbToggle v-model="enableLanguages" :dark="dark" :icons="['cross', 'check']">Enable internationalisation</MbToggle>
       <transition>
         <MbTagInput v-show="enableLanguages" v-model="projectLanguages" allow-unsuggested :dark="dark" label="Languages" placeholder="New language code…" />
+      </transition>
+      <transition>
+        <ul v-show="enableLanguages" class="per-language-autoquotes">
+          <li v-for="lang in projectLanguages" class="select-wrapper" :key="lang">
+            <span>{{lang}}:</span>
+            <MbSelect :dark="dark" :model-value="projectAutoquotes[lang]" :options="autoquoteOptions" placeholder="Select a quote style…" @update:model-value="setAutoquotesForLang($event, lang)" />
+          </li>
+        </ul>
       </transition>
     </section>
     <section class="wrapper">
@@ -89,6 +97,17 @@ export default {
     TabContent,
   },
   computed: {
+    autoquoteOptions() {
+      return [
+        { label: '“double” ‘single’', value: '“”‘’' },
+        { label: '„double“ ‚single‘', value: '„“‚‘' },
+        { label: '»double« ›single‹', value: '»«›‹' },
+        { label: '«double» ‹single›', value: '«»‹›' },
+        { label: '„double” ‚single’', value: '„”‚’' },
+        { label: '”double” ’single’', value: '””’’' },
+        { label: '»double» ›single›', value: '»»››' },
+      ];
+    },
     brandColors: {
       get() {
         return this.$store.state.currentProject.brandColors;
@@ -126,7 +145,10 @@ export default {
       },
       set(v) {
         if (v) this.$store.commit('setCurrentProjectProperty', { key: 'languages', value: [navigator.language || 'en-US'] });
-        else this.$store.commit('setCurrentProjectProperty', { key: 'languages', value: [] });
+        else {
+          this.$store.commit('setCurrentProjectProperty', { key: 'languages', value: [] });
+          this.$store.commit('setCurrentProjectProperty', { key: 'autoquotes', value: null });
+        }
         this.$store.dispatch('saveCurrentProject');
       },
     },
@@ -144,6 +166,9 @@ export default {
           this.$store.dispatch('saveCurrentProject');
         }
       },
+    },
+    projectAutoquotes() {
+      return this.$store.state.currentProject.autoquotes || {};
     },
     projectLanguages: {
       get() {
@@ -313,6 +338,10 @@ export default {
         type: 'warning',
       });
     },
+    setAutoquotesForLang(quotes, lang) {
+      this.$store.commit('setCurrentProjectProperty', { key: 'autoquotes', value: { ...this.projectAutoquotes, [lang]: quotes } });
+      this.$store.dispatch('saveCurrentProject');
+    },
     setPreviewUrl() {
       if (this.projectPreviewUrl === this.currentProject.previewUrl) return;
 
@@ -422,14 +451,6 @@ export default {
       justify-content: space-between
       margin-bottom: 2rem
 
-      &.v-enter-active,
-      &.v-leave-active
-        transition: opacity 200ms ease
-
-        &.v-enter-from,
-        &.v-leave-to
-          opacity: 0
-
       > span
         margin-right: 1rem
         white-space: nowrap
@@ -442,4 +463,20 @@ export default {
       margin-top: 0
       margin-bottom: 0
       width: auto
+
+    .per-language-autoquotes
+      list-style: none
+      margin: 0
+
+    .select-wrapper,
+    .file-picker-wrapper,
+    .input-wrapper,
+    .per-language-autoquotes
+      &.v-enter-active,
+      &.v-leave-active
+        transition: opacity 200ms ease
+
+        &.v-enter-from,
+        &.v-leave-to
+          opacity: 0
 </style>
