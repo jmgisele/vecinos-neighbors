@@ -123,7 +123,7 @@ export default {
       const collection = JSON.parse(await fs.readFile(joinPath('/projects', Store.state.currentProject.id, '.mattrbld', 'collections', collectionFile), 'utf8'));
       let canAccess;
 
-      if (!Store.getters.userInCurrentProject || !path.startsWith(joinPath('/projects', id, collection.dir))) canAccess = false; // somebody might try to pass a collection where they have edit rights, so we make sure the collection dir matches the content path
+      if (!Store.getters.userInCurrentProject || (!path.startsWith(joinPath('/projects', id, collection.dir)) && !path.startsWith(joinPath('/projects', id, Store.state.currentProject.draftsDir, pathBasename(collection.dir))))) canAccess = false; // somebody might try to pass a collection where they have edit rights, so we make sure the collection dir matches the content path
       else canAccess = hasAccess(Store.getters.userInCurrentProject.role, collection.permissions);
 
       if (!canAccess) return next({ name: 'Forbidden', replace: true });
