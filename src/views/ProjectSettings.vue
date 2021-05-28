@@ -3,7 +3,7 @@
     <MbTabs v-model="activeTab" :dark="dark" :tabs="tabs" />
     <transition mode="out-in" :name="tabTransition">
       <GeneralSettings v-if="activeTabValue === 'general'" :dark="dark" />
-      <SchemaSettings v-else-if="activeTabValue === 'schemas'" :dark="dark" />
+      <SchemaSettings v-else-if="activeTabValue === 'schemas'" :dark="dark" :last-dir="lastDir" />
       <CollectionSettings v-else-if="activeTabValue === 'collections'" :dark="dark" />
       <SidebarSettings v-else-if="activeTabValue === 'sidebar'" :dark="dark" />
       <MediaSettings v-else-if="activeTabValue === 'media'" :dark="dark" />
@@ -20,6 +20,7 @@ import SchemaSettings from './settings/SchemaSettings.vue';
 import SidebarSettings from './settings/SidebarSettings.vue';
 import UserSettings from './settings/UserSettings.vue';
 
+import { pathDirname } from '../fs';
 import Store from '../store';
 import isPrivilegedUser from '../mixins/isPrivilegedUser';
 
@@ -37,9 +38,13 @@ export default {
 
     if (!['dev', 'owner'].includes(accessLevel)) return next({ name: 'Forbidden', replace: true });
     if (to.query.tab) {
+      let lastDir = null;
+      if (to.query.tab === 'schemas' && from && from.name === 'Edit Schema' && from.params.path) lastDir = pathDirname(from.params.path);
+
       return next((vm) => {
         const activeTab = vm.tabs.findIndex((tab) => tab.value === to.query.tab);
         vm.activeTab = Math.max(activeTab, 0); // eslint-disable-line no-param-reassign
+        vm.lastDir = lastDir; // eslint-disable-line no-param-reassign
       });
     }
     return next();
@@ -63,6 +68,7 @@ export default {
   data() {
     return {
       activeTab: 0,
+      lastDir: null,
       leaving: false,
       tabs: [
         { label: 'General Settings', value: 'general' },

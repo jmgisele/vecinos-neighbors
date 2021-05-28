@@ -2,7 +2,7 @@
   <div class="collection">
     <h1>{{collection.name}}</h1>
     <template v-if="collection.dir">
-      <MbFileList v-if="typeof collection.dir !== 'undefined'" :action="action" :dark="dark" :drafts-dir="draftsDir" :empty-state="emptyState" :file-actions="fileActions" :file-list-label="fileListLabel" :filetypes="[collection.type]" pretty-filenames ref="fileList" :root="contentDir" @fileclick="handleFileClick" @list-change="listedFiles = $event.files" @path-change="currentPath = $event" />
+      <MbFileList v-if="typeof collection.dir !== 'undefined'" :action="action" :dark="dark" :drafts-dir="draftsDir" :empty-state="emptyState" :file-actions="fileActions" :file-list-label="fileListLabel" :filetypes="[collection.type]" :initial-path="lastDir" pretty-filenames ref="fileList" :root="contentDir" @fileclick="handleFileClick" @list-change="listedFiles = $event.files" @path-change="currentPath = $event" />
       <MbButton v-if="(userPermissions.has('everything') || userPermissions.has('createContent')) && listedFiles === 0" :dark="dark" icon="plus" type="positive" @click="createEntity">Create one</MbButton>
     </template>
     <div v-else class="unconfigured-state" :class="{ dark }">
@@ -26,6 +26,8 @@ import fs, {
 } from '../fs';
 import { rmrf } from '../fs/workerFS';
 
+import Store from '../store';
+
 import generateDefaultContentFromSchema from '../assets/js/generateDefaultContentFromSchema';
 import prettifyEntityName from '../assets/js/prettifyEntityName';
 
@@ -44,9 +46,22 @@ export default {
 
     try {
       const collection = JSON.parse(await fs.readFile(joinPath('/projects', to.params.id, path), 'utf8'));
+      let lastDir = null;
+
+      if (from && from.name === 'Edit Content' && from.params.path) lastDir = pathDirname(from.params.path);
+      if (lastDir) { // we have to handle draft posts which come from a different path but show in the same directory as regular content
+        const unprefixedDraftsDir = Store.state.currentProject.draftsDir;
+
+        if (unprefixedDraftsDir) {
+          const draftsDir = joinPath('/projects', to.params.id, unprefixedDraftsDir, pathBasename(collection.dir));
+          if (lastDir.startsWith(draftsDir)) lastDir = lastDir.replace(joinPath(unprefixedDraftsDir, pathBasename(collection.dir)), collection.dir);
+        }
+      }
+
       return next((vm) => {
         vm.collection = { ...collection, name: prettifyEntityName(pathBasename(path)) }; // eslint-disable-line no-param-reassign
-        vm.currentPath = joinPath('/projects', to.params.id, collection.dir); // eslint-disable-line no-param-reassign
+        vm.currentPath = lastDir || joinPath('/projects', to.params.id, collection.dir); // eslint-disable-line no-param-reassign
+        vm.lastDir = lastDir; // eslint-disable-line no-param-reassign
       });
     } catch (err) {
       if (err.code === 'ENOENT') return next({ name: 'NotFound', query: { type: 'collection' }, replace: true });
@@ -244,6 +259,7 @@ export default {
         noFolders: 'There are no folders in this Collection',
       },
       entityBeingModified: null,
+      lastDir: null,
       listedFiles: 0,
       moveRootDir: null,
       showEntityCreation: false,
