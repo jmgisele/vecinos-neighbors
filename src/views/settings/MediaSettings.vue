@@ -25,10 +25,31 @@
 </template>
 
 <script>
-import { debounce } from 'lodash-es';
+import { cloneDeep as _cloneDeep, debounce } from 'lodash-es';
 import availableRoles from '../../data/availableRoles';
+import defaultFields from '../../data/defaultFields';
 
 import SchemaFieldsEditor from '../../components/utility/SchemaFieldsEditor.vue';
+
+function cleanField(field) {
+  const cf = {};
+
+  Object.entries(field).forEach(([key, value]) => {
+    if (key === 'options' && value.length > 0) {
+      cf.options = {};
+      value.forEach((option) => {
+        cf.options[option.key] = _cloneDeep(option.value);
+      });
+    } else if (key === 'value' && value) cf.value = [];
+    else cf[key] = _cloneDeep(value);
+  });
+
+  delete cf.tab;
+  delete cf.description; // not needed, so let’s save space
+  delete cf.group; // not needed, so let’s save space
+
+  return cf;
+}
 
 export default {
   components: {
@@ -67,65 +88,17 @@ export default {
       set(v) {
         this.$store.commit('setCurrentProjectProperty', { key: 'media.advanced', value: v });
         if (!this.currentProject.media.customFields || this.currentProject.media.customFields.length === 0) {
-          const defaultFields = [
-            {
-              type: 'text',
-              default: null,
-              icon: 'text-input',
-              key: 'alt',
-              label: 'Alternative Text',
-              localised: false,
-              options: {
-                wrapping: true,
-                multiline: false,
-              },
-              validation: {
-                enforceMinMax: true,
-                max: null,
-                min: null,
-                regex: null,
-                regexError: null,
-                required: false,
-                unit: 'length',
-              },
-              value: null,
-              visibility: {
-                hidden: false,
-                showByValue: {
-                  field: null,
-                },
-              },
-            },
-            {
-              type: 'text',
-              default: null,
-              icon: 'text-input',
-              key: 'title',
-              label: 'Title',
-              localised: false,
-              options: {
-                wrapping: true,
-                multiline: false,
-              },
-              validation: {
-                enforceMinMax: true,
-                max: null,
-                min: null,
-                regex: null,
-                regexError: null,
-                required: false,
-                unit: 'length',
-              },
-              value: null,
-              visibility: {
-                hidden: false,
-                showByValue: {
-                  field: null,
-                },
-              },
-            },
-          ];
-          this.$store.commit('setCurrentProjectProperty', { key: 'media.customFields', value: defaultFields });
+          const textField = defaultFields.find((field) => field.type === 'text');
+          const altField = cleanField(textField);
+          const titleField = cleanField(textField);
+
+          altField.key = 'alt';
+          altField.label = 'Alternative Text';
+
+          titleField.key = 'title';
+          titleField.label = 'Title';
+
+          this.$store.commit('setCurrentProjectProperty', { key: 'media.customFields', value: [altField, titleField] });
         }
         this.$store.dispatch('saveCurrentProject');
       },
