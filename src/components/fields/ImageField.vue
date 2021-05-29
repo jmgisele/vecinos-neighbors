@@ -11,7 +11,7 @@
       </div>
       <MbIcon v-if="compact" :icon="active ? 'cross' : cleanError ? 'error' : 'pencil'" />
     </div>
-    <MbModal class="image-data" :dark="dark" :title="labelWithSizeHint" :visible="showDetailsModal" @after-close="handleModalClosed" @close="closeDetails" @keyup.ctrl.enter="closeDetails">
+    <MbModal v-if="mediaSettings.advanced" class="image-data" :dark="dark" :title="labelWithSizeHint" :visible="showDetailsModal" @after-close="handleModalClosed" @close="closeDetails" @keyup.ctrl.enter="closeDetails">
       <teleport v-if="!teleportTarget || active" :disabled="!teleportTarget" :to="teleportTarget">
         <h2 v-if="teleportTarget" class="h3 split-title">{{labelWithSizeHint}}</h2>
         <div class="image-details">
@@ -126,12 +126,23 @@ export default {
     mediaSettings() {
       return this.$store.state.currentProject.media;
     },
+    normalisedSrc() {
+      if (this.modelValue && typeof this.modelValue === 'object') {
+        if (this.modelValue.src && this.outputPath && this.modelValue.src.startsWith(this.outputPath)) return this.modelValue.src.replace(this.outputPath, this.mediaSettings.dir);
+        return this.modelValue.src;
+      }
+      if (this.outputPath && this.modelValue && this.modelValue.startsWith(this.outputPath)) return this.modelValue.replace(this.outputPath, this.mediaSettings.dir);
+      return this.modelValue;
+    },
+    outputPath() {
+      return this.mediaSettings.outputPath;
+    },
     projectsDir() {
       return joinPath('/projects', this.$store.state.currentProject.id);
     },
     selectedFilePath() {
-      if (!this.modelValue || !this.modelValue.src) return null;
-      return joinPath(this.projectsDir, this.modelValue.src || this.modelValue);
+      if (!this.normalisedSrc) return null;
+      return joinPath(this.projectsDir, this.normalisedSrc);
     },
     uploadAction() {
       let uploadAllowed = false;
@@ -160,10 +171,7 @@ export default {
     },
   },
   created() {
-    if (typeof this.modelValue === 'string') this.fetchImage(this.modelValue);
-    else if (this.modelValue) {
-      this.fetchImage(this.modelValue.src);
-    }
+    if (this.normalisedSrc) this.fetchImage(this.normalisedSrc);
   },
   data() {
     return {
@@ -280,7 +288,13 @@ export default {
         this.$emit('update:error', clone.size > 0 ? clone : '');
       }
 
-      this.$emit('update:modelValue', newVal);
+      let prefixedNewVal = newVal;
+      if (newVal && this.outputPath) {
+        if (typeof newVal === 'string') prefixedNewVal = newVal.replace(this.mediaSettings.dir, this.outputPath);
+        else if (newVal.src) prefixedNewVal.src = newVal.src.replace(this.mediaSettings.dir, this.outputPath);
+      }
+
+      this.$emit('update:modelValue', prefixedNewVal);
     },
     handleMetaError(err) {
       if (!err || err.size === 0) this.$emit('update:error', '');
@@ -374,7 +388,7 @@ export default {
       if (!this.error && this.metaIsNew && (this.userPermissions.has('everything') || this.userPermissions.has('editMedia'))) {
         this.metaIsNew = false;
         const mediaMetaDir = joinPath(this.projectsDir, '.mattrbld', 'media');
-        const pathInMediaDir = this.modelValue.src.replace(this.mediaSettings.dir, '');
+        const pathInMediaDir = this.normalisedSrc.replace(this.mediaSettings.dir, '');
         const newMeta = _cloneDeep(this.modelValue);
         delete newMeta.src;
         await fs.writeFile(joinPath(mediaMetaDir, `${pathInMediaDir}.json`), JSON.stringify(newMeta, null, 2), 'utf8');
@@ -403,7 +417,7 @@ export default {
       this.handleInput(newValue);
     },
     validateContent() {
-      if (!this.modelValue || !this.modelValue.src) return;
+      if (!this.normalisedSrc) return;
       const errors = validateContent(this.modelValue || {}, { fields: this.mediaSettings.customFields }, this.languages);
       if (this.error && this.error.get(this.fieldKey)) {
         if (errors.size === 0) return;
@@ -436,7 +450,7 @@ export default {
         }
       } else if (typeof nv === 'string' && (!ov || nv !== ov || nv !== ov.src)) {
         if (this.image) URL.revokeObjectURL(this.image);
-        this.fetchImage(nv);
+        this.fetchImage(this.normalisedSrc);
       } else if (typeof nv === 'object' && (!ov || !ov.src || nv.src !== ov.src)) {
         if (this.image) URL.revokeObjectURL(this.image);
         this.fileDetails.dominantColor = null;
@@ -444,7 +458,7 @@ export default {
         this.fileDetails.name = this.modelValue && this.modelValue.src && pathBasename(this.modelValue && this.modelValue.src);
         this.fileDetails.type = this.fileDetails.name.slice(this.fileDetails.name.lastIndexOf('.') + 1).toUpperCase();
         this.fileDetails.width = null;
-        this.fetchImage(nv.src);
+        this.fetchImage(this.normalisedSrc);
         if (this.error && this.error.get(this.fieldKey)) {
           const clone = _cloneDeep(this.error);
           clone.delete(this.fieldKey);
