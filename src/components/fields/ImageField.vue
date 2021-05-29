@@ -43,7 +43,7 @@
               <dd>{{fileDetails.type}}</dd>
             </dl>
           </dl>
-        <MbFieldsEditor v-show="modelValue && modelValue.src" :dark="dark" compact :error="error instanceof Map ? error : new Map()" :fields="$store.state.currentProject.media.customFields" :in-split="Boolean(teleportTarget)" :model-value="modelValue" :languages="languages" @update:error="handleMetaError" @update:model-value="updateMeta" />
+        <MbFieldsEditor v-show="modelValue && modelValue.src" :dark="dark" compact :error="error instanceof Map ? error : new Map()" :fields="$store.state.currentProject.media.customFields" :in-split="Boolean(teleportTarget)" :model-value="typeof modelValue === 'string' ? {} : modelValue" :languages="languages" @update:error="handleMetaError" @update:model-value="updateMeta" />
         </div>
       </teleport>
       <template #actions>
@@ -417,7 +417,7 @@ export default {
       this.handleInput(newValue);
     },
     validateContent() {
-      if (!this.normalisedSrc) return;
+      if (!this.normalisedSrc || typeof this.modelValue === 'string') return;
       const errors = validateContent(this.modelValue || {}, { fields: this.mediaSettings.customFields }, this.languages);
       if (this.error && this.error.get(this.fieldKey)) {
         if (errors.size === 0) return;
