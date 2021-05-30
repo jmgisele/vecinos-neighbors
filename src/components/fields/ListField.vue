@@ -1,7 +1,7 @@
 <template lang="html">
   <section class="list field" :class="{ dark, localised: showLocalisedOptions }">
     <template v-if="!showLocalisedOptions">
-      <span class="label" :class="{ error }">{{error || label}}</span>
+      <span class="label" :class="{ dark, error }">{{error || label}}</span>
       <MbItemList v-if="options.limitToModel" :class="{ 'in-split': inSplit }" :dark="dark" :model-value="safeModelValue" :options="model" placeholder="Select an item…" @update:model-value="handleInput" />
       <MbEditableList v-else :class="{ 'in-split': inSplit }" :dark="dark" force-mode="simple" :model-value="safeModelValue" @update:model-value="handleInput" />
     </template>
@@ -19,9 +19,9 @@
       @modal-closed="$emit('update:error', validateLocalisedValues(safeModelValue, ''))"
       @update:active="$emit('update:active', $event)"
     >
-      <span class="label" :class="{ error: error instanceof Map && error.get(lang) }">{{error instanceof Map && error.get(lang) || lang}}</span>
-      <MbItemList v-if="options.limitToModel" :class="{ 'in-split': inSplit }" :dark="dark" :model-value="safeModelValue[lang]" :options="model" placeholder="Select an item…" @update:model-value="handleInput($event, lang)" />
-      <MbEditableList v-else :class="{ 'in-split': inSplit }" :dark="dark" force-mode="simple" :model-value="safeModelValue[lang]" @update:model-value="handleInput($event, lang)" />
+      <span class="label" :class="{ dark, error: error instanceof Map && error.get(lang) }">{{error instanceof Map && error.get(lang) || lang}}</span>
+      <MbItemList v-if="options.limitToModel" :class="{ 'in-split': teleportTarget }" :dark="dark" :model-value="safeModelValue[lang]" :options="model" placeholder="Select an item…" @update:model-value="handleInput($event, lang)" />
+      <MbEditableList v-else :class="{ 'in-split': teleportTarget }" :dark="dark" force-mode="simple" :model-value="safeModelValue[lang]" @update:model-value="handleInput($event, lang)" />
     </LocalisedFieldsContainer>
   </section>
 </template>
@@ -112,34 +112,33 @@ export default {
 <style lang="stylus" scoped>
 @require '../../assets/styles/colors'
 
-.list.field
+.label
+  display: block
+  font-size: 0.75rem
+  margin-bottom: 0.25rem
+  color: $text-secondary
+
   &.dark
-    > .label
-      color: $text-secondary-dark
+    color: $text-secondary-dark
 
-  > .label
-    display: block
-    font-size: 0.75rem
-    margin-bottom: 0.25rem
-    color: $text-secondary
+  &.error
+    color: $negative-saturated
 
-    &.error
-      color: $negative-saturated
-
-  > .item-list.in-split
-    &::v-deep(.item.dark)
-      background-color: $bg-tertiary-dark
-      box-shadow: inset 0 0 0 0.0625rem lighten($bg-tertiary-dark, 5)
-
-  > .editable-list.in-split
-    &::v-deep(.item.dark)
-      background-color: $bg-tertiary-dark
-
-      .input
-        background-color: $bg-tertiary-dark
-        border-left-color: $bg-secondary-dark
-        border-right-color: @border-left-color
-
-.localisation-modal .item-list:not(:last-child)
+.item-list:not(:last-child),
+.editable-list:not(:last-child)
   margin-bottom: 2rem
+
+.item-list.in-split
+  &::v-deep(.item-dark)
+    background-color: $bg-tertiary-dark
+    box-shadow: inset 0 0 0 0.0625rem lighten($bg-tertiary-dark, 5)
+
+.editable-list.in-split
+  &::v-deep(.item.dark)
+    background-color: $bg-tertiary-dark
+
+    .input
+      background-color: $bg-tertiary-dark
+      border-left-color: $bg-secondary-dark
+      border-right-color: @border-left-color
 </style>
