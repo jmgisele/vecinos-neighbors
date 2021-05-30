@@ -97,7 +97,7 @@ export default {
           this.softDeleted.delete(item);
         },
         actionLabel: 'Undo',
-        message: `“${item.label || item}” was deleted`,
+        message: `“${item.label || item.value || item}” was deleted`,
         timeout: timeout - 200,
         type: 'warning',
       });
