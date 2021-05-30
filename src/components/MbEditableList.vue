@@ -1,6 +1,6 @@
 <template lang="html">
   <div class="editable-list">
-    <MbSegmentedSelector v-model="mode" :dark="dark" :options="[{ label: 'Simple', value: 'simple' }, { label: 'Labelled', value: 'advanced' }, { label: 'From File', value: 'file' }]" />
+    <MbSegmentedSelector v-if="!forceMode" v-model="mode" :dark="dark" :options="[{ label: 'Simple', value: 'simple' }, { label: 'Labelled', value: 'advanced' }, { label: 'From File', value: 'file' }]" />
     <transition mode="out-in">
       <div v-if="mode !== 'file'" class="mode" :key="mode">
         <MbSortableList v-slot="{ activeItem, item, index }" :items="itemsWithoutSoftDeleted" key-name="value" @itemmove="handleItemMove">
@@ -43,7 +43,8 @@ export default {
     },
   },
   created() {
-    if (Array.isArray(this.modelValue)) {
+    if (this.forceMode) this.mode = this.forceMode;
+    else if (Array.isArray(this.modelValue)) {
       if (typeof this.modelValue[0] === 'object') this.mode = 'advanced';
       else this.mode = 'simple';
     } else this.mode = 'file';
@@ -169,6 +170,10 @@ export default {
   },
   props: {
     dark: Boolean,
+    forceMode: {
+      type: String,
+      validator: (v) => ['simple', 'advanced', 'file'].includes(v),
+    },
     modelValue: [Array, Object],
     relativeToRoot: Boolean,
     rootPath: {

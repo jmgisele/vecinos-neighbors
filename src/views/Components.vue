@@ -1093,6 +1093,7 @@ export default {
         editableLists: [
           ['Name', 'Type', 'Default'],
           ['`dark`', 'Boolean', '`false`'],
+          ['`forceMode`', 'String', '`undefined`'],
           ['`modelValue`', 'Array, Object', '`undefined`'],
           ['`relativeToRoot`', 'Boolean', '`false`'],
           ['`rootPath`', 'String', '`\'/\'`'],
