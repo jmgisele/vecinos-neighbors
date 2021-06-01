@@ -1,0 +1,35 @@
+<template lang="html">
+  <section class="id field">
+    <MbInput :class="{ 'in-split': inSplit }" :dark="dark" :disabled="!options.editable" :error="error && String(error)" icon="hash" :label="label" :model-value="modelValue" placeholder="A unique value" @update:model-value="handleInput" />
+    <MbButton v-if="options.editable" :dark="dark" :disabled="originalValue === modelValue" icon="undo" rounded tooltip="Reset to initial value" @click="handleInput(originalValue)" />
+  </section>
+</template>
+
+<script>
+import field from '../../mixins/field';
+
+export default {
+  created() {
+    this.originalValue = this.modelValue;
+  },
+  mixins: [field],
+};
+</script>
+
+<style lang="stylus" scoped>
+@require '../../assets/styles/colors'
+
+.id.field
+  display: flex
+  align-items: center
+
+  .input
+    width: 100%
+    margin-top: 0
+
+    &.dark.in-split
+      background-color: $bg-tertiary-dark
+
+  .button
+    margin-left: 0.5rem
+</style>
