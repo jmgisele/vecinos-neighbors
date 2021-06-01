@@ -341,7 +341,7 @@ export default {
       else {
         this.$store.commit('addLocallyChangedFile', joinPath(wasDraft ? this.currentDraftsPath : this.currentPath, name));
         this.$store.dispatch('saveAppData');
-        if (this.userPermissions.has('everything') || this.userPermissions.has('editContent')) this.openContentItem(`${wasDraft ? this.currentDraftsPath : this.currentPath}/${name}`);
+        if (this.userPermissions.has('everything') || this.userPermissions.has('editContent')) this.openContentItem(joinPath(wasDraft ? this.currentDraftsPath : this.currentPath, name));
         else this.$refs.fileList.refresh();
       }
       this.defaultCollectionContent = {};
