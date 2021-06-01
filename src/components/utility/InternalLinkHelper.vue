@@ -37,7 +37,7 @@ import * as matter from 'gray-matter';
 import slugify from '@sindresorhus/slugify';
 import { get } from 'lodash-es';
 import { isValid } from 'date-fns';
-import fs, { joinPath, pathDirname } from '../../fs';
+import fs, { joinPath, pathBasename, pathDirname } from '../../fs';
 
 import prettifyEntityName from '../../assets/js/prettifyEntityName';
 
@@ -60,7 +60,8 @@ export default {
     async activate() {
       this.view = 'loading';
       await this.loadCollections();
-      this.view = 'collections';
+      if (this.linkableCollections.length === 1) this.handleCollectionClick(this.linkableCollections[0].value, this.linkableCollections[0].type);
+      else this.view = 'collections';
     },
     handleCollectionClick(dir, type) {
       this.currentRoot = joinPath(this.projectDir, dir);
@@ -127,8 +128,10 @@ export default {
     async loadCollections() {
       if (this.linkableCollections.length > 0) return; // we don’t need to load them again
       try {
-        const collectionFiles = await fs.readdir(this.collectionsPath);
-        const collectionStrings = await Promise.all(collectionFiles.map((file) => fs.readFile(`${this.collectionsPath}/${file}`, 'utf8')));
+        let collectionFiles;
+        if (!this.limitTo || this.limitTo.length === 0) collectionFiles = await fs.readdir(this.collectionsPath);
+        else collectionFiles = this.limitTo.map((path) => pathBasename(path));
+        const collectionStrings = await Promise.all(collectionFiles.map((file) => fs.readFile(joinPath(this.collectionsPath, file), 'utf8')));
         const collections = collectionStrings.map((collection) => collection && JSON.parse(collection)).filter((collection) => typeof collection !== 'undefined');
         this.linkableCollections = collections.reduce((acc, collection, index) => {
           if (collection.linkable && collection.dir) acc.push({ label: prettifyEntityName(collectionFiles[index]), type: collection.type, value: collection.dir });
@@ -147,6 +150,7 @@ export default {
     dark: Boolean,
     fullPath: Boolean,
     lang: String,
+    limitTo: Array,
     modelValue: String,
     placeholder: {
       type: String,
