@@ -681,6 +681,7 @@ export default {
 
       Object.entries(newVersion).forEach(([key, value]) => {
         if (key === 'group' || key === 'description') return;
+        if (key === 'version') field[key] = value; // eslint-disable-line no-param-reassign
         if (key === 'options' && value.length > 0) {
           if (!field.options) field.options = {}; // eslint-disable-line no-param-reassign
           value.forEach((option) => {
