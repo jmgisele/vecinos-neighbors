@@ -81,7 +81,7 @@
 </template>
 
 <script>
-import { cloneDeep as _cloneDeep } from 'lodash-es';
+import { cloneDeep as _cloneDeep, get as _get, set as _set } from 'lodash-es';
 import { status } from 'isomorphic-git';
 import pluralize from 'pluralize';
 import slugify from '@sindresorhus/slugify';
@@ -164,8 +164,18 @@ export default {
         vm.content = content; // eslint-disable-line no-param-reassign
         vm.fileStatus = fileStatus; // eslint-disable-line no-param-reassign
         vm.newContentName = prettifyEntityName(pathBasename(path)); // eslint-disable-line no-param-reassign
-        if (schema) vm.schema = schema; // eslint-disable-line no-param-reassign
+
+        if (schema) {
+          vm.schema = schema; // eslint-disable-line no-param-reassign
+
+          // OPTIMIZE: it seems a bit wasteful to iterate through all schemas and content values multiple times even when nothing has changed in the Schema, but there’s no way to know when the Schema has changed and the defaults in this file need updating
+          const defaults = generateDefaultContentFromSchema(schema, path);
+          vm.content = { ...content, ...vm.assignSchemaDefaults(content, defaults) }; // eslint-disable-line no-param-reassign
+          vm.findAndSetFilepathIds(schema.fields, null, schema.tabs);
+        }
+
         if (fromBackup) vm.wasChanged = true; // eslint-disable-line no-param-reassign
+
         if (!schema && !content.___mb_schema && collection.schemas && collection.schemas.length === 1) {
           const firstSchema = collection.schemas[0];
           vm.loadAndAssignSchema(firstSchema);
@@ -391,6 +401,24 @@ export default {
       const collectionPath = joinPath('/.mattrbld', 'collections', collection);
       this.$router.replace({ name: 'Project.Collection', params: { id, path: collectionPath } });
     },
+    findAndSetFilepathIds(fields, parentChain, tabs) {
+      fields.forEach((field) => {
+        if (tabs && field.tab) {
+          const currentTab = tabs.find((tab) => tab.label === field.tab);
+          // If properties are grouped under an object, it’s as if they were in a field group. This can only happen at the top level, so it should be safe to overwrite parentChain here
+          if (currentTab && currentTab.groupAs) parentChain = [currentTab.groupAs]; // eslint-disable-line no-param-reassign
+        }
+        if (field.type === 'id' && field.options && field.options.type === 'filepath') {
+          const currentValue = parentChain ? _get(this.content, [...parentChain, field.key]) : this.content[field.key];
+          if (currentValue === null || (!field.options.editable && currentValue !== this.$route.params.path)) {
+            if (parentChain) _set(this.content, [...parentChain, field.key], this.$route.params.path);
+            else this.content[field.key] = this.$route.params.path;
+            this.$store.commit('addToast', { message: `Updated “${field.label}” to contain the current filepath`, type: 'positive' });
+            this.wasChanged = true;
+          }
+        } else if (Array.isArray(field.value) && field.value.length > 0) this.findAndSetFilepathIds(field.value, [...(parentChain || []), field.key]);
+      });
+    },
     focusOpenPreview() {
       this.$options.winref.focus();
     },
@@ -447,7 +475,8 @@ export default {
       this.$store.commit('addLocallyChangedFile', newPath);
       this.showSettings = false;
       this.forceNavigation = true;
-      this.$router.replace({ params: { collection: this.$route.params.collection, id: this.$route.params.id, path: newPath } });
+      await this.$router.replace({ params: { collection: this.$route.params.collection, id: this.$route.params.id, path: newPath } });
+      this.findAndSetFilepathIds(this.schema.fields, null, this.schema.tabs);
     },
     resetContentName() {
       this.newContentName = this.contentName;
