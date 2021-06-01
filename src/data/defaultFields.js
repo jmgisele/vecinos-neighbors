@@ -845,7 +845,7 @@ export default [
         component: 'MbInput',
         key: 'field',
         label: 'Field to reference:',
-        props: { modelModifiers: { trim: true, lazy: true }, placeholder: 'e.g. id' },
+        props: { modelModifiers: { trim: true, lazy: true }, placeholder: 'e.g. id or group.other-key' },
         value: '',
       },
     ],
