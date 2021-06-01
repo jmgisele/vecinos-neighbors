@@ -527,6 +527,7 @@
         <p><code>urlTemplate</code> will be ignored if <code>useFilePath</code> is <code>true</code>. If no <code>lang</code> is passed, localised fields will return <code>undefined</code>.</p>
         <p>Any string between a colon (:) and the first non word character in the <code>urlTemplate</code> will be interpreted as a field-path passed to <code>_.get</code>. The field’s value will be slugified and used in the URL instead.</p>
         <p>If a <code>[year|month|day]</code> modifier is used on a dynamic part of the <code>urlTemplate</code>, the field value will be converted to a date and return the specified modifier or undefined if the date is invalid</p>
+        <p><code>limitTo</code> should be an Array of Collection paths (or files) that should be included in the list.</p>
         <h3 id="modal overlay">Modal Overlay</h3>
         <p>In order to only have one modal overlay despite multiple modals stacking on top of each other, the overlay is factored out into its own component that should be included <em>once</em> in the app.</p>
         <h4>Props</h4>
@@ -1191,6 +1192,7 @@ export default {
           ['`dark`', 'Boolean', '`false`'],
           ['`fullPath`', 'Boolean', '`false`'],
           ['`lang`', 'String', '`undefined`'],
+          ['`limitTo`', 'Array', '`undefined`'],
           ['`modelValue`', 'String', '`undefined`'],
           ['`placeholder`', 'String', '`Select a content item…`'],
           ['`urlSuffix`', 'String', '`undefined`'],
