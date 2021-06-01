@@ -65,9 +65,9 @@ export default [
       {
         component: 'MbRadioGroup',
         key: 'type',
-        label: 'Type of id:',
+        label: 'Default id:',
         props: { inline: true, options: [{ label: 'Filepath', value: 'filepath' }, { label: 'Generated UUID', value: 'uuid' }] },
-        value: 'filepath',
+        value: 'uuid',
       },
       {
         component: 'MbToggle',
@@ -79,7 +79,7 @@ export default [
     tab: null,
     validation: { required: true },
     value: null,
-    version: 1,
+    version: 2,
     visibility: { hidden: false, showByValue: { field: null } },
   },
   {
