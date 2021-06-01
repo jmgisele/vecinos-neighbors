@@ -1254,6 +1254,13 @@ export default {
             &:hover
               background-color: lighten($bg-tertiary-dark, 5)
 
+      &.MbItemList
+        > span
+          margin-top: (14 / 16)rem
+
+          @media $mobile
+            margin-top: 0
+
       @media $mobile
         flex-wrap: wrap
 
