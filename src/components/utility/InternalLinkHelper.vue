@@ -292,6 +292,7 @@ export default {
       .file-list::v-deep(header .actions)
         .input
           flex-grow: 1
+          max-width: none
           margin-right: 0
 
           @media $mobile

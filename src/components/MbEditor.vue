@@ -1159,7 +1159,7 @@ export default {
               margin-right: 0
               margin-top: 0.5rem
 
-            .button
+            > .button
               width: 100%
               margin: 0
 
