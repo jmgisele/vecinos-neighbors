@@ -175,7 +175,6 @@ export default {
 
       const [idBackup] = this.uniqueItemKeys.splice(index, 1);
       const backup = this.modelValue[index];
-      const { wasChanged } = this;
 
       let errorBackup;
       if (this.error instanceof Map && this.error.get(index)) {
@@ -203,9 +202,9 @@ export default {
             newError.set(index, errorBackup);
             this.$emit('update:error', newError);
           }
-          if (!wasChanged) this.wasChanged = false;
         },
         actionLabel: 'Undo',
+        closeOnRouteChange: true,
         message: `The ${this.options.itemLabel || 'row'} was deleted`,
         timeout: 5000 - 200,
         type: 'warning',
