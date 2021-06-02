@@ -83,8 +83,16 @@ export default {
   display: flex
   width: 100%
 
-.in-split.dark
-  &.input,
-  &.editor::v-deep(.content-wrapper)
-    background-color: $bg-tertiary-dark
+.in-split
+  &.input
+    width: 100%
+    margin-top: 0
+
+    &:not(:last-child)
+      margin-bottom: 1.5rem
+
+  &.dark
+    &.input,
+    &.editor::v-deep(.content-wrapper)
+      background-color: $bg-tertiary-dark
 </style>
