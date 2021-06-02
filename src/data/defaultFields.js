@@ -812,7 +812,7 @@ export default [
         component: 'MbInput',
         key: 'urlTemplate',
         label: 'Internal URL template:',
-        props: { modelModifiers: { trim: true, lazy: true }, placeholder: 'e.g. /:date/:title.html' },
+        props: { modelModifiers: { trim: true, lazy: true }, placeholder: 'e.g. /:date/:title\\.html' },
         value: '',
       },
     ],
