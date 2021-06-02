@@ -1261,6 +1261,11 @@ export default {
           @media $mobile
             margin-top: 0
 
+        .item-list
+          &::v-deep(.item.dark)
+            background-color: $bg-tertiary-dark
+            box-shadow: inset 0 0 0 0.0625rem lighten($bg-tertiary-dark, 5)
+
       @media $mobile
         flex-wrap: wrap
 
