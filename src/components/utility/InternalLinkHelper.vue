@@ -104,13 +104,13 @@ export default {
 
               const value = get(fields, fieldKey);
 
-              if (typeof value === 'object' && !Array.isArray(value)) { // it might be a localised field
+              if (value && typeof value === 'object' && !Array.isArray(value)) { // it might be a localised field
                 if (!this.lang) return 'undefined';
                 const localisedValue = value[this.lang];
-                if (localisedValue) return slugify(String(localisedValue), this.$store.state.currentProject.slugifyOptions || { lowercase: true, decamelize: true, preserveLeadingUnderscore: true });
+                if (localisedValue) return this.slugify ? slugify(String(localisedValue), this.$store.state.currentProject.slugifyOptions || { lowercase: true, decamelize: true, preserveLeadingUnderscore: true }) : localisedValue;
                 return 'undefined';
               }
-              return slugify(String(value), this.$store.state.currentProject.slugifyOptions || { lowercase: true, decamelize: true, preserveLeadingUnderscore: true });
+              return this.slugify ? slugify(String(value), this.$store.state.currentProject.slugifyOptions || { lowercase: true, decamelize: true, preserveLeadingUnderscore: true }) : value;
             },
           );
         } catch (err) {
@@ -155,6 +155,10 @@ export default {
     placeholder: {
       type: String,
       default: 'Select a content item…',
+    },
+    slugify: {
+      type: Boolean,
+      default: true,
     },
     urlSuffix: String,
     urlTemplate: String,
@@ -233,7 +237,7 @@ export default {
         left: @top
         right: @top
         bottom: @top
-        box-shadow: inset 0 0 0 0.125rem $accent
+        border: 0.125rem solid $accent
         opacity: 0
         border-radius: @border-radius
         transition: opacity 200ms ease

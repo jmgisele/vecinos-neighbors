@@ -1195,6 +1195,7 @@ export default {
           ['`limitTo`', 'Array', '`undefined`'],
           ['`modelValue`', 'String', '`undefined`'],
           ['`placeholder`', 'String', '`Select a content item…`'],
+          ['`slugify`', 'Boolean', '`true`'],
           ['`urlSuffix`', 'String', '`undefined`'],
           ['`urlTemplate`', 'String', '`undefined`'],
           ['`useFilePath`', 'Boolean', '`undefined`'],
