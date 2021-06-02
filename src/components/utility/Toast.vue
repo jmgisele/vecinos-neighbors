@@ -18,15 +18,24 @@ export default {
   methods: {
     close() {
       if (this.timeoutId) window.clearTimeout(this.timeoutId);
+      if (typeof this.toast.onClose === 'function') this.toast.onClose();
       this.$store.commit('removeToast', this.toast.id);
     },
     handleAction() {
       this.toast.action();
-      this.$store.commit('removeToast', this.toast.id);
+      this.close();
     },
   },
   mounted() {
     if (this.toast.timeout > 0) this.timeoutId = window.setTimeout(() => this.close(), this.toast.timeout);
+    if (this.toast.closeOnRouteChange) {
+      this.$watch(
+        '$route',
+        (to, from) => {
+          if (to.name !== from.name) this.close();
+        },
+      );
+    }
   },
   props: {
     dark: Boolean,

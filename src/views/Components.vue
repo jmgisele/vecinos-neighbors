@@ -565,7 +565,7 @@
         <MbTable :data="props.toasts" />
         <h4>Notes</h4>
         <p>The <code>toast</code> object passed should consist of the following properties:</p>
-        <pre style="white-space: pre;">{{'{\n  id: String, // will be generated if undefined\n  action: Function,\n  actionLabel: String (required if action),\n  message: String (required),\n  permanent: Boolean, // hides dismiss action and disables timeout\n  timeout: Number, // default: 5000ms\n  type: String // may be one of error, positive, negative, warning\n}'}}</pre>
+        <pre style="white-space: pre;">{{'{\n  id: String, // will be generated if undefined\n  action: Function,\n  actionLabel: String (required if action),\n  closeOnRouteChange: Boolean, // will close the toast as soon as the route changes\n  message: String (required),\n  onClose: Function, // will be called when the toast is closed or times out\n  permanent: Boolean, // hides dismiss action and disables timeout\n  timeout: Number, // default: 5000ms\n  type: String // may be one of error, positive, negative, warning\n}'}}</pre>
         <p>If the <code>type</code> property is set to <code>error</code>, the actual type will be <code>negative</code>, but the timeout will be disabled as well.</p>
         <h3 id="user switcher">User Switcher</h3>
         <p>This component is used for user management. It allows switching the current user, creating new users, modifying user settings and deleting users.</p>
