@@ -4,7 +4,7 @@
       <p class="label">{{transformedLabel}}</p>
       <p v-show="empty" class="empty-state">This field is empty</p>
       <MbSortableList v-if="displayItems.length > 0" v-slot="{ activeItem, item, index }" enable-transitions :items="uniqueItemKeys" @itemclick="openDetails" @itemmove="handleItemMove">
-        <div class="row-item" :class="{ active: active && indexBeingEdited === index, 'being-dragged': item === activeItem, compact: compact || options.compact, dark, error: errorForIndex(index), 'in-split': inSplit }" tabindex="0" @keydown.space.prevent @keyup.space.enter="openDetails(index)">
+        <div class="row-item" :class="{ active: active && indexBeingEdited === index, 'being-dragged': item === activeItem, compact: compact || options.compact, dark, error: errorForIndex(index), 'in-split': inSplit }" tabindex="0" @contextmenu.prevent="openContextMenu($event, index)" @keydown.space.prevent @keyup.space.enter="openDetails(index)">
           <div class="drag-handle" data-drag-handle>
             <MbIcon icon="drag-handle" />
           </div>
@@ -51,6 +51,7 @@
         <MbButton :dark="dark" type="primary" @click="closeDetails">Done</MbButton>
       </template>
     </MbModal>
+    <MbContextMenu :dark="dark" :options="itemContextMenu.options" :show="itemContextMenu.show" :target="itemContextMenu.target" :x="itemContextMenu.x" :y="itemContextMenu.y" @close="resetRowContextMenu" />
   </section>
 </template>
 
@@ -121,6 +122,31 @@ export default {
   data() {
     return {
       indexBeingEdited: null,
+      itemContextMenu: {
+        options: [
+          {
+            action: () => this.openDetails(this.itemContextMenu.item),
+            label: 'Edit',
+            icon: 'pencil',
+          },
+          {
+            action: () => this.duplicateItem(this.itemContextMenu.item),
+            label: 'Duplicate',
+            icon: 'duplicate',
+          },
+          {
+            action: () => this.deleteItem(this.itemContextMenu.item),
+            label: 'Delete',
+            icon: 'trash',
+            type: 'negative',
+          },
+        ],
+        item: null,
+        show: false,
+        target: null,
+        x: 0,
+        y: 0,
+      },
       showAddModal: false,
       showDetailsModal: false,
       uniqueItemKeys: [],
@@ -144,13 +170,58 @@ export default {
       if (this.splitTarget) this.$emit('update:active', false);
       else this.showDetailsModal = false;
     },
+    deleteItem(index) {
+      if (typeof index !== 'number') return;
+
+      const [idBackup] = this.uniqueItemKeys.splice(index, 1);
+      const backup = this.modelValue[index];
+      const { wasChanged } = this;
+
+      let errorBackup;
+      if (this.error instanceof Map && this.error.get(index)) {
+        errorBackup = this.error.get(index);
+        const newError = _cloneDeep(this.error);
+        newError.delete(index);
+        this.$emit('update:error', newError.size > 0 ? newError : '');
+      }
+
+      if (index === this.indexBeingEdited) {
+        this.indexBeingEdited = null;
+        this.closeDetails();
+      }
+
+      this.handleInput(this.modelValue.filter((item, i) => i !== index));
+
+      this.$store.commit('addToast', {
+        action: () => {
+          const modelClone = [...(this.modelValue || [])];
+          modelClone.splice(index, 0, backup);
+          this.handleInput(modelClone);
+          this.uniqueItemKeys.splice(index, 0, idBackup);
+          if (errorBackup) {
+            const newError = _cloneDeep(this.error) || new Map();
+            newError.set(index, errorBackup);
+            this.$emit('update:error', newError);
+          }
+          if (!wasChanged) this.wasChanged = false;
+        },
+        actionLabel: 'Undo',
+        message: `The ${this.options.itemLabel || 'row'} was deleted`,
+        timeout: 5000 - 200,
+        type: 'warning',
+      });
+    },
     deleteItemBeingEdited() {
-      // TODO: add undo
-      if (this.error instanceof Map && this.error.get(this.indexBeingEdited)) this.handleFieldBeingEditedError(new Map()); // delete the error since the field is now gone
-      this.uniqueItemKeys.splice(this.indexBeingEdited, 1);
-      this.handleInput(this.modelValue.filter((item, index) => index !== this.indexBeingEdited));
-      this.indexBeingEdited = null;
-      this.closeDetails();
+      this.deleteItem(this.indexBeingEdited);
+    },
+    duplicateItem(index) {
+      if (typeof index !== 'number') return;
+
+      const modelClone = _cloneDeep(this.modelValue);
+      const itemClone = _cloneDeep(this.modelValue[index]);
+      modelClone.splice(index + 1, 0, itemClone);
+      this.uniqueItemKeys.splice(index + 1, 0, pseudoId());
+      this.handleInput(modelClone);
     },
     errorForIndex(index) {
       if (!(this.error instanceof Map)) return null;
@@ -203,6 +274,13 @@ export default {
       this.uniqueItemKeys.splice(newIndex, 0, this.uniqueItemKeys.splice(currentIndex, 1)[0]);
       this.handleInput(newVal);
     },
+    openContextMenu(e, index) {
+      this.itemContextMenu.item = index;
+      this.itemContextMenu.target = e.currentTarget;
+      this.itemContextMenu.x = e.clientX;
+      this.itemContextMenu.y = e.clientY;
+      this.itemContextMenu.show = true;
+    },
     openDetails(index) {
       if (this.active && index === this.indexBeingEdited) {
         this.closeDetails();
@@ -213,6 +291,13 @@ export default {
 
       if (!this.active && this.splitTarget) this.$emit('update:active', true);
       else if (!this.showDetailsModal && !this.splitTarget) this.showDetailsModal = true;
+    },
+    resetRowContextMenu() {
+      this.itemContextMenu.show = false;
+      this.itemContextMenu.item = null;
+      this.itemContextMenu.target = null;
+      this.itemContextMenu.x = 0;
+      this.itemContextMenu.y = 0;
     },
     updateFieldBeingEdited: debounce(function debouncedUpdate(newVal) {
       const newModelValue = [...this.modelValue];
