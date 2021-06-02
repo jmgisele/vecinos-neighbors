@@ -5,11 +5,13 @@
     <MbButton v-if="removable" v-show="modelValue" :dark="dark" icon="cross" ref="removeButton" rounded tooltip="Clear path" @click="$emit('update:modelValue', null)" />
     <MbPopover center-x class="picker-popover" :dark="dark" no-content-padding ref="popover" :visible="showPicker" :x="popover.x" :y="popover.y" @close="deactivate">
       <div class="content-wrapper">
-        <MbFileList :dark="dark" :empty-state="emptyState" :filetypes="filetypes" :filterable="false" :folders-first="mode === 'file' && foldersFirst" :folders-only="mode === 'folder'" :pretty-filenames="prettyFilenames" ref="fileList" :root="root" :show-hidden="showHidden" :sortable="false" :style="{ width: `${listWidth}rem` }" @fileclick="pickEntity" />
+        <MbFileList :dark="dark" :empty-state="emptyState" :filetypes="filetypes" :filterable="false" :folders-first="mode === 'file' && foldersFirst" :folders-only="mode === 'folder'" :pretty-filenames="prettyFilenames" ref="fileList" :root="root" :show-hidden="showHidden" :sortable="false" :style="{ width: `${listWidth}rem` }" @fileclick="pickEntity" @path-change="currentPath = $event" />
         <MbButton v-if="mode === 'folder'" class="create-button" :dark="dark" icon="plus" type="positive" @click="handleFolderCreation">Add Folder</MbButton>
+        <input v-if="showUpload" :accept="allowedTypes" ref="fileInput" type="file" @change="uploadFile">
       </div>
       <template #footer>
         <MbButton :dark="dark" @click="deactivate">Cancel</MbButton>
+        <MbButton v-if="showUpload" :dark="dark" icon="upload" :loading="uploading" type="positive" @click="handleUpload">Upload File</MbButton>
         <MbButton v-if="mode === 'folder'" :dark="dark" type="primary" @click="pickEntity($refs.fileList.currentPath)">Pick this folder</MbButton>
       </template>
     </MbPopover>
@@ -18,6 +20,8 @@
 </template>
 
 <script>
+import fs, { joinPath } from '../fs';
+
 import EntityCreationModal from './utility/EntityCreationModal.vue';
 
 export default {
@@ -28,10 +32,17 @@ export default {
     EntityCreationModal,
   },
   computed: {
+    allowedTypes() {
+      if (!this.filetypes) return null;
+      return this.filetypes.map((type) => `.${type}`).join(',');
+    },
     label() {
       if (this.modelValue) return this.modelValue;
       if (this.placeholder) return this.placeholder;
       return `Pick a ${this.mode}…`;
+    },
+    showUpload() {
+      return this.mode === 'file' && this.allowUpload;
     },
   },
   data() {
@@ -44,6 +55,7 @@ export default {
       },
       showEntityCreationModal: false,
       showPicker: false,
+      uploading: false,
     };
   },
   emits: ['update:modelValue'],
@@ -69,15 +81,61 @@ export default {
     },
     handleFolderCreation() {
       this.deactivate();
-      this.currentPath = this.$refs.fileList.currentPath;
       this.showEntityCreationModal = true;
+    },
+    handleUpload() {
+      this.$refs.fileInput.click();
     },
     pickEntity(path) {
       this.$emit('update:modelValue', this.relativeToRoot && this.root !== '/' ? path.replace(this.root, '') : path);
       this.showPicker = false;
     },
+    async uploadFile(e) {
+      const file = e.currentTarget.files[0];
+      e.currentTarget.value = '';
+
+      if (this.maxSize) {
+        const sizeInMb = file.size / 1024 / 1024;
+        if (sizeInMb > this.maxSize) {
+          this.$store.commit('addToast', { message: `“${file.name}” was not uploaded because it is too large`, type: 'warning' });
+          return;
+        }
+      }
+
+      this.uploading = true;
+
+      try {
+        const arrayBuffer = await file.arrayBuffer();
+        const existingFiles = await fs.readdir(this.currentPath);
+        const path = joinPath(this.currentPath, file.name);
+
+        if (!arrayBuffer) {
+          this.$store.commit('addToast', { message: `“${file.name}” was not uploaded because it is a folder`, type: 'warning' });
+          this.uploading = false;
+          return;
+        }
+
+        if (existingFiles.includes(file.name)) {
+          this.$store.commit('addToast', { message: `The file “${file.name}” was not uploaded because it already exists in this folder`, type: 'warning' });
+          this.uploading = false;
+          return;
+        }
+
+        await fs.writeFile(path, arrayBuffer);
+        this.$refs.fileList.refresh();
+
+        this.$store.commit('addLocallyChangedFile', path);
+        await this.$store.dispatch('saveAppData');
+        this.pickEntity(path);
+      } catch (err) {
+        this.$store.commit('addToast', { message: `Something went wrong while saving the file: ${err.message}`, type: 'error' });
+      }
+
+      this.uploading = false;
+    },
   },
   props: {
+    allowUpload: Boolean,
     dark: Boolean,
     emptyState: [String, Object],
     filetypes: Array,
@@ -85,6 +143,7 @@ export default {
       type: Boolean,
       default: true,
     },
+    maxSize: Number,
     mode: {
       type: String,
       default: 'folder',
@@ -100,6 +159,11 @@ export default {
       default: '/',
     },
     showHidden: Boolean,
+  },
+  watch: {
+    filetypes(nv) {
+      if (nv) this.$refs.fileList.refresh();
+    },
   },
 };
 </script>
@@ -158,7 +222,7 @@ export default {
     left: @top
     right: @top
     bottom: @top
-    box-shadow: inset 0 0 0 0.125rem $accent
+    border: 0.125rem solid $accent
     opacity: 0
     border-radius: inherit
     transition: opacity 200ms ease
@@ -240,4 +304,6 @@ export default {
             width: 1rem
             flex-shrink: 0
 
+    input[type=file]
+      display: none
 </style>
