@@ -23,7 +23,7 @@
       </div>
       <div v-else-if="view === 'files'" class="view files" :class="{ dark }" key="files">
         <MbFileList :dark="dark" :empty-state="{ noFiles: 'There are no content items in this directory', noFolders: 'There are no folders in this directory', empty: 'There are no content items in this collection' }" file-list-label="Content Items" :filetypes="[filetype]" :folders-first="false" pretty-filenames :root="currentRoot" :sortable="false" @fileclick="handleFileClick" />
-        <MbButton :dark="dark" icon="chevron-left" @click="view = 'collections'">Back</MbButton>
+        <MbButton :dark="dark" icon="chevron-left" @click="linkableCollections.length === 1 ? view = 'url' : view = 'collections'">Back</MbButton>
       </div>
       <div v-else-if="view === 'loading'" class="view loading" key="loading">
         <MbLoader />
@@ -134,7 +134,7 @@ export default {
         const collectionStrings = await Promise.all(collectionFiles.map((file) => fs.readFile(joinPath(this.collectionsPath, file), 'utf8')));
         const collections = collectionStrings.map((collection) => collection && JSON.parse(collection)).filter((collection) => typeof collection !== 'undefined');
         this.linkableCollections = collections.reduce((acc, collection, index) => {
-          if (collection.linkable && collection.dir) acc.push({ label: prettifyEntityName(collectionFiles[index]), type: collection.type, value: collection.dir });
+          if (((this.limitTo && this.limitTo.length > 0) || collection.linkable) && collection.dir) acc.push({ label: prettifyEntityName(collectionFiles[index]), type: collection.type, value: collection.dir });
           return acc;
         }, []);
       } catch (err) {
@@ -163,6 +163,12 @@ export default {
     urlSuffix: String,
     urlTemplate: String,
     useFilePath: Boolean,
+  },
+  watch: {
+    limitTo() {
+      this.linkableCollections = [];
+      this.loadCollections();
+    },
   },
 };
 </script>
