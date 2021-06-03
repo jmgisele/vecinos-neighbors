@@ -5,14 +5,38 @@
       <p v-show="empty" class="empty-state">This field is empty</p>
       <MbSortableList v-if="displayItems.length > 0" v-slot="{ activeItem, item, index }" enable-transitions :items="uniqueItemKeys" @itemclick="openDetails" @itemmove="handleItemMove">
         <div class="row-item" :class="{ active: active && indexBeingEdited === index, 'being-dragged': item === activeItem, compact: isCompact, dark, error: errorForIndex(index), 'in-split': inSplit }" tabindex="0" @contextmenu.prevent="openContextMenu($event, index)" @keydown.space.prevent @keyup.space.enter="openDetails(index)">
-          <div class="drag-handle" data-drag-handle>
-            <MbIcon icon="drag-handle" />
-          </div>
-          <div class="left">
-            <p class="label" :class="{ unstyled: !displayItems[index].displayValue }">{{errorForIndex(index) || displayItems[index].label}}</p>
-            <p v-if="displayItems[index].displayValue || errorForIndex(index)" class="content">{{displayItems[index].displayValue || displayItems[index].label}}</p>
-          </div>
-          <MbIcon v-if="isCompact" :icon="active && indexBeingEdited === index ? 'cross' : errorForIndex(index) ? 'error' : 'pencil'" />
+          <template v-if="isCompact">
+            <div class="drag-handle" data-drag-handle>
+              <MbIcon icon="drag-handle" />
+            </div>
+            <div class="left">
+              <p class="label" :class="{ unstyled: !displayItems[index].displayValue }">{{errorForIndex(index) || displayItems[index].label}}</p>
+              <p v-if="displayItems[index].displayValue || errorForIndex(index)" class="content">{{displayItems[index].displayValue || displayItems[index].label}}</p>
+            </div>
+            <MbIcon v-if="isCompact" :icon="active && indexBeingEdited === index ? 'cross' : errorForIndex(index) ? 'error' : 'pencil'" />
+          </template>
+          <template v-else>
+            <header>
+              <div class="drag-handle" data-drag-handle>
+                <MbIcon icon="drag-handle" />
+              </div>
+              <p class="label">{{errorForIndex(index) || displayItems[index].label}}</p>
+              <MbButton v-if="options.allowEditing" :dark="dark" icon="trash" rounded :tooltip="`Delete ${options.itemLabel || 'Row'}`" type="negative" @click="deleteItem(index)" />
+            </header>
+            <MbFieldsEditor
+              class="field-details-editor"
+              :class="{ 'in-split': inSplit }"
+              compact
+              :dark="dark"
+              :error="errorForIndex(index) || new Map()"
+              :fields="fieldsForIndex(index)"
+              :in-split="inSplit"
+              :model-value="modelValue[index]"
+              :languages="languages"
+              @update:error="handleFieldBeingEditedError"
+              @update:model-value="updateFieldBeingEdited"
+            />
+          </template>
         </div>
       </MbSortableList>
       <MbButton v-if="options.allowEditing && children.length > 0" class="add-button" :dark="dark" icon="plus" type="positive" @click="handleAddClick">Add {{options.itemLabel || 'Row'}}</MbButton>
@@ -234,6 +258,13 @@ export default {
       }
       return error;
     },
+    fieldsForIndex(index) {
+      if (!this.modelValue || this.modelValue.length === 0 || typeof index !== 'number') return null;
+      const childField = this.children.find((child) => child.key === this.modelValue[index].___mb_type);
+      if (!childField) return null;
+      if (childField.type === 'group') return childField.value;
+      return [childField];
+    },
     handleAddClick() {
       if (this.children.length === 1) this.addItem(this.children[0]);
       else this.showAddModal = true;
@@ -277,7 +308,7 @@ export default {
       this.handleInput(newVal);
     },
     openContextMenu(e, index) {
-      if (!this.options.editable || !this.isCompact) return;
+      if (!this.options.allowEditing || !this.isCompact) return;
 
       this.itemContextMenu.item = index;
       this.itemContextMenu.target = e.currentTarget;
@@ -286,6 +317,7 @@ export default {
       this.itemContextMenu.show = true;
     },
     openDetails(index) {
+      if (!this.isCompact) return;
       if (this.active && index === this.indexBeingEdited) {
         this.closeDetails();
         return;
@@ -369,6 +401,26 @@ export default {
 
     &::before
       opacity: 0
+
+  &:not(.compact)
+    border: 0.0625rem solid alpha($text, 0.12)
+    border-radius: $radius-m
+    padding: 1rem
+    background-color: $bg
+
+    header
+      display: flex
+      align-items: center
+      margin-bottom: 1rem
+
+      .label
+        margin: 0
+        color: $text-secondary
+        margin-right: auto
+
+      .button
+        margin: -1rem 0
+        margin-right: -0.75rem
 
   .drag-handle
     padding: 1rem
