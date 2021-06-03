@@ -4,7 +4,7 @@
       <p class="label">{{transformedLabel}}</p>
       <p v-show="empty" class="empty-state">This field is empty</p>
       <MbSortableList v-if="displayItems.length > 0" v-slot="{ activeItem, item, index }" enable-transitions :items="uniqueItemKeys" @itemclick="openDetails" @itemmove="handleItemMove">
-        <div class="row-item" :class="{ active: active && indexBeingEdited === index, 'being-dragged': item === activeItem, compact: compact || options.compact, dark, error: errorForIndex(index), 'in-split': inSplit }" tabindex="0" @contextmenu.prevent="openContextMenu($event, index)" @keydown.space.prevent @keyup.space.enter="openDetails(index)">
+        <div class="row-item" :class="{ active: active && indexBeingEdited === index, 'being-dragged': item === activeItem, compact: isCompact, dark, error: errorForIndex(index), 'in-split': inSplit }" tabindex="0" @contextmenu.prevent="openContextMenu($event, index)" @keydown.space.prevent @keyup.space.enter="openDetails(index)">
           <div class="drag-handle" data-drag-handle>
             <MbIcon icon="drag-handle" />
           </div>
@@ -12,7 +12,7 @@
             <p class="label" :class="{ unstyled: !displayItems[index].displayValue }">{{errorForIndex(index) || displayItems[index].label}}</p>
             <p v-if="displayItems[index].displayValue || errorForIndex(index)" class="content">{{displayItems[index].displayValue || displayItems[index].label}}</p>
           </div>
-          <MbIcon v-if="compact" :icon="active && indexBeingEdited === index ? 'cross' : errorForIndex(index) ? 'error' : 'pencil'" />
+          <MbIcon v-if="isCompact" :icon="active && indexBeingEdited === index ? 'cross' : errorForIndex(index) ? 'error' : 'pencil'" />
         </div>
       </MbSortableList>
       <MbButton v-if="options.allowEditing && children.length > 0" class="add-button" :dark="dark" icon="plus" type="positive" @click="handleAddClick">Add {{options.itemLabel || 'Row'}}</MbButton>
@@ -108,6 +108,9 @@ export default {
       const errors = this.error.get(this.indexBeingEdited);
       if (this.fieldBeingEdited.type === 'group') return errors || new Map();
       return new Map().set(this.fieldBeingEdited.key, errors);
+    },
+    isCompact() {
+      return this.compact && this.options.compact;
     },
     transformedLabel() {
       if (this.error instanceof Map && this.error.get(this.fieldKey)) return this.error.get(this.fieldKey);
@@ -274,6 +277,8 @@ export default {
       this.handleInput(newVal);
     },
     openContextMenu(e, index) {
+      if (!this.options.editable || !this.isCompact) return;
+
       this.itemContextMenu.item = index;
       this.itemContextMenu.target = e.currentTarget;
       this.itemContextMenu.x = e.clientX;
