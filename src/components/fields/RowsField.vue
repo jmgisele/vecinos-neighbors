@@ -391,6 +391,7 @@ export default {
 
 <style lang="stylus" scoped>
 @require '../../assets/styles/breakpoints'
+@require '../../assets/styles/colors'
 @require '../../assets/styles/fields'
 
 .rows.field
@@ -435,6 +436,38 @@ export default {
     border-radius: $radius-m
     padding: 1rem
     background-color: $bg
+    position: relative
+
+    &.dark
+      background-color: $bg-dark
+      border-color: alpha($text-dark, 0.12)
+
+      &.in-split
+        background-color: $bg-secondary-dark
+
+      .label
+        color: $text-secondary-dark
+
+    &.error
+      &::before
+        opacity: 1
+
+      > header .label
+        color $negative-saturated
+
+    &::before
+      content: ''
+      position: absolute
+      top: -0.0625rem // so the outer border gets overlapped
+      left: @top
+      right: @top
+      bottom: @top
+      border: 0.125rem solid $negative
+      opacity: 0
+      border-radius: inherit
+      z-index: 1
+      pointer-events: none
+      transition: opacity 200ms ease
 
     header
       display: flex
