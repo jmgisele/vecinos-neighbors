@@ -427,6 +427,9 @@ export default {
             @media $mobile
               transform: none
 
+          .meta-info
+            display: none
+
         h1
           margin-top: 0
 
