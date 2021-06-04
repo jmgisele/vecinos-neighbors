@@ -6,7 +6,7 @@
           <MbIcon icon="drag-handle" />
         </div>
         <span>{{labelForItem(item)}}</span>
-        <MbButton :dark="dark" icon="trash" tooltip="Delete item" type="negative" @click="deleteItem(item)" />
+        <MbButton :dark="dark" icon="trash" rounded tooltip="Delete item" type="negative" @click="deleteItem(item)" />
       </div>
     </MbSortableList>
     <MbSelect :dark="dark" :disabled="filteredOptions.length === 0" :options="filteredOptions" :placeholder="placeholder" @update:modelValue="addItem" />
@@ -93,7 +93,6 @@ export default {
 
   .button
     flex-shrink: 0
-    border-radius: $radius-s
 
   > span
     flex-grow: 1
