@@ -4,7 +4,7 @@
       <p class="label">{{transformedLabel}}</p>
       <p v-show="empty" class="empty-state">This field is empty</p>
       <MbSortableList v-if="displayItems.length > 0" v-slot="{ activeItem, item, index }" enable-transitions :items="uniqueItemKeys" @itemclick="openDetails" @itemmove="handleItemMove">
-        <div class="row-item" :class="{ active: active && indexBeingEdited === index, 'being-dragged': item === activeItem, compact: isCompact, dark, error: errorForIndex(index), 'in-split': inSplit }" tabindex="0" @contextmenu.prevent="openContextMenu($event, index)" @keydown.space.prevent @keyup.space.enter="openDetails(index)">
+        <div class="row-item" :class="{ active: active && indexBeingEdited === index, 'being-dragged': item === activeItem, compact: isCompact, dark, error: errorForIndex(index), 'in-split': inSplit }" tabindex="0" @[compactContextmenu].prevent="openContextMenu($event, index)" @[compactKeydown].space.prevent @[compactKeyup].space.enter="openDetails(index)">
           <template v-if="isCompact">
             <div class="drag-handle" data-drag-handle>
               <MbIcon icon="drag-handle" />
@@ -94,6 +94,18 @@ function pseudoId() {
 
 export default {
   computed: {
+    compactContextmenu() {
+      if (this.isCompact) return 'contextmenu';
+      return null;
+    },
+    compactKeydown() {
+      if (this.isCompact) return 'keydown';
+      return null;
+    },
+    compactKeyup() {
+      if (this.isCompact) return 'keyup';
+      return null;
+    },
     displayItems() {
       if (!this.modelValue) return [];
       return this.modelValue.map((item) => {
