@@ -16,25 +16,25 @@
             <MbIcon v-if="isCompact" :icon="active && indexBeingEdited === index ? 'cross' : errorForIndex(index) ? 'error' : 'pencil'" />
           </template>
           <template v-else>
-            <header>
-              <div class="drag-handle" data-drag-handle>
+            <header data-drag-handle>
+              <div class="drag-handle">
                 <MbIcon icon="drag-handle" />
               </div>
-              <p class="label">{{errorForIndex(index) || displayItems[index].label}}</p>
-              <MbButton v-if="options.allowEditing" :dark="dark" icon="trash" rounded :tooltip="`Delete ${options.itemLabel || 'Row'}`" type="negative" @click="deleteItem(index)" />
+              <p class="label">{{displayItems[index].label}}</p>
+              <MbButton v-if="options.allowEditing" :dark="dark" data-ignore-drag icon="duplicate" rounded :tooltip="`Duplicate ${options.itemLabel || 'Row'}`" @click="duplicateItem(index)" />
+              <MbButton v-if="options.allowEditing" :dark="dark" data-ignore-drag icon="trash" rounded :tooltip="`Delete ${options.itemLabel || 'Row'}`" type="negative" @click="deleteItem(index)" />
             </header>
             <MbFieldsEditor
-              class="field-details-editor"
               :class="{ 'in-split': inSplit }"
               compact
               :dark="dark"
-              :error="errorForIndex(index) || new Map()"
+              :error="errorMapForIndex(index)"
               :fields="fieldsForIndex(index)"
               :in-split="inSplit"
               :model-value="modelValue[index]"
               :languages="languages"
-              @update:error="handleFieldBeingEditedError"
-              @update:model-value="updateFieldBeingEdited"
+              @update:error="handleFieldError($event, index)"
+              @update:model-value="updateField($event, index)"
             />
           </template>
         </div>
@@ -270,6 +270,13 @@ export default {
       }
       return error;
     },
+    errorMapForIndex(index) {
+      if (!(this.error instanceof Map) || !this.error.get(index)) return new Map();
+      const errors = this.error.get(index);
+      const fieldBeingEdited = this.children.find((child) => child.key === this.modelValue[index].___mb_type);
+      if (fieldBeingEdited.type === 'group') return errors || new Map();
+      return new Map().set(fieldBeingEdited.key, errors);
+    },
     fieldsForIndex(index) {
       if (!this.modelValue || this.modelValue.length === 0 || typeof index !== 'number') return null;
       const childField = this.children.find((child) => child.key === this.modelValue[index].___mb_type);
@@ -281,12 +288,18 @@ export default {
       if (this.children.length === 1) this.addItem(this.children[0]);
       else this.showAddModal = true;
     },
-    handleFieldBeingEditedError(err) {
+    handleFieldError(err, index) {
       const newError = _cloneDeep(this.error) || new Map();
-      if (err.size === 0) newError.delete(this.indexBeingEdited);
-      else newError.set(this.indexBeingEdited, this.fieldBeingEdited.type === 'group' ? err : err.get(this.fieldBeingEdited.key));
+      if (err.size === 0) newError.delete(index);
+      else {
+        const fieldBeingEdited = this.children.find((child) => child.key === this.modelValue[index].___mb_type);
+        newError.set(index, fieldBeingEdited.type === 'group' ? err : err.get(fieldBeingEdited.key));
+      }
 
       this.$emit('update:error', newError.size > 0 ? newError : '');
+    },
+    handleFieldBeingEditedError(err) {
+      this.handleFieldError(err, this.indexBeingEdited);
     },
     handleInput(newVal) {
       const error = this.validate(newVal);
@@ -347,11 +360,14 @@ export default {
       this.itemContextMenu.x = 0;
       this.itemContextMenu.y = 0;
     },
-    updateFieldBeingEdited: debounce(function debouncedUpdate(newVal) {
+    updateField: debounce(function debouncedUpdate(newVal, index) {
       const newModelValue = [...this.modelValue];
-      newModelValue.splice(this.indexBeingEdited, 1, newVal);
+      newModelValue.splice(index, 1, newVal);
       this.handleInput(newModelValue);
     }, 500),
+    updateFieldBeingEdited(newVal) {
+      this.updateField(newVal, this.indexBeingEdited);
+    },
     validateItemBeingEdited() {
       if (this.indexBeingEdited === null) return;
       const fakeFields = this.fieldBeingEdited.type === 'group' ? this.fieldBeingEdited.value : [this.fieldBeingEdited];
@@ -432,7 +448,10 @@ export default {
 
       .button
         margin: -1rem 0
-        margin-right: -0.75rem
+        margin-right: 0.25rem
+
+        &:last-child
+          margin-right: -0.75rem
 
   .drag-handle
     padding: 1rem
