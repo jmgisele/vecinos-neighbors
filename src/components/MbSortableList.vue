@@ -154,7 +154,7 @@ export default {
           width: 100%
 
       &.v-move
-        transition: transform 200ms ease
+        transition: transform 200ms cubic-bezier(0.190, 0.005, 0.000, 1.005)
         pointer-events: none
 
       [data-drag-handle]

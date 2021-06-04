@@ -430,7 +430,7 @@ export default {
     .v-enter-active,
     .v-leave-active,
     .v-move
-      transition: transform 200ms ease, opacity 200ms ease
+      transition: transform 200ms cubic-bezier(0.190, 0.005, 0.000, 1.005), opacity 200ms ease
 
       &.v-enter-from,
       &.v-leave-to
