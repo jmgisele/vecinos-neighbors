@@ -216,12 +216,7 @@ export default {
       const backup = this.modelValue[index];
 
       let errorBackup;
-      if (this.error instanceof Map && this.error.get(index)) {
-        errorBackup = this.error.get(index);
-        const newError = _cloneDeep(this.error);
-        newError.delete(index);
-        this.$emit('update:error', newError.size > 0 ? newError : '');
-      }
+      if (this.error instanceof Map) errorBackup = this.error.get(index);
 
       if (index === this.indexBeingEdited) {
         this.indexBeingEdited = null;
@@ -230,16 +225,23 @@ export default {
 
       this.handleInput(this.modelValue.filter((item, i) => i !== index));
 
+      if (this.error instanceof Map) {
+        this.$nextTick(() => this.updateErrorIndices(index, -1)); // handleInput could update the error, so we need to make sure that the value is updated before we update the indices
+      }
+
       this.$store.commit('addToast', {
         action: () => {
           const modelClone = [...(this.modelValue || [])];
           modelClone.splice(index, 0, backup);
           this.handleInput(modelClone);
           this.uniqueItemKeys.splice(index, 0, idBackup);
+          if (this.error instanceof Map) this.updateErrorIndices(index, index);
           if (errorBackup) {
-            const newError = _cloneDeep(this.error) || new Map();
-            newError.set(index, errorBackup);
-            this.$emit('update:error', newError);
+            this.$nextTick(() => { // we need to wait a tick so the update from updateErrorIndices() can go through
+              const newError = _cloneDeep(this.error) || new Map();
+              newError.set(index, errorBackup);
+              this.$emit('update:error', newError);
+            });
           }
         },
         actionLabel: 'Undo',
@@ -260,6 +262,7 @@ export default {
       modelClone.splice(index + 1, 0, itemClone);
       this.uniqueItemKeys.splice(index + 1, 0, pseudoId());
       this.handleInput(modelClone);
+      if (this.error instanceof Map) this.updateErrorIndices(index + 1, index + 1);
     },
     errorForIndex(index) {
       if (!(this.error instanceof Map)) return null;
@@ -328,6 +331,8 @@ export default {
       else if (currentIndex > this.indexBeingEdited && newIndex <= this.indexBeingEdited) this.indexBeingEdited += 1;
       else if (currentIndex < this.indexBeingEdited && newIndex >= this.indexBeingEdited) this.indexBeingEdited -= 1;
 
+      if (newIndex !== currentIndex && this.error instanceof Map) this.updateErrorIndices(currentIndex, newIndex);
+
       newVal.splice(newIndex, 0, newVal.splice(currentIndex, 1)[0]);
       this.uniqueItemKeys.splice(newIndex, 0, this.uniqueItemKeys.splice(currentIndex, 1)[0]);
       this.handleInput(newVal);
@@ -359,6 +364,22 @@ export default {
       this.itemContextMenu.target = null;
       this.itemContextMenu.x = 0;
       this.itemContextMenu.y = 0;
+    },
+    updateErrorIndices(changedIndex = 0, newIndex = 0) {
+      const newError = new Map();
+      this.error.forEach((value, key) => {
+        if (typeof key !== 'number') {
+          newError.set(key, value); // it’s the rows-field itself that has the error
+          return;
+        }
+
+        if (changedIndex === newIndex && key >= changedIndex) newError.set(key + 1, value); // an item was added or a deletion undone
+        else if (changedIndex === key && newIndex !== -1) newError.set(newIndex, value);
+        else if (changedIndex > key && newIndex <= key && newIndex !== -1) newError.set(key + 1, value);
+        else if (changedIndex < key && (newIndex >= key || newIndex === -1)) newError.set(key - 1, value);
+        else if (newIndex !== -1 || key < changedIndex) newError.set(key, value); // only keep an error in the same place if nothing was removed, or we’re above whatever was removed
+      });
+      this.$emit('update:error', newError.size > 0 ? newError : '');
     },
     updateField: debounce(function debouncedUpdate(newVal, index) {
       const newModelValue = [...this.modelValue];
