@@ -35,8 +35,14 @@ export default {
       return this.error.size === 1 ? 'A subfield has errors' : `${this.error.size} subfields have errors`;
     },
     localisedDisplayValue() {
-      if (!this.displayField) return null;
-      const displayValue = _get(this.modelValue, this.displayField);
+      if (!this.modelValue) return null;
+
+      let displayValue;
+      if (!this.displayField) { // we’ll try to get a default one
+        const firstValue = Object.values(this.modelValue).find((value) => value && ['object', 'string', 'number'].includes(typeof value) && value !== '___mb_type');
+        if (firstValue) displayValue = firstValue;
+        else return null;
+      } else displayValue = _get(this.modelValue, this.displayField);
 
       if (Array.isArray(displayValue)) return displayValue.join(', ');
       if (displayValue !== null && typeof displayValue === 'object') {
