@@ -76,7 +76,7 @@
         <MbButton :dark="dark" type="primary" @click="closeDetails">Done</MbButton>
       </template>
     </MbModal>
-    <MbModal class="change-type-modal" :dark="dark" :title="`Change ${options.itemLabel || 'Row'} type`" :visible="showTypeChangeModal" @close="showTypeChangeModal = false">
+    <MbModal class="change-type-modal" :dark="dark" :title="`Change ${options.itemLabel || 'Row'} Type`" :visible="showTypeChangeModal" @close="showTypeChangeModal = false">
       <template v-if="modelValue[indexBeingEdited]">
         <h2 class="h4">Existing Values</h2>
         <ul class="existing-values">
@@ -550,6 +550,9 @@ export default {
 
 .rows.field
   .container
+    @media $mobile
+      padding: 0.5rem
+
     &.empty
       .add-button
         margin-right: auto
@@ -567,6 +570,12 @@ export default {
     list-style: none
     margin: 0
     padding: 0
+    display: grid
+    grid-template-columns: repeat(2, 1fr)
+    grid-column-gap: 1rem
+
+    @media $mobile
+      display: block
 
     li
       margin-bottom: 0.125rem
@@ -609,6 +618,9 @@ export default {
     padding: 1rem
     background-color: $bg
     position: relative
+
+    @media $mobile
+      padding: 0.5rem
 
     &.dark
       background-color: $bg-dark
@@ -657,6 +669,7 @@ export default {
       .button
         margin: -1rem 0
         margin-right: 0.25rem
+        flex-shrink: 0
 
         &:last-child
           margin-right: -0.75rem
