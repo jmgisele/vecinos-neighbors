@@ -110,6 +110,10 @@ export default {
 @require '../../assets/styles/colors'
 @require '../../assets/styles/corners'
 
+.link.field .input
+  width: 100%
+  margin-top: 0
+
 .input
   &.in-modal,
   &.in-split
