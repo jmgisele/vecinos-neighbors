@@ -123,7 +123,10 @@ function validate(field, parent, languages, groupAsKey, index) { // TODO: index 
     if (type === 'rows' || type === 'columns') { // rows, columns, etc. (anything  that is an array of object basically)
       const valueToCheck = value || [];
       valueToCheck.forEach((subvalue, i) => {
-        const fieldType = subfields.find((subfield) => subfield.key === subvalue.___mb_type); // // TODO: figure out what happens if there is no field type (because the key got changed and thus ___mb_type is inaccurate)
+        let fieldType;
+        if (subfields.length === 1) [fieldType] = subfields;
+        else fieldType = subfields.find((subfield) => subfield.key === subvalue.___mb_type);
+        if (!fieldType) return; // if we couldn’t find a matching field, it’s an unknown field and will be skipped. This can happen if the field’s key got changed or ___mb_type is missing (e.g. in pre-existing content)
         let error;
         if (fieldType.type === 'group') error = validate(fieldType, { [fieldType.key]: subvalue }, languages); // if it’s a group we have to fake the parent for it to be validated correctly, since the subvalue is technically the group
         else error = validate(fieldType, subvalue, languages); // otherwise the value lives as a key in the subvalue, so the subvalue can be the parent

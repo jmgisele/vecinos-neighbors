@@ -31,7 +31,7 @@
               :error="errorMapForIndex(index)"
               :fields="fieldsForIndex(index)"
               :in-split="inSplit"
-              :model-value="modelValue[index]"
+              :model-value="modelValueForIndex(index)"
               :languages="languages"
               @update:error="handleFieldError($event, index)"
               @update:model-value="updateField($event, index)"
@@ -63,7 +63,7 @@
           :error="fieldBeingEditedErrors"
           :fields="fieldBeingEdited.type === 'group' ? fieldBeingEdited.value : [fieldBeingEdited]"
           :in-split="Boolean(teleportTarget)"
-          :model-value="modelValue[indexBeingEdited]"
+          :model-value="modelValueForIndex(indexBeingEdited)"
           :languages="languages"
           @update:error="handleFieldBeingEditedError"
           @update:model-value="updateFieldBeingEdited"
@@ -109,12 +109,15 @@ export default {
     displayItems() {
       if (!this.modelValue) return [];
       return this.modelValue.map((item) => {
-        const childField = this.children.find((child) => child.key === item.___mb_type) || {};
+        let childField;
+        if (this.children.length === 1) [childField] = this.children;
+        else childField = this.children.find((child) => child.key === item.___mb_type) || {};
         let value;
         let displayValue;
 
         if (childField.displayField) value = item[childField.displayField];
-        else value = item[item.___mb_type];
+        else if (item && item.___mb_type) value = item[item.___mb_type];
+        else value = item;
 
         if (Array.isArray(value)) displayValue = value.join(', ');
         else if (value && typeof value === 'object') {
@@ -136,7 +139,9 @@ export default {
     },
     fieldBeingEdited() {
       if (!this.modelValue || this.modelValue.length === 0 || this.indexBeingEdited === null) return null;
-      const childField = this.children.find((child) => child.key === this.modelValue[this.indexBeingEdited].___mb_type);
+      let childField;
+      if (this.children.length === 1) [childField] = this.children;
+      else childField = this.children.find((child) => child.key === this.modelValue[this.indexBeingEdited].___mb_type);
       return childField;
     },
     fieldBeingEditedErrors() {
@@ -194,7 +199,10 @@ export default {
   methods: {
     addItem(item) {
       let contentItem;
-      if (item.type !== 'group') {
+      if (this.children.length === 1) {
+        if (item.type !== 'group') contentItem = item.default;
+        else contentItem = generateDefaultContentFromSchema({ fields: item.value });
+      } else if (item.type !== 'group') {
         contentItem = {
           ___mb_type: item.key,
           [item.key]: item.default,
@@ -276,13 +284,21 @@ export default {
     errorMapForIndex(index) {
       if (!(this.error instanceof Map) || !this.error.get(index)) return new Map();
       const errors = this.error.get(index);
-      const fieldBeingEdited = this.children.find((child) => child.key === this.modelValue[index].___mb_type);
+
+      let fieldBeingEdited;
+      if (this.children.length === 1) [fieldBeingEdited] = this.children;
+      else fieldBeingEdited = this.children.find((child) => child.key === this.modelValue[index].___mb_type);
+
       if (fieldBeingEdited.type === 'group') return errors || new Map();
       return new Map().set(fieldBeingEdited.key, errors);
     },
     fieldsForIndex(index) {
       if (!this.modelValue || this.modelValue.length === 0 || typeof index !== 'number') return null;
-      const childField = this.children.find((child) => child.key === this.modelValue[index].___mb_type);
+
+      let childField;
+      if (this.children.length === 1) [childField] = this.children;
+      else childField = this.children.find((child) => child.key === this.modelValue[index].___mb_type);
+
       if (!childField) return null;
       if (childField.type === 'group') return childField.value;
       return [childField];
@@ -295,7 +311,9 @@ export default {
       const newError = _cloneDeep(this.error) || new Map();
       if (err.size === 0) newError.delete(index);
       else {
-        const fieldBeingEdited = this.children.find((child) => child.key === this.modelValue[index].___mb_type);
+        let fieldBeingEdited;
+        if (this.children.length === 1) [fieldBeingEdited] = this.children;
+        else fieldBeingEdited = this.children.find((child) => child.key === this.modelValue[index].___mb_type);
         newError.set(index, fieldBeingEdited.type === 'group' ? err : err.get(fieldBeingEdited.key));
       }
 
@@ -337,6 +355,11 @@ export default {
       this.uniqueItemKeys.splice(newIndex, 0, this.uniqueItemKeys.splice(currentIndex, 1)[0]);
       this.handleInput(newVal);
     },
+    modelValueForIndex(index) {
+      if (!this.modelValue || this.modelValue.length === 0 || !this.modelValue[index]) return null;
+      if (this.modelValue[index].___mb_type || this.children[0].type === 'group') return this.modelValue[index];
+      return { [this.children[0].key]: this.modelValue[index] };
+    },
     openContextMenu(e, index) {
       if (!this.options.allowEditing || !this.isCompact) return;
 
@@ -366,6 +389,7 @@ export default {
       this.itemContextMenu.y = 0;
     },
     updateErrorIndices(changedIndex = 0, newIndex = 0) {
+      if (!(this.error instanceof Map)) return;
       const newError = new Map();
       this.error.forEach((value, key) => {
         if (typeof key !== 'number') {
@@ -383,7 +407,9 @@ export default {
     },
     updateField: debounce(function debouncedUpdate(newVal, index) {
       const newModelValue = [...this.modelValue];
-      newModelValue.splice(index, 1, newVal);
+      let cleanNewVal = newVal;
+      if (this.children.length === 1 && this.children[0].type !== 'group') cleanNewVal = newVal[this.children[0].key];
+      newModelValue.splice(index, 1, cleanNewVal);
       this.handleInput(newModelValue);
     }, 500),
     updateFieldBeingEdited(newVal) {
@@ -392,7 +418,9 @@ export default {
     validateItemBeingEdited() {
       if (this.indexBeingEdited === null) return;
       const fakeFields = this.fieldBeingEdited.type === 'group' ? this.fieldBeingEdited.value : [this.fieldBeingEdited];
-      const errors = validateContent(this.modelValue[this.indexBeingEdited], { fields: fakeFields }, this.languages);
+      let content = this.modelValue[this.indexBeingEdited];
+      if (!content || !content.___mb_type) content = { [this.fieldBeingEdited.key]: content }; // we need to make sure we pass an object with a correct key if we don’t have ___mb_type
+      const errors = validateContent(content, { fields: fakeFields }, this.languages);
       this.handleFieldBeingEditedError(errors);
 
       this.indexBeingEdited = null;
