@@ -128,7 +128,7 @@ function validate(field, parent, languages, groupAsKey, index) { // TODO: index 
         else fieldType = subfields.find((subfield) => subfield.key === subvalue.___mb_type);
         if (!fieldType) return; // if we couldn’t find a matching field, it’s an unknown field and will be skipped. This can happen if the field’s key got changed or ___mb_type is missing (e.g. in pre-existing content)
         let error;
-        if (fieldType.type === 'group') error = validate(fieldType, { [fieldType.key]: subvalue }, languages); // if it’s a group we have to fake the parent for it to be validated correctly, since the subvalue is technically the group
+        if (fieldType.type === 'group' || subfields.length === 1) error = validate(fieldType, { [fieldType.key]: subvalue }, languages); // if it’s a group or from a row/column with only a single child, we have to fake the parent for it to be validated correctly, since the subvalue is technically the group
         else error = validate(fieldType, subvalue, languages); // otherwise the value lives as a key in the subvalue, so the subvalue can be the parent
         if (error) {
           if (!errors) errors = new Map();
