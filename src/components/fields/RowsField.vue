@@ -115,17 +115,21 @@ export default {
         let value;
         let displayValue;
 
+        function cleanFirstObjectValue(obj) {
+          const firstValue = Object.values(obj).find((subvalue) => subvalue);
+          if (typeof firstValue === 'string') return richToPlainText(firstValue, 200);
+          if (firstValue === null || typeof firstValue === 'undefined') return '';
+          if (typeof firstValue === 'object') return cleanFirstObjectValue(firstValue);
+          return firstValue;
+        }
+
         if (childField.displayField) value = item[childField.displayField];
         else if (item && item.___mb_type) value = item[item.___mb_type];
         else value = item;
 
         if (Array.isArray(value)) displayValue = value.join(', ');
-        else if (value && typeof value === 'object') {
-          const firstValue = Object.values(value).find((subvalue) => subvalue);
-          if (typeof firstValue === 'string') displayValue = richToPlainText(firstValue, 200);
-          if (firstValue === null || typeof firstValue === 'undefined') displayValue = '';
-          displayValue = firstValue;
-        } else if (typeof value === 'string') displayValue = richToPlainText(value, 200); // trimming to 200 characters even though only about 70 are shown because HTML can be quite verbose
+        else if (value && typeof value === 'object') displayValue = cleanFirstObjectValue(value);
+        else if (typeof value === 'string') displayValue = richToPlainText(value, 200); // trimming to 200 characters even though only about 70 are shown because HTML can be quite verbose
         else displayValue = value;
 
         return {
