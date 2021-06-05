@@ -87,6 +87,8 @@ import fs, {
   exists, joinPath, mkdirp, pathBasename, pathDirname,
 } from '../../fs';
 
+import { loadImage } from '../../fs/workerFS';
+
 import generateDefaultContentFromSchema from '../../assets/js/generateDefaultContentFromSchema';
 import rgbToHex from '../../assets/js/rgbToHex';
 import validateContent from '../../assets/js/validateContent';
@@ -214,8 +216,7 @@ export default {
       if (!path) return;
       const realPath = path.startsWith(this.projectsDir) ? path : joinPath(this.projectsDir, path);
       try {
-        const rawImage = await fs.readFile(realPath);
-        this.image = URL.createObjectURL(new Blob([rawImage], realPath.endsWith('.svg') ? { type: 'image/svg+xml' } : undefined));
+        this.image = await loadImage(realPath);
       } catch (err) {
         if (err.code === 'ENOENT') this.$store.commit('addToast', { message: `The image for “${this.label}” could not be found. It may have been moved, renamed, or deleted and should be updated accordingly`, timeout: 10000, type: 'warning' });
         else this.$store.commit('addToast', { message: `Something went wrong when fetching the image thumbnail for ${this.label}: ${err.message}`, type: 'error' });
@@ -435,7 +436,7 @@ export default {
       }
     },
     modelValue(nv, ov) {
-      if (nv === null) {
+      if (!nv || nv === null) {
         if (this.image) URL.revokeObjectURL(this.image);
         this.fileDetails.dominantColor = null;
         this.fileDetails.height = null;

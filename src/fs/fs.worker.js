@@ -12,6 +12,11 @@ async function deleteFileOrFolder(path) {
   return fs.promises.unlink(path);
 }
 
+async function loadImage(path) {
+  const rawImage = await fs.promises.readFile(path);
+  return URL.createObjectURL(new Blob([rawImage], path.endsWith('.svg') ? { type: 'image/svg+xml' } : undefined));
+}
+
 async function rmrf(path) {
   if (!path || typeof path !== 'string' || !path.trim()) throw new Error('Invalid directory');
   if (path.trim() === '/') throw new Error('You may not delete the root directory');
@@ -30,5 +35,6 @@ async function rmrf(path) {
 }
 
 portal.set('workerThread', {
+  loadImage,
   rmrf,
 });
