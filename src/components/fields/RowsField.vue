@@ -77,13 +77,23 @@
       </template>
     </MbModal>
     <MbModal class="change-type-modal" :dark="dark" :title="`Change ${options.itemLabel || 'Row'} type`" :visible="showTypeChangeModal" @close="showTypeChangeModal = false">
+      <template v-if="modelValue[indexBeingEdited]">
+        <h2 class="h4">Existing Values</h2>
+        <ul class="existing-values">
+          <li v-for="(value, key) in modelValue[indexBeingEdited]" :key="key">
+            <code>{{key}}:</code>
+            <span>{{value}}</span>
+          </li>
+        </ul>
+      </template>
+      <h2 class="h4">Available Types</h2>
       <ul>
         <li v-for="child in children" :key="child.key">
           <MbButton :dark="dark" :icon="child.icon" @click="changeItemType(indexBeingEdited, child)">{{child.label}}</MbButton>
         </li>
       </ul>
       <template #actions>
-        <MbButton :dark="dark" @click="showAddModal = false">Cancel</MbButton>
+        <MbButton :dark="dark" @click="showTypeChangeModal = false">Cancel</MbButton>
       </template>
     </MbModal>
     <MbContextMenu :dark="dark" :options="itemContextMenu.options" :show="itemContextMenu.show" :target="itemContextMenu.target" :x="itemContextMenu.x" :y="itemContextMenu.y" @close="resetRowContextMenu" />
@@ -153,7 +163,7 @@ export default {
       return !this.modelValue || this.modelValue.length === 0;
     },
     fieldBeingEdited() {
-      if (!this.modelValue || this.modelValue.length === 0 || this.indexBeingEdited === null) return null;
+      if (!this.modelValue || this.modelValue.length === 0 || this.indexBeingEdited === null || !this.modelValue[this.indexBeingEdited]) return null;
       let childField;
       if (this.children.length === 1) [childField] = this.children;
       else childField = this.children.find((child) => child.key === this.modelValue[this.indexBeingEdited].___mb_type);
@@ -245,7 +255,7 @@ export default {
       if (this.children.length === 1) return; // there can only be one type
 
       const currentValue = this.modelValue[index];
-      const currentType = this.fieldBeingEdited.label;
+      const currentType = (this.fieldBeingEdited && this.fieldBeingEdited.label) || 'Unknown Field';
       let newDefaults;
       if (newField.type === 'group') newDefaults = generateDefaultContentFromSchema({ fields: newField.value });
       else newDefaults = { [newField.key]: newField.default };
@@ -254,7 +264,7 @@ export default {
 
       Object.entries(newDefaults).forEach(([key, value]) => {
         const currentValueForKey = currentValue[key];
-        if (!value && currentValueForKey) newValue[key] = currentValueForKey;
+        if (currentValueForKey && (!value || typeof value === typeof currentValueForKey)) newValue[key] = currentValueForKey;
       });
 
       const modelClone = [...this.modelValue];
@@ -458,6 +468,11 @@ export default {
 
       this.indexBeingEdited = index;
 
+      if (!this.fieldBeingEdited) {
+        this.showTypeChangeModal = true;
+        return;
+      }
+
       if (!this.active && this.splitTarget) this.$emit('update:active', true);
       else if (!this.showDetailsModal && !this.splitTarget) this.showDetailsModal = true;
     },
@@ -561,6 +576,22 @@ export default {
 
       .button
         width: 100%
+
+.change-type-modal
+  .existing-values
+
+    li
+      display: flex
+      align-items: center
+      overflow: hidden
+      white-space: nowrap
+
+      span
+        overflow: hidden
+        text-overflow: ellipsis
+
+      code
+        margin-right: 0.5rem
 
 .row-item
   margin-bottom: 1rem
