@@ -21,6 +21,7 @@
                 <MbIcon icon="drag-handle" />
               </div>
               <p class="label">{{displayItems[index].label}}</p>
+              <MbButton v-if="options.allowEditing && children.length > 1" :dark="dark" data-ignore-drag icon="replace-round" rounded :tooltip="`Change ${options.itemLabel || 'Row'} type`" @click="indexBeingEdited = index; showTypeChangeModal = true;" />
               <MbButton v-if="options.allowEditing" :dark="dark" data-ignore-drag icon="duplicate" rounded :tooltip="`Duplicate ${options.itemLabel || 'Row'}`" @click="duplicateItem(index)" />
               <MbButton v-if="options.allowEditing" :dark="dark" data-ignore-drag icon="trash" rounded :tooltip="`Delete ${options.itemLabel || 'Row'}`" type="negative" @click="deleteItem(index)" />
             </header>
@@ -73,6 +74,16 @@
       <template #actions>
         <MbButton v-if="options.allowEditing" :dark="dark" icon="trash" type="negative" @click="deleteItemBeingEdited">Delete {{options.itemLabel || 'Row'}}</MbButton>
         <MbButton :dark="dark" type="primary" @click="closeDetails">Done</MbButton>
+      </template>
+    </MbModal>
+    <MbModal class="change-type-modal" :dark="dark" :title="`Change ${options.itemLabel || 'Row'} type`" :visible="showTypeChangeModal" @close="showTypeChangeModal = false">
+      <ul>
+        <li v-for="child in children" :key="child.key">
+          <MbButton :dark="dark" :icon="child.icon" @click="changeItemType(indexBeingEdited, child)">{{child.label}}</MbButton>
+        </li>
+      </ul>
+      <template #actions>
+        <MbButton :dark="dark" @click="showAddModal = false">Cancel</MbButton>
       </template>
     </MbModal>
     <MbContextMenu :dark="dark" :options="itemContextMenu.options" :show="itemContextMenu.show" :target="itemContextMenu.target" :x="itemContextMenu.x" :y="itemContextMenu.y" @close="resetRowContextMenu" />
@@ -166,6 +177,12 @@ export default {
   created() {
     // this is a bit of a HACK to allow unique keys for each element in modelValue, but it will break if modelValue gets changed from the outside after creation (which it shouldn’t, and if that ever changes a clever watcher could help)
     if (Array.isArray(this.modelValue)) this.uniqueItemKeys = this.modelValue.map(() => pseudoId());
+
+    if (this.modelValue && this.children.length > 1) {
+      const cleanModel = [];
+      this.modelValue.forEach((item) => cleanModel.push(this.inferItemType(item)));
+      this.handleInput(cleanModel);
+    }
   },
   data() {
     return {
@@ -183,6 +200,12 @@ export default {
             icon: 'duplicate',
           },
           {
+            action: () => { this.indexBeingEdited = this.itemContextMenu.item; this.showTypeChangeModal = true; },
+            label: 'Change type',
+            icon: 'replace-round',
+            disabled: this.children.length < 2,
+          },
+          {
             action: () => this.deleteItem(this.itemContextMenu.item),
             label: 'Delete',
             icon: 'trash',
@@ -197,6 +220,7 @@ export default {
       },
       showAddModal: false,
       showDetailsModal: false,
+      showTypeChangeModal: false,
       uniqueItemKeys: [],
     };
   },
@@ -216,6 +240,42 @@ export default {
       this.uniqueItemKeys.push(pseudoId());
       this.handleInput((this.modelValue || []).concat([contentItem]));
       if (this.showAddModal) this.showAddModal = false;
+    },
+    changeItemType(index, newField) {
+      if (this.children.length === 1) return; // there can only be one type
+
+      const currentValue = this.modelValue[index];
+      const currentType = this.fieldBeingEdited.label;
+      let newDefaults;
+      if (newField.type === 'group') newDefaults = generateDefaultContentFromSchema({ fields: newField.value });
+      else newDefaults = { [newField.key]: newField.default };
+
+      const newValue = { ...newDefaults, ___mb_type: newField.key };
+
+      Object.entries(newDefaults).forEach(([key, value]) => {
+        const currentValueForKey = currentValue[key];
+        if (!value && currentValueForKey) newValue[key] = currentValueForKey;
+      });
+
+      const modelClone = [...this.modelValue];
+      modelClone.splice(index, 1, newValue);
+      this.handleInput(modelClone);
+
+      this.indexBeingEdited = null;
+      this.showTypeChangeModal = false;
+
+      this.$store.commit('addToast', {
+        action: () => {
+          const newModelClone = [...this.modelValue];
+          newModelClone.splice(index, 1, currentValue);
+          this.handleInput(newModelClone);
+        },
+        actionLabel: 'Undo',
+        closeOnRouteChange: true,
+        message: `Changed ${this.options.itemLabel || 'row'} from “${currentType}” to “${newField.label}”`,
+        timeout: 5000 - 200,
+        type: 'warning',
+      });
     },
     closeDetails() {
       if (this.splitTarget) this.$emit('update:active', false);
@@ -359,6 +419,22 @@ export default {
       this.uniqueItemKeys.splice(newIndex, 0, this.uniqueItemKeys.splice(currentIndex, 1)[0]);
       this.handleInput(newVal);
     },
+    inferItemType(item) {
+      if (!item || typeof item !== 'object' || item.___mb_type) return item;
+      const itemKeyString = Object.keys(item).sort().join('&');
+
+      if (!this.cachedKeystrings) {
+        const keyStrings = this.children.reduce((acc, childfield) => {
+          if (!childfield.value) acc.set(childfield.key, childfield.key);
+          else acc.set(childfield.value.map((subfield) => subfield.key).sort().join('&'), childfield.key);
+          return acc;
+        }, new Map());
+        this.cachedKeystrings = keyStrings;
+      }
+
+      const inferredType = this.cachedKeystrings.get(itemKeyString);
+      return { ...item, ___mb_type: inferredType };
+    },
     modelValueForIndex(index) {
       if (!this.modelValue || this.modelValue.length === 0 || !this.modelValue[index]) return null;
       if (this.modelValue[index].___mb_type || this.children[0].type === 'group') return this.modelValue[index];
@@ -435,8 +511,8 @@ export default {
     active(nv) {
       if (!nv) this.validateItemBeingEdited();
     },
-    error(nv) {
-      console.log(nv);
+    indexBeingEdited(nv) {
+      if (nv === null && (this.showDetailsModal || this.active)) this.closeDetails();
     },
     modelValue(nv) {
       if (nv && nv.length === this.uniqueItemKeys.length) return;
@@ -470,19 +546,21 @@ export default {
       @media $mobile
         width: 100%
 
-.add-modal ul
-  list-style: none
-  margin: 0
-  padding: 0
+.add-modal,
+.change-type-modal
+  ul
+    list-style: none
+    margin: 0
+    padding: 0
 
-  li
-    margin-bottom: 0.125rem
+    li
+      margin-bottom: 0.125rem
 
-    &:not(:last-child)
-      margin-bottom: 1rem
+      &:not(:last-child)
+        margin-bottom: 1rem
 
-    .button
-      width: 100%
+      .button
+        width: 100%
 
 .row-item
   margin-bottom: 1rem
@@ -541,6 +619,9 @@ export default {
         margin: 0
         color: $text-secondary
         margin-right: auto
+        white-space: nowrap
+        overflow: hidden
+        text-overflow: ellipsis
 
       .button
         margin: -1rem 0
