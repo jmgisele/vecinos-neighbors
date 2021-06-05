@@ -438,6 +438,16 @@ export default {
     error(nv) {
       console.log(nv);
     },
+    modelValue(nv) {
+      if (nv && nv.length === this.uniqueItemKeys.length) return;
+
+      if (nv === null) this.uniqueItemKeys = [];
+      else if (nv.length > this.uniqueItemKeys.length) {
+        for (let count = 0; count < nv.length - this.uniqueItemKeys.length; count += 1) {
+          this.uniqueItemKeys.push(pseudoId());
+        }
+      } else if (nv.length < this.uniqueItemKeys.length) this.uniqueItemKeys.length = nv.length;
+    },
   },
 };
 </script>
