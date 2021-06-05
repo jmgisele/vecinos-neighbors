@@ -13,9 +13,13 @@ import field from '../../mixins/field';
 export default {
   computed: {
     selectOptions() {
-      if (Array.isArray(this.options.options)) return this.options.options;
-      // it’s a file
-      return this.fileModel;
+      let options;
+      if (Array.isArray(this.options.options)) options = [...this.options.options];
+      else options = this.fileModel; // it’s a file
+
+      if (this.options.removable) options.push({ label: 'Nothing', value: null });
+
+      return options;
     },
   },
   created() {

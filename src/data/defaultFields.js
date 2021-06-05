@@ -646,6 +646,12 @@ export default [
         value: false,
       },
       {
+        component: 'MbToggle',
+        key: 'removable',
+        slot: 'Allow the value to be removed once set',
+        value: false,
+      },
+      {
         component: 'MbInput',
         key: 'placeholder',
         label: 'Placeholder text when empty:',
