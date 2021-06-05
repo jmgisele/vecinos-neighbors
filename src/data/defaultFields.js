@@ -486,6 +486,12 @@ export default [
         slot: 'Allow the image to be removed once set',
         value: true,
       },
+      {
+        component: 'MbToggle',
+        key: 'simple',
+        slot: 'Deactivate the advanced media library for this image',
+        value: false,
+      },
     ],
     tab: null,
     validation: { max: 1, required: false, unit: 'filesize (MB)' },

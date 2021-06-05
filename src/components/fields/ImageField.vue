@@ -11,7 +11,7 @@
       </div>
       <MbIcon v-if="compact" :icon="active ? 'cross' : cleanError ? 'error' : 'pencil'" />
     </div>
-    <MbModal v-if="mediaSettings.advanced" class="image-data" :dark="dark" :title="labelWithSizeHint" :visible="showDetailsModal" @after-close="handleModalClosed" @close="closeDetails" @keyup.ctrl.enter="closeDetails">
+    <MbModal v-if="mediaSettings.advanced && !options.simple" class="image-data" :dark="dark" :title="labelWithSizeHint" :visible="showDetailsModal" @after-close="handleModalClosed" @close="closeDetails" @keyup.ctrl.enter="closeDetails">
       <teleport v-if="!teleportTarget || active" :disabled="!teleportTarget" :to="teleportTarget">
         <h2 v-if="teleportTarget" class="h3 split-title">{{labelWithSizeHint}}</h2>
         <div class="image-details">
@@ -202,7 +202,7 @@ export default {
       this.showSelectModal = false;
     },
     closeDetails() {
-      if (!this.mediaSettings.advanced) {
+      if (!this.mediaSettings.advanced || this.options.simple) {
         this.showSelectModal = false;
         return;
       }
@@ -229,7 +229,7 @@ export default {
       this.saveFile(file);
     },
     async handleFileClick(path) {
-      if (!this.mediaSettings.advanced) this.handleInput(path.replace(this.projectsDir, ''));
+      if (!this.mediaSettings.advanced || this.options.simple) this.handleInput(path.replace(this.projectsDir, ''));
       else {
         let meta;
         const mediaMetaDir = joinPath(this.projectsDir, '.mattrbld', 'media');
@@ -320,7 +320,7 @@ export default {
         return;
       }
 
-      if (!this.mediaSettings.advanced) {
+      if (!this.mediaSettings.advanced || this.options.simple) {
         this.showSelectModal = true;
         return;
       }

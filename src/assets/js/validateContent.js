@@ -24,7 +24,7 @@ export function validateField(value, type, rules) {
     case 'image':
       if (rules.required) {
         if (typeof valueToCheck === 'string' && !valueToCheck) error = 'An image is required';
-        else { // it must be an advanced media library object
+        else if (typeof valueToCheck === 'object') { // it must be an advanced media library object
           valueToCheck = value || {};
           if (!valueToCheck.src) error = 'An image is required';
         }
@@ -104,7 +104,7 @@ export function validateField(value, type, rules) {
 
 function validate(field, parent, languages, groupAsKey, index) { // TODO: index can probably go
   const {
-    key, value: childFields, localised, type, validation,
+    key, value: childFields, localised, options, type, validation,
   } = field;
   let value;
   let errors;
@@ -114,7 +114,7 @@ function validate(field, parent, languages, groupAsKey, index) { // TODO: index 
   else if (index) value = parent[index];
   else value = parent[key];
 
-  if (type === 'image' && Store.state.currentProject && Store.state.currentProject.media.advanced && Store.state.currentProject.media.customFields) {
+  if (type === 'image' && !options.simple && Store.state.currentProject && Store.state.currentProject.media.advanced && Store.state.currentProject.media.customFields) {
     if (value) subfields = Store.state.currentProject.media.customFields;
   }
 
