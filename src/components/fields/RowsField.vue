@@ -271,8 +271,13 @@ export default {
       modelClone.splice(index, 1, newValue);
       this.handleInput(modelClone);
 
-      this.indexBeingEdited = null;
-      this.showTypeChangeModal = false;
+      this.$nextTick(() => { // we have to wait a tick before validating so we validate with the new modelValue
+        this.validateItemBeingEdited();
+
+        // since validateItemBeingEdited requires fieldBeingEdited, we can only reset the indexBeingEdited after we validated
+        this.indexBeingEdited = null;
+        this.showTypeChangeModal = false;
+      });
 
       this.$store.commit('addToast', {
         action: () => {
