@@ -687,8 +687,11 @@ export default {
           value.forEach((option) => {
             if (typeof field.options[option.key] === 'undefined') field.options[option.key] = cloneDeep(option.value); // eslint-disable-line no-param-reassign
           });
-        } else if (key === 'value' && value) field.value = field.customField ? value : []; // eslint-disable-line no-param-reassign
-        else if (value && typeof value === 'object') field[key] = { ...cloneDeep(value), ...field[key] }; // eslint-disable-line no-param-reassign
+        } else if (key === 'value' && value) {
+          // nesting this here so existing values stay untouched
+          if (field.customField) field.value = cloneDeep(value); // eslint-disable-line no-param-reassign
+          else if (!field[key]) field.value = []; // eslint-disable-line no-param-reassign
+        } else if (value && typeof value === 'object') field[key] = { ...cloneDeep(value), ...field[key] }; // eslint-disable-line no-param-reassign
         else if (typeof field[key] === 'undefined') field[key] = cloneDeep(value); // eslint-disable-line no-param-reassign
       });
 
@@ -697,7 +700,7 @@ export default {
           Object.keys(field.options).forEach((optionKey) => {
             if (!newVersion.options.find((option) => option.key === optionKey)) delete field.options[optionKey]; // eslint-disable-line no-param-reassign
           });
-        } else if (field[key] && typeof field[key] === 'object') {
+        } else if (key !== 'value' && key !== 'default' && field[key] && typeof field[key] === 'object') {
           Object.keys(field[key]).forEach((subkey) => {
             if (typeof newVersion[key][subkey] === 'undefined') delete field[key][subkey]; // eslint-disable-line no-param-reassign
           });
