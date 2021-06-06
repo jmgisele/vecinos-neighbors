@@ -2,8 +2,10 @@
   <section class="image field">
     <div class="display-wrapper" :class="{ active, dark, error: cleanError, 'in-split': inSplit, 'no-display-value': !displayValue }" tabindex="0" @click="openDetails" @keyup.enter.space="openDetails" @keydown.space.prevent>
       <div class="image-wrapper" :class="{ dark }">
-        <img v-if="image" class="hidden" draggable="false" :src="image" alt="Image not found" @load="$event.target.classList.remove('hidden')">
-        <MbIcon v-else icon="image" />
+        <transition mode="out-in">
+          <img v-if="image" class="hidden" draggable="false" :src="image" alt="Image not found" @load="$event.target.classList.remove('hidden')">
+          <MbIcon v-else icon="image" />
+        </transition>
       </div>
       <div class="left">
         <p class="label" :class="{ unstyled: !displayValue }">{{cleanError || labelWithSizeHint}}</p>
@@ -171,9 +173,6 @@ export default {
         ...(this.mediaSettings.permissions[role] || []),
       ]);
     },
-  },
-  created() {
-    if (this.normalisedSrc) this.fetchImage(this.normalisedSrc);
   },
   data() {
     return {
@@ -427,6 +426,9 @@ export default {
     },
   },
   mixins: [field],
+  mounted() {
+    if (this.normalisedSrc) this.fetchImage(this.normalisedSrc);
+  },
   watch: {
     async active(nv) {
       if (!nv) {
@@ -454,12 +456,14 @@ export default {
         this.fetchImage(this.normalisedSrc);
       } else if (typeof nv === 'object' && (!ov || !ov.src || nv.src !== ov.src)) {
         if (this.image) URL.revokeObjectURL(this.image);
+        this.image = null;
         this.fileDetails.dominantColor = null;
         this.fileDetails.height = null;
         this.fileDetails.name = this.modelValue && this.modelValue.src && pathBasename(this.modelValue && this.modelValue.src);
         this.fileDetails.type = this.fileDetails.name.slice(this.fileDetails.name.lastIndexOf('.') + 1).toUpperCase();
         this.fileDetails.width = null;
-        this.fetchImage(this.normalisedSrc);
+        window.setTimeout(() => this.fetchImage(this.normalisedSrc), 200); // this timeout is to avoid a brief bit of lag if the images are too big and ColorThief blocks for a bit
+        // this.fetchImage(this.normalisedSrc)
         if (this.error && this.error.get(this.fieldKey)) {
           const clone = _cloneDeep(this.error);
           clone.delete(this.fieldKey);
@@ -521,6 +525,16 @@ export default {
 
         &.hidden
           opacity: 0
+
+      .icon,
+      img
+        &.v-enter-active,
+        &.v-leave-active
+          transition: opacity 200ms ease
+
+          &.v-enter-from,
+          &.v-leave-to
+            opacity: 0
 
 .media-select-modal
   .unconfigured-state
