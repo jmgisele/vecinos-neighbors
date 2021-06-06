@@ -56,7 +56,7 @@
       <teleport v-if="!teleportTarget || active" :disabled="!teleportTarget" :to="teleportTarget">
         <h2 v-if="teleportTarget" class="h3 split-title">{{fieldBeingEdited && fieldBeingEdited.label}}</h2>
         <MbFieldsEditor
-          v-if="modelValue && indexBeingEdited !== null"
+          v-if="modelValue && indexBeingEdited !== null && fieldBeingEdited"
           class="field-details-editor"
           :class="{ 'in-split': teleportTarget }"
           compact
@@ -128,7 +128,7 @@ export default {
       return null;
     },
     displayItems() {
-      if (!this.modelValue) return [];
+      if (!this.modelValue || !this.initialised) return [];
       return this.modelValue.map((item) => {
         let childField;
         if (this.children.length === 1) [childField] = this.children;
@@ -163,7 +163,7 @@ export default {
       return !this.modelValue || this.modelValue.length === 0;
     },
     fieldBeingEdited() {
-      if (!this.modelValue || this.modelValue.length === 0 || this.indexBeingEdited === null || !this.modelValue[this.indexBeingEdited]) return null;
+      if (!this.modelValue || this.modelValue.length === 0 || this.indexBeingEdited === null || typeof this.modelValue[this.indexBeingEdited] === 'undefined') return null;
       let childField;
       if (this.children.length === 1) [childField] = this.children;
       else childField = this.children.find((child) => child.key === this.modelValue[this.indexBeingEdited].___mb_type);
@@ -192,11 +192,18 @@ export default {
       const cleanModel = [];
       this.modelValue.forEach((item) => cleanModel.push(this.inferItemType(item)));
       this.handleInput(cleanModel);
+    } else if (this.modelValue) {
+      const cleanModel = [];
+      this.modelValue.forEach((item) => cleanModel.push(this.normaliseItemType(item)));
+      this.handleInput(cleanModel);
     }
+    this.$nextTick(() => { this.initialised = true; }); // wait a tick before showing everything so the modelValue is the sanitised one
   },
   data() {
     return {
+      cachedKeystrings: null,
       indexBeingEdited: null,
+      initialised: false,
       itemContextMenu: {
         options: [
           {
@@ -435,7 +442,8 @@ export default {
       this.handleInput(newVal);
     },
     inferItemType(item) {
-      if (!item || typeof item !== 'object' || item.___mb_type) return item;
+      if (!item || typeof item !== 'object') return { ___mb_item: item }; // turn it into an object since the other methods expect being able to check ___mb_type on it
+      if (item.___mb_type) return item; // it already has a type
       const itemKeyString = Object.keys(item).sort().join('&');
 
       if (!this.cachedKeystrings) {
@@ -454,6 +462,10 @@ export default {
       if (!this.modelValue || this.modelValue.length === 0 || !this.modelValue[index]) return null;
       if (this.modelValue[index].___mb_type || this.children[0].type === 'group') return this.modelValue[index];
       return { [this.children[0].key]: this.modelValue[index] };
+    },
+    normaliseItemType(item) {
+      if (item && typeof item === 'object' && Object.prototype.hasOwnProperty.call(item, '___mb_item')) return item.___mb_item;
+      return item;
     },
     openContextMenu(e, index) {
       if (!this.options.allowEditing || !this.isCompact) return;
