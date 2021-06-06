@@ -42,7 +42,7 @@
       </MbSortableList>
       <MbButton v-if="options.allowEditing && children.length > 0" class="add-button" :dark="dark" icon="plus" type="positive" @click="handleAddClick">Add {{options.itemLabel || 'Row'}}</MbButton>
     </div>
-    <MbModal class="add-modal" :dark="dark" slim title="Add new…" :visible="showAddModal" @close="showAddModal = false">
+    <MbModal class="add-modal" :dark="dark" title="Add new…" :visible="showAddModal" @close="showAddModal = false">
       <ul>
         <li v-for="child in children" :key="child.key">
           <MbButton :dark="dark" :icon="child.icon" @click="addItem(child)">{{child.label}}</MbButton>
@@ -77,7 +77,7 @@
       </template>
     </MbModal>
     <MbModal class="change-type-modal" :dark="dark" :title="`Change ${options.itemLabel || 'Row'} Type`" :visible="showTypeChangeModal" @close="showTypeChangeModal = false">
-      <template v-if="modelValue[indexBeingEdited]">
+      <template v-if="modelValue && modelValue[indexBeingEdited]">
         <h2 class="h4">Existing Values</h2>
         <ul class="existing-values">
           <li v-for="(value, key) in modelValue[indexBeingEdited]" :key="key">
@@ -572,17 +572,15 @@ export default {
     padding: 0
     display: grid
     grid-template-columns: repeat(2, 1fr)
-    grid-column-gap: 1rem
+    grid-gap: 1rem
 
     @media $mobile
       display: block
 
-    li
+    &:last-child
       margin-bottom: 0.125rem
 
-      &:not(:last-child)
-        margin-bottom: 1rem
-
+    li
       .button
         width: 100%
 
