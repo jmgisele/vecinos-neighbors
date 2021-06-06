@@ -701,7 +701,7 @@ export default {
           Object.keys(field[key]).forEach((subkey) => {
             if (typeof newVersion[key][subkey] === 'undefined') delete field[key][subkey]; // eslint-disable-line no-param-reassign
           });
-        } else if (typeof newVersion[key] === 'undefined') delete field.key; // eslint-disable-line no-param-reassign
+        } else if (typeof newVersion[key] === 'undefined') delete field[key]; // eslint-disable-line no-param-reassign
       });
     },
     validateField(property) {
