@@ -12,6 +12,7 @@
 export default {
   computed: {
     firstName() {
+      if (!this.$store.getters.userInCurrentProject) return 'Anonymous'; // Dashboard gets unloaded after Project so this is needed to avoid an error
       return this.$store.getters.userInCurrentProject.name.split(' ')[0];
     },
   },
