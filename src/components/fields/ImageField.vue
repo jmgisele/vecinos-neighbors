@@ -1,17 +1,17 @@
 <template lang="html">
   <section class="image field">
-    <div class="display-wrapper" :class="{ active, dark, error: cleanError, 'in-split': inSplit, 'no-display-value': !displayValue }" tabindex="0" @click="openDetails" @keyup.enter.space="openDetails" @keydown.space.prevent>
+    <div class="display-wrapper" :class="{ active, dark, error: cleanError, 'in-split': inSplit, 'no-display-value': !displayValue, warning: resolutionWarning }" tabindex="0" @click="openDetails" @keyup.enter.space="openDetails" @keydown.space.prevent>
       <div class="image-wrapper" :class="{ dark }">
         <transition mode="out-in">
-          <img v-if="image" class="hidden" draggable="false" :src="image" alt="Image not found" @load="$event.target.classList.remove('hidden')">
+          <img v-if="image" class="hidden" draggable="false" :src="image" alt="Image not found" @load="handlePreviewLoad">
           <MbIcon v-else icon="image" />
         </transition>
       </div>
       <div class="left">
-        <p class="label" :class="{ unstyled: !displayValue }">{{cleanError || labelWithSizeHint}}</p>
+        <p class="label" :class="{ unstyled: !displayValue }">{{cleanError || resolutionWarning || labelWithSizeHint}}</p>
         <p v-if="displayValue || cleanError" class="content">{{displayValue || labelWithSizeHint}}</p>
       </div>
-      <MbIcon v-if="compact" :icon="active ? 'cross' : cleanError ? 'error' : 'pencil'" />
+      <MbIcon v-if="compact" :icon="active ? 'cross' : cleanError ? 'error' : resolutionWarning ? 'warning' : 'pencil'" />
     </div>
     <MbModal v-if="mediaSettings.advanced && !options.simple" class="image-data" :dark="dark" :title="labelWithSizeHint" :visible="showDetailsModal" @after-close="handleModalClosed" @close="closeDetails" @keyup.ctrl.enter="closeDetails">
       <teleport v-if="!teleportTarget || active" :disabled="!teleportTarget" :to="teleportTarget">
@@ -115,6 +115,10 @@ export default {
       if (this.error instanceof Map && this.error.get(this.fieldKey)) return this.error.get(this.fieldKey);
       return this.error.size === 1 ? 'A subfield has errors' : `${this.error.size} subfields have errors`;
     },
+    idealResolution() {
+      if (!this.options.resolutionHint) return null;
+      return this.options.resolutionHint.match(/\d+/g).map((value) => Number.parseInt(value, 10));
+    },
     labelWithSizeHint() {
       if (!this.options.resolutionHint) return this.label;
       return `${this.label} (${this.options.resolutionHint})`;
@@ -143,6 +147,27 @@ export default {
     },
     projectsDir() {
       return joinPath('/projects', this.$store.state.currentProject.id);
+    },
+    resolutionWarning() {
+      if (!this.idealResolution || this.fileDetails.width === null || this.fileDetails.height === null) return null;
+      const [width, height] = this.idealResolution;
+      let widthError;
+      let heightError;
+
+      if (width) {
+        if (this.fileDetails.width > width) widthError = `${this.label} is too wide`;
+        else if (this.fileDetails.width < width) widthError = `${this.label} is not wide enough`;
+      }
+
+      if (height) {
+        if (this.fileDetails.height > height) heightError = `${this.label} is too tall`;
+        else if (this.fileDetails.height < height) heightError = `${this.label} is not tall enough`;
+      }
+
+      if (widthError && heightError) return `${this.label} doesn’t match the ideal resolution: ${width}x${height}px`;
+      if (widthError) return `${widthError} (ideal width: ${width}px)`;
+      if (heightError) return `${heightError} (ideal height: ${height}px)`;
+      return null;
     },
     selectedFilePath() {
       if (!this.normalisedSrc) return null;
@@ -304,6 +329,14 @@ export default {
       this.validateContent();
       await this.$nextTick(); // wait a tick so this.error is up to date
       this.saveNewMeta();
+    },
+    handlePreviewLoad(e) {
+      e.target.classList.remove('hidden');
+
+      if (!this.mediaSettings.advanced || this.options.simple) {
+        this.fileDetails.width = e.target.naturalWidth;
+        this.fileDetails.height = e.target.naturalHeight;
+      }
     },
     handleWindowDragEnter(e) {
       e.preventDefault();

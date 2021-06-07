@@ -93,6 +93,14 @@
     .icon
       color: $negative-saturated
 
+  &.warning
+    &::before
+      border-color: $warning-saturated
+      opacity: 1
+
+    &:focus-visible::before
+      border-color: $accent
+
   &:hover
     background-color: $bg-tertiary
 
