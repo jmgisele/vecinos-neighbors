@@ -101,7 +101,7 @@
 </template>
 
 <script>
-import { cloneDeep as _cloneDeep, debounce } from 'lodash-es';
+import { cloneDeep as _cloneDeep, debounce, isEqual } from 'lodash-es';
 
 import generateDefaultContentFromSchema from '../../assets/js/generateDefaultContentFromSchema';
 import richToPlainText from '../../assets/js/richToPlainText';
@@ -188,14 +188,12 @@ export default {
     // this is a bit of a HACK to allow unique keys for each element in modelValue, but it will break if modelValue gets changed from the outside after creation (which it shouldn’t, and if that ever changes a clever watcher could help)
     if (Array.isArray(this.modelValue)) this.uniqueItemKeys = this.modelValue.map(() => pseudoId());
 
-    if (this.modelValue && this.children.length > 1) {
+    if (this.modelValue) {
       const cleanModel = [];
-      this.modelValue.forEach((item) => cleanModel.push(this.inferItemType(item)));
-      this.handleInput(cleanModel);
-    } else if (this.modelValue) {
-      const cleanModel = [];
-      this.modelValue.forEach((item) => cleanModel.push(this.normaliseItemType(item)));
-      this.handleInput(cleanModel);
+      if (this.children.length > 1) this.modelValue.forEach((item) => cleanModel.push(this.inferItemType(item)));
+      else this.modelValue.forEach((item) => cleanModel.push(this.normaliseItemType(item)));
+
+      if (!isEqual(this.modelValue, cleanModel)) this.handleInput(cleanModel);
     }
     this.$nextTick(() => { this.initialised = true; }); // wait a tick before showing everything so the modelValue is the sanitised one
   },
