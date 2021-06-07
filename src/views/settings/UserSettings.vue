@@ -234,7 +234,7 @@ export default {
       this.avatarUploaded = true;
     },
     handleRoleClick(roleValue, e) {
-      if (e.target.classList.contains('button')) return; // buttons have a ::before that covers them completely, so this is enough
+      if (e && e.target.classList.contains('button')) return; // buttons have a ::before that covers them completely, so this is enough
 
       const role = this.currentProject.customRoles.find((customRole) => customRole.value === roleValue);
       if (!role) return;
@@ -246,7 +246,7 @@ export default {
       this.showRoleModal = true;
     },
     async handleUserClick(id, e) {
-      if (e.target.classList.contains('button')) return; // buttons have a ::before that covers them completely, so this is enough
+      if (e && e.target.classList.contains('button')) return; // buttons have a ::before that covers them completely, so this is enough
 
       const user = this.users.find((existingUser) => existingUser.details.id === id);
       if (!user) return;
