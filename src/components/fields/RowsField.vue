@@ -435,7 +435,9 @@ export default {
       else if (currentIndex > this.indexBeingEdited && newIndex <= this.indexBeingEdited) this.indexBeingEdited += 1;
       else if (currentIndex < this.indexBeingEdited && newIndex >= this.indexBeingEdited) this.indexBeingEdited -= 1;
 
-      if (newIndex !== currentIndex && this.error instanceof Map) this.updateErrorIndices(currentIndex, newIndex);
+      if (newIndex === currentIndex) return; // there’s nothing to do
+
+      if (this.error instanceof Map) this.updateErrorIndices(currentIndex, newIndex);
 
       newVal.splice(newIndex, 0, newVal.splice(currentIndex, 1)[0]);
       this.uniqueItemKeys.splice(newIndex, 0, this.uniqueItemKeys.splice(currentIndex, 1)[0]);
