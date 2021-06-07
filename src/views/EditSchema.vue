@@ -472,6 +472,8 @@ export default {
         try {
           await fs.writeFile(this.$route.params.path, JSON.stringify(this.schema, null, 2), 'utf8');
           this.$store.commit('addToast', { message: `“${this.schemaName}” was saved successfully`, type: 'positive' });
+          this.$store.commit('addLocallyChangedFile', this.$route.params.path);
+          this.$store.dispatch('saveAppData');
           this.wasChanged = false;
         } catch (err) {
           this.$store.commit('addToast', { message: `Something went wrong while saving the file: ${err.message}`, type: 'error' });
