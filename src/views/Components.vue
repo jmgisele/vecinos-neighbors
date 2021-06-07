@@ -682,6 +682,35 @@
         <h3>Events</h3>
         <MbTable :data="events.iconPickers" />
       </section>
+      <section v-else-if="activeTabValue === 'sortable-lists'" class="tab sortable-lists">
+        <h2>Sortable Lists</h2>
+        <p>A base component for creating various forms of lists sortable via drag and drop.</p>
+        <MbSortableList v-slot="{ activeItem, item, index }" class="vertical" :class="{ dark }" enable-transitions :items="colorPalette.slice(0, 4)" item-key="label" @itemmove="handleItemMove">
+          <div class="sortable-list-item vert" :class="{ active: activeItem === item, dark }">
+            <MbIcon data-drag-handle icon="drag-handle" />
+            <p><span>{{index}}:</span> <strong>{{item.label}}:</strong> {{item.value}}</p>
+          </div>
+        </MbSortableList>
+        <MbSortableList v-slot="{ activeItem, item, index }" class="horizontal" :class="{ dark }" direction="horizontal" enable-transitions :items="colorPalette.slice(0, 6)" item-key="label" @itemmove="handleItemMove">
+          <div class="sortable-list-item" :class="{ active: activeItem === item, dark }">
+            <MbIcon data-drag-handle icon="drag-handle" />
+            <p><span>{{index}}:</span> <strong>{{item.label}}:</strong> {{item.value}}</p>
+          </div>
+        </MbSortableList>
+        <h3>Props</h3>
+        <MbTable :data="props.sortableLists" />
+        <h3>Events</h3>
+        <MbTable :data="events.sortableLists" />
+        <h3>Slots</h3>
+        <p>The contents of the default slot will be repeated for every item in <code>items</code>. The slot is passed the following props:</p>
+        <ul>
+          <li><code>activeItem</code>: the item currently being dragged (if present)</li>
+          <li><code>index</code>: the current index in the for-loop</li>
+          <li><code>item</code>: the current item in the for-loop</li>
+        </ul>
+        <h3>Notes</h3>
+        <p>Elements with <code>data-drag-handle</code> and their children will become draggable, unless a child has <code>data-ignore-drag</code>. Draggable parts of an item cannot be used to scroll, so don’t apply it to an entire element for touch devices.</p>
+      </section>
       <section v-else class="tab" key="exampleTab">
         <p>This is just an empty test-tab.</p>
         <p>To delete it, click the button in the “<u @click="activeTab = tabs.findIndex((tab) => tab.value === 'tabs')">Tabs</u>”-tab.</p>
@@ -974,6 +1003,11 @@ export default {
         selects: [
           ['Name', 'Data'],
           ['`update:modelValue`', 'The value of the selected option'],
+        ],
+        sortableLists: [
+          ['Name', 'Data'],
+          ['`itemclick`', 'The index of the clicked item'],
+          ['`itemmove`', 'An object containing the currently active item, the index the item was moved over and whether it’s at the start or end of that item: { activeItem, index, isBottomHalf }'],
         ],
         tabs: [
           ['Name', 'Data'],
@@ -1323,6 +1357,13 @@ export default {
           ['Name', 'Type', 'Default'],
           ['`dark`', 'Boolean', '`false`'],
         ],
+        sortableLists: [
+          ['Name', 'Type', 'Default', 'Notes'],
+          ['`direction`', 'String', '`\'vertical\'`', 'Allowed values: vertical, horizontal'],
+          ['`enableTransitions`', 'Boolean', '`false`', 'If true, move and enter/leave transitions will be added to the items'],
+          ['`items`', 'Array', '`undefined`', ''],
+          ['`keyName`', 'String', '`undefined`', 'If passed, the items will be keyed according to the value of the property with that key in every item of items'],
+        ],
         tables: [
           ['Name', 'Type', 'Default'],
           ['`data`', 'Array', '`[]`'],
@@ -1524,6 +1565,7 @@ export default {
         { label: 'Scrollers', value: 'scrollers' },
         { label: 'Segmented Selectors', value: 'segmented-selectors' },
         { label: 'Select Boxes', value: 'selects' },
+        { label: 'Sortable Lists', value: 'sortable-lists' },
         { label: 'Tables', value: 'tables' },
         { label: 'Tabs', value: 'tabs' },
         { label: 'Tag Inputs', value: 'tag-inputs' },
@@ -1548,6 +1590,15 @@ export default {
       this.$nextTick(() => {
         this.activeTab = this.tabs.length - 1;
       });
+    },
+    handleItemMove({ activeItem, index, isBottomHalf }) {
+      const currentIndex = this.colorPalette.indexOf(activeItem);
+      let newIndex;
+      if ((currentIndex < index && isBottomHalf) || (currentIndex > index && !isBottomHalf)) newIndex = index;
+      else if (currentIndex < index && !isBottomHalf) newIndex = Math.max(0, index - 1);
+      else if (currentIndex > index && isBottomHalf) newIndex = Math.min(index + 1, this.colorPalette.length - 1);
+
+      if (newIndex !== currentIndex) this.colorPalette.splice(newIndex, 0, this.colorPalette.splice(currentIndex, 1)[0]);
     },
     handleLoginModal(data) {
       if (data) this.$store.commit('addToast', { message: `Submitted login as ${data.user} opting to ${data.savePassword ? '' : 'not'} save the password.`, type: 'positive' });
@@ -1631,6 +1682,7 @@ export default {
 <style lang="stylus" scoped>
 @require '../assets/styles/breakpoints'
 @require '../assets/styles/colors'
+@require '../assets/styles/corners'
 
 .components
   padding: 2rem
@@ -1927,6 +1979,57 @@ export default {
       .chip
         display: inline-block
         margin-bottom: 1rem
+
+    &.sortable-lists
+      .vertical,
+      .horizontal
+        border: 0.0625rem solid alpha($text, 0.12)
+        border-radius: $radius-m
+        margin-bottom: 1rem
+
+        &.dark
+          border-color: alpha($text-dark, 0.12)
+
+        .sortable-list-item
+          margin: 0.5rem // these styles only apply to the item in the list, not the clone
+
+      .horizontal
+        padding: 0.25rem
+        display: flex
+        flex-wrap: wrap
+
+        &::v-deep(.drag-item) // this way the drag item can be styled too, although it’s a bit hacky
+          flex: 0 0 25%
+
+        .sortable-list-item
+          margin: 0.25rem
+
+.sortable-list-item
+  display: flex
+  margin: 0.25rem
+  padding: 0.5rem
+  border: 0.0625rem solid alpha($text, 0.12)
+  border-radius: $radius-s
+  background-color: $bg
+  height: calc(100% - 0.5rem)
+
+  &.vert
+    height: auto
+    margin: 0 0.5rem // margin-top needs to be 0 so the clone doesn’t jump when created (because of collapsing margins), but otherwise we can set margins freely
+
+  &.dark
+    border-color: alpha($text-dark, 0.12)
+    background-color: $bg-dark
+
+  &.active
+    opacity: 0.5
+
+  .icon
+    margin-right: 0.5rem
+    flex-shrink: 0
+
+  p
+    margin: 0
 
 .file-preview-modal
   pre

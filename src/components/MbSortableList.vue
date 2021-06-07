@@ -49,7 +49,7 @@ export default {
       const index = Number.parseInt(el.dataset.index, 10);
 
       const elRect = el.getBoundingClientRect();
-      const isBottomHalf = (e.clientY - elRect.top) > elRect.height / 2;
+      const isBottomHalf = this.direction === 'vertical' ? (e.clientY - elRect.top) > elRect.height / 2 : (e.clientX - elRect.left) > elRect.width / 2;
 
       if (el === this.lastEl && isBottomHalf === this.wasBottomHalf) return;
 
@@ -71,6 +71,7 @@ export default {
       clone.style.position = 'fixed';
       clone.style.left = `${e.clientX - this.cloneClickDelta.x}px`;
       clone.style.top = `${e.clientY - this.cloneClickDelta.y}px`;
+      clone.style.height = `${rect.height}px`;
       clone.style.width = `${rect.width}px`;
       clone.style.pointerEvents = 'none';
       clone.style.zIndex = 999;
@@ -124,9 +125,14 @@ export default {
   },
   mixins: [autoscroll],
   props: {
+    direction: {
+      type: String,
+      default: 'vertical',
+      validator: (v) => ['horizontal', 'vertical'].includes(v),
+    },
+    enableTransitions: Boolean,
     items: Array,
     keyName: String,
-    enableTransitions: Boolean,
   },
 };
 </script>
