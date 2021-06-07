@@ -60,7 +60,7 @@ export default {
     startDrag(e, index) {
       const closestDragHandle = e.target.closest('[data-drag-handle]');
       const closestIgnoreZone = e.target.closest('[data-ignore-drag]');
-      if (!closestDragHandle || !this.$el.contains(closestDragHandle) || (closestIgnoreZone && this.$el.contains(closestIgnoreZone))) return;
+      if (!closestDragHandle || !this.$el.contains(closestDragHandle) || (closestIgnoreZone && this.$el.contains(closestIgnoreZone)) || e.target.closest('div.sortable-list') !== this.$el) return; // that last check is needed to prevent outer sortable lists from hijacking nested sortable lists, but might break if there’s a <div class="sortable-list" /> somewhere between e.target and $el
       if (this.draggingClone) this.destroyClone();
       this.dragging = e.currentTarget;
       this.activeItem = this.items[index];
