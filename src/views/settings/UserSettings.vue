@@ -7,7 +7,7 @@
         <MbButton :dark="dark" icon="plus" type="positive" @click="handleAddUser">Add user</MbButton>
       </header>
       <transition-group tag="ul">
-        <li v-for="(user) in filteredUsers" :key="user.details.id" tabindex="0" @click="handleUserClick(user.details.id, $event)" @keydown.space.prevent @keyup.space.enter="handleUserClick(user.details.id)">
+        <li v-for="(user) in filteredUsers" :key="user.details.id" tabindex="0" @click="handleUserClick(user.details.id, $event)" @contextmenu.prevent="openContextMenu('userContextMenu', $event, user.details)" @keydown.space.prevent @keyup.space.enter="handleUserClick(user.details.id)">
           <AsyncImage :src="user.avatar" />
           <span v-show="user.localChanges" class="local-changes-indicator"/>
           <span :class="{ changed: user.localChanges }">{{user.details.name}}</span>
@@ -28,7 +28,7 @@
         <span>Access Level</span>
       </header>
       <transition-group class="roles" tag="ul">
-        <li v-for="(role, index) in customRolesWithoutSoftDeleted" :key="role.value" tabindex="0" @click="handleRoleClick(role.value, $event)" @keydown.space.prevent @keyup.space.enter="handleRoleClick(role.value, $event)">
+        <li v-for="(role, index) in customRolesWithoutSoftDeleted" :key="role.value" tabindex="0" @click="handleRoleClick(role.value, $event)" @contextmenu.prevent="openContextMenu('roleContextMenu', $event, role, index)" @keydown.space.prevent @keyup.space.enter="handleRoleClick(role.value, $event)">
           <span>{{role.label}}</span>
           <span class="secondary">{{role.value}}</span>
           <span class="secondary access-level">{{role.accessLevel}}</span>
@@ -85,6 +85,8 @@
         <MbButton :dark="dark" :disabled="formErrors" type="primary" @click="saveUser">Save</MbButton>
       </template>
     </MbModal>
+    <MbContextMenu :dark="dark" :options="userContextMenu.options" :show="userContextMenu.show" :target="userContextMenu.target" :x="userContextMenu.x" :y="userContextMenu.y" @close="resetContextMenu('userContextMenu')" />
+    <MbContextMenu :dark="dark" :options="roleContextMenu.options" :show="roleContextMenu.show" :target="roleContextMenu.target" :x="roleContextMenu.x" :y="roleContextMenu.y" @close="resetContextMenu('roleContextMenu')" />
   </TabContent>
 </template>
 
@@ -156,6 +158,26 @@ export default {
         new: false,
         value: '',
       },
+      roleContextMenu: {
+        options: [
+          {
+            action: () => this.handleRoleClick(this.roleContextMenu.item.role.value),
+            label: 'Edit',
+            icon: 'pencil',
+          },
+          {
+            action: () => this.removeCustomRole(this.roleContextMenu.item.index, this.roleContextMenu.item.role),
+            label: 'Delete',
+            icon: 'trash',
+            type: 'negative',
+          },
+        ],
+        item: null,
+        show: false,
+        target: null,
+        x: 0,
+        y: 0,
+      },
       showRoleModal: false,
       showUserModal: false,
       users: [],
@@ -167,6 +189,25 @@ export default {
         name: '',
         new: false,
         role: 'editor',
+      },
+      userContextMenu: {
+        options: [
+          {
+            action: () => this.handleUserClick(this.userContextMenu.item.id),
+            label: 'Edit',
+            icon: 'pencil',
+          },
+          {
+            action: () => this.copyInviteLinkForUser(this.userContextMenu.item),
+            label: 'Copy invite link',
+            icon: 'invite-link-alt',
+          },
+        ],
+        item: null,
+        show: false,
+        target: null,
+        x: 0,
+        y: 0,
       },
     };
   },
@@ -288,6 +329,14 @@ export default {
 
       return (customRole && customRole.label) || (builtinRole && builtinRole.label) || 'Unknown';
     },
+    openContextMenu(menu, e, item, index) {
+      if (menu === 'roleContextMenu') this[menu].item = { role: item, index };
+      else this[menu].item = item;
+      this[menu].target = e.currentTarget;
+      this[menu].x = e.clientX;
+      this[menu].y = e.clientY;
+      this[menu].show = true;
+    },
     regenerateAvatar() {
       if (this.userBeingEdited.avatar && this.userBeingEdited.avatar.startsWith('blob:')) URL.revokeObjectURL(this.userBeingEdited.avatar); // we’re removing an existing avatar and should revoke the reference
       const split = this.userBeingEdited.name.split(' ');
@@ -384,6 +433,13 @@ export default {
         type: 'warning',
       });
       this.showUserModal = false;
+    },
+    resetContextMenu(menu) {
+      this.[menu].show = false;
+      this.[menu].item = null;
+      this.[menu].target = null;
+      this.[menu].x = 0;
+      this.[menu].y = 0;
     },
     resetRoleBeingEdited() {
       this.roleBeingEdited.accessLevel = 'editor';
