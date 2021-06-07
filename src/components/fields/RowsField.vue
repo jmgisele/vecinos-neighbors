@@ -96,7 +96,7 @@
         <MbButton :dark="dark" @click="showTypeChangeModal = false">Cancel</MbButton>
       </template>
     </MbModal>
-    <MbContextMenu :dark="dark" :options="itemContextMenu.options" :show="itemContextMenu.show" :target="itemContextMenu.target" :x="itemContextMenu.x" :y="itemContextMenu.y" @close="resetRowContextMenu" />
+    <MbContextMenu v-if="isCompact" :dark="dark" :options="itemContextMenu.options" :show="itemContextMenu.show" :target="itemContextMenu.target" :x="itemContextMenu.x" :y="itemContextMenu.y" @close="resetRowContextMenu" />
   </section>
 </template>
 
