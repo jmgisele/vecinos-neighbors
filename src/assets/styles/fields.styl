@@ -70,7 +70,7 @@
     &:hover
       background-color: $bg-tertiary-dark
 
-    &:active
+    &:active:not(.being-dragged)
       background-color: $bg-dark
 
     .left
@@ -105,11 +105,11 @@
     background-color: $bg-tertiary
 
   &:focus-visible,
-  &:active
+  &:active:not(.being-dragged)
     &::before
       opacity: 1
 
-  &:active
+  &:active:not(.being-dragged)
     transform: translateY(0.125rem)
     background-color: $bg
 

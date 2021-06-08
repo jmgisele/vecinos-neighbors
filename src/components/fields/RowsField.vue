@@ -117,10 +117,6 @@ export default {
 
   &.being-dragged
     opacity: 0.5
-    transform: none !important
-
-    &::before
-      opacity: 0
 
   &:not(.compact)
     border: 0.0625rem solid alpha($text, 0.12)
