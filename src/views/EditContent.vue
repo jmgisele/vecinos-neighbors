@@ -422,6 +422,12 @@ export default {
     focusOpenPreview() {
       this.$options.winref.focus();
     },
+    async handleEntityMoved(newPath) {
+      this.$store.commit('removeLocallyChangedFile', this.$route.params.path);
+      this.$store.commit('addLocallyChangedFile', newPath);
+      await this.$router.replace({ params: { collection: this.$route.params.collection, id: this.$route.params.id, path: newPath } });
+      this.findAndSetFilepathIds(this.schema.fields, null, this.schema.tabs);
+    },
     handleSplitClosed() {
       if (this.showPreview) this.showPreview = false;
     },
@@ -473,12 +479,8 @@ export default {
       }
 
       await fs.rename(this.$route.params.path, newPath);
-      this.$store.commit('removeLocallyChangedFile', this.$route.params.path);
-      this.$store.commit('addLocallyChangedFile', newPath);
       this.showSettings = false;
-      this.forceNavigation = true;
-      await this.$router.replace({ params: { collection: this.$route.params.collection, id: this.$route.params.id, path: newPath } });
-      this.findAndSetFilepathIds(this.schema.fields, null, this.schema.tabs);
+      this.handleEntityMoved(newPath);
     },
     resetContentName() {
       this.newContentName = this.contentName;
