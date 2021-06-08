@@ -190,7 +190,7 @@ export default {
         },
         actionLabel: 'Undo',
         closeOnRouteChange: true,
-        message: `Changed ${this.options.itemLabel || 'row'} from “${currentType}” to “${newField.label}”`,
+        message: `Changed ${this.options.itemLabel || (this.type === 'rows' ? 'row' : 'column')} from “${currentType}” to “${newField.label}”`,
         timeout: 5000 - 200,
         type: 'warning',
       });
@@ -236,7 +236,7 @@ export default {
         },
         actionLabel: 'Undo',
         closeOnRouteChange: true,
-        message: `The ${this.options.itemLabel || 'row'} was deleted`,
+        message: `The ${this.options.itemLabel || (this.type === 'rows' ? 'row' : 'column')} was deleted`,
         timeout: 5000 - 200,
         type: 'warning',
       });
@@ -366,7 +366,7 @@ export default {
       return item;
     },
     openContextMenu(e, index) {
-      if (!this.options.allowEditing || !this.isCompact) return;
+      if (!this.options.allowEditing || (this.type === 'rows' && !this.isCompact)) return;
 
       this.itemContextMenu.item = index;
       this.itemContextMenu.target = e.currentTarget;
@@ -375,7 +375,7 @@ export default {
       this.itemContextMenu.show = true;
     },
     openDetails(index) {
-      if (!this.isCompact) return;
+      if (this.type === 'rows' && !this.isCompact) return;
       if (this.active && index === this.indexBeingEdited) {
         this.closeDetails();
         return;
@@ -391,7 +391,7 @@ export default {
       if (!this.active && this.splitTarget) this.$emit('update:active', true);
       else if (!this.showDetailsModal && !this.splitTarget) this.showDetailsModal = true;
     },
-    resetRowContextMenu() {
+    resetItemContextMenu() {
       this.itemContextMenu.show = false;
       this.itemContextMenu.item = null;
       this.itemContextMenu.target = null;
@@ -403,7 +403,7 @@ export default {
       const newError = new Map();
       this.error.forEach((value, key) => {
         if (typeof key !== 'number') {
-          newError.set(key, value); // it’s the rows-field itself that has the error
+          newError.set(key, value); // it’s the rows/columns-field itself that has the error
           return;
         }
 

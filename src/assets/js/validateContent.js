@@ -74,6 +74,7 @@ export function validateField(value, type, rules) {
         }
       }
       break;
+    case 'columns':
     case 'rows':
       valueToCheck = value || [];
       if (rules.min && valueToCheck.length < rules.min) {
