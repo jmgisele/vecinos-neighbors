@@ -26,8 +26,24 @@
               <span>Allowed Schemas:</span>
               <MbItemList v-model="collectionDetails.schemas" :dark="dark" :options="availableSchemas" placeholder="Select a Schema…" />
             </div>
-            <MbToggle v-model="collectionDetails.linkable" :dark="dark">Allow content in this collection to be linked</MbToggle>
             <MbToggle v-if="currentProject.draftsDir" v-model="collectionDetails.draftByDefault" :dark="dark">Create new content as drafts</MbToggle>
+          </section>
+          <section>
+            <h3>Linking</h3>
+            <MbToggle v-model="collectionDetails.linkable" :dark="dark">Allow content in this collection to be linked</MbToggle>
+            <transition>
+              <div v-if="collectionDetails.linkable && currentProject.languages.length === 0" class="input-row">
+                <span>URL Template:</span>
+                <MbInput :dark="dark" :model-modifiers="{ lazy: true }" :model-value="currentURLTemplate" placeholder="e.g. /blog/:date[year]/:title\.html" @update:model-value="handleURLTemplateUpdate" />
+              </div>
+              <div v-else-if="collectionDetails.linkable" class="input-group">
+                <p>URL Templates</p>
+                <div v-for="lang in currentProject.languages" class="input-row" :key="lang">
+                  <span>{{lang}}:</span>
+                  <MbInput :dark="dark" :model-modifiers="{ lazy: true }" :model-value="currentURLTemplate[lang]" placeholder="e.g. /blog/:date[year]/:title\.html" @update:model-value="handleURLTemplateUpdate($event, lang)" />
+                </div>
+              </div>
+            </transition>
           </section>
           <section>
             <h3>Permissions</h3>
@@ -70,6 +86,17 @@ export default {
     collectionBeingModifiedName() {
       if (!this.collectionBeingModified) return '';
       return prettifyEntityName(this.collectionBeingModified.split('/').slice(-1)[0]);
+    },
+    currentURLTemplate() {
+      if (this.currentProject.languages.length === 0) {
+        if (this.collectionDetails.urlTemplate && typeof this.collectionDetails.urlTemplate === 'object') return Object.values(this.collectionDetails.urlTemplate).find((value) => value);
+        if (!this.collectionDetails.urlTemplate) return '';
+        return this.collectionDetails.urlTemplate;
+      }
+
+      if (!this.collectionDetails.urlTemplate) return {};
+      if (typeof this.collectionDetails.urlTemplate === 'string') return { [this.currentProject.languages[0]]: this.collectionDetails.urlTemplate };
+      return this.collectionDetails.urlTemplate;
     },
     isMobile() {
       return this.$store.state.application.mobile;
@@ -147,6 +174,7 @@ export default {
           everybody: ['everything'],
         },
         type: 'json',
+        urlTemplate: '',
       },
       collectionBeingModified: null,
       collectionDetails: {
@@ -156,6 +184,7 @@ export default {
         linkable: false,
         permissions: {},
         type: 'json',
+        urlTemplate: '',
       },
       initialised: false,
       listedFiles: 0,
@@ -237,7 +266,13 @@ export default {
       this.collectionDetails.linkable = false;
       this.collectionDetails.permissions = {};
       this.collectionDetails.type = 'json';
+      this.collectionDetails.urlTemplate = '';
       this.splitLoading = true;
+    },
+    handleURLTemplateUpdate(newVal, lang) {
+      if (!lang) this.collectionDetails.urlTemplate = newVal;
+      else if (!this.collectionDetails.urlTemplate || typeof this.collectionDetails.urlTemplate !== 'object') this.collectionDetails.urlTemplate = { [lang]: newVal };
+      else this.collectionDetails.urlTemplate[lang] = newVal;
     },
     async openCollectionSettings(path) {
       if (this.collectionBeingModified === path) return;
@@ -301,7 +336,8 @@ export default {
 .edit-collection
   &.dark
     header span,
-    section h3
+    section h3,
+    .input-group > p
         color: $text-secondary-dark
 
     .file-picker
@@ -350,9 +386,6 @@ export default {
           align-self: flex-start
           margin-top: 1rem
 
-        .item-list
-          margin-bottom: 1rem
-
       @media $mobile
         flex-wrap: wrap
         margin-bottom: 2rem
@@ -364,15 +397,27 @@ export default {
       > :last-child:not(:only-child)
         margin-left: 1rem
         width: 100%
-        max-width: (400 / 16)rem
+        max-width: (360 / 16)rem
 
         @media $mobile
           margin-left: 0
           margin-top: 0.5rem
           width: 100%
 
+    .input
+      margin-top: 0
+
     .toggle:not(:last-child)
       margin-bottom: 1rem
+
+    .input-group
+      > p
+        margin-top: 2rem
+        font-weight: bold
+        color: $text-secondary
+
+    .permissions-list
+      margin-top: 1.5rem
 
 .loader
   position: absolute
@@ -387,6 +432,8 @@ export default {
     background-color: $bg-secondary-dark
 
 .edit-collection,
+.edit-collection > section .input-row,
+.edit-collection > section .input-group,
 .loader
   &.v-enter-active,
   &.v-leave-active
