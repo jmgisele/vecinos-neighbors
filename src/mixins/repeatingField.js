@@ -152,6 +152,13 @@ export default {
 
       const currentValue = this.modelValue[index];
       const currentType = (this.fieldBeingEdited && this.fieldBeingEdited.label) || 'Unknown Field';
+
+      if (currentType === newField.label) { // nothing to do
+        this.indexBeingEdited = null;
+        this.showTypeChangeModal = false;
+        return;
+      }
+
       let newDefaults;
       if (newField.type === 'group') newDefaults = generateDefaultContentFromSchema({ fields: newField.value });
       else newDefaults = { [newField.key]: newField.default };
