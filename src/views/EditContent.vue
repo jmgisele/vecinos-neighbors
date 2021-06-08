@@ -4,11 +4,15 @@
       <div class="left">
         <h1>{{contentName}}</h1>
         <MbChip :color="status.color" :label="status.message" :loading="status.loading" />
+        <transition>
+          <MbChip v-if="!isTablet && isDraft" label="draft" />
+        </transition>
       </div>
       <div class="right">
-        <MbButton :dark="dark" icon="settings" @click="showSettings = true">{{isTablet ? '' : 'Settings'}}</MbButton>
+        <MbToggle v-if="draftsDir" v-model="isDraft" :dark="dark" :icons="['cross', 'check']">Draft</MbToggle>
+        <MbButton :class="{ 'push-right': draftsDir }" :dark="dark" icon="settings" @click="showSettings = true">{{isTablet ? '' : 'Settings'}}</MbButton>
         <MbButton v-if="previewUrl" :dark="dark" :icon="showPreview ? 'hide' : 'eye'" @click="togglePreview">{{isTablet ? '' : showPreview ? 'Hide Preview' : 'Preview'}}</MbButton>
-        <MbButton :dark="dark" :disabled="!wasChanged || errors.fields.size > 0" icon="save" :icon-first="true" :loading="saveLoading" type="primary" @click="saveChanges">{{isTablet && !isMobile ? '' : 'Save'}}</MbButton>
+        <MbButton :dark="dark" :disabled="!wasChanged || errors.fields.size > 0" icon="save" :icon-first="true" :loading="saveLoading" type="primary" @click="saveChanges">{{isTablet ? '' : 'Save'}}</MbButton>
       </div>
     </header>
     <MbTabs v-if="schema.tabs && schema.tabs.length > 1" v-model="activeTab" :dark="dark" :errors="tabErrors" :tabs="cleanTabs" />
@@ -87,7 +91,7 @@ import pluralize from 'pluralize';
 import slugify from '@sindresorhus/slugify';
 import * as matter from 'gray-matter';
 
-import fs, { exists, PlainFS, joinPath, pathBasename, pathDirname } from '../fs'; // eslint-disable-line object-curly-newline
+import fs, { exists, PlainFS, joinPath, mkdirp, pathBasename, pathDirname } from '../fs'; // eslint-disable-line object-curly-newline
 
 import generateDefaultContentFromSchema from '../assets/js/generateDefaultContentFromSchema';
 import loadProject from '../assets/js/loadProject';
@@ -286,9 +290,28 @@ export default {
       if (this.activeTab === 0) return this.schema.fields.filter((field) => field.tab === this.cleanTabs[0] || !field.tab); // first tab shows all fields without tab, too
       return this.schema.fields.filter((field) => field.tab === this.cleanTabs[this.activeTab]);
     },
-    isDraft() {
-      if (!this.draftsDir) return false;
-      return this.$route.params.path.startsWith(this.draftsDir);
+    isDraft: {
+      get() {
+        if (!this.draftsDir) return false;
+        return this.$route.params.path.startsWith(this.draftsDir);
+      },
+      async set(toDraft) {
+        const { path } = this.$route.params;
+        let newPath;
+        if (!toDraft) newPath = path.replace(this.draftsDir, this.contentDir); // we do not need to ensure that newPath exists here, because a draft in a folder that only exists in draftsDir wouldn’t show up here
+        else {
+          newPath = joinPath(this.draftsDir, path.replace(this.contentDir, ''));
+          await mkdirp(pathDirname(newPath)); // ensure new path exists in the draftsDir
+        }
+        const existsAlready = await exists(newPath);
+
+        if (existsAlready) {
+          this.$store.commit('addToast', { message: `A ${toDraft ? 'draft' : this.contentType} with this name exists already, please rename it and try again`, type: 'warning' });
+        } else {
+          await fs.rename(path, newPath);
+          this.handleEntityMoved(newPath);
+        }
+      },
     },
     isMobile() {
       return this.$store.state.application.mobile;
@@ -631,6 +654,17 @@ export default {
           margin-right: 0.5rem
 
       .chip
+        &.v-enter-active,
+        &.v-leave-active
+          transition: opacity 200ms ease
+
+          &.v-enter-from,
+          &.v-leave-to
+            opacity: 0
+
+        &:not(:last-child)
+          margin-right: 0.5rem
+
         @media $mobile
           order: -1
           width: 1rem
@@ -653,6 +687,16 @@ export default {
 
       .button
         &:not(:last-child)
+          margin-right: 1rem
+
+        @media $mobile
+          &.push-right
+            margin-left: auto
+
+      .toggle
+        margin-right: 2rem
+
+        @media $tablet
           margin-right: 1rem
 
   .tabs
