@@ -461,8 +461,10 @@ export default {
       this.validateNewContentName();
       if (this.errors.name) return;
 
+      const oldName = pathBasename(this.$route.params.path);
+      const extension = oldName.slice((Math.max(0, oldName.lastIndexOf('.')) || Infinity) + 1); // based on https://stackoverflow.com/questions/190852/how-can-i-get-file-extensions-with-javascript/12900504#12900504
       const newName = slugify(this.newContentName, this.$store.state.currentProject.slugifyOptions || { lowercase: false, decamelize: false, preserveLeadingUnderscore: true });
-      const newPath = joinPath(pathDirname(this.$route.params.path), `${newName}.json`);
+      const newPath = joinPath(pathDirname(this.$route.params.path), `${newName}.${extension}`);
       const alreadyExists = await exists(newPath);
 
       if (alreadyExists) {
