@@ -4,6 +4,10 @@ import generateDefaultContentFromSchema from '../assets/js/generateDefaultConten
 import richToPlainText from '../assets/js/richToPlainText';
 import validateContent from '../assets/js/validateContent';
 
+import AddRepeatingFieldModal from '../components/utility/AddRepeatingFieldModal.vue';
+import RepeatingFieldChangeTypeModal from '../components/utility/RepeatingFieldChangeTypeModal.vue';
+import RepeatingFieldDetailsModal from '../components/utility/RepeatingFieldDetailsModal.vue';
+
 import field from './field';
 
 function pseudoId() {
@@ -11,6 +15,11 @@ function pseudoId() {
 }
 
 export default {
+  components: {
+    AddRepeatingFieldModal,
+    RepeatingFieldChangeTypeModal,
+    RepeatingFieldDetailsModal,
+  },
   computed: {
     displayItems() {
       if (!this.modelValue || !this.initialised) return [];

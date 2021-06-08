@@ -42,61 +42,27 @@
       </MbSortableList>
       <MbButton v-if="options.allowEditing && children.length > 0" class="add-button" :dark="dark" icon="plus" type="positive" @click="handleAddClick">Add {{options.itemLabel || 'Row'}}</MbButton>
     </div>
-    <MbModal class="add-modal" :dark="dark" title="Add new…" :visible="showAddModal" @close="showAddModal = false">
-      <ul>
-        <li v-for="child in children" :key="child.key">
-          <MbButton :dark="dark" :icon="child.icon" @click="addItem(child)">{{child.label}}</MbButton>
-        </li>
-      </ul>
-      <template #actions>
-        <MbButton :dark="dark" @click="showAddModal = false">Cancel</MbButton>
-      </template>
-    </MbModal>
-    <MbModal class="item-details" :dark="dark" :title="fieldBeingEdited && fieldBeingEdited.label" :visible="showDetailsModal" @after-close="validateItemBeingEdited" @close="closeDetails" @keyup.ctrl.enter="closeDetails">
-      <teleport v-if="!teleportTarget || active" :disabled="!teleportTarget" :to="teleportTarget">
-        <h2 v-if="teleportTarget" class="h3 split-title">{{fieldBeingEdited && fieldBeingEdited.label}}</h2>
-        <MbFieldsEditor
-          v-if="modelValue && indexBeingEdited !== null && fieldBeingEdited"
-          class="field-details-editor"
-          :class="{ 'in-split': teleportTarget }"
-          compact
-          :dark="dark"
-          :error="fieldBeingEditedErrors"
-          :fields="fieldBeingEdited.type === 'group' ? fieldBeingEdited.value : [fieldBeingEdited]"
-          :in-split="Boolean(teleportTarget)"
-          :model-value="modelValueForIndex(indexBeingEdited)"
-          :languages="languages"
-          @update:error="handleFieldBeingEditedError"
-          @update:model-value="updateFieldBeingEdited"
-        />
-        <MbButton v-if="options.allowEditing && teleportTarget" class="delete-button" :dark="dark" icon="trash" type="negative" @click="deleteItemBeingEdited">Delete {{options.itemLabel || 'Row'}}</MbButton>
-      </teleport>
-      <template #actions>
-        <MbButton v-if="options.allowEditing" :dark="dark" icon="trash" type="negative" @click="deleteItemBeingEdited">Delete {{options.itemLabel || 'Row'}}</MbButton>
-        <MbButton :dark="dark" type="primary" @click="closeDetails">Done</MbButton>
-      </template>
-    </MbModal>
-    <MbModal class="change-type-modal" :dark="dark" :title="`Change ${options.itemLabel || 'Row'} Type`" :visible="showTypeChangeModal" @close="showTypeChangeModal = false">
-      <template v-if="modelValue && modelValue[indexBeingEdited]">
-        <h2 class="h4">Existing Values</h2>
-        <ul class="existing-values">
-          <li v-for="(value, key) in modelValue[indexBeingEdited]" :key="key">
-            <code>{{key}}:</code>
-            <span>{{value}}</span>
-          </li>
-        </ul>
-      </template>
-      <h2 class="h4">Available Types</h2>
-      <ul>
-        <li v-for="child in children" :key="child.key">
-          <MbButton :dark="dark" :icon="child.icon" @click="changeItemType(indexBeingEdited, child)">{{child.label}}</MbButton>
-        </li>
-      </ul>
-      <template #actions>
-        <MbButton :dark="dark" @click="showTypeChangeModal = false">Cancel</MbButton>
-      </template>
-    </MbModal>
-    <MbContextMenu v-if="isCompact" :dark="dark" :options="itemContextMenu.options" :show="itemContextMenu.show" :target="itemContextMenu.target" :x="itemContextMenu.x" :y="itemContextMenu.y" @close="resetRowContextMenu" />
+    <AddRepeatingFieldModal :dark="dark" :fields="children" :visible="showAddModal" @add-item="addItem" @close="showAddModal = false" />
+    <RepeatingFieldDetailsModal
+      :active="active"
+      :allow-editing="options.allowEditing"
+      :current-value="modelValue && indexBeingEdited !== null && modelValueForIndex(indexBeingEdited)"
+      :dark="dark"
+      :field-being-edited="fieldBeingEdited"
+      :field-being-edited-errors="fieldBeingEditedErrors"
+      :item-label="options.itemLabel || 'Row'"
+      :languages="languages"
+      :teleport-target="teleportTarget"
+      :title="fieldBeingEdited && fieldBeingEdited.label"
+      :visible="showDetailsModal"
+      @after-close="validateItemBeingEdited"
+      @close="closeDetails"
+      @delete-item-being-edited="deleteItemBeingEdited"
+      @field-being-edited-error="handleFieldBeingEditedError"
+      @field-being-edited-update="updateFieldBeingEdited"
+    />
+    <RepeatingFieldChangeTypeModal :current-label="fieldBeingEdited && fieldBeingEdited.label" :current-value="modelValue && modelValue[indexBeingEdited]" :dark="dark" :fields="children" :item-label="options.itemLabel || 'Row'" :visible="showTypeChangeModal" @change-item-type="changeItemType(indexBeingEdited, $event)" @close="showTypeChangeModal = false" />
+    <MbContextMenu v-if="isCompact" :dark="dark" :options="itemContextMenu.options" :show="itemContextMenu.show" :target="itemContextMenu.target" :x="itemContextMenu.x" :y="itemContextMenu.y" @close="resetItemContextMenu" />
   </section>
 </template>
 
@@ -145,42 +111,6 @@ export default {
 
       @media $mobile
         width: 100%
-
-.add-modal,
-.change-type-modal
-  ul
-    list-style: none
-    margin: 0
-    padding: 0
-    display: grid
-    grid-template-columns: repeat(2, 1fr)
-    grid-gap: 1rem
-
-    @media $mobile
-      display: block
-
-    &:last-child
-      margin-bottom: 0.125rem
-
-    li
-      .button
-        width: 100%
-
-.change-type-modal
-  .existing-values
-
-    li
-      display: flex
-      align-items: center
-      overflow: hidden
-      white-space: nowrap
-
-      span
-        overflow: hidden
-        text-overflow: ellipsis
-
-      code
-        margin-right: 0.5rem
 
 .row-item
   margin-bottom: 1rem
@@ -259,12 +189,4 @@ export default {
     margin: -1rem
     margin-right: -0.25rem
     cursor: move
-
-.field-details-editor.in-split
-  margin-bottom: 2rem
-
-.delete-button
-  display: flex
-  margin-left: auto
-  margin-bottom: 0.125rem
 </style>
