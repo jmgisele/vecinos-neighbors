@@ -159,16 +159,27 @@ export default {
       flex-wrap: wrap
       justify-content: center
 
-      &:not(:last-child)
-        margin-bottom: 2rem
-
       > .button
         width: 100%
-        margin-top: 1rem
+        border-top-left-radius: 0
+        border-top-right-radius: 0
+        border-top: none
 
       > span
-        margin: 0.5rem 0
+        display: block
+        border-left: 0.0625rem solid $accent
+        border-right: @border-left
+        padding: 0.5rem 0
+        margin: 0
+        width: 100%
+        text-align: center
+
+        & + ::v-deep(.select)
+          border-top-left-radius: 0
+          border-top-right-radius: 0
 
       > ::v-deep(.select)
         margin-right: 0
+        border-bottom-left-radius: 0
+        border-bottom-right-radius: 0
 </style>
