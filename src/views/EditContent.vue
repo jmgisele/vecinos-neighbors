@@ -60,7 +60,7 @@
               <transition>
                 <MbLoader v-if="previewLoading" :class="{ dark }" />
               </transition>
-              <iframe :class="{ mobile: mobilePreview }" name="preview" ref="preview" referrer="no-referrer" sandbox="allow-same-origin allow-scripts" :src="actualPreviewUrl" @load="previewLoading = false" />
+              <iframe :class="{ mobile: mobilePreview }" name="preview" ref="preview" referrer="no-referrer" sandbox="allow-same-origin allow-scripts" :src="actualPreviewUrl" @load="handlePreviewLoaded" />
             </div>
           </teleport>
         </div>
@@ -85,7 +85,9 @@
 </template>
 
 <script>
-import { cloneDeep as _cloneDeep, get as _get, set as _set } from 'lodash-es';
+import {
+  cloneDeep as _cloneDeep, debounce, get as _get, set as _set,
+} from 'lodash-es';
 import { status } from 'isomorphic-git';
 import pluralize from 'pluralize';
 import slugify from '@sindresorhus/slugify';
@@ -256,6 +258,7 @@ export default {
         const { groupAs } = this.schema.tabs[this.activeTab];
         if (groupAs) this.content[groupAs] = v;
         else this.content = v;
+        if (this.previewConnected) this.sendPreviewData();
       },
     },
     contentLanguages() {
@@ -362,6 +365,7 @@ export default {
       newContentName: '',
       newContentSchema: null,
       mobilePreview: false,
+      previewConnected: false,
       previewLoading: false,
       previewInNewTab: null,
       saveLoading: false,
@@ -424,6 +428,43 @@ export default {
       const collectionPath = joinPath('/.mattrbld', 'collections', collection);
       this.$router.replace({ name: 'Project.Collection', params: { id, path: collectionPath } });
     },
+    exchangePreviewHandshake() {
+      let handshake;
+      let handshakeTimeout;
+      let targetOrigin;
+      const vm = this;
+      function handshakeListener(e) {
+        if (e.origin !== targetOrigin) vm.$store.commit('addToast', { message: 'Could not exchange handshakes with the preview: the origin changed', type: 'warning' });
+        else if (!e.data || !e.data.handshake) vm.$store.commit('addToast', { message: 'The preview didn’t return the connection handshake, does it implement the Preview Protocol correctly?', type: 'warning' });
+        else if (e.data.handshake !== handshake) vm.$store.commit('addToast', { message: 'Could not exchange handshakes with the preview: the returned handshake didn’t match ours', type: 'warning' });
+        else {
+          window.clearTimeout(handshakeTimeout);
+          vm.previewConnected = true;
+          // this would also be the right spot to set up a message listener if we ever wanted to implement bi-directional Communication
+          vm.$store.commit('addToast', { message: 'Communication with the preview has been set up successfully', type: 'positive' });
+        }
+        window.removeEventListener('message', handshakeListener, false);
+      }
+      try {
+        targetOrigin = new URL(this.previewUrl).origin;
+        handshake = Math.random().toString(36).substring(2, 9); // we just need something pseudo-random here to verify that the previewUrl implements the protocol
+        if (this.previewInNewTab) this.$options.winref.postMessage({ handshake }, targetOrigin);
+        else this.$refs.preview.contentWindow.postMessage({ handshake }, targetOrigin);
+        window.addEventListener('message', handshakeListener, false);
+        handshakeTimeout = window.setTimeout(() => {
+          this.$store.commit('addToast', {
+            action: this.exchangePreviewHandshake,
+            actionLabel: 'Retry',
+            message: 'The preview didn’t return the connection handshake, does it implement the Preview Protocol correctly?',
+            onClose: () => { this.showSplit = false; },
+            type: 'warning',
+          });
+        }, 500);
+      } catch (err) {
+        window.clearTimeout(handshakeTimeout);
+        this.$store.commit('addToast', { message: `Something went wrong while exchanging the preview handshake: ${err.message}`, type: 'error' });
+      }
+    },
     findAndSetFilepathIds(fields, parentChain, tabs) {
       fields.forEach((field) => {
         if (tabs && field.tab) {
@@ -451,8 +492,16 @@ export default {
       await this.$router.replace({ params: { collection: this.$route.params.collection, id: this.$route.params.id, path: newPath } });
       this.findAndSetFilepathIds(this.schema.fields, null, this.schema.tabs);
     },
+    handlePreviewLoaded(e) {
+      if (!e.target.src) return; // we need to skip the first load event when the iframe is added to the DOM empty
+      this.previewLoading = false;
+      this.exchangePreviewHandshake();
+    },
     handleSplitClosed() {
-      if (this.showPreview) this.showPreview = false;
+      if (this.showPreview) {
+        this.showPreview = false;
+        if (!this.previewInNewTab) this.previewConnected = false;
+      }
     },
     async loadAndAssignSchema(schema) {
       try {
@@ -468,6 +517,8 @@ export default {
     },
     openPreviewInNewTab() {
       this.$options.winref = window.open(this.previewUrl, `com.mattrbld.app.Project/preview/${this.$route.params.id}`); // this will focus a window of the same name (reverse domain to avoid duplicates) or open a blank new one
+      this.$options.winref.addEventListener('load', this.exchangePreviewHandshake, false);
+      // TODO: add a one-time message event listener to window that listens for the load event from the new tab and then initialises the communication with it
       this.previewInNewTab = true;
     },
     preventUnintentionalClose(e) {
@@ -541,10 +592,20 @@ export default {
       if (this.newContentSchema) await this.loadAndAssignSchema(this.newContentSchema);
       if (this.newContentName !== this.contentName) this.renameContent();
     },
+    sendPreviewData: debounce(function debouncedSend() {
+      const targetOrigin = new URL(this.previewUrl).origin;
+      const data = {
+        collection: this.$route.params.collection,
+        url: this.collection.urlTemplate, // TODO: actually turn that into a proper url
+        data: _cloneDeep(this.content),
+        imageMap: new Map(), // TODO: fill this map with objectURLs for every image mapped to its path
+        changedProp: '',
+      };
+      if (this.previewInNewTab) this.$options.winref.postMessage(data, targetOrigin);
+      else this.$refs.preview.contentWindow.postMessage(data, targetOrigin);
+    }, 500),
     togglePreview() {
       if (!this.showPreview) {
-        // TODO: establish a connection to the preview URL and send the content over
-        // Use this to post messages: this.$refs.preview.contentWindow.postMessage (might have to be try/caught)
         this.previewLoading = true;
         this.showSplit = true;
         this.showPreview = true;
