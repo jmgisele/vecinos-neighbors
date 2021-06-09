@@ -262,15 +262,15 @@ export default [
       {
         component: 'MbInput',
         key: 'urlTemplate',
-        label: 'URL Template for internal links:',
-        props: { placeholder: '/blog/:category/:title' },
+        label: 'Custom URL Template for internal links:',
+        props: { placeholder: 'e.g. /blog/:category/:title\\.html' },
         value: '',
       },
       {
         component: 'MbInput',
         key: 'urlSuffix',
-        label: 'Suffix for internal links:',
-        props: { placeholder: '.html' },
+        label: 'Suffix for internal links (when using file path):',
+        props: { placeholder: 'e.g. .html' },
         value: '',
       },
       {
