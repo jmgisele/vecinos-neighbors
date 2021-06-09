@@ -16,7 +16,7 @@
       </li>
     </ul>
     <template #actions>
-      <MbButton :dark="dark" @click="showTypeChangeModal = false">Cancel</MbButton>
+      <MbButton :dark="dark" @click="$emit('close')">Cancel</MbButton>
     </template>
   </MbModal>
 </template>
