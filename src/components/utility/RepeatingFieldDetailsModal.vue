@@ -16,7 +16,10 @@
         @update:error="$emit('field-being-edited-error', $event)"
         @update:model-value="$emit('field-being-edited-update', $event)"
       />
-      <MbButton v-if="allowEditing && teleportTarget" class="delete-button" :dark="dark" icon="trash" type="negative" @click="$emit('delete-item-being-edited')">Delete {{itemLabel}}</MbButton>
+      <footer class="field-details-actions">
+        <MbButton v-if="allowEditing && teleportTarget" :dark="dark" icon="replace-round" @click="$emit('field-being-edited-change-type')">Change {{itemLabel}} type</MbButton>
+        <MbButton v-if="allowEditing && teleportTarget" :dark="dark" icon="trash" type="negative" @click="$emit('delete-item-being-edited')">Delete {{itemLabel}}</MbButton>
+      </footer>
     </teleport>
     <template #actions>
       <MbButton v-if="allowEditing" :dark="dark" icon="trash" type="negative" @click="$emit('delete-item-being-edited')">Delete {{itemLabel}}</MbButton>
@@ -27,7 +30,7 @@
 
 <script>
 export default {
-  emits: ['close', 'delete-item-being-edited', 'field-being-edited-error', 'field-being-edited-update'],
+  emits: ['close', 'delete-item-being-edited', 'field-being-edited-change-type', 'field-being-edited-error', 'field-being-edited-update'],
   props: {
     active: Boolean,
     allowEditing: Boolean,
@@ -45,11 +48,23 @@ export default {
 </script>
 
 <style lang="stylus" scoped>
+@require '../../assets/styles/breakpoints'
+
 .field-details-editor.in-split
   margin-bottom: 2rem
 
-.delete-button
-  display: flex
-  margin-left: auto
-  margin-bottom: 0.125rem
+.field-details-actions
+  padding-bottom: 0.125rem
+  text-align: right
+
+  .button
+    &:not(:last-child)
+      margin-right: 1rem
+
+    @media $mobile
+      width: 100%
+
+      &:not(:last-child)
+        margin-right: 0
+        margin-bottom: 0.5rem
 </style>

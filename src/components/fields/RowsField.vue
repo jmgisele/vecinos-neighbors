@@ -58,6 +58,7 @@
       @after-close="validateItemBeingEdited"
       @close="closeDetails"
       @delete-item-being-edited="deleteItemBeingEdited"
+      @field-being-edited-change-type="showTypeChangeModal = true"
       @field-being-edited-error="handleFieldBeingEditedError"
       @field-being-edited-update="updateFieldBeingEdited"
     />
