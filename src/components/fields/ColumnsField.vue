@@ -17,7 +17,7 @@
       </MbSortableList>
       <MbButton v-if="options.allowEditing && children.length > 0" class="add-button" :dark="dark" icon="plus" type="positive" @click="handleAddClick">Add {{options.itemLabel || 'Column'}}</MbButton>
     </div>
-    <AddRepeatingFieldModal :dark="dark" :fields="children" :visible="showAddModal" @close="showAddModal = false" />
+    <AddRepeatingFieldModal :dark="dark" :fields="children" :visible="showAddModal" @add-item="addItem" @close="showAddModal = false" />
     <RepeatingFieldDetailsModal
       :active="active"
       :allow-editing="options.allowEditing"
