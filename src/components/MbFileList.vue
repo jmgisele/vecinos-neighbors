@@ -438,11 +438,13 @@ export default {
       }
     },
     updateOffsets: debounce(function () { // eslint-disable-line func-names
+      if (!this.$refs.folderWrapper) return;
       this.$refs.folderWrapper.$el.querySelectorAll('.folder').forEach((el) => {
         el.dataset.offsetLeft = el.offsetLeft; // eslint-disable-line no-param-reassign
       });
     }),
     updateFileOffsets: debounce(function () { // eslint-disable-line func-names
+      if (!this.$refs.fileWrapper) return;
       this.$refs.fileWrapper.$el.querySelectorAll('.file').forEach((el) => {
         el.dataset.offsetLeft = el.offsetLeft; // eslint-disable-line no-param-reassign
         el.dataset.offsetTop = el.offsetTop; // eslint-disable-line no-param-reassign
