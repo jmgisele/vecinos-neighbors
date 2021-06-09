@@ -1,12 +1,12 @@
 <template lang="html">
-  <MbModal class="add-repeating-field-modal" :dark="dark" title="Add new…" :visible="visible" @close="$emit('cancel')">
+  <MbModal class="add-repeating-field-modal" :dark="dark" title="Add new…" :visible="visible" @close="$emit('close')">
     <ul>
       <li v-for="field in fields" :key="field.key">
         <MbButton :dark="dark" :icon="field.icon" @click="$emit('add-item', field)">{{field.label}}</MbButton>
       </li>
     </ul>
     <template #actions>
-      <MbButton :dark="dark" @click="$emit('cancel')">Cancel</MbButton>
+      <MbButton :dark="dark" @click="$emit('close')">Cancel</MbButton>
     </template>
   </MbModal>
 </template>
