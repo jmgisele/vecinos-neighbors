@@ -11,7 +11,7 @@
           <li v-if="linkableCollections.length === 0" class="empty-state" :class="{ dark }">
             <p>There are no linkable collections in this project yet</p>
           </li>
-          <li v-for="collection in linkableCollections" :class="{ dark }" :key="collection.value" tabindex="0" @click="handleCollectionClick(collection.value, collection.type)" @keydown.space.prevent @keyup.space.enter="handleCollectionClick(collection.value, collection.type)">
+          <li v-for="collection in linkableCollections" :class="{ dark }" :key="collection.value" tabindex="0" @click="handleCollectionClick(collection.value, collection.type, collection.template)" @keydown.space.prevent @keyup.space.enter="handleCollectionClick(collection.value, collection.type, collection.template)">
             <MbIcon icon="folder" />
             <span class="label">{{collection.label}}</span>
           </li>
@@ -50,6 +50,7 @@ export default {
   data() {
     return {
       currentRoot: '/',
+      currentTemplate: null,
       filetype: 'json',
       linkableCollections: [],
       view: 'url',
@@ -60,17 +61,23 @@ export default {
     async activate() {
       this.view = 'loading';
       await this.loadCollections();
-      if (this.linkableCollections.length === 1) this.handleCollectionClick(this.linkableCollections[0].value, this.linkableCollections[0].type);
+      if (this.linkableCollections.length === 1) this.handleCollectionClick(this.linkableCollections[0].value, this.linkableCollections[0].type, this.linkableCollections[0].template);
       else this.view = 'collections';
     },
-    handleCollectionClick(dir, type) {
+    handleCollectionClick(dir, type, template) {
       this.currentRoot = joinPath(this.projectDir, dir);
+
+      if (template && typeof template === 'object') {
+        if (this.lang) this.currentTemplate = template[this.lang];
+        if (!this.currentTemplate) this.currentTemplate = Object.values(template).find((value) => value); // if no lang is passed, or template[lang] is falsey, pick the first non-falsey-one
+      } else this.currentTemplate = template;
+
       this.filetype = type;
       this.view = 'files';
     },
     async handleFileClick(path) {
       let newUrl;
-      if (this.useFilePath || !this.urlTemplate) {
+      if (this.useFilePath || (!this.currentTemplate && !this.urlTemplate)) {
         if (this.fullPath) newUrl = path.replace(this.projectDir, '');
         else {
           const pathWithoutExtension = path.substring(0, path.lastIndexOf('.')); // we know there’s a .json at the end that we want to strip off, and since in the future we might also have .md or .yml / .yaml, let’s use this more ambiguous approach
@@ -84,9 +91,10 @@ export default {
           if (this.filetype === 'json') fields = JSON.parse(await fs.readFile(path, 'utf8'));
           else if (this.filetype === 'md') fields = matter(await fs.readFile(path, 'utf8')).data;
 
+          const urlTemplate = this.urlTemplate || this.currentTemplate; // if we were passed a urlTemplate, use that, otherwise fall back to the collection’s urlTemplate
           const hasParameters = /\[(year|month|day)\]/;
 
-          newUrl = this.urlTemplate.replace(
+          newUrl = urlTemplate.replace(
             /:((?:\w|\.)+\[(?:year|month|day|[0-9])\]|(?:\w|\.)+)/g, // this regex matches any word, dot, or parameter in [] between : and a non-word character. It could probably be made more DRY, but I don’t know how
             (match, fieldKey) => { // passing replacer functions to string.replace is a powerful thing
               if (hasParameters.test(fieldKey)) { // we’re trying to get something out of a date
@@ -134,11 +142,18 @@ export default {
         const collectionStrings = await Promise.all(collectionFiles.map((file) => fs.readFile(joinPath(this.collectionsPath, file), 'utf8')));
         const collections = collectionStrings.map((collection) => collection && JSON.parse(collection)).filter((collection) => typeof collection !== 'undefined');
         this.linkableCollections = collections.reduce((acc, collection, index) => {
-          if (((this.limitTo && this.limitTo.length > 0) || collection.linkable) && collection.dir) acc.push({ label: prettifyEntityName(collectionFiles[index]), type: collection.type, value: collection.dir });
+          if (((this.limitTo && this.limitTo.length > 0) || collection.linkable) && collection.dir) {
+            acc.push({
+              label: prettifyEntityName(collectionFiles[index]),
+              template: collection.urlTemplate,
+              type: collection.type,
+              value: collection.dir,
+            });
+          }
           return acc;
         }, []);
       } catch (err) {
-        this.$store.commit('addToast', { message: `Somethin went wrong while fetching all linkable collections: ${err.message}`, type: 'error' });
+        this.$store.commit('addToast', { message: `Something went wrong while fetching all linkable collections: ${err.message}`, type: 'error' });
       }
     },
   },
