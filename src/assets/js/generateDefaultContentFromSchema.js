@@ -1,5 +1,7 @@
 import { v4 as uuidv4 } from 'uuid';
-import { min, max, parseISO } from 'date-fns';
+import {
+  formatISO, min, max, parseISO,
+} from 'date-fns';
 
 export default function generateDefaultContentFromSchema(schema, filepath) {
   if (!schema.fields) return {};
@@ -23,7 +25,7 @@ export default function generateDefaultContentFromSchema(schema, filepath) {
         if (field.validation && field.validation.min && field.validation.max) possibleDate = max([min([now, typeof field.validation.max === 'number' ? new Date(field.validation.max) : parseISO(field.validation.max)]), typeof field.validation.min === 'number' ? new Date(field.validation.min) : parseISO(field.validation.min)]);
         else if (field.validation && field.validation.min) possibleDate = max([now, typeof field.validation.min === 'number' ? new Date(field.validation.min) : parseISO(field.validation.min)]);
         else if (field.validation && field.validation.max) possibleDate = min([now, typeof field.validation.max === 'number' ? new Date(field.validation.max) : parseISO(field.validation.max)]);
-        value = field.options.outputFormat === 'iso' ? possibleDate.toISOString() : possibleDate.valueOf();
+        value = field.options.outputFormat === 'iso' ? formatISO(possibleDate, { representation: field.options && field.options.showTime ? 'complete' : 'date' }) : possibleDate.valueOf();
       } else value = field.default;
 
       // check if field is toplevel and in tab with groupAs → put field under that, otherwise put field in object
