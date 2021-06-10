@@ -11,7 +11,7 @@
       <div class="right">
         <MbToggle v-if="draftsDir" v-model="isDraft" :dark="dark" :icons="['cross', 'check']">Draft</MbToggle>
         <MbButton :class="{ 'push-right': draftsDir }" :dark="dark" icon="settings" @click="showSettings = true">{{isTablet ? '' : 'Settings'}}</MbButton>
-        <MbButton v-if="previewUrl" :dark="dark" :icon="showPreview ? 'hide' : 'eye'" @click="togglePreview">{{isTablet ? '' : showPreview ? 'Hide Preview' : 'Preview'}}</MbButton>
+        <MbButton v-if="previewUrl" :dark="dark" :disabled="noSchema" :icon="showPreview ? 'hide' : 'eye'" @click="togglePreview">{{isTablet ? '' : showPreview ? 'Hide Preview' : 'Preview'}}</MbButton>
         <MbButton :dark="dark" :disabled="!wasChanged || errors.fields.size > 0" icon="save" :icon-first="true" :loading="saveLoading" type="primary" @click="saveChanges">{{isTablet ? '' : 'Save'}}</MbButton>
       </div>
     </header>
