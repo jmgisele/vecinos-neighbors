@@ -51,8 +51,8 @@
             <MbButton :dark="dark" @click="focusOpenPreview" type="primary">Focus</MbButton>
           </div>
           <teleport v-else :disabled="!fullscreenPreview" to="body">
-            <div class="preview-frame" :class="{ fullscreen: fullscreenPreview }">
-              <header :class="{ dark, 'mobile-preview': mobilePreview }">
+            <div class="preview-frame" :class="{ fullscreen: fullscreenPreview, 'mobile-preview': mobilePreview }">
+              <header :class="{ dark }">
                 <MbButton :dark="dark" icon="open-new-window" tooltip="Open preview in new tab / window" @click="openPreviewInNewTab" />
                 <MbButton :dark="dark" :icon="fullscreenPreview ? 'fullscreen-reverse' : 'fullscreen'" tooltip="Toggle fullscreen" @click="fullscreenPreview = !fullscreenPreview" />
                 <MbButton v-if="!isMobile" :dark="dark" :icon="mobilePreview ? 'monitor' : 'phone'" tooltip="Toggle mobile preview" @click="mobilePreview = !mobilePreview" />
@@ -871,6 +871,12 @@ export default {
     background-color: $bg-dark
     z-index: 2
 
+  &.mobile-preview
+    background-color: $bg-tertiary-dark
+
+    header
+      opacity: 1
+
   header
     position: absolute
     top: 0
@@ -884,8 +890,7 @@ export default {
     &.dark
       background-color: alpha($bg-dark, 0.5)
 
-    &:hover,
-    &.mobile-preview
+    &:hover
       opacity: 1
 
     .button:not(:last-child)
@@ -895,6 +900,7 @@ export default {
     border: none
     width: 100%
     height: 100%
+    background-color: #fff
 
     &.mobile
       width: (360 / 16)rem
