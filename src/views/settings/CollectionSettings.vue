@@ -295,6 +295,8 @@ export default {
       async handler(nv, ov) {
         if (!this.showEntityRename && this.collectionBeingModified && nv === ov) { // we don’t want to save empty details after the rename modal shows and only want to save if we’re referencing the same object (to avoid overwriting when switching between two files)
           await fs.writeFile(this.collectionBeingModified, JSON.stringify(this.collectionDetails, null, 2), 'utf8');
+          this.$store.commit('addLocallyChangedFile', this.collectionBeingModified);
+          this.$store.dispatch('saveAppData');
         }
       },
       deep: true,
