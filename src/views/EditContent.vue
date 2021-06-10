@@ -442,6 +442,7 @@ export default {
           vm.previewConnected = true;
           // this would also be the right spot to set up a message listener if we ever wanted to implement bi-directional Communication
           vm.$store.commit('addToast', { message: 'Communication with the preview has been set up successfully', type: 'positive' });
+          vm.sendPreviewData();
         }
         window.removeEventListener('message', handshakeListener, false);
       }
