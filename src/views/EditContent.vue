@@ -596,7 +596,7 @@ export default {
       const targetOrigin = new URL(this.previewUrl).origin;
       const data = {
         collection: this.$route.params.collection,
-        url: this.collection.urlTemplate, // TODO: actually turn that into a proper url
+        url: this.collection.urlTemplate || this.$route.params.path.replace(this.projectDir, ''), // TODO: actually turn that into a proper url
         data: _cloneDeep(this.content),
         imageMap: new Map(), // TODO: fill this map with objectURLs for every image mapped to its path
         changedProp: '',
