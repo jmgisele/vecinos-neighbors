@@ -95,6 +95,7 @@ import * as matter from 'gray-matter';
 
 import fs, { exists, PlainFS, joinPath, mkdirp, pathBasename, pathDirname } from '../fs'; // eslint-disable-line object-curly-newline
 
+import assembleUrlFromTemplate from '../assets/js/assembleUrlFromTemplate';
 import generateDefaultContentFromSchema from '../assets/js/generateDefaultContentFromSchema';
 import loadProject from '../assets/js/loadProject';
 import prettifyEntityName from '../assets/js/prettifyEntityName';
@@ -595,9 +596,10 @@ export default {
     },
     sendPreviewData: debounce(function debouncedSend() {
       const targetOrigin = new URL(this.previewUrl).origin;
+      const url = this.collection.urlTemplate ? assembleUrlFromTemplate(this.collection.urlTemplate, this.content, this.contentLanguages[0], true, this.$store.state.currentProject.slugifyOptions || { lowercase: true, decamelize: true, preserveLeadingUnderscore: true }) : this.$route.params.path.replace(this.projectDir, '');
       const data = {
         collection: this.$route.params.collection,
-        url: this.collection.urlTemplate || this.$route.params.path.replace(this.projectDir, ''), // TODO: actually turn that into a proper url
+        url,
         data: _cloneDeep(this.content),
         imageMap: new Map(), // TODO: fill this map with objectURLs for every image mapped to its path
         changedProp: '',
