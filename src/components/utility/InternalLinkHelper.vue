@@ -34,11 +34,9 @@
 
 <script>
 import * as matter from 'gray-matter';
-import slugify from '@sindresorhus/slugify';
-import { get } from 'lodash-es';
-import { isValid } from 'date-fns';
 import fs, { joinPath, pathBasename, pathDirname } from '../../fs';
 
+import assembleUrlFromTemplate from '../../assets/js/assembleUrlFromTemplate';
 import prettifyEntityName from '../../assets/js/prettifyEntityName';
 
 export default {
@@ -92,35 +90,8 @@ export default {
           else if (this.filetype === 'md') fields = matter(await fs.readFile(path, 'utf8')).data;
 
           const urlTemplate = this.urlTemplate || this.currentTemplate; // if we were passed a urlTemplate, use that, otherwise fall back to the collection’s urlTemplate
-          const hasParameters = /\[(year|month|day)\]/;
 
-          newUrl = urlTemplate.replace(
-            /:((?:\w|\.)+\[(?:year|month|day|[0-9])\]|(?:\w|\.)+)/g, // this regex matches any word, dot, or parameter in [] between : and a non-word character. It could probably be made more DRY, but I don’t know how
-            (match, fieldKey) => { // passing replacer functions to string.replace is a powerful thing
-              if (hasParameters.test(fieldKey)) { // we’re trying to get something out of a date
-                const [rawKey, parameterWithBracket] = fieldKey.split('[');
-                const parameter = parameterWithBracket.slice(0, -1);
-                const value = get(fields, rawKey);
-                const potentialDate = new Date(value); // if value is not a valid date, it’s not our problem
-                if (isValid(potentialDate)) {
-                  if (parameter === 'day') return String(potentialDate.getDate()).padStart(2, '0');
-                  if (parameter === 'month') return String(potentialDate.getMonth() + 1).padStart(2, '0'); // months are zero-based
-                  if (parameter === 'year') return String(potentialDate.getFullYear());
-                }
-                return 'invalid-date';
-              }
-
-              const value = get(fields, fieldKey);
-
-              if (value && typeof value === 'object' && !Array.isArray(value)) { // it might be a localised field
-                if (!this.lang) return 'undefined';
-                const localisedValue = value[this.lang];
-                if (localisedValue) return this.slugify ? slugify(String(localisedValue), this.$store.state.currentProject.slugifyOptions || { lowercase: true, decamelize: true, preserveLeadingUnderscore: true }) : localisedValue;
-                return 'undefined';
-              }
-              return this.slugify ? slugify(String(value), this.$store.state.currentProject.slugifyOptions || { lowercase: true, decamelize: true, preserveLeadingUnderscore: true }) : value;
-            },
-          );
+          newUrl = assembleUrlFromTemplate(urlTemplate, fields, this.lang, this.slugify, this.$store.state.currentProject.slugifyOptions || { lowercase: true, decamelize: true, preserveLeadingUnderscore: true });
         } catch (err) {
           if (err.name === 'SyntaxError') {
             this.$store.commit('addToast', { message: 'The file you selected is not a valid JSON file', type: 'error' });
