@@ -27,7 +27,7 @@
             </li>
           </ul>
         </div>
-        <MbFieldsEditor v-else v-model="contentForTab" v-model:error="errors.fields" v-model:split-visible="showSplit" :compact="!showPreview" :dark="dark" :fields="fieldsForTab" :key="activeTab" :languages="contentLanguages" :split-target="!showPreview ? '#splitTarget' : null" />
+        <MbFieldsEditor v-else v-model="contentForTab" v-model:error="errors.fields" v-model:split-visible="showSplit" :compact="!showPreview" :dark="dark" :fields="fieldsForTab" :key="activeTab" :languages="contentLanguages" :split-target="!showPreview ? '#splitTarget' : null" @image-load="addPreviewImage" />
       </transition>
 
       <pre data-lang="content langs">{{contentLanguages}}</pre>
@@ -367,6 +367,7 @@ export default {
       newContentSchema: null,
       mobilePreview: false,
       previewConnected: false,
+      previewImages: new Map(),
       previewLoading: false,
       previewInNewTab: null,
       saveLoading: false,
@@ -378,6 +379,11 @@ export default {
     };
   },
   methods: {
+    addPreviewImage({ detail }) {
+      const { path, image } = detail;
+      this.previewImages.set(path, image);
+      if (this.previewConnected) this.sendPreviewData(); // since images load asynchronously we need to send the data again here so it shows up
+    },
     assignSchemaDefaults(content, defaults) {
       return Object.entries(defaults).reduce((acc, [key, value]) => {
         if (!content[key]) acc[key] = value;
@@ -595,14 +601,14 @@ export default {
       if (this.newContentSchema) await this.loadAndAssignSchema(this.newContentSchema);
       if (this.newContentName !== this.contentName) this.renameContent();
     },
-    sendPreviewData: debounce(function debouncedSend() {
+    sendPreviewData: debounce(function debouncedSend() { // OPTIMIZE: this could probably be optimized to only send deltas instead of the full object every time if a "full" param is false (we still need to send the full object upon initial connection)
       const targetOrigin = new URL(this.previewUrl).origin;
       const url = this.collection.urlTemplate ? assembleUrlFromTemplate(this.collection.urlTemplate, this.content, this.contentLanguages[0], true, this.$store.state.currentProject.slugifyOptions || { lowercase: true, decamelize: true, preserveLeadingUnderscore: true }) : this.$route.params.path.replace(this.projectDir, '');
       const data = {
         collection: this.$route.params.collection,
         url,
         data: _cloneDeep(this.content),
-        imageMap: new Map(), // TODO: fill this map with objectURLs for every image mapped to its path
+        imageMap: new Map(this.previewImages), // we need to clone the map here, because StructuredClone doesn’t like proxies
         changedProp: '',
       };
       if (this.previewInNewTab) this.$options.winref.postMessage(data, targetOrigin);
