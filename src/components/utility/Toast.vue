@@ -12,17 +12,19 @@
 export default {
   data() {
     return {
+      actionHandled: false,
       timeoutId: null,
     };
   },
   methods: {
     close() {
       if (this.timeoutId) window.clearTimeout(this.timeoutId);
-      if (typeof this.toast.onClose === 'function') this.toast.onClose();
+      if (typeof this.toast.onClose === 'function') this.toast.onClose(this.actionHandled);
       this.$store.commit('removeToast', this.toast.id);
     },
     handleAction() {
       this.toast.action();
+      this.actionHandled = true;
       this.close();
     },
   },
