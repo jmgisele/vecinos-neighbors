@@ -454,11 +454,12 @@ export default {
         else this.$refs.preview.contentWindow.postMessage({ handshake }, targetOrigin);
         window.addEventListener('message', handshakeListener, false);
         handshakeTimeout = window.setTimeout(() => {
+          window.removeEventListener('message', handshakeListener, false);
           this.$store.commit('addToast', {
             action: this.exchangePreviewHandshake,
             actionLabel: 'Retry',
             message: 'The preview didn’t return the connection handshake, does it implement the Preview Protocol correctly?',
-            onClose: () => { this.showSplit = false; },
+            onClose: (actionHandled) => { if (!actionHandled) this.showSplit = false; },
             type: 'warning',
           });
         }, 500);
