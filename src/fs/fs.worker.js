@@ -14,7 +14,8 @@ async function deleteFileOrFolder(path) {
 
 async function loadImage(path) {
   const rawImage = await fs.promises.readFile(path);
-  return URL.createObjectURL(new Blob([rawImage], path.endsWith('.svg') ? { type: 'image/svg+xml' } : undefined));
+  const blob = new Blob([rawImage], path.endsWith('.svg') ? { type: 'image/svg+xml' } : undefined);
+  return { url: URL.createObjectURL(blob), raw: blob };
 }
 
 async function rmrf(path) {

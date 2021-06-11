@@ -240,7 +240,9 @@ export default {
       if (!path) return;
       const realPath = path.startsWith(this.projectsDir) ? path : joinPath(this.projectsDir, path);
       try {
-        this.image = await loadImage(realPath);
+        const { url, raw } = await loadImage(realPath);
+        this.image = url;
+        this.$el.dispatchEvent(new CustomEvent('image-load', { detail: { image: raw, path: this.modelValue.src || this.modelValue }, bubbles: true, composed: true })); // Using a CustomEvent here so we get bubbling and can listen to it in Edit Content
       } catch (err) {
         if (err.code === 'ENOENT') this.$store.commit('addToast', { message: `The image for “${this.label}” could not be found. It may have been moved, renamed, or deleted and should be updated accordingly`, timeout: 10000, type: 'warning' });
         else this.$store.commit('addToast', { message: `Something went wrong when fetching the image thumbnail for ${this.label}: ${err.message}`, type: 'error' });
