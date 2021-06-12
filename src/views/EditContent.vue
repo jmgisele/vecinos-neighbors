@@ -636,7 +636,7 @@ export default {
         url,
         data: _cloneDeep(this.content),
         imageMap: new Map(this.previewImages), // we need to clone the map here, because StructuredClone doesn’t like proxies
-        changedProp: '',
+        // changedProp: '', // MAYBE: find a way to detect which property path has changed and pass that to the preview so it can scroll to it?
       };
       if (this.previewInNewTab) this.$options.winref.postMessage(data, targetOrigin);
       else this.$refs.preview.contentWindow.postMessage(data, targetOrigin);
