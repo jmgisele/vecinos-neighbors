@@ -370,6 +370,7 @@ export default {
       previewImages: new Map(),
       previewLoading: false,
       previewInNewTab: null,
+      previewInNewTabTimeout: null,
       saveLoading: false,
       schema: {},
       showPreview: false,
@@ -393,6 +394,11 @@ export default {
       }, {});
     },
     closeOpenPreview() {
+      if (this.previewInNewTabTimeout) {
+        window.clearTimeout(this.previewInNewTabTimeout);
+        this.previewInNewTabTimeout = null;
+      }
+      window.removeEventListener('message', this.handleNewTabPreviewLoaded, false);
       this.$options.winref.close();
       this.$options.winref = null;
       this.previewInNewTab = false;
@@ -501,6 +507,16 @@ export default {
       await this.$router.replace({ params: { collection: this.$route.params.collection, id: this.$route.params.id, path: newPath } });
       this.findAndSetFilepathIds(this.schema.fields, null, this.schema.tabs);
     },
+    handleNewTabPreviewLoaded(e) {
+      if (this.previewInNewTabTimeout) {
+        window.clearTimeout(this.previewInNewTabTimeout);
+        this.previewInNewTabTimeout = null;
+      }
+      const targetOrigin = new URL(this.previewUrl).origin;
+      if (e.origin !== targetOrigin || !e.data.loaded) this.$store.commit('addToast', { message: 'Could not establish a connection with the preview in the new tab: the origins didn’t match, or the loaded message was not present', type: 'warning' });
+      else this.exchangePreviewHandshake();
+      window.removeEventListener('message', this.handleNewTabPreviewLoaded, false);
+    },
     handlePreviewLoaded(e) {
       if (!e.target.src) return; // we need to skip the first load event when the iframe is added to the DOM empty
       this.previewLoading = false;
@@ -526,9 +542,13 @@ export default {
     },
     openPreviewInNewTab() {
       this.$options.winref = window.open(this.previewUrl, `com.mattrbld.app.Project/preview/${this.$route.params.id}`); // this will focus a window of the same name (reverse domain to avoid duplicates) or open a blank new one
-      this.$options.winref.addEventListener('load', this.exchangePreviewHandshake, false);
-      // TODO: add a one-time message event listener to window that listens for the load event from the new tab and then initialises the communication with it
+      // this.$options.winref.addEventListener('load', this.exchangePreviewHandshake, false); // doesn’t work because we don’t have access to that origin
+      window.addEventListener('message', this.handleNewTabPreviewLoaded, false);
       this.previewInNewTab = true;
+      this.previewInNewTabTimeout = window.setTimeout(() => {
+        this.$store.commit('addToast', { message: 'The new tab never signalled that it stopped loading, does it implement the Preview Protocol correctly?', type: 'warning' });
+        this.previewInNewTabTimeout = null;
+      }, 5000);
     },
     preventUnintentionalClose(e) {
       if (this.forceNavigation) return;
