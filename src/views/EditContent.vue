@@ -603,7 +603,14 @@ export default {
     },
     sendPreviewData: debounce(function debouncedSend() { // OPTIMIZE: this could probably be optimized to only send deltas instead of the full object every time if a "full" param is false (we still need to send the full object upon initial connection)
       const targetOrigin = new URL(this.previewUrl).origin;
-      const url = this.collection.urlTemplate ? assembleUrlFromTemplate(this.collection.urlTemplate, this.content, this.contentLanguages[0], true, this.$store.state.currentProject.slugifyOptions || { lowercase: true, decamelize: true, preserveLeadingUnderscore: true }) : this.$route.params.path.replace(this.projectDir, '');
+      let url;
+
+      if (this.collection.urlTemplate && this.contentLanguages && this.contentLanguages.length > 0) {
+        url = {};
+        this.contentLanguages.forEach((lang) => {
+          url[lang] = assembleUrlFromTemplate(this.collection.urlTemplate, this.content, lang, true, this.$store.state.currentProject.slugifyOptions || { lowercase: true, decamelize: true, preserveLeadingUnderscore: true });
+        });
+      } else url = this.collection.urlTemplate ? assembleUrlFromTemplate(this.collection.urlTemplate, this.content, null, true, this.$store.state.currentProject.slugifyOptions || { lowercase: true, decamelize: true, preserveLeadingUnderscore: true }) : this.$route.params.path.replace(this.projectDir, '');
       const data = {
         collection: this.$route.params.collection,
         url,
