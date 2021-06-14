@@ -6,10 +6,10 @@
     <section class="wrapper cards">
       <MbScroller>
         <div class="card" :class="{ dark }">
-          <p v-if="locallyChangedFiles > 0" class="number h1">{{locallyChangedFiles}}</p>
+          <p v-if="locallyChangedFiles.length > 0" class="number h1">{{locallyChangedFiles.length}}</p>
           <MbIcon v-else icon="check" />
-          <p class="label">{{locallyChangedFiles === 1 ? 'Local change' : locallyChangedFiles !== 0 ? 'Local changes' : 'Everything is in sync'}}</p>
-          <MbButton :dark="dark" type="primary" @click="$emit('push')">{{ locallyChangedFiles !== 0 ? 'Synchronise' : 'Check for Updates'}}</MbButton>
+          <p class="label">{{locallyChangedFiles.length === 1 ? 'Local change' : locallyChangedFiles.length !== 0 ? 'Local changes' : 'Everything is in sync'}}</p>
+          <MbButton :dark="dark" type="primary" @click="$emit('push')">{{ locallyChangedFiles.length !== 0 ? 'Synchronise' : 'Check for Updates'}}</MbButton>
         </div>
         <div v-for="entry in sidebarCards" class="card" :class="{ dark }" :key="entry.label">
           <MbIcon :icon="entry.icon || (entry.target.name === 'Project.Collection' ? 'folder' : 'document')" />
@@ -35,8 +35,13 @@
         </ul>
       </transition>
     </section>
-    <section class="wrapper">
+    <section class="wrapper local-changes">
       <h2>Local Changes</h2>
+      <ul>
+        <li v-for="(path, index) in locallyChangedFiles" class="change-indicator" :class="{ dark }" :key="index">
+          <span class="path">{{path.replace(`${projectDir}/`, '')}}</span>
+        </li>
+      </ul>
     </section>
   </div>
 </template>
@@ -65,7 +70,7 @@ export default {
       return this.$store.getters.userInCurrentProject.name.split(' ')[0];
     },
     locallyChangedFiles() {
-      return this.$store.state.application.locallyChangedFiles.length;
+      return this.$store.state.application.locallyChangedFiles.filter((path) => path.startsWith(this.projectDir));
     },
     projectDir() {
       return `/projects/${this.$store.state.currentProject.id}`;
@@ -220,7 +225,8 @@ export default {
         .button
           width: 100%
 
-    &.commits
+    &.commits,
+    &.local-changes
       .loader,
       ul
         &.v-enter-active,
@@ -248,6 +254,16 @@ export default {
             span:last-of-type
               color: $text-secondary-dark
 
+          &.change-indicator::before
+            content: ''
+            display: block
+            width: 0.5rem
+            height: @width
+            border-radius: 50%
+            background-color: $warning-saturated
+            margin-right: 1rem
+            flex-shrink: 0
+
           &:not(:last-child)
             margin-bottom: 1rem
 
@@ -267,11 +283,12 @@ export default {
             text-overflow: ellipsis
             overflow: hidden
 
-            &.message
+            &.message,
+            &.path
               flex-shrink: 1
               margin-right: auto
 
-            &:last-of-type
+            &:last-of-type:not(:first-of-type)
               color: $text-secondary
               font-size: (14 / 16)rem
               margin-left: 1rem
