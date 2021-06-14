@@ -50,6 +50,10 @@
             <InternalLinkHelper v-if="entryDetails.type === 'content'" :collections-path="collectionsDir" :dark="dark" full-path :model-value="entryDetails.target && entryDetails.target.params.path" use-file-path @update:model-value="setEntryTarget" />
           </div>
         </section>
+        <section>
+          <h3>Dashboard</h3>
+          <MbToggle :dark="dark" :disabled="entryDetails.type === 'heading'" :model-value="entryDetails.showInDashboard" @update:model-value="entryDetails.showInDashboard = $event; updateEntry()">Show as a card on the Dashboard</MbToggle>
+        </section>
       </div>
     </template>
   </TabContent>
