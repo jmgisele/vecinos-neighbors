@@ -159,6 +159,9 @@ export default {
 .project-dashboard
   padding: 0 2rem 8rem 2rem
   user-select: none
+  overflow-y: auto
+  overflow-x: hidden
+  height: 100%
 
   @media $mobile
     padding-left: 1rem
