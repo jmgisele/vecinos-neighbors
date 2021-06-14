@@ -52,7 +52,7 @@
         </section>
         <section>
           <h3>Dashboard</h3>
-          <MbToggle :dark="dark" :disabled="entryDetails.type === 'heading'" :model-value="entryDetails.showInDashboard" @update:model-value="entryDetails.showInDashboard = $event; updateEntry()">Show as a card on the Dashboard</MbToggle>
+          <MbToggle :dark="dark" :disabled="entryDetails.type === 'heading' || !entryDetails.target" :model-value="entryDetails.showInDashboard" @update:model-value="entryDetails.showInDashboard = $event; updateEntry()">Show as a card on the Dashboard</MbToggle>
         </section>
       </div>
     </template>
