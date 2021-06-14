@@ -957,7 +957,7 @@ export default {
         ],
         internalLinkHelpers: [
           ['Name', 'Data'],
-          ['`update:modelValue`', 'The new url'],
+          ['`update:modelValue`', 'The new url and collection picked'],
         ],
         itemLists: [
           ['Name', 'Data'],

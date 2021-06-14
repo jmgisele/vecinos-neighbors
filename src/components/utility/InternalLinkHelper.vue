@@ -11,7 +11,7 @@
           <li v-if="linkableCollections.length === 0" class="empty-state" :class="{ dark }">
             <p>There are no linkable collections in this project yet</p>
           </li>
-          <li v-for="collection in linkableCollections" :class="{ dark }" :key="collection.value" tabindex="0" @click="handleCollectionClick(collection.value, collection.type, collection.template)" @keydown.space.prevent @keyup.space.enter="handleCollectionClick(collection.value, collection.type, collection.template)">
+          <li v-for="collection in linkableCollections" :class="{ dark }" :key="collection.value" tabindex="0" @click="handleCollectionClick(collection.value, collection.type, collection.template, collection.collection)" @keydown.space.prevent @keyup.space.enter="handleCollectionClick(collection.value, collection.type, collection.template)">
             <MbIcon icon="folder" />
             <span class="label">{{collection.label}}</span>
           </li>
@@ -47,6 +47,7 @@ export default {
   },
   data() {
     return {
+      currentCollection: null,
       currentRoot: '/',
       currentTemplate: null,
       filetype: 'json',
@@ -62,8 +63,9 @@ export default {
       if (this.linkableCollections.length === 1) this.handleCollectionClick(this.linkableCollections[0].value, this.linkableCollections[0].type, this.linkableCollections[0].template);
       else this.view = 'collections';
     },
-    handleCollectionClick(dir, type, template) {
+    handleCollectionClick(dir, type, template, collection) {
       this.currentRoot = joinPath(this.projectDir, dir);
+      this.currentCollection = collection;
 
       if (template && typeof template === 'object') {
         if (this.lang) this.currentTemplate = template[this.lang];
@@ -101,7 +103,7 @@ export default {
           return;
         }
       }
-      this.$emit('update:modelValue', newUrl.replace(/\\\./g, '.')); // we’re replacing escaped dots here since that’s the only way to separate a dot from a property-path
+      this.$emit('update:modelValue', newUrl.replace(/\\\./g, '.'), this.currentCollection); // we’re replacing escaped dots here since that’s the only way to separate a dot from a property-path
       this.view = 'url';
     },
     async loadCollections() {
@@ -115,6 +117,7 @@ export default {
         this.linkableCollections = collections.reduce((acc, collection, index) => {
           if (((this.limitTo && this.limitTo.length > 0) || collection.linkable) && collection.dir) {
             acc.push({
+              collection: collectionFiles[index],
               label: prettifyEntityName(collectionFiles[index]),
               template: collection.urlTemplate,
               type: collection.type,
