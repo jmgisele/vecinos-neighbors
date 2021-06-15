@@ -167,6 +167,8 @@ export default {
         window.removeEventListener('click', this.showPermanence, { capture: true });
         this.$store.commit('closeModal', this.modalIndex);
       }
+
+      if (!nv) this.transform = null; // needed so that the modal actually closes smoothly
     },
   },
 };
