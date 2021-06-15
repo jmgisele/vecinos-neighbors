@@ -25,7 +25,8 @@
 import * as matter from 'gray-matter';
 import slugify from '@sindresorhus/slugify';
 import { formatISO } from 'date-fns';
-import fs, { exists, joinPath } from '../../fs';
+import { status as gitStatus } from 'isomorphic-git';
+import fs, { exists, joinPath, PlainFS } from '../../fs';
 
 import TabContent from '../../components/utility/TabContent.vue';
 
@@ -91,8 +92,11 @@ export default {
 
           try {
             await fs.unlink(path);
+            const projectDir = joinPath('/projects', this.$route.params.id);
+            const status = await gitStatus({ fs: PlainFS, dir: projectDir, filepath: path.replace(`${projectDir}/`, '') }); // filepath needs to be relative to dir
+            if (status !== 'absent' && status !== 'ignored' && status !== 'unmodified') this.$store.commit('addLocallyChangedFile', path); // unless the file is absent, ignored or unchanged we need to mark it as changed
+            else this.$store.commit('removeLocallyChangedFile', path); // otherwise we can remove it from the changed files if it’s marked as changed
             if (this.$refs.fileList) this.$refs.fileList.refresh();
-            this.$store.commit('removeLocallyChangedFile', path);
             this.$store.dispatch('saveAppData');
           } catch (err) {
             this.$store.commit('addToast', { message: `Something went wrong while deleting the post: ${err.message}`, type: 'error' });
