@@ -28,7 +28,7 @@ function identifyFieldTypeByValue(value, key) {
   else if (valueType !== 'object') {
     switch (valueType) {
       case 'string':
-        if (value.startsWith('/') && value.includes('.')) { // it’s likely a file
+        if ((value.startsWith('/') || value.startsWith('./') || value.startsWith('../')) && value.includes('.')) { // it’s likely a file
           candidate.type = 'file';
           candidate.typeCandidates = generateTypeCandidatesArray('file', 'text', 'rich text', 'id', 'radio group', 'select', 'link', 'image');
         } else if (((value.startsWith('http') || value.startsWith('www')) && value.includes('.')) || value.startsWith('/')) { // it’s likely some sort of url
