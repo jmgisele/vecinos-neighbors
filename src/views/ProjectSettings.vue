@@ -5,6 +5,7 @@
       <GeneralSettings v-if="activeTabValue === 'general'" :dark="dark" />
       <SchemaSettings v-else-if="activeTabValue === 'schemas'" :dark="dark" :last-dir="lastDir" />
       <CollectionSettings v-else-if="activeTabValue === 'collections'" :dark="dark" />
+      <DashboardSettings v-else-if="activeTabValue === 'dashboard'" :dark="dark" />
       <SidebarSettings v-else-if="activeTabValue === 'sidebar'" :dark="dark" />
       <MediaSettings v-else-if="activeTabValue === 'media'" :dark="dark" />
       <UserSettings v-else-if="activeTabValue === 'users'" :dark="dark" />
@@ -14,6 +15,7 @@
 
 <script>
 import CollectionSettings from './settings/CollectionSettings.vue';
+import DashboardSettings from './settings/DashboardSettings.vue';
 import GeneralSettings from './settings/GeneralSettings.vue';
 import MediaSettings from './settings/MediaSettings.vue';
 import SchemaSettings from './settings/SchemaSettings.vue';
@@ -54,6 +56,7 @@ export default {
   },
   components: {
     CollectionSettings,
+    DashboardSettings,
     GeneralSettings,
     MediaSettings,
     SchemaSettings,
