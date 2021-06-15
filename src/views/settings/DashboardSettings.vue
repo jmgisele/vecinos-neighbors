@@ -9,7 +9,7 @@
       <div class="post-editor">
         <h2>{{fileBeingEdited ? 'Edit Post' : 'Create Post'}}</h2>
         <MbInput v-model="newPost.title" :dark="dark" icon="heading-spaced" label="Title (optional)" />
-        <MbEditor v-model="newPost.blurb" :dark="dark" :error="blurbError" label="Summary" @update:model-value="validateBlurb" />
+        <MbEditor v-model="newPost.blurb" :allow-new-lines="false" :dark="dark" :error="blurbError" label="Summary" @update:model-value="validateBlurb" />
         <MbEditor v-model="newPost.content" :dark="dark" label="Content (optional)" output-format="markdown" />
         <footer>
           <MbButton v-if="fileBeingEdited" class="delete-button" :dark="dark" icon="trash" type="negative" @click="deletePost(fileBeingEdited)">Delete</MbButton>
