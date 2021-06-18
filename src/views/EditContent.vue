@@ -54,11 +54,11 @@
             <div class="preview-frame" :class="{ fullscreen: fullscreenPreview, 'mobile-preview': mobilePreview }">
               <header :class="{ dark }">
                 <MbButton :dark="dark" icon="open-new-window" tooltip="Open preview in new tab / window" @click="openPreviewInNewTab" />
-                <MbButton :dark="dark" :icon="fullscreenPreview ? 'fullscreen-reverse' : 'fullscreen'" tooltip="Toggle fullscreen" @click="fullscreenPreview = !fullscreenPreview" />
+                <MbButton :dark="dark" :icon="fullscreenPreview ? 'fullscreen-reverse' : 'fullscreen'" tooltip="Toggle fullscreen" @click="toggleFullscreenPreview" />
                 <MbButton v-if="!isMobile" :dark="dark" :icon="mobilePreview ? 'monitor' : 'phone'" tooltip="Toggle mobile preview" @click="mobilePreview = !mobilePreview" />
               </header>
               <transition>
-                <MbLoader v-if="previewLoading" :class="{ dark }" />
+                <MbLoader v-if="!previewConnected" :class="{ dark }" />
               </transition>
               <iframe :class="{ mobile: mobilePreview }" name="preview" ref="preview" referrer="no-referrer" sandbox="allow-same-origin allow-scripts" :src="actualPreviewUrl" @load="handlePreviewLoaded" />
             </div>
@@ -368,7 +368,6 @@ export default {
       mobilePreview: false,
       previewConnected: false,
       previewImages: new Map(),
-      previewLoading: false,
       previewInNewTab: null,
       previewInNewTabTimeout: null,
       saveLoading: false,
@@ -402,6 +401,7 @@ export default {
       this.$options.winref.close();
       this.$options.winref = null;
       this.previewInNewTab = false;
+      this.previewConnected = false;
     },
     deleteContent() {
       if (!this.canDelete) return;
@@ -519,7 +519,6 @@ export default {
     },
     handlePreviewLoaded(e) {
       if (!e.target.src) return; // we need to skip the first load event when the iframe is added to the DOM empty
-      this.previewLoading = false;
       this.exchangePreviewHandshake();
     },
     handleSplitClosed() {
@@ -641,15 +640,19 @@ export default {
       if (this.previewInNewTab) this.$options.winref.postMessage(data, targetOrigin);
       else this.$refs.preview.contentWindow.postMessage(data, targetOrigin);
     }, 500),
+    toggleFullscreenPreview() {
+      this.previewConnected = false;
+      this.fullscreenPreview = !this.fullscreenPreview;
+    },
     togglePreview() {
       if (!this.showPreview) {
-        this.previewLoading = true;
         this.showSplit = true;
         this.showPreview = true;
         if (!this.actualPreviewUrl) window.setTimeout(() => { this.actualPreviewUrl = this.previewUrl; }, 300); // give the preview a chance to open smoothly before loading the iframe
       } else {
         this.showPreview = false;
         this.showSplit = false;
+        this.previewConnected = false;
       }
     },
     validateContent() {
