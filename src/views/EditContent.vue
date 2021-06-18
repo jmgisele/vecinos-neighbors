@@ -628,7 +628,7 @@ export default {
       if (this.collection.urlTemplate && this.contentLanguages && this.contentLanguages.length > 0) {
         url = {};
         this.contentLanguages.forEach((lang) => {
-          url[lang] = assembleUrlFromTemplate(this.collection.urlTemplate, this.content, lang, true, this.$store.state.currentProject.slugifyOptions || { lowercase: true, decamelize: true, preserveLeadingUnderscore: true });
+          url[lang] = assembleUrlFromTemplate(this.collection.urlTemplate[lang] || Object.values(this.collection.urlTemplate).find((template) => template), this.content, lang, true, this.$store.state.currentProject.slugifyOptions || { lowercase: true, decamelize: true, preserveLeadingUnderscore: true });
         });
       } else url = this.collection.urlTemplate ? assembleUrlFromTemplate(this.collection.urlTemplate, this.content, null, true, this.$store.state.currentProject.slugifyOptions || { lowercase: true, decamelize: true, preserveLeadingUnderscore: true }) : this.$route.params.path.replace(this.projectDir, '');
       const data = {
