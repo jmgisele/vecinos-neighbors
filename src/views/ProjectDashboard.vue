@@ -367,7 +367,7 @@ export default {
           &.dark
             border-color: alpha($text-dark, 0.12)
 
-            span:last-of-type
+            span:last-of-type:not(:first-of-type)
               color: $text-secondary-dark
 
           &.change-indicator::before
