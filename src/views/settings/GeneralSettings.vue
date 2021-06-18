@@ -346,7 +346,7 @@ export default {
       if (this.projectPreviewUrl === this.currentProject.previewUrl) return;
 
       if (!this.projectPreviewUrl || !this.projectPreviewUrl.trim()) this.errors.previewUrl = 'A valid preview URL is required';
-      else if (!/^(https?:\/\/)?(www\.)?(localhost:[0-9]{4}$|[-a-zA-Z0-9@:%._+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_+.~#?&//=]*$))/.test(this.projectPreviewUrl)) this.errors.previewUrl = 'Invalid URL'; // Regex based on: https://graphcms.com/user-guides/working-with/field-validations
+      else if (!/^(https?:\/\/)?(www\.)?(localhost:[0-9]{4}|[-a-zA-Z0-9@:%._+~#=]{2,256}\.[a-z]{2,6})\b([-a-zA-Z0-9@:%_+.~#?&//=]*$)/.test(this.projectPreviewUrl)) this.errors.previewUrl = 'Invalid URL'; // Regex based on: https://graphcms.com/user-guides/working-with/field-validations
       else this.errors.previewUrl = '';
 
       if (this.errors.previewUrl) return;
