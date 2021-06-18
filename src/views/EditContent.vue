@@ -466,14 +466,21 @@ export default {
         else this.$refs.preview.contentWindow.postMessage({ handshake }, targetOrigin);
         window.addEventListener('message', handshakeListener, false);
         handshakeTimeout = window.setTimeout(() => {
-          window.removeEventListener('message', handshakeListener, false);
-          this.$store.commit('addToast', {
-            action: this.exchangePreviewHandshake,
-            actionLabel: 'Retry',
-            message: 'The preview didn’t return the connection handshake, does it implement the Preview Protocol correctly?',
-            onClose: (actionHandled) => { if (!actionHandled) this.showSplit = false; },
-            type: 'warning',
-          });
+          // send again in case the first message wasn’t received
+          if (this.previewInNewTab) this.$options.winref.postMessage({ handshake }, targetOrigin);
+          else this.$refs.preview.contentWindow.postMessage({ handshake }, targetOrigin);
+
+          handshakeTimeout = window.setTimeout(() => { // if the first retry didn’t work, let the user decide
+            window.removeEventListener('message', handshakeListener, false);
+            this.$store.commit('addToast', {
+              action: this.exchangePreviewHandshake,
+              actionLabel: 'Retry',
+              message: 'The preview didn’t return the connection handshake, does it implement the Preview Protocol correctly?',
+              onClose: (actionHandled) => { if (!actionHandled) this.showSplit = false; },
+              timeout: false,
+              type: 'warning',
+            });
+          }, 500);
         }, 500);
       } catch (err) {
         window.clearTimeout(handshakeTimeout);
