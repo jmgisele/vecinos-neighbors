@@ -5,12 +5,12 @@
       <MbFileList v-if="initialised" :action="createAction" :active-file="fileBeingEdited" :dark="dark" empty-state="There are no announcement posts yet" :file-actions="fileActions" file-list-label="Announcement Posts" :filterable="!showSplit" pretty-filenames ref="fileList" :root="newsPath" @fileclick="handleFileClick" />
     </section>
 
-    <template #right>
+    <template #right="{ isModal }">
       <div class="post-editor">
         <h2>{{fileBeingEdited ? 'Edit Post' : 'Create Post'}}</h2>
-        <MbInput v-model="newPost.title" :dark="dark" icon="heading-spaced" label="Title (optional)" />
-        <MbEditor v-model="newPost.blurb" :allow-new-lines="false" :dark="dark" :error="blurbError" label="Summary" @update:model-value="validateBlurb" />
-        <MbEditor v-model="newPost.content" :dark="dark" label="Content (optional)" output-format="markdown" />
+        <MbInput v-model="newPost.title" :class="{ 'in-modal': isModal }" :dark="dark" icon="heading-spaced" label="Title (optional)" />
+        <MbEditor v-model="newPost.blurb" :class="{ 'in-modal': isModal }" :allow-new-lines="false" :dark="dark" :error="blurbError" label="Summary" @update:model-value="validateBlurb" />
+        <MbEditor v-model="newPost.content" class="rich" :class="{ 'in-modal': isModal }" :dark="dark" label="Content (optional)" output-format="markdown" />
         <footer>
           <MbButton v-if="fileBeingEdited" class="delete-button" :dark="dark" icon="trash" type="negative" @click="deletePost(fileBeingEdited)">Delete</MbButton>
           <MbButton class="create-button" :dark="dark" :disabled="!newPost.blurb" :icon="fileBeingEdited ? 'save' : 'plus'" :type="fileBeingEdited ? 'primary' : 'positive'" @click="savePost">{{fileBeingEdited ? 'Save' : 'Create'}}</MbButton>
@@ -218,6 +218,15 @@ export default {
   .input
     width: 100%
     display: flex
+
+    &.dark:not(.in-modal)
+      background-color: $bg-tertiary-dark
+
+  .editor.dark:not(.in-modal)::v-deep(.content-wrapper)
+    background-color: $bg-tertiary-dark
+
+    &.rich:not(:focus-within)
+      box-shadow: inset 0 0.0625rem 0 0 lighten($bg-tertiary-dark, 10)
 
   .input,
   .editor
