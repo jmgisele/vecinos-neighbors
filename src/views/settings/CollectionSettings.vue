@@ -342,8 +342,13 @@ export default {
     .input-group > p
         color: $text-secondary-dark
 
-    .file-picker
+    .file-picker,
+    .input
       background-color: $bg-tertiary-dark
+
+    .item-list::v-deep(.item.dark)
+      background-color: $bg-tertiary-dark
+      box-shadow: inset 0 0 0 0.0625rem lighten($bg-tertiary-dark, 5)
 
   > header
     margin-top: 8rem
