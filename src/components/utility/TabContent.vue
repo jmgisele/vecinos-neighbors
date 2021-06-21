@@ -95,6 +95,9 @@ export default {
       @media $tablet
         padding: 0 1rem 4rem 1rem
 
+      &.right .close-wrapper .close-button
+        right: -1rem
+
     &.right
       position: absolute
       top: 0
@@ -123,5 +126,5 @@ export default {
         .close-button
           position: absolute
           top: 0
-          right: -1rem
+          right: 1rem
 </style>
