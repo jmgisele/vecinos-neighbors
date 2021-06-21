@@ -16,7 +16,7 @@
       </div>
     </header>
     <MbTabs v-if="schema.tabs && schema.tabs.length > 1" v-model="activeTab" :dark="dark" :errors="tabErrors" :tabs="cleanTabs" />
-    <TabContent :class="{ 'preview-in-split': !previewInNewTab && showPreview }" :dark="dark" :padded="!showPreview" :show-split="showSplit" @split-close="showSplit = false" @split-closed="handleSplitClosed">
+    <TabContent :dark="dark" :padded="!showPreview" :show-split="showSplit" @split-close="showSplit = false" @split-closed="handleSplitClosed">
       <transition mode="out-in">
         <div v-if="initialised && noSchema" class="no-schema" :class="{ dark }">
           <h2>No Schema</h2>
@@ -815,12 +815,6 @@ export default {
 
   .tab-content
     flex-grow: 1
-
-    &.preview-in-split::v-deep(.content-wrapper.right)
-      padding: 0
-
-      .close-button
-        right: 1rem
 
     .no-schema,
     .fields-editor
