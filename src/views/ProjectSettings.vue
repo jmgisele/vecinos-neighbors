@@ -5,6 +5,7 @@
       <GeneralSettings v-if="activeTabValue === 'general'" :dark="dark" />
       <SchemaSettings v-else-if="activeTabValue === 'schemas'" :dark="dark" :last-dir="lastDir" />
       <CollectionSettings v-else-if="activeTabValue === 'collections'" :dark="dark" />
+      <CustomFieldSettings v-else-if="activeTabValue === 'custom-fields'" :dark="dark" :last-dir="lastDir" />
       <DashboardSettings v-else-if="activeTabValue === 'dashboard'" :dark="dark" />
       <SidebarSettings v-else-if="activeTabValue === 'sidebar'" :dark="dark" />
       <MediaSettings v-else-if="activeTabValue === 'media'" :dark="dark" />
@@ -15,6 +16,7 @@
 
 <script>
 import CollectionSettings from './settings/CollectionSettings.vue';
+import CustomFieldSettings from './settings/CustomFieldSettings.vue';
 import DashboardSettings from './settings/DashboardSettings.vue';
 import GeneralSettings from './settings/GeneralSettings.vue';
 import MediaSettings from './settings/MediaSettings.vue';
@@ -56,6 +58,7 @@ export default {
   },
   components: {
     CollectionSettings,
+    CustomFieldSettings,
     DashboardSettings,
     GeneralSettings,
     MediaSettings,
@@ -77,7 +80,7 @@ export default {
         { label: 'General Settings', value: 'general' },
         { label: 'Schemas', value: 'schemas' },
         { label: 'Collections', value: 'collections' },
-        { label: 'Custom Fields', value: 'fields' },
+        { label: 'Custom Fields', value: 'custom-fields' },
         { label: 'Sidebar', value: 'sidebar' },
         { label: 'Dashboard', value: 'dashboard' },
         { label: 'Media Library', value: 'media' },
