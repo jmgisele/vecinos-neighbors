@@ -99,7 +99,7 @@
             <MbButton class="clear-button" :dark="dark" :disabled="fieldBeingEdited.default === null" icon="clear" rounded tooltip="Clear default value" @click="clearDefaultValue" />
           </div>
         </section>
-        <section v-if="availableFieldOptions.has(fieldBeingEdited.type)">
+        <section v-if="!fieldBeingEdited.customField && availableFieldOptions.has(fieldBeingEdited.type)">
           <h3>Field Configuration</h3>
           <section v-for="option in availableFieldOptions.get(fieldBeingEdited.type)" class="config-option" :class="[option.component]" :key="option.key">
             <span v-if="option.label">{{option.label}}</span>
@@ -236,22 +236,21 @@ export default {
     try {
       const customFieldsPath = `/projects/${this.projectId}/.mattrbld/custom-fields`;
       const customFieldFiles = await readdirDeep(customFieldsPath);
-      customFieldsData = await Promise.all(customFieldFiles.map((file) => fs.readFile(joinPath(customFieldsPath, file), 'utf8')));
+      customFieldsData = (await Promise.all(customFieldFiles.map((file) => fs.readFile(file, 'utf8')))).map((field, index) => ({ ...JSON.parse(field), customField: customFieldFiles[index].replace(customFieldsPath, '') })); // setting the customField to the field path in the custom fields directory so they are identifyable
     } catch (err) {
       // the directory might not exist, but that is okay
       if (err.code !== 'ENOENT') throw new Error(`Something went wrong while loading the custom fields: ${err.message}`);
     }
 
-    const unsortedMap = [...defaultFields, ...customFieldsData].reduce((map, data) => {
-      const field = typeof data === 'string' ? JSON.parse(data) : data;
-      const { options, type } = field;
+    const unsortedMap = [...defaultFields, ...customFieldsData].reduce((map, field) => {
+      const { customField, options, type } = field;
       let { group } = field;
       if (!group) group = 'miscellaneous';
 
       // doing this here so we don’t have to loop over it multiple times
-      if (type && options) availableFieldOptions.set(type, options);
-      fieldVersions.set(field.customField || field.type, field.version); // customFields have a customField property, default fields don’t
-      fieldsByType.set(field.customField || field.type, field);
+      if (!customField && type && options) availableFieldOptions.set(type, options);
+      fieldVersions.set(customField || type, field.version); // customFields have a customField property, default fields don’t
+      fieldsByType.set(customField || type, field);
 
       if (map.has(group)) map.get(group).push(field);
       else map.set(group, [field]);
