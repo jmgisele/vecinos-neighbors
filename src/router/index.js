@@ -125,6 +125,7 @@ const routes = [
     component: () => import(/* webpackChunkName: "editors" */ '../views/EditSchema.vue'),
     meta: {
       label: 'Edit Schema',
+      projectRoute: true,
       showBack: true,
       title: 'Edit Schema',
     },
@@ -139,6 +140,7 @@ const routes = [
     component: () => import(/* webpackChunkName: "editors" */ '../views/EditCustomField.vue'),
     meta: {
       label: 'Edit Custom Field',
+      projectRoute: true,
       showBack: true,
       title: 'Edit Custom Field',
     },
@@ -153,6 +155,7 @@ const routes = [
     component: () => import(/* webpackChunkName: "editors" */ '../views/EditContent.vue'),
     meta: {
       label: 'Edit Content',
+      projectRoute: true,
       showBack: true,
       title: 'Edit Content',
     },

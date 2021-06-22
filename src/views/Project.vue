@@ -206,7 +206,7 @@ export default {
   },
   beforeRouteLeave(to, from) {
     // We only want to clear if we’re leaving the project for good or switching to another project so we don’t have to load the details again in the editor routes
-    if ((to.name !== 'Edit Schema' && to.name !== 'Edit Content') || to.params.id !== from.params.id) this.$store.commit('clearCurrentProject');
+    if (!to.meta.projectRoute || to.params.id !== from.params.id) this.$store.commit('clearCurrentProject');
   },
   components: {
     ProjectSidebar,
