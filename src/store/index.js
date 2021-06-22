@@ -51,6 +51,7 @@ export default createStore({
       sidebarVisible: false,
       softDeleted: [],
       temporaryContentStorage: null,
+      temporaryCustomFieldStorage: null,
       temporarySchemaStorage: null,
       toasts: [],
       tooltip: null,

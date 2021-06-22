@@ -134,6 +134,20 @@ const routes = [
     },
   },
   {
+    path: '/edit-custom-field/:id/:path',
+    name: 'Edit Custom Field',
+    component: () => import(/* webpackChunkName: "editors" */ '../views/EditCustomField.vue'),
+    meta: {
+      label: 'Edit Custom Field',
+      showBack: true,
+      title: 'Edit Custom Field',
+    },
+    beforeEnter: (to) => {
+      if (!Store.state.user.projects.includes(to.params.id)) return { name: 'Forbidden', replace: true };
+      return true;
+    },
+  },
+  {
     path: '/edit-content/:id/:collection/:path',
     name: 'Edit Content',
     component: () => import(/* webpackChunkName: "editors" */ '../views/EditContent.vue'),
