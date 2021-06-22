@@ -116,10 +116,10 @@ export default {
           if (undone) return;
 
           try {
-            await rmrf(path);
-            if (this.$refs.fileList) await this.$refs.fileList.refresh();
             if (isFile) this.$store.commit('addLocallyChangedFile', path); // adding the files as changed, might be wrong if they are absent on the index, but checking for that is expensive
             else await this.updateLocallyChangedFiles(path); // adding the files as changed, might be wrong if they are absent on the index, but checking for that is expensive
+            await rmrf(path);
+            if (this.$refs.fileList) await this.$refs.fileList.refresh();
             this.$store.dispatch('saveAppData');
           } catch (err) {
             this.$store.commit('addToast', { message: `Something went wrong while deleting the ${isFile ? 'custom field' : 'folder'}: ${err.message}`, type: 'error' });
