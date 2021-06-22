@@ -179,6 +179,7 @@ export default {
       return this.$store.state.application.tablet;
     },
     schemaName() {
+      if (!this.$route.params.path) return '';
       return prettifyEntityName(pathBasename(this.$route.params.path));
     },
     status() {
