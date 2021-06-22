@@ -343,8 +343,10 @@ export default {
           value.forEach((option) => {
             cleanField.options[option.key] = cloneDeep(option.value);
           });
-        } else if (key === 'value' && value) cleanField.value = [];
-        else cleanField[key] = cloneDeep(value);
+        } else if (key === 'value' && value) {
+          if (field.customField) cleanField.value = cloneDeep(value);
+          else cleanField.value = [];
+        } else cleanField[key] = cloneDeep(value);
       });
 
       cleanField.tab = this.tabs[this.activeTab];
