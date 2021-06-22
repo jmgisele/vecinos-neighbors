@@ -24,7 +24,7 @@
         :key="field.key"
         :label="field.label"
         :localised="field.localised"
-        :nested-fields="Array.isArray(field.value) ? field.value : null"
+        :nested-fields="!field.customField && Array.isArray(field.value) ? field.value : null"
         :parent-key="parentKey"
         :required="(field.validation && field.validation.required) || (field.validation && field.validation.min > 0)"
         :type="field.type"
