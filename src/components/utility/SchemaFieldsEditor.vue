@@ -697,7 +697,7 @@ export default {
       Object.keys(field).forEach((key) => {
         if (key === 'options') {
           Object.keys(field.options).forEach((optionKey) => {
-            if (!newVersion.options.find((option) => option.key === optionKey)) delete field.options[optionKey]; // eslint-disable-line no-param-reassign
+            if (!Object.prototype.hasOwnProperty.call(newVersion.options, optionKey)) delete field.options[optionKey]; // eslint-disable-line no-param-reassign
           });
         } else if (key !== 'value' && key !== 'default' && field[key] && typeof field[key] === 'object') {
           Object.keys(field[key]).forEach((subkey) => {
