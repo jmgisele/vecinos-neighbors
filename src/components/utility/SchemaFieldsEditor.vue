@@ -697,7 +697,8 @@ export default {
           // nesting this here so existing values stay untouched
           if (field.customField) field.value = cloneDeep(value); // eslint-disable-line no-param-reassign
           else if (!field[key]) field.value = []; // eslint-disable-line no-param-reassign
-        } else if (value && typeof value === 'object') field[key] = { ...cloneDeep(value), ...field[key] }; // eslint-disable-line no-param-reassign
+        } else if (key === 'icon') field.icon = value; // eslint-disable-line no-param-reassign
+        else if (value && typeof value === 'object') field[key] = { ...cloneDeep(value), ...field[key] }; // eslint-disable-line no-param-reassign
         else if (typeof field[key] === 'undefined') field[key] = cloneDeep(value); // eslint-disable-line no-param-reassign
       });
 
