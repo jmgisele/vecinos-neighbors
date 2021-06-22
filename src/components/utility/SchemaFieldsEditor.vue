@@ -413,6 +413,7 @@ export default {
           if (!wasChanged) this.wasChanged = false;
         },
         actionLabel: 'Undo',
+        closeOnRouteChange: true,
         message: `The field “${backup.label}” was deleted`,
         timeout: 5000 - 200,
         type: 'warning',
