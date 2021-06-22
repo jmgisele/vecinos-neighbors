@@ -71,6 +71,7 @@ import * as matter from 'gray-matter';
 
 import fs, { exists, PlainFS, joinPath, pathBasename, pathDirname } from '../fs'; // eslint-disable-line object-curly-newline
 import { generateFieldCandidates, generateSchemaFromCandidates } from '../assets/js/generateSchemaFromFile';
+import flattenFields from '../assets/js/flattenFields';
 import hasAccess from '../assets/js/hasAccess';
 import loadProject from '../assets/js/loadProject';
 import prettifyEntityName from '../assets/js/prettifyEntityName';
@@ -202,7 +203,7 @@ export default {
     },
     tabErrors() {
       if (!this.schema.fields || this.schema.fields.length === 0) return new Set();
-      const flatFields = this.flattenFields(this.schema.fields);
+      const flatFields = flattenFields(this.schema.fields);
       return flatFields.reduce((acc, field) => {
         let tabIndex = this.cleanTabs.indexOf(field.tab);
         if (tabIndex === -1) tabIndex = 0; // fields without a tab are shown in the firs tab
@@ -323,13 +324,6 @@ export default {
         type: 'warning',
       });
       this.wasChanged = true;
-    },
-    flattenFields(fields) {
-      return fields.reduce((acc, field) => {
-        acc.push(field);
-        if (Array.isArray(field.value)) acc.push(...this.flattenFields(field.value));
-        return acc;
-      }, []);
     },
     generateSchemaFromFile() {
       this.generateSchema.loading = true;
@@ -530,7 +524,7 @@ export default {
       this.errors[field] = error;
     },
     validateSchema() {
-      const flattenedFields = this.flattenFields(this.schema.fields);
+      const flattenedFields = flattenFields(this.schema.fields);
 
       for (let index = 0; index < flattenedFields.length; index += 1) {
         const field = flattenedFields[index];
