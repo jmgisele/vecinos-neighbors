@@ -44,6 +44,7 @@ export default {
     if (to.query.tab) {
       let lastDir = null;
       if (to.query.tab === 'schemas' && from && from.name === 'Edit Schema' && from.params.path) lastDir = pathDirname(from.params.path);
+      if (to.query.tab === 'custom-fields' && from && from.name === 'Edit Custom Field' && from.params.path) lastDir = pathDirname(from.params.path);
 
       return next((vm) => {
         const activeTab = vm.tabs.findIndex((tab) => tab.value === to.query.tab);
