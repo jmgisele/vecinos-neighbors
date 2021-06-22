@@ -684,11 +684,15 @@ export default {
       Object.entries(newVersion).forEach(([key, value]) => {
         if (key === 'group' || key === 'description') return;
         if (key === 'version') field[key] = value; // eslint-disable-line no-param-reassign
-        if (key === 'options' && value.length > 0) {
-          if (!field.options) field.options = {}; // eslint-disable-line no-param-reassign
-          value.forEach((option) => {
-            if (typeof field.options[option.key] === 'undefined') field.options[option.key] = cloneDeep(option.value); // eslint-disable-line no-param-reassign
-          });
+        if (key === 'options') {
+          // Custom fields always inherit the options of the prototype, so we can simply override
+          if (field.customField) field.options = cloneDeep(value); // eslint-disable-line no-param-reassign
+          else if (value.length > 0) {
+            if (!field.options) field.options = {}; // eslint-disable-line no-param-reassign
+            value.forEach((option) => {
+              if (typeof field.options[option.key] === 'undefined') field.options[option.key] = cloneDeep(option.value); // eslint-disable-line no-param-reassign
+            });
+          }
         } else if (key === 'value' && value) {
           // nesting this here so existing values stay untouched
           if (field.customField) field.value = cloneDeep(value); // eslint-disable-line no-param-reassign
@@ -698,9 +702,9 @@ export default {
       });
 
       Object.keys(field).forEach((key) => {
-        if (key === 'options') {
+        if (key === 'options' && !field.customField) {
           Object.keys(field.options).forEach((optionKey) => {
-            if (!Object.prototype.hasOwnProperty.call(newVersion.options, optionKey)) delete field.options[optionKey]; // eslint-disable-line no-param-reassign
+            if (!newVersion.options.find((option) => option.key === optionKey)) delete field.options[optionKey]; // eslint-disable-line no-param-reassign
           });
         } else if (key !== 'value' && key !== 'default' && field[key] && typeof field[key] === 'object') {
           Object.keys(field[key]).forEach((subkey) => {
