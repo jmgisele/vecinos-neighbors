@@ -279,6 +279,12 @@ export default {
         &:not(:last-child)
           margin-right: 1rem
 
+  > .schema-fields-editor
+    height: "calc(100% - %s)" % (86 / 16)rem // header
+
+    @media $mobile
+      height: auto
+
 .edit-custom-field-modal
   .input
     width: 100%
