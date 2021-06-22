@@ -349,7 +349,7 @@ export default {
         } else cleanField[key] = cloneDeep(value);
       });
 
-      cleanField.tab = this.tabs[this.activeTab];
+      this.moveFieldToTab(cleanField, this.tabs[this.activeTab], true); // moveFieldToTab mutates the passed field and all child fields
       delete cleanField.description; // not needed, so let’s save space
       delete cleanField.group; // not needed, so let’s save space
 
