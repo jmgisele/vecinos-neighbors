@@ -236,7 +236,7 @@ export default {
     try {
       const customFieldsPath = `/projects/${this.projectId}/.mattrbld/custom-fields`;
       const customFieldFiles = await readdirDeep(customFieldsPath);
-      customFieldsData = (await Promise.all(customFieldFiles.map((file) => fs.readFile(file, 'utf8')))).map((field, index) => ({ ...JSON.parse(field), customField: customFieldFiles[index].replace(customFieldsPath, '') })); // setting the customField to the field path in the custom fields directory so they are identifyable
+      customFieldsData = (await Promise.all(customFieldFiles.map((file) => fs.readFile(file, 'utf8')))).map((field, index) => ({ ...JSON.parse(field), customField: customFieldFiles[index].replace(`${customFieldsPath}/`, '') })); // setting the customField to the field path in the custom fields directory so they are identifyable
     } catch (err) {
       // the directory might not exist, but that is okay
       if (err.code !== 'ENOENT') throw new Error(`Something went wrong while loading the custom fields: ${err.message}`);
