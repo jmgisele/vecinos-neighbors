@@ -99,7 +99,7 @@ export default {
       const timeoutId = window.setTimeout(async () => {
         try {
           await rmrf(path);
-          await this.$refs.fileList.refresh();
+          if (this.$refs.fileList) await this.$refs.fileList.refresh();
           if (isFile) this.$store.commit('removeLocallyChangedFile', path);
           else this.$store.commit('removeLocallyChangedFolder', path);
           this.$store.dispatch('saveAppData');
