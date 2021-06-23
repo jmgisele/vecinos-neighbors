@@ -146,13 +146,31 @@
     </template>
 
     <MbContextMenu :dark="dark" :options="fieldContextMenu.options" :show="fieldContextMenu.show" :target="fieldContextMenu.target" :x="fieldContextMenu.x" :y="fieldContextMenu.y" @close="fieldContextMenu.show = false; resetFieldContextMenu()" />
+    <MbModal class="custom-field-modal" :dark="dark" slim title="Save as Custom Field" :visible="showCustomFieldModal" @after-close="resetCustomField" @close="showCustomFieldModal = false">
+      <MbInput v-model.lazy="customField.name" :dark="dark" :error="errors.customFieldName" icon="document" label="Name" @blur="validateCustomField" />
+      <MbInput v-model.lazy="customField.group" :dark="dark" icon="folder" label="Category (optional)" />
+      <MbEditor v-model="customField.description" :allow-new-lines="false" :dark="dark" label="Description (optional)" />
+      <div class="icon-picker-wrapper">
+        <span>Custom Field icon:</span>
+        <MbIconPicker v-model="customField.icon" :dark="dark" />
+      </div>
+      <div class="file-picker-wrapper">
+        <span>Folder (optional):</span>
+        <MbFilePicker v-model="customField.path" :dark="dark" placeholder="/.mattrbld/custom-fields/" pretty-filenames relative-to-root :root="customFieldsPath" />
+      </div>
+      <template #actions>
+        <MbButton :dark="dark" @click="showCustomFieldModal = false">Cancel</MbButton>
+        <MbButton :dark="dark" :disabled="Boolean(errors.customFieldName)" type="primary" @click="saveCustomField">Save</MbButton>
+      </template>
+    </MbModal>
   </TabContent>
 </template>
 
 <script>
 import { cloneDeep } from 'lodash-es';
+import slugify from '@sindresorhus/slugify';
 
-import fs, { readdirDeep, joinPath } from '../../fs';
+import fs, { exists, readdirDeep, joinPath } from '../../fs';
 import prettifyEntityName from '../../assets/js/prettifyEntityName';
 import fieldTypeToComponent from '../../assets/js/fieldTypeToComponent';
 
@@ -182,6 +200,9 @@ export default {
     childFieldKeys() {
       if (!this.fields || this.fields.length === 0 || !this.fieldBeingEdited || !Array.isArray(this.fieldBeingEdited.value)) return [];
       return this.extractFieldKeys(this.fieldBeingEdited.value).concat([{ label: 'None', value: null }]);
+    },
+    customFieldsPath() {
+      return joinPath('/projects', this.projectId, '.mattrbld', 'custom-fields');
     },
     fieldsForTab() {
       if (!this.fields) return [];
@@ -234,12 +255,11 @@ export default {
     const fieldsByType = new Map();
 
     try {
-      const customFieldsPath = `/projects/${this.projectId}/.mattrbld/custom-fields`;
-      const customFieldFiles = await readdirDeep(customFieldsPath);
-      customFieldsData = (await Promise.all(customFieldFiles.map((file) => fs.readFile(file, 'utf8')))).map((field, index) => ({ ...JSON.parse(field), customField: customFieldFiles[index].replace(`${customFieldsPath}/`, '') })); // setting the customField to the field path in the custom fields directory so they are identifyable
+      const customFieldFiles = await readdirDeep(this.customFieldsPath);
+      customFieldsData = (await Promise.all(customFieldFiles.map((file) => fs.readFile(file, 'utf8')))).map((field, index) => ({ ...JSON.parse(field), customField: customFieldFiles[index].replace(`${this.customFieldsPath}/`, '') })); // setting the customField to the field path in the custom fields directory so they are identifyable
     } catch (err) {
-      // the directory might not exist, but that is okay
       if (err.code !== 'ENOENT') throw new Error(`Something went wrong while loading the custom fields: ${err.message}`);
+      else await fs.mkdir(this.customFieldsPath); // directory didn’t exist yet, so there are no custom fields, but we’re creating it so we can save fields as custom fields
     }
 
     const unsortedMap = [...defaultFields, ...customFieldsData].reduce((map, field) => {
@@ -258,8 +278,8 @@ export default {
       return map;
     }, new Map());
 
-    this.availableFields = new Map([...unsortedMap].sort((a, b) => a[0].localeCompare(b[0]))); // eslint-disable-line no-param-reassign
-    this.availableFieldOptions = availableFieldOptions; // eslint-disable-line no-param-reassign
+    this.availableFields = new Map([...unsortedMap].sort((a, b) => a[0].localeCompare(b[0])));
+    this.availableFieldOptions = availableFieldOptions;
     this.fieldVersions = fieldVersions;
     this.fieldsByType = fieldsByType;
 
@@ -275,7 +295,16 @@ export default {
       currentAddIndicatorId: null,
       currentAddIndicatorParent: null,
       currentOperation: null,
+      customField: {
+        description: '',
+        group: '',
+        icon: '',
+        name: '',
+        originalField: null,
+        path: '',
+      },
       errors: {
+        customFieldName: '',
         fieldBeingEditedLabel: '',
         fieldBeingEditedKey: '',
       },
@@ -299,6 +328,11 @@ export default {
             action: this.handleContextMenuDuplicate,
             label: 'Duplicate',
             icon: 'duplicate',
+          },
+          {
+            action: this.handleContextMenuCustomFieldSave,
+            label: 'Save as Custom Field',
+            icon: 'open-new-window',
           },
           {
             action: this.handleContextMenuDelete,
@@ -329,6 +363,7 @@ export default {
         { label: 'is smaller than', value: 'smaller' },
         { label: 'is greater than', value: 'greater' },
       ],
+      showCustomFieldModal: false,
       showSplit: false,
     };
   },
@@ -349,7 +384,7 @@ export default {
         } else cleanField[key] = cloneDeep(value);
       });
 
-      this.moveFieldToTab(cleanField, this.tabs[this.activeTab], true); // moveFieldToTab mutates the passed field and all child fields
+      this.moveFieldToTab(cleanField, this.tabs[this.activeTab], true); // moveFieldToTab mutates the passed field and all subfields
       delete cleanField.description; // not needed, so let’s save space
       delete cleanField.group; // not needed, so let’s save space
 
@@ -454,6 +489,11 @@ export default {
         this.availableCollections = [];
       }
     },
+    fieldHasErrorsDeep(field) {
+      if (field.errors) return true;
+      if (Array.isArray(field.value)) return field.value.map((subfield) => this.fieldHasErrorsDeep(subfield)).some((hasError) => hasError);
+      return false;
+    },
     generateUniqueFieldKey(otherFields, potentialKey = 'unknown') {
       if (!otherFields.find((existingField) => existingField.key === potentialKey)) return potentialKey;
       let counter = 1;
@@ -511,6 +551,21 @@ export default {
     },
     handleContextMenuEdit() {
       this.handleFieldClick({ detail: this.fieldContextMenu.detail });
+      this.fieldContextMenu.show = false;
+    },
+    handleContextMenuCustomFieldSave() {
+      const { parent, index } = this.fieldContextMenu.detail;
+      const parentFieldFields = parent === '___toplevel' ? this.fieldsForTab : this.getField(parent).value;
+      const field = parentFieldFields[index];
+
+      if (field.customField) this.$store.commit('addToast', { message: 'This field is already a custom field', type: 'warning' });
+      else if (this.fieldHasErrorsDeep(field)) this.$store.commit('addToast', { message: 'This field or at least one of its subfields have errors. Fix them before saving it as a custom field', type: 'warning' });
+      else {
+        this.customField.name = field.label;
+        this.customField.icon = field.icon;
+        this.customField.originalField = field;
+        this.showCustomFieldModal = true;
+      }
       this.fieldContextMenu.show = false;
     },
     handleDefaultValueError(error) {
@@ -642,12 +697,72 @@ export default {
       this.currentAddIndicatorParent = null;
       this.currentAddIndicatorId = null;
     },
+    resetCustomField() {
+      this.customField = {
+        description: '',
+        group: '',
+        icon: '',
+        name: '',
+        originalField: null,
+        path: '',
+      };
+      this.errors.customFieldName = '';
+    },
     resetFieldContextMenu() {
       this.fieldContextMenu.detail = null;
       this.fieldContextMenu.field = null;
       this.fieldContextMenu.target = null;
       this.fieldContextMenu.x = 0;
       this.fieldContextMenu.y = 0;
+    },
+    async saveCustomField() {
+      this.validateCustomField();
+      if (this.errors.customFieldName) return;
+
+      const slugifiedName = slugify(this.customField.name, this.$store.state.currentProject.slugifyOptions || { lowercase: false, decamelize: false, preserveLeadingUnderscore: true });
+      const id = joinPath(this.customField.path.replace('/', ''), `${slugifiedName}.json`);
+      const path = joinPath(this.customFieldsPath, id);
+      const alreadyExists = await exists(path);
+
+      if (alreadyExists) {
+        this.errors.customFieldName = 'A Custom Field with this name already exists';
+        return;
+      }
+
+      try {
+        const newField = cloneDeep(this.customField.originalField);
+        this.moveFieldToTab(newField, null, true); // moveFieldToTab mutates the passed field and all subfields
+        newField.version = 1;
+        newField.label = this.customField.name;
+        newField.description = this.customField.description;
+        newField.group = this.customField.group;
+        newField.icon = this.customField.icon;
+
+        await fs.writeFile(path, JSON.stringify(newField, null, 2), 'utf8');
+
+        // convert the existing field into the newly created custom field
+        this.customField.originalField.version = newField.version;
+        this.customField.originalField.icon = newField.icon;
+        this.customField.originalField.label = newField.label;
+        this.customField.originalField.customField = id;
+
+        // add the newly created custom field to the availableFields
+        const unsortedMap = new Map([...this.availableFields]);
+        const group = newField.group || 'miscellaneous';
+        if (unsortedMap.has(group)) unsortedMap.get(group).push({ ...newField, customField: id });
+        else unsortedMap.set(group, [{ ...newField, customField: id }]);
+        this.availableFields = new Map([...unsortedMap].sort((a, b) => a[0].localeCompare(b[0])));
+
+        this.fieldsByType.set(id, newField);
+        this.fieldVersions.set(id, newField.version);
+
+        this.$store.commit('addLocallyChangedFile', path);
+        this.$store.dispatch('saveAppData');
+        this.$store.commit('addToast', { message: `“${this.customField.name}” was saved successfully`, type: 'positive' });
+        this.showCustomFieldModal = false;
+      } catch (err) {
+        this.$store.commit('addToast', { message: `Something went wrong while saving the custom field: ${err.message}`, type: 'error' });
+      }
     },
     setFieldBeingEditedError(property, error) {
       if (error && !this.fieldBeingEdited.errors) this.fieldBeingEdited.errors = new Map([[property, error]]);
@@ -713,6 +828,10 @@ export default {
           });
         } else if (typeof newVersion[key] === 'undefined') delete field[key]; // eslint-disable-line no-param-reassign
       });
+    },
+    validateCustomField() {
+      if (!this.customField.name || !this.customField.name.trim()) this.errors.customFieldName = 'A name is required';
+      else this.errors.customFieldName = '';
     },
     validateField(property) {
       if (property) {
@@ -1306,4 +1425,38 @@ export default {
       > span + .input
         margin-top: 0
 
+.custom-field-modal
+  .input
+    width: 100%
+    margin-bottom: 1rem
+
+    &.v-enter-active,
+    &.v-leave-active
+      transition: opacity 200ms ease
+
+      &.v-enter-from,
+      &.v-leave-to
+        opacity: 0
+
+  .icon-picker-wrapper,
+  .file-picker-wrapper
+    display: flex
+    align-items: center
+    margin-top: 2rem
+
+    &:last-child
+      margin-bottom: 0.125rem
+
+    > span
+      margin-right: 1rem
+      overflow: hidden
+      text-overflow: ellipsis
+      white-space: nowrap
+
+    > .icon-picker,
+    > .file-picker
+      margin-left: auto
+
+  .file-picker-wrapper > span
+    flex-shrink: 0
 </style>
