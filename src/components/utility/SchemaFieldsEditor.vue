@@ -163,6 +163,18 @@
         <MbButton :dark="dark" :disabled="Boolean(errors.customFieldName)" type="primary" @click="saveCustomField">Save</MbButton>
       </template>
     </MbModal>
+    <MbModal class="field-type-modal" :dark="dark" title="Change field type…" :visible="showTypeChangeModal" @close="showTypeChangeModal = false">
+      <MbInput v-model="fieldFilter" clearable :dark="dark" icon="search" placeholder="Search field…" type="search" />
+      <div class="fields-list">
+        <div v-for="key in filteredFields.keys()" class="field-group" :key="key">
+          <h3>{{key}}</h3>
+          <MbButton v-for="(field, index) in filteredFields.get(key)" :dark="dark" :icon="field.icon" :key="index">{{field.label}}</MbButton>
+        </div>
+      </div>
+      <template #actions>
+        <MbButton :dark="dark" @click="showTypeChangeModal = false">Cancel</MbButton>
+      </template>
+    </MbModal>
   </TabContent>
 </template>
 
@@ -325,6 +337,11 @@ export default {
             icon: 'pencil',
           },
           {
+            action: this.handleContextMenuChangeType,
+            label: 'Change type',
+            icon: 'replace-round',
+          },
+          {
             action: this.handleContextMenuDuplicate,
             label: 'Duplicate',
             icon: 'duplicate',
@@ -365,6 +382,7 @@ export default {
       ],
       showCustomFieldModal: false,
       showSplit: false,
+      showTypeChangeModal: false,
     };
   },
   emits: ['generate-click', 'update:activeTab', 'update:modelValue'],
@@ -540,6 +558,11 @@ export default {
     async handleAddField() {
       this.currentOperation = 'add-field';
       this.showSplit = true;
+    },
+    handleContextMenuChangeType() {
+      console.log(this.fieldContextMenu.field, this.fieldContextMenu.detail);
+      this.showTypeChangeModal = true;
+      this.fieldContextMenu.show = false;
     },
     handleContextMenuDelete() {
       this.deleteField(this.fieldContextMenu.field);
@@ -1487,4 +1510,33 @@ export default {
 
   .file-picker-wrapper > span
     flex-shrink: 0
+
+.field-type-modal
+  &.dark
+    .fields-list .field-group h3
+      color: $text-secondary-dark
+
+  .input
+    margin-top: 0
+    width: 100%
+
+  .fields-list
+    .field-group
+      display: grid
+      grid-template-columns: repeat(2, 1fr)
+      grid-gap: 1rem
+
+      @media $mobile
+        display: block
+
+      h3
+        grid-column: span 2
+        text-transform: capitalize
+        color: $text-secondary
+
+      .button
+        width: 100%
+
+        @media $mobile
+          margin-bottom: 0.5rem
 </style>
