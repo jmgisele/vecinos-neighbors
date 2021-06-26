@@ -156,7 +156,7 @@
       </div>
       <div class="file-picker-wrapper">
         <span>Folder (optional):</span>
-        <MbFilePicker v-model="customField.path" :dark="dark" placeholder="/.mattrbld/custom-fields/" pretty-filenames relative-to-root :root="customFieldsPath" />
+        <MbFilePicker v-if="!fieldsLoading" v-model="customField.path" :dark="dark" placeholder="/.mattrbld/custom-fields/" pretty-filenames relative-to-root :root="customFieldsPath" />
       </div>
       <template #actions>
         <MbButton :dark="dark" @click="showCustomFieldModal = false">Cancel</MbButton>
