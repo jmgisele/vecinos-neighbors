@@ -618,52 +618,63 @@ export default {
     },
     handleFieldMove({ detail }) {
       const { parent, index, target } = detail;
-      const parentFieldFields = parent === '___toplevel' ? this.fields : this.getField(parent).value;
-      const targetFieldFields = target.parent === '___toplevel' ? this.fields : this.getField(target.parent).value;
-      const realIndex = parent === '___toplevel' ? this.fields.indexOf(this.fieldsForTab[index]) : index;
-      const realTargetIndex = target.parent === '___toplevel' ? this.fields.indexOf(this.fieldsForTab[target.index]) : target.index;
-      let lastAddIndicatorIndex;
-      if (this.currentAddIndicatorParent === target.parent) {
-        lastAddIndicatorIndex = targetFieldFields.findIndex((field) => field.key === '___addIndicator' && field.id === this.currentAddIndicatorId);
-      }
-      this.removeCurrentAddIndicator();
-      if (parent === target.parent) {
-        if ((realIndex < realTargetIndex && target.isBottomHalf) || (realIndex > realTargetIndex && !target.isBottomHalf)) {
-          const [field] = parentFieldFields.splice(realIndex, 1);
-          targetFieldFields.splice(realTargetIndex, 0, field);
-        } else if (realIndex < realTargetIndex && !target.isBottomHalf) {
-          const [field] = parentFieldFields.splice(realIndex, 1);
-          targetFieldFields.splice(Math.max(0, realTargetIndex - 1), 0, field);
-        } else if (realIndex > realTargetIndex && target.isBottomHalf) {
-          const [field] = parentFieldFields.splice(realIndex, 1);
-          targetFieldFields.splice(Math.min(realTargetIndex + 1, targetFieldFields.length - 1), 0, field);
-        }
+
+      if (target.parent === '___mb_tab') {
         window.removeEventListener('pointerup', this.transferField, { once: true, capture: true });
-        this.fieldAddIndex = null;
-        this.fieldAddParent = null;
-        this.fieldToTransfer = null;
-      } else {
-        let targetIndex;
-        if (target.dropzone) targetIndex = realTargetIndex;
-        else if (typeof lastAddIndicatorIndex !== 'undefined') {
-          if ((lastAddIndicatorIndex < realTargetIndex && target.isBottomHalf) || (lastAddIndicatorIndex > realTargetIndex && !target.isBottomHalf)) {
-            targetIndex = realTargetIndex;
-          } else if (lastAddIndicatorIndex < realTargetIndex && !target.isBottomHalf) targetIndex = Math.max(0, realTargetIndex - 1);
-          else if (lastAddIndicatorIndex > realTargetIndex && target.isBottomHalf) targetIndex = Math.min(realTargetIndex + 1, targetFieldFields.length - 1);
-        } else targetIndex = realTargetIndex;
-
+        this.removeCurrentAddIndicator();
+        const realIndex = parent === '___toplevel' ? this.fields.indexOf(this.fieldsForTab[index]) : index;
         this.fieldToTransfer = { parent, index: realIndex };
-        this.fieldAddParent = target.parent;
-        this.fieldAddIndex = targetIndex;
-
-        if (!target.dropzone) {
-          const id = Math.random().toString(36).slice(2, 9);
-          targetFieldFields.splice(targetIndex, 0, { id, key: '___addIndicator' });
-          this.currentAddIndicatorParent = target.parent;
-          this.currentAddIndicatorId = id;
+        this.fieldAddIndex = target.index;
+        window.addEventListener('pointerup', this.transferFieldToTab, { once: true, capture: true });
+      } else {
+        window.removeEventListener('pointerup', this.transferFieldToTab, { once: true, capture: true });
+        const parentFieldFields = parent === '___toplevel' ? this.fields : this.getField(parent).value;
+        const targetFieldFields = target.parent === '___toplevel' ? this.fields : this.getField(target.parent).value;
+        const realIndex = parent === '___toplevel' ? this.fields.indexOf(this.fieldsForTab[index]) : index;
+        const realTargetIndex = target.parent === '___toplevel' ? this.fields.indexOf(this.fieldsForTab[target.index]) : target.index;
+        let lastAddIndicatorIndex;
+        if (this.currentAddIndicatorParent === target.parent) {
+          lastAddIndicatorIndex = targetFieldFields.findIndex((field) => field.key === '___addIndicator' && field.id === this.currentAddIndicatorId);
         }
+        this.removeCurrentAddIndicator();
+        if (parent === target.parent) {
+          if ((realIndex < realTargetIndex && target.isBottomHalf) || (realIndex > realTargetIndex && !target.isBottomHalf)) {
+            const [field] = parentFieldFields.splice(realIndex, 1);
+            targetFieldFields.splice(realTargetIndex, 0, field);
+          } else if (realIndex < realTargetIndex && !target.isBottomHalf) {
+            const [field] = parentFieldFields.splice(realIndex, 1);
+            targetFieldFields.splice(Math.max(0, realTargetIndex - 1), 0, field);
+          } else if (realIndex > realTargetIndex && target.isBottomHalf) {
+            const [field] = parentFieldFields.splice(realIndex, 1);
+            targetFieldFields.splice(Math.min(realTargetIndex + 1, targetFieldFields.length - 1), 0, field);
+          }
+          window.removeEventListener('pointerup', this.transferField, { once: true, capture: true });
+          this.fieldAddIndex = null;
+          this.fieldAddParent = null;
+          this.fieldToTransfer = null;
+        } else {
+          let targetIndex;
+          if (target.dropzone) targetIndex = realTargetIndex;
+          else if (typeof lastAddIndicatorIndex !== 'undefined') {
+            if ((lastAddIndicatorIndex < realTargetIndex && target.isBottomHalf) || (lastAddIndicatorIndex > realTargetIndex && !target.isBottomHalf)) {
+              targetIndex = realTargetIndex;
+            } else if (lastAddIndicatorIndex < realTargetIndex && !target.isBottomHalf) targetIndex = Math.max(0, realTargetIndex - 1);
+            else if (lastAddIndicatorIndex > realTargetIndex && target.isBottomHalf) targetIndex = Math.min(realTargetIndex + 1, targetFieldFields.length - 1);
+          } else targetIndex = realTargetIndex;
 
-        window.addEventListener('pointerup', this.transferField, { once: true, capture: true });
+          this.fieldToTransfer = { parent, index: realIndex };
+          this.fieldAddParent = target.parent;
+          this.fieldAddIndex = targetIndex;
+
+          if (!target.dropzone) {
+            const id = Math.random().toString(36).slice(2, 9);
+            targetFieldFields.splice(targetIndex, 0, { id, key: '___addIndicator' });
+            this.currentAddIndicatorParent = target.parent;
+            this.currentAddIndicatorId = id;
+          }
+
+          window.addEventListener('pointerup', this.transferField, { once: true, capture: true });
+        }
       }
     },
     handleSplitClosed() {
@@ -788,6 +799,23 @@ export default {
         this.fieldAddParent = null;
         this.fieldToTransfer = null;
       }
+    },
+    transferFieldToTab() {
+      if (!this.fieldToTransfer || this.fieldAddIndex === null) return;
+      this.$store.commit('setAppProperty', { key: 'dragActive', value: false });
+      const { parent, index } = this.fieldToTransfer;
+
+      if (parent !== '___toplevel') {
+        this.$store.commit('addToast', { message: 'Subfields cannot be moved to a different tab', type: 'warning' });
+        return;
+      }
+
+      const parentFieldFields = parent === '___toplevel' ? this.fields : this.getField(parent).value;
+      const field = parentFieldFields[index];
+      const tab = this.tabs[this.fieldAddIndex];
+
+      if (field.tab !== tab) this.moveFieldToTab(field, tab);
+      this.fieldToTransfer = null;
     },
     updateModelValue() {
       this.internalChange = true;

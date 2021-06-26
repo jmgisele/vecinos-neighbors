@@ -2,7 +2,7 @@
   <MbScroller class="tabs" :class="{ dark }">
     <div class="scroll-wrapper">
       <transition-group ref="tabs" tag="ul" @enter="refresh = !refresh" @after-leave="resetActiveTab">
-        <li v-for="(tab, index) in tabs" :data-index="index" :key="tab.value || tab" tabindex="0" @click.left="activateTab($event, index)" @keydown.space.prevent @keyup.enter.space="activateTab($event, index)">
+        <li v-for="(tab, index) in tabs" :data-index="index" data-tab :key="tab.value || tab" tabindex="0" @click.left="activateTab($event, index)" @keydown.space.prevent @keyup.enter.space="activateTab($event, index)">
           <transition>
             <span v-if="errors.has(index)" class="error-indicator" />
           </transition>

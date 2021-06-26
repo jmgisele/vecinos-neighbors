@@ -76,9 +76,10 @@ export default {
       this.autoscroll(this.scrollParent.el, this.scrollParent.rect, e.clientX, e.clientY);
 
       const el = document.elementFromPoint(e.clientX, e.clientY);
-      if (!el || !el.dataset.index || !el.dataset.parent || el === this.dragging) return;
+      if (!el || !el.dataset.index || (!el.dataset.parent && typeof el.dataset.tab === 'undefined') || el === this.dragging) return;
       const index = Number.parseInt(el.dataset.index, 10);
-      const { parent } = el.dataset;
+      let { parent } = el.dataset;
+      if (!parent) parent = '___mb_tab';
 
       if (parent !== this.parentKey) this.hideOutline = true;
       else this.hideOutline = false;
