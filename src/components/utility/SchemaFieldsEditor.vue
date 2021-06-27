@@ -137,6 +137,10 @@
           </div>
         </section>
         <section>
+          <MbHighlightBox color="warning" :dark="dark" label="Change type">
+            <p>Changing the type of a field only retains options compatible with both fields, so you might have to reconfigure certain options after changing the type.</p>
+            <MbButton :dark="dark" icon="replace-round" @click="fieldToTypeChange = fieldBeingEdited; showTypeChangeModal = true">Change type</MbButton>
+          </MbHighlightBox>
           <MbHighlightBox color="negative" :dark="dark" label="Field removal">
             <p>Deleting a field from a Schema <strong>does not</strong> delete that field in content items. It only makes it so that field can no longer be edited through Mattrbld.</p>
             <MbButton :dark="dark" icon="trash" type="negative" @click="deleteField(fieldBeingEdited)">Delete field</MbButton>
@@ -163,12 +167,12 @@
         <MbButton :dark="dark" :disabled="Boolean(errors.customFieldName)" type="primary" @click="saveCustomField">Save</MbButton>
       </template>
     </MbModal>
-    <MbModal class="field-type-modal" :dark="dark" title="Change field type…" :visible="showTypeChangeModal" @close="showTypeChangeModal = false">
+    <MbModal class="field-type-modal" :dark="dark" title="Change field type…" :visible="showTypeChangeModal" @after-close="fieldToTypeChange = null" @close="showTypeChangeModal = false">
       <MbInput v-model="fieldFilter" clearable :dark="dark" icon="search" placeholder="Search field…" type="search" />
       <div class="fields-list">
         <div v-for="key in filteredFields.keys()" class="field-group" :key="key">
           <h3>{{key}}</h3>
-          <MbButton v-for="(field, index) in filteredFields.get(key)" :dark="dark" :icon="field.icon" :key="index">{{field.label}}</MbButton>
+          <MbButton v-for="(field, index) in filteredFields.get(key)" :dark="dark" :icon="field.icon" :key="index" :type="fieldToTypeChange && ((field.customField && fieldToTypeChange.customField && field.customField === fieldToTypeChange.customField) || (!field.customField && !fieldToTypeChange.customField && field.type === fieldToTypeChange.type)) ? 'primary' : null" @click="changeFieldType(field.customField || field.type)">{{field.label}}</MbButton>
         </div>
       </div>
       <template #actions>
@@ -337,14 +341,14 @@ export default {
             icon: 'pencil',
           },
           {
-            action: this.handleContextMenuChangeType,
-            label: 'Change type',
-            icon: 'replace-round',
-          },
-          {
             action: this.handleContextMenuDuplicate,
             label: 'Duplicate',
             icon: 'duplicate',
+          },
+          {
+            action: this.handleContextMenuChangeType,
+            label: 'Change type',
+            icon: 'replace-round',
           },
           {
             action: this.handleContextMenuCustomFieldSave,
@@ -366,6 +370,7 @@ export default {
       fieldErrors: null,
       fieldFilter: '',
       fieldToTransfer: null,
+      fieldToTypeChange: null,
       fieldsByType: null,
       fieldsLoading: true,
       fieldVersions: null,
@@ -426,6 +431,80 @@ export default {
       this.fieldAddParent = null;
 
       if (this.isMobile && this.showSplit) this.showSplit = false;
+    },
+    changeFieldType(newType) {
+      if ((this.fieldToTypeChange.customField && this.fieldToTypeChange.customField === newType) || this.fieldToTypeChange.type === newType) return;
+
+      const path = this.getFieldPath(this.fieldToTypeChange, this.fields);
+      const backup = cloneDeep(this.fieldToTypeChange);
+      const newData = this.fieldsByType.get(newType);
+
+      this.fieldToTypeChange.type = newData.type;
+      this.fieldToTypeChange.icon = newData.icon;
+      this.fieldToTypeChange.version = newData.version;
+
+      if (this.fieldToTypeChange.value && !newData.value) this.fieldToTypeChange.value = null;
+      else if (!this.fieldToTypeChange.value && newData.value) this.fieldToTypeChange.value = newData.value;
+
+      if (typeof this.fieldToTypeChange.default === 'object' || typeof this.fieldToTypeChange.default !== typeof newData.default) this.fieldToTypeChange.default = newData.default;
+
+      if (newData.customField) {
+        this.fieldToTypeChange.customField = newData.customField;
+        this.fieldToTypeChange.options = newData.options;
+      } else {
+        delete this.fieldToTypeChange.customField;
+        if (newData.options && newData.options.length > 0) {
+          const newOptions = newData.options.reduce((acc, { key, value }) => {
+            if (typeof this.fieldToTypeChange.options[key] === typeof value) acc[key] = this.fieldToTypeChange.options[key];
+            else acc[key] = cloneDeep(value);
+            return acc;
+          }, {});
+          this.fieldToTypeChange.options = newOptions;
+        }
+      }
+
+      if (typeof newData.displayField === 'undefined') delete this.fieldToTypeChange.displayField;
+      else if (typeof this.fieldToTypeChange.displayField === 'undefined' && typeof newData.displayField !== 'undefined') this.fieldToTypeChange.displayField = newData.displayField;
+
+      if (typeof newData.localised === 'undefined') delete this.fieldToTypeChange.localised;
+      else if (typeof this.fieldToTypeChange.localised === 'undefined' && typeof newData.localised !== 'undefined') this.fieldToTypeChange.localised = newData.localised;
+
+      if (typeof newData.visualOnly === 'undefined') delete this.fieldToTypeChange.visualOnly;
+      else if (typeof this.fieldToTypeChange.visualOnly === 'undefined' && typeof newData.visualOnly !== 'undefined') this.fieldToTypeChange.visualOnly = newData.visualOnly;
+
+      if (typeof newData.validation === 'undefined') delete this.fieldToTypeChange.validation;
+      else {
+        this.fieldToTypeChange.validation = Object.entries(newData.validation).reduce((acc, [key, value]) => {
+          if (key !== 'unit' && typeof this.fieldToTypeChange.validation[key] !== 'undefined') acc[key] = this.fieldToTypeChange.validation[key];
+          else acc[key] = value;
+          return acc;
+        }, {});
+      }
+
+      if (typeof newData.visibility === 'undefined') delete this.fieldToTypeChange.visibility;
+      else {
+        this.fieldToTypeChange.visibility = Object.entries(newData.visibility).reduce((acc, [key, value]) => {
+          if (typeof this.fieldToTypeChange.visibility[key] !== 'undefined') acc[key] = this.fieldToTypeChange.visibility[key];
+          else acc[key] = value;
+          return acc;
+        }, {});
+      }
+
+      this.showTypeChangeModal = false;
+      this.$store.commit('addToast', {
+        action: () => {
+          const field = this.getField(path); // needed because this.fieldToTypeChange is null after the modal closed
+          Object.keys(field).forEach((key) => {
+            if (typeof backup[key] === 'undefined') delete field[key];
+          });
+          Object.entries(backup).forEach(([key, value]) => {
+            field[key] = value;
+          });
+        },
+        actionLabel: 'Undo',
+        message: `“${backup.label}” was changed to a “${newData.label}” field`,
+        type: 'warning',
+      });
     },
     clearDefaultValue() {
       this.fieldBeingEdited.default = null;
@@ -560,7 +639,7 @@ export default {
       this.showSplit = true;
     },
     handleContextMenuChangeType() {
-      console.log(this.fieldContextMenu.field, this.fieldContextMenu.detail);
+      this.fieldToTypeChange = this.fieldContextMenu.field;
       this.showTypeChangeModal = true;
       this.fieldContextMenu.show = false;
     },
@@ -1323,6 +1402,9 @@ export default {
       margin-top: 3rem
 
     .highlight-box
+      &:not(:last-child)
+        margin-bottom: 2rem
+
       .button
         display: flex
         margin-left: auto
