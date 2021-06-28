@@ -259,7 +259,7 @@ export default {
         currentBranch({ fs: PlainFS, dir }),
       ]);
 
-      return `${window.location.protocol}//${window.location.host}/import?name=${window.encodeURIComponent(user.name)}&email=${window.encodeURIComponent(user.email)}&repo=${window.encodeURIComponent(remotes[0].url)}&branch=${window.encodeURIComponent(branch)}&proxy=${window.encodeURIComponent(this.currentProject.corsProxy)}`;
+      return `${window.location.protocol}//${window.location.host}/import?name=${window.encodeURIComponent(user.name)}&email=${window.encodeURIComponent(user.email)}&repo=${window.encodeURIComponent(remotes[0].url)}&branch=${window.encodeURIComponent(branch)}&proxy=${window.encodeURIComponent(this.currentProject.corsProxy)}&inviter=${window.encodeURIComponent(this.$store.state.user.name)}&projectName=${window.encodeURIComponent(this.currentProject.name)}`;
     },
     handleAddRole() {
       this.roleBeingEdited.new = true;
