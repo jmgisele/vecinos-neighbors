@@ -58,6 +58,15 @@ const routes = [
     },
   },
   {
+    path: '/import',
+    name: 'Import',
+    component: () => import(/* webpackChunkName: "import" */ '../views/Import.vue'),
+    meta: {
+      title: 'Import Project',
+      hideAppHeader: true,
+    },
+  },
+  {
     path: '/project/:id',
     // name: 'Project',
     // route level code-splitting
