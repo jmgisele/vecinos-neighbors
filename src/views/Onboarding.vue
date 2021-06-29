@@ -81,6 +81,16 @@
         </div>
       </transition>
     </section>
+    <MbModal :dark="dark" permanent slim title="Welcome to the Mattrbld Beta" :visible="showBetaModal">
+      <p>Hey there!</p>
+      <p>This is a pre-release version of Mattrbld that is <strong>not ready for production</strong>. Things might not work as expected or break spontaneously, so please be ready to report any bugs. 😉</p>
+      <p>Unfortunately, it’s currently also not available via a secure connection, meaning that there won’t be any offline support or any app-related features. On top of that, the login credentials <strong>including your password</strong> are sent in <strong>plain text</strong>, which is <strong>highly insecure</strong>.</p>
+      <p>Sorry about that, but that’s how it is for the time being. 😅 If you would still like to access private repositories or push back changes, please create a <strong>short-lived access token</strong> for your Git provider and use that in place of your password.</p>
+      <p>Otherwise, have fun testing out Mattrbld! 😉</p>
+      <template #actions>
+        <MbButton :dark="dark" type="primary" @click="showBetaModal = false">Got it</MbButton>
+      </template>
+    </MbModal>
   </div>
 </template>
 
@@ -120,6 +130,7 @@ export default {
     return {
       avatarUploaded: false,
       corsProxy: 'http://localhost:9999', // Requires a cors buster running on 9999 (is this safe?)
+      // corsProxy: '/corsprox', // Requires a /corsprox route configured on the server
       // corsProxy: 'https://cors.isomorphic-git.org', // TODO: replace with our own before launch!
       currentSlide: 0,
       errors: {
@@ -136,6 +147,7 @@ export default {
       repoBranch: null,
       repoBranches: [],
       showAdvancedSettings: false,
+      showBetaModal: false,
       showPrivacyPolicy: false,
       steps: [
         {
