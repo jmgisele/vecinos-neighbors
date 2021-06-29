@@ -290,8 +290,8 @@ export default {
       let error = '';
       switch (field) {
         case 'corsProxy':
-          if (!this.corsProxy) error = 'A proxy server url is required';
-          else if (!this.corsProxy.startsWith('https://')) error = 'The proxy server has to be reachable over HTTPS for security reasons';
+          if (!this.corsProxy) error = 'A proxy server url is required in most cases';
+          else if (!this.corsProxy.startsWith('/') && !this.corsProxy.startsWith('https://')) error = 'The proxy server should be reachable over HTTPS for security reasons';
           break;
         case 'repoURL':
           if (!this.repoURL) error = 'A repository URL is required';
