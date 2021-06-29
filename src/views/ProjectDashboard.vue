@@ -156,7 +156,7 @@ export default {
 
       rawLog.forEach((entry) => {
         const { email, name } = entry.commit.author;
-        const { id } = this.$store.state.currentProject.users.find((user) => user.email === email);
+        const { id } = this.$store.state.currentProject.users.find((user) => user.email === email) || {};
         userIds.set(email, { id, name });
       });
 
