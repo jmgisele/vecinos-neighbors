@@ -207,7 +207,7 @@ router.beforeEach(async (to) => {
     }
   }
 
-  if (to.name !== 'Error' && to.name !== 'Onboarding' && !Store.state.application.activeUser) return { name: 'Onboarding', replace: true };
+  if (to.name !== 'Error' && to.name !== 'Onboarding' && to.name !== 'Import' && !Store.state.application.activeUser) return { name: 'Onboarding', replace: true };
   return true;
 });
 

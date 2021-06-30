@@ -15,12 +15,34 @@
       <h2>User Information</h2>
       <MbInput v-model.lazy="email" :dark="dark" :disabled="Boolean($route.query.email)" :error="errors.email" icon="mail" label="Email address" type="email" @blur="validate('email')" />
       <MbInput v-model.lazy="name" :dark="dark" :error="errors.name" icon="user" label="Full name" @blur="validate('name')" />
-      <MbButton :dark="dark" :disabled="Boolean(!name || !email || errors.name || errors.email)" type="primary">Start editing</MbButton>
+      <MbButton :dark="dark" :disabled="Boolean(!name || !email || errors.name || errors.email)" type="primary" @click="startProjectImport">Start editing</MbButton>
     </section>
+    <section v-if="!$route.query.proxy">
+      <h2>Advanced Settings</h2>
+      <MbInput v-model.lazy="proxy" :dark="dark" :error="errors.proxy" label="CORS Proxy" @blur="validate('proxy')" />
+    </section>
+    <MbModal class="import-project-modal" :dark="dark" permanent title="Importing Project" :visible="importing">
+      <div class="loader">
+        <MbProgress :dark="dark" :indetermined="!cloneProgress" :label="cloneLabel" :progress="cloneProgress" />
+      </div>
+    </MbModal>
+    <GitLoginModal :dark="dark" :message="gitLoginMessage" :visible="showGitLoginModal" @cancel="credentialPromise('cancel')" @submit="credentialPromise" />
   </div>
 </template>
 
 <script>
+import slugify from '@sindresorhus/slugify';
+
+import fs, { exists as entityExists } from '../fs';
+import { rmrf } from '../fs/workerFS';
+import { clone } from '../git';
+
+import generateAvatar from '../assets/js/generateAvatar';
+import isMattrbldProject from '../assets/js/isMattrbldProject';
+
+import gitTools from '../mixins/gitTools';
+import projectExists from '../mixins/projectExists';
+
 export default {
   beforeRouteEnter(to, from, next) {
     const {
@@ -59,12 +81,197 @@ export default {
         email: '',
         name: '',
       },
+      importing: false,
       name: '',
       proxy: '',
       repo: '',
     };
   },
   methods: {
+    async createBaseFolders() {
+      try {
+        await Promise.all([fs.mkdir('/projects'), fs.mkdir('/users')]);
+      } catch (err) {
+        if (err.code !== 'EEXIST') throw err;
+      }
+    },
+    async createUser() {
+      let newUserId = slugify(this.email.trim()); // WARNING: this could lead to collisions if there’s two very similar email addresses (foo-bar@exmaple.com foo.bar@example.com), but since we have a low amount of local users, I think it’s negligible
+      let alreadyExists = await entityExists(`/users/${newUserId}.json`);
+
+      while (alreadyExists) {
+        newUserId += `-${Math.random().toString(36).slice(2, 9)}`;
+        alreadyExists = await entityExists(`/users/${newUserId}.json`); // eslint-disable-line no-await-in-loop
+      }
+
+      const split = this.name.split(' ');
+      const initials = `${split[0][0]}${split[split.length - 1][0]}`.toUpperCase();
+      const avatar = generateAvatar(initials, '#A29BFE', '#6c5ce7', 'light', this.email);
+      const byteString = window.atob(avatar.split(',')[1]);
+      const avatarData = Uint8Array.from(byteString, (ch) => ch.charCodeAt(0));
+      const user = {
+        email: this.email.trim(),
+        id: newUserId,
+        name: this.name.trim(),
+        projectAccessDates: {},
+        projects: [],
+      };
+
+      await fs.writeFile(`/users/${newUserId}.json`, JSON.stringify(user, null, 2), 'utf8');
+      await fs.writeFile(`/users/${newUserId}.jpg`, avatarData); // we know it’s a image/jpeg because we created it ourselves
+
+      return user;
+    },
+    async importProject() {
+      const corsProxy = this.proxy || this.$store.state.application.corsProxy; // fall back to application proxy if it exists and is not provided in URL
+
+      // Generate Project Name (naive implementation, but should work considering we’re forcing the URL to be a HTTP one)
+      let projectId = this.repo.split('/').slice(-1)[0].replace(/\.git$/, '');
+      const exists = await this.projectExists(projectId, this.repo);
+      // If a project with that filename exists, but it’s not the same
+      if (exists && !exists.remote) projectId = `${projectId}-${Math.random().toString(36).substr(2, 9)}`; // add a pseudo-random suffix to make the id unique, could technically still cause collisions, but that’s so unlikely it’s negligible
+      else if (exists && exists.remote && !exists.user) { // the project was already imported by a different user
+        this.$store.commit('addProjectToActiveUser', projectId);
+        await this.$store.dispatch('saveUser');
+        this.cloneStep = 'checking configuration';
+        this.cloneProgress = 0;
+        const wasConfigured = await isMattrbldProject(projectId);
+        this.cloneStep = 'done';
+        this.$store.commit('addToast', { message: `The project was imported successfully and is ready to be ${wasConfigured ? 'edited' : 'configured'}`, type: 'positive' });
+        return { id: projectId, wasConfigured }; // abort
+      } else if (exists && exists.remote) {
+        this.$store.commit('addToast', {
+          message: 'You are already a member of this project and have imported it on this device',
+          type: 'warning',
+        });
+        this.cloneStep = 'checking configuration';
+        this.cloneProgress = 0;
+        const wasConfigured = await isMattrbldProject(projectId);
+        this.cloneStep = 'done';
+        return { id: projectId, wasConfigured }; // abort
+      }
+
+      try {
+        await fs.mkdir(`/projects/${projectId}`);
+      } catch (err) {
+        this.$store.commit('addToast', { message: `Something went wrong while creating the folder structure: ${err.message}`, type: 'error' });
+        return null;
+      }
+      try {
+        await clone({
+          dir: `/projects/${projectId}`,
+          corsProxy,
+          url: this.repo,
+          ref: this.branch,
+          singleBranch: true,
+          depth: 5,
+        }, this.onGitAuth, this.onGitAuthFailure, this.onGitAuthSuccess, this.onGitProgress);
+        this.cloneStep = 'checking configuration';
+        this.cloneProgress = 0;
+        const wasConfigured = await isMattrbldProject(projectId);
+
+        this.$store.commit('addProjectToActiveUser', projectId);
+        await this.$store.dispatch('saveUser');
+
+        this.cloneStep = 'done';
+
+        this.$store.commit('addToast', { message: `The project was imported sucessfully and is ready to be ${wasConfigured ? 'edited' : 'configured'}`, type: 'positive' });
+        return { id: projectId, wasConfigured };
+      } catch (err) {
+        this.$store.commit('addToast', { message: `Something went wrong while importing the project: ${err.message}`, type: 'error' });
+        this.$store.commit('removeProjectFromActiveUser', projectId);
+        const folderExists = await entityExists(`/projects/${projectId}`);
+        if (folderExists) rmrf(`/projects/${projectId}`);
+        this.$store.dispatch('saveUser');
+        return null;
+      }
+    },
+    async setActiveUser(user) {
+      const userData = {
+        ...user,
+        gitAuth: null,
+        theme: user.theme || 'auto',
+        uiScale: user.uiScale || 'auto',
+      };
+      this.$store.commit('setUserData', userData);
+      this.$store.commit('setAppProperty', { key: 'activeUser', value: user.id });
+      await this.$store.dispatch('saveAppData');
+    },
+    async startProjectImport() {
+      if (!this.repo || !this.branch) this.$store.commit('addToast', { message: 'Something went wrong when starting the import: the invite URL is invalid', type: 'error' });
+      this.validate('name');
+      this.validate('email');
+      if (this.errors.name || this.errors.email) this.$store.commit('addToast', { message: 'Please fix the errors and try again', type: 'negative' });
+
+      this.importing = true;
+
+      if (this.$store.state.application.activeUser) {
+        // Mattrbld was initialised with a user before, so the neccessary directories should exist
+        // Check if there already is a local user with this email
+        this.cloneStep = 'checking existing users';
+        if (this.email !== this.$store.state.user.email) { // otherwise we don’t need to do anything
+          let existingUserWithEmail = null;
+          try {
+            const users = await fs.readdir('/users');
+            const userPromises = [];
+
+            users.forEach((userFile) => {
+              if (userFile.endsWith('.json')) userPromises.push(fs.readFile(`/users/${userFile}`, 'utf8'));
+            });
+
+            const userJsonStrings = await Promise.all(userPromises);
+            const userData = userJsonStrings.map((json) => JSON.parse(json));
+            existingUserWithEmail = userData.find((user) => user.email === this.email);
+          } catch (err) {
+            this.$store.commit('addToast', { message: `Something went wrong while fetching all users: ${err.message}`, type: 'error' });
+            this.importing = false;
+            return;
+          }
+
+          if (!existingUserWithEmail) {
+            // if not create it
+            this.cloneStep = 'creating user';
+            try {
+              existingUserWithEmail = await this.createUser();
+            } catch (err) {
+              this.$store.commit('addToast', { message: `Something went wrong while creating the user: ${err.message}`, type: 'error' });
+              this.importing = false;
+              return;
+            }
+          }
+
+          // make it the active user
+          await this.setActiveUser(existingUserWithEmail);
+        }
+      } else {
+        // Mattrbld hasn’t been used on this device before, we need to do a full onboarding flow
+        this.cloneStep = 'creating base directories';
+        try {
+          await this.createBaseFolders();
+        } catch (err) {
+          this.$store.commit('addToast', { message: `Something went wrong while creating the base folder structure: ${err.message}`, type: 'error' });
+          this.importing = false;
+          return;
+        }
+
+        this.cloneStep = 'creating user';
+        try {
+          const user = await this.createUser();
+          await this.setActiveUser(user);
+        } catch (err) {
+          this.$store.commit('addToast', { message: `Something went wrong while creating the user: ${err.message}`, type: 'error' });
+          this.importing = false;
+          return;
+        }
+      }
+
+      this.cloneStep = 'importing project';
+      const project = await this.importProject();
+      this.importing = false;
+      if (!project) return; // there must’ve been an error
+      if (project.wasConfigured) this.$router.replace({ name: 'Project', params: { id: project.id } });
+      else this.$router.replace({ name: 'Project.Settings', params: { id: project.id }, query: { tab: 'general' } });
+    },
     validate(field) {
       let error = '';
       switch (field) {
@@ -76,12 +283,17 @@ export default {
           if (!this.name) error = 'Please let your collaborators know who you are';
           else if (!this.name.includes(' ')) error = 'Please make sure to use your full name';
           break;
+        case 'proxy':
+          if (!this.proxy) error = 'A proxy server url is required in most cases';
+          else if (!this.proxy.startsWith('/') && !this.proxy.startsWith('https://')) error = 'The proxy server should be reachable over HTTPS for security reasons';
+          break;
         default:
           // no op
       }
       this.errors[field] = error;
     },
   },
+  mixins: [gitTools, projectExists],
   props: {
     dark: Boolean,
   },
@@ -153,4 +365,14 @@ export default {
     > .button
       display: flex
       margin-left: auto
+
+.import-project-modal
+  .loader
+    padding: 2rem
+
+    .progress
+      width: 100%
+
+      &::v-deep(.label)
+        text-align: center
 </style>
