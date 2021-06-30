@@ -51,14 +51,13 @@
 </template>
 
 <script>
-import { listRemotes } from 'isomorphic-git';
-
 import isMattrbldProject from '../assets/js/isMattrbldProject';
-import fs, { PlainFS, exists as entityExists } from '../fs';
+import fs, { exists as entityExists } from '../fs';
 import { rmrf } from '../fs/workerFS';
 import { clone, listRemoteBranches } from '../git';
 
 import gitTools from '../mixins/gitTools';
+import projectExists from '../mixins/projectExists';
 
 export default {
   name: 'Home',
@@ -199,7 +198,7 @@ export default {
         }
         // Generate Project Name (naive implementation, but should work considering we’re forcing the URL to be a HTTP one)
         let projectId = this.repoURL.split('/').slice(-1)[0].replace(/\.git$/, '');
-        const exists = await this.projectExists(projectId);
+        const exists = await this.projectExists(projectId, this.repoURL);
         // If a project with that filename exists, but it’s not the same
         if (exists && !exists.remote) projectId = `${projectId}-${Math.random().toString(36).substr(2, 9)}`; // add a pseudo-random suffix to make the id unique, could technically still cause collisions, but that’s so unlikely it’s negligible
         else if (exists && exists.remote && !exists.user) { // the project was already imported by a different user
@@ -281,18 +280,6 @@ export default {
     openProject(id) {
       this.$router.push({ name: 'Project', params: { id } });
     },
-    async projectExists(id) {
-      try {
-        await fs.stat(`/projects/${id}`);
-        const remotes = await listRemotes({ fs: PlainFS, dir: `/projects/${id}` });
-        const origin = remotes.find((remote) => remote.remote === 'origin');
-        if (origin && (origin.url === this.repoURL || origin.url === this.repoURL.replace('http', 'https') || origin.url === this.repoURL.replace('https', 'http'))) return { remote: true, user: this.$store.state.user.projects.includes(id) };
-        return true;
-      } catch (err) {
-        if (err.code === 'ENOENT' || err.code === 'ENOTDIR') return false;
-        throw err;
-      }
-    },
     async refetchAvatar(projectId) {
       const project = this.projects.find((existingProject) => existingProject.id === projectId);
       if (project.avatar) {
@@ -346,6 +333,7 @@ export default {
   },
   mixins: [
     gitTools,
+    projectExists,
   ],
   props: {
     dark: Boolean,
