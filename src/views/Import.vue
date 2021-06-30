@@ -13,8 +13,8 @@
     </section>
     <section>
       <h2>User Information</h2>
-      <MbInput v-model="email" :dark="dark" :disabled="Boolean($route.query.email)" :error="errors.email" icon="mail" label="Email address" type="email" />
-      <MbInput v-model="name" :dark="dark" :error="errors.name" icon="user" label="Full name" />
+      <MbInput v-model.lazy="email" :dark="dark" :disabled="Boolean($route.query.email)" :error="errors.email" icon="mail" label="Email address" type="email" @blur="validate('email')" />
+      <MbInput v-model.lazy="name" :dark="dark" :error="errors.name" icon="user" label="Full name" @blur="validate('name')" />
       <MbButton :dark="dark" :disabled="Boolean(!name || !email || errors.name || errors.email)" type="primary">Start editing</MbButton>
     </section>
   </div>
@@ -63,6 +63,24 @@ export default {
       proxy: '',
       repo: '',
     };
+  },
+  methods: {
+    validate(field) {
+      let error = '';
+      switch (field) {
+        case 'email':
+          if (!this.email) error = 'An email address is required';
+          else if (!/^([a-z0-9_.+-]+)@([\da-z.-]+)\.([a-z.]{2,6})$/.test(this.email)) error = 'Invalid address'; // Regex source: https://graphcms.com/user-guides/working-with/field-validations
+          break;
+        case 'name':
+          if (!this.name) error = 'Please let your collaborators know who you are';
+          else if (!this.name.includes(' ')) error = 'Please make sure to use your full name';
+          break;
+        default:
+          // no op
+      }
+      this.errors[field] = error;
+    },
   },
   props: {
     dark: Boolean,
