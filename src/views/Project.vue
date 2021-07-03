@@ -191,7 +191,15 @@ export default {
         users,
       });
       return next((vm) => {
-        vm.performInitialPull();
+        if (navigator.onLine) vm.performInitialPull();
+        else {
+          Store.commit('addToast', {
+            id: 'appIsOffline',
+            message: 'You’re offline and working on a potentially outdated version, there’s a higher risk of conflicts',
+            timeout: false,
+            type: 'warning',
+          });
+        }
       });
     } catch (err) {
       return next({
