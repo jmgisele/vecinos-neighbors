@@ -39,6 +39,7 @@ import { clone } from '../git';
 
 import generateAvatar from '../assets/js/generateAvatar';
 import isMattrbldProject from '../assets/js/isMattrbldProject';
+import warnAboutMeteredConnection from '../assets/js/warnAboutMeteredConnection';
 
 import gitTools from '../mixins/gitTools';
 import projectExists from '../mixins/projectExists';
@@ -72,6 +73,9 @@ export default {
     projectName() {
       return this.$route.query.projectName;
     },
+  },
+  created() {
+    warnAboutMeteredConnection();
   },
   data() {
     return {

@@ -21,7 +21,7 @@
         </div>
       </transition>
     </main>
-    <MbModal class="import-project-modal" :dark="dark" :permanent="importing" title="Import Project" :visible="showImportProject" @close="cancelProjectImport" @after-open="$refs.repoInput.focus()">
+    <MbModal class="import-project-modal" :dark="dark" :permanent="importing" title="Import Project" :visible="showImportProject" @close="cancelProjectImport" @after-open="handleImportModalOpen">
       <transition mode="out-in">
         <div v-if="!importing" class="form">
           <MbInput v-model="repoURL" :autofocus="!isMobile" :dark="dark" :error="errors.repoURL" icon="repo" label="Project Repository URL" ref="repoInput" @blur="handleRepoInput" @keyup.enter="$event.target.blur()" />
@@ -51,10 +51,12 @@
 </template>
 
 <script>
-import isMattrbldProject from '../assets/js/isMattrbldProject';
 import fs, { exists as entityExists } from '../fs';
 import { rmrf } from '../fs/workerFS';
 import { clone, listRemoteBranches } from '../git';
+
+import isMattrbldProject from '../assets/js/isMattrbldProject';
+import warnAboutMeteredConnection from '../assets/js/warnAboutMeteredConnection';
 
 import gitTools from '../mixins/gitTools';
 import projectExists from '../mixins/projectExists';
@@ -166,6 +168,10 @@ export default {
         this.$store.commit('addToast', { message: `Something went wrong while fetching the projects: ${err.message}`, type: 'error' });
       }
       this.loaded = true;
+    },
+    handleImportModalOpen() {
+      this.$refs.repoInput.focus();
+      warnAboutMeteredConnection();
     },
     async handleRepoInput() {
       this.validate('repoURL');
