@@ -59,6 +59,7 @@ export default {
   },
   created() {
     if (this.dark) document.body.classList.add('dark');
+    if (!navigator.onLine) this.handleOffline();
 
     window.addEventListener('scroll', this.handleScroll, { passive: true });
     if (window.matchMedia) {
@@ -74,6 +75,8 @@ export default {
     }
 
     window.addEventListener('keyup', this.handleComponentsModal);
+    window.addEventListener('online', this.handleOnline);
+    window.addEventListener('offline', this.handleOffline);
   },
   data() {
     return {
@@ -87,6 +90,23 @@ export default {
         e.preventDefault();
         this.showComponentsModal = !this.showComponentsModal;
       }
+    },
+    handleOffline() {
+      this.$store.commit('addToast', {
+        id: 'appIsOffline',
+        message: 'You’re working offline. Importing projects won’t work and you won’t be able to sync changes until a connection has been re-established. Please be aware that there’s a higher chance of conflicts in this state.',
+        timeout: false,
+        type: 'warning',
+      });
+    },
+    handleOnline() {
+      this.$store.commit('removeToast', 'appIsOffline');
+      this.$store.commit('addToast', {
+        id: 'appIsOnline',
+        message: 'You’re back online!',
+        timeout: 2000,
+        type: 'positive',
+      });
     },
     handleScroll() {
       if (this.$store.state.application.tooltip) this.$store.commit('setTooltip', null);
