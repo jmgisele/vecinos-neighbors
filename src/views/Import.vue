@@ -15,13 +15,14 @@
       <h2>User Information</h2>
       <MbInput v-model.lazy="email" :dark="dark" :disabled="Boolean($route.query.email)" :error="errors.email" icon="mail" label="Email address" type="email" @blur="validate('email')" />
       <MbInput v-model.lazy="name" :dark="dark" :error="errors.name" icon="user" label="Full name" @blur="validate('name')" />
-      <MbButton :dark="dark" :disabled="Boolean(!name || !email || errors.name || errors.email)" type="primary" @click="startProjectImport">Start editing</MbButton>
+      <MbButton v-if="$route.query.proxy" :dark="dark" :disabled="Boolean(!name || !email || errors.name || errors.email)" type="primary" @click="handleImportClik">Start editing</MbButton>
     </section>
     <section v-if="!$route.query.proxy">
       <h2>Advanced Settings</h2>
       <MbInput v-model.lazy="proxy" :dark="dark" :error="errors.proxy" label="CORS Proxy" @blur="validate('proxy')" />
+      <MbButton :dark="dark" :disabled="Boolean(!name || !email || errors.name || errors.email)" type="primary" @click="handleImportClik">Start editing</MbButton>
     </section>
-    <MbModal class="import-project-modal" :dark="dark" permanent title="Importing Project" :visible="importing">
+    <MbModal class="import-project-modal" :dark="dark" permanent title="Importing Project" :visible="importing" @after-open="startProjectImport">
       <div class="loader">
         <MbProgress :dark="dark" :indetermined="!cloneProgress" :label="cloneLabel" :progress="cloneProgress" />
       </div>
@@ -126,6 +127,14 @@ export default {
 
       return user;
     },
+    handleImportClik() {
+      if (!this.repo || !this.branch) this.$store.commit('addToast', { message: 'Something went wrong when starting the import: the invite URL is invalid', type: 'error' });
+      this.validate('name');
+      this.validate('email');
+      if (this.errors.name || this.errors.email) this.$store.commit('addToast', { message: 'Please fix the errors and try again', type: 'negative' });
+
+      this.importing = true;
+    },
     async importProject() {
       const corsProxy = this.proxy || this.$store.state.application.corsProxy; // fall back to application proxy if it exists and is not provided in URL
 
@@ -202,13 +211,6 @@ export default {
       await this.$store.dispatch('saveAppData');
     },
     async startProjectImport() {
-      if (!this.repo || !this.branch) this.$store.commit('addToast', { message: 'Something went wrong when starting the import: the invite URL is invalid', type: 'error' });
-      this.validate('name');
-      this.validate('email');
-      if (this.errors.name || this.errors.email) this.$store.commit('addToast', { message: 'Please fix the errors and try again', type: 'negative' });
-
-      this.importing = true;
-
       if (this.$store.state.application.activeUser) {
         // Mattrbld was initialised with a user before, so the neccessary directories should exist
         // Check if there already is a local user with this email
