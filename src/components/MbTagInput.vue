@@ -4,7 +4,7 @@
     <transition-group class="tags-wrapper" tag="div" @before-leave="setGridPosition">
       <div v-for="(tag, index) in modelValue" class="tag" :class="{ overflow: max && index + 1 > max, dark, 'being-dragged': index === draggedIndex, 'drag-active': dragging }" :data-area="areaId" :data-index="index" :key="tag[autocompleteProperty] || tag" @pointerdown="startDrag($event, index)">
         <MbIcon icon="drag-handle" />
-        <span>{{tag[autocompleteProperty] || tag}}</span>
+        <span>{{labelForTag(tag)}}</span>
         <MbButton :dark="dark" :disabled="index === draggedIndex" icon="cross" @click="removeTag(index)" />
       </div>
       <div class="autogrow-input" key="autogrowInput">
@@ -43,6 +43,7 @@ export default {
     },
     filteredSuggestions() {
       return this.suggestions.filter((suggestion) => !this.modelValue.find((existingSuggestion) => {
+        if (this.valueProperty) return existingSuggestion === suggestion[this.valueProperty];
         if (this.autocompleteProperty) return existingSuggestion[this.autocompleteProperty] === suggestion[this.autocompleteProperty];
         return existingSuggestion === suggestion;
       }));
@@ -84,7 +85,11 @@ export default {
   emits: ['blur', 'focus', 'update:modelValue'],
   methods: {
     addTag(tag) {
-      const cleanTag = typeof tag === 'string' ? tag.trim() : tag;
+      let cleanTag;
+      if (typeof tag === 'string') cleanTag = tag.trim();
+      else if (this.valueProperty) cleanTag = tag[this.valueProperty];
+      else cleanTag = tag;
+
       const elementExists = this.ownTags.findIndex((element) => {
         if (this.autocompleteProperty && element[this.autocompleteProperty]) return element[this.autocompleteProperty] === cleanTag[this.autocompleteProperty];
         return element === cleanTag;
@@ -200,6 +205,14 @@ export default {
     hideSuggestions() {
       this.suggestions = [];
     },
+    labelForTag(tag) {
+      if (tag[this.autocompleteProperty]) return tag[this.autocompleteProperty];
+      if (!this.autocompleteModel || !this.valueProperty) return tag;
+
+      const potentialTag = this.autocompleteModel.find((el) => el[this.valueProperty] === tag);
+      if (potentialTag) return potentialTag[this.autocompleteProperty] || potentialTag;
+      return tag;
+    },
     moveElementToIndex(i) {
       if (!this.dragging || this.draggedIndex === i) return;
       this.ownTags.splice(i, 0, this.ownTags.splice(this.draggedIndex, 1)[0]);
@@ -285,6 +298,7 @@ export default {
       type: String,
       default: 'New Tag…',
     },
+    valueProperty: String,
   },
   watch: {
     contextActions(nv, ov) {

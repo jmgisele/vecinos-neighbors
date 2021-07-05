@@ -415,7 +415,8 @@
         <p>This component allows entering a list of tags with autocompletion, removal and rearrangement.</p>
         <p>The current value is: <code>{{tagList}}</code></p>
         <MbTagInput v-model="tagList" :autocomplete-model="colorPalette" autocomplete-property="label" :allow-unsuggested="true" :dark="dark" label="An advanced tag input" :max="4" :min="3" />
-        <MbTagInput v-model="tagList" :autocomplete-model="['foobar', 'bazlington', 'fizzbuzz', 'crazy']" :dark="dark" label="A simple tag input" />
+        <MbTagInput v-model="tagList" :autocomplete-model="colorPalette" autocomplete-property="label" :allow-unsuggested="true" :dark="dark" label="An advanced tag input with value prop" value-property="value" />
+        <MbTagInput v-model="tagList" :autocomplete-model="['foobar', 'bazlington', 'fizzbuzz', 'crazy']" :dark="dark" label="A simple tag input" value-property="value" />
         <h3>Props</h3>
         <MbTable :data="props.tagInputs" />
         <h3>Events</h3>
@@ -423,6 +424,7 @@
         <h3>Notes</h3>
         <p>If <code>autocompleteModel</code> and <code>autocompleteProperty</code> are provided, the tag input will fetch suggestions based on the typed characters out of the model.</p>
         <p>If a model is provided, the input will only accept tags from that model unless <code>allowUnsuggested</code> is set to <code>true</code>.</p>
+        <p>If a <code>valueProperty</code> is provided and a model is present, the model value will only contain the value properties of the items in the supplied model instead of the entire object.</p>
       </section>
       <section v-else-if="activeTabValue === 'date-pickers'" class="tab date-pickers">
         <h2>Date Pickers</h2>
@@ -1392,6 +1394,7 @@ export default {
           ['`min`', 'Number', '`undefined`'],
           ['`modelValue`', 'Array', '`[]`'],
           ['`placeholder`', 'String', '`New Tag…`'],
+          ['`valueProperty`', 'String', '`undefined`'],
         ],
         textareas: [
           ['Name', 'Type', 'Default', 'Notes'],
