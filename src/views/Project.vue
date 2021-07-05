@@ -304,7 +304,6 @@ export default {
       });
     },
     gitPush() {
-      this.currentOperation.step = 'Starting sync…';
       return push(
         {
           corsProxy: this.$store.state.currentProject.corsProxy,
@@ -468,7 +467,10 @@ export default {
         }
       } else {
         this.currentOperation.step = 'Gathering changes…';
+        await this.$nextTick(); // wait a tick so the label has a chance to update
         const cleanChanges = this.selectedChanges.map((change) => ({ file: change.file, type: change.type })); // changes need to be turned into plain objects to be processable in the worker thread
+        this.currentOperation.step = 'Synching changes…';
+        await this.$nextTick(); // wait a tick so the label has a chance to update
         await this.gitAddAllAndCommit(cleanChanges);
 
         try {
