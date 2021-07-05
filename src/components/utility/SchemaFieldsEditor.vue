@@ -127,7 +127,7 @@
         <section v-if="fieldBeingEdited.visibility">
           <h3>Visibility</h3>
           <MbToggle v-if="typeof fieldBeingEdited.visibility.hidden !== 'undefined'" v-model="fieldBeingEdited.visibility.hidden" :dark="dark">Hide this field</MbToggle>
-          <MbTagInput v-if="!fieldBeingEdited.visibility.hidden" v-model="fieldBeingEdited.visibility.limitToRoles" :autocomplete-model="projectRoles" autocomplete-property="label" :dark="dark" label="Limit visibility to (optional)" placeholder="Role(s)" />
+          <MbTagInput v-if="!fieldBeingEdited.visibility.hidden" v-model="fieldBeingEdited.visibility.limitToRoles" :autocomplete-model="projectRoles" autocomplete-property="label" :dark="dark" label="Limit visibility to (optional)" placeholder="Role(s)" value-property="value" />
           <div v-if="flattenedFieldKeys.length > 1 && !fieldBeingEdited.visibility.hidden && fieldBeingEdited.visibility.showByValue" class="conditional-wrapper">
             <span>Show if</span>
             <MbSelect v-model="fieldBeingEdited.visibility.showByValue.field" :dark="dark" :options="flattenedFieldKeys" placeholder="Field…" />
