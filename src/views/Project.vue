@@ -491,6 +491,7 @@ export default {
       this.currentOperation.step = null;
       this.currentOperation.progress = null;
       this.gitLoading = false;
+      this.$store.commit('addToast', { message: `Successfully synced ${this.selectedChanges.length} change${this.selectedChanges.length !== 1 ? 's' : ''}`, timeout: 2000, type: 'positive' });
     },
     async resetAfterFail(changes) {
       // reset to last commit (https://github.com/isomorphic-git/isomorphic-git/issues/129, <commit> is log({depth: 1}).oid), unstage everything with resetIndex
