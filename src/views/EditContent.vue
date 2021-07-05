@@ -30,11 +30,6 @@
         <MbFieldsEditor v-else v-model="contentForTab" v-model:error="errors.fields" v-model:split-visible="showSplit" :compact="!showPreview" :dark="dark" :fields="fieldsForTab" :key="activeTab" :languages="contentLanguages" :split-target="!showPreview ? '#splitTarget' : null" @image-load="addPreviewImage" />
       </transition>
 
-      <pre data-lang="content langs">{{contentLanguages}}</pre>
-      <pre data-lang="content">{{content}}</pre>
-      <pre data-lang="collection">{{collection}}</pre>
-      <pre data-lang="schema">{{schema}}</pre>
-
       <template #right="{ isModal }">
         <div v-if="showPreview" class="preview">
           <div v-if="errors.preview === 'offline'" class="error-state" :class="{ dark }">
