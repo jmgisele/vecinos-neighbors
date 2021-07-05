@@ -269,6 +269,21 @@ export default {
           this.importing = false;
           return;
         }
+
+        this.cloneStep = 'saving configuration';
+        try {
+          const config = {
+            corsProxy: this.proxy,
+            initialised: true,
+          };
+
+          this.$store.commit('setAppData', { ...this.$store.state.application, ...config });
+          await this.$store.dispatch('saveAppData');
+        } catch (err) {
+          this.$store.commit('addToast', { message: `Something went wrong while saving the configuration: ${err.message}`, type: 'error' });
+          this.importing = false;
+          return;
+        }
       }
 
       this.cloneStep = 'importing project';
