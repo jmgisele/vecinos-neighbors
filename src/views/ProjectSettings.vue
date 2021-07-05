@@ -69,6 +69,7 @@ export default {
   },
   computed: {
     activeTabValue() {
+      if (!this.$store.state.currentProject.id) return null;
       return this.tabs[this.activeTab].value;
     },
   },
