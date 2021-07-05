@@ -65,7 +65,7 @@ export default {
       return `/projects/${this.currentProject.id}`;
     },
     sidebarOptions() {
-      if (this.currentProject.sidebar && this.currentProject.sidebar.length > 0) return this.currentProject.sidebar;
+      if (this.currentProject.sidebar && this.currentProject.sidebar.length > 0) return this.currentProject.sidebar.filter((entry) => !entry.limitToRoles || entry.limitToRoles.length === 0 || entry.limitToRoles.includes(this.$store.getters.userInCurrentProject.role));
       const defaultOptions = [{ label: 'The sidebar has not yet been configured for this project' }];
 
       if (this.isPrivilegedUser) defaultOptions.push({ icon: 'wrench-and-driver', label: 'Configure now', target: { name: 'Project.Settings', query: { tab: 'sidebar' } } });

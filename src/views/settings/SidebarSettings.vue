@@ -32,7 +32,7 @@
             <span>Label:</span>
             <MbInput v-model.trim.lazy="entryDetails.label" :dark="dark" :error="entryError" icon="tag" placeholder="Pages" @blur="updateEntry" @update:model-value="entryError = validateLabel($event)" />
           </div>
-          <div class="input-row">
+          <div v-if="entryDetails.type !== 'heading'" class="input-row">
             <span>Icon:</span>
             <MbIconPicker v-model="entryDetails.icon" :dark="dark" removable @update:model-value="updateEntry"/>
           </div>
@@ -51,8 +51,9 @@
           </div>
         </section>
         <section>
-          <h3>Dashboard</h3>
-          <MbToggle :dark="dark" :disabled="entryDetails.type === 'heading' || !entryDetails.target" :model-value="entryDetails.showInDashboard" @update:model-value="entryDetails.showInDashboard = $event; updateEntry()">Show as a card on the Dashboard</MbToggle>
+          <h3>Visibility</h3>
+          <MbToggle v-if="entryDetails.type !== 'heading'" :dark="dark" :disabled="entryDetails.type === 'heading' || !entryDetails.target" :model-value="entryDetails.showInDashboard" @update:model-value="entryDetails.showInDashboard = $event; updateEntry()">Show as a card on the Dashboard</MbToggle>
+          <MbTagInput v-model="entryDetails.limitToRoles" :autocomplete-model="projectRoles" autocomplete-property="label" :dark="dark" label="Limit visibility to (optional)" placeholder="Role(s)" value-property="value" @update:model-value="updateEntry" />
         </section>
       </div>
     </template>
@@ -62,6 +63,8 @@
 <script>
 import { cloneDeep, isEqual } from 'lodash-es';
 import fs, { exists, joinPath } from '../../fs';
+
+import availableRoles from '../../data/availableRoles';
 
 import InternalLinkHelper from '../../components/utility/InternalLinkHelper.vue';
 import TabContent from '../../components/utility/TabContent.vue';
@@ -80,6 +83,12 @@ export default {
     },
     isMobile() {
       return this.$store.state.application.mobile;
+    },
+    projectRoles() {
+      return [
+        ...availableRoles,
+        ...this.$store.state.currentProject.customRoles,
+      ];
     },
     sidebarOptions: {
       get() {
@@ -101,6 +110,7 @@ export default {
       entryDetails: {
         icon: null,
         label: null,
+        limitToRoles: null,
         target: null,
         type: null,
       },
@@ -125,7 +135,6 @@ export default {
       }
       const backup = entry;
       const entryIndex = this.sidebarOptions.indexOf(entry);
-      const timeout = 5000;
 
       this.sidebarOptions = this.sidebarOptions.filter((existingEntry) => existingEntry !== entry);
       this.$store.commit('addToast', {
@@ -136,8 +145,9 @@ export default {
           this.sidebarOptions = shallowCopy;
         },
         actionLabel: 'Undo',
+        closeOnRouteChange: true,
         message: `“${entry.label}” was deleted`,
-        timeout: timeout - 200,
+        timeout: 5000,
         type: 'warning',
       });
     },
@@ -156,6 +166,7 @@ export default {
       this.entryDetails = {
         icon: null,
         label: null,
+        limitToRoles: null,
         target: null,
         type: null,
       };
@@ -382,6 +393,9 @@ export default {
     h3
       color: $text-secondary
 
+      + .tag-input
+        margin-top: 2rem
+
     .input-row
       display: flex
       align-items: center
@@ -412,4 +426,7 @@ export default {
 
       > .input
         margin-top: 0
+
+    > .toggle:not(:last-child)
+      margin-bottom: 2rem
 </style>

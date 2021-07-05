@@ -115,7 +115,7 @@ export default {
     },
     sidebarCards() {
       const { sidebar } = this.$store.state.currentProject;
-      return sidebar.filter((entry) => entry.showInDashboard && entry.target);
+      return sidebar.filter((entry) => entry.showInDashboard && entry.target && (!entry.limitToRoles || entry.limitToRoles.length === 0 || entry.limitToRoles.includes(this.$store.getters.userInCurrentProject.role)));
     },
     sortedNews() {
       if (this.newsLoading) return [];
