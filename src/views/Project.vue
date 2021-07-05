@@ -2,7 +2,7 @@
   <div class="project">
     <router-view v-slot="{ Component }">
       <transition mode="out-in">
-        <component class="subview" :dark="dark" :is="Component" :key="$route.name" @push="openChangesModal" />
+        <component class="subview" :class="{ dark }" :dark="dark" :is="Component" :key="$route.name" @push="openChangesModal" />
       </transition>
     </router-view>
     <ProjectSidebar :dark="dark" :git-status="gitStatus" @git-status-click="handleGitStatusClick" />
@@ -547,6 +547,9 @@ export default {
     height: "calc(100vh - %s)" % (82 / 16)rem
 
   .subview
+    &.dark
+      background-color: $bg-dark
+
     &.v-enter-active,
     &.v-leave-active
       transition: opacity 200ms ease
