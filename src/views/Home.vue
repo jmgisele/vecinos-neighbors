@@ -75,7 +75,7 @@ export default {
       }
     },
     importDisabled() {
-      return !this.repoURL || !this.repoBranch || !this.corsProxy || Object.values(this.errors).some((err) => err);
+      return !this.repoURL || !this.repoBranch || this.errors.repoURL;
     },
     isMobile() {
       return this.$store.state.application.mobile;
