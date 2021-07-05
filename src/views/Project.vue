@@ -440,7 +440,7 @@ export default {
 
         this.currentOperation.step = 'Separating drafts from published content…';
         this.selectedChanges.forEach((change) => { // changes need to be turned into plain objects to be processable in the worker thread
-          if (change.file.startsWith(`${this.projectDir}/${draftsDir}`)) drafts.push({ file: change.file, type: change.type });
+          if (change.file.startsWith(draftsDir.replace(/^\//, ''))) drafts.push({ file: change.file, type: change.type });
           else changesWithoutDrafts.push({ file: change.file, type: change.type });
         });
         // commit and push them separately
