@@ -82,45 +82,44 @@ export default {
         await new Promise((res) => window.setTimeout(res, this.$store.state.application.mobile ? 250 : 150)); // HACK: Allow the modal close animation to play before proceeding
       }
 
-      const timeout = 5000;
-      const timeoutId = window.setTimeout(async () => {
-        try {
-          // Check if another user references this project
-          const userFiles = await fs.readdir('/users');
-          const rawUserData = await Promise.all(userFiles.reduce((acc, file) => { if (file.endsWith('.json')) acc.push(fs.readFile(`/users/${file}`, 'utf8')); return acc; }, []));
-          const users = rawUserData.map((data) => JSON.parse(data));
-          const usersWithThisProject = users.reduce((acc, user) => {
-            if (user.projects.includes(this.id)) acc += 1; // eslint-disable-line no-param-reassign
-            return acc;
-          }, 0);
-          // if so, just remove it from the active user
-          this.$store.commit('removeProjectFromActiveUser', this.id);
-          await this.$store.dispatch('saveUser');
-          // otherwise also rmrf it
-          if (usersWithThisProject < 2) {
-            const projectPath = `/projects/${this.id}`;
-            await rmrf(projectPath);
-            this.$store.commit('removeLocallyChangedFolder', projectPath);
-            await this.$store.dispatch('saveAppData');
-          }
-          this.$emit('deleted');
-        } catch (err) {
-          this.$store.commit('addToast', { message: `Something went wrong while deleting the project: ${err.message}`, type: 'error' });
-        } finally {
-          this.$store.commit('removeFromSoftDeleted', `/projects/${this.id}`);
-        }
-      }, timeout);
-
       this.$store.commit('addToSoftDeleted', `/projects/${this.id}`);
       this.$store.commit('addToast', {
         action: () => {
-          window.clearTimeout(timeoutId);
           this.$emit('delete-undo');
           this.$store.commit('removeFromSoftDeleted', `/projects/${this.id}`);
         },
         actionLabel: 'Undo',
+        closeOnRouteChange: true,
         message: `${this.name} ${this.localChanges ? 'and all unpublished changes were' : 'was'} deleted`,
-        timeout: timeout - 200, // just to be sure
+        onClose: async (undone) => {
+          if (undone) return;
+          try {
+            // Check if another user references this project
+            const userFiles = await fs.readdir('/users');
+            const rawUserData = await Promise.all(userFiles.reduce((acc, file) => { if (file.endsWith('.json')) acc.push(fs.readFile(`/users/${file}`, 'utf8')); return acc; }, []));
+            const users = rawUserData.map((data) => JSON.parse(data));
+            const usersWithThisProject = users.reduce((acc, user) => {
+              if (user.projects.includes(this.id)) acc += 1; // eslint-disable-line no-param-reassign
+              return acc;
+            }, 0);
+            // if so, just remove it from the active user
+            this.$store.commit('removeProjectFromActiveUser', this.id);
+            await this.$store.dispatch('saveUser');
+            // otherwise also rmrf it
+            if (usersWithThisProject < 2) {
+              const projectPath = `/projects/${this.id}`;
+              await rmrf(projectPath);
+              this.$store.commit('removeLocallyChangedFolder', projectPath);
+              await this.$store.dispatch('saveAppData');
+            }
+            this.$emit('deleted');
+          } catch (err) {
+            this.$store.commit('addToast', { message: `Something went wrong while deleting the project: ${err.message}`, type: 'error' });
+          } finally {
+            this.$store.commit('removeFromSoftDeleted', `/projects/${this.id}`);
+          }
+        },
+        timeout: 5000,
         type: 'warning',
       });
     },
