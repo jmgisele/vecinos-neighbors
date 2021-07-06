@@ -33,7 +33,7 @@
           <MbToggle v-model="showAdvancedSettings" :dark="dark">Advanced Options</MbToggle>
           <transition>
             <div v-show="showAdvancedSettings" class="advanced-settings">
-              <MbInput v-model="corsProxy" :dark="dark" :error="errors.corsProxy" label="CORS Proxy URL" placeholder="https://cors.isomorphic-git.org" @blur="validate('corsProxy')" />
+              <MbInput v-model="corsProxy" :dark="dark" :error="errors.corsProxy" label="CORS Proxy URL" placeholder="https://cors.isomorphic-git.org" warn @blur="validate('corsProxy')" />
               <MbCheckbox v-model="overwriteCorsProxy" :dark="dark">Set this as the default CORS Proxy server</MbCheckbox>
             </div>
           </transition>
