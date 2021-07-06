@@ -21,7 +21,7 @@
         </div>
       </MbScroller>
     </div>
-    <label class="content-wrapper" :class="{ dark, disabled, dirty: error || modelValue || placeholder, error: error || maxLen && overlength, raw, rich: outputFormat !== 'text' }" @click="outputFormat !== 'text' && !raw && !editorView.hasFocus() ? editorView.focus() : null">
+    <label class="content-wrapper" :class="{ dark, disabled, dirty: error || modelValue || placeholder, error: error || maxLen && overlength, raw, rich: outputFormat !== 'text', warn }" @click="outputFormat !== 'text' && !raw && !editorView.hasFocus() ? editorView.focus() : null">
       <span v-if="displayLabel" class="label" :class="{ right: !label && maxLen }">{{displayLabel}}</span>
       <div v-if="outputFormat === 'text' || raw" class="autogrow-area" ref="autogrow">
         <pre ref="pre"></pre>
@@ -709,6 +709,7 @@ export default {
       validator: (v) => ['text', 'markdown', 'html'].includes(v),
     },
     placeholder: String,
+    warn: Boolean,
   },
   watch: {
     raw(nv) {
@@ -867,13 +868,20 @@ export default {
 
     &.error
       color: $negative-saturated
-      box-shadow: inset 0 0 0 2px $negative
+      box-shadow: inset 0 0 0 0.125rem $negative
 
       &:focus-within
         color: inherit
 
       .label
         color: $negative-saturated
+
+      &.warn
+        color: inherit
+        box-shadow: inset 0 0 0 0.125rem $warning-saturated
+
+        .label
+          color: $warning-saturated
 
     &.disabled
       pointer-events: none
