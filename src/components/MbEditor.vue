@@ -941,6 +941,7 @@ export default {
       // font-variant-ligatures: none // ligatures were disabled because Chrome couldn’t select inbetween them, but it seems fixed now
       // font-feature-settings: "liga" 0; /* the above doesn't seem to work in Edge */
       caret-color: transparent
+      user-select: auto
 
       &.ProseMirror-focused
         .ProseMirror-gapcursor
