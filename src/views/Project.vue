@@ -22,7 +22,7 @@
           <MbProgress :dark="dark" :indetermined="!currentOperation.progress" :label="currentOperation.step" :progress="currentOperation.progress" />
         </div>
         <div v-else class="wrapper">
-          <MbEditor v-model="commitMessage" :allow-new-lines="false" :dark="dark" label="Message describing the changes (optional)" :max-len="72" />
+          <MbEditor v-model="commitMessage" :allow-new-lines="false" :dark="dark" label="Message describing the changes (optional)" :max-len="72" warn />
           <header :class="{dark}">
             <span>Select the changes to include:</span>
             <MbButton :dark="dark" @click="toggleSelectAll">{{lessThanHalfSelected ? 'Select all' : 'Deselect all'}}</MbButton>
@@ -30,7 +30,7 @@
           <ul class="changes">
             <li v-for="(change, index) in changes" :key="index">
               <MbCheckbox v-model="change.selected" :dark="dark" />
-              <div class="group" :class="{dark}" @click="change.selected = !change.selected">
+              <div class="group" :class="{dark}" @click="change.selected = !change.selected" @contextmenu.prevent="openChangeContextMenu($event, index)">
                 <MbChip :color="change.color" :label="change.type" />
                 <span>{{change.file}}</span>
               </div>
@@ -46,16 +46,18 @@
         <MbButton :dark="dark" :disabled="isPushing || changesLoading || selectedChanges.length === 0" type="primary" @click="pushChanges">Sync {{selectedChanges.length}} change{{ selectedChanges.length !== 1 ? 's' : ''}}</MbButton>
       </template>
     </MbModal>
+    <MbContextMenu :dark="dark" :options="changeContextMenu.options" :show="changeContextMenu.show" :target="changeContextMenu.target" :x="changeContextMenu.x" :y="changeContextMenu.y" @close="resetChangeContextMenu" />
   </div>
 </template>
 
 <script>
+import * as Diff from 'diff';
 import slugify from '@sindresorhus/slugify';
 import {
-  currentBranch as getCurrentBranch, log as gitLog, resetIndex, statusMatrix,
+  currentBranch as getCurrentBranch, log as gitLog, resetIndex, statusMatrix, resolveRef, readBlob,
 } from 'isomorphic-git';
 
-import fs, { PlainFS, exists } from '../fs';
+import fs, { PlainFS, exists, joinPath } from '../fs';
 import { addAllAndCommit, pull, push } from '../git';
 import Store from '../store';
 import isMattrbldProject from '../assets/js/isMattrbldProject';
@@ -190,17 +192,18 @@ export default {
         avatar: avatarUrl,
         users,
       });
-      return next((vm) => {
-        if (navigator.onLine) vm.performInitialPull();
-        else {
-          Store.commit('addToast', {
-            id: 'appIsOffline',
-            message: 'You’re offline and working on a potentially outdated version, there’s a higher risk of conflicts',
-            timeout: false,
-            type: 'warning',
-          });
-        }
-      });
+      // return next((vm) => {
+      //   if (navigator.onLine) vm.performInitialPull();
+      //   else {
+      //     Store.commit('addToast', {
+      //       id: 'appIsOffline',
+      //       message: 'You’re offline and working on a potentially outdated version, there’s a higher risk of conflicts',
+      //       timeout: false,
+      //       type: 'warning',
+      //     });
+      //   }
+      // });
+      return next();
     } catch (err) {
       return next({
         name: 'Error',
@@ -273,6 +276,20 @@ export default {
   },
   data() {
     return {
+      changeContextMenu: {
+        index: null,
+        options: [
+          {
+            action: () => this.showFileChanges(this.changeContextMenu.index),
+            icon: 'replace-alt',
+            label: 'Show changes',
+          },
+        ],
+        show: null,
+        target: null,
+        x: null,
+        y: null,
+      },
       changes: [],
       changesLoading: true,
       commitMessage: '',
@@ -345,6 +362,13 @@ export default {
       this.currentOperation.step = progress.phase;
       if (progress.total) this.currentOperation.progress = progress.loaded / progress.total;
       else this.currentOperation.progress = null;
+    },
+    openChangeContextMenu(e, index) {
+      this.changeContextMenu.x = e.clientX;
+      this.changeContextMenu.y = e.clientY;
+      this.changeContextMenu.index = index;
+      this.changeContextMenu.target = e.currentTarget;
+      this.changeContextMenu.show = true;
     },
     async openChangesModal() {
       this.changesLoading = true;
@@ -516,9 +540,25 @@ export default {
         filepath: change.file,
       })));
     },
+    resetChangeContextMenu() {
+      this.changeContextMenu.index = null;
+      this.changeContextMenu.show = null;
+      this.changeContextMenu.target = null;
+      this.changeContextMenu.x = null;
+      this.changeContextMenu.y = null;
+    },
     resetChangesModal() {
       this.changes = [];
       this.commitMessage = '';
+    },
+    async showFileChanges(index) {
+      const change = this.changes[index];
+      const content = await fs.readFile(joinPath(this.projectDir, change.file), 'utf8');
+      const headOid = await resolveRef({ fs: PlainFS, dir: this.projectDir, ref: 'HEAD' });
+      const { blob } = await readBlob({ fs: PlainFS, dir: this.projectDir, oid: headOid, filepath: change.file }); // eslint-disable-line object-curly-newline
+      const oldContent = new TextDecoder().decode(blob);
+      console.log(oldContent);
+      console.log(Diff.diffLines(oldContent, content));
     },
     toggleSelectAll() {
       if (this.lessThanHalfSelected) this.changes.forEach((change) => { change.selected = true; }); // eslint-disable-line no-param-reassign
