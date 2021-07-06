@@ -83,7 +83,7 @@
         <MbInput v-model="textTest" clearable :dark="dark" icon="search" label="With Icon" type="password" />
         <MbInput v-model="textTest" :dark="dark" placeholder="Just a placeholder" />
         <MbInput v-model="textTest" :dark="dark" label="Just a Label" />
-        <MbInput v-model="textTest" :dark="dark" label="Label and maximum length" :max-len="20" />
+        <MbInput v-model="textTest" :dark="dark" label="Label and maximum length" :max-len="20" warn />
         <MbInput v-model="textTest" :dark="dark" placeholder="Just maximum length" :max-len="10" />
         <MbInput v-model="textTest" :dark="dark" disabled placeholder="mattrbld" label="Disabled" />
         <MbInput v-model.number="numTest" :dark="dark" icon="number" label="Number Input" type="number" />
@@ -1250,6 +1250,7 @@ export default {
           ['`modelValue`', 'String', "`''`"],
           ['`placeholder`', 'String', ''],
           ['`type`', 'String', "`'text'`"],
+          ['`warn`', 'Boolean', "`'undefined'`"],
         ],
         itemLists: [
           ['Name', 'Type', 'Default'],

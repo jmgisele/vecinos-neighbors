@@ -1,6 +1,6 @@
 <template lang="html">
-  <div class="input" :class="{ dark, disabled, dirty: error || modelValue || modelValue === 0 || placeholder, error: error || maxLen && modelValue.length > maxLen, icon }" @mousedown.self.prevent @click="focus">
-    <MbIcon v-if="icon" :icon="error && !focussed ? 'error' : icon" @mousedown.prevent />
+  <div class="input" :class="{ dark, disabled, dirty: error || modelValue || modelValue === 0 || placeholder, error: error || maxLen && modelValue.length > maxLen, icon, warn }" @mousedown.self.prevent @click="focus">
+    <MbIcon v-if="icon" :icon="error && !focussed ? warn ? 'warning' : 'error' : icon" @mousedown.prevent />
     <span v-if="displayLabel" :class="{ clearable, right: !label && maxLen, spinners: showSpinner }">{{displayLabel}}</span>
     <input autocomplete="off" :disabled="disabled" :placeholder="placeholder" ref="input" :type="type" :value="modelValue" @blur="handleBlur" @focus="handleFocus" @[emissionevent]="handleUpdate">
     <MbButton v-if="showSpinner" :dark="dark" icon="minus" rounded @click="$emit('update:modelValue', addStep(-1))" />
@@ -85,6 +85,7 @@ export default {
       default: 'text',
     },
     modelValue: [Number, String],
+    warn: Boolean,
   },
 };
 </script>
@@ -135,13 +136,24 @@ export default {
 
   &.error
     color: $negative-saturated
-    box-shadow: inset 0 0 0 2px $negative
+    box-shadow: inset 0 0 0 0.125rem $negative
 
     &:focus-within
       color: inherit
 
     > span
       color: $negative-saturated
+
+    &.warn
+      color: inherit
+      box-shadow: inset 0 0 0 0.125rem $warning-saturated
+
+      &:focus-within .icon
+        color: inherit
+
+      > span,
+      .icon
+        color: $warning-saturated
 
   &.disabled
     pointer-events: none
