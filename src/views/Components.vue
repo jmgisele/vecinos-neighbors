@@ -530,6 +530,7 @@
         <p>Any string between a colon (:) and the first non word character in the <code>urlTemplate</code> will be interpreted as a field-path passed to <code>_.get</code>. The field’s value will be slugified and used in the URL instead.</p>
         <p>If a <code>[year|month|day]</code> modifier is used on a dynamic part of the <code>urlTemplate</code>, the field value will be converted to a date and return the specified modifier or undefined if the date is invalid</p>
         <p><code>limitTo</code> should be an Array of Collection paths (or files) that should be included in the list.</p>
+        <p><code>allowUnlikable</code> can be used in situations where even Collections not marked as linkable should be able to selected.</p>
         <h3 id="modal overlay">Modal Overlay</h3>
         <p>In order to only have one modal overlay despite multiple modals stacking on top of each other, the overlay is factored out into its own component that should be included <em>once</em> in the app.</p>
         <h4>Props</h4>
@@ -1226,6 +1227,7 @@ export default {
         ],
         internalLinkHelpers: [
           ['Name', 'Type', 'Default'],
+          ['`allowUnlinkable`', 'Boolean', '`false`'],
           ['`collectionsPath`', 'String', '`undefined`'],
           ['`dark`', 'Boolean', '`false`'],
           ['`fullPath`', 'Boolean', '`false`'],

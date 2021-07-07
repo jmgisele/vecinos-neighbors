@@ -115,7 +115,7 @@ export default {
         const collectionStrings = await Promise.all(collectionFiles.map((file) => fs.readFile(joinPath(this.collectionsPath, file), 'utf8')));
         const collections = collectionStrings.map((collection) => collection && JSON.parse(collection)).filter((collection) => typeof collection !== 'undefined');
         this.linkableCollections = collections.reduce((acc, collection, index) => {
-          if (((this.limitTo && this.limitTo.length > 0) || collection.linkable) && collection.dir) {
+          if ((this.allowUnlinkable || (this.limitTo && this.limitTo.length > 0) || collection.linkable) && collection.dir) {
             acc.push({
               collection: collectionFiles[index],
               label: prettifyEntityName(collectionFiles[index]),
@@ -132,6 +132,7 @@ export default {
     },
   },
   props: {
+    allowUnlinkable: Boolean,
     collectionsPath: {
       type: String,
       required: true,
