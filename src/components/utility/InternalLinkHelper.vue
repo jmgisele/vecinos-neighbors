@@ -60,7 +60,7 @@ export default {
     async activate() {
       this.view = 'loading';
       await this.loadCollections();
-      if (this.linkableCollections.length === 1) this.handleCollectionClick(this.linkableCollections[0].value, this.linkableCollections[0].type, this.linkableCollections[0].template);
+      if (this.linkableCollections.length === 1) this.handleCollectionClick(this.linkableCollections[0].value, this.linkableCollections[0].type, this.linkableCollections[0].template, this.linkableCollections[0].collection);
       else this.view = 'collections';
     },
     handleCollectionClick(dir, type, template, collection) {
