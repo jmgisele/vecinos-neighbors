@@ -46,6 +46,14 @@
         <MbButton :dark="dark" :disabled="isPushing || changesLoading || selectedChanges.length === 0" type="primary" @click="pushChanges">Sync {{selectedChanges.length}} change{{ selectedChanges.length !== 1 ? 's' : ''}}</MbButton>
       </template>
     </MbModal>
+    <MbModal class="discard-confirmation-modal" :dark="dark" title="Discard Local Changes" :visible="showDiscardConfirmationModal" @close="showDiscardConfirmationModal = false" @after-close="changeToDiscard = null">
+      <p>You’re about to <strong>permanently</strong> discard any local changes that have been made to <code>{{changeToDiscard && changeToDiscard.file}}</code>. Are you sure?</p>
+      <p><strong>This cannot be undone.</strong></p>
+      <template #actions>
+        <MbButton :dark="dark" @click="showDiscardConfirmationModal = false">Cancel</MbButton>
+        <MbButton :dark="dark" type="negative" @click="discardChanges">Discard</MbButton>
+      </template>
+    </MbModal>
     <MbContextMenu :dark="dark" :options="changeContextMenu.options" :show="changeContextMenu.show" :target="changeContextMenu.target" :x="changeContextMenu.x" :y="changeContextMenu.y" @close="resetChangeContextMenu" />
   </div>
 </template>
@@ -54,7 +62,7 @@
 import * as Diff from 'diff';
 import slugify from '@sindresorhus/slugify';
 import {
-  currentBranch as getCurrentBranch, log as gitLog, resetIndex, statusMatrix, resolveRef, readBlob,
+  checkout, currentBranch as getCurrentBranch, log as gitLog, resetIndex, statusMatrix, resolveRef, readBlob,
 } from 'isomorphic-git';
 
 import fs, { PlainFS, exists, joinPath } from '../fs';
@@ -284,6 +292,12 @@ export default {
             icon: 'replace-alt',
             label: 'Show changes',
           },
+          {
+            action: () => { this.changeToDiscard = this.changes[this.changeContextMenu.index]; this.showDiscardConfirmationModal = true; },
+            icon: 'trash',
+            label: 'Discard changes',
+            type: 'negative',
+          },
         ],
         show: null,
         target: null,
@@ -298,14 +312,43 @@ export default {
         step: null,
         progress: null,
       },
+      changeToDiscard: null,
       gitError: null,
       gitErrorRetryAction: null,
       gitLoading: false,
-      showGitErrorModal: false,
       showChangesModal: false,
+      showDiscardConfirmationModal: false,
+      showGitErrorModal: false,
     };
   },
   methods: {
+    async discardChanges() {
+      // if it was added we just need to delete it
+      if (this.changeToDiscard.type === 'add') {
+        try {
+          await fs.unlink(joinPath(this.projectDir, this.changeToDiscard.file));
+        } catch (err) {
+          this.$store.commit('addToast', { message: `Something went wrong during deletion while discarding the changes: ${err.message}`, type: 'error' });
+        }
+      } else { // otherwise checking it out should be fine
+        try {
+          await checkout({
+            fs: PlainFS,
+            dir: this.projectDir,
+            force: true, // setting this to false will cause nothing to change
+            filepaths: [this.changeToDiscard.file],
+          });
+        } catch (err) {
+          this.$store.commit('addToast', { message: `Something went wrong during checkout while discarding the changes: ${err.message}`, type: 'error' });
+        }
+      }
+      // and then it should be removed from this.changes and locallyChangedFiles
+      const changeIndex = this.changes.indexOf(this.changeToDiscard);
+      if (changeIndex > -1) this.changes.splice(changeIndex, 1);
+      this.$store.commit('removeLocallyChangedFile', joinPath(this.projectDir, this.changeToDiscard.file));
+      this.$store.dispatch('saveAppData');
+      this.showDiscardConfirmationModal = false;
+    },
     gitAddAllAndCommit(changes, dryRun = false) {
       const { name, email } = this.$store.getters.userInCurrentProject;
 
@@ -404,6 +447,7 @@ export default {
           }
           return acc;
         }, []);
+      // TODO: rewrite this accumulator to also include files that are not yet marked as locally changed
       const actuallyChangedFiles = this.$store.state.application.locallyChangedFiles.reduce((acc, path) => {
         if (!path.startsWith(this.projectDir) || this.changes.find((change) => `${this.projectDir}/${change.file}` === path)) acc.push(path);
         return acc;
