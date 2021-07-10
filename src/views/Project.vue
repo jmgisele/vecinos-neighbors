@@ -447,11 +447,9 @@ export default {
           }
           return acc;
         }, []);
-      // TODO: rewrite this accumulator to also include files that are not yet marked as locally changed
-      const actuallyChangedFiles = this.$store.state.application.locallyChangedFiles.reduce((acc, path) => {
-        if (!path.startsWith(this.projectDir) || this.changes.find((change) => `${this.projectDir}/${change.file}` === path)) acc.push(path);
-        return acc;
-      }, []);
+      const actuallyChangedFiles = this.changes
+        .map((change) => joinPath(this.projectDir, change.file)) // map changes to full project paths
+        .concat(this.$store.state.application.locallyChangedFiles.filter((path) => !path.startsWith(this.projectDir))); // combine that list with all local changes that are not related to this project
       this.$store.commit('setLocallyChangedFiles', actuallyChangedFiles);
       await this.$store.dispatch('saveAppData');
       this.changesLoading = false;
