@@ -60,14 +60,14 @@
       <template v-if="changeDetails.diff">
         <div v-for="(change, index) in changeDetails.diff" class="change" :key="index">
           <template v-if="changeDetails.diff[index + 1] && changeDetails.diff[index + 1].line === change.line">
-            <p v-if="change.line === change.lineEnd" class="line-hint">Line {{change.line}}:</p>
-            <p v-else class="line-hint">From line {{change.line}} to line {{change.lineEnd}}:</p>
+            <p v-if="change.line === change.lineEnd" class="line-hint">Modify line {{change.line}}:</p>
+            <p v-else class="line-hint">Modify lines {{change.line}} to {{change.lineEnd}}:</p>
             <pre class="remove">{{change.content}}</pre>
             <pre class="add">{{changeDetails.diff[index +1].content}}</pre>
           </template>
           <template v-else-if="!changeDetails.diff[index - 1] || changeDetails.diff[index - 1].line !== change.line">
-            <p v-if="change.line === change.lineEnd" class="line-hint">Line {{change.line}}:</p>
-            <p v-else class="line-hint">From line {{change.line}} to line {{change.lineEnd}}:</p>
+            <p v-if="change.line === change.lineEnd" class="line-hint">{{change.type === 'add' ? 'Add' : 'Remove'}} line {{change.line}}:</p>
+            <p v-else class="line-hint">{{change.type === 'add' ? 'Add' : 'Remove'}} lines {{change.line}} to {{change.lineEnd}}:</p>
             <pre :class="change.type">{{change.content}}</pre>
           </template>
         </div>
