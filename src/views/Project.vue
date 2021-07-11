@@ -54,6 +54,28 @@
         <MbButton :dark="dark" type="negative" @click="discardChanges">Discard</MbButton>
       </template>
     </MbModal>
+    <MbModal class="change-details-modal" :dark="dark" title="Change Details" :visible="showChangeDetailsModal" @close="showChangeDetailsModal = false" @after-close="resetChangeDetails">
+      <p v-if="changeDetails.type !== 'modify'">You have moved or {{changeDetails.type === 'add' ? 'created' : 'deleted'}} <code>{{changeDetails.file}}</code></p>
+      <p v-else>You have modified <code>{{changeDetails.file}}</code> in the following sections:</p>
+      <template v-if="changeDetails.diff">
+        <div v-for="(change, index) in changeDetails.diff" class="change" :key="index">
+          <template v-if="changeDetails.diff[index + 1] && changeDetails.diff[index + 1].line === change.line">
+            <p v-if="change.line === change.lineEnd" class="line-hint">Line {{change.line}}:</p>
+            <p v-else class="line-hint">From line {{change.line}} to line {{change.lineEnd}}:</p>
+            <pre class="remove">{{change.content}}</pre>
+            <pre class="add">{{changeDetails.diff[index +1].content}}</pre>
+          </template>
+          <template v-else-if="!changeDetails.diff[index - 1] || changeDetails.diff[index - 1].line !== change.line">
+            <p v-if="change.line === change.lineEnd" class="line-hint">Line {{change.line}}:</p>
+            <p v-else class="line-hint">From line {{change.line}} to line {{change.lineEnd}}:</p>
+            <pre :class="change.type">{{change.content}}</pre>
+          </template>
+        </div>
+      </template>
+      <template #actions>
+        <MbButton :dark="dark" @click="showChangeDetailsModal = false">Close</MbButton>
+      </template>
+    </MbModal>
     <MbContextMenu :dark="dark" :options="changeContextMenu.options" :show="changeContextMenu.show" :target="changeContextMenu.target" :x="changeContextMenu.x" :y="changeContextMenu.y" @close="resetChangeContextMenu" />
   </div>
 </template>
@@ -304,6 +326,11 @@ export default {
         x: null,
         y: null,
       },
+      changeDetails: {
+        diff: null,
+        file: null,
+        type: null,
+      },
       changes: [],
       changesLoading: true,
       commitMessage: '',
@@ -316,6 +343,7 @@ export default {
       gitError: null,
       gitErrorRetryAction: null,
       gitLoading: false,
+      showChangeDetailsModal: false,
       showChangesModal: false,
       showDiscardConfirmationModal: false,
       showGitErrorModal: false,
@@ -589,18 +617,51 @@ export default {
       this.changeContextMenu.x = null;
       this.changeContextMenu.y = null;
     },
+    resetChangeDetails() {
+      this.changeDetails.type = null;
+      this.changeDetails.file = null;
+      this.changeDetails.diff = null;
+    },
     resetChangesModal() {
       this.changes = [];
       this.commitMessage = '';
     },
     async showFileChanges(index) {
       const change = this.changes[index];
-      const content = await fs.readFile(joinPath(this.projectDir, change.file), 'utf8');
-      const headOid = await resolveRef({ fs: PlainFS, dir: this.projectDir, ref: 'HEAD' });
-      const { blob } = await readBlob({ fs: PlainFS, dir: this.projectDir, oid: headOid, filepath: change.file }); // eslint-disable-line object-curly-newline
-      const oldContent = new TextDecoder().decode(blob);
-      console.log(oldContent);
-      console.log(Diff.diffLines(oldContent, content));
+
+      if (change.type === 'modify' && change.file.match(/.*\.(md|json|yml|yaml|config|conf)/)) { // NOTE: is there a better way to detect a plaintext file?
+        const content = await fs.readFile(joinPath(this.projectDir, change.file), 'utf8');
+        const headOid = await resolveRef({ fs: PlainFS, dir: this.projectDir, ref: 'HEAD' });
+        const { blob } = await readBlob({ fs: PlainFS, dir: this.projectDir, oid: headOid, filepath: change.file }); // eslint-disable-line object-curly-newline
+        const oldContent = new TextDecoder().decode(blob);
+        let line = 0;
+        this.changeDetails.diff = Diff.diffLines(oldContent, content).reduce((acc, lineChange, currentIndex, originalChanges) => {
+          let lastChange;
+          if (currentIndex > 0) lastChange = originalChanges[currentIndex - 1];
+
+          if (lastChange && lastChange.removed) line += lineChange.count - lastChange.count;
+          else line += lineChange.count;
+
+          let type;
+          if (lineChange.removed) type = 'remove';
+          else if (lineChange.added) type = 'add';
+          else type = 'unmodified';
+
+          if (type !== 'unmodified') {
+            acc.push({
+              content: lineChange.value,
+              line,
+              lineEnd: line + (lineChange.count - 1),
+              type,
+            });
+          }
+          return acc;
+        }, []);
+      }
+
+      this.changeDetails.file = change.file;
+      this.changeDetails.type = change.type;
+      this.showChangeDetailsModal = true;
     },
     toggleSelectAll() {
       if (this.lessThanHalfSelected) this.changes.forEach((change) => { change.selected = true; }); // eslint-disable-line no-param-reassign
@@ -739,4 +800,38 @@ export default {
           > span
             overflow: hidden
             text-overflow: ellipsis
+
+.change-details-modal
+  &.dark
+    .change .line-hint
+      color $text-secondary-dark
+
+  .change
+    &:not(:last-child)
+      margin-bottom: 2rem
+
+    .line-hint
+      font-size: 0.75rem
+      color: $text-secondary
+      margin-bottom: 0.25rem
+
+    pre
+      margin: 0
+      padding: 0.5rem 0.75rem
+      border-radius: 0
+      color: inherit
+
+      &:first-of-type
+        border-top-left-radius: $radius-m
+        border-top-right-radius: @border-top-left-radius
+
+      &:last-of-type
+        border-bottom-left-radius: $radius-m
+        border-bottom-right-radius: @border-bottom-left-radius
+
+      &.add
+        background-color: alpha($positive, 0.25)
+
+      &.remove
+        background-color: alpha($negative, 0.25)
 </style>
