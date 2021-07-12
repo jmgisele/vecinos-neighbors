@@ -19,7 +19,8 @@
 <script>
 export default {
   beforeUnmount() {
-    window.removeEventListener('resize', this.close);
+    if (this.updateOnResize) window.removeEventListener('resize', this.delayedUpdate);
+    else window.removeEventListener('resize', this.close);
     window.removeEventListener('click', this.close);
     this.$store.commit('observers/removeResizeListener', this.$refs.el);
   },
@@ -36,7 +37,8 @@ export default {
   mounted() {
     if (this.visible) {
       this.update();
-      window.addEventListener('resize', this.close);
+      if (this.updateOnResize) window.addEventListener('resize', this.delayedUpdate);
+      else window.addEventListener('resize', this.close);
       window.addEventListener('click', this.close);
       this.$store.commit('observers/addResizeListener', { el: this.$refs.el, cb: this.update });
     }
@@ -45,6 +47,12 @@ export default {
     close(e) {
       if (e.type === 'click' && this.visible && !this.$refs.el.contains(e.target)) this.$emit('close');
       if ((e.type === 'resize' || e.type === 'keyup') && this.visible) this.$emit('close');
+    },
+    delayedUpdate() {
+      this.$nextTick(() => {
+        const { width, height } = this.$refs.el.getBoundingClientRect();
+        this.update(width, height);
+      });
     },
     update(width, height) {
       const { height: rectHeight, width: rectWidth } = this.$refs.el.getBoundingClientRect(); // could probably only be asked conditionally if width/height are undefined
@@ -99,6 +107,7 @@ export default {
       type: Boolean,
       default: true,
     },
+    updateOnResize: Boolean,
     visible: Boolean,
     x: {
       type: Number,
@@ -113,12 +122,14 @@ export default {
     visible(nv) {
       if (nv) {
         window.setTimeout(() => {
-          window.addEventListener('resize', this.close);
+          if (this.updateOnResize) window.addEventListener('resize', this.delayedUpdate);
+          else window.addEventListener('resize', this.close);
           window.addEventListener('click', this.close);
           this.$store.commit('observers/addResizeListener', { el: this.$refs.el, cb: this.update }); // will update the popover since it transitions from size 0 to actual size once v-show === true
         }, 0);
       } else {
-        window.removeEventListener('resize', this.close);
+        if (this.updateOnResize) window.removeEventListener('resize', this.delayedUpdate);
+        else window.removeEventListener('resize', this.close);
         window.removeEventListener('click', this.close);
         this.$store.commit('observers/removeResizeListener', this.$refs.el);
       }

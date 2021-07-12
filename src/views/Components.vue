@@ -243,6 +243,7 @@
         <MbTable :data="slots.popovers" />
         <h3>Notes</h3>
         <p>If <code>stealFocus</code> gets explicitly set to false, the popover will not be focussed on opening (making keyboard shortcuts not work until it’s focussed manually)</p>
+        <p>If <code>updateOnResize</code> is set to <code>true</code>, the popover will not close on window resize events, but instead update itself after one tick.</p>
       </section>
       <section v-else-if="activeTabValue === 'selects'" class="tab selects" key="selects">
         <h2>Select Boxes</h2>
@@ -1295,6 +1296,7 @@ export default {
           ['`fromRight`', 'Boolean', '`false`'],
           ['`noContentPadding`', 'Boolean', '`false`'],
           ['`stealFocus`', 'Boolean', '`true`'],
+          ['`updateOnResize`', 'Boolean', '`undefined`'],
           ['`visible`', 'Boolean', '`false`'],
           ['`x`', 'Number', '`0`'],
           ['`y`', 'Number', '`0`'],
