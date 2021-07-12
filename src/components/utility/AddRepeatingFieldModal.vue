@@ -35,7 +35,7 @@ export default {
     grid-gap: 1rem
 
     @media $mobile
-      display: block
+      grid-template-columns: 1fr
 
     &:last-child
       margin-bottom: 0.125rem
