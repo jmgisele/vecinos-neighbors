@@ -565,6 +565,11 @@ export default {
 
         files.forEach((file) => this.$store.commit('addLocallyChangedFile', joinPath(this.currentPath, file.name)));
         await this.$store.dispatch('saveAppData');
+        this.$store.commit('addToast', {
+          message: files.length === 1 ? `${files[0].name} was uploaded successfully` : `${writePromises.length} files were uploaded successfully`,
+          timeout: 2000,
+          type: 'positive',
+        });
       } catch (err) {
         this.$store.commit('addToast', { message: `Something went wrong while saving files: ${err.message}`, type: 'error' });
       }

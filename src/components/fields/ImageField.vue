@@ -411,6 +411,11 @@ export default {
         await this.$store.dispatch('saveAppData');
         this.dragActive = false;
         this.showUploadModal = false;
+        this.$store.commit('addToast', {
+          message: `${file.name} was uploaded successfully`,
+          timeout: 2000,
+          type: 'positive',
+        });
         this.handleFileClick(path);
       } catch (err) {
         this.$store.commit('addToast', { message: `Something went wrong while saving a file in ${this.label}: ${err.message}`, type: 'error' });
