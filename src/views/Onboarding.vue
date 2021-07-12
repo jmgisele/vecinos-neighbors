@@ -1,9 +1,16 @@
 <template lang="html">
-  <div class="onboarding" :class="{ dark }">
+  <div class="onboarding" :class="{ dark }" tabindex="0">
     <section class="animation">
       <header>
         <MbIcon :icon="currentStep.icon" />
       </header>
+      <div class="bubble one" :style="{ transform: currentStep.bubbles[0] }" />
+      <div class="bubble two" :style="{ transform: currentStep.bubbles[1] }" />
+      <div class="bubble three" :style="{ transform: currentStep.bubbles[2] }" />
+      <div class="bubble four" :style="{ transform: currentStep.bubbles[3] }" />
+      <transition appear mode="out-in">
+        <p class="h1 message" :key="currentSlide">{{currentStep.message}}</p>
+      </transition>
     </section>
     <section class="steps">
       <header>
@@ -12,7 +19,7 @@
       <transition mode="out-in">
         <div v-if="currentSlide === 0" class="slide">
           <h1>Welcome to Mattrbld!</h1>
-          <p class="blurb">Mattrbld is the CMS that works in your browser. Let’s get started by importing your first project.</p>
+          <p class="blurb">Let’s get started by importing your first project—this won’t take long.</p>
           <MbInput v-model="repoURL" :autofocus="!isMobile" :dark="dark" :error="errors.repoURL" icon="repo" label="Project Repository URL" @blur="handleRepoInput" @keyup.enter="$event.target.blur()" />
           <div class="label">
             <span>Repository branch:</span>
@@ -156,19 +163,54 @@ export default {
       showPrivacyPolicy: false,
       steps: [
         {
+          bubbles: [
+            'rotate(-139.52deg) scale(1)',
+            'rotate(165.45deg) scale(1)',
+            'rotate(108.14deg) scale(1)',
+            'rotate(89.83deg) scale(1)',
+          ],
           icon: 'mattrbld',
+          message: 'Mattrbld is a headless, git-based content management system that leaves you in control.',
         },
         {
+          bubbles: [
+            'rotate(-32deg) scale(0.5)',
+            'rotate(96deg) scale(1.2)',
+            'rotate(-36deg) scale(2.2)',
+            'rotate(40deg) scale(0.75)',
+          ],
           icon: 'user',
+          message: 'Intuitively build Schemas for your data.',
         },
         {
+          bubbles: [
+            'rotate(256deg) scale(1.1)',
+            'rotate(-26deg) scale(0.65)',
+            'rotate(-248deg) scale(1.33)',
+            'rotate(67deg) scale(2)',
+          ],
           icon: 'image',
+          message: 'Organise content into Collections.',
         },
         {
+          bubbles: [
+            'rotate(-36deg) scale(0.76)',
+            'rotate(89deg) scale(2)',
+            'rotate(-47deg) scale(1.2)',
+            'rotate(-23deg) scale(0.75)',
+          ],
           icon: 'mattrbld',
+          message: 'Create and edit collaboratively.',
         },
         {
-          icon: 'mattrbld',
+          bubbles: [
+            'rotate(278deg) scale(1.8)',
+            'rotate(-47deg) scale(1.2)',
+            'rotate(12deg) scale(0.8)',
+            'rotate(-67deg) scale(0.45)',
+          ],
+          icon: 'check',
+          message: 'And when you’re ready, sync everything back to Git, so everyone is always up to date.',
         },
       ],
       userAvatar: '',
@@ -385,14 +427,96 @@ export default {
 
     &.animation
       background-color: $bg-secondary
+      position: relative
+      overflow: hidden
 
       header
+        position: relative
+        z-index: 1
         padding-left: 4rem
         padding-top: @padding-left
 
         .icon
           width: 3rem
           height: @width
+
+        @media $mobile
+          width: 100%
+          height: 50vh
+          display: flex
+          align-items: center
+          justify-content: center
+          padding: 0
+
+          .icon
+            width: 4rem
+            height: @width
+
+      .bubble
+        border-radius: 50%
+        position: absolute
+        background-image: linear-gradient(225deg, #6C5CE7 14.16%, rgba(108, 92, 231, 0) 85.19%)
+        opacity: 0.5
+        transition: transform 2000ms ease
+
+        &::after
+          content: ''
+          display: block
+          padding-top: 100%
+
+        &.one
+          width: 60.41%
+          left: -18.2%
+          top: -15.68%
+
+        &.two
+          width: 23.95%
+          right: -5.64%
+          top: 8.16%
+          transition-delay: 100ms
+
+        &.three
+          width: 43.45%
+          right: -3.45%
+          bottom: -1.71%
+          transition-delay: 200ms
+
+        &.four
+          width: 37.5%
+          left: -12.33%
+          bottom: -12.08%
+          transition-delay: 150ms
+
+      .message
+        position: absolute
+        width: 70%
+        top: 50%
+        left: 50%
+        transform: translate(-50%, -50%)
+        margin: 0
+        font-weight: normal
+        opacity: 0.6
+        letter-spacing: -0.02em
+        line-height: 1.4
+
+        &.v-enter-active,
+        &.v-leave-active
+          transition: opacity 1000ms ease
+          transition-delay: 300ms
+
+          &.v-enter-from,
+          &.v-leave-to
+            opacity: 0
+
+        @media $mobile
+          font-size: 1rem
+          bottom: 1rem
+          left: 1rem
+          top: auto
+          width: calc(100% - 2rem)
+          transform: none
+          text-align: center
+          display: none // it looks off, so hide it on mobile
 
     &.steps
       padding: 4rem
