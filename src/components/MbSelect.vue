@@ -2,9 +2,9 @@
   <MbButton v-bind="$attrs" class="select" :class="{ placeholder: typeof modelValue === 'undefined' || (!allowNull && modelValue === null) }" :dark="dark" :disabled="disabled" icon="chevron-down" :icon-first="false" :loading="loading" ref="button" :rounded="rounded" :tooltip="tooltip" @click="activate">
     {{currentOption}}
   </MbButton>
-  <MbPopover center-x class="item-wrapper" :dark="dark" no-content-padding ref="popover" :style="{ width: `${popoverWidth}px` }" :visible="active" :x="position.x" :y="position.y" @close="deactivate" @keydown.arrow-down.arrow-up.prevent @keyup.arrow-down="focus(1)" @keyup.arrow-up="focus(-1)">
+  <MbPopover center-x class="item-wrapper" :dark="dark" no-content-padding ref="popover" :style="{ width: `${popoverWidth}px` }" :update-on-resize="filterable" :visible="active" :x="position.x" :y="position.y" @close="deactivate" @keydown.arrow-down.arrow-up.prevent @keyup.arrow-down="focus(1)" @keyup.arrow-up="focus(-1)">
     <template v-if="filterable" #header>
-      <MbInput v-model="filter" :dark="dark" icon="search" placeholder="Filter Items" />
+      <MbInput v-model="filter" :dark="dark" icon="search" placeholder="Filter Items" ref="filterInput" />
     </template>
     <ul class="items" :class="{ dark }" ref="list" tabindex="-1">
       <li v-for="(option, index) in filteredOptions" :class="{ active: option.value ? option.value === modelValue : option === modelValue, disabled: option.disabled }" :key="option.value" :tabindex="option.disabled ? -1 : 0" @click="selectOption(typeof option.value !== 'undefined' ? option.value : option)" @keydown.space.prevent @keyup.space.enter="selectOption(option.value || option)" @mouseenter="handleMouseenter($event, index)" @mouseleave="handleMouseleave">
@@ -17,6 +17,7 @@
 <script>
 export default {
   beforeUnmount() {
+    if (this.filterable) window.removeEventListener('resize', this.setCoordinates, { passive: true });
     window.removeEventListener('scroll', this.deactivate, { capture: true, passive: true });
   },
   computed: {
@@ -46,20 +47,20 @@ export default {
   emits: ['update:modelValue'],
   methods: {
     activate() {
-      const buttonRect = this.$refs.button.$el.getBoundingClientRect();
-      const remBase = Number.parseInt(window.getComputedStyle(document.documentElement).fontSize, 10);
-      this.filter = '';
-      this.position.x = buttonRect.left + buttonRect.width / 2;
-      this.position.y = Math.round(buttonRect.top);
-      this.popoverWidth = buttonRect.width + remBase;
+      this.setCoordinates();
       this.active = true;
       window.addEventListener('scroll', this.deactivate, { capture: true, passive: true });
+      if (this.filterable) {
+        window.addEventListener('resize', this.setCoordinates, { passive: true });
+        this.$nextTick(() => this.$refs.filterInput.focus());
+      }
     },
     deactivate(e) {
       if (e && (e.target === this.$refs.popover.$refs.el || this.$refs.popover.$refs.el.contains(e.target))) return; // hacky but needed since it’s teleporting
       this.active = false;
       if (this.refocus) this.$refs.button.$el.focus();
       window.removeEventListener('scroll', this.deactivate, { capture: true, passive: true });
+      if (this.filterable) window.removeEventListener('resize', this.setCoordinates, { passive: true });
     },
     focus(direction) {
       const elements = this.$refs.list.querySelectorAll('li:not(.disabled)');
@@ -90,6 +91,14 @@ export default {
     selectOption(value) {
       this.$emit('update:modelValue', value);
       this.deactivate();
+    },
+    setCoordinates() {
+      const buttonRect = this.$refs.button.$el.getBoundingClientRect();
+      const remBase = Number.parseInt(window.getComputedStyle(document.documentElement).fontSize, 10);
+      this.filter = '';
+      this.position.x = buttonRect.left + buttonRect.width / 2;
+      this.position.y = Math.round(buttonRect.top);
+      this.popoverWidth = buttonRect.width + remBase;
     },
   },
   props: {
