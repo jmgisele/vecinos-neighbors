@@ -1,5 +1,5 @@
 <template lang="html">
-  <div class="onboarding" :class="{ dark }" tabindex="0">
+  <div class="onboarding" :class="{ dark }">
     <section class="animation">
       <header>
         <MbIcon :icon="currentStep.icon" />
