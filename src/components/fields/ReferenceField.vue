@@ -2,7 +2,7 @@
   <section class="reference field" :class="{ dark, localised: showLocalisedOptions }">
     <template v-if="!showLocalisedOptions">
       <span class="label" :class="{ dark, error }">{{error || label}}</span>
-      <InternalLinkHelper :class="{ dark, error, 'in-split': inSplit }" :collections-path="collectionsPath" :dark="dark" :full-path="!template" :limit-to="options.collections" :model-value="safeModelValue" :slugify="false" :url-template="template" :use-file-path="!template" @update:model-value="handleInput" />
+      <InternalLinkHelper :class="{ dark, error, 'in-split': inSplit }" :collections-path="collectionsPath" :dark="dark" :full-path="!template" :limit-to="options.collections" :model-value="safeModelValue" :slugify="false" :url-template="template" :use-file-path="!template" @update:model-value="handleInput($event)" />
     </template>
     <LocalisedFieldsContainer
       v-else
