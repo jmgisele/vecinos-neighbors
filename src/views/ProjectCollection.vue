@@ -29,7 +29,9 @@ import { rmrf } from '../fs/workerFS';
 import Store from '../store';
 
 import generateDefaultContentFromSchema from '../assets/js/generateDefaultContentFromSchema';
+import getContentLanguages from '../assets/js/getContentLanguages';
 import prettifyEntityName from '../assets/js/prettifyEntityName';
+import validateContent from '../assets/js/validateContent';
 
 import isPrivilegedUser from '../mixins/isPrivilegedUser';
 import updateLocallyChangedFiles from '../mixins/updateLocallyChangedFiles';
@@ -423,8 +425,14 @@ export default {
     async toggleDraft(path) {
       const isDraft = path.startsWith(this.draftsDir);
       let newPath;
-      if (isDraft) newPath = path.replace(this.draftsDir, this.contentDir); // we do not need to ensure that newPath exists here, because a draft in a folder that only exists in draftsDir wouldn’t show up here
-      else {
+      if (isDraft) { // we’re trying to publish a post, we need to validate it
+        const valid = await this.validateContent(path);
+        if (!valid) { // if it’s not valid, warn and abort
+          this.$store.commit('addToast', { message: `At least one of the fields in this ${pluralize.singular(this.collection.name)} has errors, please fix them before publishing.`, type: 'negative' });
+          return;
+        }
+        newPath = path.replace(this.draftsDir, this.contentDir); // we do not need to ensure that newPath exists here, because a draft in a folder that only exists in draftsDir wouldn’t show up here
+      } else {
         newPath = joinPath(this.draftsDir, path.replace(this.contentDir, ''));
         await mkdirp(pathDirname(newPath)); // ensure new path exists in the draftsDir
       }
@@ -435,6 +443,31 @@ export default {
       } else {
         await fs.rename(path, newPath);
         this.handleEntityMoved({ oldPath: path, newPath });
+      }
+    },
+    async validateContent(path) {
+      try {
+        const rawFile = await fs.readFile(path, 'utf8');
+        let content;
+        if (this.collection.type === 'json') content = JSON.parse(rawFile);
+        else if (this.collection.type === 'md') {
+          const { content: fileContent, data } = matter(rawFile);
+          content = { ...data, content: fileContent.trim() }; // fileContent might have leading / trailing newline characters which we’ll strip out here
+        }
+
+        if (!content || !content.___mb_schema) {
+          this.$store.commit('addToast', { message: `This ${pluralize.singular(this.collection.name)} has no Schema assigned to it`, type: 'warning' });
+          return false;
+        }
+
+        const schema = JSON.parse(await fs.readFile(joinPath(this.projectDir, content.___mb_schema), 'utf8'));
+        const languages = getContentLanguages(content, schema, this.$store.state.currentProject.languages);
+
+        const errors = validateContent(content, schema, languages);
+        return errors.size === 0;
+      } catch (err) {
+        this.$store.commit('addToast', { message: `Something went wrong while validating the content: ${err.message}`, type: 'error' });
+        return false;
       }
     },
   },

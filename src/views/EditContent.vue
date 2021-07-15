@@ -9,10 +9,10 @@
         </transition>
       </div>
       <div class="right">
-        <MbToggle v-if="draftsDir" v-model="isDraft" :dark="dark" :icons="['cross', 'check']">Draft</MbToggle>
+        <MbToggle v-if="draftsDir" v-model="isDraft" :dark="dark" :disabled="!content.___mb_schema || errors.fields.size > 0" :icons="['cross', 'check']">Draft</MbToggle>
         <MbButton :class="{ 'push-right': draftsDir }" :dark="dark" icon="settings" @click="showSettings = true">{{isTablet ? '' : 'Settings'}}</MbButton>
         <MbButton v-if="previewUrl" :dark="dark" :disabled="noSchema" :icon="showPreview ? 'hide' : 'eye'" @click="togglePreview">{{isTablet ? '' : showPreview ? 'Hide Preview' : 'Preview'}}</MbButton>
-        <MbButton :dark="dark" :disabled="!wasChanged || errors.fields.size > 0" icon="save" :icon-first="true" :loading="saveLoading" type="primary" @click="saveChanges">{{isTablet ? '' : 'Save'}}</MbButton>
+        <MbButton :dark="dark" :disabled="!wasChanged || (errors.fields.size > 0 && !isDraft)" icon="save" :icon-first="true" :loading="saveLoading" type="primary" @click="saveChanges">{{isTablet ? '' : 'Save'}}</MbButton>
       </div>
     </header>
     <MbTabs v-if="schema.tabs && schema.tabs.length > 1" v-model="activeTab" :dark="dark" :errors="tabErrors" :tabs="cleanTabs" />
@@ -92,6 +92,7 @@ import fs, { exists, PlainFS, joinPath, mkdirp, pathBasename, pathDirname } from
 
 import assembleUrlFromTemplate from '../assets/js/assembleUrlFromTemplate';
 import generateDefaultContentFromSchema from '../assets/js/generateDefaultContentFromSchema';
+import getContentLanguages from '../assets/js/getContentLanguages';
 import loadProject from '../assets/js/loadProject';
 import prettifyEntityName from '../assets/js/prettifyEntityName';
 import validateContent from '../assets/js/validateContent';
@@ -258,18 +259,7 @@ export default {
       },
     },
     contentLanguages() {
-      if (!this.schema.fields) return this.$store.state.currentProject.languages;
-      const languagesField = this.schema.fields.find((field) => field.type === 'languages');
-      let languages;
-
-      if (languagesField) {
-        const fieldTab = this.schema.tabs && this.schema.tabs.find((tab) => tab.label === languagesField.tab);
-        if (fieldTab.groupAs) languages = this.content[fieldTab.groupAs] && this.content[fieldTab.groupAs][languagesField.key];
-        else languages = this.content[languagesField.key];
-      }
-
-      if (!languages || languages.length === 0) return this.$store.state.currentProject.languages;
-      return languages;
+      return getContentLanguages(this.content, this.schema, this.$store.state.currentProject.languages);
     },
     contentName() {
       return prettifyEntityName(pathBasename(this.$route.params.path));
@@ -297,8 +287,14 @@ export default {
       async set(toDraft) {
         const { path } = this.$route.params;
         let newPath;
-        if (!toDraft) newPath = path.replace(this.draftsDir, this.contentDir); // we do not need to ensure that newPath exists here, because a draft in a folder that only exists in draftsDir wouldn’t show up here
-        else {
+        if (!toDraft) { // we’re trying to publish, let’s make sure there are no errors
+          const valid = this.validateContent();
+          if (!valid) { // if it’s not valid, warn and abort
+            this.$store.commit('addToast', { message: 'At least one of the fields has errors, please fix them before publishing.', type: 'negative' });
+            return;
+          }
+          newPath = path.replace(this.draftsDir, this.contentDir); // we do not need to ensure that newPath exists here, because a draft in a folder that only exists in draftsDir wouldn’t show up here
+        } else {
           newPath = joinPath(this.draftsDir, path.replace(this.contentDir, ''));
           await mkdirp(pathDirname(newPath)); // ensure new path exists in the draftsDir
         }
@@ -595,7 +591,9 @@ export default {
       this.saveLoading = true;
       const valid = this.validateContent();
 
-      if (valid) {
+      if (!valid && this.isDraft) this.$store.commit('addToast', { message: 'At least one of the fields has errors. You won’t be able to publish this content item until you fix the errors', type: 'warning' });
+
+      if (valid || this.isDraft) { // allow saving with errors, if this is a draft
         try {
           let transformedContent;
           if (this.collection.type === 'json') transformedContent = JSON.stringify(this.content, null, 2);
