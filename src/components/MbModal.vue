@@ -2,7 +2,7 @@
   <teleport to="body">
     <div class="centerer" :style="{ zIndex: modalIndex === -1 ? 999 : modalIndex + 1 }"><!-- This is needed so the modal doesn’t slip under another one while leaving -->
       <transition @after-enter="$emit('after-open')" @after-leave="$emit('after-close')">
-        <div v-show="visible" v-bind="$attrs" class="modal" :class="{dark, darkened: nextModal, transition: !swiping, slim, swiping, wiggle }" ref="el" :style="{ opacity, pointerEvents, transform }" tabindex="-1" @keyup.esc="permanent ? showPermanence({}) : $emit('close')" @touchstart="swipeStart" @touchmove="swipeUpdate" @touchend="swipeEnd">
+        <div v-show="visible" v-bind="$attrs" class="modal" :class="{dark, darkened: nextModal, transition: !swiping, slim, swiping, wiggle }" ref="el" :style="{ opacity, pointerEvents, transform }" tabindex="-1" @focus="handleFocus" @keyup.esc="permanent ? showPermanence({}) : close()" @touchstart="swipeStart" @touchmove="swipeUpdate" @touchend="swipeEnd">
           <header v-if="title">
             <h2 class="h3">{{title}}</h2>
           </header>
@@ -59,6 +59,13 @@ export default {
   emits: ['after-close', 'after-open', 'close'],
   inheritAttrs: false,
   methods: {
+    close() {
+      this.$emit('close');
+      if (this.focusTarget && typeof this.focusTarget.focus === 'function') this.focusTarget.focus();
+    },
+    handleFocus(e) {
+      this.focusTarget = e.relatedTarget;
+    },
     showPermanence(e) {
       if (this.wiggle) return;
       if (!this.$refs.el.contains(e.target) && e.target !== this.$refs.el && this.modalIndex === this.$store.state.application.openModals.length - 1) this.wiggle = true;
@@ -76,7 +83,7 @@ export default {
 
       if (distance > this.maxSwipeDistance / 2 || distance > window.innerHeight / 3) {
         this.transform = 'translateY(100%)';
-        this.$emit('close');
+        this.close();
       } else this.transform = null;
     },
     swipeStart(e) {
@@ -137,7 +144,7 @@ export default {
   },
   watch: {
     modalIndex(nv) {
-      if (nv < 0 && this.visible) this.$emit('close');
+      if (nv < 0 && this.visible) this.close();
     },
     nextModal(nv) {
       if (!nv) {
@@ -166,6 +173,7 @@ export default {
       } else if (this.modalIndex >= 0) {
         window.removeEventListener('click', this.showPermanence, { capture: true });
         this.$store.commit('closeModal', this.modalIndex);
+        if (this.focusTarget && typeof this.focusTarget.focus === 'function') this.focusTarget.focus();
       }
 
       if (!nv) this.transform = null; // needed so that the modal actually closes smoothly
