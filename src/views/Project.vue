@@ -30,9 +30,10 @@
           <ul class="changes">
             <li v-for="(change, index) in changes" :key="index">
               <MbCheckbox v-model="change.selected" :dark="dark" />
-              <div class="group" :class="{dark}" @click="change.selected = !change.selected" @contextmenu.prevent="openChangeContextMenu($event, index)">
+              <div class="group" :class="{dark}" @click="toggleChangeSelection($event, index)" @contextmenu.prevent="openChangeContextMenu($event, index)">
                 <MbChip :color="change.color" :label="change.type" />
                 <span>{{change.file}}</span>
+                <MbButton :dark="dark" icon="more-vertical" rounded tooltip="More" @click="openChangeContextMenu($event, index)" />
               </div>
             </li>
             <li v-if="changes.length === 0" class="empty-state">
@@ -76,7 +77,7 @@
         <MbButton :dark="dark" @click="showChangeDetailsModal = false">Close</MbButton>
       </template>
     </MbModal>
-    <MbContextMenu :dark="dark" :options="changeContextMenu.options" :show="changeContextMenu.show" :target="changeContextMenu.target" :x="changeContextMenu.x" :y="changeContextMenu.y" @close="resetChangeContextMenu" />
+    <MbContextMenu :dark="dark" :from-right="changeContextMenu.fromRight" :options="changeContextMenu.options" :show="changeContextMenu.show" :target="changeContextMenu.target" :x="changeContextMenu.x" :y="changeContextMenu.y" @close="resetChangeContextMenu" />
   </div>
 </template>
 
@@ -307,6 +308,7 @@ export default {
   data() {
     return {
       changeContextMenu: {
+        fromRight: false,
         index: null,
         options: [
           {
@@ -435,8 +437,17 @@ export default {
       else this.currentOperation.progress = null;
     },
     openChangeContextMenu(e, index) {
-      this.changeContextMenu.x = e.clientX;
-      this.changeContextMenu.y = e.clientY;
+      if (e.type === 'contextmenu') {
+        this.changeContextMenu.x = e.clientX;
+        this.changeContextMenu.y = e.clientY;
+        this.changeContextMenu.fromRight = false;
+      } else {
+        const rect = e.target.getBoundingClientRect();
+        this.changeContextMenu.x = rect.right;
+        this.changeContextMenu.y = rect.top;
+        this.changeContextMenu.fromRight = true;
+      }
+
       this.changeContextMenu.index = index;
       this.changeContextMenu.target = e.currentTarget;
       this.changeContextMenu.show = true;
@@ -611,6 +622,7 @@ export default {
       })));
     },
     resetChangeContextMenu() {
+      this.changeContextMenu.fromRight = false;
       this.changeContextMenu.index = null;
       this.changeContextMenu.show = null;
       this.changeContextMenu.target = null;
@@ -662,6 +674,10 @@ export default {
       this.changeDetails.file = change.file;
       this.changeDetails.type = change.type;
       this.showChangeDetailsModal = true;
+    },
+    toggleChangeSelection(e, index) {
+      if (e.target.classList.contains('button')) return; // buttons have a ::before that covers them completely, so this is enough
+      this.changes[index].selected = !this.changes[index].selected;
     },
     toggleSelectAll() {
       if (this.lessThanHalfSelected) this.changes.forEach((change) => { change.selected = true; }); // eslint-disable-line no-param-reassign
@@ -776,6 +792,7 @@ export default {
 
         .group
           display: flex
+          align-items: center
           overflow: hidden
           padding: 1rem
           background-color: $bg-tertiary
@@ -800,6 +817,10 @@ export default {
           > span
             overflow: hidden
             text-overflow: ellipsis
+            margin-right: auto
+
+          > .button
+            margin: -1rem -0.75rem -1rem 1rem
 
 .change-details-modal
   &.dark
