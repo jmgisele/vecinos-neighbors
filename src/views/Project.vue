@@ -820,7 +820,8 @@ export default {
             margin-right: auto
 
           > .button
-            margin: -1rem -0.75rem -1rem 1rem
+            margin: -1rem -0.75rem -1rem 0.5rem
+            flex-shrink: 0
 
 .change-details-modal
   &.dark

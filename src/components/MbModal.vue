@@ -312,5 +312,11 @@ export default {
       margin-right: 1rem
 
     @media $mobile
-      padding: 1rem
+      padding: 0.5rem
+
+      ::v-deep(.button)
+        margin: 0.5rem
+
+        &:not(:last-child)
+          margin-right: 0.5rem
 </style>
