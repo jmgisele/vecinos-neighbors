@@ -27,7 +27,7 @@
           <div class="color-swatch">
             <div v-show="colorCache || !removable || workingColor.a !== 0" class="color" :style="{ backgroundImage: `linear-gradient(45deg, ${colorCache ? colorCache.colorNoAlpha : newColorNoAlpha} 50%, ${colorCache ? colorCache.color : newColor} 50%)` }" />
           </div>
-          <MbInput v-model="colorInput" :dark="dark" :error="colorError" icon="hash" placeholder="Color" @blur="handleColorInput" @keyup.enter="handleColorInput" />
+          <MbInput v-model="colorInput" :dark="dark" :error="colorError" icon="hash" placeholder="Color" ref="colorInput" @blur="handleColorInput" @focus="selectContent" @keyup.enter="handleColorInput" />
           <MbButton v-if="removable" :dark="dark" icon="cross" rounded :tooltip="{ message: 'Clear Color', position: 'right' }" @click="clearColor" />
         </div>
         <MbScroller v-if="palette && cleanPalette.length > 0">
@@ -307,6 +307,9 @@ export default {
       this.$nextTick(() => { // wait a tick so updateModel can fire
         this.deactivate(true);
       });
+    },
+    selectContent() {
+      this.$refs.colorInput.$refs.input.select();
     },
     updateModel() {
       if (this.removable && this.workingColor.a === 0) this.$emit('update:modelValue', null);
