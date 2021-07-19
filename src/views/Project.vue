@@ -52,7 +52,7 @@
       <p><strong>This cannot be undone.</strong></p>
       <template #actions>
         <MbButton :dark="dark" @click="showDiscardConfirmationModal = false">Cancel</MbButton>
-        <MbButton :dark="dark" type="negative" @click="discardChanges">Discard</MbButton>
+        <MbButton :dark="dark" icon="trash" type="negative" @click="discardChanges">Discard</MbButton>
       </template>
     </MbModal>
     <MbModal class="change-details-modal" :dark="dark" title="Change Details" :visible="showChangeDetailsModal" @close="showChangeDetailsModal = false" @after-close="resetChangeDetails">
