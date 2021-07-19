@@ -547,18 +547,7 @@ export default {
           if (change.file.startsWith(draftsDir.replace(/^\//, ''))) drafts.push({ file: change.file, type: change.type });
           else changesWithoutDrafts.push({ file: change.file, type: change.type });
         });
-        // commit and push them separately
-        if (changesWithoutDrafts.length > 0) {
-          this.currentOperation.step = 'Synching changes…';
-          await this.gitAddAllAndCommit(changesWithoutDrafts);
-          try {
-            await this.gitPush();
-          } catch (err) {
-            this.handlePushError(err, changesWithoutDrafts);
-            return;
-          }
-        }
-
+        // commit and push them separately, drafts first so GitLab Pages (and potentially others) deploy and don’t abort because the ref is outdated
         if (drafts.length > 0) {
           this.currentOperation.step = 'Synching drafts…';
           this.commitMessage = this.commitMessage ? `${this.commitMessage} (drafts)` : 'Update drafts through Mattrbld';
@@ -567,6 +556,17 @@ export default {
             await this.gitPush();
           } catch (err) {
             this.handlePushError(err, drafts);
+            return;
+          }
+        }
+
+        if (changesWithoutDrafts.length > 0) {
+          this.currentOperation.step = 'Synching changes…';
+          await this.gitAddAllAndCommit(changesWithoutDrafts);
+          try {
+            await this.gitPush();
+          } catch (err) {
+            this.handlePushError(err, changesWithoutDrafts);
             return;
           }
         }
