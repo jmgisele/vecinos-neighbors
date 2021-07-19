@@ -277,17 +277,17 @@ export default {
           const content = generateDefaultContentFromSchema(schema);
           const relativeSchemaPath = this.collection.schemas[0];
 
-          if (this.collection.type === 'json') this.defaultCollectionContent = { ...content, ___mb_schema: relativeSchemaPath };
+          if (this.collection.type === 'json') this.defaultCollectionContent = { ...content, ___mb_schema: relativeSchemaPath, ___mb_unedited: true };
           else if (this.collection.type === 'md') {
             const markdownContent = content.content;
             delete content.content; // content is the markdown body, so we don’t need that in the frontmatter
-            this.defaultCollectionContent = matter.stringify(markdownContent || '', { ...content, ___mb_schema: relativeSchemaPath });
+            this.defaultCollectionContent = matter.stringify(markdownContent || '', { ...content, ___mb_schema: relativeSchemaPath, ___mb_unedited: true });
           }
         } catch (err) {
           if (err.code !== 'ENOENT') this.$store.commit('addToast', { message: `Something went wrong while loading the default Schema: ${err.message}`, type: 'error' });
         }
-      } else if (this.collection.type === 'md') this.defaultCollectionContent = '---\n---\n';
-      else this.defaultCollectionContent = {};
+      } else if (this.collection.type === 'md') this.defaultCollectionContent = matter.stringify('', { ___mb_unedited: true });
+      else this.defaultCollectionContent = { ___mb_unedited: true };
 
       this.showEntityCreation = true;
     },

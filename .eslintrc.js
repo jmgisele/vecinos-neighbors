@@ -13,7 +13,7 @@ module.exports = {
   rules: {
     'no-console': process.env.NODE_ENV === 'production' ? 'warn' : 'off',
     'no-debugger': process.env.NODE_ENV === 'production' ? 'warn' : 'off',
-    'no-underscore-dangle': ['error', { allow: ['___mb_item', '___mb_schema', '___mb_type'] }],
+    'no-underscore-dangle': ['error', { allow: ['___mb_item', '___mb_schema', '___mb_type', '___mb_unedited'] }],
     'max-len': 'off',
   },
 };

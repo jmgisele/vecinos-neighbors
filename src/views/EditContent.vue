@@ -594,6 +594,7 @@ export default {
       if (!valid && this.isDraft) this.$store.commit('addToast', { message: 'At least one of the fields has errors. You won’t be able to publish this content item until you fix the errors', type: 'warning' });
 
       if (valid || this.isDraft) { // allow saving with errors, if this is a draft
+        if (this.content.___mb_unedited) delete this.content.___mb_unedited; // mark this content item as having been edited once
         try {
           let transformedContent;
           if (this.collection.type === 'json') transformedContent = JSON.stringify(this.content, null, 2);
