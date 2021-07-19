@@ -197,7 +197,7 @@ export default {
       return value;
     },
     clearColor() {
-      this.workingColor = { h: 0, s: 0, v: 100, a: 0 }; // eslint-disable-line object-curly-newline
+      this.workingColor = { h: 0, s: 0, v: 0, a: 0 }; // eslint-disable-line object-curly-newline
       this.$nextTick(() => { this.colorInput = ''; }); // wait a tick so it doesn’t get overwritten by the watcher
     },
     deactivate(confirm) { // confirm may also be the scroll event
@@ -209,7 +209,7 @@ export default {
           color: this.newColor,
           colorNoAlpha: this.newColorNoAlpha,
         };
-        this.workingColor = this.modelValue ? tinycolor(this.modelValue).toHsv() : { h: 0, s: 0, v: 100, a: 0 }; // eslint-disable-line object-curly-newline
+        this.workingColor = this.modelValue ? tinycolor(this.modelValue).toHsv() : { h: 0, s: 0, v: 0, a: 0 }; // eslint-disable-line object-curly-newline
       }
       this.$el.focus();
     },
@@ -269,6 +269,7 @@ export default {
       const left = this.clamp(e.clientX - containerRect.left, 0, containerRect.width);
       const h = 360 * this.clamp(left / containerRect.width, 0, 360);
       this.workingColor.h = h;
+      if (this.removable && this.workingColor.a === 0) this.workingColor.a = 1; // the color was removed and we have to add it back
     }, 20),
     handleMouseenter(e, index) {
       if (!this.paletteOnly) return;
@@ -295,6 +296,7 @@ export default {
 
       this.workingColor.s = s;
       this.workingColor.v = v;
+      if (this.removable && this.workingColor.a === 0) this.workingColor.a = 1; // the color was removed and we have to add it back
     }, 20),
     preventPopoverClose(e) {
       e.stopPropagation();
