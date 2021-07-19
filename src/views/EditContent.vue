@@ -603,7 +603,7 @@ export default {
             transformedContent = matter.stringify(this.content.content || '', shallowClone);
           }
           await fs.writeFile(this.$route.params.path, transformedContent, 'utf8');
-          this.$store.commit('addToast', { message: `“${this.contentName}” was saved successfully`, type: 'positive' });
+          this.$store.commit('addToast', { message: `“${this.contentName}” was saved successfully`, timeout: 2000, type: 'positive' });
           this.$store.commit('addLocallyChangedFile', this.$route.params.path);
           this.wasChanged = false;
         } catch (err) {
