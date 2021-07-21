@@ -1,7 +1,7 @@
 <template lang="html">
   <section class="number field" :class="{ dark, localised: showLocalisedOptions }">
     <template v-if="!showLocalisedOptions">
-      <MbInput :class="{ 'in-split': inSplit }" :dark="dark" :error="error && String(error)" :label="label" :max-len="(validation && validation.max) || null" :model-modifiers="{ number: true }" :model-value="safeModelValue" type="number" @update:model-value="handleInput" />
+      <MbInput :class="{ 'in-split': inSplit }" :dark="dark" :error="error && String(error)" :label="label" :max-len="(validation && validation.max) || null" :model-modifiers="{ number: true }" :model-value="safeModelValue" type="number" @update:model-value="cleanInput" />
     </template>
     <LocalisedFieldsContainer
       v-else
@@ -17,7 +17,7 @@
       @modal-closed="$emit('update:error', validateLocalisedValues(safeModelValue, ''))"
       @update:active="$emit('update:active', $event)"
     >
-      <MbInput :class="{ 'in-split': teleportTarget }" :dark="dark" :error="error instanceof Map ? error.get(lang) : ''" :label="lang" :max-len="(validation && validation.max) || null" :model-modifiers="{ number: true }" :model-value="safeModelValue[lang]" type="number" @update:model-value="handleInput($event, lang)" />
+      <MbInput :class="{ 'in-split': teleportTarget }" :dark="dark" :error="error instanceof Map ? error.get(lang) : ''" :label="lang" :max-len="(validation && validation.max) || null" :model-modifiers="{ number: true }" :model-value="safeModelValue[lang]" type="number" @update:model-value="cleanInput($event, lang)" />
     </LocalisedFieldsContainer>
   </section>
 </template>
@@ -53,6 +53,10 @@ export default {
     },
   },
   methods: {
+    cleanInput(newVal, lang) {
+      if (typeof newVal !== 'number') this.handleInput(null, lang);
+      else this.handleInput(newVal, lang);
+    },
     convertLocalisedValue(localised) {
       if (localised) {
         return this.languages.reduce((acc, lang, index) => {
