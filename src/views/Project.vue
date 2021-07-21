@@ -535,7 +535,39 @@ export default {
       this.currentOperation.type = 'push';
       this.currentOperation.step = 'Fetching latest changes…';
 
-      // TODO: try doing a fetch && merge so we are sure we are on the latest version
+      try {
+        const { name, email } = this.$store.getters.userInCurrentProject;
+        await pull(
+          {
+            author: { name, email },
+            corsProxy: this.$store.state.currentProject.corsProxy,
+            dir: this.projectDir,
+            singleBranch: true,
+          },
+          this.onGitAuth,
+          this.onGitAuthFailure,
+          this.onGitAuthSuccess,
+          this.onGitProgress,
+        );
+      } catch (err) {
+        this.currentOperation.type = null;
+        this.currentOperation.step = null;
+        this.currentOperation.progress = null;
+        this.gitLoading = false;
+        if (err.code === 'UserCanceledError') return;
+        let hint;
+        // NOTE: This isn’t exactly a robust way to detect errors, but it’s all the data I have…
+        if (err.message === 'Failed to fetch') hint = 'Check your internet connection and make sure your CORS-proxy is set up correctly. Exiting and re-opening the project or reloading the page might help.';
+        this.gitError = {
+          code: err.code,
+          data: err.data,
+          message: err.message,
+          name: err.name,
+          hint,
+        };
+        this.gitErrorRetryAction = this.pushChanges;
+        this.showGitErrorModal = true;
+      }
 
       if (draftsDir) {
         const changesWithoutDrafts = [];
