@@ -302,7 +302,8 @@ export default {
       this.saveFile(e.currentTarget.files[0]);
       e.currentTarget.value = '';
     },
-    handleInput(newVal) {
+    async handleInput(newVal) {
+      if (newVal === null) this.$emit('update:error', ''); // clear the old error so advanced media library errors are removed
       const error = this.validate(newVal);
       const fieldError = this.error && this.error.get(this.fieldKey);
 

@@ -116,7 +116,7 @@ function validate(field, parent, languages, groupAsKey, index) { // TODO: index 
   else value = parent[key];
 
   if (type === 'image' && !options.simple && Store.state.currentProject && Store.state.currentProject.media.advanced && Store.state.currentProject.media.customFields) {
-    if (value) subfields = Store.state.currentProject.media.customFields;
+    if (value && value.src) subfields = Store.state.currentProject.media.customFields;
   }
 
   // validate subfields, if any
