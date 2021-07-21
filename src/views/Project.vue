@@ -7,7 +7,7 @@
     </router-view>
     <ProjectSidebar :dark="dark" :git-status="gitStatus" @git-status-click="handleGitStatusClick" />
     <GitLoginModal :dark="dark" :message="gitLoginMessage" :visible="showGitLoginModal" @cancel="credentialPromise('cancel')" @submit="credentialPromise" />
-    <MbModal class="error-modal" :dark="dark" title="Oops…" :visible="showGitErrorModal" @close="showGitErrorModal = false">
+    <MbModal class="error-modal" :dark="dark" title="Oops…" :visible="showGitErrorModal" @after-close="gitError = null" @close="showGitErrorModal = false">
       <p>Something went wrong while syncing the latest changes. See the error message below for more details:</p>
       <pre><code>{{JSON.stringify({ timestamp: new Date(), ...gitError }, null, 2)}}</code></pre>
       <template #actions>
@@ -410,7 +410,6 @@ export default {
       this.gitErrorRetryAction();
       this.showGitErrorModal = false;
       this.gitErrorRetryAction = null;
-      this.gitError = null;
     },
     async handleGitStatusClick() {
       if (this.gitError && this.gitStatus.label === 'error') this.showGitErrorModal = true;
