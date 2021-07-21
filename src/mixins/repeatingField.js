@@ -429,7 +429,7 @@ export default {
       if (this.indexBeingEdited === null) return;
       const fakeFields = this.fieldBeingEdited.type === 'group' ? this.fieldBeingEdited.value : [this.fieldBeingEdited];
       let content = this.modelValue[this.indexBeingEdited];
-      if (!content || !content.___mb_type) content = { [this.fieldBeingEdited.key]: content }; // we need to make sure we pass an object with a correct key if we don’t have ___mb_type
+      if (!content || (!content.___mb_type && this.fieldBeingEdited.type !== 'group')) content = { [this.fieldBeingEdited.key]: content }; // we need to make sure we pass an object with a correct key if we don’t have ___mb_type
       const errors = validateContent(content, { fields: fakeFields }, this.languages);
       this.handleFieldBeingEditedError(errors);
 
