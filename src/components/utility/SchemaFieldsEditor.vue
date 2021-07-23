@@ -271,7 +271,11 @@ export default {
     const fieldsByType = new Map();
 
     try {
-      const customFieldFiles = await readdirDeep(this.customFieldsPath);
+      const customFieldFiles = await readdirDeep(this.customFieldsPath); // returns full paths to the files, so we don’t need to join them with customFieldsPath
+      if (this.$route.name === 'Edit Custom Field') {
+        const idIndex = customFieldFiles.indexOf(this.$route.params.path);
+        if (idIndex > -1) customFieldFiles.splice(idIndex, 1);
+      }
       customFieldsData = (await Promise.all(customFieldFiles.map((file) => fs.readFile(file, 'utf8')))).map((field, index) => ({ ...JSON.parse(field), customField: customFieldFiles[index].replace(`${this.customFieldsPath}/`, '') })); // setting the customField to the field path in the custom fields directory so they are identifyable
     } catch (err) {
       if (err.code !== 'ENOENT') throw new Error(`Something went wrong while loading the custom fields: ${err.message}`);
