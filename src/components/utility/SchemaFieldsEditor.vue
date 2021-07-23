@@ -815,14 +815,10 @@ export default {
       this.currentAddIndicatorId = null;
     },
     resetCustomField() {
-      this.customField = {
-        description: '',
-        group: '',
-        icon: '',
-        name: '',
-        originalField: null,
-        path: '',
-      };
+      this.customField.description = '';
+      this.customField.icon = '';
+      this.customField.name = '';
+      this.customField.originalField = null;
       this.errors.customFieldName = '';
     },
     resetFieldContextMenu() {
