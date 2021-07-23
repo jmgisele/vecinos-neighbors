@@ -172,7 +172,7 @@
       <div class="fields-list">
         <div v-for="key in filteredFields.keys()" class="field-group" :key="key">
           <h3>{{key}}</h3>
-          <MbButton v-for="(field, index) in filteredFields.get(key)" :dark="dark" :icon="field.icon" :key="index" :type="fieldToTypeChange && ((field.customField && fieldToTypeChange.customField && field.customField === fieldToTypeChange.customField) || (!field.customField && !fieldToTypeChange.customField && field.type === fieldToTypeChange.type)) ? 'primary' : null" @click="changeFieldType(field.customField || field.type)">{{field.label}}</MbButton>
+          <MbButton v-for="field in filteredFields.get(key)" :dark="dark" :icon="field.icon" :key="field.customField || field.type" :type="fieldToTypeChange && ((field.customField && fieldToTypeChange.customField && field.customField === fieldToTypeChange.customField) || (!field.customField && !fieldToTypeChange.customField && field.type === fieldToTypeChange.type)) ? 'primary' : null" @click="changeFieldType(field.customField || field.type)">{{field.label}}</MbButton>
         </div>
       </div>
       <template #actions>
