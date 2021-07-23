@@ -421,14 +421,14 @@ export default {
         this.removeCurrentAddIndicator();
 
         if (parentFieldFields.length === 0) {
-          cleanField.key = (field.type && field.type.replace(/ /g, '-')) || 'unknown';
+          cleanField.key = (field.key && field.key.replace(/ /g, '-')) || (field.type && field.type.replace(/ /g, '-')) || 'unknown';
           parentFieldFields.push(cleanField);
         } else {
-          cleanField.key = this.generateUniqueFieldKey(parentFieldFields, field.type.replace(/ /g, '-'));
+          cleanField.key = this.generateUniqueFieldKey(parentFieldFields, (field.key && field.key.replace(/ /g, '-')) || field.type.replace(/ /g, '-'));
           parentFieldFields.splice(this.fieldAddIndex, 0, cleanField);
         }
       } else {
-        cleanField.key = this.generateUniqueFieldKey(this.fields, cleanField.type.replace(/ /g, '-'));
+        cleanField.key = this.generateUniqueFieldKey(this.fields, (field.key && field.key.replace(/ /g, '-')) || cleanField.type.replace(/ /g, '-'));
         this.fields.push(cleanField);
       }
       this.fieldAddIndex = null;
