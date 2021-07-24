@@ -164,6 +164,7 @@ export default {
 .fields-editor
   .field
     &.text:not(.localised):first-child,
+    &.rich-text:not(.localised):first-child,
     &.color.error:first-child,
     &.date.error:first-child // so the label is still visible even when it’s floating
       margin-top: 2rem
