@@ -76,20 +76,25 @@ export default {
       this.view = 'files';
     },
     async handleFileClick(path) {
+      const pathWithoutExtension = path.substring(0, path.lastIndexOf('.')); // we know there’s a .something at the end that we want to strip off
       let newUrl;
       if (this.useFilePath || (!this.currentTemplate && !this.urlTemplate)) {
         if (this.fullPath) newUrl = path.replace(this.projectDir, '');
         else {
-          const pathWithoutExtension = path.substring(0, path.lastIndexOf('.')); // we know there’s a .json at the end that we want to strip off, and since in the future we might also have .md or .yml / .yaml, let’s use this more ambiguous approach
           const fileRoot = pathDirname(this.currentRoot);
           newUrl = pathWithoutExtension.replace(fileRoot, '');
           if (typeof this.urlSuffix === 'string') newUrl = `${newUrl}${this.urlSuffix}`;
         }
       } else {
         try {
+          const defaultFields = {
+            pathCollection: pathWithoutExtension.replace(this.currentRoot, '').split('/'),
+            pathContent: pathWithoutExtension.replace(pathDirname(this.currentRoot), '').split('/'),
+            pathFull: pathWithoutExtension.replace(this.projectDir, '').split('/'),
+          };
           let fields;
-          if (this.filetype === 'json') fields = JSON.parse(await fs.readFile(path, 'utf8'));
-          else if (this.filetype === 'md') fields = matter(await fs.readFile(path, 'utf8')).data;
+          if (this.filetype === 'json') fields = { ...defaultFields, ...JSON.parse(await fs.readFile(path, 'utf8')) };
+          else if (this.filetype === 'md') fields = { ...defaultFields, ...matter(await fs.readFile(path, 'utf8')).data };
 
           const urlTemplate = this.urlTemplate || this.currentTemplate; // if we were passed a urlTemplate, use that, otherwise fall back to the collection’s urlTemplate
 
