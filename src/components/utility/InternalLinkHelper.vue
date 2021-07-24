@@ -37,6 +37,7 @@ import * as matter from 'gray-matter';
 import fs, { joinPath, pathBasename, pathDirname } from '../../fs';
 
 import assembleUrlFromTemplate from '../../assets/js/assembleUrlFromTemplate';
+import generateDefaultFilePathFields from '../../assets/js/generateDefaultFilePathFields';
 import prettifyEntityName from '../../assets/js/prettifyEntityName';
 
 export default {
@@ -87,11 +88,7 @@ export default {
         }
       } else {
         try {
-          const defaultFields = {
-            pathCollection: pathWithoutExtension.replace(this.currentRoot, '').split('/'),
-            pathContent: pathWithoutExtension.replace(pathDirname(this.currentRoot), '').split('/'),
-            pathFull: pathWithoutExtension.replace(this.projectDir, '').split('/'),
-          };
+          const defaultFields = generateDefaultFilePathFields(path, this.projectDir, this.currentRoot);
           let fields;
           if (this.filetype === 'json') fields = { ...defaultFields, ...JSON.parse(await fs.readFile(path, 'utf8')) };
           else if (this.filetype === 'md') fields = { ...defaultFields, ...matter(await fs.readFile(path, 'utf8')).data };

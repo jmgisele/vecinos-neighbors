@@ -92,6 +92,7 @@ import fs, { exists, PlainFS, joinPath, mkdirp, pathBasename, pathDirname } from
 
 import assembleUrlFromTemplate from '../assets/js/assembleUrlFromTemplate';
 import generateDefaultContentFromSchema from '../assets/js/generateDefaultContentFromSchema';
+import generateDefaultFilePathFields from '../assets/js/generateDefaultFilePathFields';
 import getContentLanguages from '../assets/js/getContentLanguages';
 import loadProject from '../assets/js/loadProject';
 import prettifyEntityName from '../assets/js/prettifyEntityName';
@@ -624,15 +625,17 @@ export default {
     sendPreviewData: debounce(function debouncedSend() { // OPTIMIZE: this could probably be optimized to only send deltas instead of the full object every time if a "full" param is false (we still need to send the full object upon initial connection)
       const targetOrigin = new URL(this.previewUrl).origin;
       const defaultUrl = this.$route.params.path.substring(0, this.$route.params.path.lastIndexOf('.')).replace(this.projectDir, '').replace(pathDirname(this.collection.dir), '');
+      const defaultFields = generateDefaultFilePathFields(this.$route.params.path, this.projectDir, joinPath(this.projectDir, this.collection.dir));
+      const urlFields = { ...this.content, ...defaultFields };
       let url;
 
       if (this.collection.urlTemplate && this.contentLanguages && this.contentLanguages.length > 0) {
         url = {};
         this.contentLanguages.forEach((lang) => {
           const template = this.collection.urlTemplate[lang] || Object.values(this.collection.urlTemplate).find((existingTemplate) => existingTemplate);
-          url[lang] = template ? assembleUrlFromTemplate(template, this.content, lang, true, this.$store.state.currentProject.slugifyOptions || { lowercase: true, decamelize: true, preserveLeadingUnderscore: true }) : defaultUrl;
+          url[lang] = template ? assembleUrlFromTemplate(template, urlFields, lang, true, this.$store.state.currentProject.slugifyOptions || { lowercase: true, decamelize: true, preserveLeadingUnderscore: true }).replace(/\\\./g, '.') : defaultUrl; // we’re replacing escaped dots here since that’s the only way to separate a dot from a property-path
         });
-      } else url = this.collection.urlTemplate ? assembleUrlFromTemplate(this.collection.urlTemplate, this.content, null, true, this.$store.state.currentProject.slugifyOptions || { lowercase: true, decamelize: true, preserveLeadingUnderscore: true }) : defaultUrl;
+      } else url = this.collection.urlTemplate ? assembleUrlFromTemplate(this.collection.urlTemplate, urlFields, null, true, this.$store.state.currentProject.slugifyOptions || { lowercase: true, decamelize: true, preserveLeadingUnderscore: true }).replace(/\\\./g, '.') : defaultUrl; // we’re replacing escaped dots here since that’s the only way to separate a dot from a property-path
       const data = {
         collection: this.$route.params.collection,
         url,
