@@ -36,6 +36,7 @@ export default function assembleUrlFromTemplate(template, fields, lang, slugifyO
         if (localisedValue) return slugifyOutput ? slugify(String(localisedValue), slugifyOptions) : localisedValue;
         return 'undefined';
       }
+      if (value && Array.isArray(value)) return slugifyOutput ? value.map((item) => slugify(String(item), slugifyOptions)).join('/') : value.join('/');
       return slugifyOutput ? slugify(String(value), slugifyOptions) : value;
     },
   );
