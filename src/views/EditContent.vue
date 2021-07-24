@@ -623,14 +623,16 @@ export default {
     },
     sendPreviewData: debounce(function debouncedSend() { // OPTIMIZE: this could probably be optimized to only send deltas instead of the full object every time if a "full" param is false (we still need to send the full object upon initial connection)
       const targetOrigin = new URL(this.previewUrl).origin;
+      const defaultUrl = this.$route.params.path.substring(0, this.$route.params.path.lastIndexOf('.')).replace(this.projectDir, '').replace(pathDirname(this.collection.dir), '');
       let url;
 
       if (this.collection.urlTemplate && this.contentLanguages && this.contentLanguages.length > 0) {
         url = {};
         this.contentLanguages.forEach((lang) => {
-          url[lang] = assembleUrlFromTemplate(this.collection.urlTemplate[lang] || Object.values(this.collection.urlTemplate).find((template) => template), this.content, lang, true, this.$store.state.currentProject.slugifyOptions || { lowercase: true, decamelize: true, preserveLeadingUnderscore: true });
+          const template = this.collection.urlTemplate[lang] || Object.values(this.collection.urlTemplate).find((existingTemplate) => existingTemplate);
+          url[lang] = template ? assembleUrlFromTemplate(template, this.content, lang, true, this.$store.state.currentProject.slugifyOptions || { lowercase: true, decamelize: true, preserveLeadingUnderscore: true }) : defaultUrl;
         });
-      } else url = this.collection.urlTemplate ? assembleUrlFromTemplate(this.collection.urlTemplate, this.content, null, true, this.$store.state.currentProject.slugifyOptions || { lowercase: true, decamelize: true, preserveLeadingUnderscore: true }) : this.$route.params.path.replace(this.projectDir, '');
+      } else url = this.collection.urlTemplate ? assembleUrlFromTemplate(this.collection.urlTemplate, this.content, null, true, this.$store.state.currentProject.slugifyOptions || { lowercase: true, decamelize: true, preserveLeadingUnderscore: true }) : defaultUrl;
       const data = {
         collection: this.$route.params.collection,
         url,
