@@ -38,8 +38,8 @@ export default {
           return firstValue;
         }
 
-        if (childField.displayField) value = item[childField.displayField];
-        else if (item && item.___mb_type) value = item[item.___mb_type];
+        if (childField.displayField && typeof item[childField.displayField] !== 'undefined' && item[childField.displayField] !== null && item[childField.displayField] !== null !== '') value = item[childField.displayField];
+        else if (item && item.___mb_type && typeof item[item.___mb_type] !== 'undefined' && item[item.___mb_type] !== null) value = item[item.___mb_type];
         else value = item;
 
         if (Array.isArray(value)) displayValue = value.join(', ');
