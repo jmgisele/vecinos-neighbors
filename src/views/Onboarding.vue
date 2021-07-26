@@ -48,9 +48,7 @@
               </p>
             </MbHighlightBox>
           </MbModal>
-          <MbModal class="privacy-modal" :dark="dark" title="Privacy Policy" :visible="showPrivacyPolicy" @close="showPrivacyPolicy = false">
-            <p><strong>Todo:</strong> add privacy policy, perhaps with Markdown loader? 🤔</p>
-          </MbModal>
+          <LegalModal :dark="dark" title="Privacy Policy" :visible="showPrivacyPolicy" @close="showPrivacyPolicy = false" />
         </div>
         <div v-else-if="currentSlide === 1" class="slide">
           <h1>Great!</h1>
@@ -113,12 +111,14 @@ import isMattrbldProject from '../assets/js/isMattrbldProject';
 import warnAboutMeteredConnection from '../assets/js/warnAboutMeteredConnection';
 
 import AvatarUploader from '../components/utility/AvatarUploader.vue';
+import LegalModal from '../components/utility/LegalModal.vue';
 
 import gitTools from '../mixins/gitTools';
 
 export default {
   components: {
     AvatarUploader,
+    LegalModal,
   },
   computed: {
     currentStep() {
