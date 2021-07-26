@@ -510,26 +510,9 @@ export default {
       this.currentOperation.type = 'pull';
       this.gitLoading = true;
       try {
-        const headBeforePullOid = await resolveRef({ fs: PlainFS, dir: this.projectDir, ref: 'HEAD' });
-        const { oid: currentConfigOid } = await readBlob({ fs: PlainFS, dir: this.projectDir, oid: headBeforePullOid, filepath: '.mattrbld/config.json' }); // eslint-disable-line object-curly-newline
-        const { name, email } = this.$store.getters.userInCurrentProject;
-        await pull(
-          {
-            author: { name, email },
-            corsProxy: this.$store.state.currentProject.corsProxy,
-            dir: this.projectDir,
-            singleBranch: true,
-          },
-          this.onGitAuth,
-          this.onGitAuthFailure,
-          this.onGitAuthSuccess,
-          this.onGitProgress,
-        );
-        const headAfterPullOid = await resolveRef({ fs: PlainFS, dir: this.projectDir, ref: 'HEAD' });
-        const { oid: newConfigOid } = await readBlob({ fs: PlainFS, dir: this.projectDir, oid: headAfterPullOid, filepath: '.mattrbld/config.json' }); // eslint-disable-line object-curly-newline
-        if (currentConfigOid !== newConfigOid) { // the config was changed since the last sync, we need to reload the project
-          this.handleConfigChanged();
-        } else if (this.$refs.subview.refresh) this.$refs.subview.refresh(); // refresh the dashboard
+        const configHasChanged = await this.pullAndCheckForConfigChange();
+        if (configHasChanged) this.handleConfigChanged();
+        else if (this.$refs.subview.refresh) this.$refs.subview.refresh(); // refresh the dashboard
       } catch (err) {
         let hint;
         // NOTE: This isn’t exactly a robust way to detect errors, but it’s all the data I have…
@@ -548,28 +531,40 @@ export default {
       this.currentOperation.progress = null;
       this.gitLoading = false;
     },
+    async pullAndCheckForConfigChange() {
+      const headBeforePullOid = await resolveRef({ fs: PlainFS, dir: this.projectDir, ref: 'HEAD' });
+      const { oid: currentConfigOid } = await readBlob({ fs: PlainFS, dir: this.projectDir, oid: headBeforePullOid, filepath: '.mattrbld/config.json' }); // eslint-disable-line object-curly-newline
+      const { name, email } = this.$store.getters.userInCurrentProject;
+      await pull(
+        {
+          author: { name, email },
+          corsProxy: this.$store.state.currentProject.corsProxy,
+          dir: this.projectDir,
+          singleBranch: true,
+        },
+        this.onGitAuth,
+        this.onGitAuthFailure,
+        this.onGitAuthSuccess,
+        this.onGitProgress,
+      );
+      const headAfterPullOid = await resolveRef({ fs: PlainFS, dir: this.projectDir, ref: 'HEAD' });
+      const { oid: newConfigOid } = await readBlob({ fs: PlainFS, dir: this.projectDir, oid: headAfterPullOid, filepath: '.mattrbld/config.json' }); // eslint-disable-line object-curly-newline
+      if (currentConfigOid !== newConfigOid) { // the config was changed since the last sync, we need to reload the project
+        return true;
+      }
+      return false;
+    },
     async pushChanges() {
       if (this.selectedChanges.length === 0) return;
       const { draftsDir } = this.$store.state.currentProject;
+      let configHasChanged;
 
       this.gitLoading = true;
       this.currentOperation.type = 'push';
       this.currentOperation.step = 'Fetching latest changes…';
 
       try {
-        const { name, email } = this.$store.getters.userInCurrentProject;
-        await pull(
-          {
-            author: { name, email },
-            corsProxy: this.$store.state.currentProject.corsProxy,
-            dir: this.projectDir,
-            singleBranch: true,
-          },
-          this.onGitAuth,
-          this.onGitAuthFailure,
-          this.onGitAuthSuccess,
-          this.onGitProgress,
-        );
+        configHasChanged = await this.pullAndCheckForConfigChange();
       } catch (err) {
         this.currentOperation.type = null;
         this.currentOperation.step = null;
@@ -649,6 +644,9 @@ export default {
       this.currentOperation.progress = null;
       this.gitLoading = false;
       this.$store.commit('addToast', { message: `Successfully synced ${this.selectedChanges.length} change${this.selectedChanges.length !== 1 ? 's' : ''}`, timeout: 2000, type: 'positive' });
+
+      if (configHasChanged) this.handleConfigChanged();
+      else if (this.$route.name === 'Project' && this.$refs.subview.refresh) this.$refs.subview.refresh(); // refresh the dashboard
     },
     async resetAfterFail(changes) {
       // reset to last commit (https://github.com/isomorphic-git/isomorphic-git/issues/129, <commit> is log({depth: 1}).oid), unstage everything with resetIndex
