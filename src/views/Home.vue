@@ -21,6 +21,19 @@
         </div>
       </transition>
     </main>
+    <footer>
+      <a class="logo-wrapper" href="https://mattrbld.com" rel="noopener noreferrer" target="_blank">
+        <MbLogo />
+        <MbLogoText />
+      </a>
+      <ul>
+        <li><a href="#" @click.prevent="showImprint = true">Imprint</a></li>
+        <li><a href="#" @click.prevent="showPrivacyPolicy = true">Privacy Policy</a></li>
+        <li><p>Built with ♥ by <a href="https://amxmln.com" rel="noopener noreferrer" target="_blank">Amadeus Maximilian</a></p></li>
+      </ul>
+    </footer>
+    <LegalModal :dark="dark" title="Imprint" :visible="showImprint" @close="showImprint = false" />
+    <LegalModal :dark="dark" title="Privacy Policy" :visible="showPrivacyPolicy" @close="showPrivacyPolicy = false" />
     <MbModal class="import-project-modal" :dark="dark" :permanent="importing" title="Import Project" :visible="showImportProject" @close="cancelProjectImport" @after-open="handleImportModalOpen">
       <transition mode="out-in">
         <div v-if="!importing" class="form">
@@ -61,8 +74,13 @@ import warnAboutMeteredConnection from '../assets/js/warnAboutMeteredConnection'
 import gitTools from '../mixins/gitTools';
 import projectExists from '../mixins/projectExists';
 
+import LegalModal from '../components/utility/LegalModal.vue';
+
 export default {
   name: 'Home',
+  components: {
+    LegalModal,
+  },
   computed: {
     activeUser() {
       return this.$store.state.application.activeUser;
@@ -109,6 +127,8 @@ export default {
       repoBranches: [],
       showAdvancedSettings: false,
       showImportProject: false,
+      showImprint: false,
+      showPrivacyPolicy: false,
       usedQuota: 0,
     };
   },
@@ -386,14 +406,15 @@ export default {
   main
     position: relative
     background-color: $bg-secondary
-    height: "calc(100vh - %s)" % (196 / 16)rem
+    height: "calc(100vh - %s)" % ((196 + 96) / 16)rem // header + footer
     overflow-x: hidden
     overflow-y: auto
     padding: 2rem
 
     @media $mobile
-      height: "calc(100vh - %s)" % (144 / 16)rem
+      min-height: "calc(100vh - %s)" % (144 / 16)rem
       padding: 1rem
+      overflow: visible
 
     .grid
       display: grid
@@ -502,6 +523,50 @@ export default {
         &.v-enter-from,
         &.v-leave-to
           opacity: 0
+
+  > footer
+    background-color: $bg-secondary
+    color: $text-secondary
+    padding: 1rem 2rem
+    display: flex
+    align-items: center
+    justify-content: space-between
+
+    .logo-wrapper
+      display: flex
+      align-items: center
+      background-image: none
+      color: inherit
+
+      &:hover
+        color: $accent
+
+      .logo
+        flex-shrink: 0
+        margin-right: 0.75rem
+        width: 2rem
+        height: @width
+
+      .logo-text
+        flex-shrink: 0
+        width: (96 / 16)rem
+        height: 1rem
+
+    ul
+      list-style: none
+
+      li
+        display: inline-block
+
+        &:not(:last-child)::after
+          content: '×'
+          margin-left: 0.5rem
+          margin-right: @margin-left
+
+    @media $mobile
+      padding: 1rem
+      flex-direction: column
+      text-align: center
 
 .import-project-modal
   .form,
