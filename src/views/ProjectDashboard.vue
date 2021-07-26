@@ -129,8 +129,7 @@ export default {
     },
   },
   created() {
-    this.fetchNews();
-    this.fetchLog();
+    this.refresh();
   },
   data() {
     return {
@@ -225,6 +224,12 @@ export default {
       if (this.renderedChangelog === null) this.renderedChangelog = md.parse(this.changelog.content);
       this.activeNews = this.sortedNews.find((news) => news.type === 'changelog');
       this.showDetails = true;
+    },
+    refresh() {
+      this.logLoading = true;
+      this.newsLoading = true;
+      this.fetchLog();
+      this.fetchNews();
     },
   },
   props: {

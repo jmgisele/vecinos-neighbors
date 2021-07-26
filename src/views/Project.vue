@@ -2,7 +2,7 @@
   <div class="project">
     <router-view v-slot="{ Component }">
       <transition mode="out-in">
-        <component class="subview" :class="{ dark }" :dark="dark" :is="Component" :key="$route.name" @push="openChangesModal" />
+        <component class="subview" :class="{ dark }" :dark="dark" :is="Component" :key="$route.name" ref="subview" @push="openChangesModal" />
       </transition>
     </router-view>
     <ProjectSidebar :dark="dark" :git-status="gitStatus" @git-status-click="handleGitStatusClick" />
@@ -223,18 +223,17 @@ export default {
         avatar: avatarUrl,
         users,
       });
-      // return next((vm) => {
-      //   if (navigator.onLine) vm.performInitialPull();
-      //   else {
-      //     Store.commit('addToast', {
-      //       id: 'appIsOffline',
-      //       message: 'You’re offline and working on a potentially outdated version, there’s a higher risk of conflicts',
-      //       timeout: false,
-      //       type: 'warning',
-      //     });
-      //   }
-      // });
-      return next();
+      return next((vm) => {
+        if (navigator.onLine) vm.performInitialPull();
+        else {
+          Store.commit('addToast', {
+            id: 'appIsOffline',
+            message: 'You’re offline and working on a potentially outdated version, there’s a higher risk of conflicts',
+            timeout: false,
+            type: 'warning',
+          });
+        }
+      });
     } catch (err) {
       return next({
         name: 'Error',
@@ -405,6 +404,21 @@ export default {
         this.onGitProgress,
       );
     },
+    async handleConfigChanged() {
+      try {
+        const { project, users, avatarUrl } = await loadProject(this.$route.params.id, fs);
+        Store.commit('setCurrentProject', {
+          ...Store.state.currentProject,
+          ...project,
+          avatar: avatarUrl,
+          users,
+        });
+        if (this.$refs.subview.refresh) this.$refs.subview.refresh(); // refresh the dashboard
+        this.$store.commit('addToast', { message: 'Somebody updated the project configuration since it was last synchronised. It was reloaded', timeout: 10000, type: 'positive' });
+      } catch (err) {
+        this.$store.commit('addToast', { message: `Something went wrong while loading the newest project configuration: ${err.message}`, type: 'error' });
+      }
+    },
     handleGitErrorRetry() {
       if (!this.gitErrorRetryAction) return;
       this.gitErrorRetryAction();
@@ -496,6 +510,8 @@ export default {
       this.currentOperation.type = 'pull';
       this.gitLoading = true;
       try {
+        const headBeforePullOid = await resolveRef({ fs: PlainFS, dir: this.projectDir, ref: 'HEAD' });
+        const { oid: currentConfigOid } = await readBlob({ fs: PlainFS, dir: this.projectDir, oid: headBeforePullOid, filepath: '.mattrbld/config.json' }); // eslint-disable-line object-curly-newline
         const { name, email } = this.$store.getters.userInCurrentProject;
         await pull(
           {
@@ -509,6 +525,11 @@ export default {
           this.onGitAuthSuccess,
           this.onGitProgress,
         );
+        const headAfterPullOid = await resolveRef({ fs: PlainFS, dir: this.projectDir, ref: 'HEAD' });
+        const { oid: newConfigOid } = await readBlob({ fs: PlainFS, dir: this.projectDir, oid: headAfterPullOid, filepath: '.mattrbld/config.json' }); // eslint-disable-line object-curly-newline
+        if (currentConfigOid !== newConfigOid) { // the config was changed since the last sync, we need to reload the project
+          this.handleConfigChanged();
+        } else if (this.$refs.subview.refresh) this.$refs.subview.refresh(); // refresh the dashboard
       } catch (err) {
         let hint;
         // NOTE: This isn’t exactly a robust way to detect errors, but it’s all the data I have…
