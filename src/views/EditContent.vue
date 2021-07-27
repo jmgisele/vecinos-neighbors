@@ -27,7 +27,7 @@
             </li>
           </ul>
         </div>
-        <MbFieldsEditor v-else v-model="contentForTab" v-model:error="errors.fields" v-model:split-visible="showSplit" :compact="!showPreview" :dark="dark" :fields="fieldsForTab" :key="activeTab" :languages="contentLanguages" :split-target="!showPreview ? '#splitTarget' : null" @image-load="addPreviewImage" />
+        <MbFieldsEditor v-else v-model="contentForTab" v-model:error="errors.fields" v-model:split-visible="showSplit" :class="{ 'preview-open': showPreview && !isMobile }" :compact="!showPreview" :dark="dark" :fields="fieldsForTab" :key="activeTab" :languages="contentLanguages" :split-target="!showPreview ? '#splitTarget' : null" @image-load="addPreviewImage" />
       </transition>
 
       <template #right="{ isModal }">
@@ -643,8 +643,8 @@ export default {
         imageMap: new Map(this.previewImages), // we need to clone the map here, because StructuredClone doesn’t like proxies
         // changedProp: '', // MAYBE: find a way to detect which property path has changed and pass that to the preview so it can scroll to it?
       };
-      if (this.previewInNewTab) this.$options.winref.postMessage(data, targetOrigin);
-      else this.$refs.preview.contentWindow.postMessage(data, targetOrigin);
+      if (this.previewInNewTab && this.$options.winref) this.$options.winref.postMessage(data, targetOrigin);
+      else if (this.$refs.preview.contentWindow) this.$refs.preview.contentWindow.postMessage(data, targetOrigin);
     }, 500),
     toggleFullscreenPreview() {
       this.previewConnected = false;
@@ -854,6 +854,12 @@ export default {
 
     .fields-editor
       margin-top: 8rem
+
+      &.preview-open
+        margin-bottom: 8rem
+
+        @media $tablet
+          margin-bottom: 4rem
 
       @media $tablet
         margin-top: 4rem
