@@ -59,10 +59,11 @@ export default function generateInputRules(schema, userOptions = {}) {
   if (options.noDoubleSpace) rules.push(new InputRule(/ {2,}$/, ' '));
 
   if (options.noDoubleCaps) {
-    rules.push(new InputRule(/[A-Z]{2}[a-z]+\W$/, (state, match, start, end) => {
+    rules.push(new InputRule(/(^|\s)[A-Z]{2}[a-z]+\W$/, (state, match, start, end) => {
       const { tr } = state;
-      const [matchedText] = match;
-      const transformedMatch = `${matchedText[0]}${matchedText[1].toLowerCase()}${matchedText.substring(2)}`;
+      const [matchedText, leadingWhitespace] = match;
+      const trimmedMatch = matchedText.trimStart(); // needed because match might include leading whitespace
+      const transformedMatch = `${leadingWhitespace}${trimmedMatch[0]}${trimmedMatch[1].toLowerCase()}${trimmedMatch.substring(2)}`;
       tr.insertText(transformedMatch, start, end);
       return tr;
     }));
