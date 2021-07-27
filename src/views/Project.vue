@@ -224,8 +224,8 @@ export default {
         users,
       });
       return next((vm) => {
-        if (navigator.onLine) vm.performInitialPull();
-        else {
+        if (navigator.onLine && from.name === 'Home') vm.performInitialPull();
+        else if (!navigator.onLine) {
           Store.commit('addToast', {
             id: 'appIsOffline',
             message: 'You’re offline and working on a potentially outdated version, there’s a higher risk of conflicts',
