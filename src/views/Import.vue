@@ -68,6 +68,13 @@ export default {
       if (!this.name) return '';
       return this.name.split(' ')[0];
     },
+    gitProvider() {
+      try {
+        return new URL(this.repo).hostname;
+      } catch (err) {
+        return 'Git';
+      }
+    },
     inviter() {
       return this.$route.query.inviter;
     },
