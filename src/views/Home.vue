@@ -406,7 +406,7 @@ export default {
   main
     position: relative
     background-color: $bg-secondary
-    height: "calc(100vh - %s)" % ((196 + 96) / 16)rem // header + footer
+    height: "calc(100vh - %s)" % ((196 + 72) / 16)rem // header + footer
     overflow-x: hidden
     overflow-y: auto
     padding: 2rem
@@ -528,6 +528,7 @@ export default {
     background-color: $bg-secondary
     color: $text-secondary
     padding: 1rem 2rem
+    padding-bottom: 1.5rem
     display: flex
     align-items: center
     justify-content: space-between
@@ -551,9 +552,11 @@ export default {
         flex-shrink: 0
         width: (96 / 16)rem
         height: 1rem
+        margin: 0
 
     ul
       list-style: none
+      margin: 0
 
       li
         display: inline-block
@@ -567,6 +570,9 @@ export default {
       padding: 1rem
       flex-direction: column
       text-align: center
+
+      .logo-wrapper
+        margin: 1.5rem 0
 
 .import-project-modal
   .form,
