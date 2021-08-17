@@ -67,6 +67,7 @@ export default {
     handleCollectionClick(dir, type, template, collection) {
       this.currentRoot = joinPath(this.projectDir, dir);
       this.currentCollection = collection;
+      this.currentTemplate = null; // resetting the template here is needed since an old value would break line 74
 
       if (template && typeof template === 'object') {
         if (this.lang) this.currentTemplate = template[this.lang];
