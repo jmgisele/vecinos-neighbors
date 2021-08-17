@@ -1,7 +1,9 @@
 <template lang="html">
   <MbModal class="legal-modal" :dark="dark" :title="title" :visible="visible" @close="$emit('close')">
-    <p><strong>Todo:</strong> add dynamic privacy policy passed in through an env variable? So people self hosting can easily adjust it. 🤔</p>
-    <p>Default message something like “A privacy policy was not configured for this Mattrbld instance. Please contact the administrator. Mattrbld is not affiliated with this instance.”</p>
+    <slot>
+      <p>This is an instance of Mattrbld hosted by a third party. No privacy policy was configured for it, please contact the administrator of the instance.</p>
+      <p><strong>The Mattrbld project is not affiliated with this instance.</strong></p>
+    </slot>
     <template #actions>
       <MbButton :dark="dark" type="primary" @click="$emit('close')">Got it</MbButton>
     </template>

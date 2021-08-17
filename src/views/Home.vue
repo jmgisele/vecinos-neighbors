@@ -27,13 +27,17 @@
         <MbLogoText />
       </a>
       <ul>
-        <li><a href="#" @click.prevent="showImprint = true">Imprint</a></li>
+        <li v-if="renderedImprint"><a href="#" @click.prevent="showImprint = true">Imprint</a></li>
         <li><a href="#" @click.prevent="showPrivacyPolicy = true">Privacy Policy</a></li>
         <li><p>Built with ♥ by <a href="https://amxmln.com" rel="noopener noreferrer" target="_blank">Amadeus Maximilian</a></p></li>
       </ul>
     </footer>
-    <LegalModal :dark="dark" title="Imprint" :visible="showImprint" @close="showImprint = false" />
-    <LegalModal :dark="dark" title="Privacy Policy" :visible="showPrivacyPolicy" @close="showPrivacyPolicy = false" />
+    <LegalModal v-if="renderedImprint" :dark="dark" title="Imprint" :visible="showImprint" @close="showImprint = false">
+      <article v-html="renderedImprint" />
+    </LegalModal>
+    <LegalModal :dark="dark" title="Privacy Policy" :visible="showPrivacyPolicy" @close="showPrivacyPolicy = false">
+      <article v-if="renderedPrivacyPolicy" v-html="renderedPrivacyPolicy" />
+    </LegalModal>
     <MbModal class="import-project-modal" :dark="dark" :permanent="importing" title="Import Project" :visible="showImportProject" @close="cancelProjectImport" @after-open="handleImportModalOpen">
       <transition mode="out-in">
         <div v-if="!importing" class="form">
@@ -69,6 +73,7 @@ import { rmrf } from '../fs/workerFS';
 import { clone, listRemoteBranches } from '../git';
 
 import isMattrbldProject from '../assets/js/isMattrbldProject';
+import loadAndRenderLegalInfo from '../assets/js/loadAndRenderLegalInfo';
 import warnAboutMeteredConnection from '../assets/js/warnAboutMeteredConnection';
 
 import gitTools from '../mixins/gitTools';
@@ -108,6 +113,7 @@ export default {
     if (this.usedQuota > 0.9) this.$store.commit('addToast', { message: 'You might be running out of storage soon. Please free up some space by removing old projects to ensure that everything can run smoothly', timeout: false, type: 'warning' });
 
     this.fetchProjects();
+    this.renderLegalInfo();
   },
   data() {
     return {
@@ -122,6 +128,8 @@ export default {
       loadingBranches: false,
       overwriteCorsProxy: false,
       projects: [],
+      renderedImprint: null,
+      renderedPrivacyPolicy: null,
       repoURL: '',
       repoBranch: null,
       repoBranches: [],
@@ -329,6 +337,11 @@ export default {
         this.projects.splice(index, 1);
         this.refreshStorageQuota();
       }
+    },
+    async renderLegalInfo() {
+      const { renderedImprint, renderedPrivacyPolicy } = await loadAndRenderLegalInfo();
+      this.renderedImprint = renderedImprint;
+      this.renderedPrivacyPolicy = renderedPrivacyPolicy;
     },
     setGridPosition(el) {
       el.style.setProperty('top', `${el.offsetTop}px`);

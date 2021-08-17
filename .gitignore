@@ -21,3 +21,7 @@ pnpm-debug.log*
 *.njsproj
 *.sln
 *.sw?
+
+# Legal information that is specific to the instance
+PRIVACY.md
+IMPRINT.md
