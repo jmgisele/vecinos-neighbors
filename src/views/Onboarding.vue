@@ -31,6 +31,7 @@
           </footer>
           <footer class="meta-info">
             <a href="#" @click.prevent="showAdvancedSettings = true">Advanced Settings</a>
+            <a v-if="renderedImprint" href="#" @click.prevent="showImprint = true">Imprint</a>
             <a href="#" @click.prevent="showPrivacyPolicy = true">Privacy Policy</a>
           </footer>
           <MbModal class="advanced-settings-modal" :dark="dark" title="Advanced Settings" :visible="showAdvancedSettings" @close="showAdvancedSettings = false">
@@ -48,7 +49,12 @@
               </p>
             </MbHighlightBox>
           </MbModal>
-          <LegalModal :dark="dark" title="Privacy Policy" :visible="showPrivacyPolicy" @close="showPrivacyPolicy = false" />
+          <LegalModal v-if="renderedImprint" :dark="dark" title="Imprint" :visible="showImprint" @close="showImprint = false">
+            <article v-html="renderedImprint" />
+          </LegalModal>
+          <LegalModal :dark="dark" title="Privacy Policy" :visible="showPrivacyPolicy" @close="showPrivacyPolicy = false">
+            <article v-if="renderedPrivacyPolicy" v-html="renderedPrivacyPolicy" />
+          </LegalModal>
         </div>
         <div v-else-if="currentSlide === 1" class="slide">
           <h1>Great!</h1>
@@ -108,6 +114,7 @@ import { clone, listRemoteBranches } from '../git';
 
 import generateAvatar from '../assets/js/generateAvatar';
 import isMattrbldProject from '../assets/js/isMattrbldProject';
+import loadAndRenderLegalInfo from '../assets/js/loadAndRenderLegalInfo';
 import warnAboutMeteredConnection from '../assets/js/warnAboutMeteredConnection';
 
 import AvatarUploader from '../components/utility/AvatarUploader.vue';
@@ -137,6 +144,7 @@ export default {
   },
   created() {
     warnAboutMeteredConnection();
+    this.renderLegalInfo();
   },
   data() {
     return {
@@ -155,11 +163,14 @@ export default {
       lastRepoURL: '',
       loadingBranches: false,
       projectName: '',
+      renderedImprint: null,
+      renderedPrivacyPolicy: null,
       repoURL: '',
       repoBranch: null,
       repoBranches: [],
       showAdvancedSettings: false,
       showBetaModal: false,
+      showImprint: false,
       showPrivacyPolicy: false,
       steps: [
         {
@@ -344,6 +355,11 @@ export default {
       const initials = `${split[0][0]}${split[split.length - 1][0]}`.toUpperCase();
       this.userAvatar = generateAvatar(initials, '#A29BFE', '#6c5ce7', 'light', this.userEmail);
       if (this.avatarUploaded) this.avatarUploaded = false;
+    },
+    async renderLegalInfo() {
+      const { renderedImprint, renderedPrivacyPolicy } = await loadAndRenderLegalInfo();
+      this.renderedImprint = renderedImprint;
+      this.renderedPrivacyPolicy = renderedPrivacyPolicy;
     },
     validate(field) {
       let error = '';
