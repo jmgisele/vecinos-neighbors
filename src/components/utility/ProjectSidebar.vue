@@ -4,7 +4,9 @@
   </transition>
   <transition>
     <div v-if="currentProject.id" v-show="visible" v-bind="$attrs" class="project-sidebar" :class="{ dark, swiping }" ref="el" :style="{ transform: sidebarTransform }" tabindex="-1" @touchstart="swipeStart" @touchmove="swipeUpdate" @touchend="swipeEnd">
-      <MbProjectAvatar :avatar="currentProject.avatar" :project-id="currentProject.id" :project-name="currentProject.name" />
+      <router-link custom :to="{ name: 'Project' }" v-slot="{ navigate }">
+        <MbProjectAvatar :avatar="currentProject.avatar" :project-id="currentProject.id" :project-name="currentProject.name" @click="goTo(navigate)" />
+      </router-link>
       <div class="meta">
         <p>{{currentProject.name}}</p>
         <MbChip v-if="gitStatus.label" :color="gitStatus.color" :label="gitStatus.label" :loading="gitStatus.loading" @click="$emit('git-status-click')" @mouseenter="handleChipTooltip" />
@@ -336,6 +338,7 @@ export default {
     margin-bottom: 1rem
     width: 100%
     border-radius: $radius-s
+    cursor: pointer
 
   .meta
     display: flex
