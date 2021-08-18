@@ -9,7 +9,7 @@
         </transition>
       </div>
       <div class="right">
-        <MbToggle v-if="draftsDir" v-model="isDraft" :dark="dark" :disabled="isDraft && (!content.___mb_schema || errors.fields.size > 0)" :icons="['cross', 'check']">Draft</MbToggle>
+        <MbToggle v-if="draftsDir && canToggleDraft" v-model="isDraft" :dark="dark" :disabled="isDraft && (!content.___mb_schema || errors.fields.size > 0)" :icons="['cross', 'check']">Draft</MbToggle>
         <MbButton :class="{ 'push-right': draftsDir }" :dark="dark" icon="settings" @click="showSettings = true">{{isTablet ? '' : 'Settings'}}</MbButton>
         <MbButton v-if="previewUrl" :dark="dark" :disabled="noSchema" :icon="showPreview ? 'hide' : 'eye'" @click="togglePreview">{{isTablet ? '' : showPreview ? 'Hide Preview' : 'Preview'}}</MbButton>
         <MbButton :dark="dark" :disabled="!wasChanged || (errors.fields.size > 0 && !isDraft)" icon="save" :icon-first="true" :loading="saveLoading" type="primary" @click="saveChanges">{{isTablet ? '' : 'Save'}}</MbButton>
@@ -234,6 +234,14 @@ export default {
       if (!this.currentUser.role || !permissions) return false;
       if (permissions.everybody && (permissions.everybody.includes('deleteContent') || permissions.everybody.includes('everything'))) return true;
       if (permissions[this.currentUser.role] && (permissions[this.currentUser.role].includes('deleteContent') || permissions[this.currentUser.role].includes('everything'))) return true;
+      return false;
+    },
+    canToggleDraft() {
+      const { permissions } = this.collection;
+      if (!this.currentUser) return false;
+      if (!this.currentUser.role || !permissions) return false;
+      if (permissions.everybody && (permissions.everybody.includes('publishDrafts') || permissions.everybody.includes('everything'))) return true;
+      if (permissions[this.currentUser.role] && (permissions[this.currentUser.role].includes('publishDrafts') || permissions[this.currentUser.role].includes('everything'))) return true;
       return false;
     },
     cleanTabs() {
