@@ -833,7 +833,7 @@ export default {
       if (this.errors.customFieldName) return;
 
       const slugifiedName = slugify(this.customField.name, this.$store.state.currentProject.slugifyOptions || { lowercase: false, decamelize: false, preserveLeadingUnderscore: true });
-      const id = joinPath(this.customField.path.replace('/', ''), `${slugifiedName}.json`);
+      const id = this.customField.path ? joinPath(this.customField.path.replace('/', ''), `${slugifiedName}.json`) : `${slugifiedName}.json`; // we don’t want a leading slash if customField.path is falsey
       const path = joinPath(this.customFieldsPath, id);
       const alreadyExists = await exists(path);
 
