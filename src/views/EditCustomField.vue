@@ -200,6 +200,18 @@ export default {
       });
       this.$router.replace({ name: 'Project.Settings', params: { id }, query: { tab: 'custom-fields' } });
     },
+    preventUnintentionalClose(e) {
+      if (this.forceNavigation) return;
+      if (this.wasChanged) {
+        this.$store.commit('addToast', {
+          message: 'You have unsaved changes, save them before exiting if you don’t want to lose them.',
+          type: 'warning',
+          timeout: 10000,
+        });
+        e.preventDefault();
+        e.returnValue = ''; // for chrome
+      }
+    },
     async renameCustomField() {
       if (this.icon !== this.customField[0].icon) this.customField[0].icon = this.icon; // this is here so there’s an immediate change, the other properties get set during saveChanges
 
