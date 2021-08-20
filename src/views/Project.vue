@@ -533,7 +533,14 @@ export default {
     },
     async pullAndCheckForConfigChange() {
       const headBeforePullOid = await resolveRef({ fs: PlainFS, dir: this.projectDir, ref: 'HEAD' });
-      const { oid: currentConfigOid } = await readBlob({ fs: PlainFS, dir: this.projectDir, oid: headBeforePullOid, filepath: '.mattrbld/config.json' }); // eslint-disable-line object-curly-newline
+      let currentConfigOid;
+      let newConfigOid;
+      try {
+        ({ oid: currentConfigOid } = await readBlob({ fs: PlainFS, dir: this.projectDir, oid: headBeforePullOid, filepath: '.mattrbld/config.json' })); // eslint-disable-line object-curly-newline
+      } catch (err) {
+        if (err.code !== 'NotFoundError') throw err; // if it’s NotFoundError the file didn’t exist yet, for example because it’s a new project
+      }
+
       const { name, email } = this.$store.getters.userInCurrentProject;
       await pull(
         {
@@ -547,8 +554,13 @@ export default {
         this.onGitAuthSuccess,
         this.onGitProgress,
       );
+
       const headAfterPullOid = await resolveRef({ fs: PlainFS, dir: this.projectDir, ref: 'HEAD' });
-      const { oid: newConfigOid } = await readBlob({ fs: PlainFS, dir: this.projectDir, oid: headAfterPullOid, filepath: '.mattrbld/config.json' }); // eslint-disable-line object-curly-newline
+      try {
+        ({ oid: newConfigOid } = await readBlob({ fs: PlainFS, dir: this.projectDir, oid: headAfterPullOid, filepath: '.mattrbld/config.json' })); // eslint-disable-line object-curly-newline
+      } catch (err) {
+        if (err.code !== 'NotFoundError') throw err; // if it’s NotFoundError the file didn’t exist yet, for example because it’s a new project
+      }
       if (currentConfigOid !== newConfigOid) { // the config was changed since the last sync, we need to reload the project
         return true;
       }
