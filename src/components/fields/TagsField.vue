@@ -1,7 +1,7 @@
 <template lang="html">
   <section class="tags field" :class="{ dark, localised: showLocalisedOptions }">
     <template v-if="!showLocalisedOptions">
-      <MbTagInput :allow-unsuggested="options.allowUnsuggested" :autocomplete-model="autocompleteModel" :autocomplete-property="autocompleteProperty" :class="{ 'in-split': inSplit }" :dark="dark" :external-error="error && String(error)" :label="label" :max="(validation && validation.max) || null" :min="(validation && validation.min) || null" :model-value="safeModelValue" @update:model-value="handleInput" />
+      <MbTagInput :allow-unsuggested="options.allowUnsuggested" :autocomplete-model="autocompleteModel" :autocomplete-property="autocompleteProperty" :class="{ 'in-split': inSplit }" :dark="dark" :external-error="error && String(error)" :label="label" :max="(validation && validation.max) || null" :min="(validation && validation.min) || null" :model-value="safeModelValue" :placeholder="placeholder" @update:model-value="handleInput" />
     </template>
     <LocalisedFieldsContainer
       v-else
@@ -17,12 +17,14 @@
       @modal-closed="$emit('update:error', validateLocalisedValues(safeModelValue, ''))"
       @update:active="$emit('update:active', $event)"
     >
-      <MbTagInput :allow-unsuggested="options.allowUnsuggested" :autocomplete-model="autocompleteModel" :autocomplete-property="autocompleteProperty" :class="{ 'in-split': teleportTarget }" :dark="dark" :external-error="error instanceof Map ? error.get(lang) : null" :label="lang" :max="(validation && validation.max) || null" :min="(validation && validation.min) || null" :model-value="safeModelValue[lang]" @update:model-value="handleInput($event, lang)" />
+      <MbTagInput :allow-unsuggested="options.allowUnsuggested" :autocomplete-model="autocompleteModel" :autocomplete-property="autocompleteProperty" :class="{ 'in-split': teleportTarget }" :dark="dark" :external-error="error instanceof Map ? error.get(lang) : null" :label="lang" :max="(validation && validation.max) || null" :min="(validation && validation.min) || null" :model-value="safeModelValue[lang]" :placeholder="placeholder" @update:model-value="handleInput($event, lang)" />
     </LocalisedFieldsContainer>
   </section>
 </template>
 
 <script>
+import pluralize from 'pluralize';
+
 import fs, { joinPath } from '../../fs';
 
 import field from '../../mixins/field';
@@ -41,7 +43,7 @@ export default {
     },
     autocompleteProperty() {
       if (!this.options.autocompleteModel || !Array.isArray(this.options.autocompleteModel) || this.options.autocompleteModel.length === 0) return null;
-      if (this.options.autocompleteModel[0] !== 'string') return 'label';
+      if (typeof this.options.autocompleteModel[0] !== 'string') return 'label';
       return null;
     },
     firstLocalisedValue() {
@@ -52,6 +54,10 @@ export default {
         return firstVal.map((entry) => entry.label || entry).join(', ');
       }
       return null;
+    },
+    placeholder() {
+      if (this.label) return `New ${pluralize.singular(this.label)}…`;
+      return 'New Tag…';
     },
     safeModelValue() {
       if (this.showLocalisedOptions) {
