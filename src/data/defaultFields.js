@@ -885,6 +885,12 @@ export default [
       },
       {
         component: 'MbToggle',
+        key: 'collapseByDefault',
+        slot: 'Collapse the container by default',
+        value: false,
+      },
+      {
+        component: 'MbToggle',
         key: 'row',
         slot: 'Display contained fields in a horizontal row',
         value: false,
