@@ -459,7 +459,7 @@ export default {
         delete this.fieldToTypeChange.customField;
         if (newData.options && newData.options.length > 0) {
           const newOptions = newData.options.reduce((acc, { key, value }) => {
-            if (typeof this.fieldToTypeChange.options[key] === typeof value) acc[key] = this.fieldToTypeChange.options[key];
+            if (this.fieldToTypeChange.options && typeof this.fieldToTypeChange.options[key] === typeof value) acc[key] = this.fieldToTypeChange.options[key];
             else acc[key] = cloneDeep(value);
             return acc;
           }, {});
@@ -476,10 +476,16 @@ export default {
       if (typeof newData.visualOnly === 'undefined') delete this.fieldToTypeChange.visualOnly;
       else if (typeof this.fieldToTypeChange.visualOnly === 'undefined' && typeof newData.visualOnly !== 'undefined') this.fieldToTypeChange.visualOnly = newData.visualOnly;
 
+      if (newData.visualOnly && newData.key) {
+        const parentField = this.getField(path.substring(0, Math.max(0, path.lastIndexOf('.')) || Infinity));
+        const parentFieldFields = path === parentField.key ? this.fields : parentField.value;
+        this.fieldToTypeChange.key = this.generateUniqueFieldKey(parentFieldFields, newData.key);
+      }
+
       if (typeof newData.validation === 'undefined') delete this.fieldToTypeChange.validation;
       else {
         this.fieldToTypeChange.validation = Object.entries(newData.validation).reduce((acc, [key, value]) => {
-          if (key !== 'unit' && typeof this.fieldToTypeChange.validation[key] !== 'undefined') acc[key] = this.fieldToTypeChange.validation[key];
+          if (key !== 'unit' && this.fieldToTypeChange.validation && typeof this.fieldToTypeChange.validation[key] !== 'undefined') acc[key] = this.fieldToTypeChange.validation[key];
           else acc[key] = value;
           return acc;
         }, {});
