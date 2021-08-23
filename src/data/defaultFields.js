@@ -869,4 +869,37 @@ export default [
     version: 1,
     visibility: { hidden: false, showByValue: { field: null } },
   },
+  {
+    type: 'container',
+    description: 'A container for grouping fields purely on a visual level',
+    group: 'visual',
+    icon: 'placeholder',
+    key: '___mb_visual_container',
+    label: 'Container',
+    options: [
+      {
+        component: 'MbToggle',
+        key: 'collapsible',
+        slot: 'Allow the container to be collapsed',
+        value: false,
+      },
+      {
+        component: 'MbToggle',
+        key: 'row',
+        slot: 'Display contained fields in a horizontal row if possible',
+        value: false,
+      },
+      {
+        component: 'MbToggle',
+        key: 'bordered',
+        slot: 'Show a faint border around the grouped fields',
+        value: false,
+      },
+    ],
+    tab: null,
+    value: [],
+    version: 1,
+    visibility: { hidden: false, showByValue: { field: null } },
+    visualOnly: true,
+  },
 ];

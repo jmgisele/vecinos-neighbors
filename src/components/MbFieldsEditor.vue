@@ -2,6 +2,7 @@
   <div class="fields-editor" :class="{ dark, 'in-split': inSplit }">
     <template v-for="field in visibleFields" :key="field.key">
       <component
+        v-if="field.type !== 'container'"
         v-model="model[field.key]"
         :active="field.key === activeField"
         :children="field.value"
@@ -23,6 +24,21 @@
         @update:active="$event ? activeField = field.key : activeField = null"
         @update:error="handleError(field.key, $event)"
       />
+      <div v-else class="container">
+        <MbFieldsEditor
+          v-model="model"
+          :compact="compact"
+          :dark="dark"
+          :error="error"
+          :fields="field.value"
+          :in-split="inSplit"
+          :languages="languages"
+          :split-target="splitTarget"
+          :split-visible="splitVisible"
+          @update:error="$emit('update:error', $event)"
+          @update:splitVisible="$event ? activeField = field.key : activeField = null"
+        />
+      </div>
     </template>
   </div>
 </template>
@@ -105,6 +121,10 @@ export default {
       else errorClone.delete(key);
       this.$emit('update:error', errorClone);
     },
+    handleNestedSplitVisible(visible, key) {
+      if (visible) this.activeField = key;
+      else this.activeField = null;
+    },
     updateModelValue() {
       this.internalChange = true;
       this.$emit('update:modelValue', _cloneDeep(this.model));
@@ -174,4 +194,30 @@ export default {
 
     &:last-child
       margin-bottom: 0.125rem // so we can still see the active state while :active
+
+  .container
+    width: 100%
+
+    &:not(:last-child)
+      margin-bottom: 2rem
+
+    .fields-editor
+      display: flex
+      align-items: center
+      margin: -0.5rem
+
+      .container
+        padding:  0.5rem
+
+      .field
+        width: 100%
+        margin: 0.5rem
+
+        &:first-child
+          margin-top: 0.5rem
+
+        &:last-child,
+        &:not(:last-child)
+          margin-bottom: 0.5rem
+
 </style>
