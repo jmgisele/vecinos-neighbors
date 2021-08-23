@@ -886,7 +886,7 @@ export default [
       {
         component: 'MbToggle',
         key: 'row',
-        slot: 'Display contained fields in a horizontal row if possible',
+        slot: 'Display contained fields in a horizontal row',
         value: false,
       },
       {

@@ -25,8 +25,10 @@
         @update:error="handleError(field.key, $event)"
       />
       <div v-else class="container">
+        <p v-if="field.options.bordered" class="label" :class="{ dark }">{{field.label}}</p>
         <MbFieldsEditor
           v-model="model"
+          :class="{ bordered: field.options.bordered, row: field.options.row }"
           :compact="compact"
           :dark="dark"
           :error="error"
@@ -183,6 +185,10 @@ export default {
 </script>
 
 <style lang="stylus" scoped>
+@require '../assets/styles/breakpoints'
+@require '../assets/styles/colors'
+@require '../assets/styles/corners'
+
 .fields-editor
   .field
     &.text:not(.localised):first-child,
@@ -203,23 +209,52 @@ export default {
     &:not(:last-child)
       margin-bottom: 2rem
 
+    > .label
+      font-size: 0.75rem
+      margin-top: 0
+      margin-bottom: 0.125rem
+      margin-left: $radius-l
+      color: $text-secondary
+
+      &.dark
+        color: $text-secondary-dark
+
     .fields-editor
-      display: flex
-      align-items: center
-      margin: -0.5rem
+      &.bordered
+        box-shadow: inset 0 0 0 0.0625rem alpha($text, 0.12)
+        padding: 0.75rem
+        border-radius: $radius-l
+        position: relative
 
-      .container
-        padding:  0.5rem
+        &.dark
+          box-shadow: inset 0 0 0 0.0625rem alpha($text-dark, 0.12)
 
-      .field
-        width: 100%
-        margin: 0.5rem
+      @media $larger-than-mobile
+        &.row
+          display: flex
+          align-items: center
+          margin: -0.5rem
 
-        &:first-child
-          margin-top: 0.5rem
+          &.bordered
+            margin: 0
+            padding: 0.25rem
 
-        &:last-child,
-        &:not(:last-child)
-          margin-bottom: 0.5rem
+          .container
+            padding:  0.5rem
+
+          .field
+            width: 100%
+            margin: 0.5rem
+
+            &.image,
+            &.group
+              overflow: hidden
+
+            &:first-child
+              margin-top: 0.5rem
+
+            &:last-child,
+            &:not(:last-child)
+              margin-bottom: 0.5rem
 
 </style>
