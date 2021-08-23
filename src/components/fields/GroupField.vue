@@ -23,6 +23,7 @@
 <script>
 import { get as _get } from 'lodash-es';
 
+import expandVisualOnlyFields from '../../assets/js/expandVisualOnlyFields';
 import richToPlainText from '../../assets/js/richToPlainText';
 import validateContent from '../../assets/js/validateContent';
 
@@ -82,7 +83,7 @@ export default {
       this.$emit('update:modelValue', v);
     },
     validateContent() {
-      const errors = validateContent(this.modelValue || {}, { fields: this.children }, this.languages);
+      const errors = validateContent(this.modelValue || {}, { fields: expandVisualOnlyFields(this.children) }, this.languages);
       this.$emit('update:error', errors.size > 0 ? errors : '');
     },
   },
