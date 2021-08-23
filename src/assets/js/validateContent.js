@@ -1,6 +1,7 @@
 import Store from '../../store';
 
 import userInputToRegex from './userInputToRegex';
+import expandVisualOnlyFields from './expandVisualOnlyFields';
 
 export function validateField(value, type, rules) {
   if (!rules) return '';
@@ -172,7 +173,8 @@ export default function validateContent(content, schema, languages) {
   if (typeof content !== 'object') throw new TypeError('content has to be an object');
   if (typeof schema !== 'object') throw new TypeError('schema has to be an object');
 
-  const { fields, tabs } = schema;
+  const { fields: rawFields, tabs } = schema;
+  const fields = expandVisualOnlyFields(rawFields);
   const errors = new Map();
 
   if (!tabs || tabs.length === 0) {

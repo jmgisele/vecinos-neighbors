@@ -1,6 +1,5 @@
 import { cloneDeep as _cloneDeep, debounce, isEqual } from 'lodash-es';
 
-import expandVisualOnlyFields from '../assets/js/expandVisualOnlyFields';
 import generateDefaultContentFromSchema from '../assets/js/generateDefaultContentFromSchema';
 import richToPlainText from '../assets/js/richToPlainText';
 import validateContent from '../assets/js/validateContent';
@@ -428,7 +427,7 @@ export default {
     },
     validateItemBeingEdited() {
       if (this.indexBeingEdited === null) return;
-      const fakeFields = this.fieldBeingEdited.type === 'group' ? expandVisualOnlyFields(this.fieldBeingEdited.value) : [this.fieldBeingEdited];
+      const fakeFields = this.fieldBeingEdited.type === 'group' ? this.fieldBeingEdited.value : [this.fieldBeingEdited];
       let content = this.modelValue[this.indexBeingEdited];
       if (!content || (!content.___mb_type && this.fieldBeingEdited.type !== 'group')) content = { [this.fieldBeingEdited.key]: content }; // we need to make sure we pass an object with a correct key if we don’t have ___mb_type
       const errors = validateContent(content, { fields: fakeFields }, this.languages);

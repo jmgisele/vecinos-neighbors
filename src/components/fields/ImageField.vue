@@ -91,7 +91,6 @@ import fs, {
 
 import { loadImage } from '../../fs/workerFS';
 
-import expandVisualOnlyFields from '../../assets/js/expandVisualOnlyFields';
 import generateDefaultContentFromSchema from '../../assets/js/generateDefaultContentFromSchema';
 import rgbToHex from '../../assets/js/rgbToHex';
 import validateContent from '../../assets/js/validateContent';
@@ -460,7 +459,7 @@ export default {
     },
     validateContent() {
       if (!this.normalisedSrc || typeof this.modelValue === 'string') return;
-      const errors = validateContent(this.modelValue || {}, { fields: expandVisualOnlyFields(this.mediaSettings.customFields) }, this.languages);
+      const errors = validateContent(this.modelValue || {}, { fields: this.mediaSettings.customFields }, this.languages);
       if (this.error && this.error.get(this.fieldKey)) {
         if (errors.size === 0) return;
         this.$emit('update:error', new Map([...this.error, ...errors]));
