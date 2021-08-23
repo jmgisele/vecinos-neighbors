@@ -21,7 +21,7 @@
         </div>
       </transition>
     </main>
-    <footer>
+    <footer :class="{ dark }">
       <a class="logo-wrapper" href="https://mattrbld.com" rel="noopener noreferrer" target="_blank">
         <MbLogo />
         <MbLogoText />
@@ -545,6 +545,10 @@ export default {
     display: flex
     align-items: center
     justify-content: space-between
+
+    &.dark
+      background-color: $bg-secondary-dark
+      color: $text-secondary-dark
 
     .logo-wrapper
       display: flex
