@@ -29,6 +29,7 @@
         :required="(field.validation && field.validation.required) || (field.validation && field.validation.min > 0)"
         :type="field.type"
         :version="field.version"
+        :visual-only="field.visualOnly"
         @fieldclick="handleClick(parentKey, index)"
         @fieldcontextmenu="handleContextMenu(parentKey, index, $event)"
         @fieldmove="handleFieldMove(parentKey, index, $event)"

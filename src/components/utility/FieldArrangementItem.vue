@@ -10,9 +10,9 @@
       <span v-if="outdated" class="chip warning">Outdated</span>
       <span v-if="localised" class="chip">Localised</span>
       <span v-if="required" class="chip">Required</span>
-      <span class="key">{{fieldKey}}</span>
-      <MbIcon v-if="hidden" class="hidden" icon="hide" />
-      <MbIcon class="action" :icon="active ? 'cross' : 'pencil'" />
+      <span v-if="!visualOnly" class="key">{{fieldKey}}</span>
+      <MbIcon v-if="hidden" class="hidden" :class="{ 'push-right': visualOnly }" icon="hide" />
+      <MbIcon class="action" :class="{ 'push-right': visualOnly && !hidden }" :icon="active ? 'cross' : 'pencil'" />
     </div>
     <FieldArrangementList v-if="nestedFields" :dark="dark" :field-being-edited="fieldBeingEdited" :fields="nestedFields" :field-versions="fieldVersions" :parent-key="parentKey !== '___toplevel'  ? `${parentKey}.${fieldKey}` : fieldKey" />
   </div>
@@ -192,6 +192,7 @@ export default {
       default: 'Unknown',
     },
     version: Number,
+    visualOnly: Boolean,
   },
 };
 </script>
@@ -361,4 +362,9 @@ export default {
 
     @media $mobile
       display: none
+
+  .hidden,
+  .action
+    &.push-right
+      margin-left: auto
 </style>
