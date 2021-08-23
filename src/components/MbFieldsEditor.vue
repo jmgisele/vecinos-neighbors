@@ -33,10 +33,11 @@
           :fields="field.value"
           :in-split="inSplit"
           :languages="languages"
+          :parent-active-field="activeField"
           :split-target="splitTarget"
           :split-visible="splitVisible"
           @update:error="$emit('update:error', $event)"
-          @update:splitVisible="$event ? activeField = field.key : activeField = null"
+          @update:activeField="activeField = $event"
         />
       </div>
     </template>
@@ -85,7 +86,7 @@ export default {
       model: {},
     };
   },
-  emits: ['update:error', 'update:modelValue', 'update:splitVisible'],
+  emits: ['update:activeField', 'update:error', 'update:modelValue', 'update:splitVisible'],
   methods: {
     componentForType(type) {
       const componentName = fieldTypeToComponent(type);
@@ -121,10 +122,6 @@ export default {
       else errorClone.delete(key);
       this.$emit('update:error', errorClone);
     },
-    handleNestedSplitVisible(visible, key) {
-      if (visible) this.activeField = key;
-      else this.activeField = null;
-    },
     updateModelValue() {
       this.internalChange = true;
       this.$emit('update:modelValue', _cloneDeep(this.model));
@@ -140,8 +137,9 @@ export default {
     },
     fields: Array,
     inSplit: Boolean,
-    modelValue: Object,
     languages: Array,
+    modelValue: Object,
+    parentActiveField: String,
     splitTarget: [String, HTMLElement],
     splitVisible: Boolean,
   },
@@ -149,6 +147,7 @@ export default {
     activeField(nv, ov) {
       if (!ov && nv && !this.splitVisible) this.$emit('update:splitVisible', true);
       else if (ov && !nv && this.splitVisible) this.$emit('update:splitVisible', false);
+      this.$emit('update:activeField', this.activeField);
     },
     model: {
       deep: true,
@@ -172,6 +171,9 @@ export default {
         this.externalChange = true;
         this.model = _cloneDeep(nv) || {};
       },
+    },
+    parentActiveField(nv) {
+      this.activeField = nv;
     },
     splitVisible(nv) {
       if (!nv) this.activeField = null;
