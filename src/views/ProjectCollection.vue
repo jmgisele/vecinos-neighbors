@@ -151,6 +151,12 @@ export default {
             label: 'Move',
             icon: 'arrow-right',
           },
+          {
+            action: this.duplicateEntity,
+            label: 'Duplicate',
+            icon: 'duplicate',
+            filesOnly: true,
+          },
         );
 
         if (this.draftsDir) actions.push({ action: this.toggleDraft, label: 'Toggle draft', icon: 'document-draft', filesOnly: true }); // eslint-disable-line object-curly-newline
@@ -206,6 +212,7 @@ export default {
         );
       }
 
+      if (this.userPermissions.has('createContent')) actions.push({ action: this.duplicateEntity, label: 'Duplicate', icon: 'duplicate', filesOnly: true }); // eslint-disable-line object-curly-newline
       if (this.draftsDir && this.userPermissions.has('publishDrafts')) actions.push({ action: this.toggleDraft, label: 'Toggle draft', icon: 'document-draft', filesOnly: true }); // eslint-disable-line object-curly-newline
 
       if (this.userPermissions.has('deleteContent')) {
@@ -332,6 +339,44 @@ export default {
         timeout: timeout - 200,
         type: 'warning',
       });
+    },
+    async duplicateEntity(path) {
+      const filename = pathBasename(path);
+      const directory = pathDirname(path);
+      const extension = filename.slice((Math.max(0, filename.lastIndexOf('.')) || Infinity) + 1); // based on https://stackoverflow.com/questions/190852/how-can-i-get-file-extensions-with-javascript/12900504#12900504
+      const nameWithoutExtension = filename.substring(0, Math.max(0, filename.lastIndexOf('.')) || Infinity);
+      let counter = 1;
+      let nameCandidate = `${nameWithoutExtension}-${counter}.${extension}`;
+      let existingFiles;
+
+      try {
+        existingFiles = await fs.readdir(directory);
+      } catch (err) {
+        this.$store.commit('addToast', { message: `Something went wrong while reading the existing files: ${err.message}`, type: 'error' });
+        return;
+      }
+
+      while (existingFiles.indexOf(nameCandidate) > -1) {
+        counter += 1;
+        nameCandidate = `${nameWithoutExtension}-${counter}.${extension}`;
+      }
+
+      try {
+        const content = await fs.readFile(path);
+        const newPath = joinPath(directory, nameCandidate);
+        await fs.writeFile(newPath, content);
+        this.$store.commit('addLocallyChangedFile', newPath);
+        this.$refs.fileList.refresh();
+        this.$store.commit('addToast', {
+          action: () => this.handleFileClick(newPath),
+          actionLabel: 'Open',
+          closeOnRouteChange: true,
+          message: `The file was duplicated as “${nameCandidate}”. Would you like to open it?`,
+          type: 'positive',
+        });
+      } catch (err) {
+        this.$store.commit('addToast', { message: `Something went wrong while duplicationg the file: ${err.message}`, type: 'error' });
+      }
     },
     handleEntityCreationClose() {
       this.showEntityCreation = false;
