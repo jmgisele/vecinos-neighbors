@@ -151,7 +151,6 @@ export default {
       avatarUploaded: false,
       corsProxy: 'http://localhost:9999', // Requires a cors buster running on 9999 (is this safe?)
       // corsProxy: '/corsprox', // Requires a /corsprox route configured on the server
-      // corsProxy: 'https://cors.isomorphic-git.org', // TODO: replace with our own before launch!
       currentSlide: 0,
       errors: {
         corsProxy: '',
@@ -169,7 +168,7 @@ export default {
       repoBranch: null,
       repoBranches: [],
       showAdvancedSettings: false,
-      showBetaModal: false,
+      showBetaModal: true,
       showImprint: false,
       showPrivacyPolicy: false,
       steps: [
