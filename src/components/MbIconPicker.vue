@@ -8,12 +8,14 @@
         <header>
           <MbInput v-model="iconFilter" :dark="dark" icon="search" placeholder="Filter icons…" />
         </header>
-        <ul>
-          <li v-for="icon in filteredIcons" :class="{ active: icon === modelValue, dark }" :key="icon" tabindex="0" @click="pickIcon(icon)" @keydown.space.prevent @keyup.space.enter="pickIcon(icon)">
-            <MbIcon :icon="icon" />
-            <span>{{icon}}</span>
-          </li>
-        </ul>
+        <MbScroller direction="vertical">
+          <ul>
+            <li v-for="icon in filteredIcons" :class="{ active: icon === modelValue, dark }" :key="icon" tabindex="0" @click="pickIcon(icon)" @keydown.space.prevent @keyup.space.enter="pickIcon(icon)">
+              <MbIcon :icon="icon" />
+              <span>{{icon}}</span>
+            </li>
+          </ul>
+        </MbScroller>
       </div>
       <template #footer>
         <MbButton :dark="dark" @click="deactivate">Cancel</MbButton>
@@ -177,11 +179,17 @@ export default {
       padding: 0.5rem
       padding-top: 0
       list-style: none
-      overflow-y: auto
+      // overflow-y: auto
       background-color: inherit
       display: flex
       flex-wrap: wrap
       max-width: ((3 * (88 + 16) + 16) / 16)rem
+
+      &::after
+        content: ''
+        display: block
+        height: 0.5rem
+        width: 100%
 
       li
         margin: 0.5rem
