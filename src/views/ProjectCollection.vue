@@ -31,7 +31,7 @@ import { rmrf } from '../fs/workerFS';
 import Store from '../store';
 
 import generateDefaultContentFromSchema from '../assets/js/generateDefaultContentFromSchema';
-import getFieldsByProperty from '../assets/js/getFieldsByProperty';
+import getFieldsByPredicate from '../assets/js/getFieldsByPredicate';
 import getContentLanguages from '../assets/js/getContentLanguages';
 import prettifyEntityName from '../assets/js/prettifyEntityName';
 import validateContent from '../assets/js/validateContent';
@@ -376,7 +376,7 @@ export default {
         }
         if (content.___mb_schema) {
           const schema = JSON.parse(await fs.readFile(joinPath(this.projectDir, content.___mb_schema), 'utf8'));
-          const idFields = getFieldsByProperty(schema, (field) => field.type === 'id');
+          const idFields = getFieldsByPredicate(schema, (field) => field.type === 'id');
           idFields.forEach((fieldData) => {
             const { field, contentpath } = fieldData;
             let value = null;

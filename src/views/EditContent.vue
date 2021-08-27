@@ -93,7 +93,7 @@ import fs, { exists, PlainFS, joinPath, mkdirp, pathBasename, pathDirname } from
 import assembleUrlFromTemplate from '../assets/js/assembleUrlFromTemplate';
 import generateDefaultContentFromSchema from '../assets/js/generateDefaultContentFromSchema';
 import generateDefaultFilePathFields from '../assets/js/generateDefaultFilePathFields';
-import getFieldsByProperty from '../assets/js/getFieldsByProperty';
+import getFieldsByPredicate from '../assets/js/getFieldsByPredicate';
 import getContentLanguages from '../assets/js/getContentLanguages';
 import loadProject from '../assets/js/loadProject';
 import prettifyEntityName from '../assets/js/prettifyEntityName';
@@ -489,7 +489,7 @@ export default {
       }
     },
     findAndSetFilepathIds(schema) {
-      const idFields = getFieldsByProperty(schema, (field) => field.type === 'id' && field.options && field.options.type === 'filepath');
+      const idFields = getFieldsByPredicate(schema, (field) => field.type === 'id' && field.options && field.options.type === 'filepath');
       idFields.forEach((fieldData) => {
         const { field, contentpath } = fieldData;
         const currentValue = _get(this.content, contentpath);

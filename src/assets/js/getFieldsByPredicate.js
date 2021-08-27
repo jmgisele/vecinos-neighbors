@@ -12,7 +12,7 @@
  * @param {function} predicate - the predicate function to determine inclusion, will be passed the field and has to return true or false
  * @returns {array} of {@link FieldData} for the fields matching predicate
  */
-export default function getFieldsByProperty(schema, predicate) {
+export default function getFieldsByPredicate(schema, predicate) {
   const { fields, tabs } = schema;
   const keypath = [];
   const contentpath = [];
