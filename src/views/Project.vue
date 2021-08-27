@@ -224,7 +224,7 @@ export default {
         users,
       });
       return next((vm) => {
-        if (navigator.onLine && from.name === 'Home') vm.performInitialPull();
+        if (navigator.onLine && (from.name === 'Home' || from.name === undefined)) vm.performInitialPull();
         else if (!navigator.onLine) {
           Store.commit('addToast', {
             id: 'appIsOffline',
