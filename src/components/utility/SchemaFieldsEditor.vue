@@ -231,8 +231,8 @@ export default {
       return Array.from(this.availableFields).reduce((newMap, [group, fields]) => {
         const lowercaseFieldFilter = this.fieldFilter.toLowerCase();
         let filteredFields;
-        if (group.includes(lowercaseFieldFilter)) filteredFields = fields.filter((field) => !this.noSubfields || !field.value); // fields allowing for subfields have an empty array as a value
-        else filteredFields = fields.filter((field) => (!this.noSubfields || field.value === null) && (field.label.toLowerCase().includes(lowercaseFieldFilter) || field.type.includes(lowercaseFieldFilter)));
+        if (group.includes(lowercaseFieldFilter)) filteredFields = fields.filter((field) => !this.noSubfields || !field.value || field.visualOnly); // fields allowing for subfields have an empty array as a value
+        else filteredFields = fields.filter((field) => (!this.noSubfields || field.value === null || field.visualOnly) && (field.label.toLowerCase().includes(lowercaseFieldFilter) || field.type.includes(lowercaseFieldFilter)));
 
         if (filteredFields.length > 0) newMap.set(group, filteredFields);
         return newMap;
