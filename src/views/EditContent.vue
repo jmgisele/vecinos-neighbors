@@ -621,10 +621,9 @@ export default {
       this.saveLoading = false;
     },
     async saveSettings() {
-      this.showSettings = false;
-
       if (this.newContentSchema) await this.loadAndAssignSchema(this.newContentSchema);
       if (this.newContentName !== this.contentName) this.renameContent();
+      else this.showSettings = false;
     },
     sendPreviewData: debounce(function debouncedSend() { // OPTIMIZE: this could probably be optimized to only send deltas instead of the full object every time if a "full" param is false (we still need to send the full object upon initial connection)
       const targetOrigin = new URL(this.previewUrl).origin;
