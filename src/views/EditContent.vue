@@ -93,6 +93,7 @@ import fs, { exists, PlainFS, joinPath, mkdirp, pathBasename, pathDirname } from
 import assembleUrlFromTemplate from '../assets/js/assembleUrlFromTemplate';
 import generateDefaultContentFromSchema from '../assets/js/generateDefaultContentFromSchema';
 import generateDefaultFilePathFields from '../assets/js/generateDefaultFilePathFields';
+import getFieldsByProperty from '../assets/js/getFieldsByProperty';
 import getContentLanguages from '../assets/js/getContentLanguages';
 import loadProject from '../assets/js/loadProject';
 import prettifyEntityName from '../assets/js/prettifyEntityName';
@@ -175,7 +176,7 @@ export default {
           // OPTIMIZE: it seems a bit wasteful to iterate through all schemas and content values multiple times even when nothing has changed in the Schema, but there’s no way to know when the Schema has changed and the defaults in this file need updating
           const defaults = generateDefaultContentFromSchema(schema, path);
           vm.content = { ...content, ...vm.assignSchemaDefaults(content, defaults) }; // eslint-disable-line no-param-reassign
-          vm.findAndSetFilepathIds(schema.fields, null, schema.tabs);
+          vm.findAndSetFilepathIds(schema);
         }
 
         if (fromBackup) vm.wasChanged = true; // eslint-disable-line no-param-reassign
@@ -487,22 +488,17 @@ export default {
         this.$store.commit('addToast', { message: `Something went wrong while exchanging the preview handshake: ${err.message}`, type: 'error' });
       }
     },
-    findAndSetFilepathIds(fields, parentChain, tabs) {
-      fields.forEach((field) => {
-        if (tabs && field.tab) {
-          const currentTab = tabs.find((tab) => tab.label === field.tab);
-          // If properties are grouped under an object, it’s as if they were in a field group. This can only happen at the top level, so it should be safe to overwrite parentChain here
-          if (currentTab && currentTab.groupAs) parentChain = [currentTab.groupAs]; // eslint-disable-line no-param-reassign
+    findAndSetFilepathIds(schema) {
+      const idFields = getFieldsByProperty(schema, (field) => field.type === 'id' && field.options && field.options.type === 'filepath');
+      idFields.forEach((fieldData) => {
+        const { field, contentpath } = fieldData;
+        const currentValue = _get(this.content, contentpath);
+
+        if (!currentValue || (currentValue !== this.$route.params.path && !field.options.editable)) {
+          _set(this.content, contentpath, this.$route.params.path);
+          this.$store.commit('addToast', { message: `Updated “${field.label}” to contain the current filepath`, type: 'positive' });
+          this.wasChanged = true;
         }
-        if (field.type === 'id' && field.options && field.options.type === 'filepath') {
-          const currentValue = parentChain ? _get(this.content, [...parentChain, field.key]) : this.content[field.key];
-          if (currentValue === null || (!field.options.editable && currentValue !== this.$route.params.path)) {
-            if (parentChain) _set(this.content, [...parentChain, field.key], this.$route.params.path);
-            else this.content[field.key] = this.$route.params.path;
-            this.$store.commit('addToast', { message: `Updated “${field.label}” to contain the current filepath`, type: 'positive' });
-            this.wasChanged = true;
-          }
-        } else if (Array.isArray(field.value) && field.value.length > 0) this.findAndSetFilepathIds(field.value, [...(parentChain || []), field.key]);
       });
     },
     focusOpenPreview() {
@@ -512,7 +508,7 @@ export default {
       this.$store.commit('removeLocallyChangedFile', this.$route.params.path);
       this.$store.commit('addLocallyChangedFile', newPath);
       await this.$router.replace({ params: { collection: this.$route.params.collection, id: this.$route.params.id, path: newPath } });
-      this.findAndSetFilepathIds(this.schema.fields, null, this.schema.tabs);
+      this.findAndSetFilepathIds(this.schema);
     },
     handleNewTabPreviewLoaded(e) {
       if (this.previewInNewTabTimeout) {
