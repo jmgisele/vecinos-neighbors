@@ -20,6 +20,8 @@
 <script>
 import pluralize from 'pluralize';
 import * as matter from 'gray-matter';
+import { set as _set } from 'lodash-es';
+import { v4 as uuidv4 } from 'uuid';
 
 import fs, {
   exists, joinPath, mkdirp, pathBasename, pathDirname,
@@ -29,6 +31,7 @@ import { rmrf } from '../fs/workerFS';
 import Store from '../store';
 
 import generateDefaultContentFromSchema from '../assets/js/generateDefaultContentFromSchema';
+import getFieldsByProperty from '../assets/js/getFieldsByProperty';
 import getContentLanguages from '../assets/js/getContentLanguages';
 import prettifyEntityName from '../assets/js/prettifyEntityName';
 import validateContent from '../assets/js/validateContent';
@@ -152,7 +155,7 @@ export default {
             icon: 'arrow-right',
           },
           {
-            action: this.duplicateEntity,
+            action: this.duplicateContentItem,
             label: 'Duplicate',
             icon: 'duplicate',
             filesOnly: true,
@@ -212,7 +215,7 @@ export default {
         );
       }
 
-      if (this.userPermissions.has('createContent')) actions.push({ action: this.duplicateEntity, label: 'Duplicate', icon: 'duplicate', filesOnly: true }); // eslint-disable-line object-curly-newline
+      if (this.userPermissions.has('createContent')) actions.push({ action: this.duplicateContentItem, label: 'Duplicate', icon: 'duplicate', filesOnly: true }); // eslint-disable-line object-curly-newline
       if (this.draftsDir && this.userPermissions.has('publishDrafts')) actions.push({ action: this.toggleDraft, label: 'Toggle draft', icon: 'document-draft', filesOnly: true }); // eslint-disable-line object-curly-newline
 
       if (this.userPermissions.has('deleteContent')) {
@@ -340,7 +343,7 @@ export default {
         type: 'warning',
       });
     },
-    async duplicateEntity(path) {
+    async duplicateContentItem(path) {
       const filename = pathBasename(path);
       const directory = pathDirname(path);
       const extension = filename.slice((Math.max(0, filename.lastIndexOf('.')) || Infinity) + 1); // based on https://stackoverflow.com/questions/190852/how-can-i-get-file-extensions-with-javascript/12900504#12900504
@@ -362,10 +365,36 @@ export default {
       }
 
       try {
-        const content = await fs.readFile(path);
+        const rawFile = await fs.readFile(path, 'utf8');
         const newPath = joinPath(directory, nameCandidate);
-        await fs.writeFile(newPath, content);
+        let content;
+        let serializedContent;
+        if (this.collection.type === 'json') content = JSON.parse(rawFile);
+        else if (this.collection.type === 'md') {
+          const { content: fileContent, data } = matter(rawFile);
+          content = { ...data, content: fileContent.trim() }; // fileContent might have leading / trailing newline characters which we’ll strip out here
+        }
+        if (content.___mb_schema) {
+          const schema = JSON.parse(await fs.readFile(joinPath(this.projectDir, content.___mb_schema), 'utf8'));
+          const idFields = getFieldsByProperty(schema, (field) => field.type === 'id');
+          idFields.forEach((fieldData) => {
+            const { field, contentpath } = fieldData;
+            let value = null;
+            if (field.options && field.options.type === 'filepath') value = newPath;
+            else if (field.options && field.options.type === 'uuid') value = uuidv4();
+            _set(content, contentpath, value);
+          });
+        }
+
+        if (this.collection.type === 'json') serializedContent = JSON.stringify(content, null, 2);
+        else if (this.collection.type === 'md') {
+          const markdownContent = content.content;
+          delete content.content; // content is the markdown body, so we don’t need that in the frontmatter
+          serializedContent = matter.stringify(markdownContent || '', content);
+        }
+        await fs.writeFile(newPath, serializedContent, 'utf8');
         this.$store.commit('addLocallyChangedFile', newPath);
+        this.$store.dispatch('saveAppData');
         this.$refs.fileList.refresh();
         this.$store.commit('addToast', {
           action: () => this.handleFileClick(newPath),
@@ -376,6 +405,7 @@ export default {
         });
       } catch (err) {
         this.$store.commit('addToast', { message: `Something went wrong while duplicationg the file: ${err.message}`, type: 'error' });
+        console.error(err);
       }
     },
     handleEntityCreationClose() {
