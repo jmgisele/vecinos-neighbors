@@ -14,4 +14,14 @@ export default {
 </script>
 
 <style lang="stylus" scoped>
+.heading.field
+  &:first-child
+    h2, p
+      &:first-child
+        margin-top: 0
+
+  &:last-child
+    h2, p
+      &:last-child
+        margin-bottom: 0
 </style>
