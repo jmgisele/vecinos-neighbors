@@ -46,6 +46,7 @@
     <RepeatingFieldDetailsModal
       :active="active"
       :allow-editing="options.allowEditing"
+      :allow-type-change="options.allowEditing && filteredChildren.length > 1"
       :current-value="modelValue && indexBeingEdited !== null && modelValueForIndex(indexBeingEdited)"
       :dark="dark"
       :field-being-edited="fieldBeingEdited"

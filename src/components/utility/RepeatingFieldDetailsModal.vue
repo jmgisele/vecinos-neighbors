@@ -17,7 +17,7 @@
         @update:model-value="$emit('field-being-edited-update', $event)"
       />
       <footer class="field-details-actions">
-        <MbButton v-if="allowEditing && teleportTarget" :dark="dark" icon="replace-round" @click="$emit('field-being-edited-change-type')">Change {{itemLabel}} type</MbButton>
+        <MbButton v-if="allowTypeChange && teleportTarget" :dark="dark" icon="replace-round" @click="$emit('field-being-edited-change-type')">Change {{itemLabel}} type</MbButton>
         <MbButton v-if="allowEditing && teleportTarget" :dark="dark" icon="trash" type="negative" @click="$emit('delete-item-being-edited')">Delete {{itemLabel}}</MbButton>
       </footer>
     </teleport>
@@ -34,6 +34,7 @@ export default {
   props: {
     active: Boolean,
     allowEditing: Boolean,
+    allowTypeChange: Boolean,
     currentValue: {}, // could be anything
     dark: Boolean,
     fieldBeingEdited: Object,
