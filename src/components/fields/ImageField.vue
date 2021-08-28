@@ -501,7 +501,7 @@ export default {
         this.fileDetails.dominantColor = null;
         this.fileDetails.height = null;
         this.fileDetails.name = this.modelValue && this.modelValue.src && pathBasename(this.modelValue && this.modelValue.src);
-        this.fileDetails.type = this.fileDetails.name.slice(this.fileDetails.name.lastIndexOf('.') + 1).toUpperCase();
+        this.fileDetails.type = this.fileDetails.name && this.fileDetails.name.slice(this.fileDetails.name.lastIndexOf('.') + 1).toUpperCase();
         this.fileDetails.width = null;
         window.setTimeout(() => this.fetchImage(this.normalisedSrc), 200); // this timeout is to avoid a brief bit of lag if the images are too big and ColorThief blocks for a bit
         // this.fetchImage(this.normalisedSrc)
