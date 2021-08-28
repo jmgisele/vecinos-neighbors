@@ -24,11 +24,15 @@
         @update:active="$event ? activeField = field.key : activeField = null"
         @update:error="handleError(field.key, $event)"
       />
-      <div v-else class="container">
-        <p v-if="field.options.bordered" class="label" :class="{ dark }">{{field.label}}</p>
+      <div v-else class="container" :class="{ bordered: field.options.bordered || field.options.collapsible, collapsible: field.options.collapsible }">
+        <header v-if="field.options.bordered || field.options.collapsible" @click="collapsed = !collapsed">
+          <p class="label" :class="{ collapsed, dark }">{{field.label}}</p>
+          <MbButton v-if="field.options.collapsible" :dark="dark" :icon="collapsed ? 'chevron-down' : 'chevron-up'" rounded :tooltip="`Collapse ${field.label}`" />
+        </header>
         <MbFieldsEditor
+          v-show="!collapsed || !field.options.collapsible"
           v-model="model"
-          :class="{ bordered: field.options.bordered, row: field.options.row }"
+          :class="{ row: field.options.row }"
           :compact="compact"
           :dark="dark"
           :error="error"
@@ -69,7 +73,8 @@ export default {
       const currentUser = this.$store.getters.userInCurrentProject || {};
 
       return this.fields.filter((field) => (
-        !field.visibility.hidden
+        field.visibility
+        && !field.visibility.hidden
         && (field.type !== 'languages' || (this.languages && this.languages.length > 0)) // showing languages fields when there are no languages or localisation is disabled doesn’t make sense
         && (!field.visibility.limitToRoles || field.visibility.limitToRoles.length === 0 || field.visibility.limitToRoles.includes(currentUser.role))
         && (!field.visibility.showByValue || !field.visibility.showByValue.field || this.fieldShouldBeVisible(field.visibility.showByValue))
@@ -86,6 +91,7 @@ export default {
       externalChange: false,
       internalChange: false,
       model: {},
+      collapsed: false,
     };
   },
   emits: ['update:activeField', 'update:error', 'update:modelValue', 'update:splitVisible'],
@@ -192,6 +198,7 @@ export default {
 .fields-editor
   .field
     &.text:not(.localised):first-child,
+    &.number:not(.localised):first-child,
     &.rich-text:not(.localised):first-child,
     &.color.error:first-child,
     &.date.error:first-child // so the label is still visible even when it’s floating
@@ -206,55 +213,84 @@ export default {
   .container
     width: 100%
 
+    &.bordered
+      box-shadow: inset 0 0 0 0.0625rem alpha($text, 0.12)
+      padding: 1rem
+      border-radius: $radius-l
+      position: relative
+
+      &.dark
+        border-color: alpha($text-dark, 0.12)
+
+      &.collapsible
+        > header
+          cursor: pointer
+
+          > .label
+            font-size: 1rem
+            transition: color 200ms ease
+
+            &.collapsed
+              color: $text
+
+              &.dark
+                color: $text-dark
+
+      > header
+        display: flex
+        align-items: center
+
+        > .label
+          font-size: 0.75rem
+          margin: 0
+          margin-right: auto
+          color: $text-secondary
+
+          &.dark
+            color: $text-secondary-dark
+
+        > .button
+          padding: 0.75rem
+          margin: -0.75rem
+          margin-left: 0
+
+      > .fields-editor
+        margin-top: 1rem
+
+        &.row
+          margin-top: 0
+
     &:not(:last-child)
       margin-bottom: 2rem
 
-    > .label
-      font-size: 0.75rem
-      margin-top: 0
-      margin-bottom: 0.125rem
-      margin-left: $radius-l
-      color: $text-secondary
-
-      &.dark
-        color: $text-secondary-dark
-
     .fields-editor
-      &.bordered
-        box-shadow: inset 0 0 0 0.0625rem alpha($text, 0.12)
-        padding: 0.75rem
-        border-radius: $radius-l
-        position: relative
-
-        &.dark
-          box-shadow: inset 0 0 0 0.0625rem alpha($text-dark, 0.12)
-
       @media $larger-than-mobile
         &.row
           display: flex
-          align-items: center
-          margin: -0.5rem
+          align-items: flex-start
+          margin: -1rem
 
-          &.bordered
-            margin: 0
-            padding: 0.25rem
+          > .container
+            // padding: 1rem
+            margin: 1rem
+            // margin-bottom: 0
+            overflow: hidden
+            flex-basis: 100%
 
-          .container
-            padding:  0.5rem
+            &.bordered
+              border-radius: $radius-m
 
-          .field
-            width: 100%
-            margin: 0.5rem
+          > .field
+            flex-basis: 100%
+            margin: 1rem
 
+            &.rich-text,
             &.image,
             &.group
               overflow: hidden
 
-            &:first-child
-              margin-top: 0.5rem
-
-            &:last-child,
-            &:not(:last-child)
-              margin-bottom: 0.5rem
+            &.rich-text
+              padding-top: 1rem
+              margin-top: 0
 
 </style>
