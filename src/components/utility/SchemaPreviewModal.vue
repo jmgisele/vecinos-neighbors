@@ -3,7 +3,7 @@
     <MbTabs v-if="schema.tabs && schema.tabs.length > 1" v-model="activeTab" :dark="dark" :tabs="cleanTabs" />
     <transition mode="out-in">
       <div class="content-wrapper" :key="Math.max(0, activeTab)">
-        <MbFieldsEditor v-model="contentForTab" compact :dark="dark" :fields="fieldsForTab" :languages="languages" />
+        <MbFieldsEditor v-model="contentForTab" :class="{ 'tabs-visible': schema.tabs && schema.tabs.length > 1 }" compact :dark="dark" :fields="fieldsForTab" :languages="languages" />
         <h3 :class="{ dark }">Output</h3>
         <pre>{{fakeModel}}</pre>
       </div>
@@ -71,12 +71,22 @@ export default {
 </script>
 
 <style lang="stylus" scoped>
+@require '../../assets/styles/breakpoints'
 @require '../../assets/styles/colors'
 
 .schema-preview-modal
+  .tabs
+    position: sticky
+    top: 0
+    z-index: 2
+
   .content-wrapper
     padding: 2rem
     padding-top: 0
+
+    @media $mobile
+      padding: 1rem
+      padding-top: 0
 
     &.v-enter-active,
     &.v-leave-active
@@ -89,6 +99,9 @@ export default {
     .fields-editor
       margin-top: 1rem
       width: 100%
+
+      &.tabs-visible
+        margin-top: 2rem
 
     > h3
       margin-top: 3rem
