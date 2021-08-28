@@ -200,4 +200,13 @@ export default {
 
     &:not(:focus-within)
       box-shadow: inset 0 0.0625rem 0 0 lighten($bg-tertiary-dark, 10)
+
+    code
+      background-color: lighten($bg-tertiary-dark, 10)
+
+    pre
+      background-color: $bg-secondary-dark
+
+      code
+        background-color: initial
 </style>
