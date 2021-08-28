@@ -25,12 +25,12 @@
         @update:error="handleError(field.key, $event)"
       />
       <div v-else class="container" :class="{ bordered: field.options.bordered || field.options.collapsible, collapsible: field.options.collapsible }">
-        <header v-if="field.options.bordered || field.options.collapsible" @click="collapsed = !collapsed">
-          <p class="label" :class="{ collapsed, dark }">{{field.label}}</p>
-          <MbButton v-if="field.options.collapsible" :dark="dark" :icon="collapsed ? 'chevron-down' : 'chevron-up'" rounded :tooltip="`Collapse ${field.label}`" />
+        <header v-if="field.options.bordered || field.options.collapsible" @click="collapsed.set(field.key, !collapsed.get(field.key))">
+          <p class="label" :class="{ collapsed: collapsed.get(field.key), dark }">{{field.label}}</p>
+          <MbButton v-if="field.options.collapsible" :dark="dark" :icon="collapsed.get(field.key) ? 'chevron-down' : 'chevron-up'" rounded :tooltip="`Collapse ${field.label}`" />
         </header>
         <MbFieldsEditor
-          v-show="!collapsed || !field.options.collapsible"
+          v-show="!collapsed.get(field.key) || !field.options.collapsible"
           v-model="model"
           :class="{ row: field.options.row }"
           :compact="compact"
@@ -84,6 +84,12 @@ export default {
   created() {
     this.externalChange = true;
     this.model = _cloneDeep(this.modelValue) || {};
+
+    const collapsibles = this.fields.filter((field) => field.type === 'container' && field.options && field.options.collapsible);
+    const collapsed = new Map();
+
+    collapsibles.forEach((field) => collapsed.set(field.key, field.options && field.options.collapseByDefault));
+    this.collapsed = collapsed;
   },
   data() {
     return {
@@ -91,7 +97,7 @@ export default {
       externalChange: false,
       internalChange: false,
       model: {},
-      collapsed: false,
+      collapsed: null,
     };
   },
   emits: ['update:activeField', 'update:error', 'update:modelValue', 'update:splitVisible'],
@@ -258,7 +264,7 @@ export default {
         margin-top: 1rem
 
         &.row
-          margin-top: 0
+          margin-top: 1rem
 
     &:not(:last-child)
       margin-bottom: 2rem
@@ -268,21 +274,16 @@ export default {
         &.row
           display: flex
           align-items: flex-start
-          margin: -1rem
+          margin: 0 -1rem
 
           > .container
-            // padding: 1rem
-            margin: 1rem
-            // margin-bottom: 0
+            margin: 0 1rem
             overflow: hidden
             flex-basis: 100%
 
-            &.bordered
-              border-radius: $radius-m
-
           > .field
             flex-basis: 100%
-            margin: 1rem
+            margin: 0 1rem
 
             &.rich-text,
             &.image,
@@ -291,6 +292,8 @@ export default {
 
             &.rich-text
               padding-top: 1rem
-              margin-top: 0
+              margin-top: -1rem
 
+      > .container.bordered
+        border-radius: $radius-m
 </style>
