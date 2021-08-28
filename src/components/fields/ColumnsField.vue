@@ -15,9 +15,9 @@
           <MbIcon :icon="active && indexBeingEdited === index ? 'cross' : errorForIndex(index) ? 'error' : 'pencil'" />
         </div>
       </MbSortableList>
-      <MbButton v-if="options.allowEditing && children.length > 0" class="add-button" :dark="dark" icon="plus" type="positive" @click="handleAddClick">Add {{options.itemLabel || 'Column'}}</MbButton>
+      <MbButton v-if="options.allowEditing && filteredChildren.length > 0" class="add-button" :dark="dark" icon="plus" type="positive" @click="handleAddClick">Add {{options.itemLabel || 'Column'}}</MbButton>
     </div>
-    <AddRepeatingFieldModal :dark="dark" :fields="children" :visible="showAddModal" @add-item="addItem" @close="showAddModal = false" />
+    <AddRepeatingFieldModal :dark="dark" :fields="filteredChildren" :visible="showAddModal" @add-item="addItem" @close="showAddModal = false" />
     <RepeatingFieldDetailsModal
       :active="active"
       :allow-editing="options.allowEditing"
@@ -37,7 +37,7 @@
       @field-being-edited-error="handleFieldBeingEditedError"
       @field-being-edited-update="updateFieldBeingEdited"
     />
-    <RepeatingFieldChangeTypeModal :current-label="fieldBeingEdited && fieldBeingEdited.label" :current-value="modelValue && modelValue[indexBeingEdited]" :dark="dark" :fields="children" :item-label="options.itemLabel || 'Column'" :visible="showTypeChangeModal" @change-item-type="changeItemType(indexBeingEdited, $event)" @close="showTypeChangeModal = false" />
+    <RepeatingFieldChangeTypeModal :current-label="fieldBeingEdited && fieldBeingEdited.label" :current-value="modelValue && modelValue[indexBeingEdited]" :dark="dark" :fields="filteredChildren" :item-label="options.itemLabel || 'Column'" :visible="showTypeChangeModal" @change-item-type="changeItemType(indexBeingEdited, $event)" @close="showTypeChangeModal = false" />
     <MbContextMenu :dark="dark" :options="itemContextMenu.options" :show="itemContextMenu.show" :target="itemContextMenu.target" :x="itemContextMenu.x" :y="itemContextMenu.y" @close="resetItemContextMenu" />
   </section>
 </template>

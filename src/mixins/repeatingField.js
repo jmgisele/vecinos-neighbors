@@ -25,8 +25,8 @@ export default {
       if (!this.modelValue || !this.initialised) return [];
       return this.modelValue.map((item) => {
         let childField;
-        if (this.children.length === 1) [childField] = this.children;
-        else childField = this.children.find((child) => child.key === item.___mb_type) || {};
+        if (this.filteredChildren.length === 1) [childField] = this.filteredChildren;
+        else childField = this.filteredChildren.find((child) => child.key === item.___mb_type) || {};
         let value;
         let displayValue;
 
@@ -59,8 +59,8 @@ export default {
     fieldBeingEdited() {
       if (!this.modelValue || this.modelValue.length === 0 || this.indexBeingEdited === null || typeof this.modelValue[this.indexBeingEdited] === 'undefined') return null;
       let childField;
-      if (this.children.length === 1) [childField] = this.children;
-      else childField = this.children.find((child) => child.key === this.modelValue[this.indexBeingEdited].___mb_type);
+      if (this.filteredChildren.length === 1) [childField] = this.filteredChildren;
+      else childField = this.filteredChildren.find((child) => child.key === this.modelValue[this.indexBeingEdited].___mb_type);
       return childField;
     },
     fieldBeingEditedErrors() {
@@ -68,6 +68,9 @@ export default {
       const errors = this.error.get(this.indexBeingEdited);
       if (this.fieldBeingEdited.type === 'group') return errors || new Map();
       return new Map().set(this.fieldBeingEdited.key, errors);
+    },
+    filteredChildren() {
+      return this.children.filter((child) => child.visualOnly !== true);
     },
     transformedLabel() {
       if (this.error instanceof Map && this.error.get(this.fieldKey)) return this.error.get(this.fieldKey);
@@ -81,7 +84,7 @@ export default {
 
     if (this.modelValue) {
       const cleanModel = [];
-      if (this.children.length > 1) this.modelValue.forEach((item) => cleanModel.push(this.inferItemType(item)));
+      if (this.filteredChildren.length > 1) this.modelValue.forEach((item) => cleanModel.push(this.inferItemType(item)));
       else this.modelValue.forEach((item) => cleanModel.push(this.normaliseItemType(item)));
 
       if (!isEqual(this.modelValue, cleanModel)) this.handleInput(cleanModel);
@@ -132,8 +135,13 @@ export default {
   },
   methods: {
     addItem(item) {
+      if (item.visualOnly) {
+        if (item.type === 'container') this.$store.commit('addToast', { message: 'Container fields are not allowed as top-level repeating fields, use a Field Group instead', type: 'negative' });
+        else this.$store.commit('addToast', { message: 'Purely visual fields are not allowed as top-level repeating fields', type: 'negative' });
+        return;
+      }
       let contentItem;
-      if (this.children.length === 1) {
+      if (this.filteredChildren.length === 1) {
         if (item.type !== 'group') contentItem = item.default;
         else contentItem = generateDefaultContentFromSchema({ fields: item.value });
       } else if (item.type !== 'group') {
@@ -148,7 +156,12 @@ export default {
       if (this.showAddModal) this.showAddModal = false;
     },
     changeItemType(index, newField) {
-      if (this.children.length === 1) return; // there can only be one type
+      if (newField.visualOnly) {
+        if (newField.type === 'container') this.$store.commit('addToast', { message: 'Container fields are not allowed as top-level repeating fields, use a Field Group instead', type: 'negative' });
+        else this.$store.commit('addToast', { message: 'Purely visual fields are not allowed as top-level repeating fields', type: 'negative' });
+        return;
+      }
+      if (this.filteredChildren.length === 1) return; // there can only be one type
 
       const currentValue = this.modelValue[index];
       const currentType = (this.fieldBeingEdited && this.fieldBeingEdited.label) || 'Unknown Field';
@@ -268,8 +281,8 @@ export default {
       const errors = this.error.get(index);
 
       let fieldBeingEdited;
-      if (this.children.length === 1) [fieldBeingEdited] = this.children;
-      else fieldBeingEdited = this.children.find((child) => child.key === this.modelValue[index].___mb_type);
+      if (this.filteredChildren.length === 1) [fieldBeingEdited] = this.filteredChildren;
+      else fieldBeingEdited = this.filteredChildren.find((child) => child.key === this.modelValue[index].___mb_type);
 
       if (fieldBeingEdited.type === 'group') return errors || new Map();
       return new Map().set(fieldBeingEdited.key, errors);
@@ -278,15 +291,15 @@ export default {
       if (!this.modelValue || this.modelValue.length === 0 || typeof index !== 'number') return null;
 
       let childField;
-      if (this.children.length === 1) [childField] = this.children;
-      else childField = this.children.find((child) => child.key === this.modelValue[index].___mb_type);
+      if (this.filteredChildren.length === 1) [childField] = this.filteredChildren;
+      else childField = this.filteredChildren.find((child) => child.key === this.modelValue[index].___mb_type);
 
       if (!childField) return null;
       if (childField.type === 'group') return childField.value;
       return [childField];
     },
     handleAddClick() {
-      if (this.children.length === 1) this.addItem(this.children[0]);
+      if (this.filteredChildren.length === 1) this.addItem(this.filteredChildren[0]);
       else this.showAddModal = true;
     },
     handleFieldError(err, index) {
@@ -294,8 +307,8 @@ export default {
       if (err.size === 0) newError.delete(index);
       else {
         let fieldBeingEdited;
-        if (this.children.length === 1) [fieldBeingEdited] = this.children;
-        else fieldBeingEdited = this.children.find((child) => child.key === this.modelValue[index].___mb_type);
+        if (this.filteredChildren.length === 1) [fieldBeingEdited] = this.filteredChildren;
+        else fieldBeingEdited = this.filteredChildren.find((child) => child.key === this.modelValue[index].___mb_type);
         newError.set(index, fieldBeingEdited.type === 'group' ? err : err.get(fieldBeingEdited.key));
       }
 
@@ -345,7 +358,7 @@ export default {
       const itemKeyString = Object.keys(item).sort().join('&');
 
       if (!this.cachedKeystrings) {
-        const keyStrings = this.children.reduce((acc, childfield) => {
+        const keyStrings = this.filteredChildren.reduce((acc, childfield) => {
           if (!childfield.value) acc.set(childfield.key, childfield.key);
           else acc.set(childfield.value.map((subfield) => subfield.key).sort().join('&'), childfield.key);
           return acc;
@@ -358,8 +371,8 @@ export default {
     },
     modelValueForIndex(index) {
       if (!this.modelValue || this.modelValue.length === 0 || !this.modelValue[index]) return null;
-      if (this.modelValue[index].___mb_type || this.children[0].type === 'group') return this.modelValue[index];
-      return { [this.children[0].key]: this.modelValue[index] };
+      if (this.modelValue[index].___mb_type || this.filteredChildren[0].type === 'group') return this.modelValue[index];
+      return { [this.filteredChildren[0].key]: this.modelValue[index] };
     },
     normaliseItemType(item) {
       if (item && typeof item === 'object' && Object.prototype.hasOwnProperty.call(item, '___mb_item')) return item.___mb_item;
@@ -418,7 +431,7 @@ export default {
     updateField: debounce(function debouncedUpdate(newVal, index) {
       const newModelValue = [...this.modelValue];
       let cleanNewVal = newVal;
-      if (this.children.length === 1 && this.children[0].type !== 'group') cleanNewVal = newVal[this.children[0].key];
+      if (this.filteredChildren.length === 1 && this.filteredChildren[0].type !== 'group') cleanNewVal = newVal[this.filteredChildren[0].key];
       newModelValue.splice(index, 1, cleanNewVal);
       this.handleInput(newModelValue);
     }, 500),

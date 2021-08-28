@@ -21,7 +21,7 @@
                 <MbIcon icon="drag-handle" />
               </div>
               <p class="label">{{displayItems[index].label}}</p>
-              <MbButton v-if="options.allowEditing && children.length > 1" :dark="dark" data-ignore-drag icon="replace-round" rounded :tooltip="`Change ${options.itemLabel || 'Row'} type`" @click="indexBeingEdited = index; showTypeChangeModal = true;" />
+              <MbButton v-if="options.allowEditing && filteredChildren.length > 1" :dark="dark" data-ignore-drag icon="replace-round" rounded :tooltip="`Change ${options.itemLabel || 'Row'} type`" @click="indexBeingEdited = index; showTypeChangeModal = true;" />
               <MbButton v-if="options.allowEditing" :dark="dark" data-ignore-drag icon="duplicate" rounded :tooltip="`Duplicate ${options.itemLabel || 'Row'}`" @click="duplicateItem(index)" />
               <MbButton v-if="options.allowEditing" :dark="dark" data-ignore-drag icon="trash" rounded :tooltip="`Delete ${options.itemLabel || 'Row'}`" type="negative" @click="deleteItem(index)" />
             </header>
@@ -40,9 +40,9 @@
           </template>
         </div>
       </MbSortableList>
-      <MbButton v-if="options.allowEditing && children.length > 0" class="add-button" :dark="dark" icon="plus" type="positive" @click="handleAddClick">Add {{options.itemLabel || 'Row'}}</MbButton>
+      <MbButton v-if="options.allowEditing && filteredChildren.length > 0" class="add-button" :dark="dark" icon="plus" type="positive" @click="handleAddClick">Add {{options.itemLabel || 'Row'}}</MbButton>
     </div>
-    <AddRepeatingFieldModal :dark="dark" :fields="children" :visible="showAddModal" @add-item="addItem" @close="showAddModal = false" />
+    <AddRepeatingFieldModal :dark="dark" :fields="filteredChildren" :visible="showAddModal" @add-item="addItem" @close="showAddModal = false" />
     <RepeatingFieldDetailsModal
       :active="active"
       :allow-editing="options.allowEditing"
@@ -62,7 +62,7 @@
       @field-being-edited-error="handleFieldBeingEditedError"
       @field-being-edited-update="updateFieldBeingEdited"
     />
-    <RepeatingFieldChangeTypeModal :current-label="fieldBeingEdited && fieldBeingEdited.label" :current-value="modelValue && modelValue[indexBeingEdited]" :dark="dark" :fields="children" :item-label="options.itemLabel || 'Row'" :visible="showTypeChangeModal" @change-item-type="changeItemType(indexBeingEdited, $event)" @close="showTypeChangeModal = false" />
+    <RepeatingFieldChangeTypeModal :current-label="fieldBeingEdited && fieldBeingEdited.label" :current-value="modelValue && modelValue[indexBeingEdited]" :dark="dark" :fields="filteredChildren" :item-label="options.itemLabel || 'Row'" :visible="showTypeChangeModal" @change-item-type="changeItemType(indexBeingEdited, $event)" @close="showTypeChangeModal = false" />
     <MbContextMenu v-if="isCompact" :dark="dark" :options="itemContextMenu.options" :show="itemContextMenu.show" :target="itemContextMenu.target" :x="itemContextMenu.x" :y="itemContextMenu.y" @close="resetItemContextMenu" />
   </section>
 </template>
