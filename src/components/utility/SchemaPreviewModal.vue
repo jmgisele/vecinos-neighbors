@@ -2,8 +2,16 @@
   <MbModal class="schema-preview-modal" :dark="dark" :padded-body="false" :title="title" :visible="visible" @close="$emit('close')">
     <MbTabs v-if="schema.tabs && schema.tabs.length > 1" v-model="activeTab" :dark="dark" :tabs="cleanTabs" />
     <transition mode="out-in">
-      <div class="content-wrapper" :key="Math.max(0, activeTab)">
+      <div v-if="fieldsForTab.length > 0" class="content-wrapper" :key="Math.max(0, activeTab)">
         <MbFieldsEditor v-model="contentForTab" :class="{ 'tabs-visible': schema.tabs && schema.tabs.length > 1 }" compact :dark="dark" :fields="fieldsForTab" :languages="languages" />
+        <h3 :class="{ dark }">Output</h3>
+        <pre>{{fakeModel}}</pre>
+      </div>
+      <div v-else-if="schema && schema.fields && schema.fields.length === 0" class="content-wrapper empty">
+        <p :class="{ dark }">This Schema is empty. Add some fields to see a preview of how Content Editors will see them.</p>
+      </div>
+      <div v-else class="content-wrapper empty">
+        <p :class="{ dark }">This tab doesn’t have any fields yet. Add some to see a preview of how Content Editors will see them.</p>
         <h3 :class="{ dark }">Output</h3>
         <pre>{{fakeModel}}</pre>
       </div>
@@ -83,6 +91,15 @@ export default {
   .content-wrapper
     padding: 2rem
     padding-top: 0
+
+    &.empty
+      > p
+        margin: 4rem
+        color: $text-secondary
+        text-align: center
+
+        &.dark
+          color: $text-secondary-dark
 
     @media $mobile
       padding: 1rem
