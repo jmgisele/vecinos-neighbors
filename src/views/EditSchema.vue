@@ -6,6 +6,7 @@
         <MbChip :color="status.color" :label="status.message" :loading="status.loading" />
       </div>
       <div class="right">
+        <MbButton :dark="dark" icon="eye" @click="showPreview = true">{{isTablet ? '' : 'Preview'}}</MbButton>
         <MbButton :dark="dark" icon="settings" @click="showSchemaSettings = true">{{isTablet ? '' : 'Settings'}}</MbButton>
         <MbButton :dark="dark" :disabled="!wasChanged" icon="save" :icon-first="true" :loading="saveLoading" type="primary" @click="saveChanges">{{isTablet && !isMobile ? '' : 'Save'}}</MbButton>
       </div>
@@ -59,6 +60,7 @@
         <MbButton :dark="dark" :disabled="!generateSchema.file" :loading="generateSchema.loading" type="primary" @click="generateSchemaFromFile">Generate</MbButton>
       </template>
     </MbModal>
+    <SchemaPreviewModal :dark="dark" :schema="schema" :visible="showPreview" @close="showPreview = false" />
     <MbContextMenu :dark="dark" :options="tabContextMenuOptions" :show="tabContextMenu.show" :target="tabContextMenu.target" :x="tabContextMenu.x" :y="tabContextMenu.y" @close="handleTabContextMenuClose" />
   </div>
 </template>
@@ -81,6 +83,7 @@ import isPrivilegedUser from '../mixins/isPrivilegedUser';
 
 import FieldCandidateItem from '../components/utility/FieldCandidateItem.vue';
 import SchemaFieldsEditor from '../components/utility/SchemaFieldsEditor.vue';
+import SchemaPreviewModal from '../components/utility/SchemaPreviewModal.vue';
 
 export default {
   async beforeRouteEnter(to, from, next) {
@@ -166,6 +169,7 @@ export default {
   components: {
     FieldCandidateItem,
     SchemaFieldsEditor,
+    SchemaPreviewModal,
   },
   computed: {
     cleanTabs() {
@@ -242,6 +246,7 @@ export default {
       saveLoading: false,
       schema: {},
       showEditTab: false,
+      showPreview: false,
       showSchemaSettings: false,
       tabBeingEdited: {
         index: null,
