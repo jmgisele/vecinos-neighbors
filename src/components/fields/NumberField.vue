@@ -89,7 +89,14 @@ export default {
   display: flex
   width: 100%
 
-.in-split.dark
+.in-split
   &.input
+    width: 100%
+    margin-top: 0
+
+    &:not(:last-child)
+      margin-bottom: 1.5rem
+
+  &.dark.input
     background-color: $bg-tertiary-dark
 </style>
