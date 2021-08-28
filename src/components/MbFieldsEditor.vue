@@ -24,7 +24,7 @@
         @update:active="$event ? activeField = field.key : activeField = null"
         @update:error="handleError(field.key, $event)"
       />
-      <div v-else class="container" :class="{ bordered: field.options.bordered || field.options.collapsible, collapsible: field.options.collapsible }">
+      <div v-else class="container" :class="{ bordered: field.options.bordered || field.options.collapsible, collapsible: field.options.collapsible, dark }">
         <header v-if="field.options.bordered || field.options.collapsible" @click="collapsed.set(field.key, !collapsed.get(field.key))">
           <p class="label" :class="{ collapsed: collapsed.get(field.key), dark }">{{field.label}}</p>
           <MbButton v-if="field.options.collapsible" :dark="dark" :icon="collapsed.get(field.key) ? 'chevron-down' : 'chevron-up'" rounded :tooltip="`Collapse ${field.label}`" />
@@ -226,7 +226,7 @@ export default {
       position: relative
 
       &.dark
-        border-color: alpha($text-dark, 0.12)
+        box-shadow: inset 0 0 0 0.0625rem alpha($text-dark, 0.12)
 
       &.collapsible
         > header
