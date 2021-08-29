@@ -11,9 +11,9 @@ import { isValid } from 'date-fns';
  * @param {object} [slugifyOptions] - The options to be passed to slugify
  */
 export default function assembleUrlFromTemplate(template, fields, lang, slugifyOutput, slugifyOptions) {
-  const hasParameters = /\[(year|month|day)\]/;
+  const hasParameters = /\[(year|_?month|_?day)\]/;
   return template.replace(
-    /:((?:\w|\.)+\[(?:year|month|day|[0-9])\]|(?:\w|\.)+)/g, // this regex matches any word, dot, or parameter in [] between : and a non-word character. It could probably be made more DRY, but I don’t know how
+    /:((?:\w|\.|-|_)+\[(?:year|_?month|_?day|[0-9])\]|(?:\w|\.|-|_)+)/g, // this regex matches any word, dot, hyphen, underscore, or parameter in [] between : and any other non-word character. It could probably be made more DRY, but I don’t know how
     (match, fieldKey) => { // passing replacer functions to string.replace is a powerful thing
       if (hasParameters.test(fieldKey)) { // we’re trying to get something out of a date
         const [rawKey, parameterWithBracket] = fieldKey.split('[');
@@ -22,7 +22,11 @@ export default function assembleUrlFromTemplate(template, fields, lang, slugifyO
         const potentialDate = new Date(value); // if value is not a valid date, it’s not our problem
         if (isValid(potentialDate)) {
           if (parameter === 'day') return String(potentialDate.getDate()).padStart(2, '0');
+          if (parameter === '_day') return String(potentialDate.getDate());
+
           if (parameter === 'month') return String(potentialDate.getMonth() + 1).padStart(2, '0'); // months are zero-based
+          if (parameter === '_month') return String(potentialDate.getMonth() + 1); // months are zero-based
+
           if (parameter === 'year') return String(potentialDate.getFullYear());
         }
         return 'invalid-date';
