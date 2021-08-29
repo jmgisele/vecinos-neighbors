@@ -1,13 +1,23 @@
-export default function getContentLanguages(content, schema, defaultLanguages) {
+import { get } from 'lodash-es';
+import getFieldsByPredicate from './getFieldsByPredicate';
+
+/**
+ * A function to return either the default languages or the languages defined
+ * for a particular piece of content based on the first Content Languages field
+ * in the Schema
+ *
+ * @param {Object} content - the content data object
+ * @param {Object} schema - the schema of the content
+ * @param {array} defaultLanguages - the defaultLanguages to return if not overwritten
+ *
+ * @returns {array} of languages
+ */
+export default function getContentLanguages(content = {}, schema, defaultLanguages) {
   if (!schema.fields) return defaultLanguages;
-  const languagesField = schema.fields.find((field) => field.type === 'languages');
+  const [languagesField] = getFieldsByPredicate(schema, (field) => field.type === 'languages');
   let languages;
 
-  if (languagesField) {
-    const fieldTab = schema.tabs && schema.tabs.find((tab) => tab.label === languagesField.tab);
-    if (fieldTab.groupAs) languages = content[fieldTab.groupAs] && content[fieldTab.groupAs][languagesField.key];
-    else languages = content[languagesField.key];
-  }
+  if (languagesField) languages = get(content, languagesField.contentpath);
 
   if (!languages || languages.length === 0) return defaultLanguages;
   return languages;
