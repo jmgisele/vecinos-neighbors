@@ -413,7 +413,7 @@ export default {
           avatar: avatarUrl,
           users,
         });
-        if (this.$refs.subview.refresh) this.$refs.subview.refresh(); // refresh the dashboard
+        if (this.$refs.subview && this.$refs.subview.refresh) this.$refs.subview.refresh(); // refresh the dashboard
         this.$store.commit('addToast', { message: 'Somebody updated the project configuration since it was last synchronised. It was reloaded', timeout: 10000, type: 'positive' });
       } catch (err) {
         this.$store.commit('addToast', { message: `Something went wrong while loading the newest project configuration: ${err.message}`, type: 'error' });
@@ -512,7 +512,7 @@ export default {
       try {
         const configHasChanged = await this.pullAndCheckForConfigChange();
         if (configHasChanged) this.handleConfigChanged();
-        else if (this.$refs.subview.refresh) this.$refs.subview.refresh(); // refresh the dashboard
+        else if (this.$refs.subview && this.$refs.subview.refresh) this.$refs.subview.refresh(); // refresh the dashboard
       } catch (err) {
         let hint;
         // NOTE: This isn’t exactly a robust way to detect errors, but it’s all the data I have…
@@ -662,7 +662,7 @@ export default {
       this.$store.commit('addToast', { message: `Successfully synced ${this.selectedChanges.length} change${this.selectedChanges.length !== 1 ? 's' : ''}`, timeout: 2000, type: 'positive' });
 
       if (configHasChanged) this.handleConfigChanged();
-      else if (this.$route.name === 'Project' && this.$refs.subview.refresh) this.$refs.subview.refresh(); // refresh the dashboard
+      else if (this.$route.name === 'Project' && this.$refs.subview && this.$refs.subview.refresh) this.$refs.subview.refresh(); // refresh the dashboard
     },
     async resetAfterFail(changes) {
       // reset to last commit (https://github.com/isomorphic-git/isomorphic-git/issues/129, <commit> is log({depth: 1}).oid), unstage everything with resetIndex
