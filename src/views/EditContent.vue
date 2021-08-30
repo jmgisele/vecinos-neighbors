@@ -508,7 +508,12 @@ export default {
     findAndSetTemplateIds(schema) {
       if (!this.cachedTemplateIdFields) this.cachedTemplateIdFields = getFieldsByPredicate(schema, (field) => field.type === 'id' && field.options && field.options.type === 'template');
       this.cachedTemplateIdFields.forEach(({ field, contentpath }) => {
-        _set(this.content, contentpath, assembleUrlFromTemplate((field.options && field.options.idTemplate) || '', this.content, null, true, this.$store.state.currentProject.slugifyOptions || { lowercase: true, decamelize: true, preserveLeadingUnderscore: true }));
+        const newId = assembleUrlFromTemplate((field.options && field.options.idTemplate) || '', this.content, null, true, this.$store.state.currentProject.slugifyOptions || { lowercase: true, decamelize: true, preserveLeadingUnderscore: true });
+        const oldId = _get(this.content, contentpath);
+        if (newId !== oldId) {
+          _set(this.content, contentpath, newId);
+          if (!this.wasChanged) this.wasChanged = true;
+        }
       });
     },
     focusOpenPreview() {
