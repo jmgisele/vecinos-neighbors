@@ -383,6 +383,12 @@ export default [
         value: true,
       },
       {
+        component: 'MbToggle',
+        key: 'useAsUpdatedAt',
+        slot: 'Always set to current date after content was edited',
+        value: false,
+      },
+      {
         component: 'MbSelect',
         key: 'only',
         label: 'Only allow dates in the…',
@@ -397,7 +403,7 @@ export default [
       max: null, min: null, required: false, unit: 'date', isString: true,
     },
     value: null,
-    version: 1,
+    version: 2,
     visibility: { hidden: false, showByValue: { field: null } },
   },
   {

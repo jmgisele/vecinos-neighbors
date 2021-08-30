@@ -87,6 +87,7 @@ import { status } from 'isomorphic-git';
 import pluralize from 'pluralize';
 import slugify from '@sindresorhus/slugify';
 import * as matter from 'gray-matter';
+import { formatISO } from 'date-fns';
 
 import fs, { exists, PlainFS, joinPath, mkdirp, pathBasename, pathDirname } from '../fs'; // eslint-disable-line object-curly-newline
 
@@ -598,6 +599,8 @@ export default {
 
       if (!valid && this.isDraft) this.$store.commit('addToast', { message: 'At least one of the fields has errors. You won’t be able to publish this content item until you fix the errors', type: 'warning' });
 
+      if (!this.content.___mb_unedited) this.setUpdatedAt();
+
       if (valid || this.isDraft) { // allow saving with errors, if this is a draft
         if (this.content.___mb_unedited) delete this.content.___mb_unedited; // mark this content item as having been edited once
         try {
@@ -649,6 +652,18 @@ export default {
       if (this.previewInNewTab && this.$options.winref) this.$options.winref.postMessage(data, targetOrigin);
       else if (this.$refs.preview.contentWindow) this.$refs.preview.contentWindow.postMessage(data, targetOrigin);
     }, 500),
+    setUpdatedAt() {
+      const updatedAtFields = getFieldsByPredicate(this.schema, (field) => field.type === 'date' && field.options && field.options.useAsUpdatedAt);
+      updatedAtFields.forEach(({ field, contentpath }) => {
+        const now = new Date();
+        let value;
+
+        if (field.options && field.options.outputFormat === 'iso') value = formatISO(now, { representation: field.options && field.options.showTime ? 'complete' : 'date' });
+        else value = now.valueOf();
+
+        _set(this.content, contentpath, value);
+      });
+    },
     toggleFullscreenPreview() {
       this.previewConnected = false;
       this.fullscreenPreview = !this.fullscreenPreview;
