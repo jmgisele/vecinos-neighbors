@@ -40,7 +40,7 @@
       <MbSegmentedSelector v-if="linkTypeOptions.length > 1" v-model="linkPopover.type" :dark="dark" :options="linkTypeOptions" />
       <transition mode="out-in">
         <MbInput v-if="linkPopover.type === 'external'" v-model="linkPopover.href" :dark="dark" icon="link" label="Link URL" ref="linkHref" />
-        <InternalLinkHelper v-else v-model="linkPopover.href" class="internal-link" :class="{ dark }" :collections-path="linkOptions.collectionsPath" :dark="dark" :lang="lang" :url-suffix="linkOptions.urlSuffix" :url-template="linkOptions.urlTemplate" :use-file-path="linkOptions.useFilePath" />
+        <InternalLinkHelper v-else v-model="linkPopover.href" class="internal-link" :class="{ dark }" :collections-path="linkOptions.collectionsPath" :dark="dark" :lang="lang" removable :url-suffix="linkOptions.urlSuffix" :url-template="linkOptions.urlTemplate" :use-file-path="linkOptions.useFilePath" />
       </transition>
       <MbInput v-model="linkPopover.title" :dark="dark" icon="text" label="Link Title (optional)" />
       <MbToggle v-if="outputFormat === 'html' && !this.linkOptions.forceBlankTarget" v-model="linkPopover.newTab" :dark="dark">Open link in a new tab</MbToggle>

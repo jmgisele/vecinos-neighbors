@@ -3,7 +3,7 @@
     <template v-if="!showLocalisedOptions">
       <span class="label" :class="{ dark, error }">{{error || label}}</span>
       <MbSegmentedSelector v-if="options.type === 'both'" v-model="linkType" :class="{ 'in-split': inSplit }" :dark="dark" :options="[{ label: 'Internal', value: 'internal' }, { label: 'External', value: 'external' }]" />
-      <InternalLinkHelper v-if="linkType === 'internal'" :class="{ dark, error, 'in-split': inSplit }" :collections-path="collectionsPath" :dark="dark" :model-value="safeModelValue" :url-suffix="options.urlSuffix" :url-template="template" :use-file-path="options.byFilePath" @update:model-value="handleInput($event)" />
+      <InternalLinkHelper v-if="linkType === 'internal'" :class="{ dark, error, 'in-split': inSplit }" :collections-path="collectionsPath" :dark="dark" :model-value="safeModelValue" removable :url-suffix="options.urlSuffix" :url-template="template" :use-file-path="options.byFilePath" @update:model-value="handleInput($event)" />
       <MbInput v-else :class="{ error, 'in-split': inSplit }" :dark="dark" icon="link" :model-modifiers="{ lazy: true }" :model-value="safeModelValue" placeholder="https://example.com" @update:model-value="handleInput" />
     </template>
     <LocalisedFieldsContainer
@@ -22,7 +22,7 @@
     >
       <span class="label" :class="{ dark, error: error instanceof Map && error.get(lang) }">{{error instanceof Map && error.get(lang) || lang}}</span>
       <MbSegmentedSelector v-if="options.type === 'both'" v-model="linkType" :class="{ 'in-split': teleportTarget }" :dark="dark" :options="[{ label: 'Internal', value: 'internal' }, { label: 'External', value: 'external' }]" />
-      <InternalLinkHelper v-if="linkType === 'internal'" :class="{ dark, error: error instanceof Map && error.get(lang), 'in-split': teleportTarget }" :collections-path="collectionsPath" :dark="dark" :lang="lang" :model-value="safeModelValue[lang]" :url-suffix="options.urlSuffix" :url-template="template" :use-file-path="options.byFilePath" @update:model-value="handleInput($event, lang)" />
+      <InternalLinkHelper v-if="linkType === 'internal'" :class="{ dark, error: error instanceof Map && error.get(lang), 'in-split': teleportTarget }" :collections-path="collectionsPath" :dark="dark" :lang="lang" :model-value="safeModelValue[lang]" removable :url-suffix="options.urlSuffix" :url-template="template" :use-file-path="options.byFilePath" @update:model-value="handleInput($event, lang)" />
       <MbInput v-else :class="{ error: error instanceof Map && error.get(lang), 'in-split': teleportTarget, 'in-modal': !teleportTarget }" :dark="dark" icon="link" :model-modifiers="{ lazy: true }" :model-value="safeModelValue[lang]" placeholder="https://example.com" @update:model-value="handleInput($event, lang)" />
     </LocalisedFieldsContainer>
   </section>
