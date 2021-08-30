@@ -53,7 +53,7 @@ export default {
       const collection = JSON.parse(await fs.readFile(joinPath('/projects', to.params.id, path), 'utf8'));
       let lastDir = null;
 
-      if (from && from.name === 'Edit Content' && from.params.path) lastDir = pathDirname(from.params.path);
+      if (from && from.name === 'Edit Content' && from.params.path && from.params.collection === pathBasename(path)) lastDir = pathDirname(from.params.path);
       if (lastDir) { // we have to handle draft posts which come from a different path but show in the same directory as regular content
         const unprefixedDraftsDir = Store.state.currentProject.draftsDir;
 
