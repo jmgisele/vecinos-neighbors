@@ -885,7 +885,7 @@ export default [
       required: false,
     },
     value: null,
-    version: 1,
+    version: 2,
     visibility: { hidden: false, showByValue: { field: null } },
   },
   {
