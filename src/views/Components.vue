@@ -1236,6 +1236,7 @@ export default {
           ['`limitTo`', 'Array', '`undefined`'],
           ['`modelValue`', 'String', '`undefined`'],
           ['`placeholder`', 'String', '`Select a content item…`'],
+          ['`removable`', 'Boolean', '`false`'],
           ['`slugify`', 'Boolean', '`true`'],
           ['`urlSuffix`', 'String', '`undefined`'],
           ['`urlTemplate`', 'String', '`undefined`'],
