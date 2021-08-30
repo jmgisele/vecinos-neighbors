@@ -876,7 +876,7 @@ export default [
       {
         component: 'MbToggle',
         key: 'removable',
-        slot: 'Allow the color to be removed once set',
+        slot: 'Allow the reference to be removed once set',
         value: false,
       },
     ],
