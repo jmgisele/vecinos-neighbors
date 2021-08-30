@@ -873,6 +873,12 @@ export default [
         props: { modelModifiers: { trim: true, lazy: true }, placeholder: 'e.g. id or group.other-key' },
         value: '',
       },
+      {
+        component: 'MbToggle',
+        key: 'removable',
+        slot: 'Allow the color to be removed once set',
+        value: false,
+      },
     ],
     tab: null,
     validation: {

@@ -4,6 +4,7 @@
       <div v-if="view === 'url'" class="view url" :class="{ dark }" key="url" tabindex="0" @click="activate" @keydown.space.prevent @keyup.space.enter="activate">
         <MbIcon icon="document-link" />
         <span class="label" :class="{ placeholder: !modelValue }">{{modelValue || placeholder}}</span>
+        <MbButton v-if="removable" v-show="modelValue" class="remove-button" :dark="dark" icon="cross" ref="removeButton" rounded tooltip="Clear reference" @click="$emit('update:modelValue', null)" />
       </div>
       <div v-else-if="view === 'collections'" class="view collections" key="collections">
         <p>Linkable Collections</p>
@@ -58,7 +59,8 @@ export default {
   },
   emits: ['update:modelValue'],
   methods: {
-    async activate() {
+    async activate(e) {
+      if (this.removable && (e.target === this.$refs.removeButton.$el || this.$refs.removeButton.$el.contains(e.target))) return;
       this.view = 'loading';
       await this.loadCollections();
       if (this.linkableCollections.length === 1) this.handleCollectionClick(this.linkableCollections[0].value, this.linkableCollections[0].type, this.linkableCollections[0].template, this.linkableCollections[0].collection);
@@ -149,6 +151,7 @@ export default {
       type: String,
       default: 'Select a content item…',
     },
+    removable: Boolean,
     slugify: {
       type: Boolean,
       default: true,
@@ -252,6 +255,12 @@ export default {
 
       .icon
         flex-shrink: 0
+
+      .remove-button
+        margin: -0.5rem
+        margin-left: 0.5rem
+        margin-right: -1rem
+        padding: (8.5 / 16)rem
 
     &.collections ul > li
       &.empty-state
