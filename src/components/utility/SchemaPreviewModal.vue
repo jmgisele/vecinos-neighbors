@@ -16,6 +16,9 @@
         <pre>{{fakeModel}}</pre>
       </div>
     </transition>
+    <template #actions>
+      <MbButton :dark="dark" type="primary" @click="$emit('close')">Done</MbButton>
+    </template>
   </MbModal>
 </template>
 
@@ -104,8 +107,7 @@ export default {
     z-index: 2
 
   .content-wrapper
-    padding: 2rem
-    padding-top: 0
+    padding: 0 2rem
 
     &.empty
       > p
