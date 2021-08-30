@@ -6,10 +6,11 @@
     <MbInput v-model="password" :dark="dark" icon="key" label="Password" type="password" />
     <MbCheckbox v-model="savePassword" :dark="dark">Remember password until the end of the session</MbCheckbox>
     <MbHighlightBox color="warning" :dark="dark">
-      <p>If you have set up two-factor authentication (2FA)
-        on your account, you will have to generate an App Password or Personal Access Token
-        to use instead of your password. You may also want to do this in order to
-        increase security for your account while using Mattrbld.
+      <p>
+        If you have set up two-factor authentication (2FA) on your account or are
+        importing from Github, you will have to generate an App Password or Personal
+        Access Token to use instead of your password. You may also want to do this in
+        order to increase security for your account while using Mattrbld.
       </p>
     </MbHighlightBox>
     <template #actions>
