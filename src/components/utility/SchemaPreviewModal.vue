@@ -20,8 +20,12 @@
 </template>
 
 <script>
-import getContentLanguages from '../../assets/js/getContentLanguages';
+import { set as _set } from 'lodash-es';
+
+import assembleUrlFromTemplate from '../../assets/js/assembleUrlFromTemplate';
 import generateDefaultContentFromSchema from '../../assets/js/generateDefaultContentFromSchema';
+import getContentLanguages from '../../assets/js/getContentLanguages';
+import getFieldsByPredicate from '../../assets/js/getFieldsByPredicate';
 
 export default {
   computed: {
@@ -40,7 +44,7 @@ export default {
         const { groupAs } = this.schema.tabs[this.activeTab];
         if (groupAs) this.fakeModel[groupAs] = v;
         else this.fakeModel = v;
-        if (this.previewConnected) this.sendPreviewData();
+        this.$nextTick(() => this.findAndSetTemplateIds(this.schema)); // we need a tick for inputs to update because of the internal / external change flags in FieldsEditor
       },
     },
     fieldsForTab() {
@@ -55,10 +59,19 @@ export default {
   data() {
     return {
       activeTab: -1,
+      cachedTemplateIdFields: null,
       fakeModel: {},
     };
   },
   emits: ['close'],
+  methods: {
+    findAndSetTemplateIds(schema) {
+      if (!this.cachedTemplateIdFields) this.cachedTemplateIdFields = getFieldsByPredicate(schema, (field) => field.type === 'id' && field.options && field.options.type === 'template');
+      this.cachedTemplateIdFields.forEach(({ field, contentpath }) => {
+        _set(this.fakeModel, contentpath, assembleUrlFromTemplate((field.options && field.options.idTemplate) || '', this.fakeModel, null, true, this.$store.state.currentProject.slugifyOptions || { lowercase: true, decamelize: true, preserveLeadingUnderscore: true }));
+      });
+    },
+  },
   props: {
     dark: Boolean,
     schema: Object,
@@ -72,6 +85,8 @@ export default {
     visible(nv) {
       if (!nv) return;
       this.fakeModel = generateDefaultContentFromSchema(this.schema);
+      this.cachedTemplateIdFields = null; // clearing cache in case we added a new id field
+      this.findAndSetTemplateIds(this.schema);
       if (this.activeTab < 0) this.$nextTick(() => { this.activeTab = 0; }); // so the indicator looks right
     },
   },

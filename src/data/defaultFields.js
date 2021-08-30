@@ -63,11 +63,18 @@ export default [
     label: 'Unique ID',
     options: [
       {
-        component: 'MbRadioGroup',
+        component: 'MbSelect',
         key: 'type',
         label: 'Default id:',
-        props: { inline: true, options: [{ label: 'Filepath', value: 'filepath' }, { label: 'Generated UUID', value: 'uuid' }] },
+        props: { options: [{ label: 'Filepath', value: 'filepath' }, { label: 'Generated UUID', value: 'uuid' }, { label: 'Template', value: 'template' }] },
         value: 'uuid',
+      },
+      {
+        component: 'MbInput',
+        key: 'idTemplate',
+        label: 'Template to generate the ID from:',
+        props: { placeholder: 'e.g. post/:title' },
+        value: '',
       },
       {
         component: 'MbToggle',
@@ -79,7 +86,7 @@ export default [
     tab: null,
     validation: { required: true },
     value: null,
-    version: 2,
+    version: 3,
     visibility: { hidden: false, showByValue: { field: null } },
   },
   {

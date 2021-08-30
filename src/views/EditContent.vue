@@ -178,6 +178,7 @@ export default {
           const defaults = generateDefaultContentFromSchema(schema, path);
           vm.content = { ...content, ...vm.assignSchemaDefaults(content, defaults) }; // eslint-disable-line no-param-reassign
           vm.findAndSetFilepathIds(schema);
+          vm.findAndSetTemplateIds(schema);
         }
 
         if (fromBackup) vm.wasChanged = true; // eslint-disable-line no-param-reassign
@@ -267,6 +268,7 @@ export default {
         if (groupAs) this.content[groupAs] = v;
         else this.content = v;
         if (this.previewConnected) this.sendPreviewData();
+        this.$nextTick(() => this.findAndSetTemplateIds(this.schema)); // we need to wait a tick for the value to update in the input because of the internal / external change flags in FieldsEditor
       },
     },
     contentLanguages() {
@@ -355,6 +357,7 @@ export default {
     return {
       activeTab: -1,
       actualPreviewUrl: null,
+      cachedTemplateIdFields: null,
       content: {},
       collection: {},
       errors: {
@@ -502,6 +505,12 @@ export default {
         }
       });
     },
+    findAndSetTemplateIds(schema) {
+      if (!this.cachedTemplateIdFields) this.cachedTemplateIdFields = getFieldsByPredicate(schema, (field) => field.type === 'id' && field.options && field.options.type === 'template');
+      this.cachedTemplateIdFields.forEach(({ field, contentpath }) => {
+        _set(this.content, contentpath, assembleUrlFromTemplate((field.options && field.options.idTemplate) || '', this.content, null, true, this.$store.state.currentProject.slugifyOptions || { lowercase: true, decamelize: true, preserveLeadingUnderscore: true }));
+      });
+    },
     focusOpenPreview() {
       this.$options.winref.focus();
     },
@@ -537,6 +546,7 @@ export default {
         const defaults = generateDefaultContentFromSchema(this.schema, this.$route.params.path);
         this.content = { ...this.content, ...this.assignSchemaDefaults(this.content, defaults) };
         this.content.___mb_schema = schema;
+        this.findAndSetFilepathIds(this.schema);
         this.wasChanged = true;
       } catch (err) {
         if (err.code !== 'ENOENT') this.$store.commit('addToast', { message: `Something went wrong while loading the Schema: ${err.message}`, type: 'error' });
