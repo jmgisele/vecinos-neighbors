@@ -6,8 +6,8 @@
         <MbChip :color="status.color" :label="status.message" :loading="status.loading" />
       </div>
       <div class="right">
-        <MbButton :dark="dark" icon="eye" @click="showPreview = true">{{isTablet ? '' : 'Preview'}}</MbButton>
         <MbButton :dark="dark" icon="settings" @click="showSchemaSettings = true">{{isTablet ? '' : 'Settings'}}</MbButton>
+        <MbButton :dark="dark" icon="eye" @click="showPreview = true">{{isTablet ? '' : 'Preview'}}</MbButton>
         <MbButton :dark="dark" :disabled="!wasChanged" icon="save" :icon-first="true" :loading="saveLoading" type="primary" @click="saveChanges">{{isTablet && !isMobile ? '' : 'Save'}}</MbButton>
       </div>
     </header>
