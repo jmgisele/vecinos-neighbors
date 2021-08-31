@@ -90,7 +90,7 @@ export default {
       this.fakeModel = generateDefaultContentFromSchema(this.schema);
       this.cachedTemplateIdFields = null; // clearing cache in case we added a new id field
       this.findAndSetTemplateIds(this.schema);
-      if (this.activeTab < 0) this.$nextTick(() => { this.activeTab = 0; }); // so the indicator looks right
+      if (this.activeTab < 0 && this.schema.tabs && this.schema.tabs.length > 0) this.$nextTick(() => { this.activeTab = 0; }); // so the indicator looks right
     },
   },
 };

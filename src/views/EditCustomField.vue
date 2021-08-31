@@ -7,6 +7,7 @@
       </div>
       <div class="right">
         <MbButton :dark="dark" icon="settings" @click="showCustomFieldSettings = true">{{isTablet ? '' : 'Settings'}}</MbButton>
+        <MbButton :dark="dark" icon="eye" @click="showPreview = true">{{isTablet ? '' : 'Preview'}}</MbButton>
         <MbButton :dark="dark" :disabled="customField.length !== 1 || !wasChanged" icon="save" :icon-first="true" :loading="saveLoading" type="primary" @click="saveChanges">{{isTablet && !isMobile ? '' : 'Save'}}</MbButton>
       </div>
     </header>
@@ -28,6 +29,7 @@
         <MbButton :dark="dark" :disabled="Boolean(nameError)" type="primary" @click="renameCustomField">Save</MbButton>
       </template>
     </MbModal>
+    <SchemaPreviewModal :dark="dark" :schema="fakeSchema" :visible="showPreview" @close="showPreview = false" />
   </div>
 </template>
 
@@ -46,6 +48,7 @@ import Store from '../store';
 import isPrivilegedUser from '../mixins/isPrivilegedUser';
 
 import SchemaFieldsEditor from '../components/utility/SchemaFieldsEditor.vue';
+import SchemaPreviewModal from '../components/utility/SchemaPreviewModal.vue';
 
 export default {
   async beforeRouteEnter(to, from, next) {
@@ -118,11 +121,15 @@ export default {
   },
   components: {
     SchemaFieldsEditor,
+    SchemaPreviewModal,
   },
   computed: {
     customFieldName() {
       if (!this.$route.params.path) return '';
       return prettifyEntityName(pathBasename(this.$route.params.path));
+    },
+    fakeSchema() {
+      return { fields: this.customField.slice(0, 1), tabs: [{ label: 'fake tab' }] };
     },
     isMobile() {
       return this.$store.state.application.mobile;
@@ -152,6 +159,7 @@ export default {
       originalField: null,
       saveLoading: false,
       showCustomFieldSettings: false,
+      showPreview: false,
       wasChanged: false,
     };
   },
