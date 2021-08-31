@@ -8,7 +8,7 @@
       <div class="right">
         <MbButton :dark="dark" icon="settings" @click="showCustomFieldSettings = true">{{isTablet ? '' : 'Settings'}}</MbButton>
         <MbButton :dark="dark" icon="eye" @click="showPreview = true">{{isTablet ? '' : 'Preview'}}</MbButton>
-        <MbButton :dark="dark" :disabled="customField.length !== 1 || !wasChanged" icon="save" :icon-first="true" :loading="saveLoading" type="primary" @click="saveChanges">{{isTablet && !isMobile ? '' : 'Save'}}</MbButton>
+        <MbButton :dark="dark" :disabled="!wasChanged" icon="save" :icon-first="true" :loading="saveLoading" type="primary" @click="saveChanges">{{isTablet && !isMobile ? '' : 'Save'}}</MbButton>
       </div>
     </header>
     <SchemaFieldsEditor v-model="customField" :active-tab="0" :dark="dark" :project-id="$route.params.id" :tabs="[]" @update:modelValue="checkForChanges" />
@@ -253,7 +253,7 @@ export default {
     },
     async saveChanges() {
       if (this.customField.length > 1) {
-        this.$store.commit('addToast', { message: 'Custom fields with more than one root field are not supported. Make sure they are properly grouped in a Field Group, Columns or Rows field.', type: 'negative' });
+        this.$store.commit('addToast', { message: 'Custom fields with more than one root field are not supported. Make sure they are properly grouped in a Field Group, Container, Columns or Rows field.', type: 'negative' });
         return;
       }
 
