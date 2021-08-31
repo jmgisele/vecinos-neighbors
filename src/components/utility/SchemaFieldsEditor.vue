@@ -187,8 +187,8 @@ import { cloneDeep } from 'lodash-es';
 import slugify from '@sindresorhus/slugify';
 
 import fs, { exists, readdirDeep, joinPath } from '../../fs';
-import prettifyEntityName from '../../assets/js/prettifyEntityName';
 import fieldTypeToComponent from '../../assets/js/fieldTypeToComponent';
+import prettifyEntityName from '../../assets/js/prettifyEntityName';
 
 import availableRoles from '../../data/availableRoles';
 import defaultFields from '../../data/defaultFields';
@@ -240,7 +240,7 @@ export default {
     },
     flattenedFieldKeys() {
       if (!this.fields || this.fields.length === 0) return [];
-      return this.extractFieldKeys(this.fields).concat([{ label: 'Unset', value: null }]);
+      return this.extractFieldKeys(this.fields, null, true).concat([{ label: 'Unset', value: null }]);
     },
     isMobile() {
       return this.$store.state.application.mobile;
@@ -577,9 +577,10 @@ export default {
       duplicate.key = this.generateUniqueFieldKey(parentFieldFields, duplicate.key);
       parentFieldFields.splice(index + 1, 0, duplicate);
     },
-    extractFieldKeys(fields, parent) {
+    extractFieldKeys(fields, parent, hideRepeating) {
       return fields.reduce((acc, field) => {
-        if (Array.isArray(field.value)) acc.push(...this.extractFieldKeys(field.value, parent ? `${parent}.${field.key}` : field.key));
+        if (hideRepeating && this.isInRepeatingField(field)) return acc;
+        if (Array.isArray(field.value)) acc.push(...this.extractFieldKeys(field.value, parent ? `${parent}.${field.key}` : field.key, hideRepeating));
         else if (field === this.fieldBeingEdited || field.visualOnly) return acc;
         else acc.push({ label: field.label, value: parent ? `${parent}.${field.key}` : field.key });
         return acc;
@@ -611,7 +612,7 @@ export default {
       return `${potentialKey}-${counter}`;
     },
     getField(path) {
-      const segments = path.split('.');
+      const segments = Array.isArray(path) ? path : path.split('.');
       let next = this.fields.find((field) => field.key === segments[0]);
       if (segments.length === 1) return next;
       for (let index = 1; index < segments.length; index += 1) {
@@ -795,6 +796,15 @@ export default {
         this.fieldBeingEditedSiblings = null;
       }
       this.currentOperation = null;
+    },
+    isInRepeatingField(field) {
+      const path = this.getFieldPath(field, this.fields).split('.');
+      if (path.length === 1) return false; // top level fields cannot be in repeating fields
+      for (let i = 1; i < path.length + 1; i += 1) {
+        const fieldToCheck = this.getField(path.slice(0, i));
+        if (['columns', 'rows'].includes(fieldToCheck.type)) return true;
+      }
+      return false;
     },
     moveFieldToTab(field, tab, recursiveCall) {
       field.tab = tab; // eslint-disable-line no-param-reassign
