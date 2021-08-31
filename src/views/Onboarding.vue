@@ -20,7 +20,7 @@
         <div v-if="currentSlide === 0" class="slide">
           <h1>Welcome to Mattrbld!</h1>
           <p class="blurb">Let’s get started by importing your first project—this won’t take long.</p>
-          <MbInput v-model="repoURL" :autofocus="!isMobile" :dark="dark" :error="errors.repoURL" icon="repo" label="Project Repository URL" @blur="handleRepoInput" @keyup.enter="$event.target.blur()" />
+          <MbInput v-model="repoURL" :autofocus="!isMobile && !showBetaModal" :dark="dark" :error="errors.repoURL" icon="repo" label="Project Repository URL" ref="repoInput" @blur="handleRepoInput" @keyup.enter="$event.target.blur()" />
           <div class="label">
             <span>Repository branch:</span>
             <MbSelect v-model="repoBranch" :dark="dark" :disabled="Boolean(!repoURL || errors.repoURL || repoBranches.length === 0)" :loading="loadingBranches" :options="repoBranches" placeholder="Select a branch…" />
@@ -92,7 +92,7 @@
         </div>
       </transition>
     </section>
-    <MbModal :dark="dark" permanent slim title="Welcome to the Mattrbld Alpha" :visible="showBetaModal">
+    <MbModal :dark="dark" permanent slim title="Welcome to the Mattrbld Alpha" :visible="showBetaModal" @after-close="$refs.repoInput.focus()">
       <p>Hey there!</p>
       <p>This is a pre-release version of Mattrbld that is <strong>not ready for production</strong>. Things might not work as expected or break spontaneously, so please be ready to report any bugs. 😉</p>
       <p>You will find a changelog of all recent changes in the “News &amp; Announcements” section in the dashboard of any project.</p>
