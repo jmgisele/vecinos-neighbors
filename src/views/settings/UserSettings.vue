@@ -437,11 +437,11 @@ export default {
       this.showUserModal = false;
     },
     resetContextMenu(menu) {
-      this.[menu].show = false;
-      this.[menu].item = null;
-      this.[menu].target = null;
-      this.[menu].x = 0;
-      this.[menu].y = 0;
+      this[menu].show = false;
+      this[menu].item = null;
+      this[menu].target = null;
+      this[menu].x = 0;
+      this[menu].y = 0;
     },
     resetRoleBeingEdited() {
       this.roleBeingEdited.accessLevel = 'editor';
