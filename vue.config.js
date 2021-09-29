@@ -75,4 +75,22 @@ module.exports = {
       }),
     ],
   },
+  pwa: {
+    appleMobileWebAppCapable: 'yes',
+    appleMobileWebAppStatusbarStyle: 'default',
+    manifestOptions: {
+      background_color: '#f4f3ff',
+      description: 'Build Schemas and intuitively manage content in this headless CMS that runs right on your device',
+      display: 'standalone',
+      orientation: 'portrait',
+      start_url: '/',
+    },
+    msTileColor: '#6c5ce7',
+    name: 'Mattrbld',
+    themeColor: '#6c5ce7',
+    workboxOptions: {
+      exclude: [],
+      skipWaiting: true,
+    },
+  },
 };
