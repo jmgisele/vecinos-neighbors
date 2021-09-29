@@ -5,7 +5,7 @@ import fs from '../fs';
 
 import observers from './observers';
 
-const persistentAppProperties = ['activeUser', 'corsProxy', 'initialised', 'locallyChangedFiles'];
+const persistentAppProperties = ['activeUser', 'corsProxy', 'initialised', 'locallyChangedFiles', 'prompted'];
 const persistentProjectProperties = ['autoquotes', 'brandColors', 'corsProxy', 'id', 'name', 'sidebar', 'slugifyOptions', 'customRoles', 'draftsDir', 'previewUrl', 'languages', 'media'];
 const persistentUserProperties = ['email', 'id', 'name', 'projectAccessDates', 'projects', 'role', 'theme', 'uiScale'];
 
@@ -41,6 +41,7 @@ export default createStore({
       corsProxy: null,
       dragActive: false,
       initialised: false,
+      installPrompt: null,
       locallyChangedFiles: [],
       loading: false,
       loadingTimeout: null,
@@ -48,6 +49,7 @@ export default createStore({
       tablet: false,
       openModals: [],
       permanentModals: [],
+      prompted: false,
       sidebarVisible: false,
       softDeleted: [],
       temporaryContentStorage: null,
@@ -160,6 +162,9 @@ export default createStore({
     setCurrentProjectProperty(state, { key, value }) {
       _set(state.currentProject, key, value);
     },
+    setInstallPrompt(state, prompt) {
+      state.application.installPrompt = prompt;
+    },
     setLoadingTimeout(state, value) {
       state.application.loadingTimeout = value;
     },
@@ -176,6 +181,9 @@ export default createStore({
     },
     setProjectAccessDate(state, { project, value }) {
       state.user.projectAccessDates[project] = value;
+    },
+    setPrompted(state, value) {
+      state.application.prompted = value;
     },
     setUserData(state, data) {
       state.user = data;

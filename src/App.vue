@@ -77,6 +77,10 @@ export default {
     window.addEventListener('keyup', this.handleComponentsModal);
     window.addEventListener('online', this.handleOnline);
     window.addEventListener('offline', this.handleOffline);
+    window.addEventListener('beforeinstallprompt', (prompt) => {
+      prompt.preventDefault();
+      this.$store.commit('setInstallPrompt', prompt);
+    });
   },
   data() {
     return {
@@ -120,6 +124,24 @@ export default {
       } else {
         document.body.classList.remove('dark');
         document.querySelector('meta[name=theme-color]').setAttribute('content', '#ffffff');
+      }
+    },
+    $route(to) {
+      if (to.name === 'Home' && this.$store.state.application.installPrompt && !this.$store.state.application.prompted) {
+        this.$store.commit('addToast', {
+          action: async () => {
+            this.$store.state.application.installPrompt.prompt();
+            const choice = await this.$store.state.application.installPrompt.userChoice;
+
+            if (choice.outcome === 'accepted') this.$store.commit('addToast', { message: 'Great! You should see Mattrbld appear on your homescreen or app launcher any moment. You can launch the application from there and close this tab.', type: 'positive' });
+            else this.$store.commit('addToast', { message: 'Alright, we won’t bother you again. If you change your mind, you can always install it via the button in your browser.' });
+          },
+          actionLabel: 'Install',
+          message: 'Mattrbld can be installed as an app on your device, doing so will make accessing your projects even easier. Would you like to proceed?',
+          timeout: false,
+        });
+
+        this.$store.dispatch('saveAppData');
       }
     },
     scale(newVal) {
