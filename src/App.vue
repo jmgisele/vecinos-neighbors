@@ -114,8 +114,13 @@ export default {
   },
   watch: {
     dark(newVal) {
-      if (newVal) document.body.classList.add('dark');
-      else document.body.classList.remove('dark');
+      if (newVal) {
+        document.body.classList.add('dark');
+        document.querySelector('meta[name=theme-color]').setAttribute('content', '#1E1D22');
+      } else {
+        document.body.classList.remove('dark');
+        document.querySelector('meta[name=theme-color]').setAttribute('content', '#ffffff');
+      }
     },
     scale(newVal) {
       if (typeof newVal === 'number' && newVal !== 'auto') document.documentElement.style.fontSize = `${16 * newVal}px`;
