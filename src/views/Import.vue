@@ -299,6 +299,7 @@ export default {
       if (!project) return; // there must’ve been an error
       if (project.wasConfigured) this.$router.replace({ name: 'Project', params: { id: project.id } });
       else this.$router.replace({ name: 'Project.Settings', params: { id: project.id }, query: { tab: 'general' } });
+      if (window.umami) window.umami.trackEvent('Invite link used', 'import');
     },
     validate(field) {
       let error = '';
@@ -322,6 +323,9 @@ export default {
     },
   },
   mixins: [gitTools, projectExists],
+  mounted() {
+    if (window.umami) window.umami.trackView('/import');
+  },
   props: {
     dark: Boolean,
   },

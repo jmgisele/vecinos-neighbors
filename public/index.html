@@ -6,6 +6,14 @@
     <meta name="viewport" content="width=device-width,initial-scale=1.0">
     <link rel="icon" href="<%= BASE_URL %>favicon.ico">
     <title><%= htmlWebpackPlugin.options.title %></title>
+    <% if (typeof VUE_APP_UMAMI_ID !== 'undefined' && typeof VUE_APP_UMAMI_SCRIPT !== 'undefined') { %>
+      <script async defer
+        data-website-id="<%= VUE_APP_UMAMI_ID %>"
+        data-auto-track="false"
+        data-do-not-track="true"
+        src="<%= VUE_APP_UMAMI_SCRIPT %>"
+      ></script>
+    <% } %>
   </head>
   <body>
     <noscript>
