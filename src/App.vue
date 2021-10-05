@@ -58,7 +58,10 @@ export default {
     },
   },
   created() {
-    if (this.dark) document.body.classList.add('dark');
+    if (this.dark) {
+      document.body.classList.add('dark');
+      document.querySelector('meta[name=theme-color]').setAttribute('content', '#1E1D22');
+    } else document.querySelector('meta[name=theme-color]').setAttribute('content', '#ffffff');
     if (!navigator.onLine) this.handleOffline();
 
     window.addEventListener('scroll', this.handleScroll, { passive: true });
