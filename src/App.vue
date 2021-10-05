@@ -11,14 +11,14 @@
   <ModalOverlay :dark="dark" />
   <LoadingOverlay :dark="dark" />
   <Snackbar :dark="dark" />
-  <MbModal id="componentsModal" :dark="dark" :padded-body="false" :visible="showComponentsModal" @close="showComponentsModal = false">
+  <!-- <MbModal id="componentsModal" :dark="dark" :padded-body="false" :visible="showComponentsModal" @close="showComponentsModal = false">
     <Components :dark="dark" />
-  </MbModal>
+  </MbModal> -->
 </template>
 
 <script>
 import GlobalTooltipController from './components/utility/GlobalTooltipController.vue';
-import Components from './views/Components.vue';
+// import Components from './views/Components.vue';
 import LoadingOverlay from './components/utility/LoadingOverlay.vue';
 import ModalOverlay from './components/utility/ModalOverlay.vue';
 import Snackbar from './components/utility/Snackbar.vue';
@@ -28,7 +28,7 @@ import UserSwitcher from './components/utility/UserSwitcher.vue';
 export default {
   components: {
     GlobalTooltipController,
-    Components,
+    // Components,
     LoadingOverlay,
     ModalOverlay,
     Snackbar,
@@ -77,7 +77,7 @@ export default {
       tabletQuery.addListener((e) => this.$store.commit('setTablet', e.matches));
     }
 
-    window.addEventListener('keyup', this.handleComponentsModal);
+    // window.addEventListener('keyup', this.handleComponentsModal);
     window.addEventListener('online', this.handleOnline);
     window.addEventListener('offline', this.handleOffline);
     window.addEventListener('beforeinstallprompt', (prompt) => {
@@ -92,12 +92,12 @@ export default {
     };
   },
   methods: {
-    handleComponentsModal(e) {
-      if (e.key === 'c' && e.ctrlKey && e.altKey) {
-        e.preventDefault();
-        this.showComponentsModal = !this.showComponentsModal;
-      }
-    },
+    // handleComponentsModal(e) {
+    //   if (e.key === 'c' && e.ctrlKey && e.altKey) {
+    //     e.preventDefault();
+    //     this.showComponentsModal = !this.showComponentsModal;
+    //   }
+    // },
     handleOffline() {
       this.$store.commit('addToast', {
         id: 'appIsOffline',
