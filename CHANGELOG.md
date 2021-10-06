@@ -7,8 +7,8 @@ updatedAt: 2021-10-06
 
 ### Bugfixes
 
-* Fixed an issue where Chrome would attempt autofill login details in unrelated
-  input fields
+* Attempted to fix an issue where Chrome would autofill login details in unrelated
+  input fields, it might not be fully working yet
 
 ## Version 0.1.0 Alpha
 
