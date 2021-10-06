@@ -1,7 +1,14 @@
 ---
-currentVersion: 0.1.0
-updatedAt: 2021-10-05
+currentVersion: 0.1.1
+updatedAt: 2021-10-06
 ---
+
+## Version 0.1.1 Alpha
+
+### Bugfixes
+
+* Fixed an issue where Chrome would attempt autofill login details in unrelated
+  input fields
 
 ## Version 0.1.0 Alpha
 
