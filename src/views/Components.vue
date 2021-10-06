@@ -1252,6 +1252,8 @@ export default {
           ['`label`', 'String', ''],
           ['`maxLen`', 'Number', ''],
           ['`modelValue`', 'String', "`''`"],
+          ['`name`', 'String', 'Random string'],
+          ['`noSpinner`', 'Boolean', 'false'],
           ['`placeholder`', 'String', ''],
           ['`type`', 'String', "`'text'`"],
           ['`warn`', 'Boolean', "`'undefined'`"],

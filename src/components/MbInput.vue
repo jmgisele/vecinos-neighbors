@@ -1,8 +1,8 @@
 <template lang="html">
   <div class="input" :class="{ dark, disabled, dirty: error || modelValue || modelValue === 0 || placeholder, error: error || maxLen && modelValue.length > maxLen, icon, warn }" @mousedown.self.prevent @click="focus">
     <MbIcon v-if="icon" :icon="error && !focussed ? warn ? 'warning' : 'error' : icon" @mousedown.prevent />
-    <span v-if="displayLabel" :class="{ clearable, right: !label && maxLen, spinners: showSpinner }">{{displayLabel}}</span>
-    <input autocomplete="off" :disabled="disabled" :placeholder="placeholder" ref="input" :type="type" :value="modelValue" @blur="handleBlur" @focus="handleFocus" @[emissionevent]="handleUpdate">
+    <label v-if="displayLabel" :class="{ clearable, right: !label && maxLen, spinners: showSpinner }">{{displayLabel}}</label>
+    <input autocomplete="off" :disabled="disabled" :placeholder="placeholder" :name="name" ref="input" :type="type" :value="modelValue" @blur="handleBlur" @focus="handleFocus" @[emissionevent]="handleUpdate">
     <MbButton v-if="showSpinner" :dark="dark" icon="minus" rounded @click="$emit('update:modelValue', addStep(-1))" />
     <MbButton v-if="showSpinner" :dark="dark" icon="plus" rounded @click="$emit('update:modelValue', addStep(+1))" />
     <MbButton v-if="clearable" :dark="dark" icon="clear" rounded @click="$emit('update:modelValue', '')" />
@@ -78,6 +78,10 @@ export default {
       type: Object,
       default: () => ({}),
     },
+    name: {
+      type: String,
+      default: () => Math.random().toString(36).substring(2, 9),
+    },
     noSpinner: Boolean,
     placeholder: String,
     type: {
@@ -112,7 +116,7 @@ export default {
   &.dark
     background-color: $bg-secondary-dark
 
-    > span
+    > label
       color: $text-secondary-dark
 
     > input
@@ -121,7 +125,7 @@ export default {
         color: $text-secondary-dark
 
   &.icon
-    > span
+    > label
       left: 3rem
       width: calc(100% - 4rem)
 
@@ -141,7 +145,7 @@ export default {
     &:focus-within
       color: inherit
 
-    > span
+    > label
       color: $negative-saturated
 
     &.warn
@@ -151,7 +155,7 @@ export default {
       &:focus-within .icon
         color: inherit
 
-      > span,
+      > label,
       .icon
         color: $warning-saturated
 
@@ -167,7 +171,7 @@ export default {
       border-color: $text-tertiary-dark
       color: $text-tertiary-dark
 
-    > span
+    > label
       color: inherit
 
     > input::placeholder
@@ -178,13 +182,13 @@ export default {
 
   &:focus-within,
   &.dirty
-    span,
-    span.spinners,
-    span.clearable
+    label,
+    label.spinners,
+    label.clearable
       transform: translate((-1rem + $radius-m), calc(-100% - 1.25rem)) scale(0.75)
       width: 'calc(125% + 1rem - %s)' % (2 * $radius-m) // it’s scaled down by 0.75 and we can’t use stylus expressions in calc
 
-    &.icon > span
+    &.icon > label
       width: 'calc(125% + 1rem - %s)' % (2 * $radius-m)
       transform: translate((-3rem + $radius-m), calc(-100% - 1.25rem)) scale(0.75)
 
@@ -192,7 +196,7 @@ export default {
     margin-right: 0.5rem
     flex-shrink: 0
 
-  > span
+  > label
     flex-shrink: 0
     display: block
     cursor: text

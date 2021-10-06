@@ -2,8 +2,8 @@
   <MbModal class="git-login-modal" :dark="dark" slim title="Log into your Git account" :visible="visible" @after-open="$refs.username.focus()" @close="handleCancel">
     <p v-if="message" v-html="message" />
     <p v-else>To confirm that you may perform this action, please sign into your Git account.</p>
-    <MbInput v-model="user" autofocus :dark="dark" icon="user" label="Username or Email Address" ref="username" />
-    <MbInput v-model="password" :dark="dark" icon="key" label="Password" type="password" />
+    <MbInput v-model="user" autofocus :dark="dark" icon="user" label="Username or Email Address" name="username" ref="username" />
+    <MbInput v-model="password" :dark="dark" icon="key" label="Password" name="password" type="password" />
     <MbCheckbox v-model="savePassword" :dark="dark">Remember password until the end of the session</MbCheckbox>
     <MbHighlightBox color="warning" :dark="dark">
       <p>
