@@ -164,7 +164,9 @@ export default {
     header
       display: flex
       align-items: center
-      margin-bottom: 1rem
+
+      & + .fields-editor:not(:empty) // this is done so Unknown Fields don’t have unnecessary white space below the header
+        margin-top: 1rem
 
       .label
         margin: 0
