@@ -85,11 +85,11 @@ export default {
     this.externalChange = true;
     this.model = _cloneDeep(this.modelValue) || {};
 
-    const collapsibles = this.fields.filter((field) => field.type === 'container' && field.options && field.options.collapsible);
-    const collapsed = new Map();
+    if (!this.fields) return;
 
-    collapsibles.forEach((field) => collapsed.set(field.key, field.options && field.options.collapseByDefault));
-    this.collapsed = collapsed;
+    const collapsibles = this.fields.filter((field) => field.type === 'container' && field.options && field.options.collapsible);
+
+    collapsibles.forEach((field) => this.collapsed.set(field.key, field.options && field.options.collapseByDefault));
   },
   data() {
     return {
@@ -97,7 +97,7 @@ export default {
       externalChange: false,
       internalChange: false,
       model: {},
-      collapsed: null,
+      collapsed: new Map(),
     };
   },
   emits: ['update:activeField', 'update:error', 'update:modelValue', 'update:splitVisible'],
