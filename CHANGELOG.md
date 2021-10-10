@@ -1,7 +1,15 @@
 ---
-currentVersion: 0.1.1
-updatedAt: 2021-10-06
+currentVersion: 0.1.2
+updatedAt: 2021-10-10
 ---
+
+## Version 0.1.2 Alpha
+
+### Bugfixes
+
+* Fixed an issue where content using repeating fields that had collapsible
+  fields as children could not be displayed correctly after having their type
+  changed
 
 ## Version 0.1.1 Alpha
 
