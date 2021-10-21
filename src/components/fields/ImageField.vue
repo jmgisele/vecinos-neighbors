@@ -45,7 +45,7 @@
               <dd>{{fileDetails.type}}</dd>
             </dl>
           </dl>
-        <MbFieldsEditor v-show="modelValue && modelValue.src" :dark="dark" compact :error="error instanceof Map ? error : new Map()" :fields="$store.state.currentProject.media.customFields" :in-split="Boolean(teleportTarget)" :model-value="typeof modelValue === 'string' ? {} : modelValue" :languages="languages" @update:error="handleMetaError" @update:model-value="updateMeta" />
+          <MbFieldsEditor v-show="modelValue && modelValue.src" :dark="dark" compact :error="error instanceof Map ? error : new Map()" :fields="$store.state.currentProject.media.customFields" :in-split="Boolean(teleportTarget)" :model-value="typeof modelValue === 'string' ? {} : modelValue" :languages="languages" @update:error="handleMetaError" @update:model-value="updateMeta" />
         </div>
       </teleport>
       <template #actions>
@@ -741,4 +741,7 @@ export default {
       dl:not(:last-child)
         margin-right: 0
         margin-bottom: 0.5rem
+
+  .fields-editor
+    margin-top: 2rem
 </style>
