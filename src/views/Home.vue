@@ -2,7 +2,7 @@
   <div class="home" :class="{dark}">
     <header>
       <h1>Your Projects</h1>
-      <MbProgress v-if="usedQuota !== false && !isMobile" :colors="['positive', 'warning', 'negative']" :dark="dark" :label="`Storage used: ≈ ${(usedQuota * 100).toFixed(2)}%`" :progress="usedQuota" />
+      <MbProgress v-if="usedQuota !== false" :colors="['positive', 'warning', 'negative']" :dark="dark" :label="`Storage used: ≈ ${(usedQuota * 100).toFixed(2)}%`" :progress="usedQuota" />
     </header>
     <main>
       <transition-group class="grid" tag="div" @before-leave="setGridPosition">
@@ -413,9 +413,13 @@ export default {
     @media $mobile
       padding: 0 1rem
       padding-bottom: 1rem
+      display: block
 
     h1
       margin: 0
+
+      @media $mobile
+        margin-bottom: 1rem
 
     .progress
       margin-left: auto
@@ -429,7 +433,7 @@ export default {
     padding: 2rem
 
     @media $mobile
-      min-height: "calc(100vh - %s)" % (144 / 16)rem
+      height: auto
       padding: 1rem
       overflow: visible
 
