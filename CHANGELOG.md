@@ -1,7 +1,14 @@
 ---
-currentVersion: 0.1.2
-updatedAt: 2021-10-10
+currentVersion: 0.1.3
+updatedAt: 2021-10-21
 ---
+
+## Version 0.1.3 Alpha
+
+### Bugfixes
+
+* Fixed the Chrome autofill issue (again)
+* Ironed out some visual quirks
 
 ## Version 0.1.2 Alpha
 
