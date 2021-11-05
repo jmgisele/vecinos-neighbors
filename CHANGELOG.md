@@ -1,7 +1,16 @@
 ---
-currentVersion: 0.1.3
-updatedAt: 2021-10-21
+currentVersion: 0.1.4
+updatedAt: 2021-11-05
 ---
+
+## Version 0.1.4 Alpha
+
+### Bugfixes
+
+* Fixed an issue with top-level container fields in tabs that are grouped as
+  objects under a key
+* Fixed an issue that was causing duplicated news after a refresh in the News
+  and Announcements section
 
 ## Version 0.1.3 Alpha
 
