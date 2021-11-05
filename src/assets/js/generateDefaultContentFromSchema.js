@@ -38,7 +38,7 @@ export default function generateDefaultContentFromSchema(schema, filepath) {
         if (fieldTab && fieldTab.groupAs) {
           if (!obj[fieldTab.groupAs]) obj[fieldTab.groupAs] = {};
           if (!expand) obj[fieldTab.groupAs][field.key] = value;
-          else obj = { ...obj[fieldTab.groupAs], ...value };
+          else obj[fieldTab.groupAs] = { ...obj[fieldTab.groupAs], ...value };
         } else if (!expand) obj[field.key] = value;
         else obj = { ...obj, ...value };
       } else if (!expand) obj[field.key] = value;
