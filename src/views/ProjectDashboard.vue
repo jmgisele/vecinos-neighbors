@@ -203,6 +203,8 @@ export default {
         const newsFiles = await fs.readdir(newsPath);
         const rawNews = await Promise.all(newsFiles.map((name) => fs.readFile(joinPath(newsPath, name), 'utf8')));
 
+        this.news = []; // so we don’t end up with duplicates if some news were already loaded
+
         rawNews.forEach((item) => {
           const { data, content } = matter(item);
           this.news.push({
