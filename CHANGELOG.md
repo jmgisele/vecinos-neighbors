@@ -1,7 +1,14 @@
 ---
-currentVersion: 0.1.4
-updatedAt: 2021-11-05
+currentVersion: 0.1.5
+updatedAt: 2021-11-23
 ---
+
+## Version 0.1.5 Alpha
+
+### Bugfixes
+
+* Fixed the URL validation of Link fields so simple hashes (e.g. #about-us) are
+  recognised as valid URLs
 
 ## Version 0.1.4 Alpha
 
