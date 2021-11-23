@@ -41,7 +41,12 @@ export function validateField(value, type, rules) {
     case 'link':
       valueToCheck = value || '';
       if (rules.required && !valueToCheck) error = 'This field is required';
-      else if (valueToCheck && !valueToCheck.startsWith('/') && !/^https?:\/\/(www\.)?[-a-zA-Z0-9@:%._+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_+.~#?&//=]*$)/.test(valueToCheck)) error = 'This is not a valid URL'; // Regex source: https://graphcms.com/user-guides/working-with/field-validations
+      else if (
+        valueToCheck
+        && !valueToCheck.startsWith('/')
+        && !valueToCheck.startsWith('#')
+        && !/^https?:\/\/(www\.)?[-a-zA-Z0-9@:%._+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_+.~#?&//=]*$)/.test(valueToCheck)
+      ) error = 'This is not a valid URL'; // Regex source: https://graphcms.com/user-guides/working-with/field-validations
       break;
     case 'list':
       valueToCheck = value || [];
