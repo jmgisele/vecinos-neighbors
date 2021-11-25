@@ -117,8 +117,10 @@ function validate(field, parent, languages, groupAsKey, index) { // TODO: index 
   let errors;
   let subfields = childFields;
 
-  if (groupAsKey) value = (parent[groupAsKey] && parent[groupAsKey][key]) || {}; // need to fall back to an empty object here in case the groupAs-field doesn’t exist
-  else if (index) value = parent[index];
+  if (groupAsKey) {
+    if (!parent[groupAsKey]) value = null; // need to fall back to null here in case the groupAs-field doesn’t exist in the parent
+    else value = parent[groupAsKey][key];
+  } else if (index) value = parent[index];
   else value = parent[key];
 
   if (type === 'image' && !options.simple && Store.state.currentProject && Store.state.currentProject.media.advanced && Store.state.currentProject.media.customFields) {
