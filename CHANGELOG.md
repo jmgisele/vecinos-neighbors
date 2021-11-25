@@ -1,7 +1,14 @@
 ---
-currentVersion: 0.1.5
-updatedAt: 2021-11-23
+currentVersion: 0.1.6
+updatedAt: 2021-11-25
 ---
+
+## Version 0.1.6 Alpha
+
+### Bugfixes
+
+* Fixed an issue that prevented saving content with fields in a tab grouped under
+  a specific key
 
 ## Version 0.1.5 Alpha
 
