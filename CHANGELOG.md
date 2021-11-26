@@ -9,6 +9,8 @@ updatedAt: 2021-11-25
 
 * Fixed an issue that prevented saving content with fields in a tab grouped under
   a specific key
+* Fixed an issue that could prevent the generation of a Schema from an existing
+  file when some nested fields were set to be ignored
 
 ## Version 0.1.5 Alpha
 
