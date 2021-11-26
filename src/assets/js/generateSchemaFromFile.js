@@ -160,7 +160,7 @@ function createFieldFromCandidate(candidate, tab) {
   cleanField.key = key;
   if (localised) cleanField.localised = localised;
   if (tab) cleanField.tab = tab;
-  if (children && children.length > 0) cleanField.value = children.map((child) => createFieldFromCandidate(child, tab));
+  if (children && children.length > 0) cleanField.value = children.filter((child) => child.type !== null).map((child) => createFieldFromCandidate(child, tab));
   return cleanField;
 }
 
@@ -172,7 +172,7 @@ export function generateSchemaFromCandidates(fieldCandidates, createTabs) {
     if (!candidate.type) return;
     if (createTabs && candidate.type === 'group') {
       tabs.push({ label: candidate.key, groupAs: candidate.key });
-      fields.push(...candidate.children.map((child) => createFieldFromCandidate(child, candidate.key)));
+      fields.push(...candidate.children.filter((child) => child.type !== null).map((child) => createFieldFromCandidate(child, candidate.key)));
     } else fields.push(createFieldFromCandidate(candidate, defaultTab));
   });
   return { fields, tabs };
