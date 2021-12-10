@@ -1,7 +1,17 @@
 ---
-currentVersion: 0.1.6
-updatedAt: 2021-11-25
+currentVersion: 0.1.7
+updatedAt: 2021-12-10
 ---
+
+## Version 0.1.7 Alpha
+
+### Bugfixes
+
+* Fixed template-based ID generation when a Schema is assigned to a piece of content
+* Removed hard-coded references to project IDs to avoid issues with importing
+  pre-configured projects
+* Ensured that the first user of a project is always set as its owner, even if
+  the project was pre-configured
 
 ## Version 0.1.6 Alpha
 
