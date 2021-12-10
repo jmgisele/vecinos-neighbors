@@ -8,6 +8,7 @@ export default async function loadProject(id, fs) {
   ]);
 
   const project = JSON.parse(projectJsonString);
+  project.id = id;
   const users = userJsonStrings.map((string) => JSON.parse(string));
 
   let avatarData;
