@@ -13,7 +13,7 @@
       </div>
       <ul class="custom options">
         <template v-for="(option, index) in sidebarOptions" :key="index">
-          <router-link v-if="option.target" custom :to="option.target.name  === 'Edit Content' ? { name: 'Edit Content', params: { ...option.target.params, path: `${projectDir}${option.target.params.path }` } } : option.target" v-slot="{ isExactActive, navigate }">
+          <router-link v-if="option.target" custom :to="option.target" v-slot="{ isExactActive, navigate }">
             <!-- the :class below is an ugly hack since isExactActive ignores queries on nested routes apparently -->
             <li :class="{ active: option.target && option.target.query && option.target.query.tab ? isExactActive && $route.query.tab === option.target.query.tab : isExactActive }" role="link" tabindex="0" @click="goTo(navigate)" @keydown.space.prevent @keyup.enter.space="goTo(navigate)">
               <MbIcon :icon="option.icon || (option.target && option.target.name === 'Project.Collection' && 'folder') || 'document'" />
@@ -67,7 +67,14 @@ export default {
       return `/projects/${this.currentProject.id}`;
     },
     sidebarOptions() {
-      if (this.currentProject.sidebar && this.currentProject.sidebar.length > 0) return this.currentProject.sidebar.filter((entry) => !entry.limitToRoles || entry.limitToRoles.length === 0 || entry.limitToRoles.includes(this.$store.getters.userInCurrentProject.role));
+      if (this.currentProject.sidebar && this.currentProject.sidebar.length > 0) {
+        return this.currentProject.sidebar
+          .filter((entry) => !entry.limitToRoles || entry.limitToRoles.length === 0 || entry.limitToRoles.includes(this.$store.getters.userInCurrentProject.role))
+          .map((entry) => {
+            if (!entry.target) return entry;
+            return { ...entry, target: this.transformRouterTarget(entry.target) };
+          });
+      }
       const defaultOptions = [{ label: 'The sidebar has not yet been configured for this project' }];
 
       if (this.isPrivilegedUser) defaultOptions.push({ icon: 'wrench-and-driver', label: 'Configure now', target: { name: 'Project.Settings', query: { tab: 'sidebar' } } });
@@ -162,6 +169,19 @@ export default {
 
       this.sidebarTransform = `translateX(${Math.min(distance, 0)}px)`;
       this.maskOpacity = Math.min(1 + distance / this.maxSwipeDistance, 1);
+    },
+    transformRouterTarget(target) {
+      if (!target) return null;
+      const transformedTarget = {
+        name: target.name,
+        params: target.params ? { ...target.params } : {},
+      };
+
+      transformedTarget.params.id = this.currentProject.id;
+
+      if (target.name === 'Edit Content') transformedTarget.params.path = `${this.projectDir}${target.params.path}`;
+      console.log(transformedTarget);
+      return transformedTarget;
     },
     async windowSwipeEnd(e) {
       window.removeEventListener('touchmove', this.windowSwipeUpdate, { passive: false });

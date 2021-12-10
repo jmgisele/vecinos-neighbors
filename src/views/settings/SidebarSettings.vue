@@ -191,9 +191,9 @@ export default {
     },
     setEntryTarget(path, collection) {
       if (path === null) this.entryDetails.target = null;
-      else if (this.entryDetails.type === 'document') this.entryDetails.target = { name: 'Project.Documentation', params: { id: this.currentProject.id, path } };
-      else if (this.entryDetails.type === 'content') this.entryDetails.target = { name: 'Edit Content', params: { collection, id: this.currentProject.id, path } };
-      else if (this.entryDetails.type === 'collection') this.entryDetails.target = { name: 'Project.Collection', params: { id: this.currentProject.id, path: joinPath('/.mattrbld/collections', path) } };
+      else if (this.entryDetails.type === 'document') this.entryDetails.target = { name: 'Project.Documentation', params: { path } };
+      else if (this.entryDetails.type === 'content') this.entryDetails.target = { name: 'Edit Content', params: { collection, path } };
+      else if (this.entryDetails.type === 'collection') this.entryDetails.target = { name: 'Project.Collection', params: { path: joinPath('/.mattrbld/collections', path) } };
       this.updateEntry();
     },
     updateEntry() {
