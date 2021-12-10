@@ -207,7 +207,7 @@ export default {
           email,
           id,
           name,
-          role: 'editor',
+          role: users.length === 0 ? 'owner' : 'editor',
         };
 
         const path = `${usersPath}/${id}.json`;
