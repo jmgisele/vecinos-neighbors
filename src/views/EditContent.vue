@@ -552,6 +552,7 @@ export default {
         this.content = { ...this.content, ...this.assignSchemaDefaults(this.content, defaults) };
         this.content.___mb_schema = schema;
         this.findAndSetFilepathIds(this.schema);
+        this.findAndSetTemplateIds(this.schema);
         this.wasChanged = true;
       } catch (err) {
         if (err.code !== 'ENOENT') this.$store.commit('addToast', { message: `Something went wrong while loading the Schema: ${err.message}`, type: 'error' });
