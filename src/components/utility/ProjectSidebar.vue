@@ -180,7 +180,6 @@ export default {
       transformedTarget.params.id = this.currentProject.id;
 
       if (target.name === 'Edit Content') transformedTarget.params.path = `${this.projectDir}${target.params.path}`;
-      console.log(transformedTarget);
       return transformedTarget;
     },
     async windowSwipeEnd(e) {
