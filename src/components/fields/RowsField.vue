@@ -42,7 +42,7 @@
       </MbSortableList>
       <MbButton v-if="options.allowEditing && filteredChildren.length > 0" class="add-button" :dark="dark" icon="plus" type="positive" @click="handleAddClick">Add {{options.itemLabel || 'Row'}}</MbButton>
     </div>
-    <AddRepeatingFieldModal :dark="dark" :fields="filteredChildren" :visible="showAddModal" @add-item="addItem" @close="showAddModal = false" />
+    <AddRepeatingFieldModal :dark="dark" :fields="filteredChildren" :item-label="options.itemLabel || 'Row'" :visible="showAddModal" @add-item="addItem" @close="showAddModal = false" />
     <RepeatingFieldDetailsModal
       :active="active"
       :allow-editing="options.allowEditing"

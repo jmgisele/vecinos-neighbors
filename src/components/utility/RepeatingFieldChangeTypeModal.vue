@@ -1,5 +1,5 @@
 <template lang="html">
-  <MbModal class="repeating-field-change-type-modal" :dark="dark" :title="`Change ${itemLabel} Type`" :visible="visible" @close="$emit('close')">
+  <MbModal class="repeating-field-change-type-modal" :dark="dark" :title="`Change ${itemLabel} Type`" :visible="visible" @after-close="fieldFilter = ''" @close="$emit('close')">
     <template v-if="currentValue">
       <h2 class="h4">Existing Values</h2>
       <ul class="existing-values">
@@ -10,8 +10,11 @@
       </ul>
     </template>
     <h2 class="h4">Available Types</h2>
+    <div v-if="fields.length > 6" class="input-wrapper">
+      <MbInput v-model="fieldFilter" clearable :dark="dark" icon="search" placeholder="Filter available types" />
+    </div>
     <ul>
-      <li v-for="field in fields" :key="field.key">
+      <li v-for="field in filteredFields" :key="field.key">
         <MbButton :dark="dark" :icon="field.icon" :type="currentLabel === field.label ? 'primary' : null" @click="$emit('change-item-type', field)">{{field.label}}</MbButton>
       </li>
     </ul>
@@ -23,6 +26,17 @@
 
 <script>
 export default {
+  computed: {
+    filteredFields() {
+      if (!this.fieldFilter) return this.fields;
+      return this.fields.filter((field) => field.label.toLowerCase().includes(this.fieldFilter.toLowerCase()) || field.type.toLowerCase().includes(this.fieldFilter.toLowerCase()));
+    },
+  },
+  data() {
+    return {
+      fieldFilter: '',
+    };
+  },
   emits: ['change-item-type', 'close'],
   props: {
     currentLabel: String,
@@ -37,8 +51,12 @@ export default {
 
 <style lang="stylus" scoped>
 @require '../../assets/styles/breakpoints'
+@require '../../assets/styles/colors'
 
 .repeating-field-change-type-modal
+  &.dark .input-wrapper
+    background-color: $bg-dark
+
   .existing-values
     li
       display: flex
@@ -52,6 +70,17 @@ export default {
 
       code
         margin-right: 0.5rem
+
+  .input-wrapper
+    position: sticky
+    top: 0
+    z-index: 1
+    background-color: $bg
+
+    .input
+      margin-bottom: 1rem
+      margin-top: 0
+      width: 100%
 
   ul
     list-style: none

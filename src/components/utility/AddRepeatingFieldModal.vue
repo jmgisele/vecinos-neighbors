@@ -1,7 +1,10 @@
 <template lang="html">
-  <MbModal class="add-repeating-field-modal" :dark="dark" title="Add new…" :visible="visible" @close="$emit('close')">
+  <MbModal class="add-repeating-field-modal" :dark="dark" title="Add new…" :visible="visible" @after-close="fieldFilter = ''" @close="$emit('close')">
+    <div v-if="fields.length > 6" class="input-wrapper">
+      <MbInput v-model="fieldFilter" clearable :dark="dark" icon="search" :placeholder="`Filter available ${pluralizedItemLabel}`" />
+    </div>
     <ul>
-      <li v-for="field in fields" :key="field.key">
+      <li v-for="field in filteredFields" :key="field.key">
         <MbButton :dark="dark" :icon="field.icon" @click="$emit('add-item', field)">{{field.label}}</MbButton>
       </li>
     </ul>
@@ -12,11 +15,28 @@
 </template>
 
 <script>
+import { plural } from 'pluralize';
+
 export default {
+  computed: {
+    filteredFields() {
+      if (!this.fieldFilter) return this.fields;
+      return this.fields.filter((field) => field.label.toLowerCase().includes(this.fieldFilter.toLowerCase()) || field.type.toLowerCase().includes(this.fieldFilter.toLowerCase()));
+    },
+    pluralizedItemLabel() {
+      return plural(this.itemLabel);
+    },
+  },
+  data() {
+    return {
+      fieldFilter: '',
+    };
+  },
   emits: ['add-item', 'close'],
   props: {
     dark: Boolean,
     fields: Array,
+    itemLabel: String,
     visible: Boolean,
   },
 };
@@ -24,8 +44,23 @@ export default {
 
 <style lang="stylus" scoped>
 @require '../../assets/styles/breakpoints'
+@require '../../assets/styles/colors'
 
 .add-repeating-field-modal
+  &.dark .input-wrapper
+    background-color: $bg-dark
+
+  .input-wrapper
+    position: sticky
+    top: 0
+    z-index: 1
+    background-color: $bg
+
+    .input
+      margin-bottom: 1rem
+      margin-top: 0
+      width: 100%
+
   ul
     list-style: none
     margin: 0
