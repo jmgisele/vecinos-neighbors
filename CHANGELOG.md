@@ -1,7 +1,16 @@
 ---
-currentVersion: 0.1.7
-updatedAt: 2021-12-28
+currentVersion: 0.1.8
+updatedAt: 2022-02-18
 ---
+
+## Version 0.2.0 Alpha
+
+### New Features
+
+* It is now possible to filter the available options in repeating fields if there
+  are more than six
+
+### Bugfixes
 
 ## Version 0.1.7 Alpha
 
