@@ -45,8 +45,9 @@ export function validateField(value, type, rules) {
         valueToCheck
         && !valueToCheck.startsWith('/')
         && !valueToCheck.startsWith('#')
-        && !/^https?:\/\/(www\.)?[-a-zA-Z0-9@:%._+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_+.~#?&//=]*$)/.test(valueToCheck)
-      ) error = 'This is not a valid URL'; // Regex source: https://graphcms.com/user-guides/working-with/field-validations
+        && !/^tel:\+{0,1}[-0-9]+$/.test(valueToCheck)
+        && !/^(?:https?:\/\/|mailto:)(?:www\.)?(?:[-a-zA-Z0-9@:%._+~#=]{2,256}\.[a-z]{2,6}|localhost:[0-9]+|[.0-9]+:[0-9]+)\b([-a-zA-Z0-9@:%_+.~#?&//=]*$)/.test(valueToCheck)
+      ) error = 'This is not a valid URL'; // Regex source: https://graphcms.com/user-guides/working-with/field-validations, adjusted to work for mailto and localhost / IP addresses by me. Still breaks on invalid TLDs if there’s a path attached, but should still be fine for most usecases
       break;
     case 'list':
       valueToCheck = value || [];
