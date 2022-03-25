@@ -74,6 +74,14 @@ export default {
   },
   created() {
     if (this.options.type === 'external') this.linkType = 'external';
+    else if (this.options.type === 'both') {
+      let href;
+
+      if (this.safeModelValue && !this.showLocalisedOptions) href = this.safeModelValue;
+      else if (this.safeModelValue && this.showLocalisedOptions) href = Object.values(this.safeModelValue).find((value) => value);
+
+      if (href && (href.startsWith('http') || href.startsWith('tel') || href.startsWith('mailto') || href.startsWith('#'))) this.linkType = 'external';
+    }
   },
   data() {
     return {
