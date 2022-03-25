@@ -12,6 +12,10 @@ updatedAt: 2022-02-18
 
 ### Bugfixes
 
+* You can now add tel and mailto URLs to Link-fields without causing validation errors
+* The linking helper in text editors and Link-fields is now better at determining
+  whether a value is an internal or external link
+
 ## Version 0.1.7 Alpha
 
 ### Bugfixes
