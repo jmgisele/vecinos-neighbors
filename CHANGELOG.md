@@ -1,6 +1,6 @@
 ---
 currentVersion: 0.1.8
-updatedAt: 2022-02-18
+updatedAt: 2022-04-01
 ---
 
 ## Version 0.2.0 Alpha
@@ -15,6 +15,8 @@ updatedAt: 2022-02-18
 * You can now add tel and mailto URLs to Link-fields without causing validation errors
 * The linking helper in text editors and Link-fields is now better at determining
   whether a value is an internal or external link
+* Any open field groups are now properly closed when the preview is activated
+* Users will now be prompted to install Mattrbld only once
 
 ## Version 0.1.7 Alpha
 
