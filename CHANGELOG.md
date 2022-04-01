@@ -1,5 +1,5 @@
 ---
-currentVersion: 0.1.8
+currentVersion: 0.2.0
 updatedAt: 2022-04-01
 ---
 
