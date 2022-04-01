@@ -141,6 +141,10 @@ export default {
           },
           actionLabel: 'Install',
           message: 'Mattrbld can be installed as an app on your device, doing so will make accessing your projects even easier. Would you like to proceed?',
+          onClose: (installClicked) => {
+            if (!installClicked) this.$store.commit('addToast', { message: 'Alright, we won’t bother you again. If you change your mind, you can always install it via the button in your browser.' });
+            this.$store.commit('setPrompted', true);
+          },
           timeout: false,
         });
 
