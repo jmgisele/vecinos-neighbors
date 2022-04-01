@@ -686,9 +686,12 @@ export default {
     },
     togglePreview() {
       if (!this.showPreview) {
-        this.showSplit = true;
-        this.showPreview = true;
-        if (!this.actualPreviewUrl) window.setTimeout(() => { this.actualPreviewUrl = this.previewUrl; }, 300); // give the preview a chance to open smoothly before loading the iframe
+        if (this.showSplit) this.showSplit = false; // if the split is already visible we need to close it so any active field gets properly reset
+        this.$nextTick(() => {
+          this.showSplit = true;
+          this.showPreview = true;
+          if (!this.actualPreviewUrl) window.setTimeout(() => { this.actualPreviewUrl = this.previewUrl; }, 300); // give the preview a chance to open smoothly before loading the iframe
+        });
       } else {
         this.showPreview = false;
         this.showSplit = false;
