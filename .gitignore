@@ -25,3 +25,6 @@ pnpm-debug.log*
 # Legal information that is specific to the instance
 PRIVACY.md
 IMPRINT.md
+
+# Private scripts
+deploy.sh
