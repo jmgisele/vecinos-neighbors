@@ -3,6 +3,13 @@ currentVersion: 0.2.0
 updatedAt: 2022-04-01
 ---
 
+## Version 0.2.1 Beta
+
+### Bugfixes
+
+* When modifying the Advanced Media Library Schema, nested and image fields are
+  now properly handled during validation
+
 ## Version 0.2.0 Alpha
 
 ### New Features
