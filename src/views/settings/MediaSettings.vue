@@ -28,6 +28,7 @@
 import { cloneDeep as _cloneDeep, debounce } from 'lodash-es';
 import availableRoles from '../../data/availableRoles';
 import defaultFields from '../../data/defaultFields';
+import getFieldsByPredicate from '../../assets/js/getFieldsByPredicate';
 
 import SchemaFieldsEditor from '../../components/utility/SchemaFieldsEditor.vue';
 
@@ -64,8 +65,10 @@ export default {
         return this.$store.state.currentProject.media.customFields;
       },
       set: debounce(function (v) { // eslint-disable-line  func-names
-        if (v.filter((field) => field.errors).length > 0) {
-          this.$store.commit('addToast', { id: 'customFieldsError', message: 'Could not save custom fields: at least one field has errors', type: 'negative' });
+        const problematicFields = getFieldsByPredicate({ fields: v }, (field) => Boolean(field.errors) || (field.type === 'image' && !field.options.simple));
+        if (problematicFields.length > 0) {
+          if (problematicFields.find((fieldData) => fieldData.field.errors)) this.$store.commit('addToast', { id: 'customFieldsError', message: 'Could not save custom fields: at least one field has errors', type: 'negative' });
+          if (problematicFields.find((fieldData) => fieldData.field.type === 'image')) this.$store.commit('addToast', { id: 'customFieldsError', message: 'Could not save custom fields: at least one field is an image field with activated advanced media library', type: 'negative' });
           return;
         }
         this.$store.commit('setCurrentProjectProperty', { key: 'media.customFields', value: v });
