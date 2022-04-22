@@ -9,6 +9,12 @@ updatedAt: 2022-04-01
 
 * When modifying the Advanced Media Library Schema, nested and image fields are
   now properly handled during validation
+* Newly uploaded media files will now have their names slugified according to the
+  slugify settings of the project
+* The empty state message when there are no local changes to be synced is now readable
+  in dark mode
+* The project is now reloaded after discarding changes to the project configuration
+  in order to restore the original configuration without having to refresh the page
 
 ## Version 0.2.0 Alpha
 
