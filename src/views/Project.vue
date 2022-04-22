@@ -368,6 +368,7 @@ export default {
             force: true, // setting this to false will cause nothing to change
             filepaths: [this.changeToDiscard.file],
           });
+          if (this.changeToDiscard.file === '.mattrbld/config.json') this.handleConfigChanged(true);
         } catch (err) {
           this.$store.commit('addToast', { message: `Something went wrong during checkout while discarding the changes: ${err.message}`, type: 'error' });
         }
@@ -405,7 +406,7 @@ export default {
         this.onGitProgress,
       );
     },
-    async handleConfigChanged() {
+    async handleConfigChanged(isDiscard) {
       try {
         const { project, users, avatarUrl } = await loadProject(this.$route.params.id, fs);
         Store.commit('setCurrentProject', {
@@ -415,9 +416,11 @@ export default {
           users,
         });
         if (this.$refs.subview && this.$refs.subview.refresh) this.$refs.subview.refresh(); // refresh the dashboard
-        this.$store.commit('addToast', { message: 'Somebody updated the project configuration since it was last synchronised. It was reloaded', timeout: 10000, type: 'positive' });
+        if (isDiscard) this.$store.commit('addToast', { message: 'You discarded changes to the project configuration. The project was reloaded to reflect the previous configuration', timeout: 10000, type: 'positive' });
+        else this.$store.commit('addToast', { message: 'Somebody updated the project configuration since it was last synchronised. It was reloaded', timeout: 10000, type: 'positive' });
       } catch (err) {
-        this.$store.commit('addToast', { message: `Something went wrong while loading the newest project configuration: ${err.message}`, type: 'error' });
+        if (isDiscard) this.$store.commit('addToast', { message: `Something went wrong while loading the original project configuration: ${err.message}`, type: 'error' });
+        else this.$store.commit('addToast', { message: `Something went wrong while loading the newest project configuration: ${err.message}`, type: 'error' });
       }
     },
     handleGitErrorRetry() {
