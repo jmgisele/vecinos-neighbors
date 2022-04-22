@@ -792,6 +792,9 @@ export default {
     margin-bottom: 0
 
 .changes-modal
+  &.dark .wrapper .changes li.empty-state
+    color: $text-secondary-dark
+
   .loader,
   .progress,
   .wrapper
