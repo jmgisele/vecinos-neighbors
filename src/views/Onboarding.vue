@@ -92,9 +92,9 @@
         </div>
       </transition>
     </section>
-    <MbModal :dark="dark" permanent slim title="Welcome to the Mattrbld Alpha" :visible="showBetaModal" @after-close="$refs.repoInput.focus()">
+    <MbModal :dark="dark" permanent slim title="Welcome to the Mattrbld Beta" :visible="showBetaModal" @after-close="$refs.repoInput.focus()">
       <p>Hey there!</p>
-      <p>This is a pre-release version of Mattrbld that is <strong>not ready for production</strong>. Things might not work as expected or break spontaneously, so please be ready to report any bugs. 😉</p>
+      <p>This is a early release of Mattrbld. Things might not work as expected or break spontaneously, so please be ready to report any bugs. 😉</p>
       <p>You will find a changelog of all recent changes in the “News &amp; Announcements” section in the dashboard of any project.</p>
       <p>Otherwise, have fun testing out Mattrbld! 😊</p>
       <template #actions>
