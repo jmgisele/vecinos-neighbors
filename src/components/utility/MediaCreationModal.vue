@@ -74,8 +74,10 @@ export default {
       e.stopPropagation();
       let files;
 
-      if (this.singleFile) files = [e.dataTransfer.files[0]];
-      else files = [...e.dataTransfer.files];
+      if (this.singleFile) {
+        if (e.dataTransfer.files.length > 1) this.$store.commit('addToast', { message: 'Uploading multiple files at once is not supported here. Only the first file will be used.', type: 'warning' });
+        files = [e.dataTransfer.files[0]];
+      } else files = [...e.dataTransfer.files];
 
       this.saveFiles(files);
     },
