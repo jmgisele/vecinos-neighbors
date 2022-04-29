@@ -10,9 +10,10 @@
         <MbLoader />
       </div>
       <div v-else class="dropzone" :class="{ dark, 'drag-active': dragActive }" @dragenter.prevent="dragActive = true" @dragover.prevent @dragleave="dragActive = false" @drop="handleDrop">
-        <p :class="{ dark }">Drop image files here to upload them, or select some by clicking the button below</p>
-        <MbButton :dark="dark" icon="upload" @click="selectFiles">Select files</MbButton>
-        <input multiple type="file" ref="modalFileInput" @change="handleFileInput">
+        <p v-if="!singleFile" :class="{ dark }">Drop media files here to upload them, or select some by clicking the button below</p>
+        <p v-else :class="{ dark }">Drop a media file here to upload it, or select one by clicking the button below</p>
+        <MbButton :dark="dark" icon="upload" @click="selectFiles">Select file{{singleFile ? '' : 's'}}</MbButton>
+        <input :multiple="!singleFile" type="file" ref="modalFileInput" @change="handleFileInput">
       </div>
     </transition>
     <template #actions>
@@ -30,6 +31,7 @@ import { debounce } from 'lodash-es';
 import fs, { joinPath } from '../../fs';
 
 import getFilenameAndExtension from '../../assets/js/getFilenameAndExtension';
+import { imageRegExp } from '../../data/regExps';
 
 export default {
   computed: {
@@ -54,21 +56,26 @@ export default {
       const { newFolderName: name, currentPath: path } = this;
 
       try {
-        await fs.mkdir(joinPath(path, name));
-        this.$emit('entity-created');
+        const folderPath = joinPath(path, name);
+        await fs.mkdir(folderPath);
+        this.$emit('entity-created', [folderPath], 'directory'); // putting it in an array so it’s consistent with file creation
         this.$emit('close');
       } catch (err) {
         this.$store.commit('addToast', { message: `Something went wrong while creating the directory: ${err.message}`, type: 'error' });
       }
     },
     handleFileInput(e) {
-      this.saveFiles([...e.currentTarget.files]);
+      if (this.singleFile) this.saveFiles([e.currentTarget.files[0]]);
+      else this.saveFiles([...e.currentTarget.files]);
       e.currentTarget.value = '';
     },
     handleDrop(e) {
       e.preventDefault();
       e.stopPropagation();
-      const files = [...e.dataTransfer.files];
+      let files;
+
+      if (this.singleFile) files = [e.dataTransfer.files[0]];
+      else files = [...e.dataTransfer.files];
 
       this.saveFiles(files);
     },
@@ -84,29 +91,58 @@ export default {
         const arrayBuffers = await Promise.allSettled(files.map((file) => file.arrayBuffer()));
         const existingFiles = await fs.readdir(this.currentPath);
         const writePromises = [];
+        const filePaths = [];
 
         files.forEach((file, index) => {
           const slugifiedFileName = this.slugifyFileName(file.name);
-          if (!arrayBuffers[index].value) this.$store.commit('addToast', { message: `“${slugifiedFileName}” was not uploaded because it is a folder`, type: 'warning' });
-          else if (existingFiles.includes(slugifiedFileName)) this.$store.commit('addToast', { message: `The file “${slugifiedFileName}” was not uploaded because it already exists in this folder`, type: 'warning' });
-          else writePromises.push(fs.writeFile(joinPath(this.currentPath, slugifiedFileName), arrayBuffers[index].value));
+          let valid = true;
+          if (this.onlyImages && !imageRegExp.test(file.name)) {
+            this.$store.commit('addToast', { message: `The file “${slugifiedFileName}” was not uploaded because it is not an image`, type: 'warning' });
+            valid = false;
+          }
+
+          if (valid && this.maxSize) {
+            const sizeInMb = file.size / 1024 / 1024;
+            if (sizeInMb > this.maxSize) {
+              this.$store.commit('addToast', { message: `The file “${slugifiedFileName}” was not uploaded because it is too large`, type: 'warning' });
+              valid = false;
+            }
+          }
+
+          if (valid && !arrayBuffers[index].value) {
+            this.$store.commit('addToast', { message: `“${slugifiedFileName}” was not uploaded because it is a folder`, type: 'warning' });
+            valid = false;
+          }
+
+          if (valid && existingFiles.includes(slugifiedFileName)) {
+            this.$store.commit('addToast', { message: `The file “${slugifiedFileName}” was not uploaded because it already exists in this folder`, type: 'warning' });
+            valid = false;
+          }
+
+          if (valid) {
+            const filePath = joinPath(this.currentPath, slugifiedFileName);
+            writePromises.push(fs.writeFile(filePath, arrayBuffers[index].value));
+            filePaths.push(filePath);
+          }
         });
 
         await Promise.all(writePromises);
 
-        files.forEach((file) => this.$store.commit('addLocallyChangedFile', joinPath(this.currentPath, this.slugifyFileName(file.name))));
+        filePaths.forEach((path) => this.$store.commit('addLocallyChangedFile', path));
         await this.$store.dispatch('saveAppData');
-        this.$store.commit('addToast', {
-          message: files.length === 1 ? `${this.slugifyFileName(files[0].name)} was uploaded successfully` : `${writePromises.length} files were uploaded successfully`,
-          timeout: 2000,
-          type: 'positive',
-        });
+        if (writePromises.length > 0) {
+          this.$store.commit('addToast', {
+            message: writePromises.length === 1 ? `${this.slugifyFileName(files[0].name)} was uploaded successfully` : `${writePromises.length} files were uploaded successfully`,
+            timeout: 2000,
+            type: 'positive',
+          });
+        }
+        this.$emit('entity-created', filePaths, 'files');
       } catch (err) {
         this.$store.commit('addToast', { message: `Something went wrong while saving files: ${err.message}`, type: 'error' });
       }
 
       this.dragActive = false;
-      this.$emit('entity-created');
       this.$emit('close');
     },
     selectFiles() {
@@ -133,7 +169,10 @@ export default {
   props: {
     currentPath: String,
     dark: Boolean,
+    maxSize: Number,
+    onlyImages: Boolean,
     permissions: Set,
+    singleFile: Boolean,
     title: String,
     type: String,
     visible: Boolean,

@@ -52,32 +52,7 @@
         <MbButton :dark="dark" type="primary" @click="closeDetails">Done</MbButton>
       </template>
     </MbModal>
-    <MbModal class="media-select-modal" :dark="dark" :style="{ width: '60rem' }" title="Select an image…" :visible="showSelectModal" @close="showSelectModal = false">
-      <div v-if="!mediaSettings.dir" class="unconfigured-state" :class="{ dark }">
-        <h2>The Media Library hasn’t been configured yet</h2>
-        <p>In order to upload and add images to your content, the Media Library has to be configured. Please ensure an upload directory has been added in the Project Settings.</p>
-      </div>
-      <MbFileList v-else :action="uploadAction" :active-file="selectedFilePath" :dark="dark" file-list-label="Media Files" folders-first only-images pretty-filenames ref="fileList" :root="mediaDir" thumbnails @fileclick="handleFileClick" @path-change="currentPath = $event" />
-      <template #actions>
-        <MbButton :dark="dark" @click="showSelectModal = false">Cancel</MbButton>
-        <MbButton v-if="options && options.removable" :dark="dark" :disabled="!modelValue" type="negative" @click="clearImage">Remove current image</MbButton>
-      </template>
-    </MbModal>
-    <MbModal class="media-upload-modal" :dark="dark" :permanent="uploading" title="Upload image" :visible="showUploadModal" @close="showUploadModal = false">
-      <transition mode="out-in">
-        <div v-if="uploading" class="uploading">
-          <MbLoader />
-        </div>
-        <div v-else class="dropzone" :class="{ dark, 'drag-active': dragActive }" @dragenter.prevent="dragActive = true" @dragover.prevent @dragleave="dragActive = false" @drop="handleDrop">
-          <p :class="{ dark }">Drop image files here to upload them, or select some by clicking the button below</p>
-          <MbButton :dark="dark" icon="upload" @click="selectFiles('modalFileInput')">Select files</MbButton>
-          <input accept="image/*" type="file" ref="modalFileInput" @change="handleFileInput">
-        </div>
-      </transition>
-      <template #actions>
-        <MbButton :dark="dark" :disabled="uploading" @click="showUploadModal = false">Cancel</MbButton>
-      </template>
-    </MbModal>
+    <MediaSelectModal :dark="dark" :max-size="validation ? validation.max : null" :no-meta="options && options.simple" :selected-file-path="selectedFilePath" :show-remove-button="options && options.removable" :visible="showSelectModal" @clear-image="clearImage" @close="showSelectModal = false" @file-selected="handleInput" @too-large-error="handleTooLargeError" @update-meta-is-new="metaIsNew = $event" />
   </section>
 </template>
 
@@ -85,29 +60,25 @@
 import ColorThief from 'colorthief';
 import { cloneDeep as _cloneDeep } from 'lodash-es';
 
-import fs, {
-  exists, joinPath, mkdirp, pathBasename, pathDirname,
-} from '../../fs';
+import fs, { joinPath, pathBasename } from '../../fs';
 
 import { loadImage } from '../../fs/workerFS';
 
-import generateDefaultContentFromSchema from '../../assets/js/generateDefaultContentFromSchema';
 import rgbToHex from '../../assets/js/rgbToHex';
 import validateContent from '../../assets/js/validateContent';
 
-import { imageRegExp } from '../../data/regExps';
-
 import field from '../../mixins/field';
+
+import MediaSelectModal from '../utility/MediaSelectModal.vue';
 
 const IMAGE_TOO_LARGE_ERROR = 'The selected image is too large';
 
 export default {
   beforeUnmount() {
     if (this.image) URL.revokeObjectURL(this.image);
-    window.removeEventListener('dragenter', this.handleWindowDragEnter);
-    window.removeEventListener('dragover', this.preventWindowDragEvent);
-    window.removeEventListener('dragleave', this.handleWindowDragLeave);
-    window.removeEventListener('drop', this.preventWindowDragEvent);
+  },
+  components: {
+    MediaSelectModal,
   },
   computed: {
     cleanError() {
@@ -126,10 +97,6 @@ export default {
     displayValue() {
       if (!this.modelValue) return null;
       return this.modelValue.src || this.modelValue;
-    },
-    mediaDir() {
-      if (!this.mediaSettings.dir) return null;
-      return joinPath(this.projectsDir, this.mediaSettings.dir);
     },
     mediaSettings() {
       return this.$store.state.currentProject.media;
@@ -173,21 +140,6 @@ export default {
       if (!this.normalisedSrc) return null;
       return joinPath(this.projectsDir, this.normalisedSrc);
     },
-    uploadAction() {
-      let uploadAllowed = false;
-      if (!this.mediaSettings.permissions || this.userPermissions.has('everything') || this.userPermissions.has('upload')) uploadAllowed = true;
-
-      if (uploadAllowed) {
-        return {
-          callback: () => { this.showUploadModal = true; },
-          label: 'Upload',
-          icon: 'upload',
-          iconFirst: true,
-          type: 'primary',
-        };
-      }
-      return null;
-    },
     userPermissions() {
       if (!this.mediaSettings.permissions || !this.$store.getters.userInCurrentProject) return new Set();
 
@@ -201,8 +153,6 @@ export default {
   },
   data() {
     return {
-      currentPath: '/',
-      dragActive: false,
       fileDetails: {
         dominantColor: null,
         height: null,
@@ -214,8 +164,6 @@ export default {
       metaIsNew: false,
       showDetailsModal: false,
       showSelectModal: false,
-      showUploadModal: false,
-      uploading: false,
     };
   },
   methods: {
@@ -247,60 +195,6 @@ export default {
         if (err.code === 'ENOENT') this.$store.commit('addToast', { message: `The image for “${this.label}” could not be found. It may have been moved, renamed, or deleted and should be updated accordingly`, timeout: 10000, type: 'warning' });
         else this.$store.commit('addToast', { message: `Something went wrong when fetching the image thumbnail for ${this.label}: ${err.message}`, type: 'error' });
       }
-    },
-    handleDrop(e) {
-      e.preventDefault();
-      e.stopPropagation();
-      const [file] = e.dataTransfer.files;
-
-      this.saveFile(file);
-    },
-    async handleFileClick(path) {
-      if (!this.mediaSettings.advanced || this.options.simple) this.handleInput(path.replace(this.projectsDir, ''));
-      else {
-        let meta;
-        const mediaMetaDir = joinPath(this.projectsDir, '.mattrbld', 'media');
-        const pathInMediaDir = path.replace(this.mediaDir, '');
-        try {
-          const metadata = JSON.parse(await fs.readFile(joinPath(mediaMetaDir, `${pathInMediaDir}.json`), 'utf8'));
-          meta = metadata;
-        } catch (err) {
-          if (err.code !== 'ENOENT') this.$store.commit('addToast', { message: `Something went wrong while reading the metadata for this file: ${err.message}`, type: 'error' });
-          else {
-            try {
-              const mediaMetaDirExists = await exists(joinPath(mediaMetaDir, pathDirname(pathInMediaDir)));
-              if (!mediaMetaDirExists) await mkdirp(joinPath(mediaMetaDir, pathDirname(pathInMediaDir)));
-              const defaultMeta = generateDefaultContentFromSchema({ fields: this.mediaSettings.customFields }, path.replace(this.projectsDir, ''));
-              await fs.writeFile(joinPath(mediaMetaDir, `${pathInMediaDir}.json`), JSON.stringify(defaultMeta, null, 2), 'utf8');
-              this.$store.commit('addLocallyChangedFile', joinPath(mediaMetaDir, `${pathInMediaDir}.json`));
-              this.$store.dispatch('saveAppData');
-              meta = defaultMeta;
-              this.metaIsNew = true;
-            } catch (innerErr) {
-              this.$store.commit('addToast', { message: `Something went wrong while creating the metadata file: ${innerErr.message}`, type: 'error' });
-            }
-          }
-        }
-
-        this.handleInput({ src: path.replace(this.projectsDir, ''), ...meta });
-      }
-
-      if (this.validation && this.validation.max) {
-        try {
-          const size = await fs.du(path);
-          const sizeInMb = size / 1024 / 1024;
-
-          if (sizeInMb > this.validation.max) this.$emit('update:error', (this.error instanceof Map ? _cloneDeep(this.error) : new Map()).set(this.fieldKey, IMAGE_TOO_LARGE_ERROR));
-        } catch (err) {
-          this.$store.commit('addToast', { message: `Something went wrong when reading the filesize in ${this.label}: ${err.message}`, type: 'error' });
-        }
-      }
-
-      this.showSelectModal = false;
-    },
-    handleFileInput(e) {
-      this.saveFile(e.currentTarget.files[0]);
-      e.currentTarget.value = '';
     },
     async handleInput(newVal) {
       if (newVal === null) this.$emit('update:error', ''); // clear the old error so advanced media library errors are removed
@@ -341,14 +235,8 @@ export default {
         this.fileDetails.height = e.target.naturalHeight;
       }
     },
-    handleWindowDragEnter(e) {
-      e.preventDefault();
-      if (this.uploadAction) this.showUploadModal = true; // uploadAction is null if we don’t have permission
-    },
-    handleWindowDragLeave(e) {
-      e.preventDefault();
-
-      if (this.showUploadModal && e.clientX === 0 && e.clientY === 0) this.showUploadModal = false; // clientX and clientY are 0 if outside of the window
+    handleTooLargeError() {
+      this.$emit('update:error', (this.error instanceof Map ? _cloneDeep(this.error) : new Map()).set(this.fieldKey, IMAGE_TOO_LARGE_ERROR));
     },
     openDetails() {
       if (this.active) {
@@ -367,64 +255,6 @@ export default {
       if (this.splitTarget) this.$emit('update:active', true);
       else this.showDetailsModal = true;
     },
-    preventWindowDragEvent(e) {
-      e.preventDefault();
-    },
-    async saveFile(file) {
-      if (!imageRegExp.test(file.name)) {
-        this.$store.commit('addToast', { message: `“${file.name}” was not uploaded because it is not an image`, type: 'warning' });
-        this.dragActive = false;
-        return;
-      }
-
-      if (this.validation && this.validation.max) {
-        const sizeInMb = file.size / 1024 / 1024;
-        if (sizeInMb > this.validation.max) {
-          this.$store.commit('addToast', { message: `“${file.name}” was not uploaded because it is too large`, type: 'warning' });
-          this.dragActive = false;
-          return;
-        }
-      }
-
-      this.uploading = true;
-      try {
-        const arrayBuffer = await file.arrayBuffer();
-        const existingFiles = await fs.readdir(this.currentPath);
-        const path = joinPath(this.currentPath, file.name);
-
-        if (!arrayBuffer) {
-          this.$store.commit('addToast', { message: `“${file.name}” was not uploaded because it is a folder`, type: 'warning' });
-          this.dragActive = false;
-          this.uploading = false;
-          return;
-        }
-
-        if (existingFiles.includes(file.name)) {
-          this.$store.commit('addToast', { message: `The file “${file.name}” was not uploaded because it already exists in this folder`, type: 'warning' });
-          this.dragActive = false;
-          this.uploading = false;
-          return;
-        }
-
-        await fs.writeFile(path, arrayBuffer);
-
-        this.$store.commit('addLocallyChangedFile', path);
-        await this.$store.dispatch('saveAppData');
-        this.dragActive = false;
-        this.showUploadModal = false;
-        this.$store.commit('addToast', {
-          message: `${file.name} was uploaded successfully`,
-          timeout: 2000,
-          type: 'positive',
-        });
-        this.handleFileClick(path);
-      } catch (err) {
-        this.$store.commit('addToast', { message: `Something went wrong while saving a file in ${this.label}: ${err.message}`, type: 'error' });
-      }
-
-      this.uploading = false;
-      this.$refs.fileList.refresh();
-    },
     async saveNewMeta() {
       if (!this.error && this.metaIsNew && (this.userPermissions.has('everything') || this.userPermissions.has('editMedia'))) {
         this.metaIsNew = false;
@@ -436,9 +266,6 @@ export default {
         this.$store.commit('addLocallyChangedFile', joinPath(mediaMetaDir, `${pathInMediaDir}.json`));
         this.$store.dispatch('saveAppData');
       }
-    },
-    selectFiles(inputRef) {
-      this.$refs[inputRef].click();
     },
     setImageResolutionAndColor(e) {
       const img = e.target;
@@ -512,19 +339,6 @@ export default {
         }
       }
     },
-    showSelectModal(nv) {
-      if (nv) {
-        window.addEventListener('dragenter', this.handleWindowDragEnter);
-        window.addEventListener('dragover', this.preventWindowDragEvent);
-        window.addEventListener('dragleave', this.handleWindowDragLeave);
-        window.addEventListener('drop', this.preventWindowDragEvent);
-      } else {
-        window.removeEventListener('dragenter', this.handleWindowDragEnter);
-        window.removeEventListener('dragover', this.preventWindowDragEvent);
-        window.removeEventListener('dragleave', this.handleWindowDragLeave);
-        window.removeEventListener('drop', this.preventWindowDragEvent);
-      }
-    },
   },
 };
 </script>
@@ -576,64 +390,6 @@ export default {
           &.v-enter-from,
           &.v-leave-to
             opacity: 0
-
-.media-select-modal
-  .unconfigured-state
-    text-align: center
-    color: $text-secondary
-    max-width: 40rem
-    margin-left: auto
-    margin-right: auto
-
-    &.dark
-      color: $text-secondary-dark
-
-    h2
-      margin-top: 0
-
-  .file-list
-    min-height: 50vh
-
-.media-upload-modal
-  .uploading,
-  .dropzone
-    &.v-enter-active,
-    &.v-leave-active
-      transition: opacity 200ms ease
-
-      &.v-enter-from,
-      &.v-leave-to
-        opacity: 0
-
-  .dropzone
-    border: 0.125rem dashed $accent-secondary
-    padding: 2rem
-    text-align: center
-    border-radius: $radius-l
-
-    &.drag-active
-      background-color: $bg-secondary
-
-      &.dark
-        background-color: $bg-secondary-dark
-
-      .button
-        visibility: hidden
-
-    p
-      color: $text-secondary
-      margin-top: 0
-      margin-bottom: 2rem
-      pointer-events: none
-
-      &.dark
-        color: $text-secondary-dark
-
-    input[type=file]
-      display: none
-
-  .uploading
-    padding: 2rem
 
 .image-details
   .thumbnail
