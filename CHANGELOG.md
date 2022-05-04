@@ -3,7 +3,11 @@ currentVersion: 0.2.0
 updatedAt: 2022-04-01
 ---
 
-## Version 0.2.1 Beta
+## Version 0.3.0 Beta
+
+### New Features
+
+* It is now possible to create folders when uploading media while editing content
 
 ### Bugfixes
 
@@ -11,6 +15,8 @@ updatedAt: 2022-04-01
   now properly handled during validation
 * Newly uploaded media files will now have their names slugified according to the
   slugify settings of the project
+* Folders created in the Media Library will now be properly slugified according
+  to the slugify settings of the project
 * The empty state message when there are no local changes to be synced is now readable
   in dark mode
 * The project is now reloaded after discarding changes to the project configuration
