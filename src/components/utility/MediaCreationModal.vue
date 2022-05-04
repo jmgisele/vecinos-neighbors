@@ -53,7 +53,7 @@ export default {
 
       if (this.newFolderError) return;
 
-      const { newFolderName: name, currentPath: path } = this;
+      const { slugifiedNewFolderName: name, currentPath: path } = this;
 
       try {
         const folderPath = joinPath(path, name);
