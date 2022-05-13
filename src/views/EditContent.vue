@@ -647,7 +647,7 @@ export default {
     sendPreviewData: debounce(function debouncedSend() { // OPTIMIZE: this could probably be optimized to only send deltas instead of the full object every time if a "full" param is false (we still need to send the full object upon initial connection)
       const targetOrigin = new URL(this.previewUrl).origin;
       const defaultUrl = this.$route.params.path.substring(0, this.$route.params.path.lastIndexOf('.')).replace(this.projectDir, '').replace(pathDirname(this.collection.dir), '');
-      const defaultFields = generateDefaultFilePathFields(this.$route.params.path, this.projectDir, joinPath(this.projectDir, this.collection.dir));
+      const defaultFields = generateDefaultFilePathFields(this.$route.params.path, this.projectDir, this.contentDir, this.draftsDir);
       const urlFields = { ...this.content, ...defaultFields };
       let url;
 
