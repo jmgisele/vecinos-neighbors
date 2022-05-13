@@ -8,6 +8,8 @@ updatedAt: 2022-04-01
 ### New Features
 
 * It is now possible to create folders when uploading media while editing content
+* If the Live Preview is open in a new tab or window, this tab or window will now
+  be closed when the content item being edited is closed
 
 ### Bugfixes
 
@@ -21,6 +23,12 @@ updatedAt: 2022-04-01
   in dark mode
 * The project is now reloaded after discarding changes to the project configuration
   in order to restore the original configuration without having to refresh the page
+* The warning messages on input fields should now be more legible
+* The `url` property sent to the live preview is now always the final URL, even
+  when the content is still marked as a draft
+* ID Fields using a `type` of `filepath` will now correctly reflect the path of
+  the file within the project, not within Mattrbld. Additionally, the path will
+  always reflect the **final** path of the file, even when it is a draft
 
 ## Version 0.2.0 Alpha
 
