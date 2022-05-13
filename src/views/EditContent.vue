@@ -175,7 +175,7 @@ export default {
           vm.schema = schema; // eslint-disable-line no-param-reassign
 
           // OPTIMIZE: it seems a bit wasteful to iterate through all schemas and content values multiple times even when nothing has changed in the Schema, but there’s no way to know when the Schema has changed and the defaults in this file need updating
-          const defaults = generateDefaultContentFromSchema(schema, path);
+          const defaults = generateDefaultContentFromSchema(schema, vm.filepath);
           vm.content = { ...content, ...vm.assignSchemaDefaults(content, defaults) }; // eslint-disable-line no-param-reassign
           vm.findAndSetFilepathIds(schema);
           vm.findAndSetTemplateIds(schema);
@@ -291,6 +291,11 @@ export default {
       if (!this.schema.fields) return [];
       if (this.activeTab === 0) return this.schema.fields.filter((field) => field.tab === this.cleanTabs[0] || !field.tab); // first tab shows all fields without tab, too
       return this.schema.fields.filter((field) => field.tab === this.cleanTabs[this.activeTab]);
+    },
+    filepath() {
+      // we always want the final path, even if it is a draft
+      if (this.isDraft) return joinPath(this.contentDir.replace(this.projectDir, ''), this.$route.params.path.replace(this.draftsDir, ''));
+      return this.$route.params.path.replace(this.projectDir, '');
     },
     isDraft: {
       get() {
@@ -498,8 +503,8 @@ export default {
         const { field, contentpath } = fieldData;
         const currentValue = _get(this.content, contentpath);
 
-        if (!currentValue || (currentValue !== this.$route.params.path && !field.options.editable)) {
-          _set(this.content, contentpath, this.$route.params.path);
+        if (!currentValue || (currentValue !== this.filepath && !field.options.editable)) {
+          _set(this.content, contentpath, this.filepath);
           this.$store.commit('addToast', { message: `Updated “${field.label}” to contain the current filepath`, type: 'positive' });
           this.wasChanged = true;
         }
@@ -548,7 +553,7 @@ export default {
     async loadAndAssignSchema(schema) {
       try {
         this.schema = JSON.parse(await fs.readFile(joinPath('/projects', this.$route.params.id, schema), 'utf8'));
-        const defaults = generateDefaultContentFromSchema(this.schema, this.$route.params.path);
+        const defaults = generateDefaultContentFromSchema(this.schema, this.filepath);
         this.content = { ...this.content, ...this.assignSchemaDefaults(this.content, defaults) };
         this.content.___mb_schema = schema;
         this.findAndSetFilepathIds(this.schema);

@@ -380,8 +380,10 @@ export default {
           idFields.forEach((fieldData) => {
             const { field, contentpath } = fieldData;
             let value = null;
-            if (field.options && field.options.type === 'filepath') value = newPath;
-            else if (field.options && field.options.type === 'uuid') value = uuidv4();
+            if (field.options && field.options.type === 'filepath') {
+              if (this.draftsDir && newPath.startsWith(this.draftsDir)) value = joinPath(this.contentDir.replace(this.projectDir, ''), newPath.replace(this.draftsDir, ''));
+              else value = newPath.replace(this.projectDir, '');
+            } else if (field.options && field.options.type === 'uuid') value = uuidv4();
             _set(content, contentpath, value);
           });
         }
