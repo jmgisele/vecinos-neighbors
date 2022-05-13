@@ -221,6 +221,7 @@ export default {
     } else return true; // eslint-disable-line no-else-return
   },
   beforeUnmount() {
+    if (this.previewInNewTab) this.closeOpenPreview();
     window.removeEventListener('beforeunload', this.preventUnintentionalClose);
   },
   components: {
