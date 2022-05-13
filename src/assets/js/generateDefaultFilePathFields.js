@@ -14,7 +14,7 @@ export default function generateDefaultFilePathFields(path, projectDir, collecti
     fileExtension: path.substring(path.lastIndexOf('.')),
     filepath: {
       collection: pathWithoutExtension.replace(`${collectionDir}/`, '').split('/'),
-      content: pathWithoutExtension.replace(pathDirname(`${collectionDir}/`), '').split('/'),
+      content: pathWithoutExtension.replace(`${pathDirname(collectionDir)}/`, '').split('/'),
       full: pathWithoutExtension.replace(`${projectDir}/`, '').split('/'),
     },
   };
