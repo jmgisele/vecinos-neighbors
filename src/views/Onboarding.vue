@@ -48,6 +48,9 @@
                 Learn more about how <a href="https://github.com/isomorphic-git/cors-proxy" rel="noopener noreferrer nofollow" target="_blank">here</a>.
               </p>
             </MbHighlightBox>
+            <template #actions>
+              <MbButton :dark="dark" type="primary" @click="showAdvancedSettings = false">Done</MbButton>
+            </template>
           </MbModal>
           <LegalModal v-if="renderedImprint" :dark="dark" title="Imprint" :visible="showImprint" @close="showImprint = false">
             <article v-html="renderedImprint" />
