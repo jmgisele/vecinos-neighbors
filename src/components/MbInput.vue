@@ -116,6 +116,10 @@ export default {
   &.dark
     background-color: $bg-secondary-dark
 
+    &.error.warn
+      > label
+        color: $warning-saturated
+
     > label
       color: $text-secondary-dark
 
@@ -155,7 +159,8 @@ export default {
       &:focus-within .icon
         color: inherit
 
-      > label,
+      > label
+        color: darken($warning-saturated, 25)
       .icon
         color: $warning-saturated
 
