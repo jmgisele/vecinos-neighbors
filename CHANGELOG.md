@@ -10,6 +10,11 @@ updatedAt: 2022-04-01
 * It is now possible to create folders when uploading media while editing content
 * If the Live Preview is open in a new tab or window, this tab or window will now
   be closed when the content item being edited is closed
+* It is now possible to specify a global maximum file size for the Media Library.
+  If specified, users will not be able to upload files with a size greater than
+  the one specified. This value can be overwritten on a per-field basis
+* File fields were upgraded to allow enabling uploads straight from the file picker.
+  **Users will no longer be able to upload unless the field is upgraded and the new option enabled**
 
 ### Bugfixes
 
