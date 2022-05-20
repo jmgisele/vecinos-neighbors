@@ -97,7 +97,7 @@ export default {
       if (this.maxSize) {
         const sizeInMb = file.size / 1024 / 1024;
         if (sizeInMb > this.maxSize) {
-          this.$store.commit('addToast', { message: `“${file.name}” was not uploaded because it is too large`, type: 'warning' });
+          this.$store.commit('addToast', { message: `“${file.name}” was not uploaded because it is too large (maximum ${this.maxSize} MB)`, type: 'warning' });
           return;
         }
       }
