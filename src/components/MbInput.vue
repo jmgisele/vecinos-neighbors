@@ -125,8 +125,12 @@ export default {
 
     > input
       caret-color: currentColor
+
       &::placeholder
         color: $text-secondary-dark
+
+      &:-webkit-autofill
+        box-shadow: inset 0 0 0 (100 / 16)rem $bg-secondary-dark
 
   &.icon
     > label
@@ -251,6 +255,9 @@ export default {
       color: $text-secondary
       opacity: 1
       user-select: none
+
+    &:-webkit-autofill
+      box-shadow: inset 0 0 0 (100 / 16)rem $bg-secondary
 
   > .button.icon.no-label
     margin: (-9 / 16)rem 0
