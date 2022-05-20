@@ -22,6 +22,7 @@ const projectDefaults = {
     advanced: false,
     customFields: null,
     dir: null,
+    maxSize: null,
     outputPath: null,
     permissions: {
       everybody: ['everything'],

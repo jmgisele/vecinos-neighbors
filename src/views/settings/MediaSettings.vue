@@ -4,9 +4,14 @@
       <section class="wrapper">
         <h1 class="h2">Media Library</h1>
         <p>These settings control how media files are handled in Mattrbld. By default, the <code>src</code> of every media file will match its location in the specified media directory. If you provide an <code>outputPath</code>, it will be used instead.</p>
+        <p>Setting a <code>maxSize</code> will prevent users from uploading files greater than the maximum size specified. This value can be overwritten by individual field configurations.</p>
         <div class="input-row">
           <span class="label">Upload directory:</span>
           <MbFilePicker v-model="dir" :dark="dark" relative-to-root :root="`/projects/${currentProject.id}`" />
+        </div>
+        <div class="input-row">
+          <span class="label">Maximum file size (MB):</span>
+          <MbInput v-model.number="maxSize" clearable :dark="dark" placeholder="None" type="number" />
         </div>
         <div class="input-row">
           <span class="label">Output path (optional):</span>
@@ -103,6 +108,15 @@ export default {
 
           this.$store.commit('setCurrentProjectProperty', { key: 'media.customFields', value: [altField, titleField] });
         }
+        this.$store.dispatch('saveCurrentProject');
+      },
+    },
+    maxSize: {
+      get() {
+        return this.$store.state.currentProject.media.maxSize;
+      },
+      set(v) {
+        this.$store.commit('setCurrentProjectProperty', { key: 'media.maxSize', value: v || null });
         this.$store.dispatch('saveCurrentProject');
       },
     },

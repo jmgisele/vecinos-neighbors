@@ -35,6 +35,9 @@ import { imageRegExp } from '../../data/regExps';
 
 export default {
   computed: {
+    mediaSettings() {
+      return this.$store.state.currentProject.media;
+    },
     slugifiedNewFolderName() {
       return slugify(this.newFolderName, this.$store.state.currentProject.slugifyOptions || { lowercase: false, decamelize: false, preserveLeadingUnderscore: true });
     },
@@ -94,6 +97,7 @@ export default {
         const existingFiles = await fs.readdir(this.currentPath);
         const writePromises = [];
         const filePaths = [];
+        const maxSize = this.maxSize || this.mediaSettings.maxSize;
 
         files.forEach((file, index) => {
           const slugifiedFileName = this.slugifyFileName(file.name);
@@ -103,9 +107,9 @@ export default {
             valid = false;
           }
 
-          if (valid && this.maxSize) {
+          if (valid && maxSize) {
             const sizeInMb = file.size / 1024 / 1024;
-            if (sizeInMb > this.maxSize) {
+            if (sizeInMb > maxSize) {
               this.$store.commit('addToast', { message: `The file “${slugifiedFileName}” was not uploaded because it is too large`, type: 'warning' });
               valid = false;
             }
