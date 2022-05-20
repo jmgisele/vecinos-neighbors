@@ -52,7 +52,7 @@
         <MbButton :dark="dark" type="primary" @click="closeDetails">Done</MbButton>
       </template>
     </MbModal>
-    <MediaSelectModal :dark="dark" :max-size="validation ? validation.max : null" :no-meta="options && options.simple" :selected-file-path="selectedFilePath" :show-remove-button="options && options.removable" :visible="showSelectModal" @clear-image="clearImage" @close="showSelectModal = false" @file-selected="handleInput" @too-large-error="handleTooLargeError" @update-meta-is-new="metaIsNew = $event" />
+    <MediaSelectModal :dark="dark" :max-size="validation && validation.max ? validation.max : null" :no-meta="options && options.simple" :selected-file-path="selectedFilePath" :show-remove-button="options && options.removable" :visible="showSelectModal" @clear-image="clearImage" @close="showSelectModal = false" @file-selected="handleInput" @too-large-error="handleTooLargeError" @update-meta-is-new="metaIsNew = $event" />
   </section>
 </template>
 
