@@ -709,6 +709,12 @@ export default [
         value: false,
       },
       {
+        component: 'MbToggle',
+        key: 'allowUpload',
+        slot: 'Allow uploading new files',
+        value: false,
+      },
+      {
         component: 'MbFilePicker',
         key: 'root',
         label: 'Only allow picking files from this folder:',
@@ -727,7 +733,7 @@ export default [
       max: 1, required: false, unit: 'filesize (MB)',
     },
     value: null,
-    version: 1,
+    version: 2,
     visibility: { hidden: false, showByValue: { field: null } },
   },
   {
