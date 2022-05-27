@@ -71,7 +71,6 @@ export default function generateKeymap(schema, vm) {
 
   if (type = schema.marks.em) {
     bindings['Mod-i'] = toggleMark(type);
-    bindings['Mod-I'] = toggleMark(type);
   }
 
   if (type = schema.marks.link) {
@@ -144,6 +143,11 @@ export default function generateKeymap(schema, vm) {
       if (!bindings.Enter) bindings.Enter = exitQuoteFooter;
       else bindings.Enter = chainCommands(bindings.Enter, exitQuoteFooter);
     }
+  }
+
+  // images
+  if (type = schema.nodes.image) {
+    bindings['Mod-I'] = vm.openImagePopover;
   }
 
   // paragraphs

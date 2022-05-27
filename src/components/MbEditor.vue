@@ -117,6 +117,7 @@ export default {
         disabled.strike = true;
         disabled.strong = true;
         disabled.ul = true;
+        disabled.image = true;
       }
       if (this.activeParentType === 'listItem' || this.activeParagraphType === 'listItem' || this.activeParagraphType === 'quoteFooter') {
         disabled.ol = true;
@@ -373,6 +374,15 @@ export default {
           tooltip: `Format as numbered list <kbd>${this.mac ? '⌘' : 'Ctrl'}</kbd>+<kbd>Shift</kbd>+<kbd>9</kbd>`,
         });
       }
+      if (type = schema.nodes.image) {
+        actions.push({
+          action: this.openImagePopover,
+          group: 'block-formats',
+          name: 'image',
+          icon: 'image-add',
+          tooltip: `Insert an image <kbd>${this.mac ? '⌘' : 'Ctrl'}</kbd>+<kbd>Shift</kbd>+<kbd>I</kbd>`,
+        });
+      }
       if (type = schema.nodes.blockquote) {
         actions.push({
           action: this.insertBlockquote,
@@ -551,6 +561,13 @@ export default {
       this.linkPopover.y = bottom + 0.5 * Number.parseInt(window.getComputedStyle(document.documentElement).fontSize, 10);
       this.linkPopover.visible = true;
       if (this.linkPopover.type === 'external') this.$nextTick(() => this.$refs.linkHref.$refs.input.focus());
+      return true; // mark the event as handled
+    },
+    openImagePopover() {
+      // show a popover that allows adding / editing an image
+      // if the selection is not an image, open the media chooser
+      // otherwise open a popover that allows changing Advanced Media Library fields
+      console.log('Opening image popover');
       return true; // mark the event as handled
     },
     prettifyCode() {
