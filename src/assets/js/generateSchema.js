@@ -3,7 +3,7 @@ import { Schema } from 'prosemirror-model';
 export default function generateSchema(
   formats,
   options = {
-    minHeading: 1, maxHeading: 6, allowQuoteFooters: true, allowNestedLists: true,
+    minHeading: 1, maxHeading: 6, allowQuoteFooters: true, allowNestedLists: true, allowImageCaptions: true,
   },
 ) {
   const { inline: inlineFormats, block: blockFormats } = formats;
@@ -148,6 +148,69 @@ export default function generateSchema(
           parseDOM: [{ tag: 'li' }],
           toDOM() { return ['li', 0]; },
         };
+      }
+
+      // Images
+      if (blockFormats.indexOf('image') > -1) {
+        nodes.image = {
+          attrs: {
+            alt: { default: null },
+            data: { default: null },
+            src: {},
+            title: { default: null },
+          },
+          parseDOM: [
+            {
+              tag: 'img[src]',
+              getAttrs(dom) {
+                const data = { ...dom.dataset };
+                return {
+                  alt: dom.getAttribute('alt'),
+                  data,
+                  src: dom.getAttribute('src'),
+                  title: dom.getAttribute('title'),
+                };
+              },
+            },
+          ],
+          toDOM(node) {
+            const attrs = {
+              alt: node.attrs.alt,
+              src: node.attrs.src,
+              title: node.attrs.title,
+            };
+
+            if (node.attrs.data) {
+              Object.entries(node.attrs.data).forEach(([key, value]) => {
+                // data-attributes in HTML must be all lowercase
+                // accessing them via el.dataset returns them as camelCased though, so we convert them back here
+                const cleanKey = key.replace(/[A-Z]/g, (match) => `-${match.toLowerCase()}`);
+                attrs[`data-${cleanKey}`] = String(value);
+              });
+            }
+            return ['img', attrs];
+          },
+        };
+
+        nodes.figure = {
+          content: options.allowImageCaptions ? 'image figcaption?' : null,
+          group: 'block',
+          parseDOM: [{ tag: 'figure img[src]' }, { tag: 'img[src]' }],
+          toDOM() {
+            return ['figure', 0];
+          },
+        };
+
+        if (options.allowImageCaptions) {
+          nodes.figcaption = {
+            content: 'text*',
+            defining: true,
+            parseDOM: [{ tag: 'figure figcaption' }],
+            toDOM() {
+              return ['figcaption', 0];
+            },
+          };
+        }
       }
     }
   }
