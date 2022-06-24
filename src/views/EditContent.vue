@@ -11,7 +11,7 @@
       <div class="right">
         <MbToggle v-if="draftsDir && canToggleDraft" v-model="isDraft" :dark="dark" :disabled="isDraft && (!content.___mb_schema || errors.fields.size > 0)" :icons="['cross', 'check']">Draft</MbToggle>
         <MbButton :class="{ 'push-right': draftsDir }" :dark="dark" icon="settings" @click="showSettings = true">{{isTablet ? '' : 'Settings'}}</MbButton>
-        <MbButton v-if="previewUrl" :dark="dark" :disabled="noSchema" :icon="showPreview ? 'hide' : 'eye'" @click="togglePreview">{{isTablet ? '' : showPreview ? 'Hide Preview' : 'Preview'}}</MbButton>
+        <MbButton v-if="previewUrl" :dark="dark" :disabled="noSchema" :icon="showPreview ? 'hide' : 'eye'" @click.left="togglePreview" @click.middle="openPreviewInNewTab">{{isTablet ? '' : showPreview ? previewInNewTab ? 'Hide Preview Controls' : 'Hide Preview' : 'Preview'}}</MbButton>
         <MbButton :dark="dark" :disabled="!wasChanged || (errors.fields.size > 0 && !isDraft)" icon="save" :icon-first="true" :loading="saveLoading" type="primary" @click="saveChanges">{{isTablet ? '' : 'Save'}}</MbButton>
       </div>
     </header>
@@ -42,8 +42,8 @@
             <MbIcon icon="open-new-window" />
             <h2>Preview open in a different tab</h2>
             <p>It looks like the preview is open in a different tab or window.</p>
-            <MbButton :dark="dark" @click="closeOpenPreview">Close</MbButton>
-            <MbButton :dark="dark" @click="focusOpenPreview" type="primary">Focus</MbButton>
+            <MbButton :dark="dark" @click="closeOpenPreview">Close Tab</MbButton>
+            <MbButton :dark="dark" @click="focusOpenPreview" type="primary">Focus Tab</MbButton>
           </div>
           <teleport v-else :disabled="!fullscreenPreview" to="body">
             <div class="preview-frame" :class="{ fullscreen: fullscreenPreview, 'mobile-preview': mobilePreview }">
