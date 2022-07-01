@@ -156,9 +156,10 @@ export default function generateSchema(
           attrs: {
             alt: { default: null },
             data: { default: null },
-            src: {},
+            src: { default: null },
             title: { default: null },
           },
+          draggable: false,
           parseDOM: [
             {
               tag: 'img[src]',
@@ -173,6 +174,7 @@ export default function generateSchema(
               },
             },
           ],
+          selectable: false,
           toDOM(node) {
             const attrs = {
               alt: node.attrs.alt,
@@ -193,7 +195,8 @@ export default function generateSchema(
         };
 
         nodes.figure = {
-          content: options.allowImageCaptions ? 'image figcaption?' : null,
+          content: options.allowImageCaptions ? 'image figcaption' : 'image',
+          draggable: true,
           group: 'block',
           parseDOM: [{ tag: 'figure img[src]' }, { tag: 'img[src]' }],
           toDOM() {
@@ -205,6 +208,7 @@ export default function generateSchema(
           nodes.figcaption = {
             content: 'text*',
             defining: true,
+            isolating: true,
             parseDOM: [{ tag: 'figure figcaption' }],
             toDOM() {
               return ['figcaption', 0];
