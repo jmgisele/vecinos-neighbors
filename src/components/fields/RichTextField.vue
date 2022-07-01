@@ -80,6 +80,7 @@ export default {
         maxHeading: this.options.maxHeading || 6,
         allowQuoteFooters: this.options.formatOptions ? this.options.formatOptions.includes('allowQuoteFooters') : true,
         allowNestedLists: this.options.formatOptions ? this.options.formatOptions.includes('allowNestedLists') : true,
+        allowImageCaptions: this.options.formatOptions ? this.options.formatOptions.includes('allowImageCaptions') : true,
       };
     },
     inlineFormats() {

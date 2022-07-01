@@ -202,9 +202,9 @@ export default [
         key: 'formatOptions',
         label: 'Format options:',
         props: {
-          checkboxes: [{ label: 'Footers in quotes', value: 'allowQuoteFooters' }, { label: 'Nested lists', value: 'allowNestedLists' }],
+          checkboxes: [{ label: 'Footers in quotes', value: 'allowQuoteFooters' }, { label: 'Nested lists', value: 'allowNestedLists' }, { label: 'Image captions', value: 'allowImageCaptions' }],
         },
-        value: ['allowQuoteFooters', 'allowNestedLists'],
+        value: ['allowQuoteFooters', 'allowNestedLists', 'allowImageCaptions'],
       },
       {
         component: 'MbCheckboxGroup',
