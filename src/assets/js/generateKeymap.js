@@ -162,7 +162,7 @@ export default function generateKeymap(schema, vm) {
   }
 
   // images
-  if (type = schema.nodes.figure) {
+  if (type = schema.nodes.image) {
     bindings['Mod-I'] = vm.openImagePopover;
 
     if (type = schema.nodes.figcaption) {

@@ -454,19 +454,22 @@ export default {
       if (!this.imageBeingReplaced) {
         // if adding a new image, add the image
         const cleanImageAttrs = Object.entries(data).reduce((acc, [key, value]) => {
-          if (['alt', 'src', 'title'].includes(key)) acc[key] = value && typeof value === 'object' && !Array.isArray(value) ? value[this.lang] : value;
-          else if (!acc.data) {
+          if (['alt', 'src', 'title'].includes(key)) {
+            if (value && typeof value === 'object' && !Array.isArray(value)) {
+              if (this.lang) acc[key] = value[this.lang];
+              else acc[key] = Object.values(value).find((v) => v);
+            } else acc[key] = value;
+            if (this.lang) acc[key] = value && typeof value === 'object' && !Array.isArray(value) ? value[this.lang] : value;
+          } else if (!acc.data) {
             acc.data = {};
             acc.data[key] = value;
           } else acc.data[key] = value;
           return acc;
         }, {});
-        const children = [this.editorState.schema.nodes.image.create(cleanImageAttrs)];
-        if (this.formatOptions.allowImageCaptions && data.caption) children.push(this.editorState.schema.nodes.figcaption.create(null, this.editorState.schema.text(data.caption)));
         this.editorView.dispatch(
           this.editorState.tr
             .replaceSelectionWith(
-              this.editorState.schema.nodes.figure.createAndFill(null, children),
+              this.editorState.schema.nodes.image.createAndFill(cleanImageAttrs, this.formatOptions.allowImageCaptions && data.caption ? this.editorState.schema.text(data.caption) : null),
             )
             .scrollIntoView(),
         );

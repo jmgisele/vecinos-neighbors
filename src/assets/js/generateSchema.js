@@ -156,11 +156,27 @@ export default function generateSchema(
           attrs: {
             alt: { default: null },
             data: { default: null },
-            src: { default: null },
+            src: {},
             title: { default: null },
           },
+          content: options.allowImageCaptions ? 'text*' : null,
           draggable: false,
+          group: 'block',
           parseDOM: [
+            {
+              tag: 'figure',
+              contentElement: 'figcaption',
+              getAttrs(dom) {
+                const img = dom.querySelector('img');
+                const data = { ...img.dataset };
+                return {
+                  alt: img.getAttribute('alt'),
+                  data,
+                  src: img.getAttribute('src'),
+                  title: img.getAttribute('title'),
+                };
+              },
+            },
             {
               tag: 'img[src]',
               getAttrs(dom) {
@@ -174,10 +190,11 @@ export default function generateSchema(
               },
             },
           ],
-          selectable: false,
+          selectable: true,
           toDOM(node) {
             const attrs = {
               alt: node.attrs.alt,
+              draggable: false,
               src: node.attrs.src,
               title: node.attrs.title,
             };
@@ -190,31 +207,10 @@ export default function generateSchema(
                 attrs[`data-${cleanKey}`] = String(value);
               });
             }
-            return ['img', attrs];
+            if (options.allowImageCaptions) return ['figure', ['img', attrs], ['figcaption', 0]];
+            return ['figure', ['img', attrs]];
           },
         };
-
-        nodes.figure = {
-          content: options.allowImageCaptions ? 'image figcaption' : 'image',
-          draggable: true,
-          group: 'block',
-          parseDOM: [{ tag: 'figure img[src]' }, { tag: 'img[src]' }],
-          toDOM() {
-            return ['figure', 0];
-          },
-        };
-
-        if (options.allowImageCaptions) {
-          nodes.figcaption = {
-            content: 'text*',
-            defining: true,
-            isolating: true,
-            parseDOM: [{ tag: 'figure figcaption' }],
-            toDOM() {
-              return ['figcaption', 0];
-            },
-          };
-        }
       }
     }
   }
