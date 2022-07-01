@@ -51,6 +51,7 @@
         <MbButton :dark="dark" :disabled="!linkPopover.href" type="primary" @click="addLink">{{linkPopover.editing ? 'Save' : 'Add'}}</MbButton>
       </template>
     </MbPopover>
+    <MediaSelectModal :dark="dark" :selected-file-path="currentImagePath" :visible="showMediaSelectModal" @close="handleMediaSelectClose" @file-selected="handleImageSelected" @update-meta-is-new="imageMetaIsNew = $event" />
   </div>
 </template>
 
@@ -77,6 +78,7 @@ import MarkdownSerializer from '../assets/js/MarkdownSerializer';
 import generateSchema from '../assets/js/generateSchema';
 
 import InternalLinkHelper from './utility/InternalLinkHelper.vue';
+import MediaSelectModal from './utility/MediaSelectModal.vue';
 
 export default {
   beforeUnmount() {
@@ -88,6 +90,7 @@ export default {
   },
   components: {
     InternalLinkHelper,
+    MediaSelectModal,
   },
   computed: {
     cleanActiveParagraphType() {
@@ -223,7 +226,10 @@ export default {
       caretTransform: '',
       caretVisible: false,
       contentLength: 0,
+      currentImagePath: null,
       focussed: false,
+      imageBeingReplaced: false,
+      imageMetaIsNew: false,
       linkPopover: {
         editing: false,
         href: '',
@@ -242,6 +248,7 @@ export default {
       redoDepth: 0,
       renderDiv: null,
       selectionEmpty: true,
+      showMediaSelectModal: false,
       showPlaceholder: true,
       toolbarActions: [],
       undoDepth: 0,
@@ -443,6 +450,34 @@ export default {
       }
       return this.modelValue; // if it’s text
     },
+    handleImageSelected(data) {
+      if (!this.imageBeingReplaced) {
+        // if adding a new image, add the image
+        const cleanImageAttrs = Object.entries(data).reduce((acc, [key, value]) => {
+          if (['alt', 'src', 'title'].includes(key)) acc[key] = value && typeof value === 'object' && !Array.isArray(value) ? value[this.lang] : value;
+          else if (!acc.data) {
+            acc.data = {};
+            acc.data[key] = value;
+          } else acc.data[key] = value;
+          return acc;
+        }, {});
+        const children = [this.editorState.schema.nodes.image.create(cleanImageAttrs)];
+        if (this.formatOptions.allowImageCaptions && data.caption) children.push(this.editorState.schema.nodes.figcaption.create(null, this.editorState.schema.text(data.caption)));
+        this.editorView.dispatch(
+          this.editorState.tr
+            .replaceSelectionWith(
+              this.editorState.schema.nodes.figure.createAndFill(null, children),
+            )
+            .scrollIntoView(),
+        );
+      } else {
+        // if replacing an existing image, simply replace the src
+      }
+    },
+    handleMediaSelectClose() {
+      this.showMediaSelectModal = false;
+      if (this.imageBeingReplaced) this.imageBeingReplaced = false;
+    },
     handleSelectionChange(newSelection) {
       // Update fake caret
       if (newSelection.empty) {
@@ -565,9 +600,13 @@ export default {
     },
     openImagePopover() {
       // show a popover that allows adding / editing an image
-      // if the selection is not an image, open the media chooser
-      // otherwise open a popover that allows changing Advanced Media Library fields
-      console.log('Opening image popover');
+      const { selection } = this.editorState;
+
+      if (!selection.node || selection.node.type.name !== 'image') {
+        this.showMediaSelectModal = true;
+      } else {
+        // otherwise open a popover that allows changing Advanced Media Library fields
+      }
       return true; // mark the event as handled
     },
     prettifyCode() {
@@ -1022,10 +1061,32 @@ export default {
           &::after
             content: ''
             position: absolute
-            left: -32px
-            right: -2px; top: -2px; bottom: -2px
-            border: 2px solid $accent
+            left: (-32 / 16)rem
+            right: (-2 / 16)rem;
+            top: (-2 / 16)rem;
+            bottom: (-2 / 16)rem
+            border: (2 / 16)rem solid $accent
             pointer-events: none
+
+      figure
+        margin: (56 / 16)rem 0
+        text-align: center
+        border: 1px solid red
+
+        img
+          &:not(:last-child)
+            margin-bottom: 1rem
+
+        figcaption
+          position: relative
+
+          &::before
+            content: 'Add caption…'
+            color: $text-secondary
+            position: absolute
+            width: 100%
+            left: 0
+            top: 0
 
       .ProseMirror-selectednode
         outline: 0.125rem solid $accent
