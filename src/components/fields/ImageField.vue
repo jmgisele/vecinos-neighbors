@@ -88,7 +88,10 @@ export default {
     },
     idealResolution() {
       if (!this.options.resolutionHint) return null;
-      return this.options.resolutionHint.match(/\d+/g).map((value) => Number.parseInt(value, 10));
+      // NOTE: Could be shortened with optional chaining, but in the interest of supporting older JS versions it’s not done
+      const numberStrings = this.options.resolutionHint.match(/\d+/g);
+      if (Array.isArray(numberStrings)) return numberStrings.map((value) => Number.parseInt(value, 10));
+      return null;
     },
     labelWithSizeHint() {
       if (!this.options.resolutionHint) return this.label;
