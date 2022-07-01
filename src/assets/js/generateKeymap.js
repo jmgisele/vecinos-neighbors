@@ -37,6 +37,22 @@ function exitQuoteFooter(state, dispatch) {
   return true;
 }
 
+function exitCaption(state, dispatch) {
+  const { $anchor, $head } = state.selection;
+  if ($head.parent.type !== state.schema.nodes.figcaption || $anchor.parent.type !== state.schema.nodes.figcaption) return false;
+  const above = $head.node(-2);
+  const below = $head.indexAfter(-2);
+  const type = state.schema.nodes.paragraph;
+  if (!above.canReplaceWith(below, below, type)) return false;
+  if (dispatch) {
+    const pos = $head.after();
+    const tr = state.tr.replaceWith(pos, pos, type.createAndFill());
+    tr.setSelection(Selection.near(tr.doc.resolve(pos), 1));
+    dispatch(tr.scrollIntoView());
+  }
+  return true;
+}
+
 function clearFormatsIfEmpty(state, dispatch) {
   const { empty, $head } = state.selection;
   if (!empty) return false;
@@ -90,7 +106,7 @@ export default function generateKeymap(schema, vm) {
 
   // breaks
   if (type = schema.nodes.br) {
-    const commandChain = chainCommands(exitCode, exitQuoteFooter, insertBreak);
+    const commandChain = chainCommands(exitCode, exitQuoteFooter, exitCaption, insertBreak);
     bindings['Mod-Enter'] = commandChain;
     bindings['Shift-Enter'] = commandChain;
     if (mac) bindings['Ctrl-Enter'] = commandChain;
@@ -146,8 +162,13 @@ export default function generateKeymap(schema, vm) {
   }
 
   // images
-  if (type = schema.nodes.image) {
+  if (type = schema.nodes.figure) {
     bindings['Mod-I'] = vm.openImagePopover;
+
+    if (type = schema.nodes.figcaption) {
+      if (!bindings.Enter) bindings.Enter = exitCaption;
+      else bindings.Enter = chainCommands(bindings.Enter, exitCaption);
+    }
   }
 
   // paragraphs
