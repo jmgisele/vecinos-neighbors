@@ -34,6 +34,7 @@ updatedAt: 2022-04-01
 * ID Fields using a `type` of `filepath` will now correctly reflect the path of
   the file within the project, not within Mattrbld. Additionally, the path will
   always reflect the **final** path of the file, even when it is a draft
+* Image fields with resolution hints that don’t contain a number will no longer break
 
 ## Version 0.2.0 Alpha
 
