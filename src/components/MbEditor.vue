@@ -766,6 +766,11 @@ export default {
         if (!newValue && !this.showPlaceholder) this.showPlaceholder = true;
       }
     },
+    outputFormat(nv, ov) {
+      if (nv === ov) return;
+      this.destroyProseMirror();
+      this.reInitializeProseMirror();
+    },
   },
 };
 </script>
