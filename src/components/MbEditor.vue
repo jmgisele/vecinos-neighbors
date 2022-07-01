@@ -583,7 +583,7 @@ export default {
       redo(this.editorState, this.editorView.dispatch);
     },
     reInitializeProseMirror() {
-      const schema = generateSchema(this.formats, this.outputFormat === 'markdown' ? { ...this.formatOptions, allowQuoteFooters: false } : this.formatOptions);
+      const schema = generateSchema(this.formats, this.outputFormat === 'markdown' ? { ...this.formatOptions, allowQuoteFooters: false, allowImageCaptions: false } : this.formatOptions);
       this.toolbarActions = this.generateActions(schema);
 
       if (this.outputFormat === 'markdown') {
@@ -693,7 +693,7 @@ export default {
     formatOptions: {
       type: Object,
       default: () => ({
-        minHeading: 1, maxHeading: 6, allowQuoteFooters: true, allowNestedLists: true,
+        minHeading: 1, maxHeading: 6, allowQuoteFooters: true, allowNestedLists: true, allowImageCaptions: true,
       }),
     },
     formats: {
