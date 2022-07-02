@@ -482,13 +482,13 @@ export default {
           } else acc.data[key] = value;
           return acc;
         }, {});
-        this.editorView.dispatch(
-          this.editorState.tr
-            .replaceSelectionWith(
-              this.editorState.schema.nodes.image.createAndFill(cleanImageAttrs, this.formatOptions.allowImageCaptions && data.caption ? this.editorState.schema.text(data.caption) : null),
-            )
-            .scrollIntoView(),
-        );
+        const { tr } = this.editorState;
+        tr.replaceSelectionWith(this.editorState.schema.nodes.image.createAndFill(cleanImageAttrs, this.formatOptions.allowImageCaptions && data.caption ? this.editorState.schema.text(data.caption) : null));
+        // const resolvedPos = tr.doc.resolve(tr.selection.anchor - 2); // NOTE: this 2 is a magic number – I assume it is because the selection is moved by 1 because we inserted the image and we want the position *before* that to select it
+        // tr.setSelection(new NodeSelection(resolvedPos));
+
+        this.editorView.dispatch(tr.scrollIntoView());
+        this.editorView.focus();
       } else {
         // if replacing an existing image, simply replace the src
       }
@@ -942,8 +942,9 @@ export default {
           &.loading
             background-color: $bg-tertiary-dark
 
-          figcaption.empty::before
-            color: $text-secondary-dark
+          figcaption
+            &.empty::before
+              color: $text-secondary-dark
 
       .placeholder
         color: $text-secondary-dark
