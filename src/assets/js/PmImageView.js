@@ -72,6 +72,11 @@ export default class PmImageView {
     }
   }
 
+  ignoreMutation(mutation) { // needed to prevent an infinite loop when captions are enabled
+    if (!this.contentDOM) return true;
+    return !this.contentDOM.contains(mutation.target);
+  }
+
   normalisedSrc(src) {
     if (this.mediaSettings.outputPath && src && src.startsWith(this.mediaSettings.outputPath)) return src.replace(this.mediaSettings.outputPath, this.mediaSettings.dir);
     return src;
@@ -86,6 +91,8 @@ export default class PmImageView {
       if (node.content.size > 0) caption.classList.remove('empty');
       else caption.classList.add('empty');
     }
+
+    // TODO: handle image attribute changes
 
     return true;
   }
