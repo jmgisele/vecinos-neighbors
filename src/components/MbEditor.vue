@@ -1126,6 +1126,7 @@ export default {
 
         figcaption
           position: relative
+          cursor: text
 
           &.empty::before
             content: 'Add caption…'
