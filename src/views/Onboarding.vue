@@ -151,8 +151,7 @@ export default {
   data() {
     return {
       avatarUploaded: false,
-      // corsProxy: 'http://localhost:9999', // Requires a cors buster running on 9999 (is this safe?)
-      corsProxy: '/corsprox', // Requires a /corsprox route configured on the server
+      corsProxy: process.ENV === 'production' ? '/corsprox' : 'http://localhost:9999', // Requires a /corsprox route configured on the server, or a CORSProx instance on 9999
       currentSlide: 0,
       errors: {
         corsProxy: '',
