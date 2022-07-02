@@ -679,7 +679,7 @@ export default {
           focus: (view) => { vm.handleSelectionChange(view.state.selection); },
         },
         nodeViews: vm.formats.block && vm.formats.block.includes('image') ? {
-          image(node, view, getPos) { return new PmImageView(node, view, getPos, vm.formatOptions.allowImageCaptions); },
+          image(node, view, getPos) { return new PmImageView(node, view, getPos, vm.formatOptions.allowImageCaptions && vm.outputFormat === 'html'); },
         } : null,
         scrollMargin: 128,
         scrollThreshold: 64,
