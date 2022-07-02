@@ -394,7 +394,7 @@ export default {
           action: this.openImagePopover,
           group: 'block-formats',
           name: 'image',
-          icon: 'image-add',
+          icon: 'image',
           tooltip: `Insert an image <kbd>${this.mac ? '⌘' : 'Ctrl'}</kbd>+<kbd>Shift</kbd>+<kbd>I</kbd>`,
         });
       }
