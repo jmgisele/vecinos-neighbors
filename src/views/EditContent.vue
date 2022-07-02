@@ -486,6 +486,7 @@ export default {
             this.$store.commit('addToast', {
               action: this.exchangePreviewHandshake,
               actionLabel: 'Retry',
+              closeOnRouteChange: true,
               message: 'The preview didn’t return the connection handshake, does it implement the Preview Protocol correctly?',
               onClose: (actionHandled) => { if (!actionHandled) this.showSplit = false; },
               timeout: false,
