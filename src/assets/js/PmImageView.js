@@ -1,3 +1,5 @@
+import { NodeSelection } from 'prosemirror-state';
+
 import { joinPath } from '../../fs';
 
 import { loadImage } from '../../fs/workerFS';
@@ -37,6 +39,7 @@ export default class PmImageView {
     });
 
     img.setAttribute('draggable', 'false');
+    img.setAttribute('contentEditable', 'false');
     figure.classList.add('loading');
 
     figure.appendChild(img);
@@ -46,6 +49,13 @@ export default class PmImageView {
       if (node.content.size === 0) caption.classList.add('empty');
       figure.appendChild(caption);
       this.contentDOM = caption;
+
+      figure.addEventListener('click', (e) => {
+        if (e.target !== caption && !caption.contains(e.target)) {
+          const change = view.state.tr.setSelection(NodeSelection.create(view.state.doc, getPos()));
+          view.dispatch(change);
+        }
+      });
     }
 
     this.dom = figure;
@@ -74,12 +84,18 @@ export default class PmImageView {
 
   ignoreMutation(mutation) { // needed to prevent an infinite loop when captions are enabled
     if (!this.contentDOM) return true;
+    if (mutation.target === this.contentDOM) return false;
     return !this.contentDOM.contains(mutation.target);
   }
 
   normalisedSrc(src) {
     if (this.mediaSettings.outputPath && src && src.startsWith(this.mediaSettings.outputPath)) return src.replace(this.mediaSettings.outputPath, this.mediaSettings.dir);
     return src;
+  }
+
+  stopEvent(e) {
+    if (this.allowCaption && e.type === 'click' && e.target !== this.dom.querySelector('figcaption') && !this.dom.querySelector('figcaption').contains(e.target)) return true;
+    return false;
   }
 
   update(node) {
