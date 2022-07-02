@@ -194,7 +194,6 @@ export default function generateSchema(
           toDOM(node) {
             const attrs = {
               alt: node.attrs.alt,
-              draggable: false,
               src: node.attrs.src,
               title: node.attrs.title,
             };

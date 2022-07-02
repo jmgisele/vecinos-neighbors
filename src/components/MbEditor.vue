@@ -12,7 +12,7 @@
             <MbSelect v-if="activeParagraphType === 'codeBlock'" class="paragraph-type" :dark="dark" :disabled="disabled || raw" :model-value="activeCodeLang" :options="codeLangs" placeholder="No Language" :refocus="false" :tooltip="{ message: 'Code Block Language', position: 'top' }" @update:model-value="setCodeBlockLang" />
           </div>
           <div v-for="(actions, name) in visibleToolbarActions" class="tool-group" :key="name">
-            <MbButton v-for="action in actions" :dark="dark" :disabled="disabledActions[action.name] || disabled || raw" :icon="action.icon" :key="action.name" :type="activeMarks.includes(action.name) ? 'primary' : null" :tooltip="{ message: action.tooltip, position: 'top' }" @click="action.action" />
+            <MbButton v-for="action in actions" :dark="dark" :disabled="disabledActions[action.name] || disabled || raw" :icon="action.icon" :key="action.name" :type="activeMarks.includes(action.name) || (action.name === 'image' && activeParagraphType === 'image') ? 'primary' : null" :tooltip="{ message: action.tooltip, position: 'top' }" @click="action.action" />
           </div>
           <div v-if="allowRaw" class="tool-group align-right">
             <MbButton v-show="raw && outputFormat === 'html'" :dark="dark" :disabled="disabled && raw" icon="text" :tooltip="{ message: 'Clean up code', position: 'top' }" @click="prettifyCode" />
@@ -73,9 +73,10 @@ import { liftListItem, sinkListItem, wrapInList } from 'prosemirror-schema-list'
 import formatHTML from '../assets/js/formatHTML';
 import generateInputRules from '../assets/js/generateInputRules';
 import generateKeymap, { insertHr } from '../assets/js/generateKeymap';
+import generateSchema from '../assets/js/generateSchema';
 import MarkdownParser from '../assets/js/MarkdownParser';
 import MarkdownSerializer from '../assets/js/MarkdownSerializer';
-import generateSchema from '../assets/js/generateSchema';
+import PmImageView from '../assets/js/PmImageView';
 
 import InternalLinkHelper from './utility/InternalLinkHelper.vue';
 import MediaSelectModal from './utility/MediaSelectModal.vue';
@@ -98,6 +99,7 @@ export default {
         ['paragraph', 'codeBlock', 'quoteFooter'].includes(this.activeParagraphType)
         || this.activeParagraphType.includes('heading')
       ) return this.activeParagraphType;
+      if (this.activeParagraphType === 'image') return 'Image';
       return 'Document Block';
     },
     cleanValue() {
@@ -126,13 +128,19 @@ export default {
         disabled.ol = true;
         disabled.ul = true;
         disabled.blockquote = true;
+        disabled.image = true;
       }
       if (['blockquote', 'orderedList', 'unorderedList'].includes(this.activeParagraphType)) {
         disabled.ol = true;
         disabled.ul = true;
+        disabled.image = true;
       }
       if (this.activeParentType === 'blockquote' && this.activeParagraphType !== 'quoteFooter') {
         disabled.outdent = false;
+      }
+      if (this.activeParagraphType === 'image') {
+        disabled.ol = true;
+        disabled.ul = true;
       }
       return disabled;
     },
@@ -670,6 +678,9 @@ export default {
           blur: () => { vm.caretVisible = false; },
           focus: (view) => { vm.handleSelectionChange(view.state.selection); },
         },
+        nodeViews: vm.formats.block && vm.formats.block.includes('image') ? {
+          image(node, view, getPos) { return new PmImageView(node, view, getPos, vm.formatOptions.allowImageCaptions); },
+        } : null,
         scrollMargin: 128,
         scrollThreshold: 64,
         state: vm.editorState,
@@ -918,6 +929,9 @@ export default {
         code
           background-color: $bg-tertiary-dark
 
+        figure figcaption.empty::before
+          color: $text-secondary-dark
+
       .placeholder
         color: $text-secondary-dark
 
@@ -1072,18 +1086,22 @@ export default {
             pointer-events: none
 
       figure
-        margin: (56 / 16)rem 0
+        margin: (32 / 16)rem 0
         text-align: center
         border: 1px solid red
 
         img
+          display: block
+          margin: 0 auto
+          max-width: 100%
+
           &:not(:last-child)
             margin-bottom: 1rem
 
         figcaption
           position: relative
 
-          &::before
+          &.empty::before
             content: 'Add caption…'
             color: $text-secondary
             position: absolute
