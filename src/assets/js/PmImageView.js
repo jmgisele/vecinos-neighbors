@@ -14,8 +14,12 @@ export default class PmImageView {
 
     Object.entries(node.attrs).forEach(([name, value]) => {
       if (name === 'src') {
-        if (!value.startsWith('/')) img.setAttribute(name, value);
-        else {
+        if (!value.startsWith('/')) {
+          img.setAttribute(name, value);
+          img.addEventListener('load', () => {
+            figure.classList.remove('loading');
+          }, { once: true });
+        } else {
           this.fetchImage(this.normalisedSrc(value)).then((url) => {
             this.image = url;
             img.setAttribute(name, url);
