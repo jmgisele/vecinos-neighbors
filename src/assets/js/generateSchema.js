@@ -168,6 +168,9 @@ export default function generateSchema(
               contentElement: 'figcaption',
               getAttrs(dom) {
                 const img = dom.querySelector('img');
+
+                if (!img || !img.getAttribute('src')) return false;
+
                 const data = { ...img.dataset };
                 return {
                   alt: img.getAttribute('alt'),
