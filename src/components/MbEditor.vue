@@ -70,6 +70,8 @@ import { isEqual, debounce } from 'lodash-es';
 import { keymap } from 'prosemirror-keymap';
 import { liftListItem, sinkListItem, wrapInList } from 'prosemirror-schema-list';
 
+import { joinPath } from '../fs';
+
 import formatHTML from '../assets/js/formatHTML';
 import generateInputRules from '../assets/js/generateInputRules';
 import generateKeymap, { insertHr } from '../assets/js/generateKeymap';
@@ -162,6 +164,9 @@ export default {
       const mac = typeof navigator !== 'undefined' ? /Mac/.test(navigator.platform) : false;
       return mac;
     },
+    mediaSettings() {
+      return this.$store.state.currentProject.media;
+    },
     overlength() {
       if (this.outputFormat === 'text') return this.modelValue && this.modelValue.length > this.maxLen;
       return this.contentLength > this.maxLen;
@@ -215,6 +220,9 @@ export default {
     preventEnter() {
       if (this.allowNewLines) return null;
       return 'keydown';
+    },
+    projectsDir() {
+      return joinPath('/projects', this.$store.state.currentProject.id);
     },
     visibleToolbarActions() { // OPTIMIZE: gets recomputed after every edit at the moment
       return this.toolbarActions.filter((a) => !this.disabledActions[a.name]).reduce((acc, action) => {
@@ -463,11 +471,11 @@ export default {
         // if adding a new image, add the image
         const cleanImageAttrs = Object.entries(data).reduce((acc, [key, value]) => {
           if (['alt', 'src', 'title'].includes(key)) {
-            if (value && typeof value === 'object' && !Array.isArray(value)) {
+            if (key === 'src') acc[key] = this.mediaSettings.outputPath ? value.replace(this.mediaSettings.dir, this.mediaSettings.outputPath) : value;
+            else if (value && typeof value === 'object' && !Array.isArray(value)) {
               if (this.lang) acc[key] = value[this.lang];
               else acc[key] = Object.values(value).find((v) => v);
             } else acc[key] = value;
-            if (this.lang) acc[key] = value && typeof value === 'object' && !Array.isArray(value) ? value[this.lang] : value;
           } else if (!acc.data) {
             acc.data = {};
             acc.data[key] = value;
@@ -679,7 +687,7 @@ export default {
           focus: (view) => { vm.handleSelectionChange(view.state.selection); },
         },
         nodeViews: vm.formats.block && vm.formats.block.includes('image') ? {
-          image(node, view, getPos) { return new PmImageView(node, view, getPos, vm.formatOptions.allowImageCaptions && vm.outputFormat === 'html'); },
+          image(node, view, getPos) { return new PmImageView(node, view, getPos, vm.formatOptions.allowImageCaptions && vm.outputFormat === 'html', vm.mediaSettings, vm.projectsDir, (msg) => vm.$store.commit('addToast', msg)); },
         } : null,
         scrollMargin: 128,
         scrollThreshold: 64,
@@ -829,6 +837,7 @@ export default {
 </script>
 
 <style lang="stylus">
+@require '../assets/styles/breakpoints'
 @require '../assets/styles/colors'
 @require '../assets/styles/corners'
 
@@ -929,8 +938,12 @@ export default {
         code
           background-color: $bg-tertiary-dark
 
-        figure figcaption.empty::before
-          color: $text-secondary-dark
+        figure
+          &.loading
+            background-color: $bg-tertiary-dark
+
+          figcaption.empty::before
+            color: $text-secondary-dark
 
       .placeholder
         color: $text-secondary-dark
@@ -1088,12 +1101,24 @@ export default {
       figure
         margin: (32 / 16)rem 0
         text-align: center
-        border: 1px solid red
+        cursor: pointer
+        transition: background-color 350ms ease
+
+        &.loading
+          padding: (176 / 16)rem 0
+          background-color: $bg-tertiary
+
+          @media $mobile
+            padding: (96 / 16)rem
+
+          img
+            opacity: 0
 
         img
           display: block
           margin: 0 auto
           max-width: 100%
+          transition: opacity 350ms ease
 
           &:not(:last-child)
             margin-bottom: 1rem

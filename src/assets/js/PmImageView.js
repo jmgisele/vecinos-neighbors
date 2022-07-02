@@ -1,11 +1,28 @@
+import { joinPath } from '../../fs';
+
+import { loadImage } from '../../fs/workerFS';
+
 export default class PmImageView {
-  constructor(node, view, getPos, allowCaption) { // eslint-disable-line no-unused-vars
+  constructor(node, view, getPos, allowCaption, mediaSettings, projectPath, addToast) {
+    this.addToast = addToast;
+    this.allowCaption = allowCaption;
+    this.mediaSettings = mediaSettings;
+    this.projectPath = projectPath;
+
     const figure = document.createElement('figure');
     const img = document.createElement('img');
 
     Object.entries(node.attrs).forEach(([name, value]) => {
-      // TODO: replace src with the objectUrl for the loaded image
-      if (name === 'data' && value) {
+      if (name === 'src') {
+        if (!value.startsWith('/')) img.setAttribute(name, value);
+        else {
+          this.fetchImage(this.normalisedSrc(value)).then((url) => {
+            this.image = url;
+            img.setAttribute(name, url);
+            figure.classList.remove('loading');
+          });
+        }
+      } else if (name === 'data' && value) {
         Object.entries(value).forEach(([dataName, dataValue]) => {
           // data-attributes in HTML must be all lowercase
           // accessing them via el.dataset returns them as camelCased though, so we convert them back here
@@ -16,6 +33,7 @@ export default class PmImageView {
     });
 
     img.setAttribute('draggable', 'false');
+    figure.classList.add('loading');
 
     figure.appendChild(img);
 
@@ -27,7 +45,32 @@ export default class PmImageView {
     }
 
     this.dom = figure;
-    this.allowCaption = allowCaption;
+  }
+
+  destroy() {
+    if (this.image) {
+      window.URL.revokeObjectURL(this.image);
+      this.image = null;
+    }
+  }
+
+  async fetchImage(path) {
+    if (!path) return null;
+    const realPath = path.startsWith(this.projectPath) ? path : joinPath(this.projectPath, path);
+    try {
+      const { url, raw } = await loadImage(realPath);
+      this.dom.dispatchEvent(new CustomEvent('image-load', { detail: { image: raw, path }, bubbles: true, composed: true })); // Using a CustomEvent here so we get bubbling and can listen to it in Edit Content
+      return url;
+    } catch (err) {
+      if (err.code === 'ENOENT') this.addToasts({ message: `The image for “${path}” could not be found. It may have been moved, renamed, or deleted and should be updated accordingly`, timeout: 10000, type: 'warning' });
+      else this.addToasts({ message: `Something went wrong when fetching the image thumbnail for ${path}: ${err.message}`, type: 'error' });
+      return null;
+    }
+  }
+
+  normalisedSrc(src) {
+    if (this.mediaSettings.outputPath && src && src.startsWith(this.mediaSettings.outputPath)) return src.replace(this.mediaSettings.outputPath, this.mediaSettings.dir);
+    return src;
   }
 
   update(node) {
