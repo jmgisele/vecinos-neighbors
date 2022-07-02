@@ -61,7 +61,7 @@ import {
 } from 'prosemirror-commands';
 import { DOMParser, DOMSerializer } from 'prosemirror-model';
 import { dropCursor } from 'prosemirror-dropcursor';
-import { EditorState, TextSelection } from 'prosemirror-state';
+import { EditorState, NodeSelection, TextSelection } from 'prosemirror-state';
 import { EditorView } from 'prosemirror-view';
 import { gapCursor } from 'prosemirror-gapcursor';
 import { history, redo, redoDepth, undo, undoDepth } from 'prosemirror-history'; // eslint-disable-line object-curly-newline
@@ -484,8 +484,9 @@ export default {
         }, {});
         const { tr } = this.editorState;
         tr.replaceSelectionWith(this.editorState.schema.nodes.image.createAndFill(cleanImageAttrs, this.formatOptions.allowImageCaptions && data.caption ? this.editorState.schema.text(data.caption) : null));
+        // TODO: find a way to select the image after it was inserted
         // const resolvedPos = tr.doc.resolve(tr.selection.anchor - 2); // NOTE: this 2 is a magic number – I assume it is because the selection is moved by 1 because we inserted the image and we want the position *before* that to select it
-        // tr.setSelection(new NodeSelection(resolvedPos));
+        // tr.setSelection(NodeSelection.create(this.editorState.doc, selectionStartBeforeChange));
 
         this.editorView.dispatch(tr.scrollIntoView());
         this.editorView.focus();
