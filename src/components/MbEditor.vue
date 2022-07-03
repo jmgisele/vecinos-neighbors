@@ -483,10 +483,13 @@ export default {
           return acc;
         }, {});
         const { tr } = this.editorState;
-        tr.replaceSelectionWith(this.editorState.schema.nodes.image.createAndFill(cleanImageAttrs, this.formatOptions.allowImageCaptions && data.caption ? this.editorState.schema.text(data.caption) : null));
+        const node = this.editorState.schema.nodes.image.createAndFill(cleanImageAttrs, this.formatOptions.allowImageCaptions && data.caption ? this.editorState.schema.text(data.caption) : null);
+        tr.replaceSelectionWith(node);
         // TODO: find a way to select the image after it was inserted
-        // const resolvedPos = tr.doc.resolve(tr.selection.anchor - 2); // NOTE: this 2 is a magic number – I assume it is because the selection is moved by 1 because we inserted the image and we want the position *before* that to select it
-        // tr.setSelection(NodeSelection.create(this.editorState.doc, selectionStartBeforeChange));
+        // It doesn’t work yet when the node was inserted at the end of another node or the document
+        // tr.setSelection(NodeSelection.create(tr.doc, (tr.selection.$anchor.depth > 0 ? tr.selection.$anchor.before() : tr.selection.anchor) - node.nodeSize));
+        console.log(tr.doc.resolve(Math.max(0, (tr.selection.$anchor.depth > 0 ? tr.selection.$anchor.before() : tr.selection.anchor) - node.nodeSize)));
+        tr.setSelection(new NodeSelection(tr.doc.resolve(Math.max(0, (tr.selection.$anchor.depth > 0 ? tr.selection.$anchor.before() : tr.selection.anchor) - node.nodeSize))));
 
         this.editorView.dispatch(tr.scrollIntoView());
         this.editorView.focus();
