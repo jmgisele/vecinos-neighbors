@@ -22,7 +22,7 @@
           <MbProgress :dark="dark" :indetermined="!currentOperation.progress" :label="currentOperation.step" :progress="currentOperation.progress" />
         </div>
         <div v-else class="wrapper">
-          <MbEditor v-model="commitMessage" :allow-new-lines="false" :dark="dark" label="Message describing the changes (optional)" :max-len="72" warn />
+          <MbEditor v-model="commitMessage" :allow-new-lines="false" :dark="dark" label="Message describing the changes (optional)" :max-len="72" warn @keyup.ctrl.enter="handlePushWithEnter" />
           <header :class="{dark}">
             <span>Select the changes to include:</span>
             <MbButton :dark="dark" @click="toggleSelectAll">{{lessThanHalfSelected ? 'Select all' : 'Deselect all'}}</MbButton>
@@ -447,6 +447,9 @@ export default {
         this.gitErrorRetryAction = this.pushChanges;
         this.showGitErrorModal = true;
       }
+    },
+    handlePushWithEnter() {
+      if (!this.isPushing && !this.changesLoading && this.selectedChanges.length > 0) this.pushChanges();
     },
     async onGitProgress(progress) {
       this.currentOperation.step = progress.phase;
