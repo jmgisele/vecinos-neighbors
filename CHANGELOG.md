@@ -7,6 +7,8 @@ updatedAt: 2022-04-01
 
 ### New Features
 
+* You can now sync selected changes right after entering a message by pressing
+  `Ctrl` + `Enter` while the input field is still focussed
 * It is now possible to create folders when uploading media while editing content
 * If the Live Preview is open in a new tab or window, this tab or window will now
   be closed when the content item being edited is closed
