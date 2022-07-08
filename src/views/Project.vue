@@ -18,7 +18,7 @@
     <MbModal class="changes-modal" :dark="dark" :permanent="isPushing" title="Sync local changes" :visible="showChangesModal" @close="showChangesModal = false" @after-close="resetChangesModal">
       <transition mode="out-in">
         <MbLoader v-if="changesLoading" />
-        <div v-else-if="isPushing" class="progress">
+        <div v-else-if="isPulling || isPushing" class="progress">
           <MbProgress :dark="dark" :indetermined="!currentOperation.progress" :label="currentOperation.step" :progress="currentOperation.progress" />
         </div>
         <div v-else class="wrapper">
@@ -43,8 +43,11 @@
         </div>
       </transition>
       <template #actions>
-        <MbButton :dark="dark" :disabled="isPushing" @click="showChangesModal = false">Cancel</MbButton>
-        <MbButton :dark="dark" :disabled="isPushing || changesLoading || selectedChanges.length === 0" type="primary" @click="pushChanges">Sync {{selectedChanges.length}} change{{ selectedChanges.length !== 1 ? 's' : ''}}</MbButton>
+        <MbButton :dark="dark" :disabled="isPulling || isPushing" @click="showChangesModal = false">Cancel</MbButton>
+        <MbButton :dark="dark" :disabled="isPulling || isPushing || changesLoading" type="primary" @click="selectedChanges.length === 0 ? pullChanges() : pushChanges()">
+          <template v-if="selectedChanges.length">Sync {{selectedChanges.length}} change{{ selectedChanges.length !== 1 ? 's' : ''}}</template>
+          <template v-else>Check for updates</template>
+        </MbButton>
       </template>
     </MbModal>
     <MbModal class="discard-confirmation-modal" :dark="dark" title="Discard Local Changes" :visible="showDiscardConfirmationModal" @close="showDiscardConfirmationModal = false" @after-close="changeToDiscard = null">
@@ -288,6 +291,9 @@ export default {
       }
       return status;
     },
+    isPulling() {
+      return this.currentOperation.type === 'pull' && this.gitLoading;
+    },
     isPushing() {
       return this.currentOperation.type === 'push' && this.gitLoading;
     },
@@ -514,7 +520,7 @@ export default {
       this.changesLoading = false;
     },
     async performInitialPull() {
-      this.currentOperation.type = 'pull';
+      this.currentOperation.type = 'initial-pull';
       this.gitLoading = true;
       try {
         const configHasChanged = await this.pullAndCheckForConfigChange();
@@ -572,6 +578,36 @@ export default {
         return true;
       }
       return false;
+    },
+    async pullChanges() {
+      this.gitLoading = true;
+      this.currentOperation.type = 'pull';
+      this.currentOperation.step = 'Fetching latest changes…';
+      try {
+        const configHasChanged = await this.pullAndCheckForConfigChange();
+        if (configHasChanged) this.handleConfigChanged();
+        else if (this.$refs.subview && this.$refs.subview.refresh) this.$refs.subview.refresh(); // refresh the dashboard
+      } catch (err) {
+        let hint;
+        // NOTE: This isn’t exactly a robust way to detect errors, but it’s all the data I have…
+        if (err.code !== 'UserCanceledError') {
+          if (err.message === 'Failed to fetch') hint = 'Check your internet connection and make sure your CORS-proxy is set up correctly. Exiting and re-opening the project or reloading the page might help.';
+          this.gitError = {
+            code: err.code,
+            data: err.data,
+            message: err.message,
+            name: err.name,
+            hint,
+          };
+          this.gitErrorRetryAction = this.pullChanges;
+          this.showGitErrorModal = true;
+        }
+      }
+      this.currentOperation.type = null;
+      this.currentOperation.step = null;
+      this.currentOperation.progress = null;
+      this.gitLoading = false;
+      this.$store.commit('addToast', { message: 'Successfully downloaded the latest remote changes', type: 'positive' });
     },
     async pushChanges() {
       if (this.selectedChanges.length === 0) return;
