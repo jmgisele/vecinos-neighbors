@@ -9,6 +9,8 @@ updatedAt: 2022-04-01
 
 * You can now sync selected changes right after entering a message by pressing
   `Ctrl` + `Enter` while the input field is still focussed
+* You can now manually pull in the latest remote changes when no local changes
+  are selected for sync in the changes modal
 * It is now possible to create folders when uploading media while editing content
 * If the Live Preview is open in a new tab or window, this tab or window will now
   be closed when the content item being edited is closed
