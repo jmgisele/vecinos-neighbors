@@ -487,9 +487,8 @@ export default {
         tr.replaceSelectionWith(node);
         // TODO: find a way to select the image after it was inserted
         // It doesn’t work yet when the node was inserted at the end of another node or the document
-        // tr.setSelection(NodeSelection.create(tr.doc, (tr.selection.$anchor.depth > 0 ? tr.selection.$anchor.before() : tr.selection.anchor) - node.nodeSize));
-        console.log(tr.doc.resolve(Math.max(0, (tr.selection.$anchor.depth > 0 ? tr.selection.$anchor.before() : tr.selection.anchor) - node.nodeSize)));
-        tr.setSelection(new NodeSelection(tr.doc.resolve(Math.max(0, (tr.selection.$anchor.depth > 0 ? tr.selection.$anchor.before() : tr.selection.anchor) - node.nodeSize))));
+        // tr.setSelection(new NodeSelection(tr.doc.resolve(Math.max(0, (tr.selection.$anchor.depth > 0 ? tr.selection.$anchor.before() : tr.selection.anchor) - node.nodeSize))));
+        console.log(tr.selection);
 
         this.editorView.dispatch(tr.scrollIntoView());
         this.editorView.focus();
