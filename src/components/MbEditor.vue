@@ -485,10 +485,13 @@ export default {
         const { tr } = this.editorState;
         const node = this.editorState.schema.nodes.image.createAndFill(cleanImageAttrs, this.formatOptions.allowImageCaptions && data.caption ? this.editorState.schema.text(data.caption) : null);
         tr.replaceSelectionWith(node);
-        // TODO: find a way to select the image after it was inserted
-        // It doesn’t work yet when the node was inserted at the end of another node or the document
-        // tr.setSelection(new NodeSelection(tr.doc.resolve(Math.max(0, (tr.selection.$anchor.depth > 0 ? tr.selection.$anchor.before() : tr.selection.anchor) - node.nodeSize))));
-        console.log(tr.selection);
+        let found;
+        tr.doc.nodesBetween(0, tr.selection.anchor + 1, (node, pos) => {
+          if (node.type.name === 'image') found = { pos };
+          if (found) return false;
+          return true;
+        });
+        tr.setSelection(NodeSelection.create(tr.doc, found.pos));
 
         this.editorView.dispatch(tr.scrollIntoView());
         this.editorView.focus();
