@@ -483,15 +483,17 @@ export default {
           return acc;
         }, {});
         const { tr } = this.editorState;
-        const node = this.editorState.schema.nodes.image.createAndFill(cleanImageAttrs, this.formatOptions.allowImageCaptions && data.caption ? this.editorState.schema.text(data.caption) : null);
-        tr.replaceSelectionWith(node);
+        const image = this.editorState.schema.nodes.image.createAndFill(cleanImageAttrs, this.formatOptions.allowImageCaptions && data.caption ? this.editorState.schema.text(data.caption) : null);
+        tr.replaceSelectionWith(image);
+
+        // NOTE: this almost works, except when captions are enabled
         let found;
-        tr.doc.nodesBetween(0, tr.selection.anchor + 1, (node, pos) => {
+        tr.doc.nodesBetween(0, tr.selection.$anchor.nodeAfter === image ? tr.selection.anchor + 1 : tr.selection.anchor, (node, pos) => {
           if (node.type.name === 'image') found = { pos };
           if (found) return false;
           return true;
         });
-        tr.setSelection(NodeSelection.create(tr.doc, found.pos));
+        if (found) tr.setSelection(NodeSelection.create(tr.doc, found.pos));
 
         this.editorView.dispatch(tr.scrollIntoView());
         this.editorView.focus();
