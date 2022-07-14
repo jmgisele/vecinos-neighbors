@@ -28,3 +28,6 @@ IMPRINT.md
 
 # Private scripts
 deploy.sh
+
+# Misc
+cors-proxy.pid
