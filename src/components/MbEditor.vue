@@ -486,14 +486,21 @@ export default {
         const image = this.editorState.schema.nodes.image.createAndFill(cleanImageAttrs, this.formatOptions.allowImageCaptions && data.caption ? this.editorState.schema.text(data.caption) : null);
         tr.replaceSelectionWith(image);
 
-        // NOTE: this almost works, except when captions are enabled
+        // NOTE: this code is largely based on trial and error, so there may be some edge-cases in which the selection doesn’t get set correctly
+        let foundBefore;
         let found;
-        tr.doc.nodesBetween(0, tr.selection.$anchor.nodeAfter === image ? tr.selection.anchor + 1 : tr.selection.anchor, (node, pos) => {
-          if (node.type.name === 'image') found = { pos };
+        tr.doc.nodesBetween(0, tr.selection.$anchor.nodeAfter === image ? tr.selection.anchor + 1 : tr.selection.anchor, (node, pos) => { // if the node after the selection anchor is the image we just inserted, we need to offset the position by one so that image gets included
+          if (node.type.name === 'image') {
+            if (found) foundBefore = found; // HACK: since when captions are enabled the image after the one we want gets selected, we store the previous one here
+            found = { pos };
+          }
           if (found) return false;
           return true;
         });
-        if (found) tr.setSelection(NodeSelection.create(tr.doc, found.pos));
+        if (found) {
+          if (!this.formatOptions.allowImageCaptions || tr.selection.$anchor.nodeAfter !== null) tr.setSelection(NodeSelection.create(tr.doc, found.pos)); // when captions are disabled, or a caption was inserted before a node, the image found last is the one we want
+          else tr.setSelection(NodeSelection.create(tr.doc, (foundBefore && foundBefore.pos) || found.pos)); // otherwise it's the second to last
+        }
 
         this.editorView.dispatch(tr.scrollIntoView());
         this.editorView.focus();
