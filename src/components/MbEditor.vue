@@ -636,7 +636,7 @@ export default {
       // show a popover that allows adding / editing an image
       const { selection } = this.editorState;
 
-      if (!selection.node || selection.node.type.name !== 'image') {
+      if ((!selection.node && selection.$from.parent.type.name !== 'image') || (selection.node && selection.node.type.name !== 'image')) {
         this.showMediaSelectModal = true;
       } else {
         // otherwise open a popover that allows changing Advanced Media Library fields
