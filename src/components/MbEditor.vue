@@ -489,7 +489,7 @@ export default {
         // NOTE: this code is largely based on trial and error, so there may be some edge-cases in which the selection doesn’t get set correctly
         let foundBefore;
         let found;
-        tr.doc.nodesBetween(0, tr.selection.$anchor.nodeAfter === image ? tr.selection.anchor + 1 : tr.selection.anchor, (node, pos) => { // if the node after the selection anchor is the image we just inserted, we need to offset the position by one so that image gets included
+        tr.doc.nodesBetween(0, tr.selection.$anchor.nodeAfter === image ? tr.selection.head : tr.selection.anchor, (node, pos) => { // if the node after the selection anchor is the image we just inserted, we use the selection head, which points after the inserted image
           if (node.type.name === 'image') {
             if (found) foundBefore = found; // HACK: since when captions are enabled the image after the one we want gets selected, we store the previous one here
             found = { pos };
