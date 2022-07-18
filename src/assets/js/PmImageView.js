@@ -14,6 +14,12 @@ export default class PmImageView {
     const figure = document.createElement('figure');
     const img = document.createElement('img');
 
+    let wrapper;
+    if (allowCaption) {
+      wrapper = document.createElement('div');
+      wrapper.setAttribute('contentEditable', 'false');
+    }
+
     Object.entries(node.attrs).forEach(([name, value]) => {
       if (name === 'src') {
         if (!value.startsWith('/')) {
@@ -42,7 +48,10 @@ export default class PmImageView {
     img.setAttribute('contentEditable', 'false');
     figure.classList.add('loading');
 
-    figure.appendChild(img);
+    if (wrapper) {
+      wrapper.appendChild(img);
+      figure.appendChild(wrapper);
+    } else figure.appendChild(img);
 
     if (allowCaption) {
       const caption = document.createElement('figcaption');
