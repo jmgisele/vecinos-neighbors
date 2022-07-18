@@ -51,6 +51,17 @@
         <MbButton :dark="dark" :disabled="!linkPopover.href" type="primary" @click="addLink">{{linkPopover.editing ? 'Save' : 'Add'}}</MbButton>
       </template>
     </MbPopover>
+    <MbPopover class="edit-image" center-x :dark="dark" :visible="imagePopover.visible" :x="imagePopover.x" :y="imagePopover.y" @close="imagePopover.visible = false" @after-close="closeImagePopover" @keyup.ctrl.enter="setImageAttributes">
+      <template #header>
+        <h3>Edit Image</h3>
+      </template>
+      <MbFieldsEditor v-if="imagePopover.content" v-model="imagePopover.content" :dark="dark" compact :fields="$store.state.currentProject.media.customFields" in-split :languages="$store.state.currentProject.languages" />
+      <MbButton class="replace-image" :dark="dark" icon="replace-round" :icon-first="true" @click="replaceImage">Replace Image</MbButton>
+      <template #footer>
+        <MbButton :dark="dark" @click="imagePopover.visible = false">Cancel</MbButton>
+        <MbButton :dark="dark" type="primary" @click="setImageAttributes">Save</MbButton>
+      </template>
+    </MbPopover>
     <MediaSelectModal :dark="dark" :selected-file-path="currentImagePath" :visible="showMediaSelectModal" @close="handleMediaSelectClose" @file-selected="handleImageSelected" @update-meta-is-new="imageMetaIsNew = $event" />
   </div>
 </template>
@@ -246,6 +257,12 @@ export default {
       focussed: false,
       imageBeingReplaced: false,
       imageMetaIsNew: false,
+      imagePopover: {
+        content: null,
+        visible: false,
+        x: 0,
+        y: 0,
+      },
       linkPopover: {
         editing: false,
         href: '',
@@ -293,6 +310,15 @@ export default {
       if (this.activeMarks.includes('link')) this.setMark(linkType); // toggle it off, hacky
       this.setMark(linkType, attrs);
       this.linkPopover.visible = false;
+    },
+    closeImagePopover() {
+      this.imagePopover = {
+        content: null,
+        visible: false,
+        x: 0,
+        y: 0,
+      };
+      this.editorView.focus();
     },
     closeLinkPopover() {
       this.linkPopover = {
@@ -467,21 +493,9 @@ export default {
       return this.modelValue; // if it’s text
     },
     handleImageSelected(data) {
+      const cleanImageAttrs = this.transformImageDataToAttrs(data);
       if (!this.imageBeingReplaced) {
         // if adding a new image, add the image
-        const cleanImageAttrs = Object.entries(data).reduce((acc, [key, value]) => {
-          if (['alt', 'src', 'title'].includes(key)) {
-            if (key === 'src') acc[key] = this.mediaSettings.outputPath ? value.replace(this.mediaSettings.dir, this.mediaSettings.outputPath) : value;
-            else if (value && typeof value === 'object' && !Array.isArray(value)) {
-              if (this.lang) acc[key] = value[this.lang];
-              else acc[key] = Object.values(value).find((v) => v);
-            } else acc[key] = value;
-          } else if (!acc.data) {
-            acc.data = {};
-            acc.data[key] = value;
-          } else acc.data[key] = value;
-          return acc;
-        }, {});
         const { tr } = this.editorState;
         const image = this.editorState.schema.nodes.image.createAndFill(cleanImageAttrs, this.formatOptions.allowImageCaptions && data.caption ? this.editorState.schema.text(data.caption) : null);
         tr.replaceSelectionWith(image);
@@ -499,13 +513,17 @@ export default {
         });
         if (found) {
           if (!this.formatOptions.allowImageCaptions || tr.selection.$anchor.nodeAfter !== null) tr.setSelection(NodeSelection.create(tr.doc, found.pos)); // when captions are disabled, or a caption was inserted before a node, the image found last is the one we want
-          else tr.setSelection(NodeSelection.create(tr.doc, (foundBefore && foundBefore.pos) || found.pos)); // otherwise it's the second to last
+          else tr.setSelection(NodeSelection.create(tr.doc, (foundBefore && foundBefore.pos) || found.pos)); // otherwise it's the second to last NOTE: doesn’t work if there’s no image after…
         }
 
         this.editorView.dispatch(tr.scrollIntoView());
         this.editorView.focus();
       } else {
-        // if replacing an existing image, simply replace the src
+        const { selection, tr } = this.editorState;
+        tr.setNodeMarkup(selection.anchor, null, cleanImageAttrs);
+        tr.setSelection(NodeSelection.create(tr.doc, selection.anchor));
+        this.editorView.dispatch(tr.scrollIntoView());
+        this.editorView.focus();
       }
     },
     handleMediaSelectClose() {
@@ -634,12 +652,26 @@ export default {
     },
     openImagePopover() {
       // show a popover that allows adding / editing an image
-      const { selection } = this.editorState;
+      const { doc, selection } = this.editorState;
 
       if ((!selection.node && selection.$from.parent.type.name !== 'image') || (selection.node && selection.node.type.name !== 'image')) {
         this.showMediaSelectModal = true;
       } else {
         // otherwise open a popover that allows changing Advanced Media Library fields
+        if (!selection.node) this.editorView.dispatch(this.editorState.tr.setSelection(NodeSelection.create(doc, selection.$from.pos - selection.$from.parentOffset - 1))); // select the entire node, which starts at selection position - parentOffset - 1
+
+        const { selection: currentSelection } = this.editorState; // we need to get the updated selection here so it is current if we dispatched a transaction
+        const { attrs } = currentSelection.node;
+        const { left, bottom, width } = this.editorView.nodeDOM(currentSelection.from).getBoundingClientRect();
+        this.imagePopover.content = {
+          ...attrs.data,
+          alt: attrs.alt,
+          src: attrs.src,
+          title: attrs.title,
+        };
+        this.imagePopover.x = left + width / 2;
+        this.imagePopover.y = bottom + 0.5 * Number.parseInt(window.getComputedStyle(document.documentElement).fontSize, 10);
+        this.imagePopover.visible = true;
       }
       return true; // mark the event as handled
     },
@@ -721,9 +753,23 @@ export default {
       this.setMark(this.editorState.schema.marks.link);
       this.linkPopover.visible = false;
     },
+    replaceImage() {
+      this.imageBeingReplaced = true;
+      this.imagePopover.visible = false;
+      this.showMediaSelectModal = true;
+    },
     setCodeBlockLang(lang) {
       setBlockType(this.editorState.schema.nodes.codeBlock, { lang })(this.editorState, this.editorView.dispatch);
       this.editorView.focus();
+    },
+    setImageAttributes() {
+      if (!this.imagePopover.content) return;
+      const cleanImageAttrs = this.transformImageDataToAttrs(this.imagePopover.content);
+      const { selection, tr } = this.editorState;
+      tr.setNodeMarkup(selection.anchor, null, cleanImageAttrs);
+      tr.setSelection(NodeSelection.create(tr.doc, selection.anchor));
+      this.editorView.dispatch(tr.scrollIntoView());
+      this.imagePopover.visible = false;
     },
     setMark(type, attrs) {
       toggleMark(type, attrs)(this.editorState, this.editorView.dispatch);
@@ -732,6 +778,24 @@ export default {
     setParagraphType(typeName) {
       setBlockType(this.editorState.schema.nodes[typeName])(this.editorState, this.editorView.dispatch);
       this.editorView.focus();
+    },
+    transformImageDataToAttrs(data) {
+      return Object.entries(data).reduce((acc, [key, value]) => {
+        if (['alt', 'src', 'title'].includes(key)) {
+          if (key === 'src') acc[key] = this.mediaSettings.outputPath ? value.replace(this.mediaSettings.dir, this.mediaSettings.outputPath) : value;
+          else if (value && typeof value === 'object' && !Array.isArray(value)) {
+            if (this.lang) acc[key] = value[this.lang];
+            else acc[key] = Object.values(value).find((v) => v);
+          } else acc[key] = value;
+        } else {
+          if (!acc.data) acc.data = {};
+          if (value && typeof value === 'object' && !Array.isArray(value)) {
+            if (this.lang) acc.data[key] = value[this.lang];
+            else acc.data[key] = Object.values(value).find((v) => v);
+          } else acc.data[key] = value;
+        }
+        return acc;
+      }, {});
     },
     undo() {
       undo(this.editorState, this.editorView.dispatch);
@@ -1129,6 +1193,8 @@ export default {
 
           img
             opacity: 0
+            height: 0
+            transition: none
 
         img
           display: block
@@ -1250,85 +1316,98 @@ export default {
         right: @top
         visibility: hidden
 
-.popover.add-link
-  h3
-    text-align: center
+.popover
+  &.add-link,
+  &.edit-image
+    h3
+      text-align: center
 
-  .input
-    width: 100%
-    display: flex
+    .input
+      width: 100%
+      display: flex
 
-    &.dark
-      background-color: $bg-tertiary-dark
-
-    & + .remove-link
-      margin-top: 1.5rem
-
-  .input,
-  .internal-link
-    &.v-enter-active,
-    &.v-leave-active
-      transition:  opacity 200ms ease
-
-      &.v-enter-from,
-      &.v-leave-to
-        opacity: 0
-
-  .internal-link
-    margin-top: 1.5rem
-    max-width: (309 / 16)rem
-
-    &.dark
-      background-color: $bg-secondary-dark
-
-      .url,
-      .collections ul li:not(:last-child)
+      &.dark
         background-color: $bg-tertiary-dark
 
-        &:hover
-          background-color: lighten($bg-tertiary-dark, 5)
+      & + .remove-link
+        margin-top: 1.5rem
+
+    .input,
+    .internal-link
+      &.v-enter-active,
+      &.v-leave-active
+        transition:  opacity 200ms ease
+
+        &.v-enter-from,
+        &.v-leave-to
+          opacity: 0
+
+    .internal-link
+      margin-top: 1.5rem
+      max-width: (309 / 16)rem
+
+      &.dark
+        background-color: $bg-secondary-dark
+
+        .url,
+        .collections ul li:not(:last-child)
+          background-color: $bg-tertiary-dark
+
+          &:hover
+            background-color: lighten($bg-tertiary-dark, 5)
+
+        .view.files
+          .file-list
+            .files
+              background-color: $bg-secondary-dark
+
+              .file
+                background-color: $bg-tertiary-dark
+
+                &:hover
+                  background-color: lighten($bg-tertiary-dark, 5)
+
+                &:active
+                  background-color: $bg-secondary-dark
 
       .view.files
         .file-list
+          header
+            .actions
+              flex-direction: column-reverse
+              align-items: flex-start
+
+              .input
+                width: 100%
+                margin-right: 0
+                margin-top: 0.5rem
+
+              > .button
+                width: 100%
+                margin: 0
+
           .files
-            background-color: $bg-secondary-dark
+            max-height: (400 / 16)rem
+            overflow-y: auto
 
-            .file
-              background-color: $bg-tertiary-dark
+    .segmented-selector.dark
+      background-color: $bg-tertiary-dark
 
-              &:hover
-                background-color: lighten($bg-tertiary-dark, 5)
+    .toggle
+      margin-top: 1rem
 
-              &:active
-                background-color: $bg-secondary-dark
+    .remove-link,
+    .replace-image
+      margin-top: 1rem
+      width: 100%
 
-    .view.files
-      .file-list
-        header
-          .actions
-            flex-direction: column-reverse
-            align-items: flex-start
+  &.edit-image
+    .fields-editor
+      margin-bottom: 0.5rem
 
-            .input
-              width: 100%
-              margin-right: 0
-              margin-top: 0.5rem
+      > .field.text:not(.localised):first-child
+        margin-top: 0.5rem
 
-            > .button
-              width: 100%
-              margin: 0
-
-        .files
-          max-height: (400 / 16)rem
-          overflow-y: auto
-
-  .segmented-selector.dark
-    background-color: $bg-tertiary-dark
-
-  .toggle
-    margin-top: 1rem
-
-  .remove-link
-    margin-top: 1rem
-    width: 100%
+      > .field:not(:last-child)
+        margin-bottom: 1.5rem
 </style>

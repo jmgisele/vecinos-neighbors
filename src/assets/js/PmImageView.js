@@ -8,6 +8,7 @@ export default class PmImageView {
   constructor(node, view, getPos, allowCaption, mediaSettings, projectPath, addToast) {
     this.addToast = addToast;
     this.allowCaption = allowCaption;
+    this.currentSrc = node.attrs.src;
     this.mediaSettings = mediaSettings;
     this.projectPath = projectPath;
 
@@ -117,7 +118,35 @@ export default class PmImageView {
       else caption.classList.add('empty');
     }
 
-    // TODO: handle image attribute changes
+    Object.entries(node.attrs).forEach(([name, value]) => {
+      const img = this.dom.querySelector('img');
+      if (name === 'src') {
+        if (value !== this.currentSrc) {
+          this.currentSrc = value;
+          this.dom.classList.add('loading');
+          if (!value.startsWith('/')) {
+            img.setAttribute(name, value);
+            img.addEventListener('load', () => {
+              this.dom.classList.remove('loading');
+            }, { once: true });
+          } else {
+            this.fetchImage(this.normalisedSrc(value)).then((url) => {
+              this.image = url;
+              img.setAttribute(name, url);
+              this.dom.classList.remove('loading');
+            });
+          }
+        }
+        // if it is not a new src, don’t do anything
+      } else if (name === 'data' && value) {
+        Object.entries(value).forEach(([dataName, dataValue]) => {
+          // data-attributes in HTML must be all lowercase
+          // accessing them via el.dataset returns them as camelCased though, so we convert them back here
+          const cleanKey = dataName.replace(/[A-Z]/g, (match) => `-${match.toLowerCase()}`);
+          img.setAttribute(`data-${cleanKey}`, String(dataValue));
+        });
+      } else if (value) img.setAttribute(name, value);
+    });
 
     return true;
   }
