@@ -16,7 +16,7 @@
 
       <template #right="{ isModal }">
         <transition mode="out-in">
-          <div v-show="showSplit" class="edit-file" :class="{ dark }" :key="entityBeingModified">
+          <div class="edit-file" :class="{ dark }" :key="entityBeingModified">
             <div v-if="fileDetails.image" class="thumbnail">
               <img :src="fileDetails.image" :alt="fileDetails.alt || 'Error loading file'" @load="setImageResolutionAndColor">
             </div>
@@ -47,11 +47,11 @@
             </dl>
             <div class="data">
               <MbFieldsEditor v-if="currentProject.media.advanced && imageRegExp.test(entityBeingModified) && (userPermissions.has('everything') || userPermissions.has('editMedia'))" v-model:error="fileDetails.errors" :dark="dark" compact :fields="currentProject.media.customFields" in-split :model-value="fileDetails.meta" :languages="currentProject.languages" @update:model-value="updateMediaMetaFile" />
-              <MbHighlightBox v-if="userPermissions.has('everything') || userPermissions.has('editMedia')" class="replacement" :class="{ 'in-modal': isModal }" :dark="dark" label="Replace File">
+              <MbHighlightBox v-if="showSplit && (userPermissions.has('everything') || userPermissions.has('editMedia'))" class="replacement" :class="{ 'in-modal': isModal }" :dark="dark" label="Replace File">
                 <p>Replacing a file allows you to change its contents without having to update all content items that refer to it, since the path will remain unchanged.</p>
                 <MbButton :dark="dark" icon="replace-alt" @click="replaceFile">Replace</MbButton>
               </MbHighlightBox>
-              <MbHighlightBox v-if="userPermissions.has('everything') || userPermissions.has('deleteMedia')" :class="{ 'in-modal': isModal }" color="negative" :dark="dark" label="Delete File">
+              <MbHighlightBox v-if="showSplit && (userPermissions.has('everything') || userPermissions.has('deleteMedia'))" :class="{ 'in-modal': isModal }" color="negative" :dark="dark" label="Delete File">
                 <p>Please note that deleting a file will <strong>not</strong> remove it from content items that reference it! <strong>Make sure to update those as well</strong> to avoid broken links.</p>
                 <MbButton :dark="dark" icon="trash" type="negative" @click="deleteEntity(entityBeingModified)">Delete</MbButton>
               </MbHighlightBox>
