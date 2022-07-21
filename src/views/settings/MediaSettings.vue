@@ -30,32 +30,13 @@
 </template>
 
 <script>
-import { cloneDeep as _cloneDeep, debounce } from 'lodash-es';
+import { debounce } from 'lodash-es';
 import availableRoles from '../../data/availableRoles';
+import cleanField from '../../assets/js/cleanField';
 import defaultFields from '../../data/defaultFields';
 import getFieldsByPredicate from '../../assets/js/getFieldsByPredicate';
 
 import SchemaFieldsEditor from '../../components/utility/SchemaFieldsEditor.vue';
-
-function cleanField(field) {
-  const cf = {};
-
-  Object.entries(field).forEach(([key, value]) => {
-    if (key === 'options' && value.length > 0) {
-      cf.options = {};
-      value.forEach((option) => {
-        cf.options[option.key] = _cloneDeep(option.value);
-      });
-    } else if (key === 'value' && value) cf.value = [];
-    else cf[key] = _cloneDeep(value);
-  });
-
-  delete cf.tab;
-  delete cf.description; // not needed, so let’s save space
-  delete cf.group; // not needed, so let’s save space
-
-  return cf;
-}
 
 export default {
   components: {
