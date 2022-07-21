@@ -96,6 +96,8 @@ import PmImageView from '../assets/js/PmImageView';
 import InternalLinkHelper from './utility/InternalLinkHelper.vue';
 import MediaSelectModal from './utility/MediaSelectModal.vue';
 
+let lastSelection;
+
 export default {
   beforeUnmount() {
     if (this.outputFormat !== 'text' && !this.raw) this.destroyProseMirror();
@@ -543,6 +545,8 @@ export default {
         this.editorView.dispatch(tr.scrollIntoView());
         this.editorView.focus();
       }
+      lastSelection = this.editorState.selection; // HACK: this is to handle the selection changing to a weird text selection after entering
+      this.openImagePopover();
     },
     handleMediaSelectClose() {
       this.showMediaSelectModal = false;
@@ -793,9 +797,9 @@ export default {
     setImageAttributes() {
       if (!this.imagePopover.content) return;
       const cleanImageAttrs = this.transformImageDataToAttrs(this.imagePopover.content);
-      const { selection, tr } = this.editorState;
-      tr.setNodeMarkup(selection.anchor, null, cleanImageAttrs);
-      tr.setSelection(NodeSelection.create(tr.doc, selection.anchor));
+      const { tr } = this.editorState;
+      tr.setNodeMarkup(lastSelection.anchor, null, cleanImageAttrs);
+      tr.setSelection(NodeSelection.create(tr.doc, lastSelection.anchor));
       this.editorView.dispatch(tr.scrollIntoView());
       this.imagePopover.visible = false;
     },
