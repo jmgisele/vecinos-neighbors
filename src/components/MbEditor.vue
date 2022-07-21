@@ -55,7 +55,7 @@
       <template #header>
         <h3>Edit Image</h3>
       </template>
-      <MbFieldsEditor v-if="imagePopover.content" v-model="imagePopover.content" :dark="dark" compact :fields="$store.state.currentProject.media.customFields" in-split :languages="$store.state.currentProject.languages" />
+      <MbFieldsEditor v-if="imagePopover.content" v-model="imagePopover.content" :dark="dark" compact :fields="imageMetaFields" in-split :languages="$store.state.currentProject.languages" />
       <MbButton class="replace-image" :dark="dark" icon="replace-round" :icon-first="true" @click="replaceImage">Replace Image</MbButton>
       <template #footer>
         <MbButton :dark="dark" @click="imagePopover.visible = false">Cancel</MbButton>
@@ -83,6 +83,8 @@ import { liftListItem, sinkListItem, wrapInList } from 'prosemirror-schema-list'
 
 import { joinPath } from '../fs';
 
+import cleanField from '../assets/js/cleanField';
+import defaultFields from '../data/defaultFields';
 import formatHTML from '../assets/js/formatHTML';
 import generateInputRules from '../assets/js/generateInputRules';
 import generateKeymap, { insertHr } from '../assets/js/generateKeymap';
@@ -165,6 +167,22 @@ export default {
       }
       if (this.label) return this.label;
       return false;
+    },
+    imageMetaFields() {
+      if (this.outputFormat !== 'html' || !this.mediaSettings.advanced || !this.mediaSettings.customFields) {
+        const textField = defaultFields.find((field) => field.type === 'text');
+        const altField = cleanField(textField);
+        const titleField = cleanField(textField);
+
+        altField.key = 'alt';
+        altField.label = 'Alternative Text';
+
+        titleField.key = 'title';
+        titleField.label = 'Title';
+
+        return [altField, titleField];
+      }
+      return this.mediaSettings.customFields;
     },
     linkTypeOptions() {
       if (this.linkOptions.only === 'external' || !this.linkOptions.collectionsPath) return [{ label: 'External', value: 'external' }];
@@ -790,6 +808,7 @@ export default {
       this.editorView.focus();
     },
     transformImageDataToAttrs(data) {
+      if (typeof data === 'string') return { src: data }; // like when Advanced Media Library is off
       return Object.entries(data).reduce((acc, [key, value]) => {
         if (['alt', 'src', 'title'].includes(key)) {
           if (key === 'src') acc[key] = this.mediaSettings.outputPath ? value.replace(this.mediaSettings.dir, this.mediaSettings.outputPath) : value;
@@ -1410,6 +1429,11 @@ export default {
       width: 100%
 
   &.edit-image
+    min-width: (320 / 16)rem
+
+    @media $mobile
+      min-width: auto
+
     .fields-editor
       margin-bottom: 0.5rem
 
