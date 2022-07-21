@@ -1202,12 +1202,10 @@ export default {
           max-width: 100%
           transition: opacity 350ms ease
 
-          &:not(:last-child)
-            margin-bottom: 1rem
-
         figcaption
           position: relative
           cursor: text
+          margin-top: 1rem
 
           &.empty::before
             content: 'Add caption…'
