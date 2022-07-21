@@ -528,7 +528,10 @@ export default {
     },
     handleMediaSelectClose() {
       this.showMediaSelectModal = false;
-      if (this.imageBeingReplaced) this.imageBeingReplaced = false;
+      if (this.imageBeingReplaced) {
+        this.imageBeingReplaced = false;
+        this.currentImagePath = null;
+      }
     },
     handleSelectionChange(newSelection) {
       // Update fake caret
@@ -754,6 +757,13 @@ export default {
       this.linkPopover.visible = false;
     },
     replaceImage() {
+      const { src } = this.imagePopover.content;
+      let normalisedSrc = null;
+      if (this.mediaSettings.outputPath && src && src.startsWith(this.mediaSettings.outputPath)) normalisedSrc = src.replace(this.mediaSettings.outputPath, this.mediaSettings.dir);
+      else normalisedSrc = src;
+
+      this.currentImagePath = joinPath(this.projectsDir, normalisedSrc);
+
       this.imageBeingReplaced = true;
       this.imagePopover.visible = false;
       this.showMediaSelectModal = true;
