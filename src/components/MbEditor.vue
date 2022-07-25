@@ -1217,11 +1217,8 @@ export default {
         transition: background-color 350ms ease
 
         &.loading
-          padding-top: (352 / 16)rem
+          padding-top: (9 / 16 * 100)%
           background-color: $bg-tertiary
-
-          @media $mobile
-            padding-top: (192 / 16)rem
 
           img
             opacity: 0
