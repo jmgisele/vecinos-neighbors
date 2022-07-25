@@ -927,11 +927,17 @@ export default {
         const newContent = DOMParser.fromSchema(this.editorView.state.schema).parse(this.renderDiv);
         this.renderDiv.innerHTML = ''; // clean up the render div since it’s being reused
         // Create a new EditorState based on the settings of the one initially created
+        const { selection } = this.editorState;
+        let newSelection;
+
+        if (selection instanceof NodeSelection) newSelection = NodeSelection.create(newContent, selection.anchor);
+        else if (selection instanceof TextSelection) newSelection = TextSelection.create(newContent, selection.anchor, selection.head);
+
         this.editorState = EditorState.create({
           doc: newContent,
           plugins: this.editorView.state.plugins,
           schema: this.editorView.state.schema,
-          selection: this.editorState.selection, // restore a selection if there was one, needed for example when adding images and opening the popover after
+          selection: newSelection, // restore a selection if there was one, needed for example when adding images and opening the popover after
         });
         this.editorView.updateState(this.editorState);
         if (newValue && this.showPlaceholder) this.showPlaceholder = false;
