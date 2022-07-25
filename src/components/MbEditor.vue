@@ -277,7 +277,6 @@ export default {
       imageMetaIsNew: false,
       imagePopover: {
         content: null,
-        selection: null,
         visible: false,
         x: 0,
         y: 0,
@@ -333,7 +332,6 @@ export default {
     closeImagePopover() {
       this.imagePopover = {
         content: null,
-        selection: null,
         visible: false,
         x: 0,
         y: 0,
@@ -691,7 +689,6 @@ export default {
           src: attrs.src,
           title: attrs.title,
         };
-        this.imagePopover.selection = currentSelection; // HACK: this is to handle the selection changing to a weird text selection after the popover is shown
         this.imagePopover.x = left + width / 2;
         this.imagePopover.y = top + 4 * Number.parseInt(window.getComputedStyle(document.documentElement).fontSize, 10);
         this.imagePopover.visible = true;
@@ -793,14 +790,14 @@ export default {
       this.editorView.focus();
     },
     setImageAttributes() {
-      if (!this.imagePopover.content || !this.imagePopover.selection) {
+      if (!this.imagePopover.content) {
         this.imagePopover.visible = false;
         return;
-      };
+      }
       const cleanImageAttrs = this.transformImageDataToAttrs(this.imagePopover.content);
-      const { tr } = this.editorState;
-      tr.setNodeMarkup(this.imagePopover.selection.anchor, null, cleanImageAttrs);
-      tr.setSelection(NodeSelection.create(tr.doc, this.imagePopover.selection.anchor));
+      const { selection, tr } = this.editorState;
+      tr.setNodeMarkup(selection.anchor, null, cleanImageAttrs);
+      tr.setSelection(NodeSelection.create(tr.doc, selection.anchor));
       this.editorView.dispatch(tr.scrollIntoView());
       this.imagePopover.visible = false;
     },
@@ -934,6 +931,7 @@ export default {
           doc: newContent,
           plugins: this.editorView.state.plugins,
           schema: this.editorView.state.schema,
+          selection: this.editorState.selection, // restore a selection if there was one, needed for example when adding images and opening the popover after
         });
         this.editorView.updateState(this.editorState);
         if (newValue && this.showPlaceholder) this.showPlaceholder = false;
