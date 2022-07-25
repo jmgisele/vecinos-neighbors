@@ -684,7 +684,7 @@ export default {
 
         const { selection: currentSelection } = this.editorState; // we need to get the updated selection here so it is current if we dispatched a transaction
         const { attrs } = currentSelection.node;
-        const { left, bottom, width } = this.editorView.nodeDOM(currentSelection.from).getBoundingClientRect();
+        const { left, top, width } = this.editorView.nodeDOM(currentSelection.from).getBoundingClientRect();
         this.imagePopover.content = {
           ...attrs.data,
           alt: attrs.alt,
@@ -693,7 +693,7 @@ export default {
         };
         this.imagePopover.selection = currentSelection; // HACK: this is to handle the selection changing to a weird text selection after the popover is shown
         this.imagePopover.x = left + width / 2;
-        this.imagePopover.y = bottom + 0.5 * Number.parseInt(window.getComputedStyle(document.documentElement).fontSize, 10);
+        this.imagePopover.y = top + 4 * Number.parseInt(window.getComputedStyle(document.documentElement).fontSize, 10);
         this.imagePopover.visible = true;
       }
       return true; // mark the event as handled
