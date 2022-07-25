@@ -793,7 +793,10 @@ export default {
       this.editorView.focus();
     },
     setImageAttributes() {
-      if (!this.imagePopover.content || !this.imagePopover.selection) return;
+      if (!this.imagePopover.content || !this.imagePopover.selection) {
+        this.imagePopover.visible = false;
+        return;
+      };
       const cleanImageAttrs = this.transformImageDataToAttrs(this.imagePopover.content);
       const { tr } = this.editorState;
       tr.setNodeMarkup(this.imagePopover.selection.anchor, null, cleanImageAttrs);
