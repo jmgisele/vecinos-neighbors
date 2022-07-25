@@ -96,8 +96,6 @@ import PmImageView from '../assets/js/PmImageView';
 import InternalLinkHelper from './utility/InternalLinkHelper.vue';
 import MediaSelectModal from './utility/MediaSelectModal.vue';
 
-let lastSelection;
-
 export default {
   beforeUnmount() {
     if (this.outputFormat !== 'text' && !this.raw) this.destroyProseMirror();
@@ -279,6 +277,7 @@ export default {
       imageMetaIsNew: false,
       imagePopover: {
         content: null,
+        selection: null,
         visible: false,
         x: 0,
         y: 0,
@@ -334,6 +333,7 @@ export default {
     closeImagePopover() {
       this.imagePopover = {
         content: null,
+        selection: null,
         visible: false,
         x: 0,
         y: 0,
@@ -545,7 +545,6 @@ export default {
         this.editorView.dispatch(tr.scrollIntoView());
         this.editorView.focus();
       }
-      lastSelection = this.editorState.selection; // HACK: this is to handle the selection changing to a weird text selection after entering
       this.openImagePopover();
     },
     handleMediaSelectClose() {
@@ -694,6 +693,7 @@ export default {
           src: attrs.src,
           title: attrs.title,
         };
+        this.imagePopover.selection = currentSelection; // HACK: this is to handle the selection changing to a weird text selection after the popover is shown
         this.imagePopover.x = left + width / 2;
         this.imagePopover.y = bottom + 0.5 * Number.parseInt(window.getComputedStyle(document.documentElement).fontSize, 10);
         this.imagePopover.visible = true;
@@ -795,11 +795,11 @@ export default {
       this.editorView.focus();
     },
     setImageAttributes() {
-      if (!this.imagePopover.content) return;
+      if (!this.imagePopover.content || !this.imagePopover.selection) return;
       const cleanImageAttrs = this.transformImageDataToAttrs(this.imagePopover.content);
       const { tr } = this.editorState;
-      tr.setNodeMarkup(lastSelection.anchor, null, cleanImageAttrs);
-      tr.setSelection(NodeSelection.create(tr.doc, lastSelection.anchor));
+      tr.setNodeMarkup(this.imagePopover.selection.anchor, null, cleanImageAttrs);
+      tr.setSelection(NodeSelection.create(tr.doc, this.imagePopover.selection.anchor));
       this.editorView.dispatch(tr.scrollIntoView());
       this.imagePopover.visible = false;
     },
