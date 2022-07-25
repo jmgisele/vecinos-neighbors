@@ -537,13 +537,11 @@ export default {
         }
 
         this.editorView.dispatch(tr.scrollIntoView());
-        this.editorView.focus();
       } else {
         const { selection, tr } = this.editorState;
         tr.setNodeMarkup(selection.anchor, null, cleanImageAttrs);
         tr.setSelection(NodeSelection.create(tr.doc, selection.anchor));
         this.editorView.dispatch(tr.scrollIntoView());
-        this.editorView.focus();
       }
       this.openImagePopover();
     },
