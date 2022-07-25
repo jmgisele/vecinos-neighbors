@@ -524,14 +524,14 @@ export default {
         tr.doc.nodesBetween(0, tr.selection.$anchor.nodeAfter === image ? tr.selection.head : tr.selection.anchor, (node, pos) => { // if the node after the selection anchor is the image we just inserted, we use the selection head, which points after the inserted image
           if (node.type.name === 'image') {
             if (found) foundBefore = found; // HACK: since when captions are enabled the image after the one we want gets selected, we store the previous one here
-            found = { pos };
+            found = { node, pos };
           }
           if (found) return false;
           return true;
         });
         if (found) {
-          if (!this.formatOptions.allowImageCaptions || tr.selection.$anchor.nodeAfter !== null) tr.setSelection(NodeSelection.create(tr.doc, found.pos)); // when captions are disabled, or a caption was inserted before a node, the image found last is the one we want
-          else tr.setSelection(NodeSelection.create(tr.doc, (foundBefore && foundBefore.pos) || found.pos)); // otherwise it's the second to last NOTE: doesn’t work if there’s no image after…
+          if (foundBefore && foundBefore.pos && foundBefore.node === image) tr.setSelection(NodeSelection.create(tr.doc, foundBefore.pos)); // in some cases (like when captions are enabled) we want to select the second to last found image
+          else tr.setSelection(NodeSelection.create(tr.doc, found.pos)); // but if it isn’t the one we want, we select the last one found
         }
 
         this.editorView.dispatch(tr.scrollIntoView());
