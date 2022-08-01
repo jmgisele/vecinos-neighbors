@@ -61,6 +61,9 @@ export default {
       try {
         const folderPath = joinPath(path, name);
         await fs.mkdir(folderPath);
+        await fs.writeFile(joinPath(folderPath, '.gitkeep'), '', 'utf8'); // also add a .gitkeep file to the newly added folder so it is kept during sync ops
+        this.$store.commit('addLocallyChangedFile', joinPath(folderPath, '.gitkeep'));
+        await this.$store.dispatch('saveAppData');
         this.$emit('entity-created', [folderPath], 'directory'); // putting it in an array so it’s consistent with file creation
         this.$emit('close');
       } catch (err) {
