@@ -39,6 +39,9 @@ updatedAt: 2022-04-01
   the file within the project, not within Mattrbld. Additionally, the path will
   always reflect the **final** path of the file, even when it is a draft
 * Image fields with resolution hints that don’t contain a number will no longer break
+* Creating new folders now always adds a `.gitkeep` file in that folder to ensure it's synced.
+  This fixes the issue that a folder only containing drafts wasn't visible on other
+  devices until it was created there
 
 ## Version 0.2.0 Alpha
 
