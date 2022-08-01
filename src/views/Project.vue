@@ -587,6 +587,7 @@ export default {
         const configHasChanged = await this.pullAndCheckForConfigChange();
         if (configHasChanged) this.handleConfigChanged();
         else if (this.$refs.subview && this.$refs.subview.refresh) this.$refs.subview.refresh(); // refresh the dashboard
+        this.$store.commit('addToast', { message: 'Successfully downloaded the latest remote changes', type: 'positive' });
       } catch (err) {
         let hint;
         // NOTE: This isn’t exactly a robust way to detect errors, but it’s all the data I have…
@@ -607,7 +608,6 @@ export default {
       this.currentOperation.step = null;
       this.currentOperation.progress = null;
       this.gitLoading = false;
-      this.$store.commit('addToast', { message: 'Successfully downloaded the latest remote changes', type: 'positive' });
     },
     async pushChanges() {
       if (this.selectedChanges.length === 0) return;
