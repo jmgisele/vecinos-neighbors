@@ -55,14 +55,14 @@
       <template #header>
         <h3>Edit Image</h3>
       </template>
-      <MbFieldsEditor v-if="imagePopover.content" v-model="imagePopover.content" :dark="dark" compact :fields="imageMetaFields" in-split :languages="$store.state.currentProject.languages" />
+      <MbFieldsEditor v-if="imagePopover.content" v-model="imagePopover.content" v-model:error="imagePopover.errors" :dark="dark" compact :fields="imageMetaFields" in-split :languages="lang && [lang]" />
       <MbButton class="replace-image" :dark="dark" icon="replace-round" :icon-first="true" @click="replaceImage">Replace Image</MbButton>
       <template #footer>
         <MbButton :dark="dark" @click="imagePopover.visible = false">Cancel</MbButton>
-        <MbButton :dark="dark" type="primary" @click="setImageAttributes">Save</MbButton>
+        <MbButton :dark="dark" :disabled="imagePopover.errors.size !== 0" type="primary" @click="setImageAttributes">Save</MbButton>
       </template>
     </MbPopover>
-    <MediaSelectModal :dark="dark" :selected-file-path="currentImagePath" :visible="showMediaSelectModal" @close="handleMediaSelectClose" @file-selected="handleImageSelected" @update-meta-is-new="imageMetaIsNew = $event" />
+    <MediaSelectModal :dark="dark" :no-meta="outputFormat !== 'html'" :selected-file-path="currentImagePath" :visible="showMediaSelectModal" @close="handleMediaSelectClose" @file-selected="handleImageSelected" @update-meta-is-new="imageMetaIsNew = $event" />
   </div>
 </template>
 
@@ -77,11 +77,11 @@ import { EditorView } from 'prosemirror-view';
 import { gapCursor } from 'prosemirror-gapcursor';
 import { history, redo, redoDepth, undo, undoDepth } from 'prosemirror-history'; // eslint-disable-line object-curly-newline
 import { inputRules } from 'prosemirror-inputrules';
-import { isEqual, debounce } from 'lodash-es';
+import { cloneDeep, isEqual, debounce } from 'lodash-es';
 import { keymap } from 'prosemirror-keymap';
 import { liftListItem, sinkListItem, wrapInList } from 'prosemirror-schema-list';
 
-import { joinPath } from '../fs';
+import fs, { joinPath } from '../fs';
 
 import cleanField from '../assets/js/cleanField';
 import defaultFields from '../data/defaultFields';
@@ -95,6 +95,7 @@ import PmImageView from '../assets/js/PmImageView';
 
 import InternalLinkHelper from './utility/InternalLinkHelper.vue';
 import MediaSelectModal from './utility/MediaSelectModal.vue';
+import validateContent from '../assets/js/validateContent';
 
 export default {
   beforeUnmount() {
@@ -253,6 +254,16 @@ export default {
     projectsDir() {
       return joinPath('/projects', this.$store.state.currentProject.id);
     },
+    userMediaPermissions() {
+      if (!this.mediaSettings.permissions || !this.$store.getters.userInCurrentProject) return new Set();
+
+      const { role } = this.$store.getters.userInCurrentProject;
+
+      return new Set([
+        ...(this.mediaSettings.permissions.everybody || []),
+        ...(this.mediaSettings.permissions[role] || []),
+      ]);
+    },
     visibleToolbarActions() { // OPTIMIZE: gets recomputed after every edit at the moment
       return this.toolbarActions.filter((a) => !this.disabledActions[a.name]).reduce((acc, action) => {
         if (!acc[action.group]) acc[action.group] = [action];
@@ -277,6 +288,7 @@ export default {
       imageMetaIsNew: false,
       imagePopover: {
         content: null,
+        errors: new Map(),
         visible: false,
         x: 0,
         y: 0,
@@ -332,10 +344,12 @@ export default {
     closeImagePopover() {
       this.imagePopover = {
         content: null,
+        errors: new Map(),
         visible: false,
         x: 0,
         y: 0,
       };
+      this.imageMetaIsNew = false; // ensure that imageMetaIsNew is false in case we cancelled out of a popover while it was true
       this.editorView.focus();
     },
     closeLinkPopover() {
@@ -785,15 +799,41 @@ export default {
       this.imagePopover.visible = false;
       this.showMediaSelectModal = true;
     },
+    async saveNewImageMeta() {
+      if (
+        !this.imageMetaIsNew
+        || this.outputFormat !== 'html'
+        || !this.mediaSettings.advanced
+        || !this.mediaSettings.customFields
+        || (!this.userMediaPermissions.has('everything') && !this.userMediaPermissions.has('editMedia'))
+      ) return;
+      try {
+        this.imageMetaIsNew = false;
+        const mediaMetaDir = joinPath(this.projectsDir, '.mattrbld', 'media');
+        const pathInMediaDir = this.mediaSettings.outputPath && this.imagePopover.content.src && this.imagePopover.content.src.startsWith(this.mediaSettings.outputPath) ? this.imagePopover.content.src.replace(this.mediaSettings.outputPath, '') : this.imagePopover.content.src.replace(this.mediaSettings.dir, '');
+        const newMeta = cloneDeep(this.imagePopover.content);
+        delete newMeta.src;
+        await fs.writeFile(joinPath(mediaMetaDir, `${pathInMediaDir}.json`), JSON.stringify(newMeta, null, 2), 'utf8');
+        this.$store.commit('addLocallyChangedFile', joinPath(mediaMetaDir, `${pathInMediaDir}.json`));
+        this.$store.dispatch('saveAppData');
+      } catch (err) {
+        this.$store.commit('addToast', { message: `Something went wrong while saving metadata for this image: ${err.message}`, type: 'error' });
+      }
+    },
     setCodeBlockLang(lang) {
       setBlockType(this.editorState.schema.nodes.codeBlock, { lang })(this.editorState, this.editorView.dispatch);
       this.editorView.focus();
     },
-    setImageAttributes() {
+    async setImageAttributes() {
       if (!this.imagePopover.content) {
         this.imagePopover.visible = false;
         return;
       }
+
+      this.imagePopover.errors = validateContent(this.imagePopover.content, { fields: this.imageMetaFields }, this.lang && [this.lang]);
+      if (this.imagePopover.errors.size) return;
+      if (this.imageMetaIsNew) await this.saveNewImageMeta();
+
       const cleanImageAttrs = this.transformImageDataToAttrs(this.imagePopover.content);
       const { selection, tr } = this.editorState;
       tr.setNodeMarkup(selection.anchor, null, cleanImageAttrs);
