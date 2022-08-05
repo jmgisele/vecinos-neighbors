@@ -1,5 +1,5 @@
 <template lang="html">
-  <section class="number field" :class="{ dark, localised: showLocalisedOptions }">
+  <section class="number field" :class="{ dark, localised: showLocalisedOptions && languages.length > 1 }">
     <template v-if="!showLocalisedOptions">
       <MbInput :class="{ 'in-split': inSplit }" :dark="dark" :error="error && String(error)" :label="label" :max-len="(validation && validation.max) || null" :model-modifiers="{ number: true }" :model-value="safeModelValue" type="number" @update:model-value="cleanInput" />
     </template>
@@ -17,7 +17,7 @@
       @modal-closed="$emit('update:error', validateLocalisedValues(safeModelValue, ''))"
       @update:active="$emit('update:active', $event)"
     >
-      <MbInput :class="{ 'in-split': teleportTarget }" :dark="dark" :error="error instanceof Map ? error.get(lang) : ''" :label="lang" :max-len="(validation && validation.max) || null" :model-modifiers="{ number: true }" :model-value="safeModelValue[lang]" type="number" @update:model-value="cleanInput($event, lang)" />
+      <MbInput :class="{ 'in-split': teleportTarget }" :dark="dark" :error="error instanceof Map ? error.get(lang) : ''" :label="languages.length > 1 ? lang : label" :max-len="(validation && validation.max) || null" :model-modifiers="{ number: true }" :model-value="safeModelValue[lang]" type="number" @update:model-value="cleanInput($event, lang)" />
     </LocalisedFieldsContainer>
   </section>
 </template>

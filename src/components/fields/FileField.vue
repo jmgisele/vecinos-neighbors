@@ -1,5 +1,5 @@
 <template lang="html">
-  <section class="file field" :class="{ dark, localised: showLocalisedOptions }">
+  <section class="file field" :class="{ dark, localised: showLocalisedOptions && languages.length > 1 }">
     <template v-if="!showLocalisedOptions">
       <span class="label" :class="{ dark, error }">{{error || label}}</span>
       <MbFilePicker :allow-upload="options.allowUpload" :class="{ error, 'in-split': inSplit }" :dark="dark" :empty-state="pickerEmptyState" :filetypes="options.filetypes" :folders-first="true" :max-size="validation && validation.max ? validation.max : $store.state.currentProject.media.maxSize" mode="file" :model-value="safeModelValue" relative-to-root :removable="options.removable" :root="root" @update:model-value="prependProjectRootAndUpdateValue" />
@@ -18,7 +18,7 @@
       @modal-closed="$emit('update:error', validateLocalisedValues(safeModelValue, ''))"
       @update:active="$emit('update:active', $event)"
     >
-      <span class="label" :class="{ dark, error: error instanceof Map && error.get(lang) }">{{error instanceof Map && error.get(lang) || lang}}</span>
+      <span class="label" :class="{ dark, error: error instanceof Map && error.get(lang) }">{{error instanceof Map && error.get(lang) || languages.length > 1 ? lang : label}}</span>
       <MbFilePicker :allow-upload="options.allowUpload" :class="{ 'in-split': teleportTarget, error: error instanceof Map && error.get(lang) }" :dark="dark" :filetypes="options.filetypes" :folders-first="false" :max-size="validation && validation.max ? validation.max : $store.state.currentProject.media.maxSize" mode="file" :model-value="safeModelValue[lang]" relative-to-root :removable="options.removable" :root="root" @update:model-value="prependProjectRootAndUpdateValue($event, lang)" />
     </LocalisedFieldsContainer>
   </section>

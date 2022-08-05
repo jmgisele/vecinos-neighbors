@@ -1,5 +1,5 @@
 <template lang="html">
-  <section class="rich-text field" :class="{ dark, localised: showLocalisedOptions }">
+  <section class="rich-text field" :class="{ dark, localised: showLocalisedOptions && languages.length > 1 }">
     <template v-if="!showLocalisedOptions">
       <MbEditor
         :allow-raw="options.allowRaw"
@@ -41,7 +41,7 @@
         :format-options="formatOptions"
         :formats="{ block: blockFormats, inline: inlineFormats }"
         :input-rule-options="{ ...inputRuleOptions, autoquotes: autoquotesForLang(lang) }"
-        :label="lang"
+        :label="languages.length > 1 ? lang : label"
         :lang="lang"
         :link-options="linkOptions"
         :max-len="(validation && validation.max) || null"

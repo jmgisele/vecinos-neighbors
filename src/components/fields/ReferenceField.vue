@@ -1,5 +1,5 @@
 <template lang="html">
-  <section class="reference field" :class="{ dark, localised: showLocalisedOptions }">
+  <section class="reference field" :class="{ dark, localised: showLocalisedOptions && languages.length > 1 }">
     <template v-if="!showLocalisedOptions">
       <span class="label" :class="{ dark, error }">{{error || label}}</span>
       <InternalLinkHelper :class="{ dark, error, 'in-split': inSplit }" :collections-path="collectionsPath" :dark="dark" :full-path="!template" :limit-to="options.collections" :model-value="safeModelValue" :removable="options.removable" :slugify="false" :url-template="template" :use-file-path="!template" @update:model-value="handleInput($event)" />
@@ -18,7 +18,7 @@
       @modal-closed="$emit('update:error', validateLocalisedValues(safeModelValue, ''))"
       @update:active="$emit('update:active', $event)"
     >
-      <span class="label" :class="{ dark, error: error instanceof Map && error.get(lang) }">{{error instanceof Map && error.get(lang) || lang}}</span>
+      <span class="label" :class="{ dark, error: error instanceof Map && error.get(lang) }">{{error instanceof Map && error.get(lang) || languages.length > 1 ? lang : label}}</span>
       <InternalLinkHelper :class="{ dark, error: error instanceof Map && error.get(lang), 'in-split': teleportTarget }" :collections-path="collectionsPath" :dark="dark" :full-path="!template" :lang="lang" :limit-to="options.collections" :model-value="safeModelValue[lang]" :removable="options.removable" :slugify="false" :url-template="template" :use-file-path="!template" @update:model-value="handleInput($event, lang)" />
     </LocalisedFieldsContainer>
   </section>

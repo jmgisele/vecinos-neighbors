@@ -1,5 +1,5 @@
 <template lang="html">
-  <div class="localised-fields-container" :class="{ active, dark, error, 'in-split': inSplit }" tabindex="0" @click="openValues" @keyup.enter.space="openValues" @keydown.space.prevent>
+  <div v-if="languages.length > 1" class="localised-fields-container" :class="{ active, dark, error, 'in-split': inSplit }" tabindex="0" @click="openValues" @keyup.enter.space="openValues" @keydown.space.prevent>
     <div class="left">
       <p class="label">{{errorMessage || `${label} (localised)`}}</p>
       <p class="content" :class="{ empty }">{{!empty ? displayValue : 'Not set'}}</p>
@@ -17,6 +17,7 @@
       </template>
     </MbModal>
   </div>
+  <slot v-else :lang="languages[0]" />
 </template>
 
 <script>
@@ -61,6 +62,11 @@ export default {
     label: String,
     languages: Array,
     teleportTarget: [String, HTMLElement],
+  },
+  watch: {
+    languages(nv) {
+      if (this.active && nv.length < 2) this.closeValues();
+    },
   },
 };
 </script>

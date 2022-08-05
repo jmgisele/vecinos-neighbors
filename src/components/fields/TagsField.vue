@@ -1,5 +1,5 @@
 <template lang="html">
-  <section class="tags field" :class="{ dark, localised: showLocalisedOptions }">
+  <section class="tags field" :class="{ dark, localised: showLocalisedOptions && languages.length > 1 }">
     <template v-if="!showLocalisedOptions">
       <MbTagInput :allow-unsuggested="options.allowUnsuggested" :autocomplete-model="autocompleteModel" :autocomplete-property="autocompleteProperty" :class="{ 'in-split': inSplit }" :dark="dark" :external-error="error && String(error)" :label="label" :max="(validation && validation.max) || null" :min="(validation && validation.min) || null" :model-value="safeModelValue" :placeholder="placeholder" @update:model-value="handleInput" />
     </template>
@@ -17,7 +17,7 @@
       @modal-closed="$emit('update:error', validateLocalisedValues(safeModelValue, ''))"
       @update:active="$emit('update:active', $event)"
     >
-      <MbTagInput :allow-unsuggested="options.allowUnsuggested" :autocomplete-model="autocompleteModel" :autocomplete-property="autocompleteProperty" :class="{ 'in-split': teleportTarget }" :dark="dark" :external-error="error instanceof Map ? error.get(lang) : null" :label="lang" :max="(validation && validation.max) || null" :min="(validation && validation.min) || null" :model-value="safeModelValue[lang]" :placeholder="placeholder" @update:model-value="handleInput($event, lang)" />
+      <MbTagInput :allow-unsuggested="options.allowUnsuggested" :autocomplete-model="autocompleteModel" :autocomplete-property="autocompleteProperty" :class="{ 'in-split': teleportTarget }" :dark="dark" :external-error="error instanceof Map ? error.get(lang) : null" :label="languages.length > 1 ? lang : label" :max="(validation && validation.max) || null" :min="(validation && validation.min) || null" :model-value="safeModelValue[lang]" :placeholder="placeholder" @update:model-value="handleInput($event, lang)" />
     </LocalisedFieldsContainer>
   </section>
 </template>

@@ -1,5 +1,5 @@
 <template lang="html">
-  <section class="list field" :class="{ dark, localised: showLocalisedOptions }">
+  <section class="list field" :class="{ dark, localised: showLocalisedOptions && languages.length > 1 }">
     <template v-if="!showLocalisedOptions">
       <span class="label" :class="{ dark, error }">{{error || label}}</span>
       <MbItemList v-if="options.limitToModel" :class="{ 'in-split': inSplit }" :dark="dark" :model-value="safeModelValue" :options="model" placeholder="Select an item…" @update:model-value="handleInput" />
@@ -19,7 +19,7 @@
       @modal-closed="$emit('update:error', validateLocalisedValues(safeModelValue, ''))"
       @update:active="$emit('update:active', $event)"
     >
-      <span class="label" :class="{ dark, error: error instanceof Map && error.get(lang) }">{{error instanceof Map && error.get(lang) || lang}}</span>
+      <span class="label" :class="{ dark, error: error instanceof Map && error.get(lang) }">{{error instanceof Map && error.get(lang) || languages.length > 1 ? lang : label}}</span>
       <MbItemList v-if="options.limitToModel" :class="{ 'in-split': teleportTarget }" :dark="dark" :model-value="safeModelValue[lang]" :options="model" placeholder="Select an item…" @update:model-value="handleInput($event, lang)" />
       <MbEditableList v-else :class="{ 'in-split': teleportTarget }" :dark="dark" force-mode="simple" :model-value="safeModelValue[lang]" @update:model-value="handleInput($event, lang)" />
     </LocalisedFieldsContainer>
