@@ -3,7 +3,7 @@ import Store from '../../store';
 import userInputToRegex from './userInputToRegex';
 import expandVisualOnlyFields from './expandVisualOnlyFields';
 
-export function validateField(value, type, rules) {
+export function validateField(value, type, rules, label) {
   if (!rules) return '';
 
   let error = '';
@@ -40,7 +40,7 @@ export function validateField(value, type, rules) {
       break;
     case 'link':
       valueToCheck = value || '';
-      if (rules.required && !valueToCheck) error = 'This field is required';
+      if (rules.required && !valueToCheck) error = `${label ? 'A' : 'This'} ${label || 'field'} is required`;
       else if (
         valueToCheck
         && !valueToCheck.startsWith('/')
@@ -62,14 +62,14 @@ export function validateField(value, type, rules) {
       break;
     case 'number':
       valueToCheck = typeof value !== 'number' ? '' : value;
-      if (rules.required && valueToCheck === '') error = 'This field is required';
+      if (rules.required && valueToCheck === '') error = `${label ? 'A' : 'This'} ${label || 'field'} is required`;
       else if (typeof rules.min === 'number' && valueToCheck < rules.min) error = `The value is too small (min ${rules.min})`;
       else if (typeof rules.max === 'number' && valueToCheck > rules.max) error = `The value is too large (max ${rules.max})`;
       break;
     case 'rich text':
     case 'text':
       valueToCheck = value || '';
-      if (rules.required && !valueToCheck) error = 'This field is required';
+      if (rules.required && !valueToCheck) error = `${label ? 'A' : 'This'} ${label || 'field'} is required`;
       else if (rules.enforceMinMax && (rules.min || rules.max)) {
         if (rules.min && valueToCheck.length < rules.min) error = 'The value is too short';
         if (rules.max && valueToCheck.length > rules.max) error = 'The value is too long';
@@ -105,14 +105,14 @@ export function validateField(value, type, rules) {
       }
       break;
     default:
-      if (rules.required && !valueToCheck) error = 'This field is required';
+      if (rules.required && !valueToCheck) error = `${label ? 'A' : 'This'} ${label || 'field'} is required`;
   }
   return error;
 }
 
 function validate(field, parent, languages, groupAsKey, index) { // TODO: index can probably go
   const {
-    key, value: childFields, localised, options, type, validation,
+    key, value: childFields, label, localised, options, type, validation,
   } = field;
   let value;
   let errors;
@@ -160,14 +160,14 @@ function validate(field, parent, languages, groupAsKey, index) { // TODO: index 
   if (validation) {
     if (localised) { // localised field with localised values
       languages.forEach((lang) => {
-        const error = validateField(value ? value[lang] : null, type, validation);
+        const error = validateField(value ? value[lang] : null, type, validation, label);
         if (error) {
           if (!errors) errors = new Map();
           errors.set(lang, error);
         }
       });
     } else {
-      const error = validateField(value, type, validation);
+      const error = validateField(value, type, validation, label);
       if (error && errors) errors.set(key, error); // this might happen in columns and rows when subfields have errors and the field itself has an error
       else if (error && (type === 'image' || type === 'rows' || type === 'columns')) errors = new Map().set(key, error); // in these fields the error is expected to be a Map with the error under the field’s key
       else if (error) errors = error;

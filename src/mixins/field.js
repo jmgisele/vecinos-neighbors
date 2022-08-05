@@ -57,7 +57,7 @@ export default {
       }
     },
     validate(value) {
-      return validateField(value, this.type, this.validation);
+      return validateField(value, this.type, this.validation, this.label);
     },
     validateLocalisedValues(values, defaultValue) {
       if (!this.validation) return '';
