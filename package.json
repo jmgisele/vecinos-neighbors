@@ -41,6 +41,9 @@
     "vue-router": "^4.0.8",
     "vuex": "^4.0.0"
   },
+  "overrides": {
+    "micro": "9.4.0"
+  },
   "devDependencies": {
     "@isomorphic-git/cors-proxy": "^2.7.1",
     "@vue/cli-plugin-babel": "^4.5.12",
