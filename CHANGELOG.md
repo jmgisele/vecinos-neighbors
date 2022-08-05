@@ -19,6 +19,9 @@ updatedAt: 2022-04-01
   the one specified. This value can be overwritten on a per-field basis
 * File fields were upgraded to allow enabling uploads straight from the file picker.
   **Users will no longer be able to upload unless the field is upgraded and the new option enabled**
+* Localised fields will no longer be grouped if the content item has only one
+  language enabled
+* Adding images to rich text editors is now supported
 
 ### Bugfixes
 
