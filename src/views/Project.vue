@@ -138,7 +138,7 @@ export default {
         if (err.code !== 'EEXIST') { // it might exist, but there’s no config.json
           return next({
             name: 'Error',
-            params: {
+            state: {
               code: err.code,
               message: err.message,
               name: err.name,
@@ -165,7 +165,7 @@ export default {
       } catch (err) {
         return next({
           name: 'Error',
-          params: {
+          state: {
             code: err.code,
             message: err.message,
             name: err.name,
@@ -188,7 +188,7 @@ export default {
 
       return next({
         name: 'Error',
-        params: {
+        state: {
           code: '500',
           message: 'Could not save config, see toast for details',
           name: 'Internal Error',
@@ -240,7 +240,7 @@ export default {
     } catch (err) {
       return next({
         name: 'Error',
-        params: {
+        state: {
           code: err.code,
           message: err.message,
           name: err.name,

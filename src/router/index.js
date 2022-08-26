@@ -24,7 +24,6 @@ const routes = [
       title: 'Something went wrong',
       hideAppHeader: true,
     },
-    props: true,
   },
   {
     path: '/:pathMatch(.*)*',
@@ -197,7 +196,7 @@ router.beforeEach(async (to) => {
       Store.commit('setAppProperty', { key: 'initialised', value: true });
       return {
         name: 'Error',
-        params: {
+        state: {
           code: err.code,
           message: err.message,
           name: err.name,
@@ -218,7 +217,7 @@ router.afterEach((to) => {
 });
 
 router.onError((err) => {
-  router.push({ name: 'Error', params: { code: err.code, message: err.message, name: err.name } });
+  router.push({ name: 'Error', state: { code: err.code, message: err.message, name: err.name } });
 });
 
 export default router;

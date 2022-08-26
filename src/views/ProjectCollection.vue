@@ -70,7 +70,7 @@ export default {
       });
     } catch (err) {
       if (err.code === 'ENOENT') return next({ name: 'NotFound', query: { type: 'collection' }, replace: true });
-      return next({ name: 'Error', params: { code: err.code, name: err.name, message: err.message }, replace: true });
+      return next({ name: 'Error', state: { code: err.code, name: err.name, message: err.message }, replace: true });
     }
   },
   async beforeRouteUpdate(to) {

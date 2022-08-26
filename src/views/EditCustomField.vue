@@ -90,7 +90,7 @@ export default {
       });
     } catch (err) {
       if (err.code === 'ENOENT') return next({ name: 'NotFound' });
-      return next({ name: 'Error', params: { code: err.code, message: err.message, name: err.name } });
+      return next({ name: 'Error', state: { code: err.code, message: err.message, name: err.name } });
     }
   },
   async beforeRouteLeave() {

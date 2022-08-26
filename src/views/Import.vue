@@ -51,7 +51,7 @@ export default {
       name, email, repo, branch, proxy,
     } = to.query;
 
-    if (!repo || !branch) next({ name: 'Error', params: { message: 'The invite URL is invalid', name: 'InvalidInviteError', stage: 'init' } });
+    if (!repo || !branch) next({ name: 'Error', state: { message: 'The invite URL is invalid', name: 'InvalidInviteError', stage: 'init' } });
 
     next((vm) => {
       /* eslint-disable no-param-reassign */

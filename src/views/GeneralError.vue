@@ -3,8 +3,8 @@
     <div v-if="!noDBError" class="wrapper">
       <MbIcon icon="error" />
       <h1>We’re sorry…</h1>
-      <p v-if="!initError">Something went wrong. See the error code below for more information:</p>
-      <p v-else>Mattrbld could not be initialised properly. See the error code below for more information:</p>
+      <p v-if="!initError">Something went wrong. See the error details below for more information:</p>
+      <p v-else>Mattrbld could not be initialised properly. See the error details below for more information:</p>
       <pre>{{`Name: ${name}\nCode: ${code}\nMessage: ${message}`}}</pre>
       <MbButton v-if="!initError" :dark="dark" type="primary" @click="$router.replace('/')">Go back</MbButton>
     </div>
@@ -27,19 +27,27 @@
 <script>
 export default {
   computed: {
+    code() {
+      return window.history.state && window.history.state.code;
+    },
     initError() {
       return this.stage === 'init';
     },
+    message() {
+      return window.history.state && window.history.state.message;
+    },
+    name() {
+      return window.history.state && window.history.state.name;
+    },
     noDBError() {
-      return this.code === '11' && this.name === 'InvalidStateError';
+      return this.code === 11 && this.name === 'InvalidStateError';
+    },
+    stage() {
+      return window.history.state && window.history.state.stage;
     },
   },
   props: {
-    code: String,
     dark: Boolean,
-    message: String,
-    name: String,
-    stage: String,
   },
 };
 </script>
