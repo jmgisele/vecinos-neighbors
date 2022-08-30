@@ -728,7 +728,7 @@ export default {
       if (this.showSplit && !this.showPreview) this.showSplit = false;
     },
     contentLanguages() { // we need to revalidate the content if the langauges change so we don’t end up with invalid, unfixable errors
-      this.validateContent();
+      if (this.schema && this.schema.fields) this.validateContent();
     },
     currentUser(nv) {
       if (!nv || !hasAccess(nv.role, this.collection.permissions)) {
