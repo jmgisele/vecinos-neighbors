@@ -3,6 +3,15 @@ currentVersion: 0.3.0
 updatedAt: 2022-08-26
 ---
 
+## Version 0.4.0 Beta
+
+## New Features
+
+* If tracking with Umami is enabled, Mattrbld tracks events using the new syntax
+  introduced in Umami 1.37.0
+
+## Bugfixes
+
 ## Version 0.3.0 Beta
 
 ### New Features
