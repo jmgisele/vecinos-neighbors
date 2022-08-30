@@ -499,7 +499,11 @@ export default {
         }, 500);
       } catch (err) {
         window.clearTimeout(handshakeTimeout);
-        this.$store.commit('addToast', { message: `Something went wrong while exchanging the preview handshake: ${err.message}`, type: 'error' });
+        this.$store.commit('addToast', {
+          message: `Something went wrong while exchanging the preview handshake: ${err.message}`,
+          onClose: (actionHandled) => { if (!actionHandled) this.showSplit = false; },
+          type: 'error',
+        });
       }
     },
     findAndSetFilepathIds(schema) {
