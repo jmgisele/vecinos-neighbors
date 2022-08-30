@@ -11,7 +11,7 @@
       <div class="right">
         <MbToggle v-if="draftsDir && canToggleDraft" v-model="isDraft" :dark="dark" :disabled="isDraft && (!content.___mb_schema || errors.fields.size > 0)" :icons="['cross', 'check']">Draft</MbToggle>
         <MbButton :class="{ 'push-right': draftsDir }" :dark="dark" icon="settings" @click="showSettings = true">{{isTablet ? '' : 'Settings'}}</MbButton>
-        <MbButton v-if="previewUrl" :dark="dark" :disabled="noSchema" :icon="showPreview ? 'hide' : 'eye'" @click.left="togglePreview" @click.middle="openPreviewInNewTab">{{isTablet ? '' : showPreview ? previewInNewTab ? 'Hide Preview Controls' : 'Hide Preview' : 'Preview'}}</MbButton>
+        <MbButton v-if="canPreview" :dark="dark" :disabled="noSchema" :icon="showPreview ? 'hide' : 'eye'" @click.left="togglePreview" @click.middle="openPreviewInNewTab">{{isTablet ? '' : showPreview ? previewInNewTab ? 'Hide Preview Controls' : 'Hide Preview' : 'Preview'}}</MbButton>
         <MbButton :dark="dark" :disabled="!wasChanged || (errors.fields.size > 0 && !isDraft)" icon="save" :icon-first="true" :loading="saveLoading" type="primary" @click="saveChanges">{{isTablet ? '' : 'Save'}}</MbButton>
       </div>
     </header>
@@ -239,6 +239,9 @@ export default {
       if (permissions.everybody && (permissions.everybody.includes('deleteContent') || permissions.everybody.includes('everything'))) return true;
       if (permissions[this.currentUser.role] && (permissions[this.currentUser.role].includes('deleteContent') || permissions[this.currentUser.role].includes('everything'))) return true;
       return false;
+    },
+    canPreview() {
+      return this.previewUrl && !this.collection.disablePreview;
     },
     canToggleDraft() {
       const { permissions } = this.collection;
