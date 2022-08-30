@@ -26,7 +26,7 @@
     </section>
     <section class="wrapper">
       <h2>Content Previews</h2>
-      <p>If this setting is enabled, users will have the option to open a preview of their content. Please keep in mind that this will only work, if you have created a preview route in your website / app. To learn more, please refer to the <a href="https://mattrbld.com/docs/content/previews/" rel="noopener noreferrer" target="_blank">official documentation</a>.</p>
+      <p>If this setting is enabled and a valid URL is provided, users will have the option to open a preview of the content they are working on. Please keep in mind that this will only work, if you have created a preview route in your website / app. To learn more, please refer to the <a href="https://mattrbld.com/docs/previews/" rel="noopener noreferrer" target="_blank">official documentation</a>.</p>
       <MbToggle v-model="enablePreviews" :dark="dark" :icons="['cross', 'check']">Enable content previews</MbToggle>
       <transition>
         <MbInput v-show="enablePreviews" v-model="projectPreviewUrl" :dark="dark" :error="errors.previewUrl" icon="link" label="Prieview route URL" placeholder="https://example.com/___mb-preview/" ref="previewUrlInput" @blur="setPreviewUrl" @keyup.enter="setPreviewUrl" />
