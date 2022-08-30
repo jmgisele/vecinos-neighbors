@@ -349,7 +349,7 @@ export default {
     async openProject() {
       if (this.isMattrbldProject) this.$router.push({ name: 'Project', params: { id: this.projectName } }); // go to project dashboard
       else this.$router.push({ name: 'Project.Settings', params: { id: this.projectName }, query: { tab: 'general' } }); // go to project settings
-      if (window.umami) window.umami.trackEvent('Onboarding completed', 'import');
+      if (window.umami) window.umami.trackEvent('import', { type: 'Onboarding completed' });
     },
     regenerateAvatar() {
       const split = this.userName.split(' ');

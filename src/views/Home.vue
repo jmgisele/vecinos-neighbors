@@ -302,7 +302,7 @@ export default {
           this.$store.commit('addToast', { message: wasConfigured ? `${project.name} was imported successfully and is ready to be edited` : 'Your project was imported successfully and is ready to be configured', type: 'positive' });
           if (wasConfigured) this.$router.push({ name: 'Project', params: { id: projectId } });
           else this.$router.push({ name: 'Project.Settings', params: { id: projectId }, query: { tab: 'general' } });
-          if (window.umami) window.umami.trackEvent('Project imported from Home', 'import');
+          if (window.umami) window.umami.trackEvent('import', { type: 'Project imported from Home' });
         } catch (err) {
           this.$store.commit('addToast', { message: `Something went wrong while importing the project: ${err.message}`, type: 'error' });
           this.$store.commit('removeProjectFromActiveUser', projectId);
