@@ -332,7 +332,8 @@ export default {
 
     .input,
     .icon-picker,
-    .file-picker
+    .file-picker,
+    .tag-input
       background-color: $bg-tertiary-dark
 
     .internal-link-helper::v-deep(.view)
