@@ -28,6 +28,9 @@
             </div>
             <MbToggle v-if="currentProject.draftsDir" v-model="collectionDetails.draftByDefault" :dark="dark">Create new content as drafts</MbToggle>
             <MbToggle v-if="currentProject.previewUrl" v-model="collectionDetails.disablePreview" :dark="dark">Disable previews for content in this collection</MbToggle>
+            <transition>
+              <MbToggle v-if="currentProject.previewUrl && !collectionDetails.disablePreview" v-model="collectionDetails.disableComments" :dark="dark">Disable comments in previews for content in this collection</MbToggle>
+            </transition>
           </section>
           <section>
             <h3>Linking</h3>
@@ -114,6 +117,7 @@ export default {
       ];
 
       if (this.currentProject.draftsDir) permissions.push({ label: 'publish drafts', value: 'publishDrafts' });
+      if (this.currentProject.previewUrl && !this.collectionDetails.disablePreview && !this.collectionDetails.disableComments) permissions.unshift({ label: 'leave comments', value: 'comment' }); // inserting at the top to preserve alphabetical order
 
       return permissions;
     },
@@ -168,6 +172,8 @@ export default {
       },
       defaultCollectionContent: {
         dir: null,
+        disableComments: false,
+        disablePreview: false,
         draftByDefault: false,
         schemas: [],
         linkable: false,
@@ -180,6 +186,7 @@ export default {
       collectionBeingModified: null,
       collectionDetails: {
         dir: null,
+        disableComments: false,
         disablePreview: false,
         draftByDefault: false,
         schemas: [],
@@ -263,6 +270,7 @@ export default {
     handleSplitClosed() {
       if (!this.showEntityRename) this.collectionBeingModified = null; // split closes when whe rename, but we dont want to reset the collectionBeingModified so we still know which one we’re renaming
       this.collectionDetails.dir = null;
+      this.collectionDetails.disableComments = false;
       this.collectionDetails.disablePreview = false;
       this.collectionDetails.draftByDefault = false;
       this.collectionDetails.schemas = [];
@@ -444,6 +452,7 @@ export default {
 .edit-collection,
 .edit-collection > section .input-row,
 .edit-collection > section .input-group,
+.edit-collection > section .toggle
 .loader
   &.v-enter-active,
   &.v-leave-active
