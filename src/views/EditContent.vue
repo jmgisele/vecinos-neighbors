@@ -51,6 +51,7 @@
                 <MbButton :dark="dark" icon="open-new-window" tooltip="Open preview in new tab / window" @click="openPreviewInNewTab" />
                 <MbButton :dark="dark" :icon="fullscreenPreview ? 'fullscreen-reverse' : 'fullscreen'" tooltip="Toggle fullscreen" @click="toggleFullscreenPreview" />
                 <MbButton v-if="!isMobile" :dark="dark" :icon="mobilePreview ? 'monitor' : 'phone'" tooltip="Toggle mobile preview" @click="mobilePreview = !mobilePreview" />
+                <MbButton v-if="canComment" :dark="dark" icon="blockquote" :loading="previewCommentsLoading" tooltip="Toggle comments" :type="previewCommentsActive ? 'primary' : null" @click="togglePreviewComments" />
               </header>
               <transition>
                 <MbLoader v-if="!previewConnected" :class="{ dark }" />
@@ -109,6 +110,9 @@ function hasAccess(role, permissions) {
   if (permissions[role] && (permissions[role].includes('editContent') || permissions[role].includes('everything'))) return true;
   return false;
 }
+
+// Features that the live preview can optionally support, used to validate the "supports"
+const PREVIEW_FEATURES = ['comments'];
 
 export default {
   async beforeRouteEnter(to, from, next) {
@@ -231,6 +235,15 @@ export default {
     allowedSchemas() {
       if (!this.collection.schemas) return [];
       return this.collection.schemas.map((schema) => ({ label: prettifyEntityName(pathBasename(schema)), value: schema }));
+    },
+    canComment() {
+      const { disableComments, permissions } = this.collection;
+      if (disableComments || !this.canPreview || !this.previewSupports.includes('comments')) return false;
+      if (!this.currentUser) return false;
+      if (!this.currentUser.role || !permissions) return false;
+      if (permissions.everybody && (permissions.everybody.includes('comment') || permissions.everybody.includes('everything'))) return true;
+      if (permissions[this.currentUser.role] && (permissions[this.currentUser.role].includes('comment') || permissions[this.currentUser.role].includes('everything'))) return true;
+      return false;
     },
     canDelete() {
       const { permissions } = this.collection;
@@ -380,10 +393,14 @@ export default {
       newContentName: '',
       newContentSchema: null,
       mobilePreview: false,
+      previewComments: null,
+      previewCommentsActive: false,
+      previewCommentsLoading: false,
       previewConnected: false,
       previewImages: new Map(),
       previewInNewTab: null,
       previewInNewTabTimeout: null,
+      previewSupports: [],
       saveLoading: false,
       schema: {},
       showPreview: false,
@@ -466,9 +483,9 @@ export default {
         else if (e.data.handshake !== handshake) vm.$store.commit('addToast', { message: 'Could not exchange handshakes with the preview: the returned handshake didn’t match ours', type: 'warning' });
         else {
           window.clearTimeout(handshakeTimeout);
+          if (Array.isArray(e.data.supports)) vm.previewSupports = e.data.supports.filter((feature) => PREVIEW_FEATURES.includes(feature));
           vm.previewConnected = true;
-          // this would also be the right spot to set up a message listener if we ever wanted to implement bi-directional Communication
-          vm.$store.commit('addToast', { message: 'Communication with the preview has been set up successfully', type: 'positive' });
+          vm.$store.commit('addToast', { message: 'Communication with the preview has been set up successfully', id: 'preview-connection-established', type: 'positive' });
           vm.sendPreviewData();
         }
         window.removeEventListener('message', handshakeListener, false);
@@ -553,10 +570,54 @@ export default {
       if (!e.target.src) return; // we need to skip the first load event when the iframe is added to the DOM empty
       this.exchangePreviewHandshake();
     },
+    handlePreviewMessage(e) {
+      const { data, origin } = e;
+      const targetOrigin = new URL(this.previewUrl).origin;
+
+      if (origin !== targetOrigin) {
+        this.$store.commit('addToast', { message: `The preview sent a message from an unexpected origin: ${origin}. The message will not be handled.`, type: 'warning' });
+        return;
+      }
+
+      switch (data.feature) {
+        case 'comments':
+          if (!data.type || !data.payload) break;
+          if (data.type === 'pageClick') {
+            // TODO: actually write a method to properly create and save comments
+            const comment = {
+              id: Math.random().toString(36).substring(2, 9),
+              author: this.currentUser.name,
+              parent: null,
+              content: '',
+              position: { x: data.payload.pageX, y: data.payload.pageY },
+              status: null,
+              created: Date.now(),
+              updated: null,
+            };
+            this.previewComments.push(comment);
+            this.sendMessageToPreview({ feature: 'comments', type: 'addCommentMarker', payload: { comment } });
+          } else if (data.type === 'commentClick') {
+            // TODO: actually write a method to properly delete comments with undo
+            // TODO: actually handle comment click here by showing the comment thread in a popover
+            const commentIndex = this.previewComments.findIndex((existingComment) => existingComment.id === data.payload.id);
+            if (commentIndex > -1) {
+              this.sendMessageToPreview({ feature: 'comments', type: 'deleteCommentMarker', payload: { comment: _cloneDeep(this.previewComments[commentIndex]) } });
+              this.previewComments.splice(commentIndex, 1);
+            }
+          } else if (data.type === 'commentMoved') {
+            // TODO: handle comment updates by client (like when the marker is moved)
+          }
+          break;
+        default:
+          break;
+      }
+    },
     handleSplitClosed() {
       if (this.showPreview) {
         this.showPreview = false;
-        if (!this.previewInNewTab) this.previewConnected = false;
+        if (!this.previewInNewTab) {
+          this.previewConnected = false;
+        }
       }
     },
     async loadAndAssignSchema(schema) {
@@ -574,6 +635,7 @@ export default {
       }
     },
     openPreviewInNewTab() {
+      if (this.previewConnected) this.previewConnected = false; // in case the preview was already showing
       this.$options.winref = window.open(this.previewUrl, `com.mattrbld.app.Project/preview/${this.$route.params.id}`); // this will focus a window of the same name (reverse domain to avoid duplicates) or open a blank new one
       // this.$options.winref.addEventListener('load', this.exchangePreviewHandshake, false); // doesn’t work because we don’t have access to that origin
       window.addEventListener('message', this.handleNewTabPreviewLoaded, false);
@@ -658,6 +720,11 @@ export default {
       if (this.newContentName !== this.contentName) this.renameContent();
       else this.showSettings = false;
     },
+    sendMessageToPreview(data) {
+      const targetOrigin = new URL(this.previewUrl).origin;
+      if (this.previewInNewTab && this.$options.winref) this.$options.winref.postMessage(data, targetOrigin);
+      else if (this.$refs.preview.contentWindow) this.$refs.preview.contentWindow.postMessage(data, targetOrigin);
+    },
     sendPreviewData: debounce(function debouncedSend() { // OPTIMIZE: this could probably be optimized to only send deltas instead of the full object every time if a "full" param is false (we still need to send the full object upon initial connection)
       const targetOrigin = new URL(this.previewUrl).origin;
       const defaultUrl = this.$route.params.path.substring(0, this.$route.params.path.lastIndexOf('.')).replace(this.projectDir, '').replace(pathDirname(this.collection.dir), '');
@@ -707,10 +774,36 @@ export default {
           if (!this.actualPreviewUrl) window.setTimeout(() => { this.actualPreviewUrl = this.previewUrl; }, 300); // give the preview a chance to open smoothly before loading the iframe
         });
       } else {
-        this.showPreview = false;
         this.showSplit = false;
-        this.previewConnected = false;
       }
+    },
+    togglePreviewComments() {
+      const initialCommentsData = { feature: 'comments', type: 'initialData', payload: null };
+      const modechangeData = { feature: 'comments', type: 'modechange', payload: null };
+
+      if (this.previewCommentsActive) this.previewCommentsActive = false;
+      else {
+        if (!this.previewComments) {
+          this.previewCommentsLoading = true;
+          // eslint-disable-next-line object-curly-newline
+          const loadedComments = [{ id: 'xyz', author: this.currentUser.name, parent: null, content: 'Hi there', position: { x: 100, y: 100 }, created: Date.now(), updated: null }]; // TODO: actually load the comments, keep a copy of the current users comments around so we can easily save new comments they make
+          this.previewComments = loadedComments;
+          initialCommentsData.payload = { comments: loadedComments };
+          this.previewCommentsLoading = false;
+        } else {
+          const toplevelComments = this.previewComments.reduce((acc, comment) => {
+            if (!comment.parent) acc.push(_cloneDeep(comment)); // Cloning the comment here because it is a proxy and StructuredClone hates that
+            return acc;
+          }, []);
+          console.log(toplevelComments); // We only need to pass toplevel comments, not replies
+          initialCommentsData.payload = { comments: toplevelComments };
+        }
+        this.previewCommentsActive = true;
+      }
+
+      modechangeData.payload = { active: this.previewCommentsActive };
+      this.sendMessageToPreview(modechangeData);
+      if (this.previewCommentsActive) this.sendMessageToPreview(initialCommentsData);
     },
     validateContent() {
       this.errors.fields = validateContent(this.content, this.schema, this.contentLanguages);
@@ -744,6 +837,16 @@ export default {
           this.forceNavigation = true;
         }
         this.$router.replace({ name: 'Forbidden' });
+      }
+    },
+    previewConnected(nv) {
+      // The connection state switches pretty often and whenever it does we want to either add or remove an existing listener
+      if (nv) {
+        window.addEventListener('message', this.handlePreviewMessage, false);
+        if (this.previewCommentsActive) this.previewCommentsActive = false;
+      } else {
+        window.removeEventListener('message', this.handlePreviewMessage, false);
+        if (this.previewCommentsActive) this.previewCommentsActive = false;
       }
     },
     wasChanged(nv) {
