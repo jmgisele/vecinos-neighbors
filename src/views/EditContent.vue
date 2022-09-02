@@ -1117,6 +1117,9 @@ export default {
       margin: 1rem
       border-radius: $radius-xl
 
+    &.comment-mode-active
+      cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='26' height='22' fill='none'%3E %3Cg stroke-linecap='round' stroke-linejoin='round' stroke-width='2'%3E %3Cpath fill='%236C5CE7' stroke='%236C5CE7' d='M23 3a2 2 0 1 0-4 0H7a6 6 0 0 0-6 6v9a3 3 0 0 0 3 3h13a6 6 0 0 0 6-6V7a2 2 0 1 0 0-4Z'/%3E %3Cpath stroke='%23fff' d='M21 5v2m0-2h-2m2 0V3m0 2h2M7 10h10M7 14h5m9-3v4a4 4 0 0 1-4 4H4a1 1 0 0 1-1-1V9a4 4 0 0 1 4-4h8'/%3E %3C/g%3E %3C/svg%3E") 0 22, pointer
+
   .loader
     position: absolute
     top: 0
