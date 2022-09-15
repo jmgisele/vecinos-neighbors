@@ -51,7 +51,7 @@
                 <MbButton :dark="dark" icon="open-new-window" tooltip="Open preview in new tab / window" @click="openPreviewInNewTab" />
                 <MbButton :dark="dark" :icon="fullscreenPreview ? 'fullscreen-reverse' : 'fullscreen'" tooltip="Toggle fullscreen" @click="toggleFullscreenPreview" />
                 <MbButton v-if="!isMobile" :dark="dark" :icon="mobilePreview ? 'monitor' : 'phone'" tooltip="Toggle mobile preview" @click="mobilePreview = !mobilePreview" />
-                <MbButton v-if="canComment" :dark="dark" icon="blockquote" :loading="previewCommentsLoading" tooltip="Toggle comments" :type="previewCommentsActive ? 'primary' : null" @click="togglePreviewComments" />
+                <MbButton v-if="canComment" :dark="dark" icon="comment-stack" :loading="previewCommentsLoading" tooltip="Toggle comments" :type="previewCommentsActive ? 'primary' : null" @click="togglePreviewComments" />
               </header>
               <transition>
                 <MbLoader v-if="!previewConnected" :class="{ dark }" />
@@ -77,6 +77,19 @@
         <MbButton :dark="dark" :disabled="Boolean(errors.name)" type="primary" @click="saveSettings">Save</MbButton>
       </template>
     </MbModal>
+    <MbPopover class="add-preview-comment" :dark="dark" no-content-padding :visible="addPreviewCommentPopover.visible" :x="addPreviewCommentPopover.x" :y="addPreviewCommentPopover.y" @after-close="handleAddPreviewCommentPopoverClosed" @close="addPreviewCommentPopover.visible = false">
+      <template #header>
+        <div class="header-wrapper">
+          <span v-if="addPreviewCommentPopover.comment" class="author"><strong>{{addPreviewCommentPopover.comment.author}}</strong></span>
+          <span v-if="addPreviewCommentPopover.comment" class="timestamp">{{formattedTimestamp(addPreviewCommentPopover.comment.created)}}</span>
+        </div>
+      </template>
+      <MbEditor v-if="addPreviewCommentPopover.comment" v-model="addPreviewCommentPopover.comment.content" :dark="dark" :error="errors.comment" :format-options="{}" :formats="{ block: ['blockquote', 'orderedList', 'unorderedList'], inline: ['code', 'em', 'strike', 'strong'] }"  output-format="html" placeholder="Your comment…" ref="commentEditor" @keyup.ctrl.enter="addPreviewComment(addPreviewCommentPopover.comment, true)" />
+      <template #footer>
+        <MbButton :dark="dark" @click="addPreviewCommentPopover.visible = false">Cancel</MbButton>
+        <MbButton :dark="dark" :disabled="!addPreviewCommentPopover.comment || Boolean(errors.comment)" :loading="addPreviewCommentPopover.loading" icon="plus" type="positive" @click="addPreviewComment(addPreviewCommentPopover.comment, true)">Add Comment</MbButton>
+      </template>
+    </MbPopover>
   </div>
 </template>
 
@@ -88,7 +101,7 @@ import { status } from 'isomorphic-git';
 import pluralize from 'pluralize';
 import slugify from '@sindresorhus/slugify';
 import * as matter from 'gray-matter';
-import { formatISO } from 'date-fns';
+import { formatISO, formatDistanceToNowStrict } from 'date-fns';
 
 import fs, { exists, PlainFS, joinPath, mkdirp, pathBasename, pathDirname } from '../fs'; // eslint-disable-line object-curly-newline
 
@@ -268,6 +281,11 @@ export default {
       if (!this.schema.tabs) return [];
       return this.schema.tabs.map((tab) => tab.label);
     },
+    commentsDir() {
+      if (!this.collection.dir) return joinPath(this.projectDir, '.mattrbld', 'comments');
+      const path = joinPath(this.projectDir, '.mattrbld', 'comments', this.filepath);
+      return path.substring(0, path.lastIndexOf('.')); // we need the filename without an extension, and it is safe to assume that this.filepath always ends with an extension
+    },
     contentDir() {
       if (!this.collection.dir) return this.projectDir;
       return joinPath(this.projectDir, this.collection.dir);
@@ -379,10 +397,18 @@ export default {
     return {
       activeTab: -1,
       actualPreviewUrl: null,
+      addPreviewCommentPopover: {
+        comment: null,
+        loading: false,
+        visible: false,
+        x: 0,
+        y: 0,
+      },
       cachedTemplateIdFields: null,
       content: {},
       collection: {},
       errors: {
+        comment: '',
         name: '',
         fields: new Map(),
       },
@@ -394,6 +420,7 @@ export default {
       newContentSchema: null,
       mobilePreview: false,
       previewComments: null,
+      previewCommentsByCurrentUser: null,
       previewCommentsActive: false,
       previewCommentsLoading: false,
       previewConnected: false,
@@ -410,6 +437,29 @@ export default {
     };
   },
   methods: {
+    async addPreviewComment(comment, toplevel) {
+      if (!comment.content || !comment.content.length) this.errors.comment = 'A comment is required';
+
+      this.previewComments.push(comment);
+      this.previewCommentsByCurrentUser.push(comment);
+
+      if (toplevel) this.addPreviewCommentPopover.loading = true;
+
+      try {
+        const path = joinPath(this.commentsDir, `${this.currentUser.id}.json`);
+        await fs.writeFile(path, JSON.stringify(this.previewCommentsByCurrentUser, null, 2), 'utf8');
+        if (toplevel) this.sendMessageToPreview({ feature: 'comments', type: 'addCommentMarker', payload: { comment: _cloneDeep(comment) } });
+        this.addPreviewCommentPopover.visible = false;
+        this.$store.commit('addLocallyChangedFile', path);
+      } catch (err) {
+        this.$store.commit('addToast', { message: `Something went wrong while saving the comment: ${err.message}`, type: 'error' });
+        // reset the pushed comments, its the ones pushed last
+        this.previewComments.pop();
+        this.previewCommentsByCurrentUser.pop();
+      }
+
+      if (toplevel) this.addPreviewCommentPopover.loading = false;
+    },
     addPreviewImage({ detail }) {
       const { path, image } = detail;
       this.previewImages.set(path, image);
@@ -550,6 +600,18 @@ export default {
     focusOpenPreview() {
       this.$options.winref.focus();
     },
+    formattedTimestamp(timestamp) {
+      const distance = formatDistanceToNowStrict(timestamp, { addSuffix: true });
+      if (distance !== '0 seconds ago') return distance;
+      return 'Just now';
+    },
+    handleAddPreviewCommentPopoverClosed() {
+      this.addPreviewCommentPopover.comment = null;
+      this.addPreviewCommentPopover.loading = false;
+      this.addPreviewCommentPopover.visible = false;
+      this.addPreviewCommentPopover.x = 0;
+      this.addPreviewCommentPopover.y = 0;
+    },
     async handleEntityMoved(newPath) {
       this.$store.commit('removeLocallyChangedFile', this.$route.params.path);
       this.$store.commit('addLocallyChangedFile', newPath);
@@ -583,8 +645,14 @@ export default {
         case 'comments':
           if (!data.type || !data.payload) break;
           if (data.type === 'pageClick') {
-            // TODO: actually write a method to properly create and save comments
-            const comment = {
+            if (this.addPreviewCommentPopover.visible) { // if it's already visible we hide it to conform to user expectations regarding popovers
+              this.addPreviewCommentPopover.visible = false;
+              return;
+            }
+            const previewContainer = this.$refs.preview.getBoundingClientRect();
+            this.addPreviewCommentPopover.x = data.payload.clientX + previewContainer.left;
+            this.addPreviewCommentPopover.y = data.payload.clientY + previewContainer.top;
+            this.addPreviewCommentPopover.comment = {
               id: Math.random().toString(36).substring(2, 9),
               author: this.currentUser.name,
               parent: null,
@@ -594,8 +662,8 @@ export default {
               created: Date.now(),
               updated: null,
             };
-            this.previewComments.push(comment);
-            this.sendMessageToPreview({ feature: 'comments', type: 'addCommentMarker', payload: { comment } });
+            this.addPreviewCommentPopover.visible = true;
+            this.$nextTick(() => this.$refs.commentEditor.editorView.focus());
           } else if (data.type === 'commentClick') {
             // TODO: actually write a method to properly delete comments with undo
             // TODO: actually handle comment click here by showing the comment thread in a popover
@@ -777,27 +845,47 @@ export default {
         this.showSplit = false;
       }
     },
-    togglePreviewComments() {
+    async togglePreviewComments() {
       const initialCommentsData = { feature: 'comments', type: 'initialData', payload: null };
       const modechangeData = { feature: 'comments', type: 'modechange', payload: null };
 
       if (this.previewCommentsActive) this.previewCommentsActive = false;
-      else {
-        if (!this.previewComments) {
-          this.previewCommentsLoading = true;
-          // eslint-disable-next-line object-curly-newline
-          const loadedComments = [{ id: 'xyz', author: this.currentUser.name, parent: null, content: 'Hi there', position: { x: 100, y: 100 }, created: Date.now(), updated: null }]; // TODO: actually load the comments, keep a copy of the current users comments around so we can easily save new comments they make
+      else if (!this.previewComments) {
+        this.previewCommentsLoading = true;
+
+        const loadedComments = [];
+
+        try {
+          const commentsDirExists = await exists(this.commentsDir);
+
+          if (commentsDirExists) {
+            const commentFiles = await fs.readdir(this.commentsDir);
+            const comments = await Promise.all(commentFiles.map((name) => fs.readFile(joinPath(this.commentsDir, name), 'utf8')));
+            const commentArrayStringByCurrentUser = comments[commentFiles.indexOf(`${this.currentUser.id}.json`)];
+            comments.forEach((commentArrayString) => loadedComments.push(...JSON.parse(commentArrayString)));
+            this.previewCommentsByCurrentUser = commentArrayStringByCurrentUser ? JSON.parse(commentArrayStringByCurrentUser) : [];
+            loadedComments.sort((a, b) => a.created - b.created); // sort the combined loaded comments by creation date so the order is correct when displaying them
+          } else {
+            await mkdirp(this.commentsDir);
+            this.previewCommentsByCurrentUser = [];
+          }
+
           this.previewComments = loadedComments;
-          initialCommentsData.payload = { comments: loadedComments };
-          this.previewCommentsLoading = false;
-        } else {
-          const toplevelComments = this.previewComments.reduce((acc, comment) => {
-            if (!comment.parent) acc.push(_cloneDeep(comment)); // Cloning the comment here because it is a proxy and StructuredClone hates that
-            return acc;
-          }, []);
-          console.log(toplevelComments); // We only need to pass toplevel comments, not replies
-          initialCommentsData.payload = { comments: toplevelComments };
+          initialCommentsData.payload = { comments: loadedComments.reduce((acc, comment) => { if (!comment.parent) acc.push(comment); return acc; }, []) }; // only interested in the toplevel comments
+          this.previewCommentsActive = true;
+        } catch (err) {
+          this.$store.commit('addToast', { message: `Something went wrong while loading the comments for this file: ${err.message}`, type: 'error' });
         }
+
+        this.previewCommentsLoading = false;
+        console.log(this.previewComments, this.previewCommentsByCurrentUser);
+      } else {
+        // We only need to pass toplevel comments, not replies
+        const toplevelComments = this.previewComments.reduce((acc, comment) => {
+          if (!comment.parent) acc.push(_cloneDeep(comment)); // Cloning the comment here because it is a proxy and StructuredClone hates that
+          return acc;
+        }, []);
+        initialCommentsData.payload = { comments: toplevelComments };
         this.previewCommentsActive = true;
       }
 
@@ -1117,9 +1205,6 @@ export default {
       margin: 1rem
       border-radius: $radius-xl
 
-    &.comment-mode-active
-      cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='26' height='22' fill='none'%3E %3Cg stroke-linecap='round' stroke-linejoin='round' stroke-width='2'%3E %3Cpath fill='%236C5CE7' stroke='%236C5CE7' d='M23 3a2 2 0 1 0-4 0H7a6 6 0 0 0-6 6v9a3 3 0 0 0 3 3h13a6 6 0 0 0 6-6V7a2 2 0 1 0 0-4Z'/%3E %3Cpath stroke='%23fff' d='M21 5v2m0-2h-2m2 0V3m0 2h2M7 10h10M7 14h5m9-3v4a4 4 0 0 1-4 4H4a1 1 0 0 1-1-1V9a4 4 0 0 1 4-4h8'/%3E %3C/g%3E %3C/svg%3E") 0 22, pointer
-
   .loader
     position: absolute
     top: 0
@@ -1171,4 +1256,62 @@ export default {
   .highlight-box
     .button
       width: 100%
+
+.add-preview-comment
+
+  &.dark
+    .header-wrapper
+      .author
+        color: $text-secondary-dark
+
+      .timestamp
+        color: $text-tertiary-dark
+
+  .header-wrapper
+    display: flex
+    justify-content: space-between
+    padding: (8 / 16)rem (12 / 16)rem
+
+    .author,
+    .timestamp
+      font-size: (12 / 16)rem
+
+    .author
+      max-width: 60%
+      white-space: nowrap
+      overflow: hidden
+      text-overflow: ellipsis
+      color: $text-secondary
+
+    .timestamp
+      color: $text-tertiary
+
+  .editor
+    max-width: 100%
+    width: (440 / 16)rem
+
+    :deep(.content-wrapper)
+      border-radius: 0
+
+      &:not(:focus-within):not(.error)
+        box-shadow: inset 0 (-1 / 16)rem 0 0 $bg-tertiary
+
+      &.dark
+        background-color: $bg-tertiary-dark
+
+        &:not(:focus-within):not(.error)
+          box-shadow:
+            inset 0 0.0625rem 0 0 lighten($bg-tertiary-dark, 10),
+            inset 0 (-1 / 16)rem 0 0 lighten($bg-tertiary-dark, 10)
+
+        code
+          background-color: lighten($bg-tertiary-dark, 10)
+
+    &:deep(.toolbar)
+      margin-top: 0
+      top: 0
+      border-radius: 0
+
+      .tool-group:nth-child(2)
+        display: none
 </style>
