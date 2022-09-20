@@ -9,6 +9,7 @@ updatedAt: 2022-08-26
 
 * If tracking with Umami is enabled, Mattrbld tracks events using the new syntax
   introduced in Umami 1.37.0
+* The UI can now be scaled down to 75% to make it more usable on small screens
 
 ## Bugfixes
 
