@@ -77,17 +77,17 @@
         <MbButton :dark="dark" :disabled="Boolean(errors.name)" type="primary" @click="saveSettings">Save</MbButton>
       </template>
     </MbModal>
-    <MbPopover class="add-preview-comment" :dark="dark" no-content-padding :visible="addPreviewCommentPopover.visible" :x="addPreviewCommentPopover.x" :y="addPreviewCommentPopover.y" @after-close="handleAddPreviewCommentPopoverClosed" @close="addPreviewCommentPopover.visible = false">
+    <MbPopover class="add-preview-comment" :dark="dark" no-content-padding use-capture-on-outside-click :visible="addPreviewCommentPopover.visible" :x="addPreviewCommentPopover.x" :y="addPreviewCommentPopover.y" @after-close="handleAddPreviewCommentPopoverClosed" @close="addPreviewCommentPopover.visible = false">
       <template #header>
         <div class="header-wrapper">
           <span v-if="addPreviewCommentPopover.comment" class="author"><strong>{{addPreviewCommentPopover.comment.author}}</strong></span>
           <span v-if="addPreviewCommentPopover.comment" class="timestamp">{{formattedTimestamp(addPreviewCommentPopover.comment.created)}}</span>
         </div>
       </template>
-      <MbEditor v-if="addPreviewCommentPopover.comment" v-model="addPreviewCommentPopover.comment.content" :dark="dark" :error="errors.comment" :format-options="{}" :formats="{ block: ['blockquote', 'orderedList', 'unorderedList'], inline: ['code', 'em', 'strike', 'strong'] }"  output-format="html" placeholder="Your comment…" ref="commentEditor" @keyup.ctrl.enter="addPreviewComment(addPreviewCommentPopover.comment, true)" />
+      <MbEditor v-if="addPreviewCommentPopover.comment" v-model="addPreviewCommentPopover.comment.content" :dark="dark" :format-options="{}" :formats="{ block: ['blockquote', 'orderedList', 'unorderedList'], inline: ['code', 'em', 'strike', 'strong'] }"  output-format="html" placeholder="Your comment…" ref="commentEditor" @keyup.ctrl.enter="addPreviewComment(addPreviewCommentPopover.comment, true)" />
       <template #footer>
         <MbButton :dark="dark" @click="addPreviewCommentPopover.visible = false">Cancel</MbButton>
-        <MbButton :dark="dark" :disabled="!addPreviewCommentPopover.comment || Boolean(errors.comment)" :loading="addPreviewCommentPopover.loading" icon="plus" type="positive" @click="addPreviewComment(addPreviewCommentPopover.comment, true)">Add Comment</MbButton>
+        <MbButton :dark="dark" :disabled="!addPreviewCommentPopover.comment || !addPreviewCommentPopover.comment.content || addPreviewCommentPopover.comment.content === '<p></p>'" :loading="addPreviewCommentPopover.loading" icon="plus" type="positive" @click="addPreviewComment(addPreviewCommentPopover.comment, true)">Add Comment</MbButton>
       </template>
     </MbPopover>
   </div>
@@ -408,7 +408,6 @@ export default {
       content: {},
       collection: {},
       errors: {
-        comment: '',
         name: '',
         fields: new Map(),
       },
@@ -438,7 +437,7 @@ export default {
   },
   methods: {
     async addPreviewComment(comment, toplevel) {
-      if (!comment.content || !comment.content.length) this.errors.comment = 'A comment is required';
+      if (!comment.content || !comment.content.length || comment.content === '<p></p>') return;
 
       this.previewComments.push(comment);
       this.previewCommentsByCurrentUser.push(comment);
@@ -663,7 +662,7 @@ export default {
               updated: null,
             };
             this.addPreviewCommentPopover.visible = true;
-            this.$nextTick(() => this.$refs.commentEditor.editorView.focus());
+            this.$nextTick(() => this.$refs.commentEditor && this.$refs.commentEditor.editorView.focus());
           } else if (data.type === 'commentClick') {
             // TODO: actually write a method to properly delete comments with undo
             // TODO: actually handle comment click here by showing the comment thread in a popover
@@ -878,7 +877,6 @@ export default {
         }
 
         this.previewCommentsLoading = false;
-        console.log(this.previewComments, this.previewCommentsByCurrentUser);
       } else {
         // We only need to pass toplevel comments, not replies
         const toplevelComments = this.previewComments.reduce((acc, comment) => {
