@@ -21,7 +21,7 @@ export default {
   beforeUnmount() {
     if (this.updateOnResize) window.removeEventListener('resize', this.delayedUpdate);
     else window.removeEventListener('resize', this.close);
-    window.removeEventListener('click', this.close);
+    window.removeEventListener('click', this.close, { capture: this.useCaptureOnOutsideClick });
     this.$store.commit('observers/removeResizeListener', this.$refs.el);
   },
   data() {
@@ -39,7 +39,7 @@ export default {
       this.update();
       if (this.updateOnResize) window.addEventListener('resize', this.delayedUpdate);
       else window.addEventListener('resize', this.close);
-      window.addEventListener('click', this.close);
+      window.addEventListener('click', this.close, { capture: this.useCaptureOnOutsideClick });
       this.$store.commit('observers/addResizeListener', { el: this.$refs.el, cb: this.update });
     }
   },
@@ -108,6 +108,7 @@ export default {
       default: true,
     },
     updateOnResize: Boolean,
+    useCaptureOnOutsideClick: Boolean,
     visible: Boolean,
     x: {
       type: Number,
@@ -124,7 +125,7 @@ export default {
         window.setTimeout(() => {
           if (this.updateOnResize) window.addEventListener('resize', this.delayedUpdate);
           else window.addEventListener('resize', this.close);
-          window.addEventListener('click', this.close);
+          window.addEventListener('click', this.close, { capture: this.useCaptureOnOutsideClick });
           this.$store.commit('observers/addResizeListener', { el: this.$refs.el, cb: this.update }); // will update the popover since it transitions from size 0 to actual size once v-show === true
         }, 0);
       } else {
