@@ -156,6 +156,7 @@ export default {
       previousTheme: null,
       scaleOptions: [
         { label: 'OS Default', value: 'auto' },
+        { label: '75%', value: 0.75 },
         { label: '100%', value: 1 },
         { label: '125%', value: 1.25 },
         { label: '150%', value: 1.5 },
