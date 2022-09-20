@@ -51,7 +51,7 @@
                 <MbButton :dark="dark" icon="open-new-window" tooltip="Open preview in new tab / window" @click="openPreviewInNewTab" />
                 <MbButton :dark="dark" :icon="fullscreenPreview ? 'fullscreen-reverse' : 'fullscreen'" tooltip="Toggle fullscreen" @click="toggleFullscreenPreview" />
                 <MbButton v-if="!isMobile" :dark="dark" :icon="mobilePreview ? 'monitor' : 'phone'" tooltip="Toggle mobile preview" @click="mobilePreview = !mobilePreview" />
-                <MbButton v-if="canComment" :dark="dark" icon="comment-stack" :loading="previewCommentsLoading" tooltip="Toggle comments" :type="previewCommentsActive ? 'primary' : null" @click="togglePreviewComments" />
+                <MbButton v-if="canShowComments" :dark="dark" icon="comment-stack" :loading="previewCommentsLoading" tooltip="Toggle comments" :type="previewCommentsActive ? 'primary' : null" @click="togglePreviewComments" />
               </header>
               <transition>
                 <MbLoader v-if="!previewConnected" :class="{ dark }" />
@@ -268,6 +268,11 @@ export default {
     },
     canPreview() {
       return this.previewUrl && !this.collection.disablePreview;
+    },
+    canShowComments() {
+      const { disableComments } = this.collection;
+      if (disableComments || !this.canPreview || !this.previewSupports.includes('comments')) return false;
+      return true;
     },
     canToggleDraft() {
       const { permissions } = this.collection;
@@ -685,6 +690,8 @@ export default {
               this.addPreviewCommentPopover.visible = false;
               return;
             }
+            if (!this.canComment) return; // we don't need to do anyhting if the user isn't allowed to comment
+
             const previewContainer = this.$refs.preview.getBoundingClientRect();
             this.addPreviewCommentPopover.x = data.payload.clientX + previewContainer.left;
             this.addPreviewCommentPopover.y = data.payload.clientY + previewContainer.top;
@@ -924,7 +931,7 @@ export default {
         this.previewCommentsActive = true;
       }
 
-      modechangeData.payload = { active: this.previewCommentsActive };
+      modechangeData.payload = { active: this.previewCommentsActive, canComment: this.canComment };
       this.sendMessageToPreview(modechangeData);
       if (this.previewCommentsActive) this.sendMessageToPreview(initialCommentsData);
     },
