@@ -239,6 +239,7 @@ export default {
   },
   beforeUnmount() {
     if (this.previewInNewTab) this.closeOpenPreview();
+    if (this.previewConnected) window.removeEventListener('message', this.handlePreviewMessage, false);
     window.removeEventListener('beforeunload', this.preventUnintentionalClose);
   },
   components: {
