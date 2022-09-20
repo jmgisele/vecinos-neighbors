@@ -445,11 +445,9 @@ export default {
       if (toplevel) this.addPreviewCommentPopover.loading = true;
 
       try {
-        const path = joinPath(this.commentsDir, `${this.currentUser.id}.json`);
-        await fs.writeFile(path, JSON.stringify(this.previewCommentsByCurrentUser, null, 2), 'utf8');
+        await this.savePreviewCommentsByCurrentUser();
         if (toplevel) this.sendMessageToPreview({ feature: 'comments', type: 'addCommentMarker', payload: { comment: _cloneDeep(comment) } });
         this.addPreviewCommentPopover.visible = false;
-        this.$store.commit('addLocallyChangedFile', path);
       } catch (err) {
         this.$store.commit('addToast', { message: `Something went wrong while saving the comment: ${err.message}`, type: 'error' });
         // reset the pushed comments, its the ones pushed last
@@ -520,6 +518,45 @@ export default {
       });
       const collectionPath = joinPath('/.mattrbld', 'collections', collection);
       this.$router.replace({ name: 'Project.Collection', params: { id, path: collectionPath } });
+    },
+    deletePreviewComment(id) {
+      const commentIndex = this.previewComments.findIndex((existingComment) => existingComment.id === id);
+      const commentByCurrentUserIndex = this.previewCommentsByCurrentUser.findIndex((existingComment) => existingComment.id === id);
+      if (commentIndex > -1) {
+        const commentBackup = _cloneDeep(this.previewComments[commentIndex]);
+
+        this.sendMessageToPreview({ feature: 'comments', type: 'deleteCommentMarker', payload: { comment: commentBackup } });
+        this.previewComments.splice(commentIndex, 1);
+
+        this.$store.commit('addToast', {
+          action: () => {
+            this.previewComments.splice(commentIndex, 0, commentBackup);
+            this.sendMessageToPreview({ feature: 'comments', type: 'addCommentMarker', payload: { comment: commentBackup } });
+          },
+          actionLabel: 'Undo',
+          closeOnRouteChange: true,
+          message: 'The comment was deleted',
+          onClose: async (undone) => {
+            if (undone) return;
+            try {
+              if (commentByCurrentUserIndex > -1) this.previewCommentsByCurrentUser.splice(commentByCurrentUserIndex, 1);
+              if (this.previewCommentsByCurrentUser.length) await this.savePreviewCommentsByCurrentUser();
+              else {
+                const path = joinPath(this.commentsDir, `${this.currentUser.id}.json`);
+                await fs.unlink(path);
+                this.$store.commit('addLocallyChangedFile', path);
+              }
+            } catch (err) {
+              this.$store.commit('addToast', { message: `Something went wrong while deleting the comment: ${err.message}`, type: 'error' });
+              this.previewComments.splice(commentIndex, 0, commentBackup);
+              this.previewCommentsByCurrentUser.splice(commentByCurrentUserIndex, 0, commentBackup);
+              this.sendMessageToPreview({ feature: 'comments', type: 'addCommentMarker', payload: { comment: commentBackup } });
+            }
+          },
+          timeout: 5000,
+          type: 'warning',
+        });
+      }
     },
     exchangePreviewHandshake() {
       let handshake;
@@ -664,13 +701,8 @@ export default {
             this.addPreviewCommentPopover.visible = true;
             this.$nextTick(() => this.$refs.commentEditor && this.$refs.commentEditor.editorView.focus());
           } else if (data.type === 'commentClick') {
-            // TODO: actually write a method to properly delete comments with undo
             // TODO: actually handle comment click here by showing the comment thread in a popover
-            const commentIndex = this.previewComments.findIndex((existingComment) => existingComment.id === data.payload.id);
-            if (commentIndex > -1) {
-              this.sendMessageToPreview({ feature: 'comments', type: 'deleteCommentMarker', payload: { comment: _cloneDeep(this.previewComments[commentIndex]) } });
-              this.previewComments.splice(commentIndex, 1);
-            }
+            this.deletePreviewComment(data.payload.id);
           } else if (data.type === 'commentMoved') {
             // TODO: handle comment updates by client (like when the marker is moved)
           }
@@ -781,6 +813,11 @@ export default {
         this.$store.commit('addToast', { message: 'At least one of the fields has errors, please fix them before saving.', type: 'negative' });
       }
       this.saveLoading = false;
+    },
+    async savePreviewCommentsByCurrentUser() {
+      const path = joinPath(this.commentsDir, `${this.currentUser.id}.json`);
+      await fs.writeFile(path, JSON.stringify(this.previewCommentsByCurrentUser, null, 2), 'utf8');
+      this.$store.commit('addLocallyChangedFile', path);
     },
     async saveSettings() {
       if (this.newContentSchema) await this.loadAndAssignSchema(this.newContentSchema);
