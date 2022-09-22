@@ -157,7 +157,9 @@ export default {
       scaleOptions: [
         { label: 'OS Default', value: 'auto' },
         { label: '75%', value: 0.75 },
+        { label: '87%', value: 0.875 },
         { label: '100%', value: 1 },
+        { label: '112%', value: 1.125 },
         { label: '125%', value: 1.25 },
         { label: '150%', value: 1.5 },
         { label: '175%', value: 1.75 },
