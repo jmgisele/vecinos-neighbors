@@ -90,6 +90,7 @@
         <MbButton :dark="dark" :disabled="!addPreviewCommentPopover.comment || !addPreviewCommentPopover.comment.content || addPreviewCommentPopover.comment.content === '<p></p>'" :loading="addPreviewCommentPopover.loading" icon="plus" type="positive" @click="addPreviewComment(addPreviewCommentPopover.comment, true)">Add Comment</MbButton>
       </template>
     </MbPopover>
+    <PreviewCommentThread :can-comment="canComment" :comments="previewCommentThreadPopover.comments" :dark="dark" :visible="previewCommentThreadPopover.visible" :x="previewCommentThreadPopover.x" :y="previewCommentThreadPopover.y" @after-close="handlePreviewCommentThreadPopoverClosed" @close="previewCommentThreadPopover.visible = false" />
   </div>
 </template>
 
@@ -116,6 +117,7 @@ import validateContent from '../assets/js/validateContent';
 import Store from '../store';
 
 import TabContent from '../components/utility/TabContent.vue';
+import PreviewCommentThread from '../components/utility/PreviewCommentThread.vue';
 
 function hasAccess(role, permissions) {
   if (!role || !permissions) return false;
@@ -244,6 +246,7 @@ export default {
   },
   components: {
     TabContent,
+    PreviewCommentThread,
   },
   computed: {
     allowedSchemas() {
@@ -428,6 +431,12 @@ export default {
       previewCommentsByCurrentUser: null,
       previewCommentsActive: false,
       previewCommentsLoading: false,
+      previewCommentThreadPopover: {
+        comments: null,
+        visible: false,
+        x: 0,
+        y: 0,
+      },
       previewConnected: false,
       previewImages: new Map(),
       previewInNewTab: null,
@@ -654,6 +663,12 @@ export default {
       this.addPreviewCommentPopover.x = 0;
       this.addPreviewCommentPopover.y = 0;
     },
+    handlePreviewCommentThreadPopoverClosed() {
+      this.previewCommentThreadPopover.comments = null;
+      this.previewCommentThreadPopover.visible = false;
+      this.previewCommentThreadPopover.x = 0;
+      this.previewCommentThreadPopover.y = 0;
+    },
     async handleEntityMoved(newPath) {
       this.$store.commit('removeLocallyChangedFile', this.$route.params.path);
       this.$store.commit('addLocallyChangedFile', newPath);
@@ -691,6 +706,10 @@ export default {
               this.addPreviewCommentPopover.visible = false;
               return;
             }
+            if (this.previewCommentThreadPopover.visible) { // if we are viewing a comment thread we hide it to conform to user expectations regarding popovers
+              this.previewCommentThreadPopover.visible = false;
+              return;
+            }
             if (!this.canComment) return; // we don't need to do anyhting if the user isn't allowed to comment
 
             const previewContainer = this.$refs.preview.getBoundingClientRect();
@@ -707,10 +726,20 @@ export default {
               updated: null,
             };
             this.addPreviewCommentPopover.visible = true;
+
             this.$nextTick(() => this.$refs.commentEditor && this.$refs.commentEditor.editorView.focus());
           } else if (data.type === 'commentClick') {
+            if (this.addPreviewCommentPopover.visible) this.addPreviewCommentPopover.visible = false;
+            if (this.previewCommentThreadPopover.visible) {
+              this.previewCommentThreadPopover.visible = false;
+              return;
+            }
             // TODO: actually handle comment click here by showing the comment thread in a popover
-            this.deletePreviewComment(data.payload.id);
+            const previewContainer = this.$refs.preview.getBoundingClientRect();
+            this.previewCommentThreadPopover.x = data.payload.clientX + previewContainer.left;
+            this.previewCommentThreadPopover.y = data.payload.clientY + previewContainer.top;
+            this.previewCommentThreadPopover.comments = this.previewComments.filter((comment) => comment.id === data.payload.id || comment.parent === data.payload.id);
+            this.previewCommentThreadPopover.visible = true;
           } else if (data.type === 'commentMoved') {
             // TODO: handle comment updates by client (like when the marker is moved)
           }
@@ -1314,6 +1343,7 @@ export default {
     display: flex
     justify-content: space-between
     padding: (8 / 16)rem (12 / 16)rem
+    user-select: none
 
     .author,
     .timestamp
