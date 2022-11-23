@@ -12,7 +12,7 @@
       <MbButton v-if="isPrivilegedUser" :dark="dark" icon="wrench-and-driver" type="primary" @click="$router.push({ name: 'Project.Settings', params: { id: $route.params.id }, query: { tab: 'collections' }})">Configure now</MbButton>
     </div>
     <EntityCreationModal :dark="dark" :file-content="typeof defaultCollectionContent !== 'string' ? JSON.stringify(defaultCollectionContent, null, 2) : defaultCollectionContent" :file-extension="collection.type" :only="createOnly" :path="{ file: draftsDir && collection.draftByDefault ? currentDraftsPath : currentPath, directory: currentPath }" :title="entityCreationTitle" :visible="showEntityCreation" @close="handleEntityCreationClose" @entity-created="handleEntityCreated" />
-    <EntityMoveModal :dark="dark" :old-path="entityBeingModified" pretty-filenames :root="moveRootDir" :visible="showEntityMove" @close="showEntityMove = false; entityBeingModified = null" @entity-moved="handleEntityMoved" />
+    <EntityMoveModal :dark="dark" :old-path="entityBeingModified" pretty-filenames :root="moveRootDir" :visible="showEntityMove" @close="showEntityMove = false; entityBeingModified = null" @entity-moved="handleEntityRenamed" />
     <EntityRenameModal :dark="dark" :old-path="entityBeingModified" :visible="showEntityRename" @close="showEntityRename = false; entityBeingModified = null" @entity-renamed="handleEntityRenamed" />
   </div>
 </template>
@@ -425,26 +425,28 @@ export default {
       }
       this.defaultCollectionContent = {};
     },
-    async handleEntityMoved({ oldPath, newPath }) {
-      this.$refs.fileList.refresh();
-      this.entityBeingModified = null;
+    // async handleEntityMoved({ oldPath, newPath }) {
+    // this.$refs.fileList.refresh();
+    // this.entityBeingModified = null;
 
-      const isFile = (await fs.stat(newPath)).isFile();
+    // const isFile = (await fs.stat(newPath)).isFile();
 
-      if (isFile) {
-        this.$store.commit('removeLocallyChangedFile', oldPath);
-        this.$store.commit('addLocallyChangedFile', newPath);
-      } else { // we moved a directory
-        this.$store.commit('removeLocallyChangedFolder', oldPath);
-        try {
-          await this.updateLocallyChangedFiles(newPath);
-        } catch (err) {
-          this.$store.commit('addToast', { message: `Something went wrong while updating locally changed files: ${err.message}`, type: 'error' });
-        }
-      }
-      this.$store.dispatch('saveAppData');
-    },
+    // if (isFile) {
+    //   this.$store.commit('removeLocallyChangedFile', oldPath);
+    //   this.$store.commit('addLocallyChangedFile', newPath);
+    // } else { // we moved a directory
+    //   // BUG: the movement of the folder is not reflected in the drafts! It should probably call handleEntityRenamed
+    //   this.$store.commit('removeLocallyChangedFolder', oldPath);
+    //   try {
+    //     await this.updateLocallyChangedFiles(newPath);
+    //   } catch (err) {
+    //     this.$store.commit('addToast', { message: `Something went wrong while updating locally changed files: ${err.message}`, type: 'error' });
+    //   }
+    // }
+    // this.$store.dispatch('saveAppData');
+    // },
     async handleEntityRenamed({ oldPath, newPath }) {
+      // TODO: add comment folder mirroring on move and rename
       this.$refs.fileList.refresh();
       this.entityBeingModified = null;
 
