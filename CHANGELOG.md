@@ -11,8 +11,15 @@ updatedAt: 2022-08-26
   introduced in Umami 1.37.0
 * There are now new UI scaling options for 75%, 87% and 112% to provide finer
   scaling control on certain sceens, mapping to even font sizes at 12, 14 and 18px
+* When generating a Schema from existing content, internal fields that might be
+  present will be ignored by default, unless it is a repeating field. In that case
+  information in `___mb_type` will be used to generate more accurate keys for the
+  repeating elements
 
 ## Bugfixes
+
+* Fixed an issue caused by `.gitkeep` files in folders that have their content
+  automatically parsed
 
 ## Version 0.3.0 Beta
 
