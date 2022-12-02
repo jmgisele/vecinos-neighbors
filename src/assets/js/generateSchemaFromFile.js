@@ -24,7 +24,8 @@ function isLanguageCode(code) {
 function identifyFieldTypeByValue(value, key) {
   const candidate = { type: null, typeCandidates: [] }; // may also contain localised and children if necessary
   const valueType = typeof value;
-  if (value === null || (typeof value === 'object' && Object.keys(value).length === 0)) candidate.typeCandidates = generateAllTypesArray();
+  if (key && key.startsWith('___mb_')) candidate.typeCandidates = [{ label: 'Ignore field', value: null }]; // internal fields should be ignored
+  else if (value === null || (typeof value === 'object' && Object.keys(value).length === 0)) candidate.typeCandidates = generateAllTypesArray();
   else if (valueType !== 'object') {
     switch (valueType) {
       case 'string':
@@ -86,10 +87,11 @@ function identifyFieldTypeByValue(value, key) {
 
         let keyCandidate;
 
-        if (key && pluralize.isPlural(key)) keyCandidate = pluralize.singular(key);
+        if (subvalue && subvalue.___mb_type) keyCandidate = subvalue.___mb_type;
+        else if (key && pluralize.isPlural(key)) keyCandidate = pluralize.singular(key);
         else keyCandidate = `${key}-element`;
 
-        const usageAmount = acc.map((existingChildCandidate) => existingChildCandidate.key === keyCandidate).length;
+        const usageAmount = acc.filter((existingChildCandidate) => existingChildCandidate.key.startsWith(keyCandidate)).length; // check how many other keys already include the key candidate
 
         const childCandidate = {
           key: usageAmount === 0 ? keyCandidate : `${keyCandidate}-${usageAmount}`,
