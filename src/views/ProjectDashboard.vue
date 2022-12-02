@@ -200,7 +200,7 @@ export default {
     async fetchNews() {
       try {
         const newsPath = joinPath(this.projectDir, '.mattrbld', 'news');
-        const newsFiles = await fs.readdir(newsPath);
+        const newsFiles = (await fs.readdir(newsPath)).filter((path) => path.endsWith('.md'));
         const rawNews = await Promise.all(newsFiles.map((name) => fs.readFile(joinPath(newsPath, name), 'utf8')));
 
         this.news = []; // so we don’t end up with duplicates if some news were already loaded

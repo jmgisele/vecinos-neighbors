@@ -932,7 +932,7 @@ export default {
           const commentsDirExists = await exists(this.commentsDir);
 
           if (commentsDirExists) {
-            const commentFiles = await fs.readdir(this.commentsDir);
+            const commentFiles = (await fs.readdir(this.commentsDir)).filter((path) => path.endsWith('.json'));
             const comments = await Promise.all(commentFiles.map((name) => fs.readFile(joinPath(this.commentsDir, name), 'utf8')));
             const commentArrayStringByCurrentUser = comments[commentFiles.indexOf(`${this.currentUser.id}.json`)];
             comments.forEach((commentArrayString) => loadedComments.push(...JSON.parse(commentArrayString)));

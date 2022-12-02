@@ -115,7 +115,7 @@ export default {
       if (this.linkableCollections.length > 0) return; // we don’t need to load them again
       try {
         let collectionFiles;
-        if (!this.limitTo || this.limitTo.length === 0) collectionFiles = await fs.readdir(this.collectionsPath);
+        if (!this.limitTo || this.limitTo.length === 0) collectionFiles = (await fs.readdir(this.collectionsPath)).filter((path) => path.endsWith('.json'));
         else collectionFiles = this.limitTo.map((path) => pathBasename(path));
         const collectionStrings = await Promise.all(collectionFiles.map((file) => fs.readFile(joinPath(this.collectionsPath, file), 'utf8')));
         const collections = collectionStrings.map((collection) => collection && JSON.parse(collection)).filter((collection) => typeof collection !== 'undefined');

@@ -133,7 +133,7 @@ export default {
     if (!dirExists) await fs.mkdir(this.collectionDir);
 
     try {
-      const schemas = await readdirDeep(`/projects/${this.currentProject.id}/.mattrbld/schemas`);
+      const schemas = (await readdirDeep(`/projects/${this.currentProject.id}/.mattrbld/schemas`)).filter((path) => path.endsWith('.json')); // we are only interested in JSON files
       this.availableSchemas = schemas.map((schema) => ({ label: prettifyEntityName(schema.split('/').slice(-1)[0]), value: schema.replace(this.projectDir, '') }));
     } catch (err) {
       if (err.code !== 'ENOENT') this.$store.commit('addToast', { message: `Something went wrong while trying to get all Schemas: ${err.message}`, type: 'error' }); // it’s okay if /schemas doesn’t exist yet
