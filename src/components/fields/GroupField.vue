@@ -11,6 +11,7 @@
     <MbModal class="group-content" :dark="dark" :title="label" :visible="showModal" @after-close="validateContent" @close="closeGroup" @keyup.ctrl.enter="closeGroup">
       <teleport v-if="!teleportTarget || active" :disabled="!teleportTarget" :to="teleportTarget">
         <h2 v-if="teleportTarget" class="h3 split-title">{{label}}</h2>
+        <p v-if="!children.length" class="group-empty-state" :class="{ centered: !teleportTarget, dark }">This {{label}} does not contain editable fields</p>
         <MbFieldsEditor compact :dark="dark" :error="error" :fields="children" :in-split="Boolean(teleportTarget)" :model-value="modelValue" :languages="languages" @update:error="handleError" @update:model-value="update" />
       </teleport>
       <template #actions>
@@ -127,4 +128,13 @@ export default {
     &.no-display-value // to match height of input fields
       padding-top: 1.0625rem
       padding-bottom: @padding-top
+
+.group-empty-state
+  color: $text-tertiary
+
+  &.dark
+    color: $text-tertiary-dark
+
+  &.centered
+    text-align: center
 </style>

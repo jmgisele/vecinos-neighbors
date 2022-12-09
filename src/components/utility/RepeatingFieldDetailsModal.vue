@@ -2,6 +2,7 @@
   <MbModal class="repeating-field-details-modal" :dark="dark" :title="title" :visible="visible" @close="$emit('close')" @keyup.ctrl.enter="$emit('close')">
     <teleport v-if="!teleportTarget || active" :disabled="!teleportTarget" :to="teleportTarget">
       <h2 v-if="teleportTarget" class="h3 split-title">{{title}}</h2>
+      <p v-if="(fieldBeingEdited && fieldBeingEdited.type === 'group' && !fieldBeingEdited.value.length)" class="group-empty-state" :class="{ centered: !teleportTarget, dark }">This {{itemLabel}} does not contain editable fields</p>
       <MbFieldsEditor
         v-if="fieldBeingEdited"
         class="field-details-editor"
@@ -50,9 +51,19 @@ export default {
 
 <style lang="stylus" scoped>
 @require '../../assets/styles/breakpoints'
+@require '../../assets/styles/colors'
 
 .field-details-editor.in-split
   margin-bottom: 2rem
+
+.group-empty-state
+  color: $text-tertiary
+
+  &.dark
+    color: $text-tertiary-dark
+
+  &.centered
+    text-align: center
 
 .field-details-actions
   padding-bottom: 0.125rem
