@@ -20,6 +20,8 @@ updatedAt: 2022-08-26
 
 * Fixed an issue caused by `.gitkeep` files in folders that have their content
   automatically parsed
+* Group fields without editable content now show a message informing about that
+  in content editors
 
 ## Version 0.3.0 Beta
 
