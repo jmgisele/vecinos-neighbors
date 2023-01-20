@@ -15,6 +15,8 @@ updatedAt: 2022-08-26
   present will be ignored by default, unless it is a repeating field. In that case
   information in `___mb_type` will be used to generate more accurate keys for the
   repeating elements
+* It is now possible to disable previews for specific Collections in the Collection
+  settings
 
 ## Bugfixes
 
