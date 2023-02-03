@@ -55,10 +55,18 @@
       <MbToggle v-model="slugifyOptions_lowercase" :dark="dark" :icons="['cross', 'check']">Make the slug lowercase</MbToggle>
       <MbToggle v-model="slugifyOptions_decamelize" :dark="dark" :icons="['cross', 'check']">Convert camelCase to separate words</MbToggle>
       <MbToggle v-model="slugifyOptions_preserveLeadingUnderscore" :dark="dark" :icons="['cross', 'check']">Preserve leading underscores</MbToggle>
+      <MbToggle v-model="slugifyOptions_preserveTrailingDash" :dark="dark" :icons="['cross', 'check']">Preserve trailing dashes</MbToggle>
       <div class="input-wrapper">
         <span>Separator:</span>
         <MbInput v-model="slugifyOptions_separator" :dark="dark" placeholder="-" />
       </div>
+      <div class="tag-wrapper">
+        <span>Preserve these characters:</span>
+        <MbTagInput v-model="slugifyOptions_preserveCharacters" allow-unsuggested :dark="dark" placeholder="New character…" />
+      </div>
+      <MbHighlightBox color="warning" :dark="dark">
+        The separator character cannot be preserved. Preserving characters that are illegal in filenames, such as <code>/</code> can cause severe issues. Only change this option if you have to.
+      </MbHighlightBox>
     </section>
     <section class="wrapper">
       <h2>Brand Colours</h2>
@@ -215,12 +223,43 @@ export default {
         this.$store.dispatch('saveCurrentProject');
       },
     },
+    slugifyOptions_preserveTrailingDash: {
+      get() {
+        return this.currentProject.slugifyOptions && this.currentProject.slugifyOptions.preserveTrailingslugifyOptions_preserveTrailingDash;
+      },
+      set(v) {
+        let newOptions;
+        if (!this.currentProject.slugifyOptions) newOptions = { preserveTrailingslugifyOptions_preserveTrailingDash: v };
+        else newOptions = { ...this.currentProject.slugifyOptions, preserveTrailingslugifyOptions_preserveTrailingDash: v };
+        this.$store.commit('setCurrentProjectProperty', { key: 'slugifyOptions', value: newOptions });
+        this.$store.dispatch('saveCurrentProject');
+      },
+    },
+    slugifyOptions_preserveCharacters: {
+      get() {
+        return (this.currentProject.slugifyOptions && this.currentProject.slugifyOptions.slugifyOptions_preserveCharacters) || [];
+      },
+      set(v) {
+        if (v && v.includes(this.slugifyOptions_separator)) {
+          this.errors.slugifyPreserveCharacters = 'The separator character cannot be preserved';
+          v.splice(v.indexOf(this.slugifyOptions_separator), 1);
+        } else this.errors.slugifyPreserveCharacters = '';
+        let newOptions;
+        if (!this.currentProject.slugifyOptions) newOptions = { slugifyOptions_preserveCharacters: v };
+        else newOptions = { ...this.currentProject.slugifyOptions, slugifyOptions_preserveCharacters: v };
+        this.$store.commit('setCurrentProjectProperty', { key: 'slugifyOptions', value: newOptions });
+        this.$store.dispatch('saveCurrentProject');
+      },
+    },
     slugifyOptions_separator: {
       get() {
         if (this.currentProject.slugifyOptions && typeof this.currentProject.slugifyOptions.separator !== 'undefined') return this.currentProject.slugifyOptions.separator;
         return '-';
       },
       set(v) {
+        if (this.currentProject.slugifyOptions && this.currentProject.slugifyOptions.slugifyOptions_preserveCharacters && this.currentProject.slugifyOptions.slugifyOptions_preserveCharacters.includes(v)) {
+          this.currentProject.slugifyOptions.slugifyOptions_preserveCharacters.splice(this.currentProject.slugifyOptions.slugifyOptions_preserveCharacters.indexOf(v), 1);
+        }
         let newOptions;
         if (!this.currentProject.slugifyOptions) newOptions = { separator: v };
         else newOptions = { ...this.currentProject.slugifyOptions, separator: v };
@@ -445,7 +484,8 @@ export default {
 
     .select-wrapper,
     .file-picker-wrapper,
-    .input-wrapper
+    .input-wrapper,
+    .tag-wrapper
       display: flex
       align-items: center
       justify-content: space-between
@@ -459,10 +499,19 @@ export default {
         max-width: none
         overflow: hidden
 
-    .input-wrapper .input
+    .input-wrapper
+      &:not(:last-child)
+        margin-bottom: 1rem
+
+      .input
+        margin-top: 0
+        margin-bottom: 0
+        width: auto
+
+    .tag-wrapper .tag-input
+      max-width: (286 / 16)rem
       margin-top: 0
       margin-bottom: 0
-      width: auto
 
     .per-language-autoquotes
       list-style: none
