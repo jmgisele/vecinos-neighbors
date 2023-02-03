@@ -17,6 +17,8 @@ updatedAt: 2022-08-26
   repeating elements
 * It is now possible to disable previews for specific Collections in the Collection
   settings
+* It is now possible to change the `preserveTrailingDash` and `preserveCharacters`
+  Slugify options in the General Settings
 
 ## Bugfixes
 
