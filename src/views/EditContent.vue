@@ -742,6 +742,8 @@ export default {
             this.previewCommentThreadPopover.visible = true;
           } else if (data.type === 'commentMoved') {
             // TODO: handle comment updates by client (like when the marker is moved)
+            const { comment: movedComment, position } = data.payload;
+            this.updatePreviewComment(movedComment.id, position);
           }
           break;
         default:
@@ -964,6 +966,35 @@ export default {
       modechangeData.payload = { active: this.previewCommentsActive, canComment: this.canComment };
       this.sendMessageToPreview(modechangeData);
       if (this.previewCommentsActive) this.sendMessageToPreview(initialCommentsData);
+    },
+    async updatePreviewComment(id, newPosition) {
+      const commentIndex = this.previewComments.findIndex((existingComment) => existingComment.id === id);
+      const commentByCurrentUserIndex = this.previewCommentsByCurrentUser.findIndex((existingComment) => existingComment.id === id);
+      const { top, left } = newPosition;
+
+      if (commentIndex === -1) {
+        this.$store.commit('addToast', { message: 'The comment you tried to move doesn’t exist', type: 'warning' });
+        this.sendMessageToPreview({ feature: 'comments', type: 'moveFailed', payload: { comment: { id } } });
+      } else if (!this.canComment || commentByCurrentUserIndex === -1) {
+        this.$store.commit('addToast', { message: 'You are not allowed to move this comment', type: 'warning' });
+        this.sendMessageToPreview({ feature: 'comments', type: 'moveFailed', payload: { comment: this.previewComments[commentIndex] } });
+      } else if (typeof top !== 'number' || typeof left !== 'number' || Math.abs(top) > 999999 || Math.abs(left) > 999999) {
+        this.$store.commit('addToast', { message: 'The new position is invalid', type: 'warning' });
+        this.sendMessageToPreview({ feature: 'comments', type: 'moveFailed', payload: { comment: this.previewComments[commentIndex] } });
+      } else {
+        const { top: topBackup, left: leftBackup } = this.previewComments[commentIndex].position;
+
+        try {
+          this.previewComments[commentIndex].position = { top, left };
+          this.previewCommentsByCurrentUser[commentByCurrentUserIndex].position = { top, left };
+          await this.savePreviewCommentsByCurrentUser();
+        } catch (err) {
+          this.$store.commit('addToast', { message: `Something went wrong while saving the comment: ${err.message}`, type: 'error' });
+          this.previewComments[commentIndex].position = { top: topBackup, left: leftBackup };
+          this.previewCommentsByCurrentUser[commentByCurrentUserIndex].position = { top: topBackup, left: leftBackup };
+          this.sendMessageToPreview({ feature: 'comments', type: 'moveFailed', payload: { comment: this.previewComments[commentIndex] } });
+        }
+      }
     },
     validateContent() {
       this.errors.fields = validateContent(this.content, this.schema, this.contentLanguages);
