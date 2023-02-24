@@ -72,9 +72,9 @@ export default {
       const tabletQuery = window.matchMedia('(max-width: 60rem)');
       if (tabletQuery.matches) this.$store.commit('setTablet', true);
 
-      window.matchMedia('(prefers-color-scheme: dark)').addListener(() => { this.forceRecompute += 1; });
-      mobileQuery.addListener((e) => this.$store.commit('setMobile', e.matches));
-      tabletQuery.addListener((e) => this.$store.commit('setTablet', e.matches));
+      window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => { this.forceRecompute += 1; });
+      mobileQuery.addEventListener('change', (e) => this.$store.commit('setMobile', e.matches));
+      tabletQuery.addEventListener('change', (e) => this.$store.commit('setTablet', e.matches));
     }
 
     // window.addEventListener('keyup', this.handleComponentsModal);
