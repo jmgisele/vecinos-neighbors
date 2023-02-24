@@ -43,6 +43,6 @@ npm run lint
 
 ## Technical Documentation
 
-There’s a work in progress documentation about all the concepts and functions of
-this project which is being managed through Mattrbld itself as a testing ground.
+You can learn more about all the concepts and functions of Mattrbld in the official
+documentation which is being managed through Mattrbld itself as a testing ground.
 You can find it [here](https://mattrbld.com/docs/).
