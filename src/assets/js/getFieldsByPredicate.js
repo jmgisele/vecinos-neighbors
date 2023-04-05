@@ -24,9 +24,9 @@ export default function getFieldsByPredicate(schema, predicate) {
       keypath.push(currentField.key);
 
       if (toplevel && currentField.tab && tabs) {
+        contentpath.length = 0; // clear the content path, we are at the top level and can safely get rid of any previous tab groupAs values
         const fieldTab = schema.tabs.find((tab) => tab.label === currentField.tab);
-        if (fieldTab && fieldTab.groupAs && !contentpath.includes(fieldTab.groupAs)) contentpath.push(fieldTab.groupAs);
-        else contentpath.pop();
+        if (fieldTab && fieldTab.groupAs) contentpath.push(fieldTab.groupAs);
       }
       if (!currentField.visualOnly) contentpath.push(currentField.key);
 
