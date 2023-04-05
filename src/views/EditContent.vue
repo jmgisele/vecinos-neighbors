@@ -2,7 +2,7 @@
   <div class="edit-content">
     <header>
       <div class="left">
-        <h1>{{contentName}}</h1>
+        <h1 @mouseenter="handleTitleTooltip">{{contentName}}</h1>
         <MbChip :color="status.color" :label="status.message" :loading="status.loading" />
         <transition>
           <MbChip v-if="!isTablet && isDraft" label="draft" />
@@ -10,9 +10,9 @@
       </div>
       <div class="right">
         <MbToggle v-if="draftsDir && canToggleDraft" v-model="isDraft" :dark="dark" :disabled="isDraft && (!content.___mb_schema || errors.fields.size > 0)" :icons="['cross', 'check']">Draft</MbToggle>
-        <MbButton :class="{ 'push-right': draftsDir }" :dark="dark" icon="settings" @click="showSettings = true">{{isTablet ? '' : 'Settings'}}</MbButton>
-        <MbButton v-if="canPreview" :dark="dark" :disabled="noSchema" :icon="showPreview ? 'hide' : 'eye'" @click.left="togglePreview" @click.middle="openPreviewInNewTab">{{isTablet ? '' : showPreview ? previewInNewTab ? 'Hide Preview Controls' : 'Hide Preview' : 'Preview'}}</MbButton>
-        <MbButton :dark="dark" :disabled="!wasChanged || (errors.fields.size > 0 && !isDraft)" icon="save" :icon-first="true" :loading="saveLoading" type="primary" @click="saveChanges">{{isTablet ? '' : 'Save'}}</MbButton>
+        <MbButton :class="{ 'push-right': draftsDir }" :dark="dark" icon="settings" :tooltip="isTablet ? 'Settings' : null" @click="showSettings = true">{{isTablet ? '' : 'Settings'}}</MbButton>
+        <MbButton v-if="canPreview" :dark="dark" :disabled="noSchema" :icon="showPreview ? 'hide' : 'eye'" :tooltip="isTablet ? showPreview ? previewInNewTab ? 'Hide Preview Controls' : 'Hide Preview' : 'Preview' : null" @click.left="togglePreview" @click.middle="openPreviewInNewTab">{{isTablet ? '' : showPreview ? previewInNewTab ? 'Hide Preview Controls' : 'Hide Preview' : 'Preview'}}</MbButton>
+        <MbButton :dark="dark" :disabled="!wasChanged || (errors.fields.size > 0 && !isDraft)" icon="save" :icon-first="true" :loading="saveLoading" :tooltip="isTablet ? 'Save' : null" type="primary" @click="saveChanges">{{isTablet ? '' : 'Save'}}</MbButton>
       </div>
     </header>
     <MbTabs v-if="schema.tabs && schema.tabs.length > 1" v-model="activeTab" :dark="dark" :errors="tabErrors" :tabs="cleanTabs" />
@@ -758,6 +758,13 @@ export default {
         }
       }
     },
+    handleTitleTooltip(e) {
+      const tooltip = {
+        message: this.contentName,
+        target: e.currentTarget,
+      };
+      this.$store.commit('setTooltip', tooltip);
+    },
     async loadAndAssignSchema(schema) {
       try {
         this.schema = JSON.parse(await fs.readFile(joinPath('/projects', this.$route.params.id, schema), 'utf8'));
@@ -1085,6 +1092,7 @@ export default {
       display: flex
       align-items: center
       margin-right: auto
+      overflow: hidden
 
       @media $tablet
         margin-left: 1rem
@@ -1103,12 +1111,15 @@ export default {
 
         @media $tablet
           margin-left: 0
+          margin-right: 1rem
 
         @media $mobile
           font-size: 1.5rem
           margin-right: 0.5rem
 
       .chip
+        flex-shrink: 0
+
         &.v-enter-active,
         &.v-leave-active
           transition: opacity 200ms ease
@@ -1134,6 +1145,7 @@ export default {
       display: flex
       align-items: center
       overflow: hidden
+      flex-shrink: 0
       margin-left: 1rem
       padding-bottom: 0.125rem
 

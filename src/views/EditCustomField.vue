@@ -2,13 +2,13 @@
   <div class="edit-custom-field">
     <header>
       <div class="left">
-        <h1>{{customFieldName}}</h1>
+        <h1 @mouseenter="handleTitleTooltip">{{customFieldName}}</h1>
         <MbChip :color="status.color" :label="status.message" :loading="status.loading" />
       </div>
       <div class="right">
-        <MbButton :dark="dark" icon="settings" @click="showCustomFieldSettings = true">{{isTablet ? '' : 'Settings'}}</MbButton>
-        <MbButton :dark="dark" icon="eye" @click="showPreview = true">{{isTablet ? '' : 'Preview'}}</MbButton>
-        <MbButton :dark="dark" :disabled="!wasChanged" icon="save" :icon-first="true" :loading="saveLoading" type="primary" @click="saveChanges">{{isTablet && !isMobile ? '' : 'Save'}}</MbButton>
+        <MbButton :dark="dark" icon="settings" :tooltip="isTablet ? 'Settings' : null" @click="showCustomFieldSettings = true">{{isTablet ? '' : 'Settings'}}</MbButton>
+        <MbButton :dark="dark" icon="eye" :tooltip="isTablet ? 'Preview' : null" @click="showPreview = true">{{isTablet ? '' : 'Preview'}}</MbButton>
+        <MbButton :dark="dark" :disabled="!wasChanged" icon="save" :icon-first="true" :loading="saveLoading" :tooltip="isTablet ? 'Save' : null" type="primary" @click="saveChanges">{{isTablet && !isMobile ? '' : 'Save'}}</MbButton>
       </div>
     </header>
     <SchemaFieldsEditor v-model="customField" :active-tab="0" :dark="dark" :project-id="$route.params.id" :tabs="[]" @update:modelValue="checkForChanges" />
@@ -208,6 +208,13 @@ export default {
       });
       this.$router.replace({ name: 'Project.Settings', params: { id }, query: { tab: 'custom-fields' } });
     },
+    handleTitleTooltip(e) {
+      const tooltip = {
+        message: this.customFieldName,
+        target: e.currentTarget,
+      };
+      this.$store.commit('setTooltip', tooltip);
+    },
     preventUnintentionalClose(e) {
       if (this.forceNavigation) return;
       if (this.wasChanged) {
@@ -354,6 +361,7 @@ export default {
       display: flex
       align-items: center
       margin-right: auto
+      overflow: hidden
 
       @media $tablet
         margin-left: 1rem
@@ -372,12 +380,15 @@ export default {
 
         @media $tablet
           margin-left: 0
+          margin-right: 1rem
 
         @media $mobile
           font-size: 1.5rem
           margin-right: 0.5rem
 
       .chip
+        flex-shrink: 0
+
         @media $mobile
           order: -1
           width: 1rem
@@ -392,6 +403,7 @@ export default {
       display: flex
       align-items: center
       overflow: hidden
+      flex-shrink: 0
       margin-left: 1rem
       padding-bottom: 0.125rem
 
