@@ -19,6 +19,10 @@ updatedAt: 2022-08-26
   settings
 * It is now possible to change the `preserveTrailingDash` and `preserveCharacters`
   Slugify options in the General Settings
+* Content items, Schemas and Custom Fields now show a tooltip with the full title
+  when hovered
+* While on medium sized screens, the Settings, Preview and Save buttons in editors
+  now show a tooltip with the label that would be visible on a larger screen
 
 ## Bugfixes
 
@@ -26,6 +30,8 @@ updatedAt: 2022-08-26
   automatically parsed
 * Group fields without editable content now show a message informing about that
   in content editors
+* Fixed an issue where the active languages for a piece of content weren’t being
+  accurately detected
 
 ## Version 0.3.0 Beta
 
