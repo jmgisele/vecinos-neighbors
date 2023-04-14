@@ -111,6 +111,9 @@ export default {
       }
       return null;
     },
+    commentsDir() {
+      return joinPath(this.projectDir, '.mattrbld', 'comments');
+    },
     contentDir() {
       if (!this.collection.dir) return this.projectDir;
       return joinPath(this.projectDir, this.collection.dir);
@@ -302,44 +305,56 @@ export default {
       this.showEntityCreation = true;
     },
     async deleteEntity(path) {
-      const timeout = 5000;
       const isFile = (await fs.stat(path)).isFile();
-      const timeoutId = window.setTimeout(async () => {
-        try {
-          const deletionPromises = [];
-          let correspondingDraftsDir;
-          let dirExists;
-          if (!isFile && this.draftsDir) {
-            correspondingDraftsDir = joinPath(this.draftsDir, path.replace(this.contentDir, ''));
-            dirExists = await exists(correspondingDraftsDir);
-            if (dirExists) deletionPromises.push(rmrf(correspondingDraftsDir));
-          }
-          deletionPromises.push(await rmrf(path));
-          await Promise.all(deletionPromises);
-          if (this.$refs && this.$refs.fileList) await this.$refs.fileList.refresh();
-          if (isFile) this.$store.commit('removeLocallyChangedFile', path);
-          else if (this.draftsDir && correspondingDraftsDir && dirExists) {
-            this.$store.commit('removeLocallyChangedFolder', path);
-            this.$store.commit('removeLocallyChangedFolder', correspondingDraftsDir);
-          } else this.$store.commit('removeLocallyChangedFolder', path);
-          this.$store.dispatch('saveAppData');
-        } catch (err) {
-          this.$store.commit('addToast', { message: `Something went wrong while deleting the ${isFile ? pluralize.singular(this.collection.name) : 'folder'}: ${err.message}`, type: 'error' });
-        } finally {
-          window.clearTimeout(timeoutId);
-          this.$store.commit('removeFromSoftDeleted', path);
-        }
-      }, timeout);
 
       this.$store.commit('addToSoftDeleted', path);
       this.$store.commit('addToast', {
         action: () => {
-          window.clearTimeout(timeoutId);
           this.$store.commit('removeFromSoftDeleted', path);
         },
         actionLabel: 'Undo',
         message: isFile ? `The ${pluralize.singular(this.collection.name)} “${prettifyEntityName(pathBasename(path))}” was deleted` : `The folder and all ${pluralize.plural(this.collection.name)} within have been deleted`,
-        timeout: timeout - 200,
+        onClose: async (undone) => {
+          if (undone) return;
+          try {
+            const deletionPromises = [];
+
+            // handle drafts
+            let correspondingDraftsDir;
+            let draftsDirExists;
+            if (!isFile && this.draftsDir) {
+              correspondingDraftsDir = joinPath(this.draftsDir, path.replace(this.contentDir, ''));
+              draftsDirExists = await exists(correspondingDraftsDir);
+              if (draftsDirExists) deletionPromises.push(rmrf(correspondingDraftsDir));
+            }
+
+            // handle comments
+            let correspondingCommentsDir;
+            if (isFile) {
+              if (this.draftsDir && path.startsWith(this.draftsDir)) correspondingCommentsDir = joinPath(this.commentsDir, path.substring(0, path.lastIndexOf('.')).replace(pathDirname(this.draftsDir), ''));
+              else correspondingCommentsDir = joinPath(this.commentsDir, path.substring(0, path.lastIndexOf('.')).replace(pathDirname(this.contentDir), ''));
+            } else {
+              correspondingCommentsDir = joinPath(this.commentsDir, path.replace(pathDirname(this.contentDir), ''));
+            }
+            const correspondingCommentsDirExists = await exists(correspondingCommentsDir);
+            if (correspondingCommentsDirExists) deletionPromises.push(rmrf(correspondingCommentsDir));
+
+            deletionPromises.push(rmrf(path));
+            await Promise.all(deletionPromises);
+            if (this.$refs && this.$refs.fileList) await this.$refs.fileList.refresh();
+            if (isFile) this.$store.commit('removeLocallyChangedFile', path);
+            else if (this.draftsDir && correspondingDraftsDir && draftsDirExists) {
+              this.$store.commit('removeLocallyChangedFolder', path);
+              this.$store.commit('removeLocallyChangedFolder', correspondingDraftsDir);
+            } else this.$store.commit('removeLocallyChangedFolder', path);
+            this.$store.dispatch('saveAppData');
+          } catch (err) {
+            this.$store.commit('addToast', { message: `Something went wrong while deleting the ${isFile ? pluralize.singular(this.collection.name) : 'folder'}: ${err.message}`, type: 'error' });
+          } finally {
+            this.$store.commit('removeFromSoftDeleted', path);
+          }
+        },
+        timeout: 5000,
         type: 'warning',
       });
     },
@@ -425,28 +440,7 @@ export default {
       }
       this.defaultCollectionContent = {};
     },
-    // async handleEntityMoved({ oldPath, newPath }) {
-    // this.$refs.fileList.refresh();
-    // this.entityBeingModified = null;
-
-    // const isFile = (await fs.stat(newPath)).isFile();
-
-    // if (isFile) {
-    //   this.$store.commit('removeLocallyChangedFile', oldPath);
-    //   this.$store.commit('addLocallyChangedFile', newPath);
-    // } else { // we moved a directory
-    //   // BUG: the movement of the folder is not reflected in the drafts! It should probably call handleEntityRenamed
-    //   this.$store.commit('removeLocallyChangedFolder', oldPath);
-    //   try {
-    //     await this.updateLocallyChangedFiles(newPath);
-    //   } catch (err) {
-    //     this.$store.commit('addToast', { message: `Something went wrong while updating locally changed files: ${err.message}`, type: 'error' });
-    //   }
-    // }
-    // this.$store.dispatch('saveAppData');
-    // },
     async handleEntityRenamed({ oldPath, newPath }) {
-      // TODO: add comment folder mirroring on move and rename
       this.$refs.fileList.refresh();
       this.entityBeingModified = null;
 
@@ -455,9 +449,54 @@ export default {
       if (isFile) {
         this.$store.commit('removeLocallyChangedFile', oldPath);
         this.$store.commit('addLocallyChangedFile', newPath);
+
+        // check if it has an associated comment folder (name of the file without extension) at oldPath
+        // we need the filename without an extension, and it is safe to assume that this filepath always ends with an extension
+        let oldCommentsPath;
+        let newCommentsPath;
+
+        if (this.draftsDir && oldPath.startsWith(this.draftsDir) && newPath.startsWith(this.draftsDir)) {
+          oldCommentsPath = joinPath(this.commentsDir, oldPath.substring(0, oldPath.lastIndexOf('.')).replace(pathDirname(this.draftsDir), ''));
+          newCommentsPath = joinPath(this.commentsDir, newPath.substring(0, newPath.lastIndexOf('.')).replace(pathDirname(this.draftsDir), ''));
+        } else if (this.draftsDir && oldPath.startsWith(this.draftsDir)) {
+          oldCommentsPath = joinPath(this.commentsDir, oldPath.substring(0, oldPath.lastIndexOf('.')).replace(pathDirname(this.draftsDir), ''));
+          newCommentsPath = joinPath(this.commentsDir, newPath.substring(0, newPath.lastIndexOf('.')).replace(pathDirname(this.contentDir), ''));
+        } else if (this.draftsDir && newPath.startsWith(this.draftsDir)) {
+          oldCommentsPath = joinPath(this.commentsDir, oldPath.substring(0, oldPath.lastIndexOf('.')).replace(pathDirname(this.contentDir), ''));
+          newCommentsPath = joinPath(this.commentsDir, newPath.substring(0, newPath.lastIndexOf('.')).replace(pathDirname(this.draftsDir), ''));
+        } else {
+          oldCommentsPath = joinPath(this.commentsDir, oldPath.substring(0, oldPath.lastIndexOf('.')).replace(pathDirname(this.contentDir), ''));
+          newCommentsPath = joinPath(this.commentsDir, newPath.substring(0, newPath.lastIndexOf('.')).replace(pathDirname(this.contentDir), ''));
+        }
+
+        if (oldCommentsPath !== newCommentsPath) {
+          const commentsFolderExists = await exists(oldCommentsPath);
+
+          console.log(oldCommentsPath, newCommentsPath, commentsFolderExists);
+
+          // if so, ensure newPath exists and move the file
+          if (commentsFolderExists) {
+            try {
+              await mkdirp(pathDirname(newCommentsPath));
+              await fs.rename(oldCommentsPath, newCommentsPath);
+              this.$store.state.application.locallyChangedFiles.forEach((path) => {
+                if (path.startsWith(oldCommentsPath)) {
+                  this.$store.commit('removeLocallyChangedFile', path);
+                  this.$store.commit('addLocallyChangedFile', path.replace(oldCommentsPath, newCommentsPath));
+                }
+              });
+            } catch (err) {
+              this.$store.commit('addToast', { message: `Something went wrong while renaming or moving the comments for this file: ${err.message}`, type: 'error' });
+            }
+          }
+        }
       } else {
         const oldDraftPath = joinPath(this.draftsDir, oldPath.replace(this.contentDir, ''));
         const newDraftPath = joinPath(this.draftsDir, newPath.replace(this.contentDir, ''));
+        const oldCommentsPath = joinPath(this.commentsDir, oldPath.replace(pathDirname(this.contentDir), ''));
+        const newCommentsPath = joinPath(this.commentsDir, newPath.replace(pathDirname(this.contentDir), ''));
+        const folderExistsInComments = await exists(oldCommentsPath);
+        console.log(oldCommentsPath, newCommentsPath, folderExistsInComments);
 
         if (this.draftsDir) {
           const oldPathExistsAsDraft = await exists(oldDraftPath);
@@ -470,6 +509,16 @@ export default {
             }
           }
         }
+
+        if (folderExistsInComments) {
+          try {
+            await mkdirp(pathDirname(newCommentsPath));
+            await fs.rename(oldCommentsPath, newCommentsPath);
+          } catch (err) {
+            this.$store.commit('addToast', { message: `Something went wrong while renaming or moving the corresponding folder in the comments directory: ${err.message}`, type: 'error' });
+          }
+        }
+
         this.$store.state.application.locallyChangedFiles.forEach((path) => {
           if (path.startsWith(oldPath)) {
             this.$store.commit('removeLocallyChangedFile', path);
@@ -477,6 +526,9 @@ export default {
           } else if (path.startsWith(oldDraftPath)) {
             this.$store.commit('removeLocallyChangedFile', path);
             this.$store.commit('addLocallyChangedFile', path.replace(oldDraftPath, newDraftPath));
+          } else if (path.startsWith(oldCommentsPath)) {
+            this.$store.commit('removeLocallyChangedFile', path);
+            this.$store.commit('addLocallyChangedFile', path.replace(oldCommentsPath, newCommentsPath));
           }
         });
       }
@@ -521,7 +573,7 @@ export default {
         this.$store.commit('addToast', { message: `A ${!isDraft ? 'draft' : pluralize.singular(this.collection.name)} with this name exists already, please rename it and try again`, type: 'warning' });
       } else {
         await fs.rename(path, newPath);
-        this.handleEntityMoved({ oldPath: path, newPath });
+        this.handleEntityRenamed({ oldPath: path, newPath });
       }
     },
     async validateContent(path) {

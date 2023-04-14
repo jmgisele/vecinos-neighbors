@@ -104,7 +104,7 @@ import slugify from '@sindresorhus/slugify';
 import * as matter from 'gray-matter';
 import { formatISO, formatDistanceToNowStrict } from 'date-fns';
 
-import fs, { exists, PlainFS, joinPath, mkdirp, pathBasename, pathDirname } from '../fs'; // eslint-disable-line object-curly-newline
+import fs, { exists, PlainFS, joinPath, mkdirp, pathBasename, pathDirname, rmrf } from '../fs'; // eslint-disable-line object-curly-newline
 
 import assembleUrlFromTemplate from '../assets/js/assembleUrlFromTemplate';
 import generateDefaultContentFromSchema from '../assets/js/generateDefaultContentFromSchema';
@@ -292,8 +292,8 @@ export default {
     },
     commentsDir() {
       if (!this.collection.dir) return joinPath(this.projectDir, '.mattrbld', 'comments');
-      const path = joinPath(this.projectDir, '.mattrbld', 'comments', this.filepath);
-      return path.substring(0, path.lastIndexOf('.')); // we need the filename without an extension, and it is safe to assume that this.filepath always ends with an extension
+      const path = joinPath(this.projectDir, '.mattrbld', 'comments', this.filepath.replace(this.collection.dir, pathBasename(this.collection.dir)));
+      return path.substring(0, path.lastIndexOf('.')); // we need the filename without an extension, and it is safe to assume that this filepath always ends with an extension
     },
     contentDir() {
       if (!this.collection.dir) return this.projectDir;
@@ -500,21 +500,7 @@ export default {
       if (!this.canDelete) return;
 
       const { collection, id, path } = this.$route.params;
-      const timeout = 5000;
-      const timeoutId = window.setTimeout(async () => {
-        try {
-          await fs.unlink(path);
-          this.$store.commit('removeLocallyChangedFile', path);
-          this.$store.dispatch('saveAppData');
-        } catch (err) {
-          this.$store.commit('addToast', { message: `Something went wrong while deleting the ${this.contentType}: ${err.message}`, type: 'error' });
-          this.$router.replace({ name: 'Edit Content', params: { collection, id, path } });
-        } finally {
-          window.clearTimeout(timeoutId);
-          this.$store.commit('removeFromSoftDeleted', path);
-          this.$store.commit('setAppProperty', { key: 'temporaryContentStorage', value: null });
-        }
-      }, timeout);
+      const { commentsDir } = this;
 
       this.showSettings = false;
       if (this.wasChanged) this.$store.commit('setAppProperty', { key: 'temporaryContentStorage', value: _cloneDeep(this.content) });
@@ -522,13 +508,38 @@ export default {
       this.$store.commit('addToSoftDeleted', path);
       this.$store.commit('addToast', {
         action: () => {
-          window.clearTimeout(timeoutId);
           this.$store.commit('removeFromSoftDeleted', path);
           this.$router.replace({ name: 'Edit Content', params: { collection, id, path } });
         },
         actionLabel: 'Undo',
         message: `The ${this.contentType} “${this.contentName}” was deleted`,
-        timeout: timeout - 200,
+        onClose: async (undone) => {
+          if (undone) return;
+          try {
+            await fs.unlink(path);
+            this.$store.commit('removeLocallyChangedFile', path);
+
+            const commentsFolderExists = await exists(commentsDir);
+
+            if (commentsFolderExists) {
+              await rmrf(commentsDir);
+              this.$store.state.application.locallyChangedFiles.forEach((changedPath) => {
+                if (changedPath.startsWith(commentsDir)) {
+                  this.$store.commit('removeLocallyChangedFile', changedPath);
+                }
+              });
+            }
+
+            this.$store.dispatch('saveAppData');
+          } catch (err) {
+            this.$store.commit('addToast', { message: `Something went wrong while deleting the ${this.contentType}: ${err.message}`, type: 'error' });
+            this.$router.replace({ name: 'Edit Content', params: { collection, id, path } });
+          } finally {
+            this.$store.commit('removeFromSoftDeleted', path);
+            this.$store.commit('setAppProperty', { key: 'temporaryContentStorage', value: null });
+          }
+        },
+        timeout: 5000,
         type: 'warning',
       });
       const collectionPath = joinPath('/.mattrbld', 'collections', collection);
@@ -670,6 +681,27 @@ export default {
       this.previewCommentThreadPopover.y = 0;
     },
     async handleEntityMoved(newPath) {
+      const newCommentsPath = newPath.substring(0, newPath.lastIndexOf('.')).replace((this.draftsDir && newPath.startsWith(this.draftsDir)) ? this.draftsDir : this.contentDir, joinPath(this.projectDir, '.mattrbld', 'comments', pathBasename(this.collection.dir)));
+
+      if (this.commentsDir !== newCommentsPath) {
+        const commentsFolderExists = await exists(this.commentsDir);
+
+        if (commentsFolderExists) {
+          try {
+            await mkdirp(pathDirname(newCommentsPath));
+            await fs.rename(this.commentsDir, newCommentsPath);
+            this.$store.state.application.locallyChangedFiles.forEach((path) => {
+              if (path.startsWith(this.commentsDir)) {
+                this.$store.commit('removeLocallyChangedFile', path);
+                this.$store.commit('addLocallyChangedFile', path.replace(this.commentsDir, newCommentsPath));
+              }
+            });
+          } catch (err) {
+            this.$store.commit('addToast', { message: `Something went wrong while renaming or moving the comments for this file: ${err.message}`, type: 'error' });
+          }
+        }
+      }
+
       this.$store.commit('removeLocallyChangedFile', this.$route.params.path);
       this.$store.commit('addLocallyChangedFile', newPath);
       await this.$router.replace({ params: { collection: this.$route.params.collection, id: this.$route.params.id, path: newPath } });
