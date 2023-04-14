@@ -33,7 +33,7 @@
         <div v-show="caretVisible" class="fake-caret" :class="[ placeholderFormatting ]" :style="{ height: caretHeight, transform: caretTransform }" />
       </template>
     </label>
-    <MbPopover class="add-link" center-x :dark="dark" :visible="linkPopover.visible" :x="linkPopover.x" :y="linkPopover.y" @close="linkPopover.visible = false" @after-close="closeLinkPopover" @keyup.ctrl.enter="addLink">
+    <MbPopover v-if="outputFormat !== 'text'" class="add-link" center-x :dark="dark" :visible="linkPopover.visible" :x="linkPopover.x" :y="linkPopover.y" @close="linkPopover.visible = false" @after-close="closeLinkPopover" @keyup.ctrl.enter="addLink">
       <template #header>
         <h3>{{linkPopover.editing ? 'Edit' : 'Add'}} Link</h3>
       </template>
@@ -51,7 +51,7 @@
         <MbButton :dark="dark" :disabled="!linkPopover.href" type="primary" @click="addLink">{{linkPopover.editing ? 'Save' : 'Add'}}</MbButton>
       </template>
     </MbPopover>
-    <MbPopover class="edit-image" center-x :dark="dark" :visible="imagePopover.visible" :x="imagePopover.x" :y="imagePopover.y" @close="imagePopover.visible = false" @after-close="closeImagePopover" @keyup.ctrl.enter="setImageAttributes">
+    <MbPopover v-if="outputFormat !== 'text'" class="edit-image" center-x :dark="dark" :visible="imagePopover.visible" :x="imagePopover.x" :y="imagePopover.y" @close="imagePopover.visible = false" @after-close="closeImagePopover" @keyup.ctrl.enter="setImageAttributes">
       <template #header>
         <h3>Edit Image</h3>
       </template>
@@ -62,7 +62,7 @@
         <MbButton :dark="dark" :disabled="imagePopover.errors.size !== 0" type="primary" @click="setImageAttributes">Save</MbButton>
       </template>
     </MbPopover>
-    <MediaSelectModal :dark="dark" :no-meta="outputFormat !== 'html'" :selected-file-path="currentImagePath" :visible="showMediaSelectModal" @close="handleMediaSelectClose" @file-selected="handleImageSelected" @update-meta-is-new="imageMetaIsNew = $event" />
+    <MediaSelectModal v-if="outputFormat !== 'text'" :dark="dark" :no-meta="outputFormat !== 'html'" :selected-file-path="currentImagePath" :visible="showMediaSelectModal" @close="handleMediaSelectClose" @file-selected="handleImageSelected" @update-meta-is-new="imageMetaIsNew = $event" />
   </div>
 </template>
 
