@@ -8,7 +8,7 @@
         <div class="content" :class="{ 'no-padding': noContentPadding }">
           <slot />
         </div>
-        <footer v-if="$slots.footer">
+        <footer v-if="$slots.footer" :class="{ 'no-padding': noFooterPadding }">
           <slot name="footer" />
         </footer>
       </div>
@@ -103,6 +103,7 @@ export default {
     dark: Boolean,
     fromRight: Boolean,
     noContentPadding: Boolean,
+    noFooterPadding: Boolean,
     stealFocus: {
       type: Boolean,
       default: true,
@@ -206,10 +207,12 @@ export default {
       padding: 1rem
 
   footer
-    display: flex
-    padding: 0.5rem
     background-color: $bg-secondary
-    flex-shrink: 0
+
+    &:not(.no-padding)
+      display: flex
+      padding: 0.5rem
+      flex-shrink: 0
 
     ::v-deep(> .button)
       width: 100%
