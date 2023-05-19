@@ -32,6 +32,8 @@ updatedAt: 2022-08-26
   in content editors
 * Fixed an issue where the active languages for a piece of content weren’t being
   accurately detected
+* Fixed an issue that caused wrong selections after inserting an image into a
+  rich text field
 
 ## Version 0.3.0 Beta
 
