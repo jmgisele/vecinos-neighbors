@@ -118,6 +118,7 @@ import Store from '../store';
 
 import TabContent from '../components/utility/TabContent.vue';
 import PreviewCommentThread from '../components/utility/PreviewCommentThread.vue';
+import formatTimestamp from '../assets/js/formatTimestamp';
 
 function hasAccess(role, permissions) {
   if (!role || !permissions) return false;
@@ -663,9 +664,7 @@ export default {
       this.$options.winref.focus();
     },
     formattedTimestamp(timestamp) {
-      const distance = formatDistanceToNowStrict(timestamp, { addSuffix: true });
-      if (distance !== '0 seconds ago') return distance;
-      return 'Just now';
+      return formatTimestamp(timestamp);
     },
     handleAddPreviewCommentPopoverClosed() {
       this.addPreviewCommentPopover.comment = null;
