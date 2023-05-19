@@ -211,7 +211,7 @@ export default {
     background-color: $bg-secondary
     flex-shrink: 0
 
-    ::v-deep(.button)
+    ::v-deep(> .button)
       width: 100%
 
       @media $mobile
