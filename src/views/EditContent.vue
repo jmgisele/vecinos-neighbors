@@ -51,7 +51,7 @@
                 <MbButton :dark="dark" icon="open-new-window" tooltip="Open preview in new tab / window" @click="openPreviewInNewTab" />
                 <MbButton :dark="dark" :icon="fullscreenPreview ? 'fullscreen-reverse' : 'fullscreen'" tooltip="Toggle fullscreen" @click="toggleFullscreenPreview" />
                 <MbButton v-if="!isMobile" :dark="dark" :icon="mobilePreview ? 'monitor' : 'phone'" tooltip="Toggle mobile preview" @click="mobilePreview = !mobilePreview" />
-                <MbButton v-if="canShowComments" :dark="dark" icon="comment-stack" :loading="previewCommentsLoading" tooltip="Toggle comments" :type="previewCommentsActive ? 'primary' : null" @click="togglePreviewComments" />
+                <MbButton v-if="canShowComments" :dark="dark" icon="comment-stack-alt" :loading="previewCommentsLoading" tooltip="Toggle comments" :type="previewCommentsActive ? 'primary' : null" @click="togglePreviewComments" />
               </header>
               <transition>
                 <MbLoader v-if="!previewConnected" :class="{ dark }" />
