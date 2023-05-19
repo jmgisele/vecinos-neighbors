@@ -525,37 +525,39 @@ export default {
       return this.modelValue; // if it’s text
     },
     handleImageSelected(data) {
-      const cleanImageAttrs = this.transformImageDataToAttrs(data);
-      if (!this.imageBeingReplaced) {
-        // if adding a new image, add the image
-        const { tr } = this.editorState;
-        const image = this.editorState.schema.nodes.image.createAndFill(cleanImageAttrs, this.formatOptions.allowImageCaptions && data.caption ? this.editorState.schema.text(data.caption) : null);
-        tr.replaceSelectionWith(image);
+      window.setTimeout(() => { // HACK: this is needed because if it is not here, the selection sometimes reverts to a TextSelection when inserting an image within a word and $nextTick isn’t reliable enough
+        const cleanImageAttrs = this.transformImageDataToAttrs(data);
+        if (!this.imageBeingReplaced) {
+          // if adding a new image, add the image
+          const { tr } = this.editorState;
+          const image = this.editorState.schema.nodes.image.createAndFill(cleanImageAttrs, this.formatOptions.allowImageCaptions && data.caption ? this.editorState.schema.text(data.caption) : null);
+          tr.replaceSelectionWith(image);
 
-        // NOTE: this code is largely based on trial and error, so there may be some edge-cases in which the selection doesn’t get set correctly
-        let foundBefore;
-        let found;
-        tr.doc.nodesBetween(0, tr.selection.$anchor.nodeAfter === image ? tr.selection.head : tr.selection.anchor, (node, pos) => { // if the node after the selection anchor is the image we just inserted, we use the selection head, which points after the inserted image
-          if (node.type.name === 'image') {
-            if (found) foundBefore = found; // HACK: since when captions are enabled the image after the one we want gets selected, we store the previous one here
-            found = { node, pos };
+          // NOTE: this code is largely based on trial and error, so there may be some edge-cases in which the selection doesn’t get set correctly
+          let foundBefore;
+          let found;
+          tr.doc.nodesBetween(0, tr.selection.$anchor.nodeAfter === image ? tr.selection.head : tr.selection.anchor, (node, pos) => { // if the node after the selection anchor is the image we just inserted, we use the selection head, which points after the inserted image
+            if (node.type.name === 'image') {
+              if (found) foundBefore = found; // HACK: since when captions are enabled the image after the one we want gets selected, we store the previous one here
+              found = { node, pos };
+            }
+            if (found) return false;
+            return true;
+          });
+          if (found) {
+            if (foundBefore && foundBefore.pos && foundBefore.node === image) tr.setSelection(NodeSelection.create(tr.doc, foundBefore.pos)); // in some cases (like when captions are enabled) we want to select the second to last found image
+            else tr.setSelection(NodeSelection.create(tr.doc, found.pos)); // but if it isn’t the one we want, we select the last one found
           }
-          if (found) return false;
-          return true;
-        });
-        if (found) {
-          if (foundBefore && foundBefore.pos && foundBefore.node === image) tr.setSelection(NodeSelection.create(tr.doc, foundBefore.pos)); // in some cases (like when captions are enabled) we want to select the second to last found image
-          else tr.setSelection(NodeSelection.create(tr.doc, found.pos)); // but if it isn’t the one we want, we select the last one found
-        }
 
-        this.editorView.dispatch(tr.scrollIntoView());
-      } else {
-        const { selection, tr } = this.editorState;
-        tr.setNodeMarkup(selection.anchor, null, cleanImageAttrs);
-        tr.setSelection(NodeSelection.create(tr.doc, selection.anchor));
-        this.editorView.dispatch(tr.scrollIntoView());
-      }
-      this.openImagePopover();
+          this.editorView.dispatch(tr.scrollIntoView());
+        } else {
+          const { selection, tr } = this.editorState;
+          tr.setNodeMarkup(selection.anchor, null, cleanImageAttrs);
+          tr.setSelection(NodeSelection.create(tr.doc, selection.anchor));
+          this.editorView.dispatch(tr.scrollIntoView());
+        }
+        this.openImagePopover();
+      }, 0);
     },
     handleMediaSelectClose() {
       this.showMediaSelectModal = false;
@@ -970,8 +972,12 @@ export default {
         const { selection } = this.editorState;
         let newSelection;
 
-        if (selection instanceof NodeSelection) newSelection = NodeSelection.create(newContent, selection.anchor);
-        else if (selection instanceof TextSelection) newSelection = TextSelection.create(newContent, selection.anchor, selection.head);
+        try {
+          if (selection instanceof NodeSelection) newSelection = NodeSelection.create(newContent, selection.anchor);
+          else if (selection instanceof TextSelection) newSelection = TextSelection.create(newContent, selection.anchor, selection.head);
+        } catch (err) {
+          // selection couldn’t be restored, probably because the new content is shorter than the old one or doesn't exist
+        }
 
         this.editorState = EditorState.create({
           doc: newContent,
