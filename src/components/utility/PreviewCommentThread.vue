@@ -6,9 +6,8 @@
           <span class="author"><strong>{{comment.author}}</strong></span>
           <span class="timestamp">{{ formatTimestamp(comment.created) }}</span>
           <MbButton v-if="canComment && (index === 0 || comment.author === this.currentUser.name)" :dark="dark" icon="more-vertical" @click="openMenu($event, comment, index)" />
-          <!-- TODO: Add comment overflow menu with deletion and resolution (and editing if Author === Current User) option -->
         </header>
-        <!-- TODO: Add comment editor -->
+        <!-- TODO: Add ways to differentiate comment statusses -->
         <div class="content" v-html="comment.content" />
       </div>
     </MbScroller>

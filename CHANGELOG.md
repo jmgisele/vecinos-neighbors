@@ -23,6 +23,7 @@ updatedAt: 2022-08-26
   when hovered
 * While on medium sized screens, the Settings, Preview and Save buttons in editors
   now show a tooltip with the label that would be visible on a larger screen
+* It is now possible to add comments to the real-time content previews
 
 ## Bugfixes
 
