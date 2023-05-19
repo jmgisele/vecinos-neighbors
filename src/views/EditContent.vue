@@ -90,7 +90,7 @@
         <MbButton :dark="dark" :disabled="!addPreviewCommentPopover.comment || !addPreviewCommentPopover.comment.content || addPreviewCommentPopover.comment.content === '<p></p>'" :loading="addPreviewCommentPopover.loading" icon="plus" type="positive" @click="addPreviewComment(addPreviewCommentPopover.comment, true)">Add Comment</MbButton>
       </template>
     </MbPopover>
-    <PreviewCommentThread :can-comment="canComment" :comments="previewCommentThreadPopover.comments" :dark="dark" :visible="previewCommentThreadPopover.visible" :x="previewCommentThreadPopover.x" :y="previewCommentThreadPopover.y" @after-close="handlePreviewCommentThreadPopoverClosed" @close="previewCommentThreadPopover.visible = false" />
+    <PreviewCommentThread :can-comment="canComment" :comments="previewCommentThreadPopover.comments" :dark="dark" :visible="previewCommentThreadPopover.visible" :x="previewCommentThreadPopover.x" :y="previewCommentThreadPopover.y" @add-reply="addPreviewComment($event)" @after-close="handlePreviewCommentThreadPopoverClosed" @close="previewCommentThreadPopover.visible = false" />
   </div>
 </template>
 
@@ -102,7 +102,7 @@ import { status } from 'isomorphic-git';
 import pluralize from 'pluralize';
 import slugify from '@sindresorhus/slugify';
 import * as matter from 'gray-matter';
-import { formatISO, formatDistanceToNowStrict } from 'date-fns';
+import { formatISO } from 'date-fns';
 
 import fs, { exists, PlainFS, joinPath, mkdirp, pathBasename, pathDirname, rmrf } from '../fs'; // eslint-disable-line object-curly-newline
 
@@ -459,6 +459,7 @@ export default {
       this.previewCommentsByCurrentUser.push(comment);
 
       if (toplevel) this.addPreviewCommentPopover.loading = true;
+      else this.previewCommentThreadPopover.comments.push(comment);
 
       try {
         await this.savePreviewCommentsByCurrentUser();
