@@ -61,7 +61,7 @@ export default {
   methods: {
     close() {
       this.$emit('close');
-      if (this.focusTarget && typeof this.focusTarget.focus === 'function') this.focusTarget.focus();
+      if (this.resetFocus && this.focusTarget && typeof this.focusTarget.focus === 'function') this.focusTarget.focus();
     },
     handleFocus(e) {
       this.focusTarget = e.relatedTarget;
@@ -138,6 +138,10 @@ export default {
       default: true,
     },
     permanent: Boolean,
+    resetFocus: {
+      type: Boolean,
+      default: true,
+    },
     slim: Boolean,
     title: String,
     visible: Boolean,
@@ -173,7 +177,7 @@ export default {
       } else if (this.modalIndex >= 0) {
         window.removeEventListener('click', this.showPermanence, { capture: true });
         this.$store.commit('closeModal', this.modalIndex);
-        if (this.focusTarget && typeof this.focusTarget.focus === 'function') this.focusTarget.focus();
+        if (this.resetFocus && this.focusTarget && typeof this.focusTarget.focus === 'function') this.focusTarget.focus();
       }
 
       if (!nv) this.transform = null; // needed so that the modal actually closes smoothly
