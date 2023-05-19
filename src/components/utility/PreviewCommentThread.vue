@@ -1,24 +1,25 @@
 <template lang="html">
   <MbPopover class="preview-comment-thread" :dark="dark" no-content-padding no-footer-padding update-on-resize use-capture-on-outside-click :visible="visible" :x="x" :y="y" @close="$emit('close')">
-    <ul class="comments">
-      <li v-for="comment in comments" class="comment" :key="comment.id">
+    <MbScroller class="comments" direction="vertical">
+      <div v-for="(comment, index) in comments" class="comment" :key="comment.id" @contextmenu.prevent="openMenu($event, comment, index)">
         <header>
           <span class="author"><strong>{{comment.author}}</strong></span>
           <span class="timestamp">{{ formatTimestamp(comment.created) }}</span>
-          <MbButton :dark="dark" icon="more-vertical" />
+          <MbButton v-if="canComment && (index === 0 || comment.author === this.currentUser.name)" :dark="dark" icon="more-vertical" @click="openMenu($event, comment, index)" />
           <!-- TODO: Add comment overflow menu with deletion and resolution (and editing if Author === Current User) option -->
         </header>
         <!-- TODO: Add comment editor -->
         <div class="content" v-html="comment.content" />
-      </li>
-    </ul>
-    <template v-if="canComment" #footer>
-      <MbEditor v-model="reply.content" :dark="dark" :format-options="{}" :formats="{ block: ['blockquote', 'orderedList', 'unorderedList'], inline: ['code', 'em', 'strike', 'strong'] }"  output-format="html" placeholder="Your reply…" ref="commentEditor" @keyup.ctrl.enter="addReply" />
+      </div>
+    </MbScroller>
+    <template #footer>
+      <MbEditor v-if="canComment" v-model="reply.content" :dark="dark" :format-options="{}" :formats="{ block: ['blockquote', 'orderedList', 'unorderedList'], inline: ['code', 'em', 'strike', 'strong'] }"  output-format="html" placeholder="Your reply…" ref="commentEditor" @keyup.ctrl.enter="addReply" />
       <div class="button-wrapper">
         <MbButton :dark="dark" @click="$emit('close')">Close</MbButton>
-        <MbButton :dark="dark" :disabled="!reply || !reply.content || reply.content === '<p></p>'" :loading="reply.loading" icon="comment-reply-alt" type="positive" @click="addReply">Send Reply</MbButton>
+        <MbButton v-if="canComment" :dark="dark" :disabled="!reply || !reply.content || reply.content === '<p></p>'" :loading="reply.loading" icon="comment-reply-alt" type="positive" @click="addReply">Send Reply</MbButton>
       </div>
     </template>
+    <MbContextMenu class="options" :dark="dark" :from-right="commentActions.fromRight" :options="modifiedCommentActions" :show="commentActions.show" :target="commentActions.target" :x="commentActions.x" :y="commentActions.y" @close="commentActions.show = false" />
   </MbPopover>
 </template>
 
@@ -30,16 +31,63 @@ export default {
     currentUser() {
       return this.$store.getters.userInCurrentProject;
     },
+    modifiedCommentActions() {
+      const actions = [];
+
+      if (!this.canComment) return actions;
+
+      if (this.currentIndex === 0 && this.currentComment && this.currentComment.status !== 'resolved') {
+        actions.push({
+          action: () => {
+            this.updateComment(this.currentComment.id, { status: 'resolved' });
+          },
+          icon: 'check',
+          label: 'Mark as resolved',
+        });
+      } else if (this.currentIndex === 0 && this.currentComment) {
+        actions.push({
+          action: () => {
+            this.updateComment(this.currentComment.id, { status: null });
+          },
+          icon: 'cross',
+          label: 'Mark as unresolved',
+        });
+      }
+
+      // TODO: Add option to edit comment content, maybe by pulling the current content into the reply field and changing the button label to save
+
+      if (this.currentComment && this.currentUser.name === this.currentComment.author) {
+        actions.push({
+          action: () => {
+            this.deleteComment(this.currentComment.id, this.currentIndex === 0);
+          },
+          icon: 'trash',
+          label: this.currentIndex === 0 ? 'Delete comment thread' : 'Delete comment',
+          type: 'negative',
+        });
+      }
+
+      return actions;
+    },
   },
   data() {
     return {
+      commentActions: {
+        fromRight: false,
+        show: false,
+        target: null,
+        x: 0,
+        y: 0,
+      },
+      currentComment: null,
+      currentIndex: null,
       reply: {
         content: null,
         loading: false,
       },
     };
   },
-  emits: ['add-reply', 'close'],
+  emits: ['add-reply', 'close', 'delete-comment', 'update-comment'],
   methods: {
     addReply() {
       if (!this.reply || !this.reply.content || this.reply.content === '<p></p>') return;
@@ -60,7 +108,31 @@ export default {
       this.$emit('add-reply', comment);
       this.reply.content = null;
     },
+    deleteComment(id, toplevel) {
+      this.$emit('delete-comment', { id, toplevel });
+      if (toplevel) this.$emit('close');
+    },
     formatTimestamp,
+    openMenu(e, comment, index) {
+      this.currentComment = comment;
+      this.currentIndex = index;
+      if (!this.canComment || this.commentActions.show || this.modifiedCommentActions.length < 1) return; // close it first or abort if there’s nothing to display
+      if (e.type === 'contextmenu') {
+        this.commentActions.x = e.clientX;
+        this.commentActions.y = e.clientY;
+        this.commentActions.fromRight = false;
+      } else {
+        const rect = e.target.getBoundingClientRect();
+        this.commentActions.fromRight = true;
+        this.commentActions.x = rect.right;
+        this.commentActions.y = rect.top;
+      }
+      this.commentActions.target = e.currentTarget;
+      this.commentActions.show = true;
+    },
+    updateComment(id, changes) {
+      this.$emit('update-comment', { id, changes });
+    },
   },
   props: {
     canComment: Boolean,
@@ -101,6 +173,8 @@ export default {
     list-style: none
     padding: 0
     margin: 0
+    max-height: 50vh
+    // overflow-y: auto
 
     .comment
       max-width: 100%

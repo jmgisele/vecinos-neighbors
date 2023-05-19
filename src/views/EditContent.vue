@@ -90,7 +90,7 @@
         <MbButton :dark="dark" :disabled="!addPreviewCommentPopover.comment || !addPreviewCommentPopover.comment.content || addPreviewCommentPopover.comment.content === '<p></p>'" :loading="addPreviewCommentPopover.loading" icon="plus" type="positive" @click="addPreviewComment(addPreviewCommentPopover.comment, true)">Add Comment</MbButton>
       </template>
     </MbPopover>
-    <PreviewCommentThread :can-comment="canComment" :comments="previewCommentThreadPopover.comments" :dark="dark" :visible="previewCommentThreadPopover.visible" :x="previewCommentThreadPopover.x" :y="previewCommentThreadPopover.y" @add-reply="addPreviewComment($event)" @after-close="handlePreviewCommentThreadPopoverClosed" @close="previewCommentThreadPopover.visible = false" />
+    <PreviewCommentThread :can-comment="canComment" :comments="previewCommentThreadPopover.comments" :dark="dark" :visible="previewCommentThreadPopover.visible" :x="previewCommentThreadPopover.x" :y="previewCommentThreadPopover.y" @add-reply="addPreviewComment($event)" @after-close="handlePreviewCommentThreadPopoverClosed" @close="previewCommentThreadPopover.visible = false" @delete-comment="deletePreviewComment($event.id, $event.toplevel)" @update-comment="updatePreviewComment($event.id, $event.changes)" />
   </div>
 </template>
 
@@ -547,19 +547,19 @@ export default {
       const collectionPath = joinPath('/.mattrbld', 'collections', collection);
       this.$router.replace({ name: 'Project.Collection', params: { id, path: collectionPath } });
     },
-    deletePreviewComment(id) {
+    deletePreviewComment(id, toplevel) {
       const commentIndex = this.previewComments.findIndex((existingComment) => existingComment.id === id);
       const commentByCurrentUserIndex = this.previewCommentsByCurrentUser.findIndex((existingComment) => existingComment.id === id);
       if (commentIndex > -1) {
         const commentBackup = _cloneDeep(this.previewComments[commentIndex]);
 
-        this.sendMessageToPreview({ feature: 'comments', type: 'deleteCommentMarker', payload: { comment: commentBackup } });
+        if (toplevel) this.sendMessageToPreview({ feature: 'comments', type: 'deleteCommentMarker', payload: { comment: commentBackup } });
         this.previewComments.splice(commentIndex, 1);
 
         this.$store.commit('addToast', {
           action: () => {
             this.previewComments.splice(commentIndex, 0, commentBackup);
-            this.sendMessageToPreview({ feature: 'comments', type: 'addCommentMarker', payload: { comment: commentBackup } });
+            if (toplevel) this.sendMessageToPreview({ feature: 'comments', type: 'addCommentMarker', payload: { comment: commentBackup } });
           },
           actionLabel: 'Undo',
           closeOnRouteChange: true,
@@ -578,7 +578,7 @@ export default {
               this.$store.commit('addToast', { message: `Something went wrong while deleting the comment: ${err.message}`, type: 'error' });
               this.previewComments.splice(commentIndex, 0, commentBackup);
               this.previewCommentsByCurrentUser.splice(commentByCurrentUserIndex, 0, commentBackup);
-              this.sendMessageToPreview({ feature: 'comments', type: 'addCommentMarker', payload: { comment: commentBackup } });
+              if (toplevel) this.sendMessageToPreview({ feature: 'comments', type: 'addCommentMarker', payload: { comment: commentBackup } });
             }
           },
           timeout: 5000,
@@ -1006,32 +1006,43 @@ export default {
       this.sendMessageToPreview(modechangeData);
       if (this.previewCommentsActive) this.sendMessageToPreview(initialCommentsData);
     },
-    async updatePreviewComment(id, newPosition) {
+    async updatePreviewComment(id, changes) {
       const commentIndex = this.previewComments.findIndex((existingComment) => existingComment.id === id);
       const commentByCurrentUserIndex = this.previewCommentsByCurrentUser.findIndex((existingComment) => existingComment.id === id);
-      const { top, left } = newPosition;
+
+      let { x, y } = changes;
+      if (changes.position) {
+        x = changes.position.x;
+        y = changes.position.y;
+      }
+      const isMovement = typeof x !== 'undefined' && typeof y !== 'undefined';
 
       if (commentIndex === -1) {
-        this.$store.commit('addToast', { message: 'The comment you tried to move doesn’t exist', type: 'warning' });
-        this.sendMessageToPreview({ feature: 'comments', type: 'moveFailed', payload: { comment: { id } } });
+        this.$store.commit('addToast', { message: 'The comment you tried to update doesn’t exist', type: 'warning' });
+        if (isMovement) this.sendMessageToPreview({ feature: 'comments', type: 'moveFailed', payload: { comment: { id } } });
       } else if (!this.canComment || commentByCurrentUserIndex === -1) {
-        this.$store.commit('addToast', { message: 'You are not allowed to move this comment', type: 'warning' });
-        this.sendMessageToPreview({ feature: 'comments', type: 'moveFailed', payload: { comment: this.previewComments[commentIndex] } });
-      } else if (typeof top !== 'number' || typeof left !== 'number' || Math.abs(top) > 999999 || Math.abs(left) > 999999) {
+        this.$store.commit('addToast', { message: 'You are not allowed to update this comment', type: 'warning' });
+        if (isMovement) this.sendMessageToPreview({ feature: 'comments', type: 'moveFailed', payload: { comment: this.previewComments[commentIndex] } });
+      } else if (isMovement && (typeof x !== 'number' || typeof y !== 'number' || Math.abs(x) > 999999 || Math.abs(y) > 999999)) {
         this.$store.commit('addToast', { message: 'The new position is invalid', type: 'warning' });
         this.sendMessageToPreview({ feature: 'comments', type: 'moveFailed', payload: { comment: this.previewComments[commentIndex] } });
       } else {
-        const { top: topBackup, left: leftBackup } = this.previewComments[commentIndex].position;
+        const backup = _cloneDeep(this.previewComments[commentIndex]);
 
         try {
-          this.previewComments[commentIndex].position = { top, left };
-          this.previewCommentsByCurrentUser[commentByCurrentUserIndex].position = { top, left };
+          if (isMovement) {
+            this.previewComments[commentIndex].position = { x, y };
+            this.previewCommentsByCurrentUser[commentByCurrentUserIndex].position = { x, y };
+          } else {
+            this.previewComments[commentIndex] = { ...this.previewComments[commentIndex], ...changes };
+            this.previewCommentsByCurrentUser[commentByCurrentUserIndex] = { ...this.previewCommentsByCurrentUser[commentByCurrentUserIndex], ...changes };
+          }
           await this.savePreviewCommentsByCurrentUser();
         } catch (err) {
           this.$store.commit('addToast', { message: `Something went wrong while saving the comment: ${err.message}`, type: 'error' });
-          this.previewComments[commentIndex].position = { top: topBackup, left: leftBackup };
-          this.previewCommentsByCurrentUser[commentByCurrentUserIndex].position = { top: topBackup, left: leftBackup };
-          this.sendMessageToPreview({ feature: 'comments', type: 'moveFailed', payload: { comment: this.previewComments[commentIndex] } });
+          this.previewComments[commentIndex] = backup;
+          this.previewCommentsByCurrentUser[commentByCurrentUserIndex] = backup;
+          if (isMovement) this.sendMessageToPreview({ feature: 'comments', type: 'moveFailed', payload: { comment: this.previewComments[commentIndex] } });
         }
       }
     },
