@@ -772,7 +772,6 @@ export default {
             this.previewCommentThreadPopover.comments = this.previewComments.filter((comment) => comment.id === data.payload.id || comment.parent === data.payload.id);
             this.previewCommentThreadPopover.visible = true;
           } else if (data.type === 'commentMoved') {
-            // TODO: handle comment updates by client (like when the marker is moved)
             const { comment: movedComment, position } = data.payload;
             this.updatePreviewComment(movedComment.id, position);
           }
