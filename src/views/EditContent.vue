@@ -1018,7 +1018,7 @@ export default {
       if (commentIndex === -1) {
         this.$store.commit('addToast', { message: 'The comment you tried to update doesn’t exist', type: 'warning' });
         if (isMovement) this.sendMessageToPreview({ feature: 'comments', type: 'moveFailed', payload: { comment: { id } } });
-      } else if (!this.canComment || commentByCurrentUserIndex === -1) {
+      } else if (!this.canComment || (isMovement && commentByCurrentUserIndex === -1)) {
         this.$store.commit('addToast', { message: 'You are not allowed to update this comment', type: 'warning' });
         if (isMovement) this.sendMessageToPreview({ feature: 'comments', type: 'moveFailed', payload: { comment: _cloneDeep(this.previewComments[commentIndex]) } });
       } else if (isMovement && (typeof x !== 'number' || typeof y !== 'number' || Math.abs(x) > 999999 || Math.abs(y) > 999999)) {
