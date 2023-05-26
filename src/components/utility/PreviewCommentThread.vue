@@ -157,7 +157,7 @@ export default {
 
 .preview-comment-thread
   &.dark
-    .comment
+    .comments .comment
       &:not(:last-child)
         border-bottom-color: $bg-tertiary-dark
 
@@ -184,7 +184,7 @@ export default {
         padding-top: (8 / 16)rem
 
       &:not(:last-child)
-        border-bottom: 1px solid $bg-secondary
+        border-bottom: 1px solid alpha($accent-secondary, 0.25)
 
       header
         display: flex
@@ -240,12 +240,16 @@ export default {
   .editor
     max-width: 100%
     width: (440 / 16)rem
+    border-top: 1px solid alpha($accent-secondary, 0.25)
+
+    &.dark
+      border-top-color: lighten($bg-tertiary-dark, 10)
 
     :deep(.content-wrapper)
       border-radius: 0
 
       &:not(:focus-within):not(.error)
-        box-shadow: inset 0 (-1 / 16)rem 0 0 $bg-tertiary
+        box-shadow: inset 0 (-1 / 16)rem 0 0 alpha($accent-secondary, 0.25)
 
       &.dark
         background-color: $bg-tertiary-dark
