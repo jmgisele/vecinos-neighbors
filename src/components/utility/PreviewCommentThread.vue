@@ -1,15 +1,23 @@
 <template lang="html">
   <MbPopover class="preview-comment-thread" :dark="dark" no-content-padding no-footer-padding update-on-resize use-capture-on-outside-click :visible="visible" :x="x" :y="y" @close="$emit('close')">
-    <MbScroller class="comments" direction="vertical">
-      <div v-for="(comment, index) in comments" class="comment" :key="comment.id" @contextmenu.prevent="openMenu($event, comment, index)">
-        <header>
-          <span class="author"><strong>{{comment.author}}</strong></span>
-          <span class="timestamp">{{ formatTimestamp(comment.created) }}</span>
-          <MbButton v-if="canComment && (index === 0 || comment.author === this.currentUser.name)" :dark="dark" icon="more-vertical" @click="openMenu($event, comment, index)" />
-        </header>
-        <!-- TODO: Add ways to differentiate comment statusses -->
-        <div class="content" v-html="comment.content" />
+    <template v-if="comments && comments[0].status" #header>
+      <div class="thread-status">
+        <MbIcon icon="check" />
+        <MbChip color="positive" :label="comments[0].status" />
       </div>
+    </template>
+    <MbScroller class="comments" direction="vertical">
+      <ul class="scroll-wrapper">
+        <li v-for="(comment, index) in comments" class="comment" :class="{ owned: comment.author === this.currentUser.name }" :key="comment.id" @contextmenu.prevent="openMenu($event, comment, index)">
+          <header>
+            <span class="author"><strong>{{comment.author}}</strong></span>
+            <span class="timestamp">{{ formatTimestamp(comment.created) }}</span>
+            <MbButton v-if="canComment && (index === 0 || comment.author === this.currentUser.name)" :dark="dark" icon="more-vertical" @click="openMenu($event, comment, index)" />
+          </header>
+          <!-- TODO: Add ways to differentiate comment statusses -->
+          <div class="content" v-html="comment.content" />
+        </li>
+      </ul>
     </MbScroller>
     <template #footer>
       <MbEditor v-if="canComment" v-model="reply.content" :dark="dark" :format-options="{}" :formats="{ block: ['blockquote', 'orderedList', 'unorderedList'], inline: ['code', 'em', 'strike', 'strong'] }"  output-format="html" placeholder="Your reply…" ref="commentEditor" @keyup.ctrl.enter="addReply" />
@@ -158,6 +166,8 @@ export default {
 .preview-comment-thread
   &.dark
     .comments .comment
+      background-color: $bg-tertiary-dark
+
       &:not(:last-child)
         border-bottom-color: $bg-tertiary-dark
 
@@ -168,29 +178,50 @@ export default {
         .timestamp
           color: $text-tertiary-dark
 
+  .thread-status
+    padding: 0.5rem
+    padding-bottom: 0
+    display: flex
+    justify-content: space-between
+    align-items: center
+
+    .icon
+      box-shadow: inset 0 0 0 (1 / 16)rem $positive-saturated
+      color: $positive-saturated
+      border-radius: 50%
+      padding: (4 / 16)rem
+      width: (24 / 16)rem
+      height: @width
+
   .comments
-    list-style: none
-    padding: 0
-    margin: 0
     max-height: 50vh
-    // overflow-y: auto
+
+    .scroll-wrapper
+      margin: 0
+      padding: (8 / 16)rem
+      width: (440 / 16)rem
+      list-style: none
 
     .comment
       max-width: 100%
-      width: (440 / 16)rem
-      padding: (24 / 16)rem (12 / 16)rem
+      padding: (12 / 16)rem
+      padding-bottom: (18 / 16)rem
+      background-color: $bg-secondary
+      border-radius: $radius-m
+      border-bottom-right-radius: 0
 
-      &:first-child
-        padding-top: (8 / 16)rem
+      &.owned
+        border-bottom-left-radius: 0
+        border-bottom-right-radius: $radius-m
 
       &:not(:last-child)
-        border-bottom: 1px solid alpha($accent-secondary, 0.25)
+        margin-bottom: (8 / 16)rem
 
       header
         display: flex
         align-items: center
         user-select: none
-        margin-bottom: (12 / 16)rem
+        margin-bottom: (8 / 16)rem
 
         .author,
         .timestamp
@@ -206,10 +237,10 @@ export default {
         .timestamp
           color: $text-tertiary
           margin-left auto
-          margin-right: (8 / 16)rem
 
         .button
           padding: (8 / 16)rem
+          margin-left: (8 / 16)rem
           margin-right: (-4 / 16)rem
 
           &:deep(.icon)
