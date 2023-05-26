@@ -766,7 +766,6 @@ export default {
               this.previewCommentThreadPopover.visible = false;
               return;
             }
-            // TODO: actually handle comment click here by showing the comment thread in a popover
             const previewContainer = this.$refs.preview.getBoundingClientRect();
             this.previewCommentThreadPopover.x = data.payload.clientX + previewContainer.left;
             this.previewCommentThreadPopover.y = data.payload.clientY + previewContainer.top;
@@ -1022,10 +1021,10 @@ export default {
         if (isMovement) this.sendMessageToPreview({ feature: 'comments', type: 'moveFailed', payload: { comment: { id } } });
       } else if (!this.canComment || commentByCurrentUserIndex === -1) {
         this.$store.commit('addToast', { message: 'You are not allowed to update this comment', type: 'warning' });
-        if (isMovement) this.sendMessageToPreview({ feature: 'comments', type: 'moveFailed', payload: { comment: this.previewComments[commentIndex] } });
+        if (isMovement) this.sendMessageToPreview({ feature: 'comments', type: 'moveFailed', payload: { comment: _cloneDeep(this.previewComments[commentIndex]) } });
       } else if (isMovement && (typeof x !== 'number' || typeof y !== 'number' || Math.abs(x) > 999999 || Math.abs(y) > 999999)) {
         this.$store.commit('addToast', { message: 'The new position is invalid', type: 'warning' });
-        this.sendMessageToPreview({ feature: 'comments', type: 'moveFailed', payload: { comment: this.previewComments[commentIndex] } });
+        this.sendMessageToPreview({ feature: 'comments', type: 'moveFailed', payload: { comment: _cloneDeep(this.previewComments[commentIndex]) } });
       } else {
         const backup = _cloneDeep(this.previewComments[commentIndex]);
 
@@ -1034,15 +1033,17 @@ export default {
             this.previewComments[commentIndex].position = { x, y };
             this.previewCommentsByCurrentUser[commentByCurrentUserIndex].position = { x, y };
           } else {
-            this.previewComments[commentIndex] = { ...this.previewComments[commentIndex], ...changes };
-            this.previewCommentsByCurrentUser[commentByCurrentUserIndex] = { ...this.previewCommentsByCurrentUser[commentByCurrentUserIndex], ...changes };
+            const updatedComment = { ...this.previewComments[commentIndex], ...changes, updated: Date.now() };
+            this.previewComments[commentIndex] = updatedComment;
+            this.previewCommentsByCurrentUser[commentByCurrentUserIndex] = updatedComment;
+            if (!backup.parent) this.sendMessageToPreview({ feature: 'comments', type: 'updateCommentMarker', payload: { comment: _cloneDeep(updatedComment) } });
           }
           await this.savePreviewCommentsByCurrentUser();
         } catch (err) {
           this.$store.commit('addToast', { message: `Something went wrong while saving the comment: ${err.message}`, type: 'error' });
           this.previewComments[commentIndex] = backup;
           this.previewCommentsByCurrentUser[commentByCurrentUserIndex] = backup;
-          if (isMovement) this.sendMessageToPreview({ feature: 'comments', type: 'moveFailed', payload: { comment: this.previewComments[commentIndex] } });
+          if (isMovement) this.sendMessageToPreview({ feature: 'comments', type: 'moveFailed', payload: { comment: backup } });
         }
       }
     },
