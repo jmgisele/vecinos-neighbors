@@ -556,8 +556,11 @@ export default {
         if (toplevel) this.sendMessageToPreview({ feature: 'comments', type: 'deleteCommentMarker', payload: { comment: commentBackup } });
         this.previewComments.splice(commentIndex, 1);
         if (this.previewCommentThreadPopover.visible) {
-          if (toplevel) this.previewCommentThreadPopover.comments = this.previewComments.filter((comment) => comment.id === id || comment.parent === id);
-          else this.previewCommentThreadPopover.comments = this.previewComments.filter((comment) => comment.id === this.previewCommentThreadPopover.comments[0].id || comment.parent === this.previewCommentThreadPopover.comments[0].id);
+          this.previewCommentThreadPopover.comments = this.previewComments.filter((comment) => {
+            let commentId = id;
+            if (!toplevel) commentId = this.previewCommentThreadPopover.comments[0].id;
+            return comment.id === commentId || comment.parent === commentId;
+          });
         }
 
         this.$store.commit('addToast', {
@@ -565,8 +568,11 @@ export default {
             this.previewComments.splice(commentIndex, 0, commentBackup);
             if (toplevel) this.sendMessageToPreview({ feature: 'comments', type: 'addCommentMarker', payload: { comment: commentBackup } });
             if (this.previewCommentThreadPopover.visible) {
-              if (toplevel) this.previewCommentThreadPopover.comments = this.previewComments.filter((comment) => comment.id === id || comment.parent === id);
-              else this.previewCommentThreadPopover.comments = this.previewComments.filter((comment) => comment.id === this.previewCommentThreadPopover.comments[0].id || comment.parent === this.previewCommentThreadPopover.comments[0].id);
+              this.previewCommentThreadPopover.comments = this.previewComments.filter((comment) => {
+                let commentId = id;
+                if (!toplevel) commentId = this.previewCommentThreadPopover.comments[0].id;
+                return comment.id === commentId || comment.parent === commentId;
+              });
             }
           },
           actionLabel: 'Undo',
@@ -590,8 +596,11 @@ export default {
               this.previewComments.splice(commentIndex, 0, commentBackup);
               this.previewCommentsByCurrentUser.splice(commentByCurrentUserIndex, 0, commentBackup);
               if (this.previewCommentThreadPopover.visible) {
-                if (toplevel) this.previewCommentThreadPopover.comments = this.previewComments.filter((comment) => comment.id === id || comment.parent === id);
-                else this.previewCommentThreadPopover.comments = this.previewComments.filter((comment) => comment.id === this.previewCommentThreadPopover.comments[0].id || comment.parent === this.previewCommentThreadPopover.comments[0].id);
+                this.previewCommentThreadPopover.comments = this.previewComments.filter((comment) => {
+                  let commentId = id;
+                  if (!toplevel) commentId = this.previewCommentThreadPopover.comments[0].id;
+                  return comment.id === commentId || comment.parent === commentId;
+                });
               }
               if (toplevel) this.sendMessageToPreview({ feature: 'comments', type: 'addCommentMarker', payload: { comment: commentBackup } });
             }
