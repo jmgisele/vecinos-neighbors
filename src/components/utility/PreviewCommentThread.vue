@@ -1,9 +1,19 @@
 <template lang="html">
-  <MbPopover class="preview-comment-thread" :dark="dark" no-content-padding no-footer-padding update-on-resize use-capture-on-outside-click :visible="visible" :x="x" :y="y" @close="$emit('close')">
+  <MbPopover class="preview-comment-thread" :dark="dark" no-content-padding no-footer-padding :prevent-close-on-outside-click="commentActions.show" update-on-resize use-capture-on-outside-click :visible="visible" :x="x" :y="y" @close="handleClose">
     <template v-if="comments && comments[0].status" #header>
-      <div class="thread-status">
-        <MbIcon icon="check" />
-        <MbChip color="positive" :label="comments[0].status" />
+      <div class="thread-status" :class="[comments[0].status]">
+        <template v-if="comments[0].status === 'resolved'">
+          <MbIcon icon="check" />
+          <MbChip color="positive" :label="comments[0].status" />
+        </template>
+        <template v-if="comments[0].status === 'important'">
+          <MbIcon icon="warning" />
+          <MbChip color="warning" :label="comments[0].status" />
+        </template>
+        <template v-if="comments[0].status === 'critical'">
+          <MbIcon icon="error" />
+          <MbChip color="negative" :label="comments[0].status" />
+        </template>
       </div>
     </template>
     <MbScroller class="comments" direction="vertical">
@@ -14,7 +24,6 @@
             <span class="timestamp">{{ formatTimestamp(comment.created) }}</span>
             <MbButton v-if="canComment && (index === 0 || comment.author === this.currentUser.name)" :dark="dark" icon="more-vertical" @click="openMenu($event, comment, index)" />
           </header>
-          <!-- TODO: Add ways to differentiate comment statusses -->
           <div class="content" v-html="comment.content" />
         </li>
       </ul>
@@ -26,7 +35,7 @@
         <MbButton v-if="canComment" :dark="dark" :disabled="!reply || !reply.content || reply.content === '<p></p>'" :loading="reply.loading" icon="comment-reply-alt" type="positive" @click="addReply">Send Reply</MbButton>
       </div>
     </template>
-    <MbContextMenu class="options" :dark="dark" :from-right="commentActions.fromRight" :options="modifiedCommentActions" :show="commentActions.show" :target="commentActions.target" :x="commentActions.x" :y="commentActions.y" @close="commentActions.show = false" />
+    <MbContextMenu class="options" :dark="dark" :from-right="commentActions.fromRight" :options="modifiedCommentActions" :show="commentActions.show" :target="commentActions.target" :x="commentActions.x" :y="commentActions.y" @close="handleContextMenuClose" />
   </MbPopover>
 </template>
 
@@ -43,21 +52,44 @@ export default {
 
       if (!this.canComment) return actions;
 
-      if (this.currentIndex === 0 && this.currentComment && this.currentComment.status !== 'resolved') {
-        actions.push({
-          action: () => {
-            this.updateComment(this.currentComment.id, { status: 'resolved' });
-          },
-          icon: 'check',
-          label: 'Mark as resolved',
-        });
-      } else if (this.currentIndex === 0 && this.currentComment) {
+      if (this.currentIndex === 0 && this.currentComment) {
+        if (this.currentComment.status !== 'resolved') {
+          actions.push({
+            action: () => {
+              this.updateComment(this.currentComment.id, { status: 'resolved' });
+            },
+            icon: 'check',
+            label: 'Mark as resolved',
+          });
+        }
+        if (this.currentComment.status !== 'important') {
+          actions.push({
+            action: () => {
+              this.updateComment(this.currentComment.id, { status: 'important' });
+            },
+            icon: 'warning',
+            label: 'Mark as important',
+          });
+        }
+        if (this.currentComment.status !== 'critical') {
+          actions.push({
+            action: () => {
+              this.updateComment(this.currentComment.id, { status: 'critical' });
+            },
+            icon: 'error',
+            label: 'Mark as critical',
+          });
+        }
+      }
+
+      if (this.currentIndex === 0 && this.currentComment && this.currentComment.status) {
         actions.push({
           action: () => {
             this.updateComment(this.currentComment.id, { status: null });
+            this.contextActionJustPerformed = true;
           },
           icon: 'cross',
-          label: 'Mark as unresolved',
+          label: 'Clear status',
         });
       }
 
@@ -120,7 +152,16 @@ export default {
       if (toplevel) this.$emit('close');
     },
     formatTimestamp,
+    handleClose() {
+      this.commentActions.show = false;
+      this.$emit('close');
+    },
+    handleContextMenuClose() {
+      this.commentActions.show = false;
+    },
     openMenu(e, comment, index) {
+      if (this.commentActions.show) return; // close if open already
+
       this.currentComment = comment;
       this.currentIndex = index;
       if (!this.canComment || this.commentActions.show || this.modifiedCommentActions.length < 1) return; // close it first or abort if there’s nothing to display
@@ -155,6 +196,11 @@ export default {
       default: 0,
     },
   },
+  watch: {
+    visible(nv) {
+      if (!nv) this.commentActions.show = false;
+    },
+  },
 };
 </script>
 
@@ -185,9 +231,20 @@ export default {
     justify-content: space-between
     align-items: center
 
-    .icon
+    &.resolved .icon
       box-shadow: inset 0 0 0 (1 / 16)rem $positive-saturated
       color: $positive-saturated
+
+    &.important .icon
+      color: $warning-saturated
+      padding: 0
+      border-radius: 0
+
+    &.critical .icon
+      color: $negative
+      padding: 0
+
+    .icon
       border-radius: 50%
       padding: (4 / 16)rem
       width: (24 / 16)rem
