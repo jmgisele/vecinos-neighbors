@@ -555,11 +555,19 @@ export default {
 
         if (toplevel) this.sendMessageToPreview({ feature: 'comments', type: 'deleteCommentMarker', payload: { comment: commentBackup } });
         this.previewComments.splice(commentIndex, 1);
+        if (this.previewCommentThreadPopover.visible) {
+          if (toplevel) this.previewCommentThreadPopover.comments = this.previewComments.filter((comment) => comment.id === id || comment.parent === id);
+          else this.previewCommentThreadPopover.comments = this.previewComments.filter((comment) => comment.id === this.previewCommentThreadPopover.comments[0].id || comment.parent === this.previewCommentThreadPopover.comments[0].id);
+        }
 
         this.$store.commit('addToast', {
           action: () => {
             this.previewComments.splice(commentIndex, 0, commentBackup);
             if (toplevel) this.sendMessageToPreview({ feature: 'comments', type: 'addCommentMarker', payload: { comment: commentBackup } });
+            if (this.previewCommentThreadPopover.visible) {
+              if (toplevel) this.previewCommentThreadPopover.comments = this.previewComments.filter((comment) => comment.id === id || comment.parent === id);
+              else this.previewCommentThreadPopover.comments = this.previewComments.filter((comment) => comment.id === this.previewCommentThreadPopover.comments[0].id || comment.parent === this.previewCommentThreadPopover.comments[0].id);
+            }
           },
           actionLabel: 'Undo',
           closeOnRouteChange: true,
@@ -568,6 +576,9 @@ export default {
             if (undone) return;
             try {
               if (commentByCurrentUserIndex > -1) this.previewCommentsByCurrentUser.splice(commentByCurrentUserIndex, 1);
+              // This should actually be a filter if it is toplevel, since it should remove all orphans as well
+              // but that is a problem, since we cannot modify the comment files of other users due to potential conflicts
+              // what about adding a cleanup step when loading comments that will delete orphans?
               if (this.previewCommentsByCurrentUser.length) await this.savePreviewCommentsByCurrentUser();
               else {
                 const path = joinPath(this.commentsDir, `${this.currentUser.id}.json`);
@@ -578,6 +589,10 @@ export default {
               this.$store.commit('addToast', { message: `Something went wrong while deleting the comment: ${err.message}`, type: 'error' });
               this.previewComments.splice(commentIndex, 0, commentBackup);
               this.previewCommentsByCurrentUser.splice(commentByCurrentUserIndex, 0, commentBackup);
+              if (this.previewCommentThreadPopover.visible) {
+                if (toplevel) this.previewCommentThreadPopover.comments = this.previewComments.filter((comment) => comment.id === id || comment.parent === id);
+                else this.previewCommentThreadPopover.comments = this.previewComments.filter((comment) => comment.id === this.previewCommentThreadPopover.comments[0].id || comment.parent === this.previewCommentThreadPopover.comments[0].id);
+              }
               if (toplevel) this.sendMessageToPreview({ feature: 'comments', type: 'addCommentMarker', payload: { comment: commentBackup } });
             }
           },
@@ -1038,6 +1053,7 @@ export default {
             if (!backup.parent) this.sendMessageToPreview({ feature: 'comments', type: 'updateCommentMarker', payload: { comment: _cloneDeep(updatedComment) } });
           }
           await this.savePreviewCommentsByCurrentUser();
+          if (this.previewCommentThreadPopover.visible) this.previewCommentThreadPopover.comments = this.previewComments.filter((comment) => comment.id === this.previewCommentThreadPopover.comments[0].id || comment.parent === this.previewCommentThreadPopover.comments[0].id);
         } catch (err) {
           this.$store.commit('addToast', { message: `Something went wrong while saving the comment: ${err.message}`, type: 'error' });
           this.previewComments[commentIndex] = backup;
