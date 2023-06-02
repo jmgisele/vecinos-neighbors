@@ -45,7 +45,7 @@ export default {
   },
   methods: {
     close(e) {
-      if (e.type === 'click' && this.visible && !this.$refs.el.contains(e.target)) this.$emit('close');
+      if (e.type === 'click' && this.visible && !this.preventCloseOnOutsideClick && !this.$refs.el.contains(e.target)) this.$emit('close');
       if ((e.type === 'resize' || e.type === 'keyup') && this.visible) this.$emit('close');
     },
     delayedUpdate() {
@@ -104,6 +104,7 @@ export default {
     fromRight: Boolean,
     noContentPadding: Boolean,
     noFooterPadding: Boolean,
+    preventCloseOnOutsideClick: Boolean,
     stealFocus: {
       type: Boolean,
       default: true,
