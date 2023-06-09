@@ -789,8 +789,8 @@ export default {
             this.previewCommentThreadPopover.comments = this.previewComments.filter((comment) => comment.id === data.payload.id || comment.parent === data.payload.id);
             this.previewCommentThreadPopover.visible = true;
           } else if (data.type === 'commentMoved') {
-            const { comment: movedComment, position } = data.payload;
-            this.updatePreviewComment(movedComment.id, position);
+            const { comment: movedCommentId, position } = data.payload;
+            this.updatePreviewComment(movedCommentId, position);
           }
           break;
         default:
