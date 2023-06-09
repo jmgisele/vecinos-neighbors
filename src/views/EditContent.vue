@@ -554,7 +554,7 @@ export default {
         const commentBackup = _cloneDeep(this.previewComments[commentIndex]);
 
         if (toplevel) this.sendMessageToPreview({ feature: 'comments', type: 'deleteCommentMarker', payload: { comment: commentBackup } });
-        this.previewComments.splice(commentIndex, 1);
+        if (!toplevel) this.previewComments.splice(commentIndex, 1);
         if (this.previewCommentThreadPopover.visible) {
           this.previewCommentThreadPopover.comments = this.previewComments.filter((comment) => {
             let commentId = id;
@@ -565,8 +565,8 @@ export default {
 
         this.$store.commit('addToast', {
           action: () => {
-            this.previewComments.splice(commentIndex, 0, commentBackup);
             if (toplevel) this.sendMessageToPreview({ feature: 'comments', type: 'addCommentMarker', payload: { comment: commentBackup } });
+            else this.previewComments.splice(commentIndex, 0, commentBackup);
             if (this.previewCommentThreadPopover.visible) {
               this.previewCommentThreadPopover.comments = this.previewComments.filter((comment) => {
                 let commentId = id;
@@ -1003,7 +1003,6 @@ export default {
               if (comment.parent === null) acc.push(comment.id);
               return acc;
             }, []);
-            console.log(toplevelCommentIds);
             const oldLength = this.previewCommentsByCurrentUser.length;
             this.previewCommentsByCurrentUser = this.previewCommentsByCurrentUser.filter((comment) => !comment.parent || toplevelCommentIds.includes(comment.parent));
             if (oldLength !== this.previewCommentsByCurrentUser.length) this.savePreviewCommentsByCurrentUser();
@@ -1048,7 +1047,7 @@ export default {
       if (commentIndex === -1) {
         this.$store.commit('addToast', { message: 'The comment you tried to update doesn’t exist', type: 'warning' });
         if (isMovement) this.sendMessageToPreview({ feature: 'comments', type: 'moveFailed', payload: { comment: { id } } });
-      } else if (!this.canComment || (isMovement && commentByCurrentUserIndex === -1)) {
+      } else if (!this.canComment || commentByCurrentUserIndex === -1) {
         this.$store.commit('addToast', { message: 'You are not allowed to update this comment', type: 'warning' });
         if (isMovement) this.sendMessageToPreview({ feature: 'comments', type: 'moveFailed', payload: { comment: _cloneDeep(this.previewComments[commentIndex]) } });
       } else if (isMovement && (typeof x !== 'number' || typeof y !== 'number' || Math.abs(x) > 999999 || Math.abs(y) > 999999)) {

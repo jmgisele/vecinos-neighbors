@@ -22,7 +22,7 @@
           <header>
             <span class="author"><strong>{{comment.author}}</strong></span>
             <span class="timestamp">{{ formatTimestamp(comment.created) }}</span>
-            <MbButton v-if="canComment && (index === 0 || comment.author === this.currentUser.name)" :dark="dark" icon="more-vertical" @click="openMenu($event, comment, index)" />
+            <MbButton v-if="canComment && comment.author === this.currentUser.name" :dark="dark" icon="more-vertical" @click="openMenu($event, comment, index)" />
           </header>
           <div class="content" v-html="comment.content" />
         </li>
@@ -50,7 +50,7 @@ export default {
     modifiedCommentActions() {
       const actions = [];
 
-      if (!this.canComment) return actions;
+      if (!this.canComment || (this.currentComment && this.currentUser.name !== this.currentComment.author)) return actions;
 
       if (this.currentIndex === 0 && this.currentComment) {
         if (this.currentComment.status !== 'resolved') {
@@ -95,7 +95,7 @@ export default {
 
       // TODO: Add option to edit comment content, maybe by pulling the current content into the reply field and changing the button label to save
 
-      if (this.currentComment && this.currentUser.name === this.currentComment.author) {
+      if (this.currentComment) {
         actions.push({
           action: () => {
             this.deleteComment(this.currentComment.id, this.currentIndex === 0);
