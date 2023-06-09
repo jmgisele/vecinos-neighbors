@@ -581,16 +581,9 @@ export default {
           onClose: async (undone) => {
             if (undone) return;
             try {
-              if (commentByCurrentUserIndex > -1) this.previewCommentsByCurrentUser.splice(commentByCurrentUserIndex, 1);
-              // This should actually be a filter if it is toplevel, since it should remove all orphans as well
-              // but that is a problem, since we cannot modify the comment files of other users due to potential conflicts
-              // what about adding a cleanup step when loading comments that will delete orphans?
-              if (this.previewCommentsByCurrentUser.length) await this.savePreviewCommentsByCurrentUser();
-              else {
-                const path = joinPath(this.commentsDir, `${this.currentUser.id}.json`);
-                await fs.unlink(path);
-                this.$store.commit('addLocallyChangedFile', path);
-              }
+              if (commentByCurrentUserIndex > -1 && !toplevel) this.previewCommentsByCurrentUser.splice(commentByCurrentUserIndex, 1);
+              else if (commentByCurrentUserIndex > -1) this.previewCommentsByCurrentUser = this.previewCommentsByCurrentUser.filter((comment) => comment.id !== id && comment.parent !== id); // if toplevel, we need to delete children as well
+              await this.savePreviewCommentsByCurrentUser(); // will also delete the file if empty
             } catch (err) {
               this.$store.commit('addToast', { message: `Something went wrong while deleting the comment: ${err.message}`, type: 'error' });
               this.previewComments.splice(commentIndex, 0, commentBackup);
@@ -916,7 +909,8 @@ export default {
     },
     async savePreviewCommentsByCurrentUser() {
       const path = joinPath(this.commentsDir, `${this.currentUser.id}.json`);
-      await fs.writeFile(path, JSON.stringify(this.previewCommentsByCurrentUser, null, 2), 'utf8');
+      if (this.previewCommentsByCurrentUser.length) await fs.writeFile(path, JSON.stringify(this.previewCommentsByCurrentUser, null, 2), 'utf8');
+      else fs.unlink(path);
       this.$store.commit('addLocallyChangedFile', path);
     },
     async saveSettings() {
@@ -1001,6 +995,18 @@ export default {
             comments.forEach((commentArrayString) => loadedComments.push(...JSON.parse(commentArrayString)));
             this.previewCommentsByCurrentUser = commentArrayStringByCurrentUser ? JSON.parse(commentArrayStringByCurrentUser) : [];
             loadedComments.sort((a, b) => a.created - b.created); // sort the combined loaded comments by creation date so the order is correct when displaying them
+
+            // when deleting a toplevel comment, we should also delete all its children
+            // but that is a problem, since we cannot modify the comment files of other users due to potential conflicts
+            // so instead, we only delete them for the current user and have to do a cleanup for other users here
+            const toplevelCommentIds = loadedComments.reduce((acc, comment) => {
+              if (comment.parent === null) acc.push(comment.id);
+              return acc;
+            }, []);
+            console.log(toplevelCommentIds);
+            const oldLength = this.previewCommentsByCurrentUser.length;
+            this.previewCommentsByCurrentUser = this.previewCommentsByCurrentUser.filter((comment) => !comment.parent || toplevelCommentIds.includes(comment.parent));
+            if (oldLength !== this.previewCommentsByCurrentUser.length) this.savePreviewCommentsByCurrentUser();
           } else {
             await mkdirp(this.commentsDir);
             this.previewCommentsByCurrentUser = [];
@@ -1096,13 +1102,22 @@ export default {
     contentLanguages() { // we need to revalidate the content if the langauges change so we don’t end up with invalid, unfixable errors
       if (this.schema && this.schema.fields) this.validateContent();
     },
-    currentUser(nv) {
+    async currentUser(nv) {
       if (!nv || !hasAccess(nv.role, this.collection.permissions)) {
         if (this.wasChanged) {
           if (this.wasChanged) this.$store.commit('setAppProperty', { key: 'temporaryContentStorage', value: _cloneDeep(this.content) });
           this.forceNavigation = true;
         }
         this.$router.replace({ name: 'Forbidden' });
+      }
+
+      if (nv && this.previewComments) {
+        try {
+          this.previewCommentsByCurrentUser = JSON.parse(await fs.readFile(joinPath(this.commentsDir, `${nv.id}.json`), 'utf8'));
+        } catch (err) {
+          if (err.code !== 'ENOENT') this.$store.commit('addToast', { message: `Something went wrong while loading the comments for this user: ${err.message}`, type: 'error' });
+          this.previewCommentsByCurrentUser = [];
+        }
       }
     },
     previewConnected(nv) {
