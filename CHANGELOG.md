@@ -5,7 +5,7 @@ updatedAt: 2023-06-16
 
 ## Version 0.4.0 Beta
 
-## New Features
+### New Features
 
 * If tracking with Umami is enabled, Mattrbld tracks events using the new syntax
   introduced in Umami 1.37.0
@@ -26,7 +26,7 @@ updatedAt: 2023-06-16
 * It is now possible to add comments to the real-time content previews, you can
   learn more about this feature in the [official documentation](https://mattrbld.com/docs/preview-features/comments/)
 
-## Bugfixes
+### Bugfixes
 
 * Fixed an issue caused by `.gitkeep` files in folders that have their content
   automatically parsed
