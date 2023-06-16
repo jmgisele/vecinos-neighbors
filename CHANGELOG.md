@@ -1,6 +1,6 @@
 ---
-currentVersion: 0.3.0
-updatedAt: 2022-08-26
+currentVersion: 0.4.0
+updatedAt: 2023-06-16
 ---
 
 ## Version 0.4.0 Beta
