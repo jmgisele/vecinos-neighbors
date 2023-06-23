@@ -1,7 +1,26 @@
 ---
-currentVersion: 0.4.0
-updatedAt: 2023-06-16
+currentVersion: 0.5.0
+updatedAt: 2023-06-23
 ---
+
+## Version 0.5.0 Beta
+
+### New Features
+
+* Uploading a profile image with transparency now uses a background colour
+  matching your current theme instead of black
+* It’s now possible to add new fields to a Schema by right-clicking another
+  field, which makes working on Schemas with many fields more comfortable
+
+### Bugfixes
+
+* Fixed a bug that caused a crash when opening a content item that had an
+  unallowed Schema assigned to it
+* Content will no longer immediately be validated as soon as a Content
+  Languages field is present
+* Localised fields will no longer look broken when only one content language
+  is active
+* Tag fields with complex models will now work more reliably
 
 ## Version 0.4.0 Beta
 
