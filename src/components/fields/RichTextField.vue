@@ -34,7 +34,7 @@
     >
       <MbEditor
         :allow-raw="options.allowRaw"
-        :class="{ 'in-split': teleportTarget }"
+        :class="{ 'in-split': renderedInSplit }"
         :code-langs="options.codeLangs"
         :dark="dark"
         :error="error instanceof Map ? error.get(lang) : ''"
@@ -183,19 +183,14 @@ export default {
 @require '../../assets/styles/colors'
 
 .rich-text.field
-  .input
-    margin-top: 0
-    width: 100%
-
   .editor::v-deep(.toolbar)
     margin-top: 0
     top: 0
 
-.localisation-modal .editor:not(:last-child)
+.editor:not(:last-child)
   margin-bottom: 2rem
 
 .in-split.dark
-  &.input,
   &.editor::v-deep(.content-wrapper)
     background-color: $bg-tertiary-dark
 

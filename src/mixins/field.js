@@ -17,6 +17,9 @@ export default {
       if (typeof this.modelValue === 'undefined') return null;
       return this.modelValue;
     },
+    renderedInSplit() {
+      return (this.teleportTarget && this.languages.length !== 1) || (this.inSplit && this.languages.length === 1);
+    },
     showLocalisedOptions() {
       return this.localised && this.languages && this.languages.length > 0;
     },

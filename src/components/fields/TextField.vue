@@ -18,8 +18,8 @@
       @modal-closed="$emit('update:error', validateLocalisedValues(safeModelValue, ''))"
       @update:active="$emit('update:active', $event)"
     >
-      <MbEditor v-if="options && (options.wrapping || options.multiline)" :allow-new-lines="options && options.multiline" :class="{ 'in-split': teleportTarget }" :dark="dark" :error="error instanceof Map ? error.get(lang)  : ''" :label="languages.length > 1 ? lang : label" :max-len="(validation && validation.max) || null" :model-value="safeModelValue[lang]" @update:model-value="handleInput($event, lang)" />
-      <MbInput v-else :class="{ 'in-split': teleportTarget }" :dark="dark" :error="error instanceof Map ? error.get(lang) : ''" :label="languages.length > 1 ? lang : label" :max-len="(validation && validation.max) || null" :model-value="safeModelValue[lang]" @update:model-value="handleInput($event, lang)" />
+      <MbEditor v-if="options && (options.wrapping || options.multiline)" :allow-new-lines="options && options.multiline" :class="{ 'in-split': renderedInSplit }" :dark="dark" :error="error instanceof Map ? error.get(lang)  : ''" :label="languages.length > 1 ? lang : label" :max-len="(validation && validation.max) || null" :model-value="safeModelValue[lang]" @update:model-value="handleInput($event, lang)" />
+      <MbInput v-else :class="{ 'in-split': renderedInSplit }" :dark="dark" :error="error instanceof Map ? error.get(lang) : ''" :label="languages.length > 1 ? lang : label" :max-len="(validation && validation.max) || null" :model-value="safeModelValue[lang]" @update:model-value="handleInput($event, lang)" />
     </LocalisedFieldsContainer>
   </section>
 </template>
@@ -83,13 +83,17 @@ export default {
   display: flex
   width: 100%
 
+.input, .editor
+  &:not(:last-child)
+    margin-bottom: 2rem
+
 .in-split
   &.input
     width: 100%
     margin-top: 0
 
     &:not(:last-child)
-      margin-bottom: 1.5rem
+      margin-bottom: 2rem
 
   &.dark
     &.input,

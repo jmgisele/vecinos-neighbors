@@ -17,7 +17,7 @@
       @modal-closed="$emit('update:error', validateLocalisedValues(safeModelValue, ''))"
       @update:active="$emit('update:active', $event)"
     >
-      <MbInput :class="{ 'in-split': teleportTarget }" :dark="dark" :error="error instanceof Map ? error.get(lang) : ''" :label="languages.length > 1 ? lang : label" :max-len="(validation && validation.max) || null" :model-modifiers="{ number: true }" :model-value="safeModelValue[lang]" type="number" @update:model-value="cleanInput($event, lang)" />
+      <MbInput :class="{ 'in-split': renderedInSplit }" :dark="dark" :error="error instanceof Map ? error.get(lang) : ''" :label="languages.length > 1 ? lang : label" :max-len="(validation && validation.max) || null" :model-modifiers="{ number: true }" :model-value="safeModelValue[lang]" type="number" @update:model-value="cleanInput($event, lang)" />
     </LocalisedFieldsContainer>
   </section>
 </template>
@@ -88,6 +88,9 @@ export default {
 .localisation-modal .input
   display: flex
   width: 100%
+
+.input:not(:last-child)
+  margin-bottom: 2rem
 
 .in-split
   &.input

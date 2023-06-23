@@ -19,7 +19,7 @@
       @update:active="$emit('update:active', $event)"
     >
       <span class="label" :class="{ dark, error: error instanceof Map && error.get(lang) }">{{error instanceof Map && error.get(lang) || languages.length > 1 ? lang : label}}</span>
-      <InternalLinkHelper :class="{ dark, error: error instanceof Map && error.get(lang), 'in-split': teleportTarget }" :collections-path="collectionsPath" :dark="dark" :full-path="!template" :lang="lang" :limit-to="options.collections" :model-value="safeModelValue[lang]" :removable="options.removable" :slugify="false" :url-template="template" :use-file-path="!template" @update:model-value="handleInput($event, lang)" />
+      <InternalLinkHelper :class="{ dark, error: error instanceof Map && error.get(lang), 'in-split': renderedInSplit }" :collections-path="collectionsPath" :dark="dark" :full-path="!template" :lang="lang" :limit-to="options.collections" :model-value="safeModelValue[lang]" :removable="options.removable" :slugify="false" :url-template="template" :use-file-path="!template" @update:model-value="handleInput($event, lang)" />
     </LocalisedFieldsContainer>
   </section>
 </template>
@@ -106,6 +106,9 @@ export default {
     color: $negative-saturated
 
 .internal-link-helper
+  &:not(:last-child)
+    margin-bottom: 2rem
+
   &.error
     &::v-deep(.view.url::before)
       opacity: 1

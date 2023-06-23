@@ -21,9 +21,9 @@
       @update:active="$emit('update:active', $event)"
     >
       <span class="label" :class="{ dark, error: error instanceof Map && error.get(lang) }">{{error instanceof Map && error.get(lang) || languages.length > 1 ? lang : label}}</span>
-      <MbSegmentedSelector v-if="options.type === 'both'" v-model="linkType" :class="{ 'in-split': teleportTarget }" :dark="dark" :options="[{ label: 'Internal', value: 'internal' }, { label: 'External', value: 'external' }]" />
-      <InternalLinkHelper v-if="linkType === 'internal'" :class="{ dark, error: error instanceof Map && error.get(lang), 'in-split': teleportTarget }" :collections-path="collectionsPath" :dark="dark" :lang="lang" :model-value="safeModelValue[lang]" removable :url-suffix="options.urlSuffix" :url-template="template" :use-file-path="options.byFilePath" @update:model-value="handleInput($event, lang)" />
-      <MbInput v-else :class="{ error: error instanceof Map && error.get(lang), 'in-split': teleportTarget, 'in-modal': !teleportTarget }" :dark="dark" icon="link" :model-modifiers="{ lazy: true }" :model-value="safeModelValue[lang]" placeholder="https://example.com" @update:model-value="handleInput($event, lang)" />
+      <MbSegmentedSelector v-if="options.type === 'both'" v-model="linkType" :class="{ 'in-split': renderedInSplit }" :dark="dark" :options="[{ label: 'Internal', value: 'internal' }, { label: 'External', value: 'external' }]" />
+      <InternalLinkHelper v-if="linkType === 'internal'" :class="{ dark, error: error instanceof Map && error.get(lang), 'in-split': renderedInSplit }" :collections-path="collectionsPath" :dark="dark" :lang="lang" :model-value="safeModelValue[lang]" removable :url-suffix="options.urlSuffix" :url-template="template" :use-file-path="options.byFilePath" @update:model-value="handleInput($event, lang)" />
+      <MbInput v-else :class="{ error: error instanceof Map && error.get(lang), 'in-split': renderedInSplit, 'in-modal': !teleportTarget }" :dark="dark" icon="link" :model-modifiers="{ lazy: true }" :model-value="safeModelValue[lang]" placeholder="https://example.com" @update:model-value="handleInput($event, lang)" />
     </LocalisedFieldsContainer>
   </section>
 </template>
