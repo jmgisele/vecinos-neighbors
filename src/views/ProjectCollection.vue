@@ -472,8 +472,6 @@ export default {
         if (oldCommentsPath !== newCommentsPath) {
           const commentsFolderExists = await exists(oldCommentsPath);
 
-          console.log(oldCommentsPath, newCommentsPath, commentsFolderExists);
-
           // if so, ensure newPath exists and move the file
           if (commentsFolderExists) {
             try {
@@ -496,7 +494,6 @@ export default {
         const oldCommentsPath = joinPath(this.commentsDir, oldPath.replace(pathDirname(this.contentDir), ''));
         const newCommentsPath = joinPath(this.commentsDir, newPath.replace(pathDirname(this.contentDir), ''));
         const folderExistsInComments = await exists(oldCommentsPath);
-        console.log(oldCommentsPath, newCommentsPath, folderExistsInComments);
 
         if (this.draftsDir) {
           const oldPathExistsAsDraft = await exists(oldDraftPath);
