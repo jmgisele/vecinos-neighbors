@@ -182,7 +182,7 @@ export default {
             if (err.code !== 'ENOENT') throw err;
             else Store.commit('addToast', { message: `The Schema “${prettifyEntityName(pathBasename(content.___mb_schema))}” could not be found in this project`, type: 'warning' });
           }
-        } else this.$store.commit('addToast', { message: `The Schema “${prettifyEntityName(pathBasename(content.___mb_schema))}” is not allowed in this Collection`, type: 'warning' });
+        } else Store.commit('addToast', { message: `The Schema “${prettifyEntityName(pathBasename(content.___mb_schema))}” is not allowed in this Collection`, type: 'warning' });
       }
 
       return next((vm) => {
@@ -302,7 +302,7 @@ export default {
     },
     contentForTab: {
       get() {
-        if (this.activeTab < 0) return this.content;
+        if (this.activeTab < 0 || !this.schema.tabs) return this.content;
         const { groupAs } = this.schema.tabs[this.activeTab];
         if (groupAs) return this.content[groupAs] || {};
         return this.content;
@@ -378,7 +378,7 @@ export default {
       return this.$store.state.application.tablet;
     },
     noSchema() {
-      return !this.content.___mb_schema;
+      return !this.content.___mb_schema || Object.keys(this.schema).length === 0;
     },
     previewUrl() {
       return this.$store.state.currentProject.previewUrl;
