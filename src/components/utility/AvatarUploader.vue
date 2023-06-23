@@ -25,6 +25,11 @@ export default {
         const ctx = canvas.getContext('2d');
         ctx.imageSmoothingQuality = 'high';
 
+        const { theme } = this.$store.state.user;
+        if (theme === 'light' || (theme === 'auto' && window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches)) ctx.fillStyle = '#f4f3ff';
+        else if (theme === 'dark' || (theme === 'auto' && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches)) ctx.fillStyle = '#2B2A32';
+        ctx.fillRect(0, 0, width, height);
+
         const sourceAspectRatio = image.width / image.height;
         const targetAspectRatio = width / height;
 
