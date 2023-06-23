@@ -96,7 +96,7 @@
 
 <script>
 import {
-  cloneDeep as _cloneDeep, debounce, get as _get, set as _set,
+  cloneDeep as _cloneDeep, debounce, get as _get, set as _set, isEqual,
 } from 'lodash-es';
 import { status } from 'isomorphic-git';
 import pluralize from 'pluralize';
@@ -1098,7 +1098,8 @@ export default {
     activeTab() {
       if (this.showSplit && !this.showPreview) this.showSplit = false;
     },
-    contentLanguages() { // we need to revalidate the content if the langauges change so we don’t end up with invalid, unfixable errors
+    contentLanguages(nv, ov) { // we need to revalidate the content if the langauges change so we don’t end up with invalid, unfixable errors
+      if (!this.initialised || isEqual(nv, ov)) return; // no need to revalidate if the languages didn’t actually change, as this is fired on every content change
       if (this.schema && this.schema.fields) this.validateContent();
     },
     async currentUser(nv) {
