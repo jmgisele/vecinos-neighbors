@@ -365,6 +365,12 @@ export default {
             icon: 'trash',
             type: 'negative',
           },
+          {
+            action: this.handleAddFieldAtIndex,
+            label: 'Add new field below',
+            icon: 'plus',
+            type: 'positive',
+          },
         ],
         show: false,
         target: null,
@@ -645,9 +651,15 @@ export default {
       search(fields);
       return path.join('.');
     },
-    async handleAddField() {
+    handleAddField() {
       this.currentOperation = 'add-field';
       this.showSplit = true;
+    },
+    handleAddFieldAtIndex() {
+      this.fieldAddIndex = this.fieldContextMenu.detail.index + 1;
+      this.fieldAddParent = this.fieldContextMenu.detail.parent;
+      this.handleAddField();
+      this.fieldContextMenu.show = false;
     },
     handleContextMenuChangeType() {
       this.fieldToTypeChange = this.fieldContextMenu.field;
