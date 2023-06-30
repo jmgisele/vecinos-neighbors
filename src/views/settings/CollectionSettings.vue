@@ -239,9 +239,11 @@ export default {
         Object.keys(this.collectionDetails.permissions).forEach((key) => {
           const editPermissionIndex = this.collectionDetails.permissions[key].indexOf('editContent');
           const createPermissionIndex = this.collectionDetails.permissions[key].indexOf('createContent');
+          const publishPermissionIndex = this.collectionDetails.permissions[key].indexOf('publishDrafts');
 
           if (editPermissionIndex > -1) this.collectionDetails.permissions[key].splice(editPermissionIndex, 1);
           if (createPermissionIndex > -1) this.collectionDetails.permissions[key].splice(createPermissionIndex, 1, 'upload');
+          if (publishPermissionIndex > -1) this.collectionDetails.permissions[key].splice(publishPermissionIndex, 1);
           if (this.collectionDetails.permissions[key].length) cleanPermissions[key] = this.collectionDetails.permissions[key];
         });
         this.collectionDetails.permissions = cleanPermissions;
