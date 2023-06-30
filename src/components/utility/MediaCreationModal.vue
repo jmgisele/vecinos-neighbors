@@ -30,7 +30,7 @@ import slugify from '@sindresorhus/slugify';
 import { debounce } from 'lodash-es';
 import fs, { joinPath } from '../../fs';
 
-import getFilenameAndExtension from '../../assets/js/getFilenameAndExtension';
+import slugifyFileName from '../../assets/js/slugifyFileName';
 import { imageRegExp } from '../../data/regExps';
 
 export default {
@@ -104,7 +104,7 @@ export default {
         const maxSize = this.maxSize || this.mediaSettings.maxSize;
 
         files.forEach((file, index) => {
-          const slugifiedFileName = this.slugifyFileName(file.name);
+          const slugifiedFileName = slugifyFileName(file.name, this.$store.state.currentProject.slugifyOptions || { lowercase: false, decamelize: false, preserveLeadingUnderscore: true });
           let valid = true;
           if (this.onlyImages && !imageRegExp.test(file.name)) {
             this.$store.commit('addToast', { message: `The file “${slugifiedFileName}” was not uploaded because it is not an image`, type: 'warning' });
@@ -142,7 +142,7 @@ export default {
         await this.$store.dispatch('saveAppData');
         if (writePromises.length > 0) {
           this.$store.commit('addToast', {
-            message: writePromises.length === 1 ? `${this.slugifyFileName(files[0].name)} was uploaded successfully` : `${writePromises.length} files were uploaded successfully`,
+            message: writePromises.length === 1 ? `${slugifyFileName(files[0].name, this.$store.state.currentProject.slugifyOptions || { lowercase: false, decamelize: false, preserveLeadingUnderscore: true })} was uploaded successfully` : `${writePromises.length} files were uploaded successfully`,
             timeout: 2000,
             type: 'positive',
           });
@@ -157,10 +157,6 @@ export default {
     },
     selectFiles() {
       this.$refs.modalFileInput.click();
-    },
-    slugifyFileName(name) {
-      const { filename, extension } = getFilenameAndExtension(name);
-      return `${slugify(filename, this.$store.state.currentProject.slugifyOptions || { lowercase: false, decamelize: false, preserveLeadingUnderscore: true })}.${extension}`;
     },
     validateNewFolderName: debounce(async function () { // eslint-disable-line func-names
       let existingEntities = [];
