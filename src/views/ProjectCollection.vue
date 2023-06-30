@@ -2,8 +2,8 @@
   <div class="collection">
     <h1>{{collection.name}}</h1>
     <template v-if="collection.dir">
-      <MbFileList v-if="typeof collection.dir !== 'undefined'" :action="action" :dark="dark" :drafts-dir="draftsDir" :empty-state="emptyState" :file-actions="fileActions" :file-list-label="fileListLabel" :filetypes="[collection.type]" :initial-path="lastDir" pretty-filenames ref="fileList" :root="contentDir" @fileclick="handleFileClick" @list-change="listedFiles = $event.files" @path-change="currentPath = $event" />
-      <MbButton v-if="(userPermissions.has('everything') || userPermissions.has('createContent')) && listedFiles === 0" :dark="dark" icon="plus" type="positive" @click="createEntity">Create one</MbButton>
+      <MbFileList v-if="typeof collection.dir !== 'undefined'" :action="action" :dark="dark" :drafts-dir="draftsDir" :empty-state="emptyState" :file-actions="fileActions" :file-list-label="fileListLabel" :filetypes="collection.type === 'media' ? allowedFileTypes : [collection.type]" :initial-path="lastDir" pretty-filenames ref="fileList" :root="contentDir" :thumbnails="collection.type === 'media'" @fileclick="handleFileClick" @list-change="listedFiles = $event.files" @path-change="currentPath = $event" />
+      <MbButton v-if="(userPermissions.has('everything') || userPermissions.has('createContent') || userPermissions.has('upload')) && listedFiles === 0" :dark="dark" icon="plus" type="positive" @click="createEntity">{{collection.type === 'media' ? 'Upload one' : 'Create one'}}</MbButton>
     </template>
     <div v-else class="unconfigured-state" :class="{ dark }">
       <h2>This Collection has no content directory</h2>
@@ -11,9 +11,11 @@
       <p v-else>A developer needs to add one in the settings.</p>
       <MbButton v-if="isPrivilegedUser" :dark="dark" icon="wrench-and-driver" type="primary" @click="$router.push({ name: 'Project.Settings', params: { id: $route.params.id }, query: { tab: 'collections' }})">Configure now</MbButton>
     </div>
-    <EntityCreationModal :dark="dark" :file-content="typeof defaultCollectionContent !== 'string' ? JSON.stringify(defaultCollectionContent, null, 2) : defaultCollectionContent" :file-extension="collection.type" :only="createOnly" :path="{ file: draftsDir && collection.draftByDefault ? currentDraftsPath : currentPath, directory: currentPath }" :title="entityCreationTitle" :visible="showEntityCreation" @close="handleEntityCreationClose" @entity-created="handleEntityCreated" />
+    <input v-if="collection.type === 'media'" type="file" ref="replaceFileInput" @change="handleReplaceFileInput">
+    <EntityCreationModal v-if="collection.type !== 'media'" :dark="dark" :file-content="typeof defaultCollectionContent !== 'string' ? JSON.stringify(defaultCollectionContent, null, 2) : defaultCollectionContent" :file-extension="collection.type" :only="createOnly" :path="{ file: draftsDir && collection.draftByDefault ? currentDraftsPath : currentPath, directory: currentPath }" :title="entityCreationTitle" :visible="showEntityCreation" @close="handleEntityCreationClose" @entity-created="handleEntityCreated" />
     <EntityMoveModal :dark="dark" :old-path="entityBeingModified" pretty-filenames :root="moveRootDir" :visible="showEntityMove" @close="showEntityMove = false; entityBeingModified = null" @entity-moved="handleEntityRenamed" />
     <EntityRenameModal :dark="dark" :old-path="entityBeingModified" :visible="showEntityRename" @close="showEntityRename = false; entityBeingModified = null" @entity-renamed="handleEntityRenamed" />
+    <MediaCreationModal v-if="collection.type === 'media'" :allowed-types="allowedFileTypes" :current-path="currentPath" :dark="dark" :max-size="collection.maxSize ? collection.maxSize : null" :permissions="userPermissions" :title="action && action.label !== 'Add' ? action.label : 'Add new…'" :type="mediaCreationModalType" :visible="showEntityCreation" @close="handleEntityCreationClose" @entity-created="refreshFileList" @update-type="mediaCreationModalType = $event" />
   </div>
 </template>
 
@@ -35,6 +37,8 @@ import getFieldsByPredicate from '../assets/js/getFieldsByPredicate';
 import getContentLanguages from '../assets/js/getContentLanguages';
 import prettifyEntityName from '../assets/js/prettifyEntityName';
 import validateContent from '../assets/js/validateContent';
+import getFilenameAndExtension from '../assets/js/getFilenameAndExtension';
+import { imageRegExp } from '../data/regExps';
 
 import isPrivilegedUser from '../mixins/isPrivilegedUser';
 import updateLocallyChangedFiles from '../mixins/updateLocallyChangedFiles';
@@ -42,6 +46,7 @@ import updateLocallyChangedFiles from '../mixins/updateLocallyChangedFiles';
 import EntityCreationModal from '../components/utility/EntityCreationModal.vue';
 import EntityMoveModal from '../components/utility/EntityMoveModal.vue';
 import EntityRenameModal from '../components/utility/EntityRenameModal.vue';
+import MediaCreationModal from '../components/utility/MediaCreationModal.vue';
 
 export default {
   async beforeRouteEnter(to, from, next) {
@@ -67,6 +72,15 @@ export default {
         vm.collection = { ...collection, name: prettifyEntityName(pathBasename(path)) }; // eslint-disable-line no-param-reassign
         vm.currentPath = lastDir || joinPath('/projects', to.params.id, collection.dir); // eslint-disable-line no-param-reassign
         vm.lastDir = lastDir; // eslint-disable-line no-param-reassign
+
+        if (vm.collection.type === 'media') {
+          window.addEventListener('dragenter', vm.handleWindowDragEnter);
+          window.addEventListener('dragover', vm.preventWindowDragEvent);
+          window.addEventListener('dragleave', vm.handleWindowDragLeave);
+          window.addEventListener('drop', vm.preventWindowDragEvent);
+
+          if (!vm.userPermissions.has('everything') && !vm.userPermissions.has('upload')) vm.mediaCreationModalType = 'directory'; // eslint-disable-line no-param-reassign
+        }
       });
     } catch (err) {
       if (err.code === 'ENOENT') return next({ name: 'NotFound', query: { type: 'collection' }, replace: true });
@@ -82,24 +96,48 @@ export default {
       const collection = JSON.parse(await fs.readFile(joinPath('/projects', to.params.id, path), 'utf8'));
       this.collection = { ...collection, name: prettifyEntityName(pathBasename(path)) };
       this.currentPath = joinPath('/projects', to.params.id, collection.dir);
+
+      if (collection.type === 'media') {
+        window.addEventListener('dragenter', this.handleWindowDragEnter);
+        window.addEventListener('dragover', this.preventWindowDragEvent);
+        window.addEventListener('dragleave', this.handleWindowDragLeave);
+        window.addEventListener('drop', this.preventWindowDragEvent);
+
+        if (!this.userPermissions.has('everything') && !this.userPermissions.has('upload')) this.mediaCreationModalType = 'directory';
+        else if (this.mediaCreationModalType !== 'upload') this.mediaCreationModalType = 'upload';
+      } else {
+        window.removeEventListener('dragenter', this.handleWindowDragEnter);
+        window.removeEventListener('dragover', this.preventWindowDragEvent);
+        window.removeEventListener('dragleave', this.handleWindowDragLeave);
+        window.removeEventListener('drop', this.preventWindowDragEvent);
+      }
+
       return true;
     } catch (err) {
       if (err.code === 'ENOENT') return { name: 'NotFound', query: { type: 'collection' }, replace: true };
       return { name: 'Error', replace: true };
     }
   },
+  beforeUnmount() {
+    window.removeEventListener('dragenter', this.handleWindowDragEnter);
+    window.removeEventListener('dragover', this.preventWindowDragEvent);
+    window.removeEventListener('dragleave', this.handleWindowDragLeave);
+    window.removeEventListener('drop', this.preventWindowDragEvent);
+  },
   components: {
     EntityCreationModal,
     EntityMoveModal,
     EntityRenameModal,
+    MediaCreationModal,
   },
   computed: {
     action() {
-      if (this.userPermissions.has('everything') || this.userPermissions.has('createFolder') || this.userPermissions.has('createContent')) {
+      if (this.userPermissions.has('everything') || this.userPermissions.has('createFolder') || this.userPermissions.has('createContent') || this.userPermissions.has('upload')) {
         let label;
-        if (this.userPermissions.has('everything') || (this.userPermissions.has('createFolder') && this.userPermissions.has('createContent'))) label = 'Add';
+        if (this.userPermissions.has('everything') || (this.userPermissions.has('createFolder') && (this.userPermissions.has('createContent') || this.userPermissions.has('upload')))) label = 'Add';
         else if (this.userPermissions.has('createFolder')) label = 'Add folder';
         else if (this.userPermissions.has('createContent')) label = `Add ${pluralize.singular(this.collection.name)}`;
+        else if (this.userPermissions.has('upload')) label = 'Upload files';
 
         return {
           callback: this.createEntity,
@@ -109,6 +147,10 @@ export default {
           type: 'primary',
         };
       }
+      return null;
+    },
+    allowedFileTypes() {
+      if (this.collection.allowedTypes && this.collection.allowedTypes.length) return this.collection.allowedTypes;
       return null;
     },
     commentsDir() {
@@ -142,12 +184,6 @@ export default {
       if (this.userPermissions.has('everything')) {
         actions.push(
           {
-            action: this.handleFileClick,
-            label: 'Edit',
-            icon: 'pencil',
-            filesOnly: true,
-          },
-          {
             action: this.renameEntity,
             label: 'Rename',
             icon: 'text-input',
@@ -157,15 +193,24 @@ export default {
             label: 'Move',
             icon: 'arrow-right',
           },
-          {
+        );
+
+        if (this.collection.type !== 'media') {
+          actions.unshift({
+            action: this.handleFileClick,
+            label: 'Edit',
+            icon: 'pencil',
+            filesOnly: true,
+          });
+          actions.push({
             action: this.duplicateContentItem,
             label: 'Duplicate',
             icon: 'duplicate',
             filesOnly: true,
-          },
-        );
+          });
 
-        if (this.draftsDir) actions.push({ action: this.toggleDraft, label: 'Toggle draft', icon: 'document-draft', filesOnly: true }); // eslint-disable-line object-curly-newline
+          if (this.draftsDir) actions.push({ action: this.toggleDraft, label: 'Toggle draft', icon: 'document-draft', filesOnly: true }); // eslint-disable-line object-curly-newline
+        } else actions.unshift({ action: this.replaceFile, label: 'Replace', icon: 'replace-alt', filesOnly: true }); // eslint-disable-line object-curly-newline
 
         // so delete is always last
         actions.push(
@@ -180,14 +225,10 @@ export default {
         return actions;
       }
 
-      if (this.userPermissions.has('editContent')) {
+      if (this.userPermissions.has('editContent') || this.userPermissions.has('upload')) {
+        if (this.collection.type !== 'media') actions.push({ action: this.handleFileClick, label: 'Edit', icon: 'pencil', filesOnly: true }); // eslint-disable-line object-curly-newline
+        else actions.push({ action: this.replaceFile, label: 'Replace', icon: 'replace-alt', filesOnly: true }); // eslint-disable-line object-curly-newline
         actions.push(
-          {
-            action: this.handleFileClick,
-            label: 'Edit',
-            icon: 'pencil',
-            filesOnly: true,
-          },
           {
             action: this.renameEntity,
             label: 'Rename',
@@ -218,8 +259,10 @@ export default {
         );
       }
 
-      if (this.userPermissions.has('createContent')) actions.push({ action: this.duplicateContentItem, label: 'Duplicate', icon: 'duplicate', filesOnly: true }); // eslint-disable-line object-curly-newline
-      if (this.draftsDir && this.userPermissions.has('publishDrafts')) actions.push({ action: this.toggleDraft, label: 'Toggle draft', icon: 'document-draft', filesOnly: true }); // eslint-disable-line object-curly-newline
+      if (this.collection.type !== 'media') {
+        if (this.userPermissions.has('createContent')) actions.push({ action: this.duplicateContentItem, label: 'Duplicate', icon: 'duplicate', filesOnly: true }); // eslint-disable-line object-curly-newline
+        if (this.draftsDir && this.userPermissions.has('publishDrafts')) actions.push({ action: this.toggleDraft, label: 'Toggle draft', icon: 'document-draft', filesOnly: true }); // eslint-disable-line object-curly-newline
+      }
 
       if (this.userPermissions.has('deleteContent')) {
         actions.push(
@@ -276,6 +319,7 @@ export default {
       entityBeingModified: null,
       lastDir: null,
       listedFiles: 0,
+      mediaCreationModalType: 'upload',
       moveRootDir: null,
       showEntityCreation: false,
       showEntityMove: false,
@@ -322,22 +366,24 @@ export default {
             // handle drafts
             let correspondingDraftsDir;
             let draftsDirExists;
-            if (!isFile && this.draftsDir) {
+            if (this.collection.type !== 'media' && !isFile && this.draftsDir) { // media collections don’t have drafts
               correspondingDraftsDir = joinPath(this.draftsDir, path.replace(this.contentDir, ''));
               draftsDirExists = await exists(correspondingDraftsDir);
               if (draftsDirExists) deletionPromises.push(rmrf(correspondingDraftsDir));
             }
 
-            // handle comments
-            let correspondingCommentsDir;
-            if (isFile) {
-              if (this.draftsDir && path.startsWith(this.draftsDir)) correspondingCommentsDir = joinPath(this.commentsDir, path.substring(0, path.lastIndexOf('.')).replace(pathDirname(this.draftsDir), ''));
-              else correspondingCommentsDir = joinPath(this.commentsDir, path.substring(0, path.lastIndexOf('.')).replace(pathDirname(this.contentDir), ''));
-            } else {
-              correspondingCommentsDir = joinPath(this.commentsDir, path.replace(pathDirname(this.contentDir), ''));
+            if (this.collection.type !== 'media') { // media collections don’t have comments
+              // handle comments
+              let correspondingCommentsDir;
+              if (isFile) {
+                if (this.draftsDir && path.startsWith(this.draftsDir)) correspondingCommentsDir = joinPath(this.commentsDir, path.substring(0, path.lastIndexOf('.')).replace(pathDirname(this.draftsDir), ''));
+                else correspondingCommentsDir = joinPath(this.commentsDir, path.substring(0, path.lastIndexOf('.')).replace(pathDirname(this.contentDir), ''));
+              } else {
+                correspondingCommentsDir = joinPath(this.commentsDir, path.replace(pathDirname(this.contentDir), ''));
+              }
+              const correspondingCommentsDirExists = await exists(correspondingCommentsDir);
+              if (correspondingCommentsDirExists) deletionPromises.push(rmrf(correspondingCommentsDir));
             }
-            const correspondingCommentsDirExists = await exists(correspondingCommentsDir);
-            if (correspondingCommentsDirExists) deletionPromises.push(rmrf(correspondingCommentsDir));
 
             deletionPromises.push(rmrf(path));
             await Promise.all(deletionPromises);
@@ -359,10 +405,8 @@ export default {
       });
     },
     async duplicateContentItem(path) {
-      const filename = pathBasename(path);
       const directory = pathDirname(path);
-      const extension = filename.slice((Math.max(0, filename.lastIndexOf('.')) || Infinity) + 1); // based on https://stackoverflow.com/questions/190852/how-can-i-get-file-extensions-with-javascript/12900504#12900504
-      const nameWithoutExtension = filename.substring(0, Math.max(0, filename.lastIndexOf('.')) || Infinity);
+      const { filename: nameWithoutExtension, extension } = getFilenameAndExtension(path);
       let counter = 1;
       let nameCandidate = `${nameWithoutExtension}-${counter}.${extension}`;
       let existingFiles;
@@ -450,6 +494,8 @@ export default {
         this.$store.commit('removeLocallyChangedFile', oldPath);
         this.$store.commit('addLocallyChangedFile', newPath);
 
+        if (this.collection.type === 'media') return; // media files cannot have comments
+
         // check if it has an associated comment folder (name of the file without extension) at oldPath
         // we need the filename without an extension, and it is safe to assume that this filepath always ends with an extension
         let oldCommentsPath;
@@ -495,24 +541,26 @@ export default {
         const newCommentsPath = joinPath(this.commentsDir, newPath.replace(pathDirname(this.contentDir), ''));
         const folderExistsInComments = await exists(oldCommentsPath);
 
-        if (this.draftsDir) {
-          const oldPathExistsAsDraft = await exists(oldDraftPath);
+        if (this.collection.type !== 'media') { // media files cannot have comments or drafts
+          if (this.draftsDir) {
+            const oldPathExistsAsDraft = await exists(oldDraftPath);
 
-          if (oldPathExistsAsDraft) {
-            try {
-              await fs.rename(oldDraftPath, newDraftPath);
-            } catch (err) {
-              this.$store.commit('addToast', { message: `Something went wrong while renaming the draft directory: ${err.message}`, type: 'error' });
+            if (oldPathExistsAsDraft) {
+              try {
+                await fs.rename(oldDraftPath, newDraftPath);
+              } catch (err) {
+                this.$store.commit('addToast', { message: `Something went wrong while renaming the draft directory: ${err.message}`, type: 'error' });
+              }
             }
           }
-        }
 
-        if (folderExistsInComments) {
-          try {
-            await mkdirp(pathDirname(newCommentsPath));
-            await fs.rename(oldCommentsPath, newCommentsPath);
-          } catch (err) {
-            this.$store.commit('addToast', { message: `Something went wrong while renaming or moving the corresponding folder in the comments directory: ${err.message}`, type: 'error' });
+          if (folderExistsInComments) {
+            try {
+              await mkdirp(pathDirname(newCommentsPath));
+              await fs.rename(oldCommentsPath, newCommentsPath);
+            } catch (err) {
+              this.$store.commit('addToast', { message: `Something went wrong while renaming or moving the corresponding folder in the comments directory: ${err.message}`, type: 'error' });
+            }
           }
         }
 
@@ -533,7 +581,50 @@ export default {
       this.$store.dispatch('saveAppData');
     },
     handleFileClick(path) {
+      if (this.collection.type === 'media') return; // TODO: open a details sidebar / modal? To make replace option more discoverable and give the user some feedback? Could even show the link for the file based on the URL template
       if (this.userPermissions.has('everything') || this.userPermissions.has('editContent')) this.openContentItem(path);
+    },
+    async handleReplaceFileInput(e) {
+      const replacement = e.currentTarget.files[0];
+      e.currentTarget.value = '';
+
+      if (!replacement) {
+        this.$store.commit('addToast', { message: 'No file was selected, the replacement was aborted', type: 'warning' });
+      } else if (getFilenameAndExtension(this.entityBeingModified).extension !== getFilenameAndExtension(replacement.name).extension) {
+        this.$store.commit('addToast', { message: 'The file could not be replaced because the selected file isn’t of the same type', type: 'negative' });
+      } else {
+        try {
+          const arrayBuffer = await replacement.arrayBuffer();
+          const isImage = imageRegExp.test(this.entityBeingModified);
+          let newUrl;
+          fs.writeFile(this.entityBeingModified, arrayBuffer);
+          this.$store.commit('addLocallyChangedFile', this.entityBeingModified);
+
+          if (isImage) {
+            newUrl = URL.createObjectURL(replacement);
+            this.$refs.fileList.replaceThumbnail(this.entityBeingModified, newUrl);
+          }
+
+          this.entityBeingModified = null;
+        } catch (err) {
+          this.$store.commit('addToast', { message: `Something went wrong while replacing the file: ${err.message}`, type: 'error' });
+        }
+      }
+    },
+    handleWindowDragEnter(e) {
+      e.preventDefault();
+      if ((this.userPermissions.has('everything') || this.userPermissions.has('upload')) && (!this.showEntityCreation || this.mediaCreationModalType === 'directory')) {
+        this.mediaCreationModalType = 'upload';
+        this.showEntityCreation = true;
+      }
+    },
+    handleWindowDragLeave(e) {
+      e.preventDefault();
+
+      if (
+        this.showEntityCreation && this.mediaCreationModalType === 'upload'
+        && e.clientX === 0 && e.clientY === 0 // clientX and clientY are 0 if outside of the window
+      ) this.showEntityCreation = false;
     },
     moveEntity(path) {
       const isDraft = this.draftsDir && path.startsWith(this.draftsDir);
@@ -546,9 +637,20 @@ export default {
     openContentItem(path) {
       this.$router.push({ name: 'Edit Content', params: { collection: pathBasename(this.$route.params.path), id: this.$store.state.currentProject.id, path } });
     },
+    preventWindowDragEvent(e) {
+      e.preventDefault();
+    },
+    async refreshFileList() {
+      if (this.$refs.fileList) await this.$refs.fileList.refresh();
+    },
     renameEntity(path) {
       this.entityBeingModified = path;
       this.showEntityRename = true;
+    },
+    replaceFile(path) {
+      if (typeof path === 'string') this.entityBeingModified = path;
+      this.$refs.replaceFileInput.click();
+      // TODO: entityBeingModified doesn’t get reset when cancel is clicked in the dialog, but detecting that reliably is impossible. Maybe something will show up in the future
     },
     async toggleDraft(path) {
       const isDraft = path.startsWith(this.draftsDir);
@@ -661,5 +763,8 @@ export default {
 
     p
       margin-bottom: 2rem
+
+  input[type=file]
+      display: none
 
 </style>

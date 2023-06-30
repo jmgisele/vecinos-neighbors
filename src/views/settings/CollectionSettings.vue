@@ -20,17 +20,29 @@
             </div>
             <div class="input-row">
               <span>Content type:</span>
-              <MbSelect v-model="collectionDetails.type" :dark="dark" :options="[{ label: 'JSON', value: 'json' }, { label: 'Markdown', value: 'md' }]" />
+              <MbSelect v-model="collectionDetails.type" :dark="dark" :options="[{ label: 'JSON', value: 'json' }, { label: 'Markdown', value: 'md' }, { label: 'Media', value: 'media' }]" @update:model-value="cleanCollectionDetails" />
             </div>
-            <div class="input-row schemas">
-              <span>Allowed Schemas:</span>
-              <MbItemList v-model="collectionDetails.schemas" :dark="dark" :options="availableSchemas" placeholder="Select a Schema…" />
-            </div>
-            <MbToggle v-if="currentProject.draftsDir" v-model="collectionDetails.draftByDefault" :dark="dark">Create new content as drafts</MbToggle>
-            <MbToggle v-if="currentProject.previewUrl" v-model="collectionDetails.disablePreview" :dark="dark">Disable previews for content in this collection</MbToggle>
-            <transition>
-              <MbToggle v-if="currentProject.previewUrl && !collectionDetails.disablePreview" v-model="collectionDetails.disableComments" :dark="dark">Disable comments in previews for content in this collection</MbToggle>
-            </transition>
+            <template v-if="collectionDetails.type !== 'media'">
+              <div class="input-row schemas">
+                <span>Allowed Schemas:</span>
+                <MbItemList v-model="collectionDetails.schemas" :dark="dark" :options="availableSchemas" placeholder="Select a Schema…" />
+              </div>
+              <MbToggle v-if="currentProject.draftsDir" v-model="collectionDetails.draftByDefault" :dark="dark">Create new content as drafts</MbToggle>
+              <MbToggle v-if="currentProject.previewUrl" v-model="collectionDetails.disablePreview" :dark="dark">Disable previews for content in this collection</MbToggle>
+              <transition>
+                <MbToggle v-if="currentProject.previewUrl && !collectionDetails.disablePreview" v-model="collectionDetails.disableComments" :dark="dark">Disable comments in previews for content in this collection</MbToggle>
+              </transition>
+            </template>
+            <template v-else>
+              <div class="input-row">
+                <span>Maximum file size (MB):</span>
+                <MbInput v-model.number="collectionDetails.maxSize" clearable :dark="dark" placeholder="Same as Media Library" type="number" />
+              </div>
+              <div class="input-row">
+                <span>Allowed file extensions (no dot):</span>
+                <MbTagInput v-model="collectionDetails.allowedTypes" allow-unsuggested :dark="dark" :placeholder="!collectionDetails.allowedTypes || !collectionDetails.allowedTypes.length ? 'Any' : 'New extension…'" />
+              </div>
+            </template>
           </section>
           <section>
             <h3>Linking</h3>
@@ -107,17 +119,21 @@ export default {
     },
     permissions() {
       const permissions = [
-        { label: 'create content', value: 'createContent' },
         { label: 'create folders', value: 'createFolder' },
         { label: 'delete content', value: 'deleteContent' },
         { label: 'delete folders', value: 'deleteFolder' },
-        { label: 'edit content', value: 'editContent' },
         { label: 'edit folders', value: 'editFolder' },
         { label: 'do everything', value: 'everything' },
       ];
 
-      if (this.currentProject.draftsDir) permissions.push({ label: 'publish drafts', value: 'publishDrafts' });
-      if (this.currentProject.previewUrl && !this.collectionDetails.disablePreview && !this.collectionDetails.disableComments) permissions.unshift({ label: 'leave comments', value: 'comment' }); // inserting at the top to preserve alphabetical order
+      if (this.collectionDetails.type !== 'media') {
+        permissions.unshift({ label: 'create content', value: 'createContent' });
+        permissions.splice(3, 0, { label: 'edit content', value: 'editContent' }); // using splice so it’s right after "delete folders"
+        if (this.currentProject.draftsDir) permissions.push({ label: 'publish drafts', value: 'publishDrafts' });
+        if (this.currentProject.previewUrl && !this.collectionDetails.disablePreview && !this.collectionDetails.disableComments) permissions.unshift({ label: 'leave comments', value: 'comment' }); // inserting at the top to preserve alphabetical order
+      } else {
+        permissions.unshift({ label: 'upload content', value: 'upload' });
+      }
 
       return permissions;
     },
@@ -171,12 +187,14 @@ export default {
         type: 'primary',
       },
       defaultCollectionContent: {
+        allowedTypes: null,
         dir: null,
         disableComments: false,
         disablePreview: false,
         draftByDefault: false,
         schemas: [],
         linkable: false,
+        maxSize: null,
         permissions: {
           everybody: ['everything'],
         },
@@ -185,12 +203,14 @@ export default {
       },
       collectionBeingModified: null,
       collectionDetails: {
+        allowedTypes: null,
         dir: null,
         disableComments: false,
         disablePreview: false,
         draftByDefault: false,
         schemas: [],
         linkable: false,
+        maxSize: null,
         permissions: {},
         type: 'json',
         urlTemplate: '',
@@ -204,32 +224,65 @@ export default {
     };
   },
   methods: {
-    deleteCollection(path) {
-      const timeout = 5000;
-      const timeoutId = window.setTimeout(async () => {
-        try {
-          await fs.unlink(path);
-          if (this.$refs.fileList) await this.$refs.fileList.refresh(); // we might be somewhere else already
-          this.$store.commit('removeLocallyChangedFile', path);
-          this.$store.dispatch('saveAppData');
-        } catch (err) {
-          this.$store.commit('addToast', { message: `Something went wrong while deleting the collection: ${err.message}`, type: 'error' });
-        } finally {
-          window.clearTimeout(timeoutId);
-          this.$store.commit('removeFromSoftDeleted', path);
-        }
-      }, timeout);
+    cleanCollectionDetails(type) {
+      if (type === 'media') {
+        this.collectionDetails.allowedTypes = ['pdf', 'zip'];
+        this.collectionDetails.disableComments = true;
+        this.collectionDetails.disablePreview = true;
+        this.collectionDetails.draftByDefault = false;
+        this.collectionDetails.linkable = true;
+        this.collectionDetails.schemas = [];
 
+        if (!this.collectionDetails.urlTemplate) this.collectionDetails.urlTemplate = '/:filepath.content\\.:fileExtension';
+
+        const cleanPermissions = {};
+        Object.keys(this.collectionDetails.permissions).forEach((key) => {
+          const editPermissionIndex = this.collectionDetails.permissions[key].indexOf('editContent');
+          const createPermissionIndex = this.collectionDetails.permissions[key].indexOf('createContent');
+
+          if (editPermissionIndex > -1) this.collectionDetails.permissions[key].splice(editPermissionIndex, 1);
+          if (createPermissionIndex > -1) this.collectionDetails.permissions[key].splice(createPermissionIndex, 1, 'upload');
+          if (this.collectionDetails.permissions[key].length) cleanPermissions[key] = this.collectionDetails.permissions[key];
+        });
+        this.collectionDetails.permissions = cleanPermissions;
+      } else {
+        this.collectionDetails.maxSize = null;
+        this.collectionDetails.allowedTypes = [];
+
+        const cleanPermissions = {};
+        Object.keys(this.collectionDetails.permissions).forEach((key) => {
+          const uploadPermissionIndex = this.collectionDetails.permissions[key].indexOf('upload');
+
+          if (uploadPermissionIndex > -1) this.collectionDetails.permissions[key].splice(uploadPermissionIndex, 1, 'createContent');
+          if (this.collectionDetails.permissions[key].length) cleanPermissions[key] = this.collectionDetails.permissions[key];
+        });
+        this.collectionDetails.permissions = cleanPermissions;
+      }
+    },
+    deleteCollection(path) {
       if (this.collectionBeingModified === path) this.showSplit = false;
       this.$store.commit('addToSoftDeleted', path);
       this.$store.commit('addToast', {
         action: () => {
-          window.clearTimeout(timeoutId);
           this.$store.commit('removeFromSoftDeleted', path);
         },
         actionLabel: 'Undo',
         message: 'The collection was deleted',
-        timeout: timeout - 200,
+        onClose: async (undone) => {
+          if (undone) return;
+
+          try {
+            await fs.unlink(path);
+            if (this.$refs.fileList) await this.$refs.fileList.refresh(); // we might be somewhere else already
+            this.$store.commit('removeLocallyChangedFile', path);
+            this.$store.dispatch('saveAppData');
+          } catch (err) {
+            this.$store.commit('addToast', { message: `Something went wrong while deleting the collection: ${err.message}`, type: 'error' });
+          } finally {
+            this.$store.commit('removeFromSoftDeleted', path);
+          }
+        },
+        timeout: 5000,
         type: 'warning',
       });
     },
@@ -354,7 +407,8 @@ export default {
         color: $text-secondary-dark
 
     .file-picker,
-    .input
+    .input,
+    .tag-input
       background-color: $bg-tertiary-dark
 
     .item-list::v-deep(.item.dark)
@@ -422,7 +476,8 @@ export default {
           margin-top: 0.5rem
           width: 100%
 
-    .input
+    .input,
+    .tag-input
       margin-top: 0
 
     .toggle:not(:last-child)
