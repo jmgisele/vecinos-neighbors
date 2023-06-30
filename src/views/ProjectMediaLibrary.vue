@@ -77,6 +77,8 @@ import generateDefaultContentFromSchema from '../assets/js/generateDefaultConten
 import humanReadableSize from '../assets/js/humanReadableSize';
 import prettifyEntityName from '../assets/js/prettifyEntityName';
 import rgbToHex from '../assets/js/rgbToHex';
+import getFilenameAndExtension from '../assets/js/getFilenameAndExtension';
+import { imageRegExp } from '../data/regExps';
 
 import isPrivilegedUser from '../mixins/isPrivilegedUser';
 import updateLocallyChangedFiles from '../mixins/updateLocallyChangedFiles';
@@ -85,7 +87,6 @@ import EntityMoveModal from '../components/utility/EntityMoveModal.vue';
 import EntityRenameModal from '../components/utility/EntityRenameModal.vue';
 import MediaCreationModal from '../components/utility/MediaCreationModal.vue';
 import TabContent from '../components/utility/TabContent.vue';
-import getFilenameAndExtension from '../assets/js/getFilenameAndExtension';
 
 export default {
   beforeUnmount() {
@@ -257,7 +258,7 @@ export default {
         type: null,
         width: null,
       },
-      imageRegExp: /\.(gif|jpg|jpeg|tiff|png|webp|svg)$/i,
+      imageRegExp,
       listedFiles: 0,
       showEntityCreation: false,
       showEntityMove: false,
