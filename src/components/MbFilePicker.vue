@@ -36,7 +36,10 @@ export default {
   computed: {
     allowedTypes() {
       if (!this.filetypes) return null;
-      return this.filetypes.map((type) => `.${type}`).join(',');
+      return this.filetypes.map((type) => {
+        if (!String(type).startsWith('.')) return `.${type}`;
+        return type;
+      }).join(',');
     },
     label() {
       if (this.modelValue) return this.modelValue;
