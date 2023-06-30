@@ -340,6 +340,12 @@ export default {
         field: null,
         options: [
           {
+            action: this.handleAddFieldAtIndex,
+            label: 'Add new field below',
+            icon: 'plus',
+            type: 'positive',
+          },
+          {
             action: this.handleContextMenuEdit,
             label: 'Edit',
             icon: 'pencil',
@@ -364,12 +370,6 @@ export default {
             label: 'Delete',
             icon: 'trash',
             type: 'negative',
-          },
-          {
-            action: this.handleAddFieldAtIndex,
-            label: 'Add new field below',
-            icon: 'plus',
-            type: 'positive',
           },
         ],
         show: false,
