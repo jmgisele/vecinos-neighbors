@@ -3,7 +3,20 @@ currentVersion: 0.5.0
 updatedAt: 2023-06-23
 ---
 
-## Version 0.5.1 Beta
+## Version 0.6.0 Beta
+
+### New Features
+
+* There is a new Collection type: Media Collections. They allow users to
+  upload media files into dedicated Collections outside the Media Library
+  and allow for making these files linkable through link fields. You can
+  learn more about the feature in the [official documentation](https://mattrbld.com/docs/media-collections/)
+
+### Other Changes
+
+* File and Image fields no longer have a maximum file size set by default
+  since it is usually preferable to use the maximum file size set in the
+  Media Library settings
 
 ### Bugfixes
 
@@ -11,6 +24,7 @@ updatedAt: 2023-06-23
   after their deletion
 * The project thumbnail of a project is now correctly re-fetched if the
   deletion of a project is undone
+* Files uploaded through the file field will now be slugified correctly
 
 ## Version 0.5.0 Beta
 
