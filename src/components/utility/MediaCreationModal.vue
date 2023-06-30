@@ -91,7 +91,8 @@ export default {
       this.dragActive = false;
       this.newFolderError = '';
       this.newFolderName = '';
-      this.$emit('update-type', 'upload');
+      if (this.permissions.has('everything') || this.permissions.has('upload')) this.$emit('update-type', 'upload');
+      else this.$emit('update-type', 'directory');
     },
     async saveFiles(files) {
       this.$emit('update-type', 'uploading');
@@ -210,8 +211,12 @@ export default {
         opacity: 0
 
   .input-group
+    &:first-child
+      margin-top: 1.5rem
+
     .input
       width: 100%
+      margin-top: 0
       margin-bottom: 0.5rem
 
     .name-hint
