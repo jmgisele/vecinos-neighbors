@@ -242,6 +242,8 @@ export default {
     window.addEventListener('dragover', this.preventWindowDragEvent);
     window.addEventListener('dragleave', this.handleWindowDragLeave);
     window.addEventListener('drop', this.preventWindowDragEvent);
+
+    if (!this.userPermissions.has('everything') && !this.userPermissions.has('upload')) this.type = 'directory';
   },
   data() {
     return {
