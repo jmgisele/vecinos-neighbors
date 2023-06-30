@@ -507,7 +507,7 @@ export default [
       },
     ],
     tab: null,
-    validation: { max: 1, required: false, unit: 'filesize (MB)' },
+    validation: { max: null, required: false, unit: 'filesize (MB)' },
     value: null,
     version: 1,
     visibility: { hidden: false, showByValue: { field: null } },
@@ -730,7 +730,7 @@ export default [
     ],
     tab: null,
     validation: {
-      max: 1, required: false, unit: 'filesize (MB)',
+      max: null, required: false, unit: 'filesize (MB)',
     },
     value: null,
     version: 2,
