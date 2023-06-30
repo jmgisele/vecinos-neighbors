@@ -13,7 +13,7 @@
         <p v-if="!singleFile" :class="{ dark }">Drop media files here to upload them, or select some by clicking the button below</p>
         <p v-else :class="{ dark }">Drop a media file here to upload it, or select one by clicking the button below</p>
         <MbButton :dark="dark" icon="upload" @click="selectFiles">Select file{{singleFile ? '' : 's'}}</MbButton>
-        <input :multiple="!singleFile" type="file" ref="modalFileInput" @change="handleFileInput">
+        <input :accept="acceptedTypes" :multiple="!singleFile" type="file" ref="modalFileInput" @change="handleFileInput">
       </div>
     </transition>
     <template #actions>
@@ -32,9 +32,17 @@ import fs, { joinPath } from '../../fs';
 
 import slugifyFileName from '../../assets/js/slugifyFileName';
 import { imageRegExp } from '../../data/regExps';
+import getFilenameAndExtension from '../../assets/js/getFilenameAndExtension';
 
 export default {
   computed: {
+    acceptedTypes() {
+      if (!this.allowedTypes || !this.allowedTypes.length) return null;
+      return this.allowedTypes.map((type) => {
+        if (!String(type).startsWith('.')) return `.${type}`;
+        return type;
+      }).join(',');
+    },
     mediaSettings() {
       return this.$store.state.currentProject.media;
     },
@@ -109,6 +117,13 @@ export default {
           if (this.onlyImages && !imageRegExp.test(file.name)) {
             this.$store.commit('addToast', { message: `The file “${slugifiedFileName}” was not uploaded because it is not an image`, type: 'warning' });
             valid = false;
+          } else if (this.allowedTypes && this.allowedTypes.length) {
+            const { extension } = getFilenameAndExtension(file.name);
+
+            if (!this.allowedTypes.includes(extension)) {
+              this.$store.commit('addToast', { message: `The file “${slugifiedFileName}” was not uploaded because it is not of one of the allowed types: ${this.allowedTypes.join(', ')}`, type: 'warning' });
+              valid = false;
+            }
           }
 
           if (valid && maxSize) {
@@ -173,6 +188,7 @@ export default {
     }, 250, { leading: true }),
   },
   props: {
+    allowedTypes: Array,
     currentPath: String,
     dark: Boolean,
     maxSize: Number,
