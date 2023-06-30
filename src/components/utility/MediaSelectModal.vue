@@ -105,8 +105,8 @@ export default {
   emits: ['clear-image', 'close', 'file-selected', 'too-large-error', 'update-meta-is-new'],
   methods: {
     handleEntityCreated(paths, type) {
-      if (type === 'directory' && this.$refs.fileList) this.$refs.fileList.refresh();
-      else {
+      if (this.$refs.fileList) this.$refs.fileList.refresh();
+      if (type !== 'directory') {
         const [path] = paths;
         if (path) this.handleFileClick(path);
       }
