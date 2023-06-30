@@ -6,7 +6,7 @@
     </header>
     <main>
       <transition-group class="grid" tag="div" @before-leave="setGridPosition">
-        <MbProjectCard v-for="project in projectsWithoutSoftDeleted" :avatar="project.avatar" :dark="dark" :id="project.id" :key="project.id" :local-changes="project.localChanges" :name="project.name" :updated-at="project.updatedAt" @click="openProject(project.id)" @deleted="removeProject(project.id)" @delete-undo="refetchAvatar(project.id)" />
+        <MbProjectCard v-for="project in projectsWithoutSoftDeleted" :avatar="project.avatar" :dark="dark" :id="project.id" :key="project.id" :local-changes="project.localChanges" :name="project.name" :updated-at="project.updatedAt" @click="openProject(project.id)" @delete="deleteProject(project.id)" />
         <button class="add-project-button" :class="{dark}" key="addProjectButton" @click="showImportProject = true">
           <div class="icon-wrapper">
             <MbIcon icon="download" />
@@ -158,6 +158,54 @@ export default {
         this.showAdvancedSettings = false;
       }
       this.showImportProject = false;
+    },
+    deleteProject(id) {
+      const index = this.projects.findIndex((project) => project.id === id);
+      const project = this.projects[index];
+
+      this.$store.commit('addToSoftDeleted', `/projects/${id}`);
+      this.$store.commit('addToast', {
+        action: () => {
+          this.refetchAvatar(id);
+          this.$store.commit('removeFromSoftDeleted', `/projects/${id}`);
+        },
+        actionLabel: 'Undo',
+        closeOnRouteChange: true,
+        message: `${project.name} ${project.localChanges ? 'and all unpublished changes were' : 'was'} deleted`,
+        onClose: async (undone) => {
+          if (undone) return;
+          try {
+            // Check if another user references this project
+            const userFiles = await fs.readdir('/users');
+            const rawUserData = await Promise.all(userFiles.reduce((acc, file) => { if (file.endsWith('.json')) acc.push(fs.readFile(`/users/${file}`, 'utf8')); return acc; }, []));
+            const users = rawUserData.map((data) => JSON.parse(data));
+            const usersWithThisProject = users.reduce((acc, user) => {
+              if (user.projects.includes(id)) acc += 1; // eslint-disable-line no-param-reassign
+              return acc;
+            }, 0);
+            // if so, just remove it from the active user
+            this.$store.commit('removeProjectFromActiveUser', id);
+            await this.$store.dispatch('saveUser');
+            // otherwise also rmrf it
+            if (usersWithThisProject < 2) {
+              const projectPath = `/projects/${id}`;
+              await rmrf(projectPath);
+              this.$store.commit('removeLocallyChangedFolder', projectPath);
+              await this.$store.dispatch('saveAppData');
+            }
+            if (index > -1) {
+              this.projects.splice(index, 1);
+              this.refreshStorageQuota();
+            }
+          } catch (err) {
+            this.$store.commit('addToast', { message: `Something went wrong while deleting the project: ${err.message}`, type: 'error' });
+          } finally {
+            this.$store.commit('removeFromSoftDeleted', `/projects/${id}`);
+          }
+        },
+        timeout: 5000,
+        type: 'warning',
+      });
     },
     async fetchProjects() {
       this.loaded = false;
@@ -329,14 +377,12 @@ export default {
         const estimate = await navigator.storage.estimate();
         this.usedQuota = estimate.usage / estimate.quota;
       } catch (err) {
-        this.$store.commit('addToast', { message: 'We could not estimate how much storage Mattrbld is using on your device. Please be aware that you might have to periodically remove old projects to free some space', timeout: false, type: 'warning' });
-      }
-    },
-    removeProject(id) {
-      const index = this.projects.findIndex((project) => project.id === id);
-      if (index > -1) {
-        this.projects.splice(index, 1);
-        this.refreshStorageQuota();
+        this.$store.commit('addToast', {
+          message: 'We could not estimate how much storage Mattrbld is using on your device. Please be aware that you might have to periodically remove old projects to free some space',
+          id: 'storageWarning',
+          timeout: false,
+          type: 'warning',
+        });
       }
     },
     async renderLegalInfo() {
