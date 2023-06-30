@@ -22,6 +22,8 @@
 <script>
 import fs, { joinPath } from '../fs';
 
+import slugifyFileName from '../assets/js/slugifyFileName';
+
 import EntityCreationModal from './utility/EntityCreationModal.vue';
 
 export default {
@@ -107,16 +109,17 @@ export default {
       try {
         const arrayBuffer = await file.arrayBuffer();
         const existingFiles = await fs.readdir(this.currentPath);
-        const path = joinPath(this.currentPath, file.name);
+        const filenameWithExtension = slugifyFileName(file.name, this.$store.state.currentProject.slugifyOptions || { lowercase: false, decamelize: false, preserveLeadingUnderscore: true });
+        const path = joinPath(this.currentPath, filenameWithExtension);
 
         if (!arrayBuffer) {
-          this.$store.commit('addToast', { message: `“${file.name}” was not uploaded because it is a folder`, type: 'warning' });
+          this.$store.commit('addToast', { message: `“${filenameWithExtension}” was not uploaded because it is a folder`, type: 'warning' });
           this.uploading = false;
           return;
         }
 
-        if (existingFiles.includes(file.name)) {
-          this.$store.commit('addToast', { message: `The file “${file.name}” was not uploaded because it already exists in this folder`, type: 'warning' });
+        if (existingFiles.includes(filenameWithExtension)) {
+          this.$store.commit('addToast', { message: `The file “${filenameWithExtension}” was not uploaded because it already exists in this folder`, type: 'warning' });
           this.uploading = false;
           return;
         }
