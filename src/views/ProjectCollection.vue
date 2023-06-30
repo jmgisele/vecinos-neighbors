@@ -705,6 +705,11 @@ export default {
   props: {
     dark: Boolean,
   },
+  watch: {
+    allowedFileTypes() {
+      this.refreshFileList();
+    },
+  },
 };
 </script>
 
