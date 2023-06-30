@@ -1,6 +1,6 @@
 ---
-currentVersion: 0.5.0
-updatedAt: 2023-06-23
+currentVersion: 0.6.0
+updatedAt: 2023-06-30
 ---
 
 ## Version 0.6.0 Beta
