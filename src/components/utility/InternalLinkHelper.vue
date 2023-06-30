@@ -23,7 +23,7 @@
         </ul>
       </div>
       <div v-else-if="view === 'files'" class="view files" :class="{ dark }" key="files">
-        <MbFileList :dark="dark" :empty-state="{ noFiles: 'There are no content items in this directory', noFolders: 'There are no folders in this directory', empty: 'There are no content items in this collection' }" file-list-label="Content Items" :filetypes="[filetype]" :folders-first="false" pretty-filenames :root="currentRoot" :sortable="false" @fileclick="handleFileClick" />
+        <MbFileList :dark="dark" :empty-state="{ noFiles: 'There are no content items in this directory', noFolders: 'There are no folders in this directory', empty: 'There are no content items in this collection' }" file-list-label="Content Items" :filetypes="filetype === 'media' ? null : [filetype]" :folders-first="false" pretty-filenames :root="currentRoot" :sortable="false" @fileclick="handleFileClick" />
         <MbButton :dark="dark" icon="chevron-left" @click="linkableCollections.length === 1 ? view = 'url' : view = 'collections'">Back</MbButton>
       </div>
       <div v-else-if="view === 'loading'" class="view loading" key="loading">
@@ -95,6 +95,7 @@ export default {
           let fields;
           if (this.filetype === 'json') fields = { ...defaultFields, ...JSON.parse(await fs.readFile(path, 'utf8')) };
           else if (this.filetype === 'md') fields = { ...defaultFields, ...matter(await fs.readFile(path, 'utf8')).data };
+          else fields = { ...defaultFields };
 
           const urlTemplate = this.urlTemplate || this.currentTemplate; // if we were passed a urlTemplate, use that, otherwise fall back to the collection’s urlTemplate
 
