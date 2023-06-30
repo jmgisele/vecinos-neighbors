@@ -3,6 +3,15 @@ currentVersion: 0.5.0
 updatedAt: 2023-06-23
 ---
 
+## Version 0.5.1 Beta
+
+### Bugfixes
+
+* The skeletons of deleted projects will no longer show up again right
+  after their deletion
+* The project thumbnail of a project is now correctly re-fetched if the
+  deletion of a project is undone
+
 ## Version 0.5.0 Beta
 
 ### New Features
