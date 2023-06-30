@@ -85,6 +85,7 @@ import EntityMoveModal from '../components/utility/EntityMoveModal.vue';
 import EntityRenameModal from '../components/utility/EntityRenameModal.vue';
 import MediaCreationModal from '../components/utility/MediaCreationModal.vue';
 import TabContent from '../components/utility/TabContent.vue';
+import getFilenameAndExtension from '../assets/js/getFilenameAndExtension';
 
 export default {
   beforeUnmount() {
@@ -410,14 +411,9 @@ export default {
       const replacement = e.currentTarget.files[0];
       e.currentTarget.value = '';
 
-      function getExtension(path) {
-        const filename = pathBasename(path);
-        return filename.slice((Math.max(0, filename.lastIndexOf('.')) || Infinity) + 1);
-      }
-
       if (!replacement) {
         this.$store.commit('addToast', { message: 'No file was selected, the replacement was aborted', type: 'warning' });
-      } else if (getExtension(this.entityBeingModified) !== getExtension(replacement.name)) {
+      } else if (getFilenameAndExtension(this.entityBeingModified).extension !== getFilenameAndExtension(replacement.name).extension) {
         this.$store.commit('addToast', { message: 'The file could not be replaced because the selected file isn’t of the same type', type: 'negative' });
       } else {
         try {
