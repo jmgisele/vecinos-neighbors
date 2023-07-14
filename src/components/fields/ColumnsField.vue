@@ -4,7 +4,7 @@
       <p class="label">{{transformedLabel}}</p>
       <p v-show="empty" class="empty-state">This field is empty</p>
       <MbSortableList v-if="displayItems.length > 0" v-slot="{ activeItem, item, index }" class="columns" :class="[columns]" direction="horizontal" enable-transitions :items="uniqueItemKeys" @itemclick="openDetails" @itemmove="handleItemMove">
-        <div class="column-item compact" :class="{ active: active && indexBeingEdited === index, 'being-dragged': item === activeItem, dark, error: errorForIndex(index), 'in-split': inSplit }" tabindex="0" @contextmenu.prevent="openContextMenu($event, index)" @keydown.space.prevent @keyup.space.enter="openDetails(index)">
+        <div class="column-item compact" :class="{ active: active && indexBeingEdited === index, 'being-dragged': item === activeItem, dark, error: errorForIndex(index), 'in-split': inSplit }" tabindex="0" @contextmenu.prevent="openContextMenu($event, index)" @keydown.space.prevent @keyup.space.enter="openDetails(index)" @mouseenter="showValueTooltip($event, index)">
           <div class="drag-handle" data-drag-handle>
             <MbIcon icon="drag-handle" />
           </div>

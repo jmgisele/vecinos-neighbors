@@ -21,7 +21,7 @@
               <img :src="fileDetails.image" :alt="fileDetails.alt || 'Error loading file'" @load="setImageResolutionAndColor">
             </div>
             <dl v-show="fileDetails.name" class="meta">
-              <dl>
+              <dl @mouseenter="showPathTooltip">
                 <dt>Name:</dt>
                 <dd>{{fileDetails.name}}</dd>
               </dl>
@@ -504,6 +504,15 @@ export default {
         if (process.env.NODE_ENV !== 'production') console.warn(err);
         // do nothing, it’s not that important
       }
+    },
+    showPathTooltip(e) {
+      if (!this.fileDetails.name) return;
+
+      const tooltip = {
+        message: this.fileDetails.name,
+        target: e.currentTarget,
+      };
+      this.$store.commit('setTooltip', tooltip);
     },
     updateMediaMetaFile: debounce(async function (newMeta) { // eslint-disable-line func-names
       if (this.fileDetails.errors.size > 0) return; // don’t save invalid values

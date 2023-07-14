@@ -1,5 +1,5 @@
 <template lang="html">
-  <div class="file-picker" :class="{ dark }" tabindex="0" @click="activate" @keydown.space.prevent @keyup.space.enter="activate">
+  <div class="file-picker" :class="{ dark }" tabindex="0" @click="activate" @keydown.space.prevent @keyup.space.enter="activate" @mouseenter="showPathTooltip">
     <MbIcon :icon="mode === 'folder' ? 'folder' : 'document'" />
     <span class="label" :class="{ placeholder: !modelValue }">{{label}}</span>
     <MbButton v-if="removable" v-show="modelValue" :dark="dark" icon="cross" ref="removeButton" rounded tooltip="Clear path" @click="$emit('update:modelValue', null)" />
@@ -138,6 +138,15 @@ export default {
       }
 
       this.uploading = false;
+    },
+    showPathTooltip(e) {
+      if (!this.modelValue) return;
+
+      const tooltip = {
+        message: this.modelValue,
+        target: e.currentTarget,
+      };
+      this.$store.commit('setTooltip', tooltip);
     },
   },
   props: {

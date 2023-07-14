@@ -1,6 +1,6 @@
 <template lang="html">
   <section class="image field">
-    <div class="display-wrapper" :class="{ active, dark, error: cleanError, 'in-split': inSplit, 'no-display-value': !displayValue, warning: resolutionWarning }" tabindex="0" @click="openDetails" @keyup.enter.space="openDetails" @keydown.space.prevent>
+    <div class="display-wrapper" :class="{ active, dark, error: cleanError, 'in-split': inSplit, 'no-display-value': !displayValue, warning: resolutionWarning }" tabindex="0" @click="openDetails" @keyup.enter.space="openDetails" @keydown.space.prevent @mouseenter="showPathTooltip">
       <div class="image-wrapper" :class="{ dark }">
         <transition mode="out-in">
           <img v-if="image" class="hidden" draggable="false" :src="image" alt="Image not found" @load="handlePreviewLoad">
@@ -25,7 +25,7 @@
             </div>
           </div>
           <dl v-show="modelValue && modelValue.src" class="meta" :class="{ dark, 'in-split': teleportTarget }">
-            <dl>
+            <dl @mouseenter="showNameTooltip">
               <dt>Name:</dt>
               <dd>{{fileDetails.name}}</dd>
             </dl>
@@ -283,6 +283,24 @@ export default {
         if (process.env.NODE_ENV !== 'production') console.warn(err);
         // do nothing, it’s not that important
       }
+    },
+    showNameTooltip(e) {
+      if (!this.fileDetails.name) return;
+
+      const tooltip = {
+        message: this.fileDetails.name,
+        target: e.currentTarget,
+      };
+      this.$store.commit('setTooltip', tooltip);
+    },
+    showPathTooltip(e) {
+      if (!this.modelValue) return;
+
+      const tooltip = {
+        message: this.displayValue,
+        target: e.currentTarget,
+      };
+      this.$store.commit('setTooltip', tooltip);
     },
     updateMeta(newValue) {
       this.handleInput(newValue);

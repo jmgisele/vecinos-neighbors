@@ -411,6 +411,15 @@ export default {
       this.itemContextMenu.x = 0;
       this.itemContextMenu.y = 0;
     },
+    showValueTooltip(e, index) {
+      if (!this.displayItems[index]?.displayValue) return;
+
+      const tooltip = {
+        message: this.displayItems[index]?.displayValue,
+        target: e.currentTarget,
+      };
+      this.$store.commit('setTooltip', tooltip);
+    },
     updateErrorIndices(changedIndex = 0, newIndex = 0) {
       if (!(this.error instanceof Map)) return;
       const newError = new Map();

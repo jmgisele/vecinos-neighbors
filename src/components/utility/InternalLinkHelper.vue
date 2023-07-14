@@ -1,7 +1,7 @@
 <template lang="html">
   <div class="internal-link-helper">
     <transition mode="out-in">
-      <div v-if="view === 'url'" class="view url" :class="{ dark }" key="url" tabindex="0" @click="activate" @keydown.space.prevent @keyup.space.enter="activate">
+      <div v-if="view === 'url'" class="view url" :class="{ dark }" key="url" tabindex="0" @click="activate" @keydown.space.prevent @keyup.space.enter="activate" @mouseenter="showPathTooltip">
         <MbIcon icon="document-link" />
         <span class="label" :class="{ placeholder: !modelValue }">{{modelValue || placeholder}}</span>
         <MbButton v-if="removable" v-show="modelValue" class="remove-button" :dark="dark" icon="cross" ref="removeButton" rounded tooltip="Clear reference" @click="$emit('update:modelValue', null)" />
@@ -135,6 +135,15 @@ export default {
       } catch (err) {
         this.$store.commit('addToast', { message: `Something went wrong while fetching all linkable collections: ${err.message}`, type: 'error' });
       }
+    },
+    showPathTooltip(e) {
+      if (!this.modelValue) return;
+
+      const tooltip = {
+        message: this.modelValue,
+        target: e.currentTarget,
+      };
+      this.$store.commit('setTooltip', tooltip);
     },
   },
   props: {
