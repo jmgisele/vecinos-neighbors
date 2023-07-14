@@ -3,6 +3,12 @@ currentVersion: 0.6.0
 updatedAt: 2023-06-30
 ---
 
+## Version 0.7.0 Beta
+
+### New Features
+
+* Link, File, Image and Column fields now show the full file name when hovering
+
 ## Version 0.6.0 Beta
 
 ### New Features
