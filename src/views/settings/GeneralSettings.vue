@@ -353,27 +353,28 @@ export default {
     },
     removeAvatar() {
       const path = `/projects/${this.currentProject.id}/.mattrbld/avatar.jpg`;
-      const timeout = 5000;
-      const timeoutId = window.setTimeout(async () => {
-        try {
-          await fs.unlink(path);
-          this.$store.commit('addLocallyChangedFile', path);
-        } catch (err) {
-          this.$store.commit('addToast', { message: `Something went wrong while deleting the project avatar: ${err.message}`, type: 'error' });
-        }
-      }, timeout);
 
       this.avatar = null;
       this.$store.commit('setCurrentProjectProperty', { key: 'avatar', value: null });
 
       this.$store.commit('addToast', {
         action: async () => {
-          window.clearTimeout(timeoutId);
           await this.fetchAvatar();
           this.$store.commit('setCurrentProjectProperty', { key: 'avatar', value: this.avatar }); // might become an issue if the url is already revoked → then we just need to create a new object URL for this one
         },
         actionLabel: 'Undo',
         message: 'Deleted project avatar',
+        onClose: async (undone) => {
+          if (undone) return;
+
+          try {
+            await fs.unlink(path);
+            this.$store.commit('addLocallyChangedFile', path);
+          } catch (err) {
+            this.$store.commit('addToast', { message: `Something went wrong while deleting the project avatar: ${err.message}`, type: 'error' });
+          }
+        },
+        timeout: 5000,
         type: 'warning',
       });
     },

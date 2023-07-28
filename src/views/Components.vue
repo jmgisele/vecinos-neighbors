@@ -1649,28 +1649,26 @@ export default {
       this.fileContent = await fs.readFile(this.currentFile, 'utf8');
     },
     async softDeleteFile(path) {
-      const timeout = 5000;
-      const timeoutId = window.setTimeout(async () => {
-        try {
-          await rmrf(path);
-          await this.refreshFileList();
-        } catch (err) {
-          this.$store.commit('addToast', { message: `Something went wrong while deleting the file: ${err.message}`, type: 'error' });
-        } finally {
-          window.clearTimeout(timeoutId);
-          this.$store.commit('removeFromSoftDeleted', path);
-        }
-      }, timeout);
-
       this.$store.commit('addToSoftDeleted', path);
       this.$store.commit('addToast', {
         action: () => {
-          window.clearTimeout(timeoutId);
           this.$store.commit('removeFromSoftDeleted', path);
         },
         actionLabel: 'Undo',
         message: 'The file was soft-deleted',
-        timeout: timeout - 200,
+        onClose: async (undone) => {
+          if (undone) return;
+
+          try {
+            await rmrf(path);
+            await this.refreshFileList();
+          } catch (err) {
+            this.$store.commit('addToast', { message: `Something went wrong while deleting the file: ${err.message}`, type: 'error' });
+          } finally {
+            this.$store.commit('removeFromSoftDeleted', path);
+          }
+        },
+        timeout: 5000,
         type: 'warning',
       });
     },

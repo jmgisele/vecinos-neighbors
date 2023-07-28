@@ -140,19 +140,19 @@ export default {
     if (this.forceNavigation) return true;
     if (this.wasChanged) {
       // Massive HACK, but the old way of just running next() as a Toast-Callback is beyond broken in router-next (I’ve created an issue, but apparently it’s the desired behavior)
-      const timeout = 5000;
       let resolvePromise;
-
-      const timeoutId = window.setTimeout(() => resolvePromise(false), timeout);
 
       this.$store.commit('addToast', {
         action: () => {
-          window.clearTimeout(timeoutId);
           resolvePromise(true);
         },
         actionLabel: 'Discard changes',
         message: 'You have unsaved changes, do you want to discard them?',
-        timeout: timeout - 200,
+        onClose: (confirmed) => {
+          if (confirmed) return;
+          resolvePromise(false);
+        },
+        timeout: 5000,
         type: 'warning',
       });
 
@@ -273,21 +273,6 @@ export default {
     },
     deleteSchema() {
       const { id, path } = this.$route.params;
-      const timeout = 5000;
-      const timeoutId = window.setTimeout(async () => {
-        try {
-          await fs.unlink(path);
-          this.$store.commit('removeLocallyChangedFile', path);
-          this.$store.dispatch('saveAppData');
-        } catch (err) {
-          this.$store.commit('addToast', { message: `Something went wrong while deleting the schema: ${err.message}`, type: 'error' });
-          this.$router.replace({ name: 'Edit Schema', params: { id, path } });
-        } finally {
-          window.clearTimeout(timeoutId);
-          this.$store.commit('removeFromSoftDeleted', path);
-          this.$store.commit('setAppProperty', { key: 'temporarySchemaStorage', value: null });
-        }
-      }, timeout);
 
       this.showSchemaSettings = false;
       if (this.wasChanged) this.$store.commit('setAppProperty', { key: 'temporarySchemaStorage', value: cloneDeep(this.schema) });
@@ -295,13 +280,28 @@ export default {
       this.$store.commit('addToSoftDeleted', path);
       this.$store.commit('addToast', {
         action: () => {
-          window.clearTimeout(timeoutId);
           this.$store.commit('removeFromSoftDeleted', path);
           this.$router.replace({ name: 'Edit Schema', params: { id, path } });
         },
         actionLabel: 'Undo',
         message: `The schema “${this.schemaName}” was deleted`,
-        timeout: timeout - 200,
+        onClose: async (undone) => {
+          if (undone) return;
+
+          try {
+            await fs.unlink(path);
+            this.$store.commit('addLocallyChangedFile', path);
+            this.$store.dispatch('saveAppData');
+          } catch (err) {
+            this.$store.commit('addToast', { message: `Something went wrong while deleting the schema: ${err.message}`, type: 'error' });
+            this.$store.commit('removeLocallyChangedFile', path);
+            this.$router.replace({ name: 'Edit Schema', params: { id, path } });
+          } finally {
+            this.$store.commit('removeFromSoftDeleted', path);
+            this.$store.commit('setAppProperty', { key: 'temporarySchemaStorage', value: null });
+          }
+        },
+        timeout: 5000,
         type: 'warning',
       });
       this.$router.replace({ name: 'Project.Settings', params: { id }, query: { tab: 'schemas' } });
@@ -310,23 +310,22 @@ export default {
       if (this.tabBeingEdited.index === null || this.schema.tabs.length === 1) return;
       const { data: backup, index } = this.tabBeingEdited;
       const lastActiveTab = this.activeTab;
-      const timeout = 5000;
-      const timeoutId = window.setTimeout(() => {
-        this.schema.fields = this.schema.fields.filter((field) => field.tab !== backup.label);
-      }, timeout);
 
       this.schema.tabs.splice(this.tabBeingEdited.index, 1);
 
       this.showEditTab = false;
       this.$store.commit('addToast', {
         action: () => {
-          window.clearTimeout(timeoutId);
           this.schema.tabs.splice(index, 0, backup);
           this.activeTab = lastActiveTab;
         },
         actionLabel: 'Undo',
         message: `The tab “${backup.label}” and all its fields were deleted`,
-        timeout: timeout - 200,
+        onClose: (undone) => {
+          if (undone) return;
+          this.schema.fields = this.schema.fields.filter((field) => field.tab !== backup.label);
+        },
+        timeout: 5000,
         type: 'warning',
       });
       this.wasChanged = true;

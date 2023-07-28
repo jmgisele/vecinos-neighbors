@@ -56,22 +56,20 @@ export default {
       this.updateModelValue();
     },
     deleteRule(rule) {
-      const timeout = 5000;
-      const timeoutId = window.setTimeout(() => {
-        window.clearTimeout(timeoutId);
-        this.rules = this.rules.filter((existingRule) => existingRule !== rule);
-        this.updateModelValue();
-      }, timeout);
-
       this.softDeleted.add(rule);
       this.$store.commit('addToast', {
         action: () => {
-          window.clearTimeout(timeoutId);
           this.softDeleted.delete(rule);
         },
         actionLabel: 'Undo',
         message: 'The rule was deleted',
-        timeout: timeout - 200,
+        onClose: (undone) => {
+          if (undone) return;
+
+          this.rules = this.rules.filter((existingRule) => existingRule !== rule);
+          this.updateModelValue();
+        },
+        timeout: 5000,
         type: 'warning',
       });
     },

@@ -347,43 +347,41 @@ export default {
       if (this.avatarUploaded) this.avatarUploaded = false;
     },
     removeCustomRole(index, { value, label, accessLevel }) {
-      const timeout = 5000;
-      const timeoutId = window.setTimeout(async () => {
-        // find all users that have the role being deleted
-        const usersWithRole = this.currentProject.users.filter((user) => user.role === value);
-
-        try {
-          if (usersWithRole.length > 0) {
-            const promises = usersWithRole.map((user) => {
-              const userCopy = { ...user, role: accessLevel }; // reset the role to its access level
-              const userPath = `/projects/${this.currentProject.id}/.mattrbld/users/${user.id}.json`;
-              this.$store.commit('addLocallyChangedFile', userPath);
-              this.updateUser(userCopy);
-              return fs.writeFile(`/projects/${this.currentProject.id}/.mattrbld/users/${user.id}.json`, JSON.stringify(userCopy, null, 2), 'utf8');
-            });
-
-            await Promise.all(promises);
-          }
-          const customRoles = [...this.currentProject.customRoles];
-          customRoles.splice(index, 1);
-          this.$store.commit('setCurrentProjectProperty', { key: 'customRoles', value: customRoles });
-          this.$store.dispatch('saveCurrentProject');
-        } catch (err) {
-          this.$store.commit('addToast', { message: `Something went wrong while deleting the custom role: ${err.message}`, type: 'error' });
-        } finally {
-          this.$store.commit('removeFromSoftDeleted', `customRole/${value}`);
-        }
-      }, timeout);
-
       this.$store.commit('addToSoftDeleted', `customRole/${value}`);
       this.$store.commit('addToast', {
         action: () => {
-          window.clearTimeout(timeoutId);
           this.$store.commit('removeFromSoftDeleted', `customRole/${value}`);
         },
         actionLabel: 'Undo',
         message: `The custom role “${label}” was deleted`,
-        timeout: timeout - 200, // just to be sure
+        onClose: async (undone) => {
+          if (undone) return;
+          // find all users that have the role being deleted
+          const usersWithRole = this.currentProject.users.filter((user) => user.role === value);
+
+          try {
+            if (usersWithRole.length > 0) {
+              const promises = usersWithRole.map((user) => {
+                const userCopy = { ...user, role: accessLevel }; // reset the role to its access level
+                const userPath = `/projects/${this.currentProject.id}/.mattrbld/users/${user.id}.json`;
+                this.$store.commit('addLocallyChangedFile', userPath);
+                this.updateUser(userCopy);
+                return fs.writeFile(`/projects/${this.currentProject.id}/.mattrbld/users/${user.id}.json`, JSON.stringify(userCopy, null, 2), 'utf8');
+              });
+
+              await Promise.all(promises);
+            }
+            const customRoles = [...this.currentProject.customRoles];
+            customRoles.splice(index, 1);
+            this.$store.commit('setCurrentProjectProperty', { key: 'customRoles', value: customRoles });
+            this.$store.dispatch('saveCurrentProject');
+          } catch (err) {
+            this.$store.commit('addToast', { message: `Something went wrong while deleting the custom role: ${err.message}`, type: 'error' });
+          } finally {
+            this.$store.commit('removeFromSoftDeleted', `customRole/${value}`);
+          }
+        },
+        timeout: 5000,
         type: 'warning',
       });
     },
@@ -392,46 +390,46 @@ export default {
         this.$store.commit('addToast', { message: 'This user cannot be removed because there has to be at least one Project Owner per project', type: 'negative' });
         return;
       }
-      const timeout = 5000;
       const userBeingDeleted = this.userBeingEdited.id;
-      const timeoutId = window.setTimeout(async () => {
-        try {
-          const userPath = `/projects/${this.currentProject.id}/.mattrbld/users`;
-          await fs.unlink(`${userPath}/${userBeingDeleted}.json`);
-          try {
-            await fs.unlink(`${userPath}/${userBeingDeleted}.jpg`);
-          } catch (err) {
-            if (err.code !== 'ENOENT') throw err;
-          }
-
-          // delete user first the in-component users
-          let userIndex = this.users.findIndex((existingUser) => userBeingDeleted === existingUser.details.id);
-          if (userIndex > -1) this.users.splice(userIndex, 1);
-
-          // then the ones in the store
-          userIndex = this.currentProject.users.findIndex((existingUser) => userBeingDeleted === existingUser.id);
-          const users = [...this.currentProject.users];
-          users.splice(userIndex, 1);
-          this.$store.commit('setCurrentProjectProperty', { key: 'users', value: users });
-          this.$store.commit('removeLocallyChangedFile', `${userPath}/${userBeingDeleted}.json`);
-          this.$store.commit('removeLocallyChangedFile', `${userPath}/${userBeingDeleted}.jpg`);
-          await this.$store.dispatch('saveAppData');
-        } catch (err) {
-          this.$store.commit('addToast', { message: `Something went wrong while deleting the user: ${err.message}`, type: 'error' });
-        } finally {
-          this.$store.commit('removeFromSoftDeleted', `user/${this.currentProject.id}/${userBeingDeleted}`);
-        }
-      }, timeout);
 
       this.$store.commit('addToSoftDeleted', `user/${this.currentProject.id}/${userBeingDeleted}`);
       this.$store.commit('addToast', {
         action: () => {
-          window.clearTimeout(timeoutId);
           this.$store.commit('removeFromSoftDeleted', `user/${this.currentProject.id}/${userBeingDeleted}`);
         },
         actionLabel: 'Undo',
         message: `“${this.userBeingEdited.name}” was removed`,
-        timeout: timeout - 200, // just to be sure
+        onClose: async (undone) => {
+          if (undone) return;
+
+          try {
+            const userPath = `/projects/${this.currentProject.id}/.mattrbld/users`;
+            await fs.unlink(`${userPath}/${userBeingDeleted}.json`);
+            try {
+              await fs.unlink(`${userPath}/${userBeingDeleted}.jpg`);
+            } catch (err) {
+              if (err.code !== 'ENOENT') throw err;
+            }
+
+            // delete user first the in-component users
+            let userIndex = this.users.findIndex((existingUser) => userBeingDeleted === existingUser.details.id);
+            if (userIndex > -1) this.users.splice(userIndex, 1);
+
+            // then the ones in the store
+            userIndex = this.currentProject.users.findIndex((existingUser) => userBeingDeleted === existingUser.id);
+            const users = [...this.currentProject.users];
+            users.splice(userIndex, 1);
+            this.$store.commit('setCurrentProjectProperty', { key: 'users', value: users });
+            this.$store.commit('removeLocallyChangedFile', `${userPath}/${userBeingDeleted}.json`);
+            this.$store.commit('removeLocallyChangedFile', `${userPath}/${userBeingDeleted}.jpg`);
+            await this.$store.dispatch('saveAppData');
+          } catch (err) {
+            this.$store.commit('addToast', { message: `Something went wrong while deleting the user: ${err.message}`, type: 'error' });
+          } finally {
+            this.$store.commit('removeFromSoftDeleted', `user/${this.currentProject.id}/${userBeingDeleted}`);
+          }
+        },
+        timeout: 5000,
         type: 'warning',
       });
       this.showUserModal = false;

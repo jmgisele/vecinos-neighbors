@@ -97,19 +97,19 @@ export default {
     if (this.forceNavigation) return true;
     if (this.wasChanged) {
       // Massive HACK, but the old way of just running next() as a Toast-Callback is beyond broken in router-next (I’ve created an issue, but apparently it’s the desired behavior)
-      const timeout = 5000;
       let resolvePromise;
-
-      const timeoutId = window.setTimeout(() => resolvePromise(false), timeout);
 
       this.$store.commit('addToast', {
         action: () => {
-          window.clearTimeout(timeoutId);
           resolvePromise(true);
         },
         actionLabel: 'Discard changes',
         message: 'You have unsaved changes, do you want to discard them?',
-        timeout: timeout - 200,
+        onClose: (confirmed) => {
+          if (confirmed) return;
+          resolvePromise(false);
+        },
+        timeout: 5000,
         type: 'warning',
       });
 

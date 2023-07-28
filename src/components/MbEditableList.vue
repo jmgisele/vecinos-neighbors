@@ -83,22 +83,20 @@ export default {
       if (this.mode === 'advanced') this.$refs.labelInput.focus();
     },
     deleteItem(item) {
-      const timeout = 5000;
-      const timeoutId = window.setTimeout(() => {
-        window.clearTimeout(timeoutId);
-        this.model.items = this.model.items.filter((existingItem) => existingItem !== item);
-        this.updateModelValue();
-      }, timeout);
-
       this.softDeleted.add(item);
       this.$store.commit('addToast', {
         action: () => {
-          window.clearTimeout(timeoutId);
           this.softDeleted.delete(item);
         },
         actionLabel: 'Undo',
         message: `“${item.label || item.value || item}” was deleted`,
-        timeout: timeout - 200,
+        onClose: (undone) => {
+          if (undone) return;
+
+          this.model.items = this.model.items.filter((existingItem) => existingItem !== item);
+          this.updateModelValue();
+        },
+        timeout: 5000,
         type: 'warning',
       });
     },

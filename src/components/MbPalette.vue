@@ -42,21 +42,19 @@ export default {
       this.newColor.label = '';
     },
     deleteColor(color) {
-      const timeout = 5000;
-      const timeoutId = window.setTimeout(() => {
-        window.clearTimeout(timeoutId);
-        this.$emit('update:modelValue', this.modelValue.filter((existingColor) => existingColor !== color));
-      }, timeout);
-
       this.softDeleted.add(color);
       this.$store.commit('addToast', {
         action: () => {
-          window.clearTimeout(timeoutId);
           this.softDeleted.delete(color);
         },
         actionLabel: 'Undo',
         message: `The color “${color.label}” was deleted`,
-        timeout: timeout - 200,
+        onClose: (undone) => {
+          if (undone) return;
+
+          this.$emit('update:modelValue', this.modelValue.filter((existingColor) => existingColor !== color));
+        },
+        timeout: 5000,
         type: 'warning',
       });
     },
