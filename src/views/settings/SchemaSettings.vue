@@ -94,32 +94,30 @@ export default {
   },
   methods: {
     async deleteEntity(path) {
-      const timeout = 5000;
       const isFile = (await fs.stat(path)).isFile();
-      const timeoutId = window.setTimeout(async () => {
-        try {
-          await rmrf(path);
-          if (this.$refs.fileList) await this.$refs.fileList.refresh();
-          if (isFile) this.$store.commit('removeLocallyChangedFile', path);
-          else this.$store.commit('removeLocallyChangedFolder', path);
-          this.$store.dispatch('saveAppData');
-        } catch (err) {
-          this.$store.commit('addToast', { message: `Something went wrong while deleting the ${isFile ? 'schema' : 'folder'}: ${err.message}`, type: 'error' });
-        } finally {
-          window.clearTimeout(timeoutId);
-          this.$store.commit('removeFromSoftDeleted', path);
-        }
-      }, timeout);
-
       this.$store.commit('addToSoftDeleted', path);
       this.$store.commit('addToast', {
         action: () => {
-          window.clearTimeout(timeoutId);
           this.$store.commit('removeFromSoftDeleted', path);
         },
         actionLabel: 'Undo',
         message: `The ${isFile ? 'schema was' : 'folder and all schemas within have been'} deleted`,
-        timeout: timeout - 200,
+        onClose: async (undone) => {
+          if (undone) return;
+
+          try {
+            if (!isFile) await this.updateLocallyChangedFiles(path); // need to do this before the folder is removed so we can still grab the file paths
+            await rmrf(path);
+            if (this.$refs.fileList) await this.$refs.fileList.refresh();
+            if (isFile) this.$store.commit('addLocallyChangedFile', path);
+            this.$store.dispatch('saveAppData');
+          } catch (err) {
+            this.$store.commit('addToast', { message: `Something went wrong while deleting the ${isFile ? 'schema' : 'folder'}: ${err.message}`, type: 'error' });
+          } finally {
+            this.$store.commit('removeFromSoftDeleted', path);
+          }
+        },
+        timeout: 5000,
         type: 'warning',
       });
     },

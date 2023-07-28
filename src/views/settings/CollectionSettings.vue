@@ -276,7 +276,7 @@ export default {
           try {
             await fs.unlink(path);
             if (this.$refs.fileList) await this.$refs.fileList.refresh(); // we might be somewhere else already
-            this.$store.commit('removeLocallyChangedFile', path);
+            this.$store.commit('addLocallyChangedFile', path);
             this.$store.dispatch('saveAppData');
           } catch (err) {
             this.$store.commit('addToast', { message: `Something went wrong while deleting the collection: ${err.message}`, type: 'error' });
