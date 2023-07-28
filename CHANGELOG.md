@@ -9,6 +9,10 @@ updatedAt: 2023-06-30
 
 * Link, File, Image and Column fields now show the full file name when hovering
 
+### Bugfixes
+
+* Files should now be marked as locally changed more reliably
+
 ## Version 0.6.0 Beta
 
 ### New Features
