@@ -29,7 +29,7 @@
             <MbButton v-if="modifiedFolderActions.length > 1" :dark="dark" icon="more-vertical" rounded tooltip="More" @click="openMenu($event, joinPath(currentPath, folder.name), true)" />
             <MbButton v-else-if="modifiedFolderActions.length === 1" :dark="dark" :icon="modifiedFolderActions[0].icon" rounded :tooltip="modifiedFolderActions[0].label" :type="modifiedFolderActions[0].type" @click="executeAction(modifiedFolderActions[0].action, joinPath(currentPath, folder.name))" />
           </header>
-          <p><span v-show="folder.localChanges" class="local-changes-indicator"/><span>{{prettyFilenames ? prettify(folder.name) : folder.name}}</span></p>
+          <p @mouseenter="showNameTooltip($event, folder.name)"><span v-show="folder.localChanges" class="local-changes-indicator"/><span>{{prettyFilenames ? prettify(folder.name) : folder.name}}</span></p>
           <p class="meta">{{formattedUpdatedAt(folder.updatedAt)}}</p>
         </div>
       </transition-group>
@@ -56,7 +56,7 @@
         </div>
         <footer>
           <div class="left">
-            <header>
+            <header @mouseenter="showNameTooltip($event, file.name)">
               <span v-show="file.localChanges" class="local-changes-indicator"/>
               <span>{{prettyFilenames ? prettify(file.name) : file.name}}</span>
               <MbChip v-if="file.isDraft" color="accent" label="Draft" />
@@ -404,6 +404,15 @@ export default {
     setRowPosition(el) {
       el.style.setProperty('left', `${el.dataset.offsetLeft}px`);
       el.style.setProperty('position', 'absolute');
+    },
+    showNameTooltip(e, name) {
+      if (!name) return;
+
+      const tooltip = {
+        message: name,
+        target: e.currentTarget,
+      };
+      this.$store.commit('setTooltip', tooltip);
     },
     sortEntities(type) {
       if (!type || !['files', 'folders'].includes(type)) {
