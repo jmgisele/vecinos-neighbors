@@ -8,6 +8,7 @@ updatedAt: 2023-06-30
 ### New Features
 
 * Link, File, Image and Column fields now show the full file name when hovering
+* Folders and thumbnails in the file browser now also show the full file name when hovering
 
 ### Bugfixes
 
