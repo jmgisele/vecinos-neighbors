@@ -1,18 +1,25 @@
 ---
-currentVersion: 0.6.0
-updatedAt: 2023-06-30
+currentVersion: 0.7.0
+updatedAt: 2023-11-18
 ---
 
 ## Version 0.7.0 Beta
 
 ### New Features
 
-* Link, File, Image and Column fields now show the full file name when hovering
-* Folders and thumbnails in the file browser now also show the full file name when hovering
+* Link, File, Image and Column fields now show the full file name when
+  hovering
+* Folders and thumbnails in the file browser now also show the full file
+  name when hovering
+* The "Prevent double spaces" option for rich text editors no longer
+  gets undone when pressing backspace
 
 ### Bugfixes
 
 * Files should now be marked as locally changed more reliably
+* Dashboard cards for projects still having static project IDs for sidebar
+  entries should no longer lead to unexpected behaviours (404 or Access
+  Denied screens)
 
 ## Version 0.6.0 Beta
 
