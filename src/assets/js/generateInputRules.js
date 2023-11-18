@@ -56,7 +56,7 @@ export default function generateInputRules(schema, userOptions = {}) {
   if (options.ellipsis) rules.push(new InputRule(/\.\.\.$/, '…'));
 
   // prevent double spaces
-  if (options.noDoubleSpace) rules.push(new InputRule(/ {2,}$/, ' '));
+  if (options.noDoubleSpace) rules.push(new InputRule(/ {2,}$/, ' ', { undoable: false }));
 
   if (options.noDoubleCaps) {
     rules.push(new InputRule(/(^|\s)[A-Z]{2}[a-z]+\W$/, (state, match, start, end) => {
