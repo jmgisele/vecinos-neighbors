@@ -115,7 +115,13 @@ export default {
     },
     sidebarCards() {
       const { sidebar } = this.$store.state.currentProject;
-      return sidebar.filter((entry) => entry.showInDashboard && entry.target && (!entry.limitToRoles || entry.limitToRoles.length === 0 || entry.limitToRoles.includes(this.$store.getters.userInCurrentProject.role)));
+      return sidebar
+        .filter((entry) => entry.showInDashboard && entry.target && (!entry.limitToRoles || entry.limitToRoles.length === 0 || entry.limitToRoles.includes(this.$store.getters.userInCurrentProject.role)))
+        .map((entry) => {
+          // old configs may still store static projectIDs in the sidebar, this ensures there's no unexpected results
+          if (entry.target.params?.id) entry.target.params.id = this.$store.state.currentProject.id; // eslint-disable-line no-param-reassign
+          return entry;
+        });
     },
     sortedNews() {
       if (this.newsLoading) return [];
