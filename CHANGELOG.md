@@ -1,7 +1,13 @@
 ---
-currentVersion: 0.7.0
-updatedAt: 2023-11-18
+currentVersion: 0.7.1
+updatedAt: 2024-02-18
 ---
+## Version 0.7.1 Beta
+
+### Bugfixes
+
+* Disabling Smartquotes for rich text fields outputting Markdown will
+  no longer cause the editor to crash
 
 ## Version 0.7.0 Beta
 
