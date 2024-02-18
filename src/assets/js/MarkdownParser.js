@@ -29,6 +29,7 @@ function wrapInFigurePlugin(md) {
 export default class MarkdownParser {
   constructor(options = { typographer: true, quotes: '“”‘’' }) {
     this.md = new MarkdownIt({ ...options, html: false, xhtmlOut: false }).use(wrapInFigurePlugin);
+    if (!options.quotes || typeof options.quotes !== 'string') this.md.disable('smartquotes');
   }
 
   parse(content) {
