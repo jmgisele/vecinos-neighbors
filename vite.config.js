@@ -24,7 +24,7 @@ export default defineConfig({
       include: ['buffer'], // buffer is needed for isomorphic-git
     }),
     createSvgoPlugin({
-      include: '/src/assets/icons/**/*.svg',
+      include: 'src/assets/icons/**/*.svg',
       svgo: {
         plugins: [
           {
