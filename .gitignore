@@ -31,3 +31,4 @@ deploy.sh
 
 # Misc
 cors-proxy.pid
+/dev-dist
