@@ -1,6 +1,4 @@
-@import 'breakpoints';
-@import 'colors';
-@import 'corners';
+@use './breakpoints.scss' as *;
 
 .split-title {
   margin-top: 0;

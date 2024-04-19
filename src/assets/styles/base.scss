@@ -1,5 +1,6 @@
-@use 'breakpoints';
-@use 'fonts';
+@use './breakpoints.scss' as *;
+@use './fonts.scss';
+@use './helpers.scss' as *;
 
 :root {
   --accent: #6c5ce7;
@@ -71,7 +72,7 @@ html {
     background-color: var(--bg);
 
     &.sidebar {
-      margin-left: 320 / 16 rem;
+      margin-left: rem(320);
 
       @media #{$tablet} {
         margin-left: 0;

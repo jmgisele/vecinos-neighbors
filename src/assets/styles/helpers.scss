@@ -1,0 +1,9 @@
+@use 'sass:math';
+
+@function rem($pixels) {
+  @if type-of($pixels)=='number' and not unitless($pixels) {
+    @return math.div(math.div($pixels, $pixels * 0 + 1), 16) * 1rem;
+  }
+
+  @return math.div($pixels, 16) * 1rem;
+}
