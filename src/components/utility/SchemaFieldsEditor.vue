@@ -197,11 +197,11 @@ import FieldArrangementList from './FieldArrangementList.vue';
 import FieldThumbnail from './FieldThumbnail.vue';
 import TabContent from './TabContent.vue';
 
-const requireComponent = require.context('../fields', false, /[A-Z]\w+\.(vue|js)$/);
-const fieldComponents = requireComponent.keys().reduce((acc, path) => {
-  const componentConfig = requireComponent(path);
-  const componentName = path.split('/').pop().replace(/\.\w+$/, '');
-  acc[componentName] = componentConfig.default || componentConfig; // eslint-disable-line no-param-reassign
+const modules = import.meta.glob('./fields/*.{vue,js}', { eager: true });
+
+const fieldComponents = Object.entries(modules).reduce((acc, [filePath, module]) => {
+  const componentName = filePath.split('/').pop().replace(/\.\w+$/, '');
+  acc[componentName] = module.default || module;
   return acc;
 }, {});
 
