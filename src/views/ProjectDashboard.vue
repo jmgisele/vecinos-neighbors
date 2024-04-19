@@ -76,7 +76,7 @@
 <script>
 import { formatDistanceToNow } from 'date-fns';
 import { log } from 'isomorphic-git';
-import * as matter from 'gray-matter';
+import matter from 'gray-matter';
 
 import CHANGELOG from '../../CHANGELOG.md?raw';
 

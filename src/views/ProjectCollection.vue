@@ -21,7 +21,7 @@
 
 <script>
 import pluralize from 'pluralize';
-import * as matter from 'gray-matter';
+import matter from 'gray-matter';
 import { set as _set } from 'lodash-es';
 import { v4 as uuidv4 } from 'uuid';
 

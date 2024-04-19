@@ -69,7 +69,7 @@
 import { cloneDeep } from 'lodash-es';
 import { status } from 'isomorphic-git';
 import slugify from '@sindresorhus/slugify';
-import * as matter from 'gray-matter';
+import matter from 'gray-matter';
 
 import fs, { exists, PlainFS, joinPath, pathBasename, pathDirname } from '../fs'; // eslint-disable-line object-curly-newline
 import { generateFieldCandidates, generateSchemaFromCandidates } from '../assets/js/generateSchemaFromFile';

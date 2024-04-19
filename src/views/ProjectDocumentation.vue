@@ -6,7 +6,7 @@
 </template>
 
 <script>
-import * as matter from 'gray-matter';
+import matter from 'gray-matter';
 
 import fs, { joinPath } from '../fs';
 import MarkdownParser from '../assets/js/MarkdownParser';

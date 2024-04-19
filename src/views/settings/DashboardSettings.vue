@@ -22,7 +22,7 @@
 </template>
 
 <script>
-import * as matter from 'gray-matter';
+import matter from 'gray-matter';
 import slugify from '@sindresorhus/slugify';
 import { formatISO } from 'date-fns';
 import { status as gitStatus } from 'isomorphic-git';

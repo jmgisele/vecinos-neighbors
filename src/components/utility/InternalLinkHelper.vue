@@ -34,7 +34,7 @@
 </template>
 
 <script>
-import * as matter from 'gray-matter';
+import matter from 'gray-matter';
 import fs, { joinPath, pathBasename, pathDirname } from '../../fs';
 
 import assembleUrlFromTemplate from '../../assets/js/assembleUrlFromTemplate';

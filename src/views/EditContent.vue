@@ -101,7 +101,7 @@ import {
 import { status } from 'isomorphic-git';
 import pluralize from 'pluralize';
 import slugify from '@sindresorhus/slugify';
-import * as matter from 'gray-matter';
+import matter from 'gray-matter';
 import { formatISO } from 'date-fns';
 
 import fs, { exists, PlainFS, joinPath, mkdirp, pathBasename, pathDirname, rmrf } from '../fs'; // eslint-disable-line object-curly-newline
