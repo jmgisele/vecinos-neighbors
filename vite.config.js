@@ -5,6 +5,8 @@ import { fileURLToPath, URL } from 'node:url';
 import { defineConfig } from 'vite';
 import vue from '@vitejs/plugin-vue';
 import { VitePWA } from 'vite-plugin-pwa';
+import { nodePolyfills } from 'vite-plugin-node-polyfills';
+
 import umami from './vite-plugins/umami';
 import createSvgoPlugin from './vite-plugins/svgo';
 
@@ -18,6 +20,9 @@ export default defineConfig({
     },
   },
   plugins: [
+    nodePolyfills({
+      include: ['buffer'], // buffer is needed for isomorphic-git
+    }),
     createSvgoPlugin({
       include: '/src/assets/icons/**/*.svg',
       svgo: {
