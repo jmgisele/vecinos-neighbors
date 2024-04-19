@@ -765,7 +765,7 @@ export default {
   data() {
     return {
       activeTab: 0,
-      availableIcons: require.context('@/assets/icons', false, /\w+\.svg$/i).keys().map((path) => path.replace(/^\.\/(.*)\.\w+$/, '$1')),
+      availableIcons: Object.keys(import.meta.glob('@/assets/icons/**.svg')).map((path) => pathBasename(path).replace(/^(.*)\.\w+$/, '$1'));,
       centerPopover: false,
       checkboxGroupTest: [],
       colorPalette: [

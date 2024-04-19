@@ -25,9 +25,10 @@
 </template>
 
 <script>
+import { pathBasename } from '../fs';
+
 function generateIconsList() {
-  // return require.context('@/assets/icons', false, /\w+\.svg$/i).keys().map((path) => path.replace(/^\.\/(.*)\.\w+$/, '$1'));
-  return Object.keys(import.meta.glob('@/assets/icons/**.svg')).map((path) => path.replace(/^\.\/(.*)\.\w+$/, '$1'));
+  return Object.keys(import.meta.glob('@/assets/icons/**.svg')).map((path) => pathBasename(path).replace(/^(.*)\.\w+$/, '$1'));
 }
 
 export default {
