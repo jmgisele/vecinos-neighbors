@@ -1,6 +1,7 @@
 import { createApp } from 'vue';
+import { registerSW } from 'virtual:pwa-register'; // eslint-disable-line import/no-unresolved
+
 import App from './App.vue';
-import './registerServiceWorker';
 import router from './router';
 import store from './store';
 
@@ -11,12 +12,25 @@ import './assets/styles/base.styl';
 const app = createApp(App).use(store).use(router);
 
 // import base components for convenience
-const requireComponent = require.context('./components', false, /Mb[A-Z]\w+\.(vue|js)$/);
+const modules = import.meta.glob('./components/Mb*.{vue,js}', { eager: true });
 
-requireComponent.keys().forEach((fileName) => {
-  const componentConfig = requireComponent(fileName);
-  const componentName = fileName.split('/').pop().replace(/\.\w+$/, '');
-  app.component(componentName, componentConfig.default || componentConfig);
+Object.entries(modules).forEach(([filePath, module]) => {
+  const componentName = filePath.split('/').pop().replace(/\.\w+$/, '');
+  app.component(componentName, module.default || module);
 });
 
 app.mount('#app');
+
+const updateSW = registerSW({
+  onNeedRefresh() {
+    store.commit('addToast', {
+      action: updateSW,
+      actionLabel: 'Refresh',
+      message: 'A new version of Mattrbld is available, refresh to start using the newest verison',
+      timeout: false,
+    });
+  },
+  onOfflineReady() {
+    store.commit('addToast', { message: 'Mattrbld was cached on your device and is available offline from now on', type: 'positive' });
+  },
+});

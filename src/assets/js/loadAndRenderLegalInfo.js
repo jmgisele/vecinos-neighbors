@@ -9,8 +9,8 @@ export default async function renderLegalInfo() {
   try {
     // The following line doesn’t work since it requires the file to exist (or else the build won’t compile), but using require seems to work
     // const { default: imprint } = await import('raw-loader!../../IMPRINT.md'); // eslint-disable-line import/no-webpack-loader-syntax, import/no-unresolved
-    ({ default: imprint } = require('raw-loader!../../../IMPRINT.md')); // eslint-disable-line import/no-webpack-loader-syntax, import/no-unresolved, global-require
-    ({ default: privacy } = require('raw-loader!../../../PRIVACY.md')); // eslint-disable-line import/no-webpack-loader-syntax, import/no-unresolved, global-require
+    imprint = (await import('../../../IMPRINT.md?raw')).default;
+    privacy = (await import('../../../PRIVACY.md?raw')).default;
   } catch (err) {
     // do nothing, it will fall back to the default message
   }

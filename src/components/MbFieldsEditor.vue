@@ -56,12 +56,11 @@ import { cloneDeep as _cloneDeep, get as _get } from 'lodash-es';
 import fieldTypeToComponent from '../assets/js/fieldTypeToComponent';
 import userInputToRegex from '../assets/js/userInputToRegex';
 
-const requireComponent = require.context('./fields', false, /[A-Z]\w+\.(vue|js)$/);
+const modules = import.meta.glob('./fields/*.{vue,js}', { eager: true });
 
-const components = requireComponent.keys().reduce((acc, path) => {
-  const componentConfig = requireComponent(path);
-  const componentName = path.split('/').pop().replace(/\.\w+$/, '');
-  acc[componentName] = componentConfig.default || componentConfig; // eslint-disable-line no-param-reassign
+const components = Object.entries(modules).reduce((acc, [filePath, module]) => {
+  const componentName = filePath.split('/').pop().replace(/\.\w+$/, '');
+  acc[componentName] = module.default || module;
   return acc;
 }, {});
 

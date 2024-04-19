@@ -1,4 +1,4 @@
-import GitWorker from 'worker-loader!./git.worker'; // eslint-disable-line
+import GitWorker from './git.worker?worker'; // eslint-disable-line
 
 import MagicPortal from '../assets/js/FixedMagicPortal';
 

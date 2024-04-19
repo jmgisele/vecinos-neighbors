@@ -78,7 +78,7 @@ import { formatDistanceToNow } from 'date-fns';
 import { log } from 'isomorphic-git';
 import * as matter from 'gray-matter';
 
-import CHANGELOG from 'raw-loader!../../CHANGELOG.md'; // eslint-disable-line import/no-webpack-loader-syntax, import/no-unresolved
+import CHANGELOG from '../../CHANGELOG.md?raw';
 
 import fs, { joinPath, PlainFS } from '../fs';
 import MarkdownParser from '../assets/js/MarkdownParser';
