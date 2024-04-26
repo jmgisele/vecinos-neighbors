@@ -114,47 +114,58 @@ export default {
 };
 </script>
 
-<style lang="stylus" scoped>
-.project-settings
-  height: 100%
-  display: flex
-  flex-direction: column
-  overflow-x: hidden
+<style lang="scss" scoped>
+.project-settings {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    overflow-x: hidden;
 
-  .tabs
-    flex-shrink: 0
-    margin-top: (6 / 16)rem // so it’s aligned with the image in the sidebar
+    .tabs {
+      flex-shrink: 0;
+      margin-top: rem(6); // so it’s aligned with the image in the sidebar
+  }
 
-  .tab-content
-    flex-grow: 1
+  .tab-content {
+    flex-grow: 1;
 
     &.to-left-enter-active,
-    &.to-right-leave-active
-      transition: transform 200ms cubic-bezier(0.215, 0.610, 0.355, 1.000), opacity 200ms ease
+    &.to-right-leave-active {
+      transition: transform 200ms cubic-bezier(0.215, 0.61, 0.355, 1), opacity 200ms ease;
 
-      &::v-deep(.content-wrapper)
-        overflow: hidden
+      &:deep(.content-wrapper) {
+        overflow: hidden;
+      }
 
       &.to-left-enter-from,
-      &.to-right-leave-to
-        opacity: 0
-        transform: translateX(4rem)
+      &.to-right-leave-to {
+        opacity: 0;
+        transform: translateX(4rem);
+      }
+    }
 
     &.to-left-leave-active,
-    &.to-right-enter-active
-      transition: transform 200ms cubic-bezier(0.645, 0.045, 0.355, 1.000), opacity 200ms ease
+    &.to-right-enter-active {
+      transition: transform 200ms cubic-bezier(0.645, 0.045, 0.355, 1), opacity 200ms ease;
 
-      &::v-deep(.content-wrapper)
-        overflow: hidden
+      &:deep(.content-wrapper) {
+        overflow: hidden;
+      }
 
       &.to-left-leave-to,
-      &.to-right-enter-from
-        opacity: 0
-        transform: translateX(-4rem)
+      &.to-right-enter-from {
+        opacity: 0;
+        transform: translateX(-4rem);
+      }
+    }
 
-    &.to-right-leave-active
-      transition-timing-function: cubic-bezier(0.645, 0.045, 0.355, 1.000)
+    &.to-right-leave-active {
+      transition-timing-function: cubic-bezier(0.645, 0.045, 0.355, 1);
+    }
 
-    &.to-right-enter-active
-      transition-timing-function: cubic-bezier(0.215, 0.610, 0.355, 1.000)
+    &.to-right-enter-active {
+      transition-timing-function: cubic-bezier(0.215, 0.61, 0.355, 1);
+    }
+  }
+}
 </style>

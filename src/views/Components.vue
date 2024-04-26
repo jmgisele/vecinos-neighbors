@@ -731,7 +731,7 @@ import GitLoginModal from '../components/utility/GitLoginModal.vue';
 import InternalLinkHelper from '../components/utility/InternalLinkHelper.vue';
 import Toast from '../components/utility/Toast.vue';
 
-import fs from '../fs';
+import fs, { pathBasename } from '../fs';
 import { rmrf } from '../fs/workerFS';
 
 export default {
@@ -765,7 +765,7 @@ export default {
   data() {
     return {
       activeTab: 0,
-      availableIcons: Object.keys(import.meta.glob('@/assets/icons/**.svg')).map((path) => pathBasename(path).replace(/^(.*)\.\w+$/, '$1'));,
+      availableIcons: Object.keys(import.meta.glob('@/assets/icons/**.svg')).map((path) => pathBasename(path).replace(/^(.*)\.\w+$/, '$1')),
       centerPopover: false,
       checkboxGroupTest: [],
       colorPalette: [
@@ -1689,359 +1689,464 @@ export default {
 };
 </script>
 
-<style lang="stylus" scoped>
-@require '../assets/styles/breakpoints'
-@require '../assets/styles/colors'
-@require '../assets/styles/corners'
-
-.components
-  padding: 2rem
-
-  > header
-    display: flex
-    align-items: center
-    justify-content: space-between
-    margin-bottom: 1rem
-
-    > h1
-      margin: 0
-
-  .tabs
-    margin-left: -2rem
-    margin-right: -2rem
-    max-width: calc(100% + 4rem)
-    position: sticky
-    top: 0
-    z-index: 1
-
-  .tab
-    max-width: 40rem
-    margin: 0 auto
-    padding: 8rem 0
-
-    &.v-enter-active,
-    &.v-leave-active
-      transition: opacity 200ms ease
-
-      &.v-enter-from,
-      &.v-leave-to
-        opacity: 0
-
-    .table-wrapper
-      @media $mobile
-        padding: 0 2rem
-        margin-left: -2rem
-        margin-right: -2rem
-
-    .swatches
-      display: grid
-      grid-template-columns: repeat(2, 1fr)
-
-      @media $mobile
-        display: block
-
-    .swatch-wrapper
-      display: inline-block
-
-      @media $mobile
-        display: block
-
-      &:not(:last-child)
-        margin-bottom: 1rem
-
-      .swatch
-        display: inline-flex
-        width: 4rem
-        height: @width
-        border-radius: (@width / 2)rem
-        border: 1px solid $bg-secondary
-        justify-content: center
-        align-items: center
-        margin-right: 1rem
-
-        &.accent
-          background-color: $accent
-          color: $bg
-
-        &.accent-secondary
-          background-color: $accent-secondary
-
-        &.text
-          background-color: $text
-          color: $bg
-
-        &.text-secondary
-          background-color: $text-secondary
-
-        &.text-tertiary
-          background-color: $text-tertiary
-
-        &.bg
-          background-color: $bg
-          color: $text
-
-        &.bg-secondary
-          background-color: $bg-secondary
-          color: $text
-
-        &.bg-tertiary
-          background-color: $bg-tertiary
-          color: $text
-
-        &.negative
-          background-color: $negative
-
-        &.negative-saturated
-          background-color: $negative-saturated
-          color: $bg
-
-        &.positive
-          background-color: $positive
-
-        &.positive-saturated
-          background-color: $positive-saturated
-          color: $bg
-
-        &.warning
-          background-color: $warning
-
-        &.warning-saturated
-          background-color: $warning-saturated
-
-        &.text-dark
-          background-color: $text-dark
-          color: $text
-
-        &.text-secondary-dark
-          background-color: $text-secondary-dark
-          color: $text
-
-        &.text-tertiary-dark
-          background-color: $text-tertiary-dark
-          color: $text
-
-        &.bg-dark
-          background-color: $bg-dark
-          color: $text-dark
-
-        &.bg-secondary-dark
-          background-color: $bg-secondary-dark
-          color: $text-dark
-
-        &.bg-tertiary-dark
-          background-color: $bg-tertiary-dark
-          color: $text-dark
-
-    .typography
-      margin-top: 4rem
-
-    &.buttons
-      .button
-        margin: 1rem
-
-    &.icons
-      .icon
-        margin: 0.5rem
-
-    &.toggles
-      .toggle
-        margin-bottom: 1rem
-
-    &.inputs
-      .input
-        margin: 1rem
-
-    &.checkboxes
-      .checkbox
-        margin-bottom: 1rem
-
-    &.checkbox-groups
-      .checkbox-group
-        margin-bottom: 1rem
-
-    &.textareas
-      .editor
-        margin-bottom: 3rem
-
-    &.loaders
-      .loader,
-      .inline-loader
-        margin-bottom: 4rem
-
-    &.scrollers
-      .horiz ul
-        display: flex
-        list-style: none
-        padding: 0
-        margin: 0
-
-        li
-          margin-right: 1rem
-          flex-shrink: 0
-
-      .vert
-        max-height: 8rem
-
-    &.popovers
-      .toggle
-        margin-bottom: 1rem
-
-    &.selects
-      ::v-deep(.select)
-        margin: 1rem
-
-    &.radios
-      .radio-group
-        margin-bottom: 1.5rem
-
-    &.color-pickers
-      .color-preview
-        display: inline-block
-        width: 1rem
-        height: @width
-        border-radius: 50%
-        margin-left: 1rem
-        margin-right: 0.5rem
-        margin-top: 0.25rem
-        vertical-align: top
-
-      .color-picker:not(:last-of-type)
-        margin-right: 1rem
-        margin-bottom: 1rem
-
-    &.date-pickers
-      .date-picker:not(:last-of-type)
-        margin-right: 1rem
-        margin-bottom: 1rem
-
-    &.project-cards
-
-      .wrapper
-        display: flex
-        flex-wrap: wrap
-        background-color: $bg-secondary
-
-        &.dark
-          background-color: $bg-secondary-dark
-
-        .project-card
-          margin: 1rem
-          min-width: (192 / 16)rem
-          max-width: (320 / 16)rem
-          flex-grow: 1
-          flex-shrink: 1
-
-    &.file-lists
-      .file-list
-        margin-left: -4rem
-        margin-right: @margin-left
-
-        @media only screen and (max-width: 64rem)
-          margin-left: -1rem
-          margin-right: @margin-left
-
-    &.toc
-      > ul
-        columns: 3
-        column-gap: 1rem
-        margin: 0
-        list-style: none
-        counter-reset: listCounter
-
-        @media $mobile
-          columns: 1
-
-        li
-          counter-increment: listCounter
-          margin-bottom: 0.5rem
-          white-space: nowrap
-          text-overflow: ellipsis;
-          overflow: hidden
-
-          &::before
-            content: counters(listCounter, '.') '. '
-            opacity: 0.38
-            font-size: 0.875rem
-
-    &.utility
-      h3:not(:first-of-type)
-        margin-top: 6rem
-        scroll-margin-top: 6rem
-
-      .toc
-        &.dark
-          li::marker
-            color: $text-tertiary-dark
-
-        li::marker
-          font-size: 0.875rem
-          color: $text-tertiary
-
-    &.segmented-selectors
-      .segmented-selector
-        margin-bottom: 1rem
-
-    &.file-pickers
-      .file-picker
-        margin: 0.5rem 0
-
-    &.chips
-      .chip
-        display: inline-block
-        margin-bottom: 1rem
-
-    &.sortable-lists
-      .vertical,
-      .horizontal
-        border: 0.0625rem solid alpha($text, 0.12)
-        border-radius: $radius-m
-        margin-bottom: 1rem
-
-        &.dark
-          border-color: alpha($text-dark, 0.12)
-
-        .sortable-list-item
-          margin: 0.5rem // these styles only apply to the item in the list, not the clone
-
-      .horizontal
-        padding: 0.25rem
-        display: flex
-        flex-wrap: wrap
-
-        &::v-deep(.drag-item) // this way the drag item can be styled too, although it’s a bit hacky
-          flex: 0 0 25%
-
-        .sortable-list-item
-          margin: 0.25rem
-
-.sortable-list-item
-  display: flex
-  margin: 0.25rem
-  padding: 0.5rem
-  border: 0.0625rem solid alpha($text, 0.12)
-  border-radius: $radius-s
-  background-color: $bg
-  height: calc(100% - 0.5rem)
-
-  &.vert
-    height: auto
-    margin: 0 0.5rem // margin-top needs to be 0 so the clone doesn’t jump when created (because of collapsing margins), but otherwise we can set margins freely
-
-  &.dark
-    border-color: alpha($text-dark, 0.12)
-    background-color: $bg-dark
-
-  &.active
-    opacity: 0.5
-
-  .icon
-    margin-right: 0.5rem
-    flex-shrink: 0
-
-  p
-    margin: 0
-
-.file-preview-modal
-  pre
-    margin: 0
+<style lang="scss" scoped>
+  @use '../assets/styles/breakpoints' as *;
+
+  .components {
+    padding: 2rem;
+
+    >header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 1rem;
+
+      >h1 {
+        margin: 0;
+      }
+    }
+
+    .tabs {
+      margin-left: -2rem;
+      margin-right: -2rem;
+      max-width: calc(100% + 4rem);
+      position: sticky;
+      top: 0;
+      z-index: 1;
+    }
+
+    .tab {
+      max-width: 40rem;
+      margin: 0 auto;
+      padding: 8rem 0;
+
+      &.v-enter-active,
+      &.v-leave-active {
+        transition: opacity 200ms ease;
+
+        &.v-enter-from,
+        &.v-leave-to {
+          opacity: 0;
+        }
+      }
+
+      .table-wrapper {
+        @media #{$mobile} {
+          padding: 0 2rem;
+          margin-left: -2rem;
+          margin-right: -2rem;
+        }
+      }
+
+      .swatches {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+
+        @media #{$mobile} {
+          display: block;
+        }
+      }
+
+      .swatch-wrapper {
+        display: inline-block;
+
+        @media #{$mobile} {
+          display: block;
+        }
+
+        &:not(:last-child) {
+          margin-bottom: 1rem;
+        }
+
+        .swatch {
+          display: inline-flex;
+          width: 4rem;
+          height: 4rem;
+          border-radius: 2rem;
+          border: 1px solid var(--bg-secondary);
+          justify-content: center;
+          align-items: center;
+          margin-right: 1rem;
+
+          &.accent {
+            background-color: var(--accent);
+            color: var(--bg);
+          }
+
+          &.accent-secondary {
+            background-color: var(--accent-secondary);
+          }
+
+          &.text {
+            background-color: var(--text);
+            color: var(--bg);
+          }
+
+          &.text-secondary {
+            background-color: var(--text-secondary);
+          }
+
+          &.text-tertiary {
+            background-color: var(--text-tertiary);
+          }
+
+          &.bg {
+            background-color: var(--bg);
+            color: var(--text);
+          }
+
+          &.bg-secondary {
+            background-color: var(--bg-secondary);
+            color: var(--text);
+          }
+
+          &.bg-tertiary {
+            background-color: var(--bg-tertiary);
+            color: var(--text);
+          }
+
+          &.negative {
+            background-color: var(--negative);
+          }
+
+          &.negative-saturated {
+            background-color: var(--negative-saturated);
+            color: var(--bg);
+          }
+
+          &.positive {
+            background-color: var(--positive);
+          }
+
+          &.positive-saturated {
+            background-color: var(--positive-saturated);
+            color: var(--bg);
+          }
+
+          &.warning {
+            background-color: var(--warning);
+          }
+
+          &.warning-saturated {
+            background-color: var(--warning-saturated);
+          }
+
+          &.text-dark {
+            background-color: var(--text-dark);
+            color: var(--text);
+          }
+
+          &.text-secondary-dark {
+            background-color: var(--text-secondary-dark);
+            color: var(--text);
+          }
+
+          &.text-tertiary-dark {
+            background-color: var(--text-tertiary-dark);
+            color: var(--text);
+          }
+
+          &.bg-dark {
+            background-color: var(--bg-dark);
+            color: var(--text-dark);
+          }
+
+          &.bg-secondary-dark {
+            background-color: var(--bg-secondary-dark);
+            color: var(--text-dark);
+          }
+
+          &.bg-tertiary-dark {
+            background-color: var(--bg-tertiary-dark);
+            color: var(--text-dark);
+          }
+        }
+      }
+
+      .typography {
+        margin-top: 4rem;
+      }
+
+      &.buttons {
+        .button {
+          margin: 1rem;
+        }
+      }
+
+      &.icons {
+        .icon {
+          margin: 0.5rem;
+        }
+      }
+
+      &.toggles {
+        .toggle {
+          margin-bottom: 1rem;
+        }
+      }
+
+      &.inputs {
+        .input {
+          margin: 1rem;
+        }
+      }
+
+      &.checkboxes {
+        .checkbox {
+          margin-bottom: 1rem;
+        }
+      }
+
+      &.checkbox-groups {
+        .checkbox-group {
+          margin-bottom: 1rem;
+        }
+      }
+
+      &.textareas {
+        .editor {
+          margin-bottom: 3rem;
+        }
+      }
+
+      &.loaders {
+
+        .loader,
+        .inline-loader {
+          margin-bottom: 4rem;
+        }
+      }
+
+      &.scrollers {
+        .horiz ul {
+          display: flex;
+          list-style: none;
+          padding: 0;
+          margin: 0;
+
+          li {
+            margin-right: 1rem;
+            flex-shrink: 0;
+          }
+        }
+
+        .vert {
+          max-height: 8rem;
+        }
+      }
+
+      &.popovers {
+        .toggle {
+          margin-bottom: 1rem;
+        }
+      }
+
+      &.selects {
+        :deep(.select) {
+          margin: 1rem;
+        }
+      }
+
+      &.radios {
+        .radio-group {
+          margin-bottom: 1.5rem;
+        }
+      }
+
+      &.color-pickers {
+        .color-preview {
+          display: inline-block;
+          width: 1rem;
+          height: 1rem;
+          border-radius: 50%;
+          margin-left: 1rem;
+          margin-right: 0.5rem;
+          margin-top: 0.25rem;
+          vertical-align: top;
+        }
+
+        .color-picker:not(:last-of-type) {
+          margin-right: 1rem;
+          margin-bottom: 1rem;
+        }
+      }
+
+      &.date-pickers {
+        .date-picker:not(:last-of-type) {
+          margin-right: 1rem;
+          margin-bottom: 1rem;
+        }
+      }
+
+      &.project-cards {
+        .wrapper {
+          display: flex;
+          flex-wrap: wrap;
+          background-color: var(--bg-secondary);
+
+          &.dark {
+            background-color: var(--bg-secondary-dark);
+          }
+
+          .project-card {
+            margin: 1rem;
+            min-width: rem(192);
+            max-width: rem(320);
+            flex-grow: 1;
+            flex-shrink: 1;
+          }
+        }
+      }
+
+      &.file-lists {
+        .file-list {
+          margin-left: -4rem;
+          margin-right: -4rem;
+
+          @media only screen and (max-width: 64rem) {
+            margin-left: -1rem;
+            margin-right: -1rem;
+          }
+        }
+      }
+
+      &.toc {
+        >ul {
+          columns: 3;
+          column-gap: 1rem;
+          margin: 0;
+          list-style: none;
+          counter-reset: listCounter;
+
+          @media #{$mobile} {
+            columns: 1;
+          }
+
+          li {
+            counter-increment: listCounter;
+            margin-bottom: 0.5rem;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+            overflow: hidden;
+
+            &::before {
+              content: counters(listCounter, '.') '. ';
+              opacity: 0.38;
+              font-size: 0.875rem;
+            }
+          }
+        }
+      }
+
+      &.utility {
+        h3:not(:first-of-type) {
+          margin-top: 6rem;
+          scroll-margin-top: 6rem;
+        }
+
+        .toc {
+          &.dark {
+            li::marker {
+              color: var(--text-tertiary-dark);
+            }
+          }
+
+          li::marker {
+            font-size: 0.875rem;
+            color: var(--text-tertiary);
+          }
+        }
+      }
+
+      &.segmented-selectors {
+        .segmented-selector {
+          margin-bottom: 1rem;
+        }
+      }
+
+      &.file-pickers {
+        .file-picker {
+          margin: 0.5rem 0;
+        }
+      }
+
+      &.chips {
+        .chip {
+          display: inline-block;
+          margin-bottom: 1rem;
+        }
+      }
+
+      &.sortable-lists {
+
+        .vertical,
+        .horizontal {
+          border: 0.0625rem solid color-mix(in srgb, var(--text) 12%, transparent);
+          border-radius: var(--radius-m);
+          margin-bottom: 1rem;
+
+          &.dark {
+            border-color: color-mix(in srgb, var(--text-dark) 12%, transparent);
+          }
+
+          .sortable-list-item {
+            margin: 0.5rem; // these styles only apply to the item in the list, not the clone
+          }
+        }
+
+        .horizontal {
+          padding: 0.25rem;
+          display: flex;
+          flex-wrap: wrap;
+
+          &:deep(.drag-item) { // this way the drag item can be styled too, although it’s a bit hacky
+            flex: 0 0 25%;
+          }
+
+          .sortable-list-item {
+            margin: 0.25rem;
+          }
+        }
+      }
+    }
+  }
+
+  .sortable-list-item {
+    display: flex;
+    margin: 0.25rem;
+    padding: 0.5rem;
+    border: 0.0625rem solid color-mix(in srgb, var(--text) 12%, transparent);
+    border-radius: var(--radius-s);
+    background-color: var(--bg);
+    height: calc(100% - 0.5rem);
+
+    &.vert {
+      height: auto;
+      margin: 0 0.5rem; // margin-top needs to be 0 so the clone doesn’t jump when created (because of collapsing margins), but otherwise we can set margins freely
+    }
+
+    &.dark {
+      border-color: color-mix(in srgb, var(--text-dark) 12%, transparent);
+      background-color: var(--bg-dark);
+    }
+
+    &.active {
+      opacity: 0.5;
+    }
+
+    .icon {
+      margin-right: 0.5rem;
+      flex-shrink: 0;
+    }
+
+    p {
+      margin: 0;
+    }
+  }
+
+  .file-preview-modal {
+    pre {
+      margin: 0;
+    }
+  }
 </style>

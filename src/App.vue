@@ -163,35 +163,41 @@ export default {
 };
 </script>
 
-<style lang="stylus">
-@require './assets/styles/breakpoints'
-@require './assets/styles/colors'
+<style lang="scss">
+@use './assets/styles/breakpoints' as *;
 
-#appHeader
-  padding: 2rem
-  display: flex
-  align-items: center
+#appHeader {
+  padding: 2rem;
+  display: flex;
+  align-items: center;
 
-  @media $tablet
-    padding: 1rem
+  @media #{$tablet} {
+    padding: 1rem;
+  }
 
-  .button
-    margin-right: 1rem
+  .button {
+    margin-right: 1rem;
+  }
 
-  .h3
-    margin: 0
-    margin-right: 2rem
-    white-space: nowrap
-    overflow: hidden
-    text-overflow: ellipsis
+  .h3 {
+    margin: 0;
+    margin-right: 2rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
 
-  .user-switcher
-    margin-left: auto
+  .user-switcher {
+    margin-left: auto;
+  }
+}
 
-#componentsModal
-  width: 80vw
-  max-width: (1536 / 16)rem
+#componentsModal {
+  width: 80vw;
+  max-width: 1536 / 16 rem;
 
-  @media $mobile
-    width: 100%
+  @media #{$mobile} {
+    width: 100%;
+  }
+}
 </style>

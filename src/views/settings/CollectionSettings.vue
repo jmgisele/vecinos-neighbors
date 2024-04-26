@@ -371,152 +371,189 @@ export default {
 };
 </script>
 
-<style lang="stylus" scoped>
-@require '../../assets/styles/breakpoints'
-@require '../../assets/styles/colors'
-@require '../../assets/styles/corners'
+<style lang="scss" scoped>
+  @use '../../assets/styles/breakpoints' as *;
 
-.collection-settings
-  user-select: none;
+  .collection-settings {
+    user-select: none;
 
-  .wrapper
-    max-width: 40rem
-    margin-left: auto
-    margin-right: auto
+    .wrapper {
+      max-width: 40rem;
+      margin-left: auto;
+      margin-right: auto;
 
-    &.wide
-      max-width: (960 / 16)rem
-      margin-bottom: 8rem
+      &.wide {
+        max-width: rem(960);
+        margin-bottom: 8rem;
 
-      @media $mobile
-        margin-bottom: 4rem
+        @media #{$mobile} {
+          margin-bottom: 4rem;
+        }
+      }
 
-    .file-list
-      &::v-deep(.empty-state)
-        text-align: center
-        margin: 2rem 0
+      .file-list {
+        &:deep(.empty-state) {
+          text-align: center;
+          margin: 2rem 0;
+        }
 
-      & + .button
-        display: flex
-        margin-left: auto
-        margin-right: auto
+        & + .button {
+          display: flex;
+          margin-left: auto;
+          margin-right: auto;
+        }
+      }
+    }
+  }
 
-.edit-collection
-  &.dark
-    header span,
-    section h3,
-    .input-group > p
-        color: $text-secondary-dark
+  .edit-collection {
+    &.dark {
 
-    .file-picker,
-    .input,
-    .tag-input
-      background-color: $bg-tertiary-dark
+      header span,
+      section h3,
+      .input-group > p {
+        color: var(--text-secondary-dark);
+      }
 
-    .item-list::v-deep(.item.dark)
-      background-color: $bg-tertiary-dark
-      box-shadow: inset 0 0 0 0.0625rem lighten($bg-tertiary-dark, 5)
+      .file-picker,
+      .input,
+      .tag-input {
+        background-color: var(--bg-tertiary-dark);
+      }
 
-  > header
-    margin-top: 8rem
-    max-width: 40rem
-    margin-left: auto
-    margin-right: auto
+      .item-list:deep(.item.dark) {
+        background-color: var(--bg-tertiary-dark);
+        box-shadow: inset 0 0 0 0.0625rem var(--bg-tertiary-dark-lightened-5);
+      }
+    }
 
-    @media $tablet
-      margin-top: 4rem
+    > header {
+      margin-top: 8rem;
+      max-width: 40rem;
+      margin-left: auto;
+      margin-right: auto;
 
-    @media $mobile
-      margin-top: 0
-      text-align: center
+      @media #{$tablet} {
+        margin-top: 4rem;
+      }
 
-    h2
-      margin: 0
+      @media #{$mobile} {
+        margin-top: 0;
+        text-align: center;
+      }
 
-    span
-      color: $text-secondary
+      h2 {
+        margin: 0;
+      }
 
-  > section
-    max-width: 40rem
-    margin-left: auto
-    margin-right: auto
+      span {
+        color: var(--text-secondary);
+      }
+    }
 
-    &:not(:last-child)
-      margin-bottom: 4rem
+    > section {
+      max-width: 40rem;
+      margin-left: auto;
+      margin-right: auto;
 
-      @media $mobile
-        margin-bottom: 3rem
+      &:not(:last-child) {
+        margin-bottom: 4rem;
 
-    h3
-      color: $text-secondary
+        @media #{$mobile} {
+          margin-bottom: 3rem;
+        }
+      }
 
-    .input-row
-      display: flex
-      align-items: center
-      margin-bottom: 1rem
+      h3 {
+        color: var(--text-secondary);
+      }
 
-      &.schemas
-        > span:first-child
-          align-self: flex-start
-          margin-top: 1rem
+      .input-row {
+        display: flex;
+        align-items: center;
+        margin-bottom: 1rem;
 
-      @media $mobile
-        flex-wrap: wrap
-        margin-bottom: 2rem
+        &.schemas {
+          > span:first-child {
+            align-self: flex-start;
+            margin-top: 1rem;
+          }
+        }
 
-      > span:first-child
-        margin-right: auto
-        white-space: nowrap
+        @media #{$mobile} {
+          flex-wrap: wrap;
+          margin-bottom: 2rem;
+        }
 
-      > :last-child:not(:only-child)
-        margin-left: 1rem
-        width: 100%
-        max-width: (360 / 16)rem
+         span:first-child {
+          margin-right: auto;
+          white-space: nowrap;
+        }
 
-        @media $mobile
-          margin-left: 0
-          margin-top: 0.5rem
-          width: 100%
+        > :last-child:not(:only-child) {
+          margin-left: 1rem;
+          width: 100%;
+          max-width: rem(360);
 
-    .input,
-    .tag-input
-      margin-top: 0
+          @media #{$mobile} {
+            margin-left: 0;
+            margin-top: 0.5rem;
+            width: 100%;
+          }
+        }
+      }
 
-    .toggle:not(:last-child)
-      margin-bottom: 1rem
+      .input,
+      .tag-input {
+        margin-top: 0;
+      }
 
-    .input-group
-      > p
-        margin-top: 2rem
-        font-weight: bold
-        color: $text-secondary
+      .toggle:not(:last-child) {
+        margin-bottom: 1rem;
+      }
 
-    .permissions-list
-      margin-top: 1.5rem
+      .input-group {
+        > p {
+          margin-top: 2rem;
+          font-weight: bold;
+          color: var(--text-secondary);
+        }
+      }
 
-.loader
-  position: absolute
-  width: 100%
-  height: 100%
-  top: 0
-  left: 0
-  background-color: $bg
-  z-index: 1
+      .permissions-list {
+        margin-top: 1.5rem;
+      }
+    }
+  }
 
-  &.dark
-    background-color: $bg-secondary-dark
+  .loader {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    background-color: var(--bg);
+    z-index: 1;
 
-.edit-collection,
-.edit-collection > section .input-row,
-.edit-collection > section .input-group,
-.edit-collection > section .toggle
-.loader
-  &.v-enter-active,
-  &.v-leave-active
-    transition: opacity 200ms ease
+    &.dark {
+      background-color: var(--bg-secondary-dark);
+    }
+  }
 
-    &.v-enter-from,
-    &.v-leave-to
-      opacity: 0
+  .edit-collection,
+  .edit-collection > section .input-row,
+  .edit-collection > section .input-group,
+  .edit-collection > section .toggle,
+  .loader {
 
+    &.v-enter-active,
+    &.v-leave-active {
+      transition: opacity 200ms ease;
+
+      &.v-enter-from,
+      &.v-leave-to {
+        opacity: 0;
+      }
+    }
+  }
 </style>
