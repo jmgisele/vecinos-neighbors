@@ -183,67 +183,82 @@ export default {
 };
 </script>
 
-<style lang="stylus" scoped>
-@require '../../assets/styles/breakpoints'
-@require '../../assets/styles/colors'
-@require '../../assets/styles/corners'
+<style lang="scss" scoped>
+  @use '../../assets/styles/breakpoints' as *;
 
-.dashboard-settings
-  user-select: none
+  .dashboard-settings {
+    user-select: none;
 
-  .wrapper
-    max-width: 60rem
-    margin-left: auto
-    margin-right: auto
+    .wrapper {
+      max-width: 60rem;
+      margin-left: auto;
+      margin-right: auto;
 
-    &:not(:last-child)
-      margin-bottom: 8rem
+      &:not(:last-child) {
+        margin-bottom: 8rem;
 
-      @media $mobile
-        margin-bottom: 4rem
+        @media #{$mobile} {
+          margin-bottom: 4rem;
+        }
+      }
+    }
+  }
 
-.post-editor
-  max-width: 40rem
-  margin: 0 auto
-  margin-top: 8rem
+  .post-editor {
+    max-width: 40rem;
+    margin: 0 auto;
+    margin-top: 8rem;
 
-  @media $mobile
-    margin-top: 0
+    @media #{$mobile} {
+      margin-top: 0;
 
-    h2
-      margin-top: 0
-      text-align: center
-      font-size: 1.25rem
+      h2 {
+        margin-top: 0;
+        text-align: center;
+        font-size: 1.25rem;
+      }
+    }
 
-  .input
-    width: 100%
-    display: flex
+    .input {
+      width: 100%;
+      display: flex;
 
-    &.dark:not(.in-modal)
-      background-color: $bg-tertiary-dark
+      &.dark:not(.in-modal) {
+        background-color: var(--bg-tertiary-dark);
+      }
+    }
 
-  .editor.dark:not(.in-modal)::v-deep(.content-wrapper)
-    background-color: $bg-tertiary-dark
+    .editor.dark:not(.in-modal):deep(.content-wrapper) {
+      background-color: var(--bg-tertiary-dark);
 
-    &.rich:not(:focus-within)
-      box-shadow: inset 0 0.0625rem 0 0 lighten($bg-tertiary-dark, 10)
+      &.rich:not(:focus-within) {
+        box-shadow: inset 0 0.0625rem 0 0 var(--bg-tertiary-dark-lightened-10);
+      }
+    }
 
-  .input,
-  .editor
-    margin-bottom: 2rem
+    .input,
+    .editor {
+      margin-bottom: 2rem;
+    }
 
-  > footer
-    text-align: right
+    >footer {
+      text-align: right;
 
-    .create-button,
-    .delete-button
-      &:not(:last-child)
-        margin-right: 1rem
+      .create-button,
+      .delete-button {
+        &:not(:last-child) {
+          margin-right: 1rem;
+        }
 
-      @media $mobile
-        width: 100%
+        @media #{$mobile} {
+          width: 100%;
 
-        &:not(:last-child)
-          margin-right: 0
-          margin-bottom: 1rem
+          &:not(:last-child) {
+            margin-right: 0;
+            margin-bottom: 1rem;
+          }
+        }
+      }
+    }
+  }
 </style>

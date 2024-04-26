@@ -178,33 +178,38 @@ export default {
 };
 </script>
 
-<style lang="stylus" scoped>
-@require '../../assets/styles/breakpoints'
-@require '../../assets/styles/colors'
-@require '../../assets/styles/corners'
+<style lang="scss" scoped>
+  @use '../../assets/styles/breakpoints' as *;
 
-.schema-settings
-  user-select: none;
+  .schema-settings {
+    user-select: none;
 
-  .wrapper
-    max-width: 40rem
-    margin-left: auto
-    margin-right: auto
+    .wrapper {
+      max-width: 40rem;
+      margin-left: auto;
+      margin-right: auto;
 
-    &.wide
-      max-width: (960 / 16)rem
-      margin-bottom: 8rem
+      &.wide {
+        max-width: rem(960);
+        margin-bottom: 8rem;
 
-      @media $mobile
-        margin-bottom: 4rem
+        @media #{$mobile} {
+          margin-bottom: 4rem;
+        }
+      }
 
-    .file-list
-      &::v-deep(.empty-state)
-        text-align: center
-        margin: 2rem 0
+      .file-list {
+        &:deep(.empty-state) {
+          text-align: center;
+          margin: 2rem 0;
+        }
 
-      & + .button
-        display: flex
-        margin-left: auto
-        margin-right: auto
+        & + .button {
+          display: flex;
+          margin-left: auto;
+          margin-right: auto;
+        }
+      }
+    }
+  }
 </style>

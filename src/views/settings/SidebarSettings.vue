@@ -227,207 +227,258 @@ export default {
 };
 </script>
 
-<style lang="stylus" scoped>
-@require '../../assets/styles/breakpoints'
-@require '../../assets/styles/colors'
-@require '../../assets/styles/corners'
+<style lang="scss" scoped>
+  @use '../../assets/styles/breakpoints' as *;
 
-.sidebar-settings
-  user-select: none;
+  .sidebar-settings {
+    user-select: none;
 
-  .wrapper
-    max-width: 40rem
-    margin-left: auto
-    margin-right: auto
+    .wrapper {
+      max-width: 40rem;
+      margin-left: auto;
+      margin-right: auto;
 
-    footer
-      margin-top: 1.5rem
-      display: flex
-      align-items: center
+      footer {
+        margin-top: 1.5rem;
+        display: flex;
+        align-items: center;
 
-      &.v-enter-active,
-      &.v-leave-active
-        transition: opacity 200ms ease
+        &.v-enter-active,
+        &.v-leave-active {
+          transition: opacity 200ms ease;
 
-        &.v-enter-from,
-        &.v-leave-to
-          opacity: 0
+          &.v-enter-from,
+          &.v-leave-to {
+            opacity: 0;
+          }
+        }
 
-      .input
-        margin-top: 0
-        margin-right: 0.5rem
-        flex-grow: 1
+        .input {
+          margin-top: 0;
+          margin-right: 0.5rem;
+          flex-grow: 1;
+        }
+      }
+    }
+  }
 
-.entry
-  display: flex
-  align-items: center
-  border-radius: $radius-m
-  flex-grow: 1
-  overflow: hidden
-  background-color: $bg-secondary
-  margin-bottom: 0.5rem
-  padding-right: 0.25rem
-  cursor: pointer
-  position: relative
-  transition: background-color 200ms ease
+  .entry {
+    display: flex;
+    align-items: center;
+    border-radius: var(--radius-m);
+    flex-grow: 1;
+    overflow: hidden;
+    background-color: var(--bg-secondary);
+    margin-bottom: 0.5rem;
+    padding-right: 0.25rem;
+    cursor: pointer;
+    position: relative;
+    transition: background-color 200ms ease;
 
-  &:hover
-    background-color: $bg-tertiary
+    &:hover {
+      background-color: var(--bg-tertiary);
+    }
 
-  &:focus-visible::before
-    opacity: 1
+    &:focus-visible::before {
+      opacity: 1;
+    }
 
-  &:active
-    transform: translateY(0.125rem)
+    &:active {
+      transform: translateY(0.125rem);
+    }
 
-  &.dark
-    background-color: $bg-secondary-dark
+    &.dark {
+      background-color: var(--bg-secondary-dark);
 
-    &:hover
-      background-color: $bg-tertiary-dark
+      &:hover {
+        background-color: var(--bg-tertiary-dark);
+      }
+    }
 
-  &.active
-    background-color: $accent
-    color: $text-dark
+    &.active {
+      background-color: var(--accent);
+      color: $text-dark;
 
-    &:hover,
-    &:focus-visible
-      background-color: darken($accent, 5)
+      &:hover,
+      &:focus-visible {
+        background-color: var(--accent-darkened-5);
+      }
+    }
 
-  &.being-dragged
-    opacity: 0.25
+    &.being-dragged {
+      opacity: 0.25;
+    }
 
-  &::before
-    content: ''
-    position: absolute
-    top: 0px
-    left: @top
-    right: @top
-    bottom: @top
-    border: 2px solid $accent
-    opacity: 0
-    border-radius: $radius-m
-    z-index: 1
-    pointer-events: none
-    transition: opacity 200ms ease
+    &::before {
+      content: '';
+      position: absolute;
+      top: 0px;
+      left: 0px;
+      right: 0px;
+      bottom: 0px;
+      border: 2px solid var(--accent);
+      opacity: 0;
+      border-radius: var(--radius-m);
+      z-index: 1;
+      pointer-events: none;
+      transition: opacity 200ms ease;
+    }
 
-  .drag-handle
-    padding: 1rem
-    cursor: move
+    .drag-handle {
+      padding: 1rem;
+      cursor: move;
+    }
 
-  .button
-    flex-shrink: 0
+    .button {
+      flex-shrink: 0;
+    }
 
-  > .icon:not(.button)
-    margin-right: 0.5rem
+    > .icon:not(.button) {
+      margin-right: 0.5rem;
+    }
 
-  > span
-    flex-grow: 1
+    > span {
+      flex-grow: 1;
+    }
+  }
 
-.edit-entry
-  &.dark
-    header span,
-    section h3
-        color: $text-secondary-dark
+  .edit-entry {
+    &.dark {
+      header span,
+      section h3 {
+        color: var(--text-secondary-dark);
+      }
 
-    .input,
-    .icon-picker,
-    .file-picker,
-    .tag-input
-      background-color: $bg-tertiary-dark
+      .input,
+      .icon-picker,
+      .file-picker,
+      .tag-input {
+        background-color: var(--bg-tertiary-dark);
+      }
 
-    .internal-link-helper::v-deep(.view)
-      &.url,
-      &.collections ul li:not(:last-child)
-        background-color: $bg-tertiary-dark
+      .internal-link-helper:deep(.view) {
+        &.url,
+        &.collections ul li:not(:last-child) {
+          background-color: var(--bg-tertiary-dark);
 
-        &:hover
-          background-color: lighten($bg-tertiary-dark, 5)
+          &:hover {
+            background-color: var(--bg-tertiary-dark-lightened-5);
+          }
+        }
 
-      &.files
-        .input
-          background-color: $bg-tertiary-dark
+        &.files {
+          .input {
+            background-color: var(--bg-tertiary-dark);
+          }
 
-        .file-list
-          .files
-            background-color: $bg-secondary-dark
+          .file-list {
+            .files {
+              background-color: var(--bg-secondary-dark);
 
-            .file
-              background-color: $bg-tertiary-dark
+              .file {
+                background-color: var(--bg-tertiary-dark);
 
-              &:hover
-                background-color: lighten($bg-tertiary-dark, 5)
+                &:hover {
+                  background-color: var(--bg-tertiary-dark-lightened-5);
+                }
 
-              &:active
-                background-color: $bg-secondary-dark
+                &:active {
+                  background-color: var(--bg-secondary-dark);
+                }
+              }
+            }
+          }
+        }
+      }
+    }
 
-  > header
-    margin-top: 8rem
-    max-width: 40rem
-    margin-left: auto
-    margin-right: auto
+    > header {
+      margin-top: 8rem;
+      max-width: 40rem;
+      margin-left: auto;
+      margin-right: auto;
 
-    @media $tablet
-      margin-top: 4rem
+      @media #{$tablet} {
+        margin-top: 4rem;
+      }
 
-    @media $mobile
-      margin-top: 0
-      text-align: center
+      @media #{$mobile} {
+        margin-top: 0;
+        text-align: center;
+      }
 
-    h2
-      margin: 0
+      h2 {
+        margin: 0;
+      }
 
-    span
-      color: $text-secondary
+      span {
+        color: var(--text-secondary);
+      }
+    }
 
-  > section
-    max-width: 40rem
-    margin-left: auto
-    margin-right: auto
+    > section {
+      max-width: 40rem;
+      margin-left: auto;
+      margin-right: auto;
 
-    &:not(:last-child)
-      margin-bottom: 4rem
+      &:not(:last-child) {
+        margin-bottom: 4rem;
 
-      @media $mobile
-        margin-bottom: 3rem
+        @media #{$mobile} {
+          margin-bottom: 3rem;
+        }
+      }
 
-    h3
-      color: $text-secondary
+      h3 {
+        color: var(--text-secondary);
 
-      + .tag-input
-        margin-top: 2rem
+        + .tag-input {
+          margin-top: 2rem;
+        }
+      }
 
-    .input-row
-      display: flex
-      align-items: center
-      margin-bottom: 1rem
+      .input-row {
+        display: flex;
+        align-items: center;
+        margin-bottom: 1rem;
 
-      &.target
-        > span:first-child
-          align-self: flex-start
-          margin-top: 1rem
+        &.target {
+          > span:first-child {
+            align-self: flex-start;
+            margin-top: 1rem;
+          }
+        }
 
-      @media $mobile
-        flex-wrap: wrap
-        margin-bottom: 2rem
+        @media #{$mobile} {
+          flex-wrap: wrap;
+          margin-bottom: 2rem;
+        }
 
-      > span:first-child
-        margin-right: auto
-        white-space: nowrap
+        > span:first-child {
+          margin-right: auto;
+          white-space: nowrap;
+        }
 
-      > :last-child:not(:only-child)
-        margin-left: 1rem
-        width: 100%
-        max-width: (400 / 16)rem
+        > :last-child:not(:only-child) {
+          margin-left: 1rem;
+          width: 100%;
+          max-width: 400 / 16 rem;
 
-        @media $mobile
-          margin-left: 0
-          margin-top: 0.5rem
-          width: 100%
+          @media #{$mobile} {
+            margin-left: 0;
+            margin-top: 0.5rem;
+            width: 100%;
+          }
+        }
 
-      > .input
-        margin-top: 0
+        > .input {
+          margin-top: 0;
+        }
+      }
 
-    > .toggle:not(:last-child)
-      margin-bottom: 2rem
+      > .toggle:not(:last-child) {
+        margin-bottom: 2rem;
+      }
+    }
+  }
 </style>

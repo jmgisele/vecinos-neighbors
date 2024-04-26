@@ -144,54 +144,64 @@ export default {
 };
 </script>
 
-<style lang="stylus" scoped>
-@require '../../assets/styles/breakpoints'
-@require '../../assets/styles/colors'
-@require '../../assets/styles/corners'
+<style lang="scss" scoped>
+  @use '../../assets/styles/breakpoints' as *;
 
-.media-settings
-  user-select: none
+  .media-settings {
+    user-select: none;
 
-  .wrapper
-    max-width: 40rem
-    margin-left: auto
-    margin-right: auto
+    .wrapper {
+      max-width: 40rem;
+      margin-left: auto;
+      margin-right: auto;
 
-    &:not(:last-of-type)
-      margin-bottom: 8rem
+      &:not(:last-of-type) {
+        margin-bottom: 8rem;
 
-      @media $mobile
-        margin-bottom: 4rem
+        @media #{$mobile} {
+          margin-bottom: 4rem;
+        }
+      }
 
-    .input-row
-      display: flex
-      align-items: center
-      margin-bottom: 1rem
+      .input-row {
+        display: flex;
+        align-items: center;
+        margin-bottom: 1rem;
 
-      @media $mobile
-        flex-wrap: wrap
-        margin-bottom: 2rem
+        @media #{$mobile} {
+          flex-wrap: wrap;
+          margin-bottom: 2rem;
+        }
 
-      > span:first-child
-        margin-right: auto
-        white-space: nowrap
+        > span:first-child {
+          margin-right: auto;
+          white-space: nowrap;
+        }
 
-      > :last-child:not(:only-child)
-        margin-left: 1rem
-        margin-top: 0
-        width: 100%
-        max-width: (400 / 16)rem
+        > :last-child:not(:only-child) {
+          margin-left: 1rem;
+          margin-top: 0;
+          width: 100%;
+          max-width: rem(400);
 
-        @media $mobile
-          margin-left: 0
-          margin-top: 0.5rem
-          width: 100%
+          @media #{$mobile} {
+            margin-left: 0;
+            margin-top: 0.5rem;
+            width: 100%;
+          }
+        }
+      }
 
-    .toggle
-      margin-bottom: 1rem
+      .toggle {
+        margin-bottom: 1rem;
+      }
+    }
 
-  &::v-deep(.content-wrapper)
-    > .empty-state,
-    > .added-fields-list
-      margin-top: 2rem
+    &:deep(.content-wrapper) {
+      > .empty-state,
+      > .added-fields-list {
+        margin-top: 2rem;
+      }
+    }
+  }
 </style>

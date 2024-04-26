@@ -402,131 +402,160 @@ export default {
 };
 </script>
 
-<style lang="stylus" scoped>
-@require '../../assets/styles/breakpoints'
-@require '../../assets/styles/colors'
-@require '../../assets/styles/corners'
+<style lang="scss" scoped>
+  @use '../../assets/styles/breakpoints' as *;
 
-.general-settings
-  user-select: none
+  .general-settings {
+    user-select: none;
 
-  .wrapper
-    max-width: 40rem
-    margin-left: auto
-    margin-right: auto
+    .wrapper {
+      max-width: 40rem;
+      margin-left: auto;
+      margin-right: auto;
 
-    &:not(:last-child)
-      margin-bottom: 8rem
+      &:not(:last-child) {
+        margin-bottom: 8rem;
 
-      @media $mobile
-        margin-bottom: 4rem
+        @media #{$mobile} {
+          margin-bottom: 4rem;
+        }
+      }
 
-    .input
-      display: flex
+      .input {
+        display: flex;
+      }
 
-    .input,
-    .tag-input
-      width: 100%
-      margin-bottom: 2rem
-      margin-top: 2rem
+      .input,
+      .tag-input {
+        width: 100%;
+        margin-bottom: 2rem;
+        margin-top: 2rem;
 
-      & + h2
-        margin-top: 1rem
+        & + h2 {
+          margin-top: 1rem;
+        }
 
-      &.v-enter-active,
-      &.v-leave-active
-        transition: opacity 200ms ease
+        &.v-enter-active,
+        &.v-leave-active {
+          transition: opacity 200ms ease;
 
-        &.v-enter-from,
-        &.v-leave-to
-          opacity: 0
+          &.v-enter-from,
+          &.v-leave-to {
+            opacity: 0;
+          }
+        }
+      }
 
-    .avatar-label
-      margin: 0
-      margin-left: 0.625rem
-      margin-bottom: 0.25rem
-      font-size: 0.75rem
-      color: $text-secondary
+      .avatar-label {
+        margin: 0;
+        margin-left: 0.625rem;
+        margin-bottom: 0.25rem;
+        font-size: 0.75rem;
+        color: var(--text-secondary);
 
-      &.dark
-        color: $text-secondary-dark
+        &.dark {
+          color: var(--text-secondary-dark);
+        }
+      }
 
-    .avatar-wrapper
-      display: flex
-      align-items: center
+      .avatar-wrapper {
+        display: flex;
+        align-items: center;
 
-      @media $mobile
-        flex-direction: column
+        @media #{$mobile} {
+          flex-direction: column;
+        }
 
-      .project-avatar
-        border-radius: $radius-s
-        flex-shrink: 0
-        margin-right: 0.5rem
+        .project-avatar {
+          border-radius: var(--radius-s);
+          flex-shrink: 0;
+          margin-right: 0.5rem;
 
-        @media $mobile
-          margin-right: 0
-          margin-bottom: 0.5rem
+          @media #{$mobile} {
+            margin-right: 0;
+            margin-bottom: 0.5rem;
+          }
+        }
 
-      .buttons
-        text-align: center
-        width: 100%
+        .buttons {
+          text-align: center;
+          width: 100%;
 
-        .button
-          margin: 0.5rem
+          .button {
+            margin: 0.5rem;
 
-          @media $mobile
-            width: 100%
-            margin-left: 0
-            margin-right: 0
-            max-width: (320 / 16)rem
+            @media #{$mobile} {
+              width: 100%;
+              margin-left: 0;
+              margin-right: 0;
+              max-width: rem(320);
+            }
+          }
+        }
+      }
 
-    .toggle
-      margin-bottom: 1rem
+      .toggle {
+        margin-bottom: 1rem;
+      }
 
-    .select-wrapper,
-    .file-picker-wrapper,
-    .input-wrapper,
-    .tag-wrapper
-      display: flex
-      align-items: center
-      justify-content: space-between
-      margin-bottom: 2rem
+      .select-wrapper,
+      .file-picker-wrapper,
+      .input-wrapper,
+      .tag-wrapper {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 2rem;
 
-      > span
-        margin-right: 1rem
-        white-space: nowrap
+        > span {
+          margin-right: 1rem;
+          white-space: nowrap;
+        }
 
-      > .file-picker
-        max-width: none
-        overflow: hidden
+        > .file-picker {
+          max-width: none;
+          overflow: hidden;
+        }
+      }
 
-    .input-wrapper
-      &:not(:last-child)
-        margin-bottom: 1rem
+      .input-wrapper {
+        &:not(:last-child) {
+          margin-bottom: 1rem;
+        }
 
-      .input
-        margin-top: 0
-        margin-bottom: 0
-        width: auto
+        .input {
+          margin-top: 0;
+          margin-bottom: 0;
+          width: auto;
+        }
+      }
 
-    .tag-wrapper .tag-input
-      max-width: (286 / 16)rem
-      margin-top: 0
-      margin-bottom: 0
+      .tag-wrapper .tag-input {
+        max-width: rem(286);
+        margin-top: 0;
+        margin-bottom: 0;
+      }
 
-    .per-language-autoquotes
-      list-style: none
-      margin: 0
+      .per-language-autoquotes {
+        list-style: none;
+        margin: 0;
+      }
 
-    .select-wrapper,
-    .file-picker-wrapper,
-    .input-wrapper,
-    .per-language-autoquotes
-      &.v-enter-active,
-      &.v-leave-active
-        transition: opacity 200ms ease
+      .select-wrapper,
+      .file-picker-wrapper,
+      .input-wrapper,
+      .per-language-autoquotes {
 
-        &.v-enter-from,
-        &.v-leave-to
-          opacity: 0
+        &.v-enter-active,
+        &.v-leave-active {
+          transition: opacity 200ms ease;
+
+          &.v-enter-from,
+          &.v-leave-to {
+            opacity: 0;
+          }
+        }
+      }
+    }
+  }
 </style>
