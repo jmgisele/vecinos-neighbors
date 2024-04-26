@@ -1,4 +1,4 @@
-<template lang="html">
+<template>
   <section class="toggle field">
     <MbToggle :dark="dark" :icons="icons" :model-value="modelValue" @update:model-value="$emit('update:modelValue', $event)">
       {{label}}:

@@ -1,4 +1,4 @@
-<template lang="html">
+<template>
   <TabContent class="schema-fields-editor" :dark="dark" ref="tabContent" :show-split="showSplit" @split-close="showSplit = false" @split-closed="handleSplitClosed">
     <slot name="beforeFields" />
     <transition mode="out-in">

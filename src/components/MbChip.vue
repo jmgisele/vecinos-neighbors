@@ -1,4 +1,4 @@
-<template lang="html">
+<template>
   <div class="chip" :class="[color]">
     <transition mode="out-in">
       <MbInlineLoader v-if="loading" />

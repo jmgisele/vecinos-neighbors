@@ -1,4 +1,4 @@
-<template lang="html">
+<template>
   <div class="loader">
     <div class="wall">
       <div class="brick full" />

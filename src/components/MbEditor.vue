@@ -1,4 +1,4 @@
-<template lang="html">
+<template>
   <div class="editor" :class="{ dark, disabled }">
     <div v-if="outputFormat !== 'text'" class="toolbar" :class="{ dark }">
       <MbScroller>

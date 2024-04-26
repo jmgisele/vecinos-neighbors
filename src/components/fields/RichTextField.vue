@@ -1,4 +1,4 @@
-<template lang="html">
+<template>
   <section class="rich-text field" :class="{ dark, localised: showLocalisedOptions && languages.length > 1 }">
     <template v-if="!showLocalisedOptions">
       <MbEditor

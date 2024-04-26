@@ -1,4 +1,4 @@
-<template lang="html">
+<template>
   <MbModal class="media-creation-modal" :dark="dark" :permanent="type === 'uploading'" :title="title" :visible="visible" @after-close="resetEntityCreation" @close="$emit('close')">
     <MbSegmentedSelector v-if="permissions.has('everything') || (permissions.has('upload') && permissions.has('createFolder'))" :dark="dark" :model-value="type" :options="[{ label: 'Upload', value: 'upload' }, { label: 'Folder', value: 'directory' }]" @update:modelValue="$emit('update-type', $event)" />
     <transition mode="out-in">

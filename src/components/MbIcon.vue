@@ -1,4 +1,4 @@
-<template lang="html">
+<template>
   <transition mode="out-in" :name="transition">
     <svg class="icon" viewBox="0 0 24 24" fill="none" :key="icon" xmlns="http://www.w3.org/2000/svg">
       <use :xlink:href="`#icons/${icon}`" />

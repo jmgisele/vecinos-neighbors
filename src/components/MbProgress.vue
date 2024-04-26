@@ -1,4 +1,4 @@
-<template lang="html">
+<template>
   <div class="progress">
     <div class="bar" :class="{ dark }">
       <div class="ink" :class="[inkColor, { indetermined }]" :style="{ transform: `scaleX(${inkScale})` }"/>

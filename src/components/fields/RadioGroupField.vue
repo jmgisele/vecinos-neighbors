@@ -1,4 +1,4 @@
-<template lang="html">
+<template>
   <section class="radio-group field" :class="{ inline: options.type === 'inline' }">
     <p :class="{ error }">{{ error || `${label}:` }}</p>
     <MbRadioGroup v-if="options.type !== 'segmented'" :class="{ 'in-split': inSplit }" :dark="dark" :inline="options.type === 'inline'" :model-value="modelValue" :options="selectOptions" @update:model-value="handleInput" />

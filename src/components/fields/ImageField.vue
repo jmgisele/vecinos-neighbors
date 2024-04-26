@@ -1,4 +1,4 @@
-<template lang="html">
+<template>
   <section class="image field">
     <div class="display-wrapper" :class="{ active, dark, error: cleanError, 'in-split': inSplit, 'no-display-value': !displayValue, warning: resolutionWarning }" tabindex="0" @click="openDetails" @keyup.enter.space="openDetails" @keydown.space.prevent @mouseenter="showPathTooltip">
       <div class="image-wrapper" :class="{ dark }">

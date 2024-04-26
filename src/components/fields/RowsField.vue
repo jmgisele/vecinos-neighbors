@@ -1,4 +1,4 @@
-<template lang="html">
+<template>
   <section class="rows field">
     <div class="container" :class="{ dark, empty, error }">
       <p class="label">{{transformedLabel}}</p>

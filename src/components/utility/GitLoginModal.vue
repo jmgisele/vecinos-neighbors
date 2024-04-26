@@ -1,4 +1,4 @@
-<template lang="html">
+<template>
   <MbModal class="git-login-modal" :dark="dark" slim title="Log into your Git account" :visible="visible" @after-open="$refs.username.focus()" @close="handleCancel">
     <p v-if="message" v-html="message" />
     <p v-else>To confirm that you may perform this action, please sign into your Git account.</p>

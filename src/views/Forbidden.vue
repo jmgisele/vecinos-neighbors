@@ -1,4 +1,4 @@
-<template lang="html">
+<template>
   <div class="forbidden">
     <div class="wrapper">
       <MbIcon icon="key" />

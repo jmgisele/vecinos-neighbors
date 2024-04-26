@@ -1,4 +1,4 @@
-<template lang="html">
+<template>
   <section class="text field" :class="{ dark, localised: showLocalisedOptions && languages.length > 1 }">
     <template v-if="!showLocalisedOptions">
       <MbEditor v-if="options && (options.wrapping || options.multiline)" :allow-new-lines="options && options.multiline" :class="{ 'in-split': inSplit }" :dark="dark" :error="error && String(error)" :label="label" :max-len="(validation && validation.max) || null" :model-value="safeModelValue" @update:model-value="handleInput" />

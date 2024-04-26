@@ -1,4 +1,4 @@
-<template lang="html">
+<template>
   <div class="input" :class="{ dark, disabled, dirty: error || modelValue || modelValue === 0 || placeholder, error: error || maxLen && modelValue.length > maxLen, icon, warn }" @mousedown.self.prevent @click="focus">
     <MbIcon v-if="icon" :icon="error && !focussed ? warn ? 'warning' : 'error' : icon" @mousedown.prevent />
     <label v-if="displayLabel" :class="{ clearable, right: !label && maxLen, spinners: showSpinner }">{{displayLabel}}</label>

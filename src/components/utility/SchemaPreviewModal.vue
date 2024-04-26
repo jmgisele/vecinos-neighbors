@@ -1,4 +1,4 @@
-<template lang="html">
+<template>
   <MbModal class="schema-preview-modal" :dark="dark" :padded-body="false" :title="title" :visible="visible" @close="$emit('close')">
     <MbTabs v-if="schema.tabs && schema.tabs.length > 1" v-model="activeTab" :dark="dark" :tabs="cleanTabs" />
     <transition mode="out-in">

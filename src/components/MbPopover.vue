@@ -1,4 +1,4 @@
-<template lang="html">
+<template>
   <teleport to="body">
     <transition @after-leave="$emit('after-close')">
       <div v-show="visible" v-bind="$attrs" class="popover" :class="{ dark, right: fromRight, transition }" ref="el" :style="{ left, top, transformOrigin }" tabindex="-1" @keyup.esc="close">

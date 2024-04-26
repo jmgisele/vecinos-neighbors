@@ -1,4 +1,4 @@
-<template lang="html">
+<template>
   <section class="number field" :class="{ dark, localised: showLocalisedOptions && languages.length > 1 }">
     <template v-if="!showLocalisedOptions">
       <MbInput :class="{ 'in-split': inSplit }" :dark="dark" :error="error && String(error)" :label="label" :max-len="(validation && validation.max) || null" :model-modifiers="{ number: true }" :model-value="safeModelValue" type="number" @update:model-value="cleanInput" />

@@ -1,4 +1,4 @@
-<template lang="html">
+<template>
   <div class="field-candidate-item" :class="{ 'has-children': children && children.length > 0, dark }">
     <section class="field-candidate">
       <span>{{fieldKey}}</span>

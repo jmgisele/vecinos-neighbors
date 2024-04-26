@@ -1,4 +1,4 @@
-<template lang="html">
+<template>
   <TabContent class="collection-settings" :dark="dark" :show-split="showSplit" @split-close="showSplit = false" @split-closed="handleSplitClosed">
     <section class="wrapper wide">
       <h1 class="h2">Collections</h1>

@@ -1,4 +1,4 @@
-<template lang="html">
+<template>
   <div class="onboarding" :class="{ dark }">
     <section class="animation">
       <header>

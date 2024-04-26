@@ -1,4 +1,4 @@
-<template lang="html">
+<template>
   <MbButton v-bind="$attrs" class="select" :class="{ placeholder: typeof modelValue === 'undefined' || (!allowNull && modelValue === null) }" :dark="dark" :disabled="disabled" icon="chevron-down" :icon-first="false" :loading="loading" ref="button" :rounded="rounded" :tooltip="tooltip" @click="activate">
     {{currentOption}}
   </MbButton>

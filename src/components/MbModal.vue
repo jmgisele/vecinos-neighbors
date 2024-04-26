@@ -1,4 +1,4 @@
-<template lang="html">
+<template>
   <teleport to="body">
     <div class="centerer" :style="{ zIndex: modalIndex === -1 ? 999 : modalIndex + 1 }"><!-- This is needed so the modal doesn’t slip under another one while leaving -->
       <transition @after-enter="$emit('after-open')" @after-leave="$emit('after-close')">

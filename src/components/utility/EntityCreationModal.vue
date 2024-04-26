@@ -1,4 +1,4 @@
-<template lang="html">
+<template>
   <MbModal class="entity-creation-modal" :dark="dark" slim :title="title" :visible="visible" @after-open="$refs.nameInput.focus()" @close="$emit('close')">
     <MbSegmentedSelector v-if="!only" v-model="entity" :dark="dark" :options="[{ label: 'File', value: 'file' }, { label: 'Folder', value: 'directory' }]" />
     <div class="input-group">

@@ -1,4 +1,4 @@
-<template lang="html">
+<template>
   <TabContent class="dashboard-settings" :dark="dark" :show-split="showSplit" @split-close="showSplit = false" @split-closed="handleSplitClosed">
     <section class="wrapper">
       <h2>News and Announcements</h2>

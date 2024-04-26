@@ -1,4 +1,4 @@
-<template lang="html">
+<template>
   <div class="highlight-box" :class="[color, { dark }]" :data-label="label">
     <slot />
   </div>

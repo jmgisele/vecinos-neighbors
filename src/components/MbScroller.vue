@@ -1,4 +1,4 @@
-<template lang="html">
+<template>
   <div class="scroller" :class="[direction]" @mousedown.prevent="startDrag">
     <div class="scroll-area" ref="scrollArea" @scroll.passive="toggleScrollShadows">
       <slot />

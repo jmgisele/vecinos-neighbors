@@ -1,4 +1,4 @@
-<template lang="html">
+<template>
   <transition>
     <div v-if="$store.state.application.loading" class="loading-overlay" :class="{ dark }">
       <MbLoader />

@@ -1,4 +1,4 @@
-<template lang="html">
+<template>
   <div class="internal-link-helper">
     <transition mode="out-in">
       <div v-if="view === 'url'" class="view url" :class="{ dark }" key="url" tabindex="0" @click="activate" @keydown.space.prevent @keyup.space.enter="activate" @mouseenter="showPathTooltip">

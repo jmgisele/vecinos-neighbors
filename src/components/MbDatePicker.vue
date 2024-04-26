@@ -1,4 +1,4 @@
-<template lang="html">
+<template>
   <div class="date-picker" :class="{dark}" tabindex="0" @click="activate" @keydown.space.prevent @keyup.space.enter="activate">
     <span v-if="label" class="floating-label">{{label}}</span>
     <MbIcon :icon="modelValue ? 'calendar' : 'calendar-add'" />

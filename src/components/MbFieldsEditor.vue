@@ -1,4 +1,4 @@
-<template lang="html">
+<template>
   <div class="fields-editor" :class="{ dark, 'in-split': inSplit }">
     <template v-for="field in visibleFields" :key="field.key">
       <component

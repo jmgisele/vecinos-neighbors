@@ -1,4 +1,4 @@
-<template lang="html">
+<template>
   <div class="general-error">
     <div v-if="!noDBError" class="wrapper">
       <MbIcon icon="error" />

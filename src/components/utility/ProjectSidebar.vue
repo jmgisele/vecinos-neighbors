@@ -1,4 +1,4 @@
-<template lang="html">
+<template>
   <transition duration="350">
     <div v-if="isTablet && visible" class="mask" :class="{ dark, swiping }" :style="{ opacity: maskOpacity }" @click="visible = false" />
   </transition>

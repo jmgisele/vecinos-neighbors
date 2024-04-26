@@ -1,4 +1,4 @@
-<template lang="html">
+<template>
   <MbModal class="repeating-field-change-type-modal" :dark="dark" :title="`Change ${itemLabel} Type`" :visible="visible" @after-close="fieldFilter = ''" @close="$emit('close')">
     <template v-if="currentValue">
       <h2 class="h4">Existing Values</h2>

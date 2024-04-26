@@ -1,4 +1,4 @@
-<template lang="html">
+<template>
   <AsyncImage :alt="projectId" class="project-avatar" :placeholder-color="projectColor" :src="projectAvatar" @load="handleLoad" />
 </template>
 

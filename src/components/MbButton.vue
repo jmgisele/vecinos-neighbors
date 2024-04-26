@@ -1,4 +1,4 @@
-<template lang="html">
+<template>
   <button class="button" :class="[type, { dark, disabled, loading, rounded, icon, reversed: !iconFirst, 'no-label': !label }]" :disabled="disabled || loading" @click="handleClick" @mouseenter="handleTooltip" @focus="handleTooltip">
     <MbIcon v-if="icon" :class="{ invisible: loading }" :icon="icon" />
     <span v-if="label" class="label" :class="{ invisible: loading }">{{ label }}</span>

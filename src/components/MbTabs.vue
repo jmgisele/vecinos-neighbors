@@ -1,4 +1,4 @@
-<template lang="html">
+<template>
   <MbScroller class="tabs" :class="{ dark }">
     <div class="scroll-wrapper">
       <transition-group ref="tabs" tag="ul" @enter="refresh = !refresh" @after-leave="resetActiveTab">

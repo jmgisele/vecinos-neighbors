@@ -1,4 +1,4 @@
-<template lang="html">
+<template>
   <div class="edit-schema">
     <header>
       <div class="left">

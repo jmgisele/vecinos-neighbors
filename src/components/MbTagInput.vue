@@ -1,4 +1,4 @@
-<template lang="html">
+<template>
   <div class="tag-input" :class="{dark, error: error || externalError || (max && modelValue.length > max), }" @click="$refs.input.focus()" @focusin="handleFocusIn" @focusout="handleFocusOut">
     <span v-if="displayLabel" class="label" :class="{ right: !label && max }">{{displayLabel}}</span>
     <transition-group class="tags-wrapper" tag="div" @before-leave="setGridPosition">

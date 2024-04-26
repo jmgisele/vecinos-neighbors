@@ -1,4 +1,4 @@
-<template lang="html">
+<template>
   <section class="separator field">
     <hr>
   </section>

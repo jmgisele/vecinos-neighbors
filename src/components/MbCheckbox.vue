@@ -1,4 +1,4 @@
-<template lang="html">
+<template>
   <label class="checkbox" :class="{dark, disabled, 'full-width': label}">
     <input type="checkbox" :checked="modelValue" :disabled="disabled" @keyup.enter="$emit('update:modelValue', !$event.target.checked)" @change="$emit('update:modelValue', $event.target.checked)">
     <div class="visual-checkbox">

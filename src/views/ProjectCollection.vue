@@ -1,4 +1,4 @@
-<template lang="html">
+<template>
   <div class="collection">
     <h1>{{collection.name}}</h1>
     <template v-if="collection.dir">

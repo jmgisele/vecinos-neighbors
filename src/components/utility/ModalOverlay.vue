@@ -1,4 +1,4 @@
-<template lang="html">
+<template>
   <transition>
     <div v-show="visible" class="modal-overlay" :class="{dark}" @click="closeTopmostModal" />
   </transition>

@@ -1,4 +1,4 @@
-<template lang="html">
+<template>
   <button class="color-picker" :class="{ dark, 'no-label': hideLabel }" @click="activate">
     <div class="color-swatch" :class="{ 'no-label': hideLabel }">
       <div v-show="Boolean(modelValue)" class="old-color" :style="{ backgroundImage: `linear-gradient(to right, ${currentColorNoAlpha} 50%, ${modelValue} 50%)` }" />

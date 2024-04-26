@@ -1,4 +1,4 @@
-<template lang="html">
+<template>
   <div class="project">
     <router-view v-slot="{ Component }">
       <transition mode="out-in">

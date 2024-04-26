@@ -1,4 +1,4 @@
-<template lang="html">
+<template>
   <div class="segmented-selector" :class="{ dark }">
     <transition>
       <div v-show="activeOptionIndex > -1" class="ink" :class="{ disabled: options[activeOptionIndex] && options[activeOptionIndex].disabled }" :style="{ transform: inkTransform, width: `calc((100% - ${0.125 * (options.length - 1)}rem) * ${1 / options.length })` }" />

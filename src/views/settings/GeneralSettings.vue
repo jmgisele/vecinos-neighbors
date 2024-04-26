@@ -1,4 +1,4 @@
-<template lang="html">
+<template>
   <TabContent class="general-settings" :dark="dark">
     <section class="wrapper">
       <h1 class="h2">Project</h1>

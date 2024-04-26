@@ -1,4 +1,4 @@
-<template lang="html">
+<template>
   <transition-group class="permissions-list" :class="{ dark }" tag="ul">
     <li v-for="(rule, index) in rulesWithoutSoftDeleted" :key="rule.id">
       <MbSelect :dark="dark" :model-value="rule.role" :options="roles" placeholder="Select a role…" @update:model-value="handleRuleUpdate($event, index, 'role')" />

@@ -1,4 +1,4 @@
-<template lang="html">
+<template>
   <div class="item-list">
     <MbSortableList v-slot="{ activeItem, item }" enable-transitions :items="modelValue" @itemmove="handleItemMove">
       <div class="item" :class="{ 'being-dragged': activeItem === item, dark }" >

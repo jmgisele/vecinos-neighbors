@@ -1,4 +1,4 @@
-<template lang="html">
+<template>
   <div class="import" :class="{ dark }">
     <section class="intro">
       <div class="icon-wrapper">

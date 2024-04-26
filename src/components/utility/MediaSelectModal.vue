@@ -1,4 +1,4 @@
-<template lang="html">
+<template>
   <MbModal class="media-select-modal" :dark="dark" :style="{ width: '60rem' }" title="Select an image…" :visible="visible" @close="$emit('close')">
     <div v-if="!mediaSettings.dir" class="unconfigured-state" :class="{ dark }">
       <h2>The Media Library hasn’t been configured yet</h2>

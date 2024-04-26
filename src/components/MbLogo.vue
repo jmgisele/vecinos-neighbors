@@ -1,4 +1,4 @@
-<template lang="html">
+<template>
   <svg class="logo" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
     <path d="M0 20L20 0L25.625 5.625L5.625 25.625L0 20Z" fill="currentColor"/>
     <path d="M6.875 26.875L13.125 33.125L22.5 23.75L16.25 17.5L6.875 26.875Z" fill="currentColor"/>

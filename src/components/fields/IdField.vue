@@ -1,4 +1,4 @@
-<template lang="html">
+<template>
   <section class="id field">
     <MbInput :class="{ 'in-split': inSplit }" :dark="dark" :disabled="!options.editable || options.type === 'template'" :error="error && String(error)" icon="hash" :label="label" :model-value="modelValue" placeholder="A unique value" @update:model-value="handleInput" />
     <MbButton v-if="options.editable && options.type !== 'template'" :dark="dark" :disabled="originalValue === modelValue" icon="undo" rounded tooltip="Reset to initial value" @click="handleInput(originalValue)" />

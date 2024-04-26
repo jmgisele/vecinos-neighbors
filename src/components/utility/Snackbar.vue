@@ -1,4 +1,4 @@
-<template lang="html">
+<template>
   <transition-group class="snackbar" duration="600" tag="div">
     <Toast v-for="toast in toasts" :dark="dark" :key="toast.id" :toast="toast" />
   </transition-group>

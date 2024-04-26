@@ -1,4 +1,4 @@
-<template lang="html">
+<template>
   <button class="project-card" :class="{dark}" @click="handleClick" @contextmenu.prevent="openMenu">
     <MbProjectAvatar :avatar="avatar" :project-id="id" :project-name="name" />
     <footer>

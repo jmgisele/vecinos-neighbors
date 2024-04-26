@@ -1,4 +1,4 @@
-<template lang="html">
+<template>
   <MbPopover class="context-menu" :dark="dark" :from-right="fromRight" no-content-padding :steal-focus="stealFocus" :visible="show" :x="x" :y="y" @close="close" @keydown.arrow-down.arrow-up.prevent @keyup.arrow-down="focus(1)" @keyup.arrow-up="focus(-1)">
     <ul class="wrapper" ref="list" tabindex="-1">
       <li v-for="(option, index) in options" :class="[option.type, {dark, disabled: option.disabled, icon: withIcons && !option.icon}]" :key="index" :tabindex="option.disabled ? -1 : 0" @click="handleAction(option.action)" @keydown.space.prevent @keyup.space.enter="handleAction(option.action)" @mouseenter="handleMouseenter($event, index)" @mouseleave="handleMouseleave">

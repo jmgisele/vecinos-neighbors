@@ -1,4 +1,4 @@
-<template lang="html">
+<template>
   <MbModal class="legal-modal" :dark="dark" :title="title" :visible="visible" @close="$emit('close')">
     <slot>
       <p>This is an instance of Mattrbld hosted by a third party. No privacy policy was configured for it, please contact the administrator of the instance.</p>

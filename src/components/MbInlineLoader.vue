@@ -1,4 +1,4 @@
-<template lang="html">
+<template>
   <div class="inline-loader">
     <div class="brick-wrapper">
       <div class="brick left" />

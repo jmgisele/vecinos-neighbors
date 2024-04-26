@@ -1,4 +1,4 @@
-<template lang="html">
+<template>
   <div class="edit-custom-field">
     <header>
       <div class="left">

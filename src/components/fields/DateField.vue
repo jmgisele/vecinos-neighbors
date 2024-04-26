@@ -1,4 +1,4 @@
-<template lang="html">
+<template>
   <section class="date field" :class="{ dark, error, 'in-split': inSplit }">
     <span>{{label}}:</span>
     <MbDatePicker :class="{ error }" :dark="dark" :format="options.outputFormat" :label="error" :max="validation && validation.max" :min="validation && validation.min" :model-value="safeModelValue" :only="options.only" :removable="options.removable" :show-time="options.showTime" @update:model-value="handleInput" />

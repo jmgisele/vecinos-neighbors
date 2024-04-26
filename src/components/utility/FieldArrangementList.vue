@@ -1,4 +1,4 @@
-<template lang="html">
+<template>
   <transition-group class="field-arrangement-list" :class="{ dark }" tag="div">
     <div v-if="fields.length === 0" class="empty-state" :class="{ 'drag-active': $store.state.application.dragActive }" data-index="0" :data-parent="parentKey" key="emptyState">
       <p>Drop a field here to add it</p>

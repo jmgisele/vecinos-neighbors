@@ -1,4 +1,4 @@
-<template lang="html">
+<template>
   <main class="tab-content" :class="{ split: showSplit }">
     <div class="content-wrapper" :class="{ dark, padded }">
       <slot />

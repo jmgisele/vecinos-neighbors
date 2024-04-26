@@ -1,4 +1,4 @@
-<template lang="html">
+<template>
   <div class="async-image">
     <img draggable="false" :src="src" :alt="alt" @load="handleLoad">
     <transition>

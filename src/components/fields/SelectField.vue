@@ -1,4 +1,4 @@
-<template lang="html">
+<template>
   <section class="select field">
     <p :class="{ error }">{{ error || `${label}:` }}</p>
     <MbSelect :class="{ error }" :dark="dark" :disabled="!selectOptions || selectOptions.length === 0" :filterable="options.filterable" :model-value="modelValue" :options="selectOptions" :placeholder="options.placeholder" @update:model-value="handleInput" />

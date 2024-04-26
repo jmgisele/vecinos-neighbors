@@ -1,4 +1,4 @@
-<template lang="html">
+<template>
   <section class="unknown field" :class="{ dark }">
     <p>The field “{{label}}” is of an unknown type and cannot be displayed</p>
   </section>

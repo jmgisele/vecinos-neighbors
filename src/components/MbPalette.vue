@@ -1,4 +1,4 @@
-<template lang="html">
+<template>
   <transition-group class="palette" tag="ul">
     <li v-for="(color, index) in colorsWithoutSoftDeleted" :class="{ dark, error: errors.has(color) }" :key="color.label">
       <MbColorPicker :dark="dark" :format="format" hide-label :model-value="color.value" @update:model-value="handleChange($event, index, 'value')" />

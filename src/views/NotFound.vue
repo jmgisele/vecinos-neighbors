@@ -1,4 +1,4 @@
-<template lang="html">
+<template>
   <div class="not-found">
     <div class="wrapper">
       <MbIcon icon="warning" />

@@ -1,4 +1,4 @@
-<template lang="html">
+<template>
   <SchemaFieldsEditor v-model="customFields" :activated="enableAdvancedLibrary" :active-tab="0" class="media-settings" :dark="dark" no-subfields :project-id="currentProject.id" :tabs="[]">
     <template #beforeFields>
       <section class="wrapper">

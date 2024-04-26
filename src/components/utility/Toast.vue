@@ -1,4 +1,4 @@
-<template lang="html">
+<template>
   <div class="toast" :class="[toast.type, { dark, 'no-footer': toast.permanent && !toast.action }]" :key="toast.id">
     <p>{{toast.message}}</p>
     <footer>

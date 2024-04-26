@@ -1,4 +1,4 @@
-<template lang="html">
+<template>
   <MbTooltip class="global-tooltip" :message="cachedTooltip.message" :position="cachedTooltip.position" :target="cachedTooltip.target" :visible="cachedTooltip && showTooltip" />
 </template>
 

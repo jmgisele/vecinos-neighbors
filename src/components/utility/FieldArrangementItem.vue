@@ -1,4 +1,4 @@
-<template lang="html">
+<template>
   <div class="field-arrangement-item" :class="{ 'drag-active': dragActive, dragging: beingDragged, 'hide-outline': hideOutline }">
     <div class="info" :class="{ active, dark }" tabindex="0" @keydown.space.prevent @keyup.space.enter="$emit('fieldclick')" @click.left="handleClick" @contextmenu.prevent="handleContextMenu" @pointerdown.left="startDrag">
       <MbIcon class="drag-handle" icon="drag-handle" ref="dragHandle" />

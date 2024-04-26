@@ -1,4 +1,4 @@
-<template lang="html">
+<template>
   <teleport to="body">
     <transition>
       <div v-show="target && visible" v-bind="$attrs" class="tooltip" :class="[ positionOverride || position ]" ref="body" :style="{ transform: `translate(${transform.x}px, ${transform.y}px)` }" v-html="message || lastMessage" />

@@ -1,4 +1,4 @@
-<template lang="html">
+<template>
   <section class="group field" :class="{ dark, expanded: !compact }">
     <div class="display-wrapper" :class="{ active, dark, error: cleanError, 'in-split': inSplit, 'no-display-value': !localisedDisplayValue }" :tabindex="compact ? 0 : null" @click="openGroup" @keyup.enter.space="openGroup" @keydown.space.prevent>
       <div class="left">

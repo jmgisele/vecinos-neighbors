@@ -1,4 +1,4 @@
-<template lang="html">
+<template>
   <TabContent class="schema-settings" :class="{ dark }" :dark="dark">
     <section class="wrapper wide">
       <h1 class="h2">Schemas</h1>

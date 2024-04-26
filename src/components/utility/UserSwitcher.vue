@@ -1,4 +1,4 @@
-<template lang="html">
+<template>
   <button class="user-switcher" :class="{dark}" @click="activatePopover">
     <span v-if="!isMobile" class="name">{{activeUser.name}}</span>
     <AsyncImage draggable="false" :src="activeUser.avatar" :alt="`${activeUser.name}’s Avatar`" />

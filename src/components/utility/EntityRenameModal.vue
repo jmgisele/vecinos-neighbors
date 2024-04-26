@@ -1,4 +1,4 @@
-<template lang="html">
+<template>
   <MbModal class="entity-rename-modal" :dark="dark" slim :title="title" :visible="visible" @after-open="focusInput" @after-close="reInitialize" @close="$emit('close')">
     <div class="input-group">
       <MbInput v-model="name" :class="{ 'no-extension': !fileExtension }" :dark="dark" :error="nameError" icon="text-input" label="Name" :max-len="fileExtension ? 255 - fileExtension.length + 1 : 255" ref="nameInput" @keyup.ctrl.enter="renameEntity" @update:model-value="validateName" />

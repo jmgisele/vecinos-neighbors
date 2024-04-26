@@ -1,4 +1,4 @@
-<template lang="html">
+<template>
   <section class="reference field" :class="{ dark, localised: showLocalisedOptions && languages.length > 1 }">
     <template v-if="!showLocalisedOptions">
       <span class="label" :class="{ dark, error }">{{error || label}}</span>

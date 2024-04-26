@@ -1,4 +1,4 @@
-<template lang="html">
+<template>
   <input accept="image/png, image/jpeg" class="avatar-uploader" type="file" @change="loadImage">
 </template>
 

@@ -1,4 +1,4 @@
-<template lang="html">
+<template>
   <transition-group class="sortable-list" :class="{ dragging }" tag="div">
     <div v-for="(item, index) in items" class="drag-item" :class="{ transitions: enableTransitions }" :data-area="areaId" :data-index="index" :key="item[keyName] || item" @click="handleClick(index, $event)" @pointerdown.left="startDrag($event, index)">
       <slot :active-item="activeItem" :index="index" :item="item" />

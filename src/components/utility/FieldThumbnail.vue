@@ -1,4 +1,4 @@
-<template lang="html">
+<template>
   <div class="field-thumbnail">
     <div class="field" :class="{ dark, dragging }" @click="isMobile ? $emit('add-field') : null" @pointerdown.left="startDrag">
       <MbIcon icon="drag-handle" />

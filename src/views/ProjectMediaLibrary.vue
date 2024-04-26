@@ -1,4 +1,4 @@
-<template lang="html">
+<template>
   <div class="media-library">
     <header>
       <h1>Media Library</h1>

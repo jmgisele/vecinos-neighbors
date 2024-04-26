@@ -1,4 +1,4 @@
-<template lang="html">
+<template>
   <MbModal class="repeating-field-details-modal" :dark="dark" :title="title" :visible="visible" @close="$emit('close')" @keyup.ctrl.enter="$emit('close')">
     <teleport v-if="!teleportTarget || active" :disabled="!teleportTarget" :to="teleportTarget">
       <h2 v-if="teleportTarget" class="h3 split-title">{{title}}</h2>

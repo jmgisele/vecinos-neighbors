@@ -1,4 +1,4 @@
-<template lang="html">
+<template>
   <div class="project-settings">
     <MbTabs v-model="activeTab" :dark="dark" :tabs="tabs" />
     <transition mode="out-in" :name="tabTransition">

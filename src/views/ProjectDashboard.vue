@@ -1,4 +1,4 @@
-<template lang="html">
+<template>
   <div class="project-dashboard">
     <header>
       <h1>Welcome back, {{firstName}}!</h1>

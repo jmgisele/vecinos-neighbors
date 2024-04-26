@@ -1,4 +1,4 @@
-<template lang="html">
+<template>
   <div class="file-picker" :class="{ dark }" tabindex="0" @click="activate" @keydown.space.prevent @keyup.space.enter="activate" @mouseenter="showPathTooltip">
     <MbIcon :icon="mode === 'folder' ? 'folder' : 'document'" />
     <span class="label" :class="{ placeholder: !modelValue }">{{label}}</span>

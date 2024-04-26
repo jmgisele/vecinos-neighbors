@@ -1,4 +1,4 @@
-<template lang="html">
+<template>
   <TabContent class="user-settings" :class="{ dark }" :dark="dark">
     <section class="wrapper wide">
       <h1 class="h2">Users</h1>

@@ -1,4 +1,4 @@
-<template lang="html">
+<template>
   <label class="toggle" :class="{ active: modelValue, dark, disabled, 'full-width': label }">
     <span v-if="label">{{ label }}</span>
     <button type="button" v-on="events">

@@ -1,4 +1,4 @@
-<template lang="html">
+<template>
   <TabContent class="sidebar-settings" :dark="dark" :show-split="showSplit" @split-close="showSplit = false" @split-closed="handleSplitClosed">
     <section class="wrapper" :class="{ dark }">
       <h1 class="h2">Sidebar</h1>

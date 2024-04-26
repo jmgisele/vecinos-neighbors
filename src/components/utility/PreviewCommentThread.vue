@@ -1,4 +1,4 @@
-<template lang="html">
+<template>
   <MbPopover class="preview-comment-thread" :dark="dark" no-content-padding no-footer-padding :prevent-close-on-outside-click="commentActions.show" update-on-resize use-capture-on-outside-click :visible="visible" :x="x" :y="y" @close="handleClose">
     <template v-if="comments && comments[0].status" #header>
       <div class="thread-status" :class="[comments[0].status]">

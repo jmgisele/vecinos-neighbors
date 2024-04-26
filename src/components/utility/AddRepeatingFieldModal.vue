@@ -1,4 +1,4 @@
-<template lang="html">
+<template>
   <MbModal class="add-repeating-field-modal" :dark="dark" title="Add new…" :visible="visible" @after-close="fieldFilter = ''" @close="$emit('close')">
     <div v-if="fields.length > 6" class="input-wrapper">
       <MbInput v-model="fieldFilter" clearable :dark="dark" icon="search" :placeholder="`Filter available ${pluralizedItemLabel}`" />

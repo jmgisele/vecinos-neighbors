@@ -1,4 +1,4 @@
-<template lang="html">
+<template>
   <div class="editable-list">
     <MbSegmentedSelector v-if="!forceMode" v-model="mode" :dark="dark" :options="[{ label: 'Simple', value: 'simple' }, { label: 'Labelled', value: 'advanced' }, { label: 'From File', value: 'file' }]" />
     <transition mode="out-in">

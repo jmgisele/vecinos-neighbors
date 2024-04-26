@@ -1,4 +1,4 @@
-<template lang="html">
+<template>
   <div class="icon-picker" :class="{ dark }" tabindex="0" @click="activate" @keydown.space.prevent @keyup.space.enter="activate">
     <MbIcon :icon="modelValue || 'mattrbld'" />
     <span class="label" :class="{ placeholder: !modelValue }">{{modelValue || placeholder}}</span>

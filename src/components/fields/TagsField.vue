@@ -1,4 +1,4 @@
-<template lang="html">
+<template>
   <section class="tags field" :class="{ dark, localised: showLocalisedOptions && languages.length > 1 }">
     <template v-if="!showLocalisedOptions">
       <MbTagInput :allow-unsuggested="options.allowUnsuggested" :autocomplete-model="autocompleteModel" :autocomplete-property="autocompleteProperty" :class="{ 'in-split': inSplit }" :dark="dark" :external-error="error && String(error)" :label="label" :max="(validation && validation.max) || null" :min="(validation && validation.min) || null" :model-value="safeModelValue" :placeholder="placeholder" :value-property="valueProperty" @update:model-value="handleInput" />

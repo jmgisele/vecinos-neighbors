@@ -1,4 +1,4 @@
-<template lang="html">
+<template>
   <section class="languages field">
     <p :class="{ error }">{{ error || `${label}:` }}</p>
     <MbCheckboxGroup :checkboxes="checkboxes" :dark="dark" inline :model-value="modelValue || []" @update:model-value="handleInput" />

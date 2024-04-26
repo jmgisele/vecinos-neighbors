@@ -1,4 +1,4 @@
-<template lang="html">
+<template>
   <div v-if="languages.length > 1" class="localised-fields-container" :class="{ active, dark, error, 'in-split': inSplit }" tabindex="0" @click="openValues" @keyup.enter.space="openValues" @keydown.space.prevent>
     <div class="left">
       <p class="label">{{errorMessage || `${label} (localised)`}}</p>

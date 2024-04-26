@@ -1,4 +1,4 @@
-<template lang="html">
+<template>
   <div class="file-list" :class="{ dark }">
     <header>
       <nav>

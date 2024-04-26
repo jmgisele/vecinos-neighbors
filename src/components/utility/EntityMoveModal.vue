@@ -1,4 +1,4 @@
-<template lang="html">
+<template>
   <MbModal class="entity-move-modal" :dark="dark" :padded-body="false" slim :visible="visible" @after-close="resetPath" @close="$emit('close')">
     <h2 class="h3">{{title}}</h2>
     <MbFileList v-if="root" :dark="dark" :filterable="false" :folders-first="false" folders-only :pretty-filenames="prettyFilenames" ref="fileList" :root="root" :sortable="false" @path-change="currentPath = $event" />
