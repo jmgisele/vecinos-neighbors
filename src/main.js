@@ -7,7 +7,7 @@ import store from './store';
 
 import 'normalize.css';
 
-import './assets/styles/base.styl';
+import './assets/styles/base.scss';
 
 const app = createApp(App).use(store).use(router);
 
