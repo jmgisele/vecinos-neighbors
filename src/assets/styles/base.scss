@@ -5,6 +5,8 @@
 :root {
   --accent: #6c5ce7;
   --accent-secondary: #A29BFE;
+  --accent-darkened-5: darken(#6c5ce7, 5%);
+  --accent-darkened-10: darken(#6c5ce7, 10%);
 
   --text: #111028;
   --text-secondary: color-mix(in srgb, var(--text) 54%, transparent);
@@ -21,6 +23,7 @@
   --bg-dark: #1E1D22;
   --bg-secondary-dark: #2B2A32;
   --bg-tertiary-dark: #343244;
+  --bg-tertiary-dark-lightened-5: lighten(#343244, 5%);
 
   --negative-saturated: #d63031;
   --negative: #ff7675;
