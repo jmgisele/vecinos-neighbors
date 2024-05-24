@@ -21,34 +21,39 @@ export default {
 };
 </script>
 
-<style lang="stylus" scoped>
-@require '../assets/styles/breakpoints'
-@require '../assets/styles/colors'
+<style lang="scss" scoped>
+  @use '../assets/styles/breakpoints' as *;
 
-.forbidden
-  display: flex
-  flex-direction: column
-  justify-content: center
-  align-items: center
-  max-width: 40rem
-  width: calc(100% - 2rem)
-  margin: 0 auto
+  .forbidden {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    max-width: 40rem;
+    width: calc(100% - 2rem);
+    margin: 0 auto;
 
-  .icon
-    width: 4rem
-    height: @width
-    color: $negative-saturated
-    margin-top: 16rem
+    .icon {
+      width: 4rem;
+      height: 4rem;
+      color: var(--negative-saturated);
+      margin-top: 16rem;
 
-    @media $mobile
-      margin-top: 8rem
+      @media #{$mobile} {
+        margin-top: 8rem;
+      }
+    }
 
-  h1
-    margin-top: 2rem
+    h1 {
+      margin-top: 2rem;
+    }
 
-  footer
-    margin-top: 2rem
+    footer {
+      margin-top: 2rem;
 
-    .button:first-child
-      margin-right: 1rem
+      .button:first-child {
+        margin-right: 1rem;
+      }
+    }
+  }
 </style>

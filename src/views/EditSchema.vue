@@ -576,184 +576,229 @@ export default {
 };
 </script>
 
-<style lang="stylus" scoped>
-@require '../assets/styles/breakpoints'
-@require '../assets/styles/colors'
-@require '../assets/styles/corners'
+<style lang="scss" scoped>
+  @use '../assets/styles/breakpoints' as *;
 
-.edit-schema // 100% minus the height of the app-header
-  height: "calc(100vh - %s)" % (116 / 16)rem
-  user-select: none
+  .edit-schema  {
+    height: calc(100vh - rem(116));
+    user-select: none;
 
-  @media $tablet
-    height: "calc(100vh - %s)" % (84 / 16)rem
+    @media #{$tablet} {
+      height: calc(100vh - rem(84));
+    }
 
-  @media $mobile
-    height: auto
+    @media #{$mobile} {
+      height: auto;
+    }
 
-  > header
-    display: flex
-    padding: 0 2rem 2rem 2rem
+    > header {
+      display: flex;
+      padding: 0 2rem 2rem 2rem;
 
-    @media $tablet
-      padding: 1rem
-      padding-top: 0
+      @media #{$tablet} {
+        padding: 1rem;
+        padding-top: 0;
+      }
 
-    @media $mobile
-      display: block
+      @media #{$mobile} {
+        display: block;
+      }
 
-    .left
-      display: flex
-      align-items: center
-      margin-right: auto
-      overflow: hidden
+      .left {
+        display: flex;
+        align-items: center;
+        margin-right: auto;
+        overflow: hidden;
 
-      @media $tablet
-        margin-left: 1rem
+        @media #{$tablet} {
+          margin-left: 1rem;
+        }
 
-      @media $mobile
-        margin-bottom: 1rem
-        margin-left: 0
+        @media #{$mobile} {
+          margin-bottom: 1rem;
+          margin-left: 0;
+        }
 
-      h1
-        margin: 0
-        margin-right: 1.5rem
-        margin-left: 1rem
-        white-space: nowrap
-        overflow: hidden
-        text-overflow: ellipsis
+        h1 {
+          margin: 0;
+          margin-right: 1.5rem;
+          margin-left: 1rem;
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
 
-        @media $tablet
-          margin-left: 0
-          margin-right: 1rem
+          @media #{$tablet} {
+            margin-left: 0;
+            margin-right: 1rem;
+          }
 
-        @media $mobile
-          font-size: 1.5rem
-          margin-right: 0.5rem
+          @media #{$mobile} {
+            font-size: 1.5rem;
+            margin-right: 0.5rem;
+          }
+        }
 
-      .chip
-        flex-shrink: 0
+        .chip {
+          flex-shrink: 0;
 
-        @media $mobile
-          order: -1
-          width: 1rem
-          height: @width
-          padding: 0
-          margin-right: 0.5rem
+          @media #{$mobile} {
+            order: -1;
+            width: 1rem;
+            height: 1rem;
+            padding: 0;
+            margin-right: 0.5rem;
 
-          &::v-deep(span)
-            display: none
+            &:deep(span) {
+              display: none;
+            }
+          }
+        }
+      }
 
-    .right
-      display: flex
-      align-items: center
-      overflow: hidden
-      flex-shrink: 0
-      margin-left: 1rem
-      padding-bottom: 0.125rem
+      .right {
+        display: flex;
+        align-items: center;
+        overflow: hidden;
+        flex-shrink: 0;
+        margin-left: 1rem;
+        padding-bottom: 0.125rem;
 
-      @media $mobile
-        margin-left: 0
+        @media #{$mobile} {
+          margin-left: 0;
+        }
 
-      .button
-        &:not(:last-child)
-          margin-right: 1rem
+        .button {
+          &:not(:last-child) {
+            margin-right: 1rem;
+          }
+        }
+      }
+    }
 
-  .tabs
-    position: sticky
-    top: 0
-    z-index: 1
+    .tabs {
+      position: sticky;
+      top: 0;
+      z-index: 1;
+    }
+  }
 
-.edit-tab-modal,
-.edit-schema-modal
-  .input
-    width: 100%
+  .edit-tab-modal,
+  .edit-schema-modal {
+    .input {
+      width: 100%;
 
-    &.v-enter-active,
-    &.v-leave-active
-      transition: opacity 200ms ease
+      &.v-enter-active,
+      &.v-leave-active {
+        transition: opacity 200ms ease;
 
-      &.v-enter-from,
-      &.v-leave-to
-        opacity: 0
+        &.v-enter-from,
+        &.v-leave-to {
+          opacity: 0;
+        }
+      }
+    }
 
-  .toggle
-    margin-top: 1.5rem
+    .toggle {
+      margin-top: 1.5rem;
+    }
 
-  .highlight-box
-    margin-top: 2rem
+    .highlight-box {
+      margin-top: 2rem;
 
-    .button
-      display: flex
-      margin-left: auto
+      .button {
+        display: flex;
+        margin-left: auto;
 
-      @media $mobile
-        width: 100%
+        @media #{$mobile} {
+          width: 100%;
+        }
+      }
+    }
+  }
 
-.edit-schema-modal
-  .input
-    margin-bottom: 1rem
+  .edit-schema-modal {
+    .input {
+      margin-bottom: 1rem;
+    }
 
-  .sortable-list
-    &::v-deep(.drag-item)
-      margin-bottom: 0.5rem
+    .sortable-list {
+      &:deep(.drag-item) {
+        margin-bottom: 0.5rem;
+      }
+    }
 
-  .add-tab-button
-    display: flex
-    margin-left: auto
+    .add-tab-button {
+      display: flex;
+      margin-left: auto;
 
-    @media $mobile
-      width: 100%
+      @media #{$mobile} {
+        width: 100%;
+      }
 
-    &.dark
-      margin-top: 0.75rem
+      &.dark {
+        margin-top: 0.75rem;
+      }
+    }
+  }
 
-.generate-schema-modal
-  .file-picker
-    display: flex
-    margin-bottom: 2rem
+  .generate-schema-modal {
+    .file-picker {
+      display: flex;
+      margin-bottom: 2rem;
+    }
 
-  .field-candidates
-    .field-candidate-item
-      margin-bottom: 0.125rem
+    .field-candidates {
+      .field-candidate-item {
+        margin-bottom: 0.125rem;
 
-      &:not(:last-child)
-        margin-bottom: 1rem
+        &:not(:last-child) {
+          margin-bottom: 1rem;
+        }
+      }
+    }
+  }
 
-// needs to be toplevel so dragging clone can have its styles
-.edit-tab-element
-  padding: 1rem
-  box-shadow: inset 0 0 0 0.0625rem $text-tertiary
-  border-radius: $radius-m
-  display: flex
-  align-items: center
-  background-color: $bg
-  cursor: pointer
+  // needs to be toplevel so dragging clone can have its styles
+  .edit-tab-element {
+    padding: 1rem;
+    box-shadow: inset 0 0 0 0.0625rem var(--text-tertiary);
+    border-radius: var(--radius-m);
+    display: flex;
+    align-items: center;
+    background-color: var(--bg);
+    cursor: pointer;
 
-  &:hover
-    background-color: $bg-secondary
+    &:hover {
+      background-color: var(--bg-secondary);
+    }
 
-  &.dark
-    background-color: $bg-secondary-dark
-    box-shadow: inset 0 0 0 0.0625rem $bg-tertiary-dark
+    &.dark {
+      background-color: var(--bg-secondary-dark);
+      box-shadow: inset 0 0 0 0.0625rem var(--bg-tertiary-dark);
+    }
 
-  .icon
-    flex-shrink: 0
+    .icon {
+      flex-shrink: 0;
 
-    &:first-child
-      margin-right: 1rem
-      cursor: move
+      &:first-child {
+        margin-right: 1rem;
+        cursor: move;
+      }
 
-    &:last-child
-      margin-right: 0
+      &:last-child {
+        margin-right: 0;
+      }
+    }
 
-  span
-    margin-right: auto
-    text-overflow: ellipsis
-    white-space: nowrap
-    overflow: hidden
+    span {
+      margin-right: auto;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      overflow: hidden;
+    }
 
-  &.being-dragged
-    opacity: 0.25
-
+    &.being-dragged {
+      opacity: 0.25;
+    }
+  }
 </style>

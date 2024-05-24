@@ -331,130 +331,158 @@ export default {
 };
 </script>
 
-<style lang="stylus" scoped>
-@require '../assets/styles/breakpoints'
-@require '../assets/styles/colors'
-@require '../assets/styles/corners'
+<style lang="scss" scoped>
+  @use '../assets/styles/breakpoints' as *;
 
-.edit-custom-field // 100% minus the height of the app-header
-  height: "calc(100vh - %s)" % (116 / 16)rem
-  user-select: none
+  .edit-custom-field  { // 100% minus the height of the app-header
+    height: calc(100vh - rem(116));
+    user-select: none;
 
-  @media $tablet
-    height: "calc(100vh - %s)" % (84 / 16)rem
+    @media #{$tablet} {
+      height: calc(100vh - rem(84));
+    }
 
-  @media $mobile
-    height: auto
+    @media #{$mobile} {
+      height: auto;
+    }
 
-  > header
-    display: flex
-    padding: 0 2rem 2rem 2rem
+    > header {
+      display: flex;
+      padding: 0 2rem 2rem 2rem;
 
-    @media $tablet
-      padding: 1rem
-      padding-top: 0
+      @media #{$tablet} {
+        padding: 1rem;
+        padding-top: 0;
+      }
 
-    @media $mobile
-      display: block
+      @media #{$mobile} {
+        display: block;
+      }
 
-    .left
-      display: flex
-      align-items: center
-      margin-right: auto
-      overflow: hidden
+      .left {
+        display: flex;
+        align-items: center;
+        margin-right: auto;
+        overflow: hidden;
 
-      @media $tablet
-        margin-left: 1rem
+        @media #{$tablet} {
+          margin-left: 1rem;
+        }
 
-      @media $mobile
-        margin-bottom: 1rem
-        margin-left: 0
+        @media #{$mobile} {
+          margin-bottom: 1rem;
+          margin-left: 0;
+        }
 
-      h1
-        margin: 0
-        margin-right: 1.5rem
-        margin-left: 1rem
-        white-space: nowrap
-        overflow: hidden
-        text-overflow: ellipsis
+        h1 {
+          margin: 0;
+          margin-right: 1.5rem;
+          margin-left: 1rem;
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
 
-        @media $tablet
-          margin-left: 0
-          margin-right: 1rem
+          @media #{$tablet} {
+            margin-left: 0;
+            margin-right: 1rem;
+          }
 
-        @media $mobile
-          font-size: 1.5rem
-          margin-right: 0.5rem
+          @media #{$mobile} {
+            font-size: 1.5rem;
+            margin-right: 0.5rem;
+          }
+        }
 
-      .chip
-        flex-shrink: 0
+        .chip {
+          flex-shrink: 0;
 
-        @media $mobile
-          order: -1
-          width: 1rem
-          height: @width
-          padding: 0
-          margin-right: 0.5rem
+          @media #{$mobile} {
+            order: -1;
+            width: 1rem;
+            height: 1rem;
+            padding: 0;
+            margin-right: 0.5rem;
 
-          &::v-deep(span)
-            display: none
+            &:deep(span) {
+              display: none;
+            }
+          }
+        }
+      }
 
-    .right
-      display: flex
-      align-items: center
-      overflow: hidden
-      flex-shrink: 0
-      margin-left: 1rem
-      padding-bottom: 0.125rem
+      .right {
+        display: flex;
+        align-items: center;
+        overflow: hidden;
+        flex-shrink: 0;
+        margin-left: 1rem;
+        padding-bottom: 0.125rem;
 
-      @media $mobile
-        margin-left: 0
+        @media #{$mobile} {
+          margin-left: 0;
+        }
 
-      .button
-        &:not(:last-child)
-          margin-right: 1rem
+        .button {
+          &:not(:last-child) {
+            margin-right: 1rem;
+          }
+        }
+      }
+    }
 
-  > .schema-fields-editor
-    height: "calc(100% - %s)" % (86 / 16)rem // header
+    > .schema-fields-editor {
+      height: calc(100% - rem(86));
 
-    @media $mobile
-      height: auto
+      @media #{$mobile} {
+        height: auto;
+      }
+    }
+  }
 
-.edit-custom-field-modal
-  .input
-    width: 100%
-    margin-bottom: 1rem
+  .edit-custom-field-modal {
+    .input {
+      width: 100%;
+      margin-bottom: 1rem;
 
-    &.v-enter-active,
-    &.v-leave-active
-      transition: opacity 200ms ease
+      &.v-enter-active,
+      &.v-leave-active {
+        transition: opacity 200ms ease;
 
-      &.v-enter-from,
-      &.v-leave-to
-        opacity: 0
+        &.v-enter-from,
+        &.v-leave-to {
+          opacity: 0;
+        }
+      }
+    }
 
-  .icon-picker-wrapper
-    display: flex
-    align-items: center
-    margin-top: 2rem
+    .icon-picker-wrapper {
+      display: flex;
+      align-items: center;
+      margin-top: 2rem;
 
-    > span
-      margin-right: 1rem
-      overflow: hidden
-      text-overflow: ellipsis
-      white-space: nowrap
+      > span {
+        margin-right: 1rem;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
 
-    > .icon-picker
-      margin-left: auto
+      > .icon-picker {
+        margin-left: auto;
+      }
+    }
 
-  .highlight-box
-    margin-top: 2rem
+    .highlight-box {
+      margin-top: 2rem;
 
-    .button
-      display: flex
-      margin-left: auto
+      .button {
+        display: flex;
+        margin-left: auto;
 
-      @media $mobile
-        width: 100%
-
+        @media #{$mobile} {
+          width: 100%;
+        }
+      }
+    }
+  }
 </style>

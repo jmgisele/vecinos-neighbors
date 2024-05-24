@@ -1143,374 +1143,465 @@ export default {
 };
 </script>
 
-<style lang="stylus" scoped>
-@require '../assets/styles/breakpoints'
-@require '../assets/styles/colors'
-@require '../assets/styles/corners'
+<style lang="scss" scoped>
+  @use '../assets/styles/breakpoints' as *;
 
-.edit-content // 100% minus the height of the app-header
-  height: "calc(100vh - %s)" % (116 / 16)rem
-  display: flex
-  flex-direction: column
-  user-select: none
+  .edit-content  { // 100% minus the height of the app-header
+    height: calc(100vh - rem(116));
+    display: flex;
+    flex-direction: column;
+    user-select: none;
 
-  @media $tablet
-    height: "calc(100vh - %s)" % (84 / 16)rem
+    @media #{$tablet} {
+      height: calc(100vh - rem(84));
+    }
 
-  @media $mobile
-    height: auto
+    @media #{$mobile} {
+      height: auto;
+    }
 
-  > header
-    display: flex
-    padding: 0 2rem 2rem 2rem
+    > header {
+      display: flex;
+      padding: 0 2rem 2rem 2rem;
 
-    @media $tablet
-      padding: 1rem
-      padding-top: 0
+      @media #{$tablet} {
+        padding: 1rem;
+        padding-top: 0;
+      }
 
-    @media $mobile
-      display: block
+      @media #{$mobile} {
+        display: block;
+      }
 
-    .left
-      display: flex
-      align-items: center
-      margin-right: auto
-      overflow: hidden
+      .left {
+        display: flex;
+        align-items: center;
+        margin-right: auto;
+        overflow: hidden;
 
-      @media $tablet
-        margin-left: 1rem
+        @media #{$tablet} {
+          margin-left: 1rem;
+        }
 
-      @media $mobile
-        margin-bottom: 1rem
-        margin-left: 0
+        @media #{$mobile} {
+          margin-bottom: 1rem;
+          margin-left: 0;
+        }
 
-      h1
-        margin: 0
-        margin-right: 1.5rem
-        margin-left: 1rem
-        white-space: nowrap
-        overflow: hidden
-        text-overflow: ellipsis
+        h1 {
+          margin: 0;
+          margin-right: 1.5rem;
+          margin-left: 1rem;
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
 
-        @media $tablet
-          margin-left: 0
-          margin-right: 1rem
+          @media #{$tablet} {
+            margin-left: 0;
+            margin-right: 1rem;
+          }
 
-        @media $mobile
-          font-size: 1.5rem
-          margin-right: 0.5rem
+          @media #{$mobile} {
+            font-size: 1.5rem;
+            margin-right: 0.5rem;
+          }
+        }
 
-      .chip
-        flex-shrink: 0
+        .chip {
+          flex-shrink: 0;
+
+          &.v-enter-active,
+          &.v-leave-active {
+            transition: opacity 200ms ease;
+
+            &.v-enter-from,
+            &.v-leave-to {
+              opacity: 0;
+            }
+          }
+
+          &:not(:last-child) {
+            margin-right: 0.5rem;
+          }
+
+          @media #{$mobile} {
+            order: -1;
+            width: 1rem;
+            height: 1rem;
+            padding: 0;
+            margin-right: 0.5rem;
+
+            &:deep(span) {
+              display: none;
+            }
+          }
+        }
+      }
+
+      .right {
+        display: flex;
+        align-items: center;
+        overflow: hidden;
+        flex-shrink: 0;
+        margin-left: 1rem;
+        padding-bottom: 0.125rem;
+
+        @media #{$mobile} {
+          margin-left: 0;
+        }
+
+        .button {
+          &:not(:last-child) {
+            margin-right: 1rem;
+          }
+
+          @media #{$mobile} {
+            &.push-right {
+              margin-left: auto;
+            }
+          }
+        }
+
+        .toggle {
+          margin-right: 2rem;
+
+          @media #{$tablet} {
+            margin-right: 1rem;
+          }
+        }
+      }
+    }
+
+    .tabs {
+      position: sticky;
+      top: 0;
+      z-index: 1;
+      flex-shrink: 0;
+    }
+
+    .tab-content {
+      flex-grow: 1;
+
+      .no-schema,
+      .fields-editor {
+        max-width: 40rem;
+        margin: 0 auto;
 
         &.v-enter-active,
-        &.v-leave-active
-          transition: opacity 200ms ease
+        &.v-leave-active {
+          transition: opacity 200ms ease;
 
           &.v-enter-from,
-          &.v-leave-to
-            opacity: 0
+          &.v-leave-to {
+            opacity: 0;
+          }
+        }
+      }
 
-        &:not(:last-child)
-          margin-right: 0.5rem
+      .no-schema {
+        text-align: center;
 
-        @media $mobile
-          order: -1
-          width: 1rem
-          height: @width
-          padding: 0
-          margin-right: 0.5rem
+        &.dark {
+          h2,
+          p {
+            color: var(--text-secondary-dark);
+          }
+        }
 
-          &::v-deep(span)
-            display: none
-
-    .right
-      display: flex
-      align-items: center
-      overflow: hidden
-      flex-shrink: 0
-      margin-left: 1rem
-      padding-bottom: 0.125rem
-
-      @media $mobile
-        margin-left: 0
-
-      .button
-        &:not(:last-child)
-          margin-right: 1rem
-
-        @media $mobile
-          &.push-right
-            margin-left: auto
-
-      .toggle
-        margin-right: 2rem
-
-        @media $tablet
-          margin-right: 1rem
-
-  .tabs
-    position: sticky
-    top: 0
-    z-index: 1
-    flex-shrink: 0
-
-  .tab-content
-    flex-grow: 1
-
-    .no-schema,
-    .fields-editor
-      max-width: 40rem
-      margin: 0 auto
-
-      &.v-enter-active,
-      &.v-leave-active
-        transition: opacity 200ms ease
-
-        &.v-enter-from,
-        &.v-leave-to
-          opacity: 0
-
-    .no-schema
-      text-align: center
-
-      &.dark
         h2,
-        p
-          color: $text-secondary-dark
+        p {
+          color: var(--text-secondary);
+        }
 
-      h2,
-      p
-        color: $text-secondary
+        ul {
+          margin: 0;
+          list-style: none;
 
-      ul
-        margin: 0
-        list-style: none
+          li {
+            &:not(:last-child) {
+              margin-bottom: 1rem;
+            }
 
-        li
-          &:not(:last-child)
-            margin-bottom: 1rem
+            .button {
+              max-width: 100%;
+              width: rem(320);
+            }
+          }
+        }
+      }
 
-          .button
-            max-width: 100%
-            width: (320 / 16)rem
+      .fields-editor {
+        margin-top: 8rem;
 
-    .fields-editor
-      margin-top: 8rem
+        &.preview-open {
+          margin-bottom: 8rem;
 
-      &.preview-open
-        margin-bottom: 8rem
+          @media #{$tablet} {
+            margin-bottom: 4rem;
+          }
+        }
 
-        @media $tablet
-          margin-bottom: 4rem
+        @media #{$tablet} {
+          margin-top: 4rem;
+        }
 
-      @media $tablet
-        margin-top: 4rem
+        @media #{$mobile} {
+          margin-top: 2rem;
+        }
+      }
+    }
+  }
 
-      @media $mobile
-        margin-top: 2rem
+  .preview {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
 
-.preview
-  display: flex
-  flex-direction: column
-  justify-content: center
-  align-items: center
-  height: 100%
+    @media #{$mobile} {
+      height: calc(90vh - rem(86)); // height of the modal footer + card border
+      position: relative;
+    }
 
-  @media $mobile
-    height: "calc(90vh - %s)" % (86 / 16)rem // height of the modal footer + card border
-    position: relative
+    .error-state {
+      text-align: center;
+      max-width: 40rem;
 
-  .error-state
-    text-align: center
-    max-width: 40rem
+      &.dark {
+        .icon,
+        h2,
+        p {
+          color: var(--text-secondary-dark);
+        }
+      }
 
-    &.dark
+      .icon {
+        width: 6rem;
+        height: 6rem;
+      }
+
       .icon,
       h2,
-      p
-        color: $text-secondary-dark
+      p {
+        color: var(--text-secondary);
+      }
 
-    .icon
-      width: 6rem
-      height: @width
+      h2 {
+        margin-top: 1rem;
+      }
 
-    .icon,
-    h2,
-    p
-      color: $text-secondary
+      p {
+        margin-bottom: 2rem;
+      }
 
-    h2
-      margin-top: 1rem
+      .button:not(:last-child) {
+        margin-right: 1rem;
+      }
+    }
+  }
 
-    p
-      margin-bottom: 2rem
+  .preview-frame  { // toplevel because it can teleport
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
 
-    .button:not(:last-child)
-      margin-right: 1rem
+    &.fullscreen {
+      position: fixed;
+      top: 0;
+      left: 0;
+      background-color: var(--bg-dark);
+      z-index: 2;
+    }
 
-.preview-frame // toplevel because it can teleport
-  width: 100%
-  height: 100%
-  display: flex
-  flex-direction: column
-  align-items: center
-  justify-content: center
+    &.mobile-preview {
+      background-color: var(--bg-tertiary-dark);
 
-  &.fullscreen
-    position: fixed
-    top: 0
-    left: 0
-    background-color: $bg-dark
-    z-index: 2
+      header {
+        opacity: 1;
+      }
+    }
 
-  &.mobile-preview
-    background-color: $bg-tertiary-dark
+    header {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      padding: 1rem;
+      background-color: color-mix(in srgb, var(--bg) 50%, transparent);
+      opacity: 0;
+      transition: opacity 200ms ease;
 
-    header
-      opacity: 1
+      &.dark {
+        background-color: color-mix(var(--bg-dark) 50%, transparent);
+      }
 
-  header
-    position: absolute
-    top: 0
-    left: 0
-    width: 100%
-    padding: 1rem
-    background-color: alpha($bg, 0.5)
-    opacity: 0
-    transition: opacity 200ms ease
+      &:hover {
+        opacity: 1;
+      }
 
-    &.dark
-      background-color: alpha($bg-dark, 0.5)
+      .button:not(:last-child) {
+        margin-right: 0.5rem;
+      }
+    }
 
-    &:hover
-      opacity: 1
+    iframe {
+      border: none;
+      width: 100%;
+      height: 100%;
+      background-color: #fff;
 
-    .button:not(:last-child)
-      margin-right: 0.5rem
+      &.mobile {
+        width: rem(360);
+        height: rem(640);
+        max-width: 100%;
+        max-height: 100%;
+        margin: 1rem;
+        border-radius: var(--radius-xl);
+      }
+    }
 
-  iframe
-    border: none
-    width: 100%
-    height: 100%
-    background-color: #fff
+    .loader {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: var(--bg);
 
-    &.mobile
-      width: (360 / 16)rem
-      height: (640 / 16)rem
-      max-width: 100%
-      max-height: 100%
-      margin: 1rem
-      border-radius: $radius-xl
+      &.dark {
+        background-color: var(--bg-secondary-dark);
+      }
 
-  .loader
-    position: absolute
-    top: 0
-    left: 0
-    width: 100%
-    height: 100%
-    background-color: $bg
+      &.v-enter-active,
+      &.v-leave-active {
+        transition: opacity 200ms ease;
 
-    &.dark
-      background-color: $bg-secondary-dark
+        &.v-enter-from,
+        &.v-leave-to {
+          opacity: 0;
+        }
+      }
+    }
+  }
 
-    &.v-enter-active,
-    &.v-leave-active
-      transition: opacity 200ms ease
+  #splitTarget {
+    padding-top: 8rem;
+    max-width: 40rem;
+    margin-left: auto;
+    margin-right: auto;
 
-      &.v-enter-from,
-      &.v-leave-to
-        opacity: 0
+    @media #{$tablet} {
+      padding-top: 4rem;
+    }
 
-#splitTarget
-  padding-top: 8rem
-  max-width: 40rem
-  margin-left: auto
-  margin-right: auto
+    @media #{$mobile} {
+      padding-top: 0;
+    }
 
-  @media $tablet
-    padding-top: 4rem
+    &.in-modal {
+      margin-top: -1rem;
+    }
+  }
 
-  @media $mobile
-    padding-top: 0
+  .edit-content-modal {
+    .input {
+      width: 100%;
+      margin-bottom: 1rem;
+    }
 
-  &.in-modal
-    margin-top: -1rem
+    .select-wrapper {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 2rem;
 
-.edit-content-modal
-  .input
-    width: 100%
-    margin-bottom: 1rem
+      > span {
+        margin-right: 1rem;
+      }
+    }
 
-  .select-wrapper
-    display: flex
-    align-items: center
-    justify-content: space-between
-    margin-bottom: 2rem
+    .highlight-box {
+      .button {
+        width: 100%;
+      }
+    }
+  }
 
-    > span
-      margin-right: 1rem
+  .add-preview-comment {
+    &.dark {
+      .header-wrapper {
+        .author {
+          color: var(--text-secondary-dark);
+        }
 
-  .highlight-box
-    .button
-      width: 100%
+        .timestamp {
+          color: var(--text-tertiary-dark);
+        }
+      }
+    }
 
-.add-preview-comment
+    .header-wrapper {
+      display: flex;
+      justify-content: space-between;
+      padding: rem(8), rem(12);
+      user-select: none;
 
-  &.dark
-    .header-wrapper
-      .author
-        color: $text-secondary-dark
+      .author,
+      .timestamp {
+        font-size: rem(12);
+      }
 
-      .timestamp
-        color: $text-tertiary-dark
+      .author {
+        max-width: 60%;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        color: var(--text-secondary);
+      }
 
-  .header-wrapper
-    display: flex
-    justify-content: space-between
-    padding: (8 / 16)rem (12 / 16)rem
-    user-select: none
+      .timestamp {
+        color: var(--text-tertiary);
+      }
+    }
 
-    .author,
-    .timestamp
-      font-size: (12 / 16)rem
+    .editor {
+      max-width: 100%;
+      width: rem(440);
 
-    .author
-      max-width: 60%
-      white-space: nowrap
-      overflow: hidden
-      text-overflow: ellipsis
-      color: $text-secondary
+      &:deep(.content-wrapper) {
+        border-radius: 0;
 
-    .timestamp
-      color: $text-tertiary
+        &:not(:focus-within):not(.error) {
+          box-shadow: inset 0, -rem(1) 0 0 var(--bg-tertiary);
+        }
 
-  .editor
-    max-width: 100%
-    width: (440 / 16)rem
+        &.dark {
+          background-color: var(--bg-tertiary-dark);
 
-    :deep(.content-wrapper)
-      border-radius: 0
+          &:not(:focus-within):not(.error) {
+            box-shadow: inset 0 0.0625rem 0 0 var(--bg-tertiary-dark-lightened-10),
+                        inset 0, rem(-1) 0 0 var(--bg-tertiary-dark-lightened-10);
+          }
 
-      &:not(:focus-within):not(.error)
-        box-shadow: inset 0 (-1 / 16)rem 0 0 $bg-tertiary
+          code {
+            background-color: var(--bg-tertiary-dark-lightened-10);
+          }
+        }
+      }
 
-      &.dark
-        background-color: $bg-tertiary-dark
+      &:deep(.toolbar) {
+        margin-top: 0;
+        top: 0;
+        border-radius: 0;
 
-        &:not(:focus-within):not(.error)
-          box-shadow:
-            inset 0 0.0625rem 0 0 lighten($bg-tertiary-dark, 10),
-            inset 0 (-1 / 16)rem 0 0 lighten($bg-tertiary-dark, 10)
-
-        code
-          background-color: lighten($bg-tertiary-dark, 10)
-
-    &:deep(.toolbar)
-      margin-top: 0
-      top: 0
-      border-radius: 0
-
-      .tool-group:nth-child(2)
-        display: none
+        .tool-group:nth-child(2) {
+          display: none;
+        }
+      }
+    }
+  }
 </style>
