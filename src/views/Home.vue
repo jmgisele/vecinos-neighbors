@@ -570,7 +570,7 @@ export default {
             border-radius: 50%;
             background-color: var(--accent-secondary);
             margin-bottom: 1rem;
-            color: $text-dark;
+            color: var(--text-dark);
 
             .icon {
               width: 2rem;
