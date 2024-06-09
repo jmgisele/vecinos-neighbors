@@ -297,7 +297,7 @@ export default {
 
     &.active {
       background-color: var(--accent);
-      color: $text-dark;
+      color: var(--text-dark);
 
       &:hover,
       &:focus-visible {
