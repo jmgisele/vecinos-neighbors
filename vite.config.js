@@ -12,6 +12,7 @@ import createSvgoPlugin from './vite-plugins/svgo';
 
 // https://vitejs.dev/config/
 export default defineConfig({
+  assetsInclude: ['**/*.md'],
   css: {
     preprocessorOptions: {
       scss: {
