@@ -197,7 +197,7 @@ import FieldArrangementList from './FieldArrangementList.vue';
 import FieldThumbnail from './FieldThumbnail.vue';
 import TabContent from './TabContent.vue';
 
-const modules = import.meta.glob('./fields/*.{vue,js}', { eager: true });
+const modules = import.meta.glob('../fields/*.{vue,js}', { eager: true });
 
 const fieldComponents = Object.entries(modules).reduce((acc, [filePath, module]) => {
   const componentName = filePath.split('/').pop().replace(/\.\w+$/, '');
