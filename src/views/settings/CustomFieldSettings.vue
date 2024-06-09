@@ -202,7 +202,7 @@ export default {
       margin-right: auto;
 
       &.wide {
-        max-width: 960 / 16 rem;
+        max-width: rem(960);
         margin-bottom: 8rem;
 
         @media #{$mobile} {

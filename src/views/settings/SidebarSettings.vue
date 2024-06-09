@@ -462,7 +462,7 @@ export default {
         > :last-child:not(:only-child) {
           margin-left: 1rem;
           width: 100%;
-          max-width: 400 / 16 rem;
+          max-width: rem(400);
 
           @media #{$mobile} {
             margin-left: 0;
