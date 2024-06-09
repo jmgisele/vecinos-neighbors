@@ -342,7 +342,7 @@ export default {
       }
 
       &.chip {
-        padding: rem(4), rem(12);
+        padding: rem(4) rem(12);
         background-color: var(--bg);
         margin-right: 0.5rem;
         border-radius: 1rem;

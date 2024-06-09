@@ -1547,7 +1547,7 @@ export default {
     .header-wrapper {
       display: flex;
       justify-content: space-between;
-      padding: rem(8), rem(12);
+      padding: rem(8) rem(12);
       user-select: none;
 
       .author,
