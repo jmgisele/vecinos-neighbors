@@ -665,7 +665,7 @@ export default {
 
     &.dark {
       .thumbnail {
-        background-image: linear-gradient(to 1rem, rgba(0, 0, 0, 0.9), rgba(0, 0, 0, 0.9)), linear-gradient(to 1rem, black 50%, white 50%), linear-gradient(to bottom, black 50%, white 50%);
+        background-image: linear-gradient(to right, rgba(0, 0, 0, 0.9), rgba(0, 0, 0, 0.9)), linear-gradient(to right, black 50%, white 50%), linear-gradient(to bottom, black 50%, white 50%);
       }
 
       .meta {
@@ -689,7 +689,7 @@ export default {
       display: flex;
       align-items: center;
       justify-content: center;
-      background-image: linear-gradient(to 1rem, rgba(0, 0, 0, 0.75), rgba(0, 0, 0, 0.75)), linear-gradient(to 1rem, black 50%, white 50%), linear-gradient(to bottom, black 50%, white 50%);
+      background-image: linear-gradient(to right, rgba(0, 0, 0, 0.75), rgba(0, 0, 0, 0.75)), linear-gradient(to right, black 50%, white 50%), linear-gradient(to bottom, black 50%, white 50%);
       background-size: 1.5rem 1.5rem;
       background-blend-mode: normal, difference;
       position: relative;
