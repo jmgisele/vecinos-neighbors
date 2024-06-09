@@ -295,7 +295,7 @@ export default {
 
       span {
         &.chip {
-          background-color: var(--accent)-secondary;
+          background-color: var(--accent-secondary);
           color: var(--text);
         }
 
