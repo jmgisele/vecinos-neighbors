@@ -800,172 +800,215 @@ export default {
 };
 </script>
 
-<style lang="stylus" scoped>
-@require  '../assets/styles/breakpoints'
-@require  '../assets/styles/colors'
-@require  '../assets/styles/corners'
+<style lang="scss" scoped>
+  @use '../assets/styles/breakpoints' as *;
 
-.project // 100% minus the height of the app-header
-  height: "calc(100vh - %s)" % (116 / 16)rem
+  .project  { // 100% minus the height of the app-header
+    height: calc(100vh - rem(116));
 
-  @media $tablet
-    height: "calc(100vh - %s)" % (84 / 16)rem
+    @media #{$tablet} {
+      height: calc(100vh - rem(84));
+    }
 
-  @media $mobile
-    height: "calc(100vh - %s)" % (82 / 16)rem
+    @media #{$mobile} {
+      height: calc(100vh - rem(82));
+    }
 
-  .subview
-    &.dark
-      background-color: $bg-dark
+    .subview {
+      &.dark {
+        background-color: var(--bg-dark);
+      }
 
-    &.v-enter-active,
-    &.v-leave-active
-      transition: opacity 200ms ease
+      &.v-enter-active,
+      &.v-leave-active {
+        transition: opacity 200ms ease;
 
-      &.v-enter-from,
-      &.v-leave-to
-        opacity: 0
+        &.v-enter-from,
+        &.v-leave-to {
+          opacity: 0;
+        }
+      }
+    }
+  }
 
-.error-modal
-  p
-    margin-top: 0
+  .error-modal {
+    p {
+      margin-top: 0;
+    }
 
-  pre
-    margin-bottom: 0
+    pre {
+      margin-bottom: 0;
+    }
+  }
 
-.changes-modal
-  &.dark .wrapper .changes li.empty-state
-    color: $text-secondary-dark
+  .changes-modal {
+    &.dark .wrapper .changes li.empty-state {
+      color: var(--text-secondary-dark);
+    }
 
-  .loader,
-  .progress,
-  .wrapper
-    &.v-enter-active,
-    &.v-leave-active
-      transition: opacity 200ms ease
+    .loader,
+    .progress,
+    .wrapper {
+      &.v-enter-active,
+      &.v-leave-active {
+        transition: opacity 200ms ease;
 
-      &.v-enter-from,
-      &.v-leave-to
-        opacity: 0
+        &.v-enter-from,
+        &.v-leave-to {
+          opacity: 0;
+        }
+      }
+    }
 
-  .loader
-    height: 16rem
-    margin-top: 1.5rem // to match editor and prevent jumping
+    .loader {
+      height: 16rem;
+      margin-top: 1.5rem; // to match editor and prevent jumping
+    }
 
-  .progress
-    padding: 2rem
+    .progress {
+      padding: 2rem;.progress {
+        width: 100%;
 
-    .progress
-      width: 100%
+        &:deep(.label) {
+          text-align: center;
+        }
+      }
+    }
 
-      &::v-deep(.label)
-        text-align: center
+    .wrapper {
+      .editor {
+        margin-bottom: 1rem;
+      }
 
-  .wrapper
-    .editor
-      margin-bottom: 1rem
+      > header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        position: sticky;
+        top: 0;
+        z-index: 1;
+        background-color: var(--bg);
+        padding: 1rem 0;
 
-    > header
-      display: flex
-      align-items: center
-      justify-content: space-between
-      position: sticky
-      top: 0
-      z-index: 1
-      background-color: $bg
-      padding: 1rem 0
+        &.dark {
+          background-color: var(--bg-dark);
+        }
 
-      &.dark
-        background-color: $bg-dark
+        > span {
+          margin-right: 0.5rem;
+        }
+      }
 
-      > span
-        margin-right: 0.5rem
+      .changes {
+        list-style: none;
+        margin: 0;
 
-    .changes
-      list-style: none
-      margin: 0
+        li {
+          display: flex;
+          align-items: center;
+          overflow: hidden;
+          white-space: nowrap;
 
-      li
-        display: flex
-        align-items: center
-        overflow: hidden
-        white-space: nowrap
+          &:not(:last-child) {
+            margin-bottom: 1rem;
+          }
 
-        &:not(:last-child)
-          margin-bottom: 1rem
+          &.empty-state {
+            padding: 1rem 0;
+            justify-content: center;
+            color: var(--text-secondary);
+          }
 
-        &.empty-state
-          padding: 1rem 0
-          justify-content: center
-          color: $text-secondary
+          .checkbox {
+            margin-right: 1rem;
+          }
 
-        .checkbox
-          margin-right: 1rem
+          .group {
+            display: flex;
+            align-items: center;
+            overflow: hidden;
+            padding: 1rem;
+            background-color: var(--bg-tertiary);
+            border-radius: var(--radius-m);
+            width: 100%;
+            cursor: pointer;
+            transition: background-color 200ms ease;
 
-        .group
-          display: flex
-          align-items: center
-          overflow: hidden
-          padding: 1rem
-          background-color: $bg-tertiary
-          border-radius: $radius-m
-          width: 100%
-          cursor: pointer
-          transition: background-color 200ms ease
+            &:hover {
+              background-color: var(--bg-secondary);
+            }
 
-          &:hover
-            background-color: $bg-secondary
+            &.dark {
+              background-color: var(--bg-secondary-dark);
 
-          &.dark
-            background-color: $bg-secondary-dark
+              &:hover {
+                background-color: var(--bg-tertiary-dark);
+              }
+            }
 
-            &:hover
-              background-color: $bg-tertiary-dark
+            .chip {
+              margin-right: 1rem;
+              flex-shrink: 0;
+            }
 
-          .chip
-            margin-right: 1rem
-            flex-shrink: 0
+            > span {
+              overflow: hidden;
+              text-overflow: ellipsis;
+              margin-right: auto;
+            }
 
-          > span
-            overflow: hidden
-            text-overflow: ellipsis
-            margin-right: auto
+            > .button {
+              margin: -1rem -0.75rem -1rem 0.5rem;
+              flex-shrink: 0;
+            }
+          }
+        }
+      }
+    }
+  }
 
-          > .button
-            margin: -1rem -0.75rem -1rem 0.5rem
-            flex-shrink: 0
+  .change-details-modal {
+    &.dark {
+      .change .line-hint {
+        color: var(--text-secondary-dark);
+      }
+    }
 
-.change-details-modal
-  &.dark
-    .change .line-hint
-      color $text-secondary-dark
+    .change {
+      &:not(:last-child) {
+        margin-bottom: 2rem;
+      }
 
-  .change
-    &:not(:last-child)
-      margin-bottom: 2rem
+      .line-hint {
+        font-size: 0.75rem;
+        color: var(--text-secondary);
+        margin-bottom: 0.25rem;
+      }
 
-    .line-hint
-      font-size: 0.75rem
-      color: $text-secondary
-      margin-bottom: 0.25rem
+      pre {
+        margin: 0;
+        padding: 0.5rem 0.75rem;
+        border-radius: 0;
+        color: inherit;
 
-    pre
-      margin: 0
-      padding: 0.5rem 0.75rem
-      border-radius: 0
-      color: inherit
+        &:first-of-type {
+          border-top-left-radius: var(--radius-m);
+          border-top-right-radius: var(--radius-m);
+        }
 
-      &:first-of-type
-        border-top-left-radius: $radius-m
-        border-top-right-radius: @border-top-left-radius
+        &:last-of-type {
+          border-bottom-left-radius: var(--radius-m);
+          border-bottom-right-radius: var(--radius-m);
+        }
 
-      &:last-of-type
-        border-bottom-left-radius: $radius-m
-        border-bottom-right-radius: @border-bottom-left-radius
+        &.add {
+          background-color: color-mix(in srgb, var(--positive) 25%, transparent);
+        }
 
-      &.add
-        background-color: alpha($positive, 0.25)
-
-      &.remove
-        background-color: alpha($negative, 0.25)
+        &.remove {
+          background-color: color-mix(in srgb, var(--negative) 25%, transparent);
+        }
+      }
+    }
+  }
 </style>

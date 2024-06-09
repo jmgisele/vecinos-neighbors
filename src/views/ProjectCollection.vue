@@ -713,63 +713,76 @@ export default {
 };
 </script>
 
-<style lang="stylus" scoped>
-@require '../assets/styles/breakpoints'
-@require '../assets/styles/colors'
+<style lang="scss" scoped>
+  @use '../assets/styles/breakpoints' as *;
 
-.collection
-  height: 100%
-  overflow-x: hidden
-  padding: (27 / 16)rem 2rem 8rem 2rem
+  .collection {
+    height: 100%;
+    overflow-x: hidden;
+    padding: rem(27) 2rem 8rem 2rem;
 
-  @media $tablet
-    padding-top: 0
-    padding-left: 1rem
-    padding-right: 1rem
-    padding-bottom: 4rem
+    @media #{$tablet} {
+      padding-top: 0;
+      padding-left: 1rem;
+      padding-right: 1rem;
+      padding-bottom: 4rem;
+    }
 
-  @media $mobile
-    padding-bottom: 2rem
+    @media #{$mobile} {
+      padding-bottom: 2rem;
+    }
 
-  h1
-    margin-top: 0
+    h1 {
+      margin-top: 0;
+    }
 
-  .file-list
-    max-width: (960 / 16)rem
-    margin: 0 auto
-    margin-top: 8rem
-    margin-bottom: 1rem
+    .file-list {
+      max-width: rem(960);
+      margin: 0 auto;
+      margin-top: 8rem;
+      margin-bottom: 1rem;
 
-    @media $tablet
-      margin-top: 4rem
+      @media #{$tablet} {
+        margin-top: 4rem;
+      }
 
-    @media $mobile
-      margin-top: 2rem
+      @media #{$mobile} {
+        margin-top: 2rem;
+      }
 
-    & + .button
-      display: flex
-      margin-left: auto
-      margin-right: auto
+      & + .button {
+        display: flex;
+        margin-left: auto;
+        margin-right: auto;
+      }
+    }
 
-  .unconfigured-state
-    text-align: center
+    .unconfigured-state {
+      text-align: center;
 
-    &.dark
+      &.dark {
+        h2,
+        p {
+          color: var(--text-secondary-dark);
+        }
+      }
+
       h2,
-      p
-        color: $text-secondary-dark
+      p {
+        color: var(--text-secondary);
+      }
 
-    h2,
-    p
-      color: $text-secondary
+      h2 {
+        margin-top: 8rem;
+      }
 
-    h2
-      margin-top: 8rem
+      p {
+        margin-bottom: 2rem;
+      }
+    }
 
-    p
-      margin-bottom: 2rem
-
-  input[type=file]
-      display: none
-
+    input[type=file] {
+      display: none;
+    }
+  }
 </style>

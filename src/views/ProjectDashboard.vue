@@ -246,199 +246,248 @@ export default {
 };
 </script>
 
-<style lang="stylus" scoped>
-@require '../assets/styles/breakpoints'
-@require '../assets/styles/colors'
-@require '../assets/styles/corners'
+<style lang="scss" scoped>
+  @use '../assets/styles/breakpoints' as *;
 
-.project-dashboard
-  padding: 0 2rem 8rem 2rem
-  user-select: none
-  overflow-y: auto
-  overflow-x: hidden
-  height: 100%
+  .project-dashboard {
+    padding: 0 2rem 8rem 2rem;
+    user-select: none;
+    overflow-y: auto;
+    overflow-x: hidden;
+    height: 100%;
 
-  @media $mobile
-    padding-left: 1rem
-    padding-right: 1rem
-    padding-bottom: 4rem
+    @media #{$mobile} {
+      padding-left: 1rem;
+      padding-right: 1rem;
+      padding-bottom: 4rem;
+    }
 
-  header,
-  section.wrapper
-    max-width: (1120 / 16)rem
-    margin: 0 auto
+    header,
+    section.wrapper {
+      max-width: rem(1120);
+      margin: 0 auto;
+    }
 
-  header
-    margin-bottom: 4rem
+    header {
+      margin-bottom: 4rem;
 
-    h1
-      margin-top: 1.5rem
-      line-height: 2.5rem
+      h1 {
+        margin-top: 1.5rem;
+        line-height: 2.5rem;
+      }
+    }
 
-  section.wrapper
-    &:not(:last-child)
-      margin-bottom: 8rem
+    section.wrapper {
+      &:not(:last-child) {
+        margin-bottom: 8rem;
 
-      @media $mobile
-        margin-bottom: 4rem
+        @media #{$mobile} {
+          margin-bottom: 4rem;
+        }
+      }
 
-    &.cards
-      @media $mobile
-        margin-left: -1rem
-        margin-right: @margin-left
+      &.cards {
+        @media #{$mobile} {
+          margin-left: -1rem;
+          margin-right: -1rem;
+        }
 
-      .scroller::v-deep(.scroll-area)
-        display: flex
+        .scroller:deep(.scroll-area) {
+          display: flex;
 
-        @media $mobile
-          padding-left: 1rem
-          padding-right: @padding-left
+          @media #{$mobile} {
+            padding-left: 1rem;
+            padding-right: 1rem;
+          }
+        }
 
-      .card
-        min-width: 16rem
-        padding: 0.5rem
-        border-radius: $radius-l
-        border: 0.0625rem solid alpha($text-tertiary, 0.12)
-        text-align: center
+        .card {
+          min-width: 16rem;
+          padding: 0.5rem;
+          border-radius: $radius-l;
+          border: 0.0625rem solid color-mix(in srgb, var(--text-tertiary) 12%, transparent);
+          text-align: center;
 
-        &.dark
-          border-color: alpha($text-tertiary-dark, 0.12)
+          &.dark {
+            border-color: color-mix(in srgb, var(--text-tertiary-dark) 12%, transparent);
+          }
 
-        &:not(:last-child)
-          margin-right: 1rem
+          &:not(:last-child) {
+            margin-right: 1rem;
+          }
 
-        .number
-          margin-top: 3.5rem
-          margin-bottom: 0.5rem
+          .number {
+            margin-top: 3.5rem;
+            margin-bottom: 0.5rem;
+          }
 
-        .icon
-          margin: 3.5rem auto 0.5rem auto
-          width: 3rem
-          height: @width
+          .icon {
+            margin: 3.5rem auto 0.5rem auto;
+            width: 3rem;
+            height: 3rem;
+          }
 
-        .label
-          margin: 0
-          margin-bottom: (56 / 16)rem
+          .label {
+            margin: 0;
+            margin-bottom: rem(56);
+          }
 
-        .button
-          width: 100%
+          .button {
+            width: 100%;
+          }
+        }
+      }
 
-    &.news
-      .loader,
-      > div
-        &.v-enter-active,
-        &.v-leave-active
-          transition: opacity 200ms ease
+      &.news {
+        .loader,
+        > div {
+          &.v-enter-active,
+          &.v-leave-active {
+            transition: opacity 200ms ease;
 
-          &.v-enter-from,
-          &.v-leave-to
-            opacity: 0
+            &.v-enter-from,
+            &.v-leave-to {
+              opacity: 0;
+            }
+          }
+        }
 
-      .news-section
-        &.dark
-          > footer
-            color: $text-secondary-dark
+        .news-section {
+          &.dark {
+            > footer {
+              color: var(--text-secondary-dark);
+            }
+          }
 
-        &:not(:last-child)
-          margin-bottom: 3rem
+          &:not(:last-child) {
+            margin-bottom: 3rem;
+          }
 
-        > h3
-          margin-bottom: 0.5rem
+          > h3 {
+            margin-bottom: 0.5rem;
+          }
 
-        > p
-          margin-top: 0.5rem
-          margin-bottom: 0.5rem
-          max-width: 40rem
+          > p {
+            margin-top: 0.5rem;
+            margin-bottom: 0.5rem;
+            max-width: 40rem;
+          }
 
-        > footer
-          font-size: (14 / 16)rem
-          color: $text-secondary
+          > footer {
+            font-size: rem(14);
+            color: var(--text-secondary);
+          }
+        }
+      }
 
-    &.commits,
-    &.local-changes
-      .loader,
-      ul
-        &.v-enter-active,
-        &.v-leave-active
-          transition: opacity 200ms ease
+      &.commits,
+      &.local-changes {
+        .loader,
+        ul {
+          &.v-enter-active,
+          &.v-leave-active {
+            transition: opacity 200ms ease;
 
-          &.v-enter-from,
-          &.v-leave-to
-            opacity: 0
+            &.v-enter-from,
+            &.v-leave-to {
+              opacity: 0;
+            }
+          }
+        }
 
-      ul
-        list-style:  none
-        margin: 0
+        ul {
+          list-style: none;
+          margin: 0;
 
-        li
-          display: flex
-          align-items: center
-          padding: 1rem
-          border: 0.0625rem solid alpha($text, 0.12)
-          border-radius: $radius-m
+          li {
+            display: flex;
+            align-items: center;
+            padding: 1rem;
+            border: 0.0625rem solid color-mix(in srgb, var(--text) 12%, transparent);
+            border-radius: var(--radius-m);
 
-          &.dark
-            border-color: alpha($text-dark, 0.12)
+            &.dark {
+              border-color: color-mix(in srgb, var(--text-dark) 12%, transparent);
 
-            span:last-of-type:not(:first-of-type)
-              color: $text-secondary-dark
+              span:last-of-type:not(:first-of-type) {
+                color: var(--text-secondary-dark);
+              }
+            }
 
-          &.change-indicator::before
-            content: ''
-            display: block
-            width: 0.5rem
-            height: @width
-            border-radius: 50%
-            background-color: $warning-saturated
-            margin-right: 1rem
-            flex-shrink: 0
+            &.change-indicator::before {
+              content: '';
+              display: block;
+              width: 0.5rem;
+              height: 0.5rem;
+              border-radius: 50%;
+              background-color: var(--warning-saturated);
+              margin-right: 1rem;
+              flex-shrink: 0;
+            }
 
-          &.empty-state
-            border: none
-            color: $text-secondary
-            justify-content: center
+            &.empty-state {
+              border: none;
+              color: var(--text-secondary);
+              justify-content: center;
 
-            &.dark
-              color: $text-secondary-dark
+              &.dark {
+                color: var(--text-secondary-dark);
+              }
+            }
 
-          &:not(:last-child)
-            margin-bottom: 1rem
+            &:not(:last-child) {
+              margin-bottom: 1rem;
+            }
 
-          .async-image
-            width: 2.5rem
-            height: @width
-            border-radius: 50%
-            margin-right: 1rem
+            .async-image {
+              width: 2.5rem;
+              height: 2.5rem;
+              border-radius: 50%;
+              margin-right: 1rem;
 
-            @media $mobile
-              width: 1.5rem
-              height: @width
+              @media #{$mobile} {
+                width: 1.5rem;
+                height: 1.5rem;
+              }
+            }
 
-          span
-            white-space: nowrap
-            flex-shrink: 0
-            text-overflow: ellipsis
-            overflow: hidden
+            span {
+              white-space: nowrap;
+              flex-shrink: 0;
+              text-overflow: ellipsis;
+              overflow: hidden;
 
-            &.message,
-            &.path
-              flex-shrink: 1
-              margin-right: auto
+              &.message,
+              &.path {
+                flex-shrink: 1;
+                margin-right: auto;
+              }
 
-            &:last-of-type:not(:first-of-type)
-              color: $text-secondary
-              font-size: (14 / 16)rem
-              margin-left: 1rem
+              &:last-of-type:not(:first-of-type) {
+                color: var(--text-secondary);
+                font-size: rem(14);
+                margin-left: 1rem;
 
-              @media $mobile
-                display: none
+                @media #{$mobile} {
+                  display: none;
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
 
-.details-modal article
-  &::v-deep(> *:first-child)
-    margin-top: 0
+  .details-modal article {
+    &:deep(> *:first-child) {
+      margin-top: 0;
+    }
 
-  &::v-deep(img)
-    display: block
-    max-width: 100%
-    margin: 2rem auto
+    &:deep(img) {
+      display: block;
+      max-width: 100%;
+      margin: 2rem auto;
+    }
+  }
 </style>

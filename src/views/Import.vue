@@ -332,79 +332,99 @@ export default {
 };
 </script>
 
-<style lang="stylus" scoped>
-@require '../assets/styles/breakpoints'
-@require '../assets/styles/colors'
+<style lang="scss" scoped>
+  @use '../assets/styles/breakpoints' as *;
 
-.import
-  user-select: none
-  display: flex
-  min-height: 100vh
-  flex-direction: column
-  justify-content: center
-  padding: 2rem 2rem 6rem 2rem
+  .import {
+    user-select: none;
+    display: flex;
+    min-height: 100vh;
+    flex-direction: column;
+    justify-content: center;
+    padding: 2rem 2rem 6rem 2rem;
 
-  @media $mobile
-    padding-left: 1rem
-    padding-right: @padding-left
-    padding-bottom: 4rem
+    @media #{$mobile} {
+      padding-left: 1rem;
+      padding-right: 1rem;
+      padding-bottom: 4rem;
+    }
 
-  &.dark > section
-    > h2
-      color: $text-secondary-dark
+    &.dark > section {
+      > h2 {
+        color: var(--text-secondary-dark);
+      }
+    }
 
-  > section
-    width: 100%
-    max-width: (544 / 16)rem
-    margin: 0 auto
+    > section {
+      width: 100%;
+      max-width: rem(544);
+      margin: 0 auto;
 
-    &:not(:last-child)
-      margin-bottom: 4rem
+      &:not(:last-child) {
+        margin-bottom: 4rem;
+      }
 
-    &.intro
-      .icon-wrapper
-        display: inline-block
-        color: $text-dark
-        background-color: $accent
-        padding: 1rem
-        border-radius: 50%
+      &.intro {
+        .icon-wrapper {
+          display: inline-block;
+          color: var(--text-dark);
+          background-color: var(--accent);
+          padding: 1rem;
+          border-radius: 50%;
 
-        .icon
-          width: 3rem
-          height: @width
+          .icon {
+            width: 3rem;
+            height: 3rem;
+          }
+        }
 
-      h1
-        @media $mobile
-          margin-top: 2rem
+        h1 {
+          @media #{$mobile} {
+            margin-top: 2rem;
+          }
+        }
 
-      p:last-child
-        margin-bottom: 0
+        p:last-child {
+          margin-bottom: 0;
+        }
+      }
 
-    > h2
-      margin-top: 0
-      color: $text-secondary
+      > h2 {
+        margin-top: 0;
+        color: var(--text-secondary);
 
-      + .input
-        margin-top: 2rem
+        + .input {
+          margin-top: 2rem;
+        }
+      }
 
-    > .input
-      display: flex
-      width: 100%
+      > .input {
+        display: flex;
+        width: 100%;
 
-      &:not(:last-child)
-        margin-bottom: 2rem
+        &:not(:last-child) {
+          margin-bottom: 2rem;
+        }
+      }
 
-    > .button
-      display: flex
-      margin-left: auto
+      > .button {
+        display: flex;
+        margin-left: auto;
+      }
+    }
+  }
 
-.import-project-modal
-  .loader
-    padding: 2rem
+  .import-project-modal {
+    .loader {
+      padding: 2rem;
 
-    .progress
-      width: 100%
+      .progress {
+        width: 100%;
 
-      &::v-deep(.label)
-        text-align: center
+        &:deep(.label) {
+          text-align: center;
+        }
+      }
+    }
+  }
 </style>

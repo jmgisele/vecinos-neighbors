@@ -439,265 +439,320 @@ export default {
 };
 </script>
 
-<style lang="stylus" scoped>
-@require '../assets/styles/breakpoints'
-@require '../assets/styles/colors'
-@require '../assets/styles/corners'
+<style lang="scss" scoped>
+  @use '../assets/styles/breakpoints' as *;
 
-.home
-  &.dark
-    main,
-    main .loader-wrapper
-      background-color: $bg-secondary-dark
+  .home {
+    &.dark {
+      main,
+      main .loader-wrapper {
+        background-color: var(-var(--bg-secondary-dark));
+      }
+    }
 
-  header
-    display: flex
-    align-items: center
-    padding: 0 2rem
-    padding-bottom: 2rem
+    header {
+      display: flex;
+      align-items: center;
+      padding: 0 2rem;
+      padding-bottom: 2rem;
 
-    @media $mobile
-      padding: 0 1rem
-      padding-bottom: 1rem
-      display: block
+      @media #{$mobile} {
+        padding: 0 1rem;
+        padding-bottom: 1rem;
+        display: block;
+      }
 
-    h1
-      margin: 0
+      h1 {
+        margin: 0;
 
-      @media $mobile
-        margin-bottom: 1rem
+        @media #{$mobile} {
+          margin-bottom: 1rem;
+        }
+      }
 
-    .progress
-      margin-left: auto
+      .progress {
+        margin-left: auto;
+      }
+    }
 
-  main
-    position: relative
-    background-color: $bg-secondary
-    height: "calc(100vh - %s)" % ((196 + 72) / 16)rem // header + footer
-    overflow-x: hidden
-    overflow-y: auto
-    padding: 2rem
+    main {
+      position: relative;
+      background-color: var(--bg-secondary);
+      height: calc(100vh - rem(196 + 72)); // header + footer
+      overflow-x: hidden;
+      overflow-y: auto;
+      padding: 2rem;
 
-    @media $mobile
-      height: auto
-      padding: 1rem
-      overflow: visible
+      @media #{$mobile} {
+        height: auto;
+        padding: 1rem;
+        overflow: visible;
+      }
 
-    .grid
-      display: grid
-      grid-template-columns: repeat(auto-fill, (320 / 16)rem)
-      grid-auto-rows: (246 / 16)rem
-      grid-gap: 2rem
-      justify-content: center
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, rem(320));
+        grid-auto-rows: rem(246);
+        grid-gap: 2rem;
+        justify-content: center;
 
-      @media $mobile
-        display: block
+        @media #{$mobile} {
+          display: block;
 
-        .project-card,
-        .add-project-button
-          width: 100%
-          max-width: (320 / 16)rem
-          margin-left: auto
-          margin-right: auto
-          margin-bottom: 1rem
+          .project-card,
+          .add-project-button {
+            width: 100%;
+            max-width: rem(320);
+            margin-left: auto;
+            margin-right: auto;
+            margin-bottom: 1rem;
+          }
+        }
 
-      .add-project-button
-        position: relative
-        background-color: $bg
-        border: none
-        color: inherit
-        padding: 2rem
-        display: flex
-        align-items: center
-        justify-content: center
-        flex-direction: column
-        border-radius: $radius-m
-        box-shadow: inset 0 0 0 0.0625rem $accent
-        cursor: pointer
-        transition: background-color 200ms ease
+        .add-project-button {
+          position: relative;
+          background-color: var(--bg);
+          border: none;
+          color: inherit;
+          padding: 2rem;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          flex-direction: column;
+          border-radius: var(--radius-m);
+          box-shadow: inset 0 0 0 0.0625rem var(--accent);
+          cursor: pointer;
+          transition: background-color 200ms ease;
 
-        &.dark
-          background-color: $bg-tertiary-dark
+          &.dark {
+            background-color: var(--bg-tertiary-dark);
+
+            &:focus,
+            &:hover {
+              background-color: var(--bg-secondary-dark);
+            }
+
+            &:active {
+              background-color: var(--bg-dark);
+            }
+          }
 
           &:focus,
-          &:hover
-            background-color: $bg-secondary-dark
+          &:hover {
+            background-color: var(--bg-secondary);
+          }
 
-          &:active
-            background-color: $bg-dark
+          &:focus::before {
+            opacity: 1;
+          }
 
-        &:focus,
-        &:hover
-          background-color: $bg-secondary
+          &:active {
+            background-color: var(--bg-tertiary);
+            transform: translateY(2px);
+          }
 
-        &:focus::before
-            opacity: 1
+          &::before {
+            content: '';
+            position: absolute;
+            top: 0px;
+            left: 0px;
+            right: 0px;
+            bottom: 0px;
+            border: 2px solid var(--accent);
+            opacity: 0;
+            border-radius: var(--radius-m);
+            pointer-events: none;
+            transition: opacity 200ms ease;
+          }
 
-        &:active
-          background-color: $bg-tertiary
-          transform: translateY(2px)
+          .icon-wrapper {
+            padding: 1rem;
+            border-radius: 50%;
+            background-color: var(--accent-secondary);
+            margin-bottom: 1rem;
+            color: $text-dark;
 
-        &::before
-          content: ''
-          position: absolute
-          top: 0px
-          left: @top
-          right: @top
-          bottom: @top
-          border: 2px solid $accent
-          opacity: 0
-          border-radius: @border-radius
-          pointer-events: none
-          transition: opacity 200ms ease
+            .icon {
+              width: 2rem;
+              height: 2rem;
+            }
+          }
+        }
 
-        .icon-wrapper
-          padding: 1rem
-          border-radius: 50%
-          background-color: $accent-secondary
-          margin-bottom: 1rem
-          color: $text-dark
+        .v-enter-active,
+        .v-leave-active,
+        .v-move {
+          transition: transform 350ms ease, opacity 350ms ease;
 
-          .icon
-            width: 2rem
-            height: @width
+          &.v-enter-from,
+          &.v-leave-to {
+            transform: scale(0.8);
+            opacity: 0;
+          }
+        }
+      }
 
-      .v-enter-active,
-      .v-leave-active,
-      .v-move
-        transition: transform 350ms ease, opacity 350ms ease
+      .loader-wrapper {
+        background-color: var(--bg-secondary);
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        flex-direction: column;
 
-        &.v-enter-from,
-        &.v-leave-to
-          transform: scale(0.8)
-          opacity: 0
+        &.v-enter-active,
+        &.v-leave-active {
+          transition: opacity 500ms ease;
 
-    .loader-wrapper
-      background-color: $bg-secondary
-      position: absolute
-      top: 0
-      left: 0
-      width: 100%
-      height: 100%
-      display: flex
-      justify-content: center
-      align-items: center
-      flex-direction: column
+          &.v-enter-from,
+          &.v-leave-to {
+            opacity: 0;
+          }
+        }
+      }
+    }
 
+    > footer {
+      background-color: var(--bg-secondary);
+      color: var(--text-secondary);
+      padding: 1rem 2rem;
+      padding-bottom: 1.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+
+      &.dark {
+        background-color: var(--bg-secondary-dark);
+        color: var(--text-secondary-dark);
+      }
+
+      .logo-wrapper {
+        display: flex;
+        align-items: center;
+        background-image: none;
+        color: inherit;
+
+        &:hover {
+          color: var(--accent);
+        }
+
+        .logo {
+          flex-shrink: 0;
+          margin-right: 0.75rem;
+          width: 2rem;
+          height: 2rem;
+        }
+
+        .logo-text {
+          flex-shrink: 0;
+          width: rem(96);
+          height: 1rem;
+          margin: 0;
+        }
+      }
+
+      ul {
+        list-style: none;
+        margin: 0;
+
+        li {
+          display: inline-block;
+
+          &:not(:last-child)::after {
+            content: '×';
+            margin-left: 0.5rem;
+            margin-right: 0.5rem;
+          }
+        }
+      }
+
+      @media #{$mobile} {
+        padding: 1rem;
+        flex-direction: column;
+        text-align: center;
+
+        .logo-wrapper {
+          margin: 1.5rem 0;
+        }
+      }
+    }
+  }
+
+  .import-project-modal {
+    .form,
+    .loader {
       &.v-enter-active,
-      &.v-leave-active
-        transition: opacity 500ms ease
+      &.v-leave-active {
+        transition: opacity 200ms ease;
 
         &.v-enter-from,
-        &.v-leave-to
-          opacity: 0
+        &.v-leave-to {
+          opacity: 0;
+        }
+      }
+    }
 
-  > footer
-    background-color: $bg-secondary
-    color: $text-secondary
-    padding: 1rem 2rem
-    padding-bottom: 1.5rem
-    display: flex
-    align-items: center
-    justify-content: space-between
+    .form {
+      .toggle {
+        font-weight: 700;
+        margin-bottom: 1rem;
+      }
 
-    &.dark
-      background-color: $bg-secondary-dark
-      color: $text-secondary-dark
+      .advanced-settings {
+        &.v-enter-active,
+        &.v-leave-active {
+          transition: opacity 200ms ease;
 
-    .logo-wrapper
-      display: flex
-      align-items: center
-      background-image: none
-      color: inherit
+          &.v-enter-from,
+          &.v-leave-to {
+            opacity: 0;
+          }
+        }
+      }
 
-      &:hover
-        color: $accent
+      .input {
+        width: 100%;
+        margin-bottom: 1rem;
+      }
 
-      .logo
-        flex-shrink: 0
-        margin-right: 0.75rem
-        width: 2rem
-        height: @width
+      .label {
+        display: flex;
+        align-items: center;
+        margin-bottom: 2rem;
 
-      .logo-text
-        flex-shrink: 0
-        width: (96 / 16)rem
-        height: 1rem
-        margin: 0
+        @media #{$mobile} {
+          display: block;
 
-    ul
-      list-style: none
-      margin: 0
+          &:deep(.select)  { // needed because it’s a fragment element I guess?
+            width: 100%;
+          }
+        }
 
-      li
-        display: inline-block
+        span {
+          margin-right: auto;
 
-        &:not(:last-child)::after
-          content: '×'
-          margin-left: 0.5rem
-          margin-right: @margin-left
+          @media #{$mobile} {
+            display: block;
+            margin-bottom: 1rem;
+          }
+        }
+      }
+    }
 
-    @media $mobile
-      padding: 1rem
-      flex-direction: column
-      text-align: center
+    .loader {
+      padding: 2rem;
 
-      .logo-wrapper
-        margin: 1.5rem 0
+      .progress {
+        width: 100%;
 
-.import-project-modal
-  .form,
-  .loader
-    &.v-enter-active,
-    &.v-leave-active
-      transition: opacity 200ms ease
-
-      &.v-enter-from,
-      &.v-leave-to
-        opacity: 0
-
-  .form
-    .toggle
-      font-weight: 700
-      margin-bottom: 1rem
-
-    .advanced-settings
-      &.v-enter-active,
-      &.v-leave-active
-        transition: opacity 200ms ease
-
-        &.v-enter-from,
-        &.v-leave-to
-          opacity: 0
-
-    .input
-      width: 100%
-      margin-bottom: 1rem
-
-    .label
-      display: flex
-      align-items: center
-      margin-bottom: 2rem
-
-      @media $mobile
-        display: block
-
-        ::v-deep(.select) // needed because it’s a fragment element I guess?
-          width: 100%
-
-      span
-        margin-right: auto
-
-        @media $mobile
-          display: block
-          margin-bottom: 1rem
-
-  .loader
-    padding: 2rem
-
-    .progress
-      width: 100%
-
-      &::v-deep(.label)
-        text-align: center
+        &:deep(.label) {
+          text-align: center;
+        }
+      }
+    }
+  }
 </style>

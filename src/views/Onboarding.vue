@@ -407,280 +407,345 @@ export default {
 };
 </script>
 
-<style lang="stylus" scoped>
-@require '../assets/styles/breakpoints'
-@require '../assets/styles/colors'
-@require '../assets/styles/corners'
+<style lang="scss" scoped>
+  @use '../assets/styles/breakpoints' as *;
 
-.onboarding
-  display: flex
-  min-height: 100vh
-  user-select: none
+  .onboarding {
+    display: flex;
+    min-height: 100vh;
+    user-select: none;
 
-  &.dark
-    > section
-      &.animation
-        background-color: $bg-dark
+    &.dark {
+      > section {
+        &.animation {
+          background-color: var(--bg-dark);
+        }
 
-      &.steps
-        background-color: $bg-secondary-dark
+        &.steps {
+          background-color: var(--bg-secondary-dark);
 
-        header .progress::v-deep(.bar)
-          background-color: $bg-tertiary-dark
+          header .progress:deep(.bar) {
+            background-color: var(--bg-tertiary-dark);
+          }
 
-        .slide
-          .input
-            background-color: $bg-tertiary-dark
+          .slide {
+            .input {
+              background-color: var(--bg-tertiary-dark);
+            }
 
-          .hint
-            background-color: $warning-saturated
+            .hint {
+              background-color: var(--warning-saturated);
+            }
+          }
+        }
+      }
+    }
 
-  @media $mobile
-    display: block
+    @media #{$mobile} {
+      display: block;
+    }
 
-  > section
-    width: 50%
+    > section {
+      width: 50%;
 
-    @media $mobile
-      width: 100%
-      min-height: 50vh
+      @media #{$mobile} {
+        width: 100%;
+        min-height: 50vh;
+      }
 
-    &.animation
-      background-color: $bg-secondary
-      position: relative
-      overflow: hidden
+      &.animation {
+        background-color: var(--bg-secondary);
+        position: relative;
+        overflow: hidden;
 
-      header
-        position: relative
-        z-index: 1
-        padding-left: 4rem
-        padding-top: @padding-left
+        header {
+          position: relative;
+          z-index: 1;
+          padding-left: 4rem;
+          padding-top: 4rem;
 
-        .icon
-          width: 3rem
-          height: @width
+          .icon {
+            width: 3rem;
+            height: 3rem;
+          }
 
-        @media $mobile
-          width: 100%
-          height: 50vh
-          display: flex
-          align-items: center
-          justify-content: center
-          padding: 0
+          @media #{$mobile} {
+            width: 100%;
+            height: 50vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0;
 
-          .icon
-            width: 4rem
-            height: @width
+            .icon {
+              width: 4rem;
+              height: 4rem;
+            }
+          }
+        }
 
-      .bubble
-        border-radius: 50%
-        position: absolute
-        background-image: linear-gradient(225deg, #6C5CE7 14.16%, rgba(108, 92, 231, 0) 85.19%)
-        opacity: 0.5
-        transition: transform 2000ms ease
+        .bubble {
+          border-radius: 50%;
+          position: absolute;
+          background-image: linear-gradient(225deg, #6C5CE7 14.16%, rgba(108, 92, 231, 0) 85.19%);
+          opacity: 0.5;
+          transition: transform 2000ms ease;
 
-        &::after
-          content: ''
-          display: block
-          padding-top: 100%
+          &::after {
+            content: '';
+            display: block;
+            padding-top: 100%;
+          }
 
-        &.one
-          width: 60.41%
-          left: -18.2%
-          top: -15.68%
+          &.one {
+            width: 60.41%;
+            left: -18.2%;
+            top: -15.68%;
+          }
 
-        &.two
-          width: 23.95%
-          right: -5.64%
-          top: 8.16%
-          transition-delay: 100ms
+          &.two {
+            width: 23.95%;
+            right: -5.64%;
+            top: 8.16%;
+            transition-delay: 100ms;
+          }
 
-        &.three
-          width: 43.45%
-          right: -3.45%
-          bottom: -1.71%
-          transition-delay: 200ms
+          &.three {
+            width: 43.45%;
+            right: -3.45%;
+            bottom: -1.71%;
+            transition-delay: 200ms;
+          }
 
-        &.four
-          width: 37.5%
-          left: -12.33%
-          bottom: -12.08%
-          transition-delay: 150ms
+          &.four {
+            width: 37.5%;
+            left: -12.33%;
+            bottom: -12.08%;
+            transition-delay: 150ms;
+          }
+        }
 
-      .message
-        position: absolute
-        width: 70%
-        top: 50%
-        left: 50%
-        transform: translate(-50%, -50%)
-        margin: 0
-        font-weight: normal
-        opacity: 0.6
-        letter-spacing: -0.02em
-        line-height: 1.4
+        .message {
+          position: absolute;
+          width: 70%;
+          top: 50%;
+          left: 50%;
+          transform: translate(-50%, -50%);
+          margin: 0;
+          font-weight: normal;
+          opacity: 0.6;
+          letter-spacing: -0.02em;
+          line-height: 1.4;
 
-        &.v-enter-active,
-        &.v-leave-active
-          transition: opacity 1000ms ease
-          transition-delay: 300ms
+          &.v-enter-active,
+          &.v-leave-active {
+            transition: opacity 1000ms ease;
+            transition-delay: 300ms;
 
-          &.v-enter-from,
-          &.v-leave-to
-            opacity: 0
+            &.v-enter-from,
+            &.v-leave-to {
+              opacity: 0;
+            }
+          }
 
-        @media $mobile
-          font-size: 1rem
-          bottom: 1rem
-          left: 1rem
-          top: auto
-          width: calc(100% - 2rem)
-          transform: none
-          text-align: center
-          display: none // it looks off, so hide it on mobile
+          @media #{$mobile} {
+            font-size: 1rem;
+            bottom: 1rem;
+            left: 1rem;
+            top: auto;
+            width: calc(100% - 2rem);
+            transform: none;
+            text-align: center;
+            display: none; // it looks off, so hide it on mobile
+          }
+        }
+      }
 
-    &.steps
-      padding: 4rem
-      display: flex
-      flex-direction: column
-      position: relative
+      &.steps {
+        padding: 4rem;
+        display: flex;
+        flex-direction: column;
+        position: relative;
 
-      @media $mobile
-        padding: 2rem
+        @media #{$mobile} {
+          padding: 2rem;
 
-        .button
-          width: 100%
+          .button {
+            width: 100%;
+          }
+        }
 
-      header
-        margin-left: auto
+        header {
+          margin-left: auto;
 
-        @media $mobile
-          margin-left: 0
-          margin-bottom: 2rem
+          @media #{$mobile} {
+            margin-left: 0;
+            margin-bottom: 2rem;
+          }
 
-        .progress
-          transition: opacity 200ms ease
+          .progress {
+            transition: opacity 200ms ease;
 
-          @media $mobile
-            width: 100%
+            @media #{$mobile} {
+              width: 100%;
+            }
 
-          &.faded
-            opacity: 0
+            &.faded {
+              opacity: 0;
+            }
+          }
+        }
 
-      .slide
-        max-width: (488 / 16)rem
-        margin: auto
+        .slide {
+          max-width: rem(488);
+          margin: auto;
 
-        &.v-enter-active,
-        &.v-leave-active
-          transition: transform 200ms ease, opacity 200ms ease
+          &.v-enter-active,
+          &.v-leave-active {
+            transition: transform 200ms ease, opacity 200ms ease;
 
-          &.v-enter-from
-            opacity: 0
-            transform: translateX(4rem)
+            &.v-enter-from {
+              opacity: 0;
+              transform: translateX(4rem);
 
-            @media $mobile
-              transform: none
+              @media #{$mobile} {
+                transform: none;
+              }
+            }
 
-          &.v-leave-to
-            opacity: 0
-            transform: translateX(-4rem)
+            &.v-leave-to {
+              opacity: 0;
+              transform: translateX(-4rem);
 
-            @media $mobile
-              transform: none
+              @media #{$mobile} {
+                transform: none;
+              }
+            }
 
-          .meta-info
-            display: none
+            .meta-info {
+              display: none;
+            }
+          }
 
-        h1
-          margin-top: 0
+          h1 {
+            margin-top: 0;
+          }
 
-        h2
-          margin-top: 4rem
+          h2 {
+            margin-top: 4rem;
 
-          @media $mobile
-            margin-top: 2rem
+            @media #{$mobile} {
+              margin-top: 2rem;
+            }
+          }
 
-        .blurb
-          margin-bottom: 4rem
+          .blurb {
+            margin-bottom: 4rem;
 
-          @media $mobile
-            margin-bottom: 2rem
+            @media #{$mobile} {
+              margin-bottom: 2rem;
+            }
+          }
 
-        .input
-          width: 100%
-          margin-bottom: 1rem
+          .input {
+            width: 100%;
+            margin-bottom: 1rem;
+          }
 
-        .radio-group
-          margin-top: 2rem
-          margin-bottom: 1rem
+          .radio-group {
+            margin-top: 2rem;
+            margin-bottom: 1rem;
 
-          &.dark::v-deep(.fake-radio)::after
-            background-color: $bg-secondary-dark
+            &.dark:deep(.fake-radio)::after {
+              background-color: var(--bg-secondary-dark);
+            }
+          }
 
-        .label
-          display: flex
-          align-items: center
-          margin-bottom: 2rem
+          .label {
+            display: flex;
+            align-items: center;
+            margin-bottom: 2rem;
 
-          @media $mobile
-            display: block
+            @media #{$mobile} {
+              display: block;
 
-            ::v-deep(.select) // needed because it’s a fragment element I guess?
-              width: 100%
+              &:deep(.select) { // needed because it’s a fragment element I guess?
+                width: 100%;
+              }
+            }
 
-          span
-            margin-right: auto
+            span {
+              margin-right: auto;
 
-            @media $mobile
-              display: block
-              margin-bottom: 1rem
+              @media #{$mobile} {
+                display: block;
+                margin-bottom: 1rem;
+              }
+            }
+          }
 
-        img
-          display: block
-          width: (92 / 16)rem
-          height: @width
-          border-radius: 50%
-          box-shadow: 0 0 0 0.125rem $bg-tertiary-dark, inset 0 0 0 0.125rem $bg-tertiary-dark
-          margin-bottom: 2rem
-          margin-left: auto
-          margin-right: auto
+          img {
+            display: block;
+            width: rem(92);
+            height: rem(92);
+            border-radius: 50%;
+            box-shadow: 0 0 0 0.125rem var(--bg-tertiary-dark), inset 0 0 0 0.125rem var(--bg-tertiary-dark);
+            margin-bottom: 2rem;
+            margin-left: auto;
+            margin-right: auto;
+          }
 
-        .avatar-buttons
-          text-align: center
-          margin-bottom: 4rem
+          .avatar-buttons {
+            text-align: center;
+            margin-bottom: 4rem;
 
-          .button:first-child
-            margin-right: 1rem
+            .button:first-child {
+              margin-right: 1rem;
 
-            @media $mobile
-              margin-right: 0
-              margin-bottom: 1rem
+              @media #{$mobile} {
+                margin-right: 0;
+                margin-bottom: 1rem;
+              }
+            }
+          }
 
-        footer
-          text-align: right
-          margin-top: 2rem
+          footer {
+            text-align: right;
+            margin-top: 2rem;
 
-          &.meta-info
-            margin-top: 0
-            position: absolute
-            bottom: 2rem
-            right: 2rem
+            &.meta-info {
+              margin-top: 0;
+              position: absolute;
+              bottom: 2rem;
+              right: 2rem;
 
-            @media $mobile
-              position: static
-              margin-top: 2rem
+              @media #{$mobile} {
+                position: static;
+                margin-top: 2rem;
+              }
+            }
 
-          > a
-            white-space: nowrap
+            > a {
+              white-space: nowrap;
 
-            &:not(:first-child)
-              margin-left: 1rem
+              &:not(:first-child) {
+                margin-left: 1rem;
+              }
+            }
+          }
+        }
+      }
+    }
+  }
 
-.advanced-settings-modal
-  h3
-    margin-top: 0
+  .advanced-settings-modal {
+    h3 {
+      margin-top: 0;
+    }
 
-  .input
-    width: 100%
-    margin-bottom: 1rem
+    .input {
+      width: 100%;
+      margin-bottom: 1rem;
+    }
+  }
 </style>

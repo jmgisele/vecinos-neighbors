@@ -86,38 +86,42 @@ export default {
 };
 </script>
 
-<style lang="stylus" scoped>
-@require '../assets/styles/colors'
+<style lang="scss" scoped>
+  .project-documentation {
+    padding: 0 1rem;
+    height: 100%;
+    overflow: auto;
 
-.project-documentation
-  padding: 0 1rem
-  height: 100%
-  overflow: auto
+    > pre {
+      max-width: 60rem;
+      margin-left: auto;
+      margin-right: auto;
+      margin-bottom: 4rem;
+      background-color: transparent;
+      color: var(--text-secondary);
+      border: 0.0625rem dashed var(--text-tertiary);
 
-  > pre
-    max-width: 60rem
-    margin-left: auto
-    margin-right: auto
-    margin-bottom: 4rem
-    background-color: transparent
-    color: $text-secondary
-    border: 0.0625rem dashed $text-tertiary
+      &.dark {
+        color: var(--text-secondary-dark);
+        border-color: var(--text-tertiary-dark);
+      }
+    }
 
-    &.dark
-      color: $text-secondary-dark
-      border-color: $text-tertiary-dark
+    > article {
+      padding: 4rem 0;
+      padding-bottom: 0;
+      max-width: 40rem;
+      margin: 0 auto;
 
-  > article
-    padding: 4rem 0
-    padding-bottom: 0
-    max-width: 40rem
-    margin: 0 auto
+      > :first-child {
+        margin-top: 0;
+      }
 
-    > :first-child
-      margin-top: 0
-
-    ::v-deep(img)
-      display: block
-      max-width: 100%
-      margin: 2rem auto
+      &:deep(img) {
+        display: block;
+        max-width: 100%;
+        margin: 2rem auto;
+      }
+    }
+  }
 </style>

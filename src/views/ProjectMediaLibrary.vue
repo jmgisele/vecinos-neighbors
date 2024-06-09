@@ -535,237 +535,295 @@ export default {
 };
 </script>
 
-<style lang="stylus" scoped>
-@require '../assets/styles/breakpoints'
-@require '../assets/styles/colors'
-@require '../assets/styles/corners'
+<style lang="scss" scoped>
+  @use '../assets/styles/breakpoints' as *;
 
-.media-library
-  user-select: none
-  height: 100%
-  display: flex
-  flex-direction: column
-  padding-top: (27 / 16)rem // HACK: to align the baseline of the heading with the bottom line of the avatar
+  .media-library {
+    user-select: none;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    padding-top: rem(27); // HACK: to align the baseline of the heading with the bottom line of the avatar
 
-  @media $tablet
-    padding-top: 0
+    @media #{$tablet} {
+      padding-top: 0;
+    }
 
-  header
-    display: flex
-    align-items: center
-    margin-bottom: 2rem
-    padding: 0 2rem
+    header {
+      display: flex;
+      align-items: center;
+      margin-bottom: 2rem;
+      padding: 0 2rem;
 
-    @media $mobile
-      flex-wrap: wrap
+      @media #{$mobile} {
+        flex-wrap: wrap;
+      }
 
-    h1
-      margin: 0
+      h1 {
+        margin: 0;
 
-      @media $mobile
-        margin-top: 0.5rem
-        margin-right: 1rem
+        @media #{$mobile} {
+          margin-top: 0.5rem;
+          margin-right: 1rem;
+        }
+      }
 
-    .chip
-      margin-left: 1rem
+      .chip {
+        margin-left: 1rem;
 
-      @media $mobile
-        margin-left: 0
-        margin-top: 0.5rem
+        @media #{$mobile} {
+          margin-left: 0;
+          margin-top: 0.5rem;
+        }
+      }
+    }
 
-  .tab-content
-    flex-grow: 1
+    .tab-content {
+      flex-grow: 1;
 
-    &::v-deep(.content-wrapper.right)
-      &.padded
-        padding: 0
+      &:deep(.content-wrapper.right) {
+        &.padded {
+          padding: 0;
+        }
 
-      .close-wrapper
-        .close-button
-          right: 1rem
+        .close-wrapper {
+          .close-button {
+            right: 1rem;
 
-          &:not(:hover):not(:focus):not(:active)
-            background-color: alpha($bg, 0.75)
+            &:not(:hover):not(:focus):not(:active) {
+              background-color: color-mix(in srgb, var(--bg) 75%, transparent);
 
-            &.dark
-              background-color: alpha($bg-dark, 0.75)
+              &.dark {
+                background-color: color-mix(in srgb, var(--bg-dark) 75%, transparent);
+              }
+            }
+          }
+        }
+      }
 
-    .file-list
-      max-width: (960 / 16)rem
-      margin: 0 auto
-      margin-top: 8rem
-      margin-bottom: 1rem
+      .file-list {
+        max-width: rem(960);
+        margin: 0 auto;
+        margin-top: 8rem;
+        margin-bottom: 1rem;
 
-      @media $tablet
-        margin-top: 4rem
+        @media #{$tablet} {
+          margin-top: 4rem;
+        }
 
-      @media $mobile
-        margin-top: 2rem
+        @media #{$mobile} {
+          margin-top: 2rem;
+        }
 
-      & + .button
-        display: flex
-        margin-left: auto
-        margin-right: auto
+        & + .button {
+          display: flex;
+          margin-left: auto;
+          margin-right: auto;
+        }
+      }
 
-    .unconfigured-state
-      text-align: center
+      .unconfigured-state {
+        text-align: center;
 
-      &.dark
+        &.dark {
+          h2,
+          p {
+            color: var(--text-secondary-dark);
+          }
+        }
+
         h2,
-        p
-          color: $text-secondary-dark
+        p {
+          color: var(--text-secondary);
+        }
 
-      h2,
-      p
-        color: $text-secondary
+        h2 {
+          margin-top: 8rem;
+        }
 
-      h2
-        margin-top: 8rem
+        p {
+          margin-bottom: 2rem;
+        }
+      }
 
-      p
-        margin-bottom: 2rem
+      input[type=file] {
+        display: none;
+      }
+    }
+  }
 
-    input[type=file]
-      display: none
+  .edit-file {
+    &.v-enter-active,
+    &.v-leave-active {
+      transition: opacity 200ms ease;
 
-.edit-file
-  &.v-enter-active,
-  &.v-leave-active
-    transition: opacity 200ms ease
+      &.v-enter-from,
+      &.v-leave-to {
+        opacity: 0;
+      }
+    }
 
-    &.v-enter-from,
-    &.v-leave-to
-      opacity: 0
+    &.dark {
+      .thumbnail {
+        background-image: linear-gradient(to 1rem, rgba(0, 0, 0, 0.9), rgba(0, 0, 0, 0.9)), linear-gradient(to 1rem, black 50%, white 50%), linear-gradient(to bottom, black 50%, white 50%);
+      }
 
-  &.dark
-    .thumbnail
-      background-image: linear-gradient(to right, rgba(0,0,0,0.9), rgba(0,0,0,0.9)), linear-gradient(to right, black 50%, white 50%), linear-gradient(to bottom, black 50%, white 50%)
+      .meta {
+        background-color: var(--bg-secondary-dark-darkened-2);
 
-    .meta
-      background-color: darken($bg-secondary-dark, 2)
+        dl {
+          dt {
+            color: var(--text-secondary-dark);
+          }
 
-      dl
-        dt
-          color: $text-secondary-dark
+          dd .color-indicator {
+            box-shadow: inset 0 0 0 0.0625rem var(--text-tertiary-dark);
+          }
+        }
+      }
+    }
 
-        dd .color-indicator
-          box-shadow: inset 0 0 0 0.0625rem $text-tertiary-dark
+    .thumbnail {
+      color: var(--text-dark);
+      height: 30rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background-image: linear-gradient(to 1rem, rgba(0, 0, 0, 0.75), rgba(0, 0, 0, 0.75)), linear-gradient(to 1rem, black 50%, white 50%), linear-gradient(to bottom, black 50%, white 50%);
+      background-size: 1.5rem 1.5rem;
+      background-blend-mode: normal, difference;
+      position: relative;
 
-  .thumbnail
-    color: $text-dark
-    height: 30rem
-    display: flex
-    align-items: center
-    justify-content: center
-    background-image: linear-gradient(to right, rgba(0,0,0,0.75), rgba(0,0,0,0.75)), linear-gradient(to right, black 50%, white 50%), linear-gradient(to bottom, black 50%, white 50%)
-    background-size: 1.5rem 1.5rem
-    background-blend-mode: normal, difference
-    position: relative
+      @media #{$mobile} {
+        height: 12rem;
+        margin-top: -1rem;
+        border-top-left-radius: var(--radius-m);
+        border-top-right-radius: var(--radius-m);
+      }
 
-    @media $mobile
-      height: 12rem
-      margin-top: -1rem
-      border-top-left-radius: $radius-m
-      border-top-right-radius: $radius-m
+      .icon,
+      img {
+        &.v-enter-active,
+        &.v-leave-active {
+          position: absolute;
+          transition: opacity 200ms ease;
 
-    .icon,
-    img
-      &.v-enter-active,
-      &.v-leave-active
-        position: absolute
-        transition: opacity 200ms ease
+          &.v-enter-from,
+          &.v-leave-to {
+            opacity: 0;
+          }
+        }
+      }
 
-        &.v-enter-from,
-        &.v-leave-to
-          opacity: 0
+      .icon {
+        margin: 0;
+        width: 3rem;
+        height: 3rem;
+      }
 
-    .icon
-      margin: 0
-      width: 3rem
-      height: @width
+      img {
+        max-width: 100%;
+        max-height: 100%;
 
-    img
-      max-width: 100%
-      max-height: 100%
+        &.hidden {
+          opacity: 0;
+        }
+      }
+    }
 
-      &.hidden
-        opacity: 0
+    .meta {
+      background-color: var(--bg-secondary);
+      margin: 0;
+      padding: 1rem;
+      display: flex;
+      justify-content: center;
 
-  .meta
-    background-color: $bg-secondary
-    margin: 0
-    padding: 1rem
-    display: flex
-    justify-content: center
+      dl {
+        margin: 0;
+        overflow: hidden;
+        flex-shrink: 0;
 
-    dl
-      margin: 0
-      overflow: hidden
-      flex-shrink: 0
+        &:first-child {
+          flex-shrink: 1;
+        }
 
-      &:first-child
-          flex-shrink: 1
+        &:not(:last-child) {
+          margin-right: 4rem;
+        }
 
-      &:not(:last-child)
-        margin-right: 4rem
+        dt,
+        dd {
+          margin: 0;
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
+        }
 
-      dt,
-      dd
-        margin: 0
-        white-space: nowrap
-        overflow: hidden
-        text-overflow: ellipsis
+        dt {
+          color: var(--text-secondary);
+          font-size: 0.875rem;
+        }
 
-      dt
-        color: $text-secondary
-        font-size: 0.875rem
+        dd {
+          .color-indicator {
+            vertical-align: middle;
+            margin-right: 0.5rem;
+            display: inline-block;
+            width: 1rem;
+            height: 1rem;
+            border-radius: 50%;
+            box-shadow: inset 0 0 0 0.0625rem var(--text-tertiary);
+          }
 
-      dd
-        .color-indicator
-          vertical-align: middle
-          margin-right: 0.5rem
-          display: inline-block
-          width: 1rem
-          height: @width
-          border-radius: 50%
-          box-shadow: inset 0 0 0 0.0625rem $text-tertiary
+          .color-code {
+            vertical-align: middle;
+            user-select: all;
+          }
+        }
+      }
 
-        .color-code
-          vertical-align: middle
-          user-select: all
+      @media #{$mobile} {
+        display: block;
+        padding: 1rem;
+        border-bottom-left-radius: var(--radius-m);
+        border-bottom-right-radius: var(--radius-m);
 
-    @media $mobile
-      display: block
-      padding: 1rem
-      border-bottom-left-radius: $radius-m
-      border-bottom-right-radius: $radius-m
+        dl:not(:last-child) {
+          margin-right: 0;
+          margin-bottom: 0.5rem;
+        }
+      }
+    }
 
-      dl:not(:last-child)
-        margin-right: 0
-        margin-bottom: 0.5rem
+    .data {
+      max-width: 44rem;
+      margin-left: auto;
+      margin-right: auto;
+      padding: 2rem;
 
-  .data
-    max-width: 44rem
-    margin-left: auto
-    margin-right: auto
-    padding: 2rem
+      @media #{$mobile} {
+        padding-left: 0;
+        padding-right: 0;
+      }
 
-    @media $mobile
-      padding-left: 0
-      padding-right: 0
+      .fields-editor {
+        margin-bottom: 4rem;
+      }
 
-    .fields-editor
-      margin-bottom:  4rem
+      .highlight-box {
+        &.dark:not(.in-modal) {
+          background-color: var(--bg-secondary-dark);
+        }
 
-    .highlight-box
-      &.dark:not(.in-modal)
-        background-color: $bg-secondary-dark
+        .button {
+          display: flex;
+          margin-left: auto;
+        }
+      }
 
-      .button
-        display: flex
-        margin-left: auto
-
-    .replacement
-      margin-bottom: 4rem
-
+      .replacement {
+        margin-bottom: 4rem;
+      }
+    }
+  }
 </style>
