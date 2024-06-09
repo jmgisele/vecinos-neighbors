@@ -277,164 +277,198 @@ export default {
 };
 </script>
 
-<style lang="stylus" scoped>
-@require '../../assets/styles/breakpoints'
-@require '../../assets/styles/colors'
-@require '../../assets/styles/corners'
+<style lang="scss" scoped>
+  @use '../../assets/styles/breakpoints' as *;
 
-.mask
-  position: fixed
-  top: 0
-  left: 0
-  width: 100%
-  height: 100%
-  background-color: alpha($bg-dark, 0.6)
+  .mask {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: color-mix(in srgb, var(--bg-dark) 60%, transparent);
 
-  &:not(.swiping)
-    transition: opacity 200ms ease
+    &:not(.swiping) {
+      transition: opacity 200ms ease;
+    }
 
-  &.dark
-    background-color: alpha(black, 0.6)
+    &.dark {
+      background-color: color-mix(in srgb, black 60%, transparent);
+    }
 
-  &.v-enter-active:not(.swiping),
-  &.v-leave-active:not(.swiping)
-    transition: opacity 350ms ease
+    &.v-enter-active:not(.swiping),
+    &.v-leave-active:not(.swiping) {
+      transition: opacity 350ms ease;
 
-    &.v-enter-from,
-    &.v-leave-to
-      opacity: 0 !important
+      &.v-enter-from,
+      &.v-leave-to {
+        opacity: 0 !important;
+      }
+    }
+  }
 
-.project-sidebar
-  position: fixed
-  top: 0rem
-  left: @top
-  width: (320 / 16)rem
-  max-width: calc(100vw - 2rem)
-  height: 100%
-  padding: 1rem
-  background-color: $bg-secondary
-  display: flex
-  flex-direction: column
-  overflow-x: hidden
-  overflow-y: auto
-  user-select: none
-  touch-action: pan-y
+  .project-sidebar {
+    position: fixed;
+    top: 0rem;
+    left: 0rem;
+    width: rem(320);
+    max-width: calc(100vw - 2rem);
+    height: 100%;
+    padding: 1rem;
+    background-color: var(--bg-secondary);
+    display: flex;
+    flex-direction: column;
+    overflow-x: hidden;
+    overflow-y: auto;
+    user-select: none;
+    touch-action: pan-y;
 
-  @media $tablet
-    border-top-right-radius: $radius-l
-    border-bottom-right-radius: @border-top-right-radius
+    @media #{$tablet} {
+      border-top-right-radius: var(--radius-l);
+      border-bottom-right-radius: var(--radius-l);
+    }
 
-  &:not(.swiping)
-    transition: transform 200ms ease
+    &:not(.swiping) {
+      transition: transform 200ms ease;
+    }
 
-  &.dark
-    background-color: $bg-secondary-dark
+    &.dark {
+      background-color: var(--bg-secondary-dark);
 
-    .options
-      li:not(.separator)
-        &.disabled
-          color: $text-tertiary-dark
+      .options {
+        li:not(.separator) {
+          &.disabled {
+            color: var(--text-tertiary-dark);
+          }
+
+          &:hover,
+          &:focus-visible {
+            background-color: var(--bg-tertiary-dark);
+          }
+        }
+
+        li.separator {
+          color: var(--text-tertiary-dark);
+        }
+      }
+    }
+
+    &.v-enter-active:not(.swiping),
+    &.v-leave-active:not(.swiping) {
+      transition: transform 350ms cubic-bezier(0.215, 0.61, 0.355, 1);
+
+      &.v-enter-from,
+      &.v-leave-to {
+        transform: translateX(-100%);
+      }
+    }
+
+    &.v-leave-active {
+      transition-timing-function: cubic-bezier(0.645, 0.045, 0.355, 1);
+    }
+
+    .project-avatar {
+      margin-bottom: 1rem;
+      width: 100%;
+      border-radius: var(--radius-s);
+      cursor: pointer;
+    }
+
+    .meta {
+      display: flex;
+      margin-bottom: 2rem;
+      padding-left: 0.75rem;
+      align-items: center;
+      justify-content: space-between;
+
+      p {
+        margin: 0;
+        margin-right: 0.5rem;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+
+      .chip {
+        flex-shrink: 0;
+        cursor: pointer;
+
+        &:active {
+          transform: translateY(0.125rem);
+        }
+      }
+    }
+
+    .options {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      margin-bottom: 2rem;
+
+      li:not(.separator) {
+        padding: 0.75rem 1rem;
+        cursor: pointer;
+        border-radius: var(--radius-m);
+        transition: background-color 200ms ease;
+        display: flex;
+        align-items: center;
+
+        &:not(:last-child) {
+          margin-bottom: 0.5rem;
+        }
+
+        &.active {
+          background-color: var(--accent);
+          color: var(--text-dark);
+        }
+
+        &.disabled {
+          pointer-events: none;
+          color: var(--text-tertiary);
+        }
+
+        &:focus-visible {
+          box-shadow: inset 0 0 0, rem(2) var(--accent);
+        }
 
         &:hover,
-        &:focus-visible
-          background-color: $bg-tertiary-dark
+        &:focus-visible {
+          background-color: var(--bg-tertiary);
 
-      li.separator
-        color: $text-tertiary-dark
+          &.active {
+            background-color: var(--accent-darkened-5);
+          }
+        }
 
-  &.v-enter-active:not(.swiping),
-  &.v-leave-active:not(.swiping)
-    transition: transform 350ms cubic-bezier(0.215, 0.610, 0.355, 1.000)
+        .icon {
+          margin-right: 1rem;
+          flex-shrink: 0;
+        }
 
-    &.v-enter-from,
-    &.v-leave-to
-      transform: translateX(-100%)
+        span {
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
+        }
+      }
 
-  &.v-leave-active
-    transition-timing-function: cubic-bezier(0.645, 0.045, 0.355, 1.000)
+      li.separator {
+        padding-left: 0.75rem;
+        color: var(--text-secondary);
 
-  .project-avatar
-    margin-bottom: 1rem
-    width: 100%
-    border-radius: $radius-s
-    cursor: pointer
+        &:not(:last-child) {
+          margin-bottom: 0.5rem;
+        }
 
-  .meta
-    display: flex
-    margin-bottom: 2rem
-    padding-left: 0.75rem
-    align-items: center
-    justify-content: space-between
+        &:not(:first-child) {
+          margin-top: 1.5rem;
+        }
+      }
+    }
 
-    p
-      margin: 0
-      margin-right: 0.5rem
-      white-space: nowrap
-      overflow: hidden
-      text-overflow: ellipsis
-
-    .chip
-      flex-shrink: 0
-      cursor: pointer
-
-      &:active
-        transform: translateY(0.125rem)
-
-  .options
-    list-style: none
-    margin: 0
-    padding: 0
-    margin-bottom: 2rem
-
-    li:not(.separator)
-      padding: 0.75rem 1rem
-      cursor: pointer
-      border-radius: $radius-m
-      transition: background-color 200ms ease
-      display: flex
-      align-items: center
-
-      &:not(:last-child)
-        margin-bottom: 0.5rem
-
-      &.active
-        background-color: $accent
-        color: $text-dark
-
-      &.disabled
-        pointer-events: none
-        color: $text-tertiary
-
-      &:focus-visible
-        box-shadow: inset 0 0 0 (2 / 16)rem $accent
-
-      &:hover,
-      &:focus-visible
-        background-color: $bg-tertiary
-
-        &.active
-          background-color: darken($accent, 5)
-
-      .icon
-        margin-right: 1rem
-        flex-shrink: 0
-
-      span
-        white-space: nowrap
-        overflow: hidden
-        text-overflow: ellipsis
-
-    li.separator
-      padding-left: 0.75rem
-      color: $text-secondary
-
-      &:not(:last-child)
-        margin-bottom: 0.5rem
-
-      &:not(:first-child)
-        margin-top: 1.5rem
-
-  .back-button
-    margin-top: auto
-    flex-shrink: 0
+    .back-button {
+      margin-top: auto;
+      flex-shrink: 0;
+    }
+  }
 </style>

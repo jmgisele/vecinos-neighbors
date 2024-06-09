@@ -101,53 +101,60 @@ export default {
 };
 </script>
 
-<style lang="stylus" scoped>
-@require '../../assets/styles/colors'
-@require '../../assets/styles/corners'
+<style lang="scss" scoped>
+  .entity-rename-modal {
+    .input-group {
+      white-space: nowrap;
+      display: flex;
+      align-items: stretch;
+      margin-bottom: 0.5rem;
 
-.entity-rename-modal
-  .input-group
-    white-space: nowrap
-    display: flex
-    align-items: stretch
-    margin-bottom: 0.5rem
+      &:first-child {
+        margin-top: 1.5rem;
+      }
 
-    &:first-child
-      margin-top: 1.5rem
+      .input {
+        border: none;
+        width: 100%;
+        margin-top: 0;
+        border-top-right-radius: 0;
+        border-bottom-right-radius: 0;
 
-    .input
-      border: none
-      width: 100%
-      margin-top: 0
-      border-top-right-radius: 0
-      border-bottom-right-radius: @border-top-right-radius
+        &.no-extension {
+          border-top-right-radius: var(--radius-m);
+          border-bottom-right-radius: var(--radius-m);
+        }
+      }
 
-      &.no-extension
-        border-top-right-radius: $radius-m
-        border-bottom-right-radius: @border-top-right-radius
+      span {
+        display: inline-block;
+        padding: 1rem;
+        background-color: var(--bg-secondary);
+        color: var(--text-secondary);
+        border-top-right-radius: var(--radius-m);
+        border-bottom-right-radius: var(--radius-m);
+        margin-left: 0.0625rem;
 
-    span
-      display: inline-block
-      padding: 1rem
-      background-color: $bg-secondary
-      color: $text-secondary
-      border-top-right-radius: $radius-m
-      border-bottom-right-radius: @border-top-right-radius
-      margin-left: 0.0625rem
+        &.dark {
+          background-color: var(--bg-secondary-dark);
+          color: var(--text-secondary-dark);
+        }
+      }
+    }
 
-      &.dark
-        background-color: $bg-secondary-dark
-        color: $text-secondary-dark
+    .name-hint {
+      color: var(--text-secondary);
+      margin: 0;
+      font-size: 0.875rem;
+      transition: opacity 200ms ease;
 
-  .name-hint
-    color: $text-secondary
-    margin: 0
-    font-size: 0.875rem
-    transition: opacity 200ms ease
+      &.dark {
+        color: var(--text-secondary-dark);
+      }
 
-    &.dark
-      color: $text-secondary-dark
-
-    &.hidden
-      opacity: 0
+      &.hidden {
+        opacity: 0;
+      }
+    }
+  }
 </style>

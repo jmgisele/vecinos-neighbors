@@ -88,23 +88,23 @@ export default {
 };
 </script>
 
-<style lang="stylus" scoped>
-@require '../../assets/styles/colors'
-@require '../../assets/styles/corners'
+<style lang="scss" scoped>
+  .entity-move-modal {
+    .h3 {
+      margin: 0 2rem;
+      margin-top: 2rem;
+      margin-bottom: rem(19);
+      text-align: center;
+    }
 
-.entity-move-modal
-  .h3
-    margin: 0 2rem
-    margin-top: 2rem
-    margin-bottom: (19 / 16)rem
-    text-align: center
+    .file-list {
+      margin-bottom: 0.125rem;
+      margin-left: 2rem;
+      margin-right: 2rem;
 
-  .file-list
-    margin-bottom: 0.125rem
-    margin-left: 2rem
-    margin-right: @margin-left
-
-    &::v-deep(.empty-state)
-      margin: 2rem 0
-
+      &:deep(.empty-state) {
+        margin: 2rem 0;
+      }
+    }
+  }
 </style>

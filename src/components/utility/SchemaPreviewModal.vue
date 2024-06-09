@@ -96,54 +96,67 @@ export default {
 };
 </script>
 
-<style lang="stylus" scoped>
-@require '../../assets/styles/breakpoints'
-@require '../../assets/styles/colors'
+<style lang="scss" scoped>
+  @use '../../assets/styles/breakpoints' as *;
 
-.schema-preview-modal
-  .tabs
-    position: sticky
-    top: 0
-    z-index: 2
+  .schema-preview-modal {
+    .tabs {
+      position: sticky;
+      top: 0;
+      z-index: 2;
+    }
 
-  .content-wrapper
-    padding: 0 2rem
+    .content-wrapper {
+      padding: 0 2rem;
 
-    &.empty
-      > p
-        margin: 4rem
-        color: $text-secondary
-        text-align: center
+      &.empty {
+        > p {
+          margin: 4rem;
+          color: var(--text-secondary);
+          text-align: center;
 
-        &.dark
-          color: $text-secondary-dark
+          &.dark {
+            color: var(--text-secondary-dark);
+          }
+        }
+      }
 
-    @media $mobile
-      padding: 1rem
-      padding-top: 0
+      @media #{$mobile} {
+        padding: 1rem;
+        padding-top: 0;
+      }
 
-    &.v-enter-active,
-    &.v-leave-active
-      transition: opacity 200ms ease
+      &.v-enter-active,
+      &.v-leave-active {
+        transition: opacity 200ms ease;
 
-      &.v-enter-from,
-      &.v-leave-to
-        opacity: 0
+        &.v-enter-from,
+        &.v-leave-to {
+          opacity: 0;
+        }
+      }
 
-    .fields-editor
-      margin-top: 1rem
-      width: 100%
+      .fields-editor {
+        margin-top: 1rem;
+        width: 100%;
 
-      &.tabs-visible
-        margin-top: 2rem
+        &.tabs-visible {
+          margin-top: 2rem;
+        }
+      }
 
-    > h3
-      margin-top: 3rem
-      color: $text-secondary
+      > h3 {
+        margin-top: 3rem;
+        color: var(--text-secondary);
 
-      &.dark
-        color: $text-secondary-dark
+        &.dark {
+          color: var(--text-secondary-dark);
+        }
+      }
 
-    > pre
-      margin: 0
+      > pre {
+        margin: 0;
+      }
+    }
+  }
 </style>

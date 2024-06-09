@@ -204,157 +204,194 @@ export default {
 };
 </script>
 
-<style lang="stylus" scoped>
-@require '../../assets/styles/breakpoints'
-@require '../../assets/styles/colors'
-@require '../../assets/styles/corners'
+<style lang="scss" scoped>
+  @use '../../assets/styles/breakpoints' as *;
 
-.preview-comment-thread
-  &.dark
-    .comments .comment
-      background-color: $bg-tertiary-dark
+  .preview-comment-thread {
+    &.dark {
+      .comments .comment {
+        background-color: var(--bg-tertiary-dark);
 
-      &:not(:last-child)
-        border-bottom-color: $bg-tertiary-dark
+        &:not(:last-child) {
+          border-bottom-color: var(--bg-tertiary-dark);
+        }
 
-      header
-        .author
-          color: $text-secondary-dark
+        header {
+          .author {
+            color: var(--text-secondary-dark);
+          }
 
-        .timestamp
-          color: $text-tertiary-dark
+          .timestamp {
+            color: var(--text-tertiary-dark);
+          }
+        }
+      }
+    }
 
-  .thread-status
-    padding: 0.5rem
-    padding-bottom: 0
-    display: flex
-    justify-content: space-between
-    align-items: center
+    .thread-status {
+      padding: 0.5rem;
+      padding-bottom: 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
 
-    &.resolved .icon
-      box-shadow: inset 0 0 0 (1 / 16)rem $positive-saturated
-      color: $positive-saturated
+      &.resolved .icon {
+        box-shadow: inset 0 0 0, rem(1) var(--positive-saturated);
+        color: var(--positive-saturated);
+      }
 
-    &.important .icon
-      color: $warning-saturated
-      padding: 0
-      border-radius: 0
+      &.important .icon {
+        color: var(--warning-saturated);
+        padding: 0;
+        border-radius: 0;
+      }
 
-    &.critical .icon
-      color: $negative
-      padding: 0
+      &.critical .icon {
+        color: var(--negative);
+        padding: 0;
+      }
 
-    .icon
-      border-radius: 50%
-      padding: (4 / 16)rem
-      width: (24 / 16)rem
-      height: @width
+      .icon {
+        border-radius: 50%;
+        padding: rem(4);
+        width: rem(24);
+        height: rem(24);
+      }
+    }
 
-  .comments
-    max-height: 50vh
+    .comments {
+      max-height: 50vh;
 
-    .scroll-wrapper
-      margin: 0
-      padding: (8 / 16)rem
-      width: (440 / 16)rem
-      list-style: none
+      .scroll-wrapper {
+        margin: 0;
+        padding: rem(8);
+        width: rem(440);
+        list-style: none;
+      }
 
-    .comment
-      max-width: 100%
-      padding: (12 / 16)rem
-      padding-bottom: (18 / 16)rem
-      background-color: $bg-secondary
-      border-radius: $radius-m
-      border-bottom-right-radius: 0
+      .comment {
+        max-width: 100%;
+        padding: rem(12);
+        padding-bottom: rem(18);
+        background-color: var(--bg-secondary);
+        border-radius: var(--radius-m);
+        border-bottom-right-radius: 0;
 
-      &.owned
-        border-bottom-left-radius: 0
-        border-bottom-right-radius: $radius-m
+        &.owned {
+          border-bottom-left-radius: 0;
+          border-bottom-right-radius: var(--radius-m);
+        }
 
-      &:not(:last-child)
-        margin-bottom: (8 / 16)rem
+        &:not(:last-child) {
+          margin-bottom: rem(8);
+        }
 
-      header
-        display: flex
-        align-items: center
-        user-select: none
-        margin-bottom: (8 / 16)rem
+        header {
+          display: flex;
+          align-items: center;
+          user-select: none;
+          margin-bottom: rem(8);
 
-        .author,
-        .timestamp
-          font-size: (12 / 16)rem
+          .author,
+          .timestamp {
+            font-size: rem(12);
+          }
 
-        .author
-          max-width: 60%
-          white-space: nowrap
-          overflow: hidden
-          text-overflow: ellipsis
-          color: $text-secondary
+          .author {
+            max-width: 60%;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            color: var(--text-secondary);
+          }
 
-        .timestamp
-          color: $text-tertiary
-          margin-left auto
+          .timestamp {
+            color: var(--text-tertiary);
+            margin-left: auto;
+          }
 
-        .button
-          padding: (8 / 16)rem
-          margin-left: (8 / 16)rem
-          margin-right: (-4 / 16)rem
+          .button {
+            padding: rem(8);
+            margin-left: rem(8);
+            margin-right: rem(-4);
 
-          &:deep(.icon)
-            width: 1rem
-            height: @width
+            &:deep(.icon) {
+              width: 1rem;
+              height: 1rem;
+            }
+          }
+        }
 
-      .content
-        > :first-child
-          margin-top: 0
+        .content {
+          > :first-child {
+            margin-top: 0;
+          }
 
-        > :last-child
-          margin-bottom: 0
+          > :last-child {
+            margin-bottom: 0;
+          }
+        }
+      }
+    }
 
-  footer
-    .button-wrapper
-      display: flex
-      padding: 0.5rem
+    footer {
+      .button-wrapper {
+        display: flex;
+        padding: 0.5rem;
 
-      .button
-        width: 100%
+        .button {
+          width: 100%;
 
-        @media $mobile
-          min-width: 0
+          @media #{$mobile} {
+            min-width: 0;
+          }
 
-        &:not(:last-child)
-          margin-right: 0.5rem
+          &:not(:last-child) {
+            margin-right: 0.5rem;
+          }
+        }
+      }
+    }
 
-  .editor
-    max-width: 100%
-    width: (440 / 16)rem
-    border-top: 1px solid alpha($accent-secondary, 0.25)
+    .editor {
+      max-width: 100%;
+      width: rem(440);
+      border-top: 1px solid color-mix(in srgb, var(--accent-secondary) 25%, transparent);
 
-    &.dark
-      border-top-color: lighten($bg-tertiary-dark, 10)
+      &.dark {
+        border-top-color: var(--bg-tertiary-dark-lightened-10);
+      }
 
-    :deep(.content-wrapper)
-      border-radius: 0
+      &:deep(.content-wrapper) {
+        border-radius: 0;
 
-      &:not(:focus-within):not(.error)
-        box-shadow: inset 0 (-1 / 16)rem 0 0 alpha($accent-secondary, 0.25)
+        &:not(:focus-within):not(.error) {
+          box-shadow: inset 0, rem(-1) 0 0 color-mix(in srgb, var(--accent-secondary) 25%, transparent);
+        }
 
-      &.dark
-        background-color: $bg-tertiary-dark
+        &.dark {
+          background-color: var(--bg-tertiary-dark);
 
-        &:not(:focus-within):not(.error)
-          box-shadow:
-            inset 0 0.0625rem 0 0 lighten($bg-tertiary-dark, 10),
-            inset 0 (-1 / 16)rem 0 0 lighten($bg-tertiary-dark, 10)
+          &:not(:focus-within):not(.error) {
+            box-shadow: inset 0 0.0625rem 0 0 var(--bg-tertiary-dark-lightened-10),
+            inset 0, rem(-1) 0 0 var(--bg-tertiary-dark-lightened-10);
+          }
 
-        code
-          background-color: lighten($bg-tertiary-dark, 10)
+          code {
+            background-color: var(--bg-tertiary-dark-lightened-10);
+          }
+        }
+      }
 
-    &:deep(.toolbar)
-      margin-top: 0
-      top: 0
-      border-radius: 0
+      &:deep(.toolbar) {
+        margin-top: 0;
+        top: 0;
+        border-radius: 0;
 
-      .tool-group:nth-child(2)
-        display: none
+        .tool-group:nth-child(2) {
+          display: none;
+        }
+      }
+    }
+  }
 </style>

@@ -49,54 +49,66 @@ export default {
 };
 </script>
 
-<style lang="stylus" scoped>
-@require '../../assets/styles/breakpoints'
-@require '../../assets/styles/colors'
+<style lang="scss" scoped>
+  @use '../../assets/styles/breakpoints' as *;
 
-.repeating-field-change-type-modal
-  &.dark .input-wrapper
-    background-color: $bg-dark
+  .repeating-field-change-type-modal {
+    &.dark .input-wrapper {
+      background-color: var(--bg-dark);
+    }
 
-  .existing-values
-    li
-      display: flex
-      align-items: center
-      overflow: hidden
-      white-space: nowrap
+    .existing-values {
+      li {
+        display: flex;
+        align-items: center;
+        overflow: hidden;
+        white-space: nowrap;
 
-      span
-        overflow: hidden
-        text-overflow: ellipsis
+        span {
+          overflow: hidden;
+          text-overflow: ellipsis;
+        }
 
-      code
-        margin-right: 0.5rem
+        code {
+          margin-right: 0.5rem;
+        }
+      }
+    }
 
-  .input-wrapper
-    position: sticky
-    top: 0
-    z-index: 1
-    background-color: $bg
+    .input-wrapper {
+      position: sticky;
+      top: 0;
+      z-index: 1;
+      background-color: var(--bg);
 
-    .input
-      margin-bottom: 1rem
-      margin-top: 0
-      width: 100%
+      .input {
+        margin-bottom: 1rem;
+        margin-top: 0;
+        width: 100%;
+      }
+    }
 
-  ul
-    list-style: none
-    margin: 0
-    padding: 0
-    display: grid
-    grid-template-columns: repeat(2, 1fr)
-    grid-gap: 1rem
+    ul {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      grid-gap: 1rem;
 
-    @media $mobile
-      grid-template-columns: 1fr
+      @media #{$mobile} {
+        grid-template-columns: 1fr;
+      }
 
-    &:last-child
-      margin-bottom: 0.125rem
+      &:last-child {
+        margin-bottom: 0.125rem;
+      }
 
-    li
-      .button
-        width: 100%
+      li {
+        .button {
+          width: 100%;
+        }
+      }
+    }
+  }
 </style>

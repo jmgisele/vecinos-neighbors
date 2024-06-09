@@ -202,74 +202,90 @@ export default {
 };
 </script>
 
-<style lang="stylus" scoped>
-@require '../../assets/styles/colors'
-@require '../../assets/styles/corners'
+<style lang="scss" scoped>
+  .media-creation-modal {
+    .segmented-selector {
+      margin-bottom: 2rem;
+    }
 
-.media-creation-modal
-  .segmented-selector
-    margin-bottom: 2rem
+    .input-group,
+    .dropzone,
+    .button,
+    .uploading {
+      &.v-enter-active,
+      &.v-leave-active {
+        transition: opacity 200ms ease;
 
-  .input-group,
-  .dropzone,
-  .button,
-  .uploading
-    &.v-enter-active,
-    &.v-leave-active
-      transition: opacity 200ms ease
+        &.v-enter-from,
+        &.v-leave-to {
+          opacity: 0;
+        }
+      }
+    }
 
-      &.v-enter-from,
-      &.v-leave-to
-        opacity: 0
+    .input-group {
+      &:first-child {
+        margin-top: 1.5rem;
+      }
 
-  .input-group
-    &:first-child
-      margin-top: 1.5rem
+      .input {
+        width: 100%;
+        margin-top: 0;
+        margin-bottom: 0.5rem;
+      }
 
-    .input
-      width: 100%
-      margin-top: 0
-      margin-bottom: 0.5rem
+      .name-hint {
+        color: var(--text-secondary);
+        margin: 0;
+        font-size: 0.875rem;
+        transition: opacity 200ms ease;
 
-    .name-hint
-      color: $text-secondary
-      margin: 0
-      font-size: 0.875rem
-      transition: opacity 200ms ease
+        &.dark {
+          color: var(--text-secondary-dark);
+        }
 
-      &.dark
-        color: $text-secondary-dark
+        &.hidden {
+          opacity: 0;
+        }
+      }
+    }
 
-      &.hidden
-        opacity: 0
+    .dropzone {
+      border: 0.125rem dashed var(--accent-secondary);
+      padding: 2rem;
+      text-align: center;
+      border-radius: var(--radius-l);
 
-  .dropzone
-    border: 0.125rem dashed $accent-secondary
-    padding: 2rem
-    text-align: center
-    border-radius: $radius-l
+      &.drag-active {
+        background-color: var(--bg-secondary);
 
-    &.drag-active
-      background-color: $bg-secondary
+        &.dark {
+          background-color: var(--bg-secondary-dark);
+        }
 
-      &.dark
-        background-color: $bg-secondary-dark
+        .button {
+          visibility: hidden;
+        }
+      }
 
-      .button
-        visibility: hidden
+      p {
+        color: var(--text-secondary);
+        margin-top: 0;
+        margin-bottom: 2rem;
+        pointer-events: none;
 
-    p
-      color: $text-secondary
-      margin-top: 0
-      margin-bottom: 2rem
-      pointer-events: none
+        &.dark {
+          color: var(--text-secondary-dark);
+        }
+      }
 
-      &.dark
-        color: $text-secondary-dark
+      input[type=file] {
+        display: none;
+      }
+    }
 
-    input[type=file]
-      display: none
-
-  .uploading
-    padding: 2rem
+    .uploading {
+      padding: 2rem;
+    }
+  }
 </style>

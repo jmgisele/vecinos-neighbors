@@ -37,37 +37,40 @@ export default {
 };
 </script>
 
-<style lang="stylus" scoped>
-@require '../../assets/styles/colors'
+<style lang="scss" scoped>
+  .async-image {
+    position: relative;
+    overflow: hidden;
+    flex-shrink: 0;
 
-.async-image
-  position: relative
-  overflow: hidden
-  flex-shrink: 0
+    img,
+    .placeholder {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+    }
 
-  img,
-  .placeholder
-    position: absolute
-    top: 0
-    left: 0
-    width: 100%
-    height: 100%
+    img {
+      display: block;
+    }
 
-  img
-    display: block
+    .placeholder {
+      background-color: var(--accent-secondary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
 
-  .placeholder
-    background-color: $accent-secondary
-    display: flex
-    align-items: center
-    justify-content: center
+      &.v-enter-active,
+      &.v-leave-active {
+        transition: opacity 150ms ease;
 
-    &.v-enter-active,
-    &.v-leave-active
-      transition: opacity 150ms ease
-
-      &.v-enter-from,
-      &.v-leave-to
-        opacity: 0
-
+        &.v-enter-from,
+        &.v-leave-to {
+          opacity: 0;
+        }
+      }
+    }
+  }
 </style>

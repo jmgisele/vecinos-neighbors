@@ -179,163 +179,203 @@ export default {
 };
 </script>
 
-<style lang="stylus" scoped>
-@require '../../assets/styles/breakpoints'
-@require '../../assets/styles/colors'
-@require '../../assets/styles/corners'
+<style lang="scss" scoped>
+  @use '../../assets/styles/breakpoints' as *;
 
-.internal-link-helper
-  .view
-    &.loading
-      padding: 2rem 0
+  .internal-link-helper {
+    .view {
+      &.loading {
+        padding: 2rem 0;
+      }
 
-    &.collections
-      p
-        font-weight: bold
-      ul
-        margin: 0
-        list-style: none
+      &.collections {
+        p {
+          font-weight: bold;
+        }
 
-        > li:not(:last-child)
-          margin-bottom: 0.5rem
+        ul {
+          margin: 0;
+          list-style: none;
 
-    &.collections ul > li:not(.empty-state),
-    &.url
-      position: relative
-      border: none
-      background-color: $bg-secondary
-      color: inherit
-      border-radius: $radius-m
-      padding: 1rem
-      padding-right: 1.5rem
-      display: flex
-      align-items: center
-      cursor: pointer
-      transition: background-color 200ms ease
-      user-select: none
-      text-align: left
-      white-space: nowrap
-      max-width: 100%
-      overflow: hidden
+          > li:not(:last-child) {
+            margin-bottom: 0.5rem;
+          }
+        }
+      }
 
-      &:hover
-        background-color: $bg-tertiary
+      &.collections ul > li:not(.empty-state),
+      &.url {
+        position: relative;
+        border: none;
+        background-color: var(--bg-secondary);
+        color: inherit;
+        border-radius: var(--radius-m);
+        padding: 1rem;
+        padding-right: 1.5rem;
+        display: flex;
+        align-items: center;
+        cursor: pointer;
+        transition: background-color 200ms ease;
+        user-select: none;
+        text-align: left;
+        white-space: nowrap;
+        max-width: 100%;
+        overflow: hidden;
 
-      &:focus
-        background-color: $bg-secondary
+        &:hover {
+          background-color: var(--bg-tertiary);
+        }
 
-        &::before
-          opacity: 1
+        &:focus {
+          background-color: var(--bg-secondary);
 
-      &:active
-        transform: translateY(2px)
+          &::before {
+            opacity: 1;
+          }
+        }
 
-      &.dark
-        background-color: $bg-secondary-dark
+        &:active {
+          transform: translateY(2px);
+        }
 
-        &:hover
-          background-color: $bg-tertiary-dark
+        &.dark {
+          background-color: var(--bg-secondary-dark);
 
-        &:focus
-          background-color: $bg-secondary-dark
+          &:hover {
+            background-color: var(--bg-tertiary-dark);
+          }
 
-        .label.placeholder
-          color: $text-secondary-dark
+          &:focus {
+            background-color: var(--bg-secondary-dark);
+          }
 
-      &::before
-        content: ''
-        position: absolute
-        top: 0px
-        left: @top
-        right: @top
-        bottom: @top
-        border: 0.125rem solid $accent
-        opacity: 0
-        border-radius: @border-radius
-        transition: opacity 200ms ease
+          .label.placeholder {
+            color: var(--text-secondary-dark);
+          }
+        }
 
-      .label
-        margin-left: 0.75rem
-        overflow: hidden
-        text-overflow: ellipsis
-        margin-right: auto
+        &::before {
+          content: '';
+          position: absolute;
+          top: 0px;
+          left: 0px;
+          right: 0px;
+          bottom: 0px;
+          border: 0.125rem solid var(--accent);
+          opacity: 0;
+          border-radius: var(--radius-m);
+          transition: opacity 200ms ease;
+        }
 
-        &.placeholder
-          color: $text-secondary
+        .label {
+          margin-left: 0.75rem;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          margin-right: auto;
 
-      .icon
-        flex-shrink: 0
+          &.placeholder {
+            color: var(--text-secondary);
+          }
+        }
 
-      .remove-button
-        margin: -0.5rem
-        margin-left: 0.5rem
-        margin-right: -1rem
-        padding: (8.5 / 16)rem
+        .icon {
+          flex-shrink: 0;
+        }
 
-    &.collections ul > li
-      &.empty-state
-        text-align: center
-        color: $text-secondary
+        .remove-button {
+          margin: -0.5rem;
+          margin-left: 0.5rem;
+          margin-right: -1rem;
+          padding: rem(8.5);
+        }
+      }
 
-        &.dark
-          color: $text-secondary-dark
+      &.collections ul > li {
+        &.empty-state {
+          text-align: center;
+          color: var(--text-secondary);
 
-        p
-          font-weight: normal
-          margin: 2rem 0
+          &.dark {
+            color: var(--text-secondary-dark);
+          }
 
-      &:last-child
-        background-color: transparent
-        border: 0.0625rem solid $accent
-        padding: 1rem 2.5rem 1rem 1rem
-        height: (52 / 16)rem
-        margin-top: 1rem
+          p {
+            font-weight: normal;
+            margin: 2rem 0;
+          }
+        }
 
-        &.dark
-          &:hover
-            background-color: $bg-tertiary-dark
+        &:last-child {
+          background-color: transparent;
+          border: 0.0625rem solid var(--accent);
+          padding: 1rem 2.5rem 1rem 1rem;
+          height: rem(52);
+          margin-top: 1rem;
 
-          &:active
-            background-color: $bg-secondary-dark
+          &.dark {
+            &:hover {
+              background-color: var(--bg-tertiary-dark);
+            }
 
-        &:hover
-          background-color: $bg-tertiary
+            &:active {
+              background-color: var(--bg-secondary-dark);
+            }
+          }
 
-        &:active
-          background-color: $bg-secondary
+          &:hover {
+            background-color: var(--bg-tertiary);
+          }
 
-        &::before
-          top: -1px
-          left: @top
-          right: @top
-          bottom: @top
+          &:active {
+            background-color: var(--bg-secondary);
+          }
 
-        .label
-          flex-grow: 1
-          text-align: center
+          &::before {
+            top: -1px;
+            left: -1px;
+            right: -1px;
+            bottom: -1px;
+          }
 
-    &.files
-      .file-list::v-deep(header .actions)
-        .input
-          flex-grow: 1
-          max-width: none
-          margin-right: 0
+          .label {
+            flex-grow: 1;
+            text-align: center;
+          }
+        }
+      }
 
-          @media $mobile
-            margin-right: 0
+      &.files {
+        .file-list:deep(header .actions) {
+          .input {
+            flex-grow: 1;
+            max-width: none;
+            margin-right: 0;
 
-        .button
-          margin-left: 0
+            @media #{$mobile} {
+              margin-right: 0;
+            }
+          }
 
-      .button
-        width: 100%
-        margin-top: 1rem
+          .button {
+            margin-left: 0;
+          }
+        }
 
-    &.v-enter-active,
-    &.v-leave-active
-      transition: opacity 200ms ease
+        .button {
+          width: 100%;
+          margin-top: 1rem;
+        }
+      }
 
-      &.v-enter-from,
-      &.v-leave-to
-        opacity: 0
+      &.v-enter-active,
+      &.v-leave-active {
+        transition: opacity 200ms ease;
+
+        &.v-enter-from,
+        &.v-leave-to {
+          opacity: 0;
+        }
+      }
+    }
+  }
 </style>

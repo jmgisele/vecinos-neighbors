@@ -67,8 +67,9 @@ export default {
 };
 </script>
 
-<style lang="stylus">
-.global-tooltip
-  transition: transform 200ms ease
-  z-index: 1
+<style lang="scss">
+  .global-tooltip {
+    transition: transform 200ms ease;
+    z-index: 1;
+  }
 </style>

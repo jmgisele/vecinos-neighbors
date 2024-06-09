@@ -71,6 +71,6 @@ export default {
 };
 </script>
 
-<style lang="stylus" scoped>
-@require '../../assets/styles/fields'
+<style lang="scss" scoped>
+  @use '../../assets/styles/fields';
 </style>

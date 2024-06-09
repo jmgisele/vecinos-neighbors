@@ -68,7 +68,8 @@ export default {
 };
 </script>
 
-<style lang="stylus" scoped>
-.avatar-uploader
-  display: none;
+<style lang="scss" scoped>
+  .avatar-uploader {
+    display: none;
+  }
 </style>

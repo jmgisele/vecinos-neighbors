@@ -136,87 +136,101 @@ export default {
 };
 </script>
 
-<style lang="stylus" scoped>
-@require '../../assets/styles/colors'
-@require '../../assets/styles/corners'
+<style lang="scss" scoped>
+  .entity-creation-modal {
+    .segmented-selector {
+      margin-bottom: 2rem;
+    }
 
-.entity-creation-modal
-  .segmented-selector
-    margin-bottom: 2rem
+    .input-group {
+      white-space: nowrap;
+      display: flex;
+      align-items: stretch;
+      margin-bottom: 0.5rem;
 
-  .input-group
-    white-space: nowrap
-    display: flex
-    align-items: stretch
-    margin-bottom: 0.5rem
+      &:first-child {
+        margin-top: 1.5rem;
+      }
 
-    &:first-child
-      margin-top: 1.5rem
+      .input {
+        border: none;
+        width: 100%;
+        margin-top: 0;
+        border-top-right-radius: 0;
+        border-bottom-right-radius: 0;
 
-    .input
-      border: none
-      width: 100%
-      margin-top: 0
-      border-top-right-radius: 0
-      border-bottom-right-radius: @border-top-right-radius
+        &.no-extension {
+          border-top-right-radius: var(--radius-m);
+          border-bottom-right-radius: var(--radius-m);
+        }
+      }
 
-      &.no-extension
-        border-top-right-radius: $radius-m
-        border-bottom-right-radius: @border-top-right-radius
+      span {
+        display: inline-block;
+        padding: 1rem;
+        background-color: var(--bg-secondary);
+        color: var(--text-secondary);
+        border-top-right-radius: var(--radius-m);
+        border-bottom-right-radius: var(--radius-m);
+        margin-left: 0.0625rem;
 
-    span
-      display: inline-block
-      padding: 1rem
-      background-color: $bg-secondary
-      color: $text-secondary
-      border-top-right-radius: $radius-m
-      border-bottom-right-radius: @border-top-right-radius
-      margin-left: 0.0625rem
+        &.dark {
+          background-color: var(--bg-secondary-dark);
+          color: var(--text-secondary-dark);
+        }
+      }
 
-      &.dark
-        background-color: $bg-secondary-dark
-        color: $text-secondary-dark
+      &:deep(.select) {
+        border-top-left-radius: 0;
+        border-bottom-left-radius: 0;
+        min-width: auto;
+        flex-shrink: 0;
+        border: none;
+        background-color: var(--bg-secondary);
+        margin-left: 0.0625rem;
 
-    ::v-deep(.select)
-      border-top-left-radius: 0
-      border-bottom-left-radius: @border-top-left-radius
-      min-width: auto
-      flex-shrink: 0
-      border: none
-      background-color: $bg-secondary
-      margin-left: 0.0625rem
+        &.dark {
+          background-color: var(--bg-secondary-dark);
 
-      &.dark
-        background-color: $bg-secondary-dark
+          .label {
+            color: var(--text-secondary-dark);
+          }
+        }
 
-        .label
-          color: $text-secondary-dark
+        .label {
+          color: var(--text-secondary);
 
-      .label
-        color: $text-secondary
+          &::before {
+            content: '.';
+          }
+        }
 
-        &::before
-          content: '.'
+        &::before {
+          border-top-left-radius: inherit;
+          border-bottom-left-radius: inherit;
+          border: none;
+          box-shadow: inset 0 0 0 0.125rem var(--accent);
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
+        }
+      }
+    }
 
-      &::before
-        border-top-left-radius: inherit
-        border-bottom-left-radius: inherit
-        border: none
-        box-shadow: inset 0 0 0 0.125rem $accent
-        top: 0
-        left: 0
-        right: 0
-        bottom: 0
+    .name-hint {
+      color: var(--text-secondary);
+      margin: 0;
+      font-size: 0.875rem;
+      transition: opacity 200ms ease;
 
-  .name-hint
-    color: $text-secondary
-    margin: 0
-    font-size: 0.875rem
-    transition: opacity 200ms ease
+      &.dark {
+        color: var(--text-secondary-dark);
+      }
 
-    &.dark
-      color: $text-secondary-dark
-
-    &.hidden
-      opacity: 0
+      &.hidden {
+        opacity: 0;
+      }
+    }
+  }
 </style>

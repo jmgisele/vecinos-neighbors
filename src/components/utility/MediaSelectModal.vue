@@ -199,65 +199,79 @@ export default {
 };
 </script>
 
-<style lang="stylus" scoped>
-@require '../../assets/styles/colors'
-@require '../../assets/styles/corners'
+<style lang="scss" scoped>
+  .media-select-modal {
+    .unconfigured-state {
+      text-align: center;
+      color: var(--text-secondary);
+      max-width: 40rem;
+      margin-left: auto;
+      margin-right: auto;
 
-.media-select-modal
-  .unconfigured-state
-    text-align: center
-    color: $text-secondary
-    max-width: 40rem
-    margin-left: auto
-    margin-right: auto
+      &.dark {
+        color: var(--text-secondary-dark);
+      }
 
-    &.dark
-      color: $text-secondary-dark
+      h2 {
+        margin-top: 0;
+      }
+    }
 
-    h2
-      margin-top: 0
+    .file-list {
+      min-height: 50vh;
+    }
+  }
 
-  .file-list
-    min-height: 50vh
+  .media-upload-modal {
+    .uploading,
+    .dropzone {
+      &.v-enter-active,
+      &.v-leave-active {
+        transition: opacity 200ms ease;
 
-.media-upload-modal
-  .uploading,
-  .dropzone
-    &.v-enter-active,
-    &.v-leave-active
-      transition: opacity 200ms ease
+        &.v-enter-from,
+        &.v-leave-to {
+          opacity: 0;
+        }
+      }
+    }
 
-      &.v-enter-from,
-      &.v-leave-to
-        opacity: 0
+    .dropzone {
+      border: 0.125rem dashed var(--accent-secondary);
+      padding: 2rem;
+      text-align: center;
+      border-radius: var(--radius-l);
 
-  .dropzone
-    border: 0.125rem dashed $accent-secondary
-    padding: 2rem
-    text-align: center
-    border-radius: $radius-l
+      &.drag-active {
+        background-color: var(--bg-secondary);
 
-    &.drag-active
-      background-color: $bg-secondary
+        &.dark {
+          background-color: var(--bg-secondary-dark);
+        }
 
-      &.dark
-        background-color: $bg-secondary-dark
+        .button {
+          visibility: hidden;
+        }
+      }
 
-      .button
-        visibility: hidden
+      p {
+        color: var(--text-secondary);
+        margin-top: 0;
+        margin-bottom: 2rem;
+        pointer-events: none;
 
-    p
-      color: $text-secondary
-      margin-top: 0
-      margin-bottom: 2rem
-      pointer-events: none
+        &.dark {
+          color: var(--text-secondary-dark);
+        }
+      }
 
-      &.dark
-        color: $text-secondary-dark
+      input[type=file] {
+        display: none;
+      }
+    }
 
-    input[type=file]
-      display: none
-
-  .uploading
-    padding: 2rem
+    .uploading {
+      padding: 2rem;
+    }
+  }
 </style>

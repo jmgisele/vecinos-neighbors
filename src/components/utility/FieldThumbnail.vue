@@ -157,80 +157,95 @@ export default {
 };
 </script>
 
-<style lang="stylus" scoped>
-@require '../../assets/styles/breakpoints'
-@require '../../assets/styles/colors'
-@require '../../assets/styles/corners'
+<style lang="scss" scoped>
+  @use '../../assets/styles/breakpoints' as *;
 
-.field-thumbnail
-  display: flex
-  align-items: center
+  .field-thumbnail {
+    display: flex;
+    align-items: center;
 
-  &:not(:last-child)
-    margin-bottom: 0.5rem
+    &:not(:last-child) {
+      margin-bottom: 0.5rem;
+    }
 
-  .button
-    margin-left: 1rem
-    flex-shrink: 0
+    .button {
+      margin-left: 1rem;
+      flex-shrink: 0;
 
-    @media $mobile
-      display: none
+      @media #{$mobile} {
+        display: none;
+      }
+    }
+  }
 
-// needs to be toplevel so the drag-clone has the styling
-.field
-  display: flex
-  align-items: center
-  width: 100%
-  border-radius: $radius-m
-  padding: 1rem
-  box-shadow: inset 0 0 0 0.0625rem $text-tertiary
-  overflow: hidden
-  background-color: $bg
-  touch-action: none
+  // needs to be toplevel so the drag-clone has the styling
+  .field {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    border-radius: var(--radius-m);
+    padding: 1rem;
+    box-shadow: inset 0 0 0 0.0625rem var(--text-tertiary);
+    overflow: hidden;
+    background-color: var(--bg);
+    touch-action: none;
 
-  @media $mobile
-    touch-action: auto
+    @media #{$mobile} {
+      touch-action: auto;
+    }
 
-  &.dragging
-    opacity: 0.25
+    &.dragging {
+      opacity: 0.25;
+    }
 
-  &.dark
-    box-shadow: inset 0 0 0 0.0625rem lighten($bg-tertiary-dark, 10)
-    background-color: $bg-tertiary-dark
+    &.dark {
+      box-shadow: inset 0 0 0 0.0625rem var(--bg-tertiary-dark-lightened-10);
+      background-color: var(--bg-tertiary-dark);
 
-    .field-info p:last-child
-      color: $text-secondary-dark
+      .field-info p:last-child {
+        color: var(--text-secondary-dark);
+      }
+    }
 
-  > .icon:not(.button)
-    margin-right: 1rem
-    flex-shrink: 0
-    cursor: move
+    > .icon:not(.button) {
+      margin-right: 1rem;
+      flex-shrink: 0;
+      cursor: move;
 
-    @media $mobile
-      display: none
+      @media #{$mobile} {
+        display: none;
+      }
+    }
 
-  .field-icon
-    padding: 0.5rem
-    background-color: $accent
-    color: $text-dark
-    border-radius: $radius-m
-    margin-right: 1rem
+    .field-icon {
+      padding: 0.5rem;
+      background-color: var(--accent);
+      color: var(--text-dark);
+      border-radius: var(--radius-m);
+      margin-right: 1rem;
 
-    .icon
-      display: block
+      .icon {
+        display: block;
+      }
+    }
 
-  .field-info
-    overflow: hidden
+    .field-info {
+      overflow: hidden;
 
-    p
-      margin: 0
-      text-overflow: ellipsis
-      overflow: hidden
+      p {
+        margin: 0;
+        text-overflow: ellipsis;
+        overflow: hidden;
 
-      &:last-child
-        color: $text-secondary
-        font-size: 0.875rem
+        &:last-child {
+          color: var(--text-secondary);
+          font-size: 0.875rem;
 
-        @media $tablet
-          display: none
+          @media #{$tablet} {
+            display: none;
+          }
+        }
+      }
+    }
+  }
 </style>

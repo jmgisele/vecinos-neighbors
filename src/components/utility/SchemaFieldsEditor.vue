@@ -1077,576 +1077,743 @@ export default {
 };
 </script>
 
-<style lang="stylus" scoped>
-@require '../../assets/styles/breakpoints'
-@require '../../assets/styles/colors'
-@require '../../assets/styles/corners'
+<style lang="scss" scoped>
+  @use '../../assets/styles/breakpoints' as *;
 
-.schema-fields-editor
-  height: "calc(100% - %s)" % ((86 + 56) / 16)rem // header + tabs
+  .schema-fields-editor {
+    height: calc(100% - rem(86 + 56)); // header + tabs
 
-  @media $mobile
-    height: auto
+    @media #{$mobile} {
+      height: auto;
+    }
 
-  .empty-state,
-  .added-fields-list
-    max-width: 40rem
-    margin-top: 8rem
-    margin-left: auto
-    margin-right: auto
-
-    &.v-enter-active,
-    &.v-leave-active
-      transition: opacity 100ms ease
-
-      &.v-enter-from,
-      &.v-leave-to
-        opacity: 0
-
-  .empty-state
-    @media $mobile
-      margin-top: 0
-
-    &.dark
-      h2, p
-        color: $text-secondary-dark
-
-    h2,
-    p
-      text-align: center
-      color: $text-secondary
-
-    p
-      max-width: 32rem
-      margin-left: auto
-      margin-right: auto
-
-      @media $mobile
-        text-align: left
-
-    footer
-      margin: -0.5rem
-      margin-top: 1.5rem
-      display: flex
-      flex-wrap: wrap
-      justify-content: center
-
-      .button
-        margin: 0.5rem
-
-        @media $mobile
-          flex-grow: 1
-
-  .added-fields-list
-    @media $tablet
-      margin-top: 4rem
-
-    @media $mobile
-      margin-top: 2rem
-
-    .field-arrangement-list
-      margin-bottom: 0
+    .empty-state,
+    .added-fields-list {
+      max-width: 40rem;
+      margin-top: 8rem;
+      margin-left: auto;
+      margin-right: auto;
 
       &.v-enter-active,
-      &.v-leave-active
-        transition: opacity 200ms ease
+      &.v-leave-active {
+        transition: opacity 100ms ease;
 
         &.v-enter-from,
-        &.v-leave-to
-          opacity: 0
+        &.v-leave-to {
+          opacity: 0;
+        }
+      }
+    }
 
-      &::v-deep(> .field-arrangement-item:last-child:not(.dragging))
-        padding-bottom: 2rem
+    .empty-state {
+      @media #{$mobile} {
+        margin-top: 0;
+      }
 
-      &::v-deep(> .field-arrangement-item:last-child.dragging)
-        margin-bottom: 2rem
+      &.dark {
+        h2, p {
+          color: var(--text-secondary-dark);
+        }
+      }
 
-    .button
-      display: flex
-      margin-left: auto
-      // margin-right: auto
+      h2,
+      p {
+        text-align: center;
+        color: var(--text-secondary);
+      }
 
-      @media $mobile
-        width: 100%
+      p {
+        max-width: 32rem;
+        margin-left: auto;
+        margin-right: auto;
 
-      &.v-leave-active
-        display: none
+        @media #{$mobile} {
+          text-align: left;
+        }
+      }
 
-      &.v-enter-active
-        transition: opacity 200ms ease
+      footer {
+        margin: -0.5rem;
+        margin-top: 1.5rem;
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
 
-        &.v-enter-from
-          opacity: 0
+        .button {
+          margin: 0.5rem;
 
-.add-field // needs to be toplevel since modal teleports
-  &.dark
-    header .input
-      background-color: $bg-tertiary-dark
+          @media #{$mobile} {
+            flex-grow: 1;
+          }
+        }
+      }
+    }
 
-    .fields-list .field-group h3
-      color: $text-secondary-dark
+    .added-fields-list {
+      @media #{$tablet} {
+        margin-top: 4rem;
+      }
 
-  header
-    margin-top: 8rem
-    max-width: 40rem
-    margin-left: auto
-    margin-right: auto
+      @media #{$mobile} {
+        margin-top: 2rem;
+      }
 
-    @media $tablet
-      margin-top: 4rem
+      .field-arrangement-list {
+        margin-bottom: 0;
 
-    @media $mobile
-      margin-top: 0
-      text-align: center
+        &.v-enter-active,
+        &.v-leave-active {
+          transition: opacity 200ms ease;
 
-    h2
-      margin-top: 0
+          &.v-enter-from,
+          &.v-leave-to {
+            opacity: 0;
+          }
+        }
 
-    .input
-      display: flex
-      width: 100%
+        &:deep(> .field-arrangement-item:last-child:not(.dragging)) {
+          padding-bottom: 2rem;
+        }
 
-  .loader-wrapper,
-  .fields-list
-    &.v-enter-active,
-    &.v-leave-active
-      transition: opacity 200ms ease
+        &:deep(> .field-arrangement-item:last-child.dragging) {
+          margin-bottom: 2rem;
+        }
+      }
 
-      &.v-enter-from,
-      &.v-leave-to
-        opacity: 0
+      .button {
+        display: flex;
+        margin-left: auto;
+        // margin-right: auto
 
-  .loader-wrapper
-    margin: 4rem 0
-    text-align: center
+        @media #{$mobile} {
+          width: 100%;
+        }
 
-    p
-      opacity: 0.5
+        &.v-leave-active {
+          display: none;
+        }
 
-  .fields-list
-    max-width: 40rem
-    margin-left: auto
-    margin-right: auto
-    margin-bottom: 4rem
+        &.v-enter-active {
+          transition: opacity 200ms ease;
 
-    @media $mobile
-      margin-bottom: 0
+          &.v-enter-from {
+            opacity: 0;
+          }
+        }
+      }
+    }
+  }
 
-    .field-group
-      margin-top: 4rem
+  .add-field { // needs to be toplevel since modal teleports
+    &.dark {
+      header .input {
+        background-color: var(--bg-tertiary-dark);
+      }
 
-      @media $tablet
-        margin-top: 2rem
+      .fields-list .field-group h3 {
+        color: var(--text-secondary-dark);
+      }
+    }
 
-      h3
-        text-transform: capitalize
-        color: $text-secondary
+    header {
+      margin-top: 8rem;
+      max-width: 40rem;
+      margin-left: auto;
+      margin-right: auto;
 
-.edit-field // toplevel because of teleport
-  &.dark
-    header span,
-    section h3
-        color: $text-secondary-dark
+      @media #{$tablet} {
+        margin-top: 4rem;
+      }
 
-    section
-      .input,
-      .tag-input,
-      .icon-picker,
-      .date-picker
-        background-color: $bg-tertiary-dark
+      @media #{$mobile} {
+        margin-top: 0;
+        text-align: center;
+      }
 
-      .editor
-        &::v-deep(.content-wrapper)
-          background-color: $bg-tertiary-dark
+      h2 {
+        margin-top: 0;
+      }
 
-          &:not(:focus-within)
-            box-shadow: inset 0 0.0625rem 0 0 lighten($bg-tertiary-dark, 10)
+      .input {
+        display: flex;
+        width: 100%;
+      }
+    }
 
-      .highlight-box
-        background-color: $bg-secondary-dark
+    .loader-wrapper,
+    .fields-list {
+      &.v-enter-active,
+      &.v-leave-active {
+        transition: opacity 200ms ease;
 
-    &.in-modal
-      section
-        .highlight-box
-          background-color: $bg-dark
+        &.v-enter-from,
+        &.v-leave-to {
+          opacity: 0;
+        }
+      }
+    }
 
+    .loader-wrapper {
+      margin: 4rem 0;
+      text-align: center;
+
+      p {
+        opacity: 0.5;
+      }
+    }
+
+    .fields-list {
+      max-width: 40rem;
+      margin-left: auto;
+      margin-right: auto;
+      margin-bottom: 4rem;
+
+      @media #{$mobile} {
+        margin-bottom: 0;
+      }
+
+      .field-group {
+        margin-top: 4rem;
+
+        @media #{$tablet} {
+          margin-top: 2rem;
+        }
+
+        h3 {
+          text-transform: capitalize;
+          color: var(--text-secondary);
+        }
+      }
+    }
+  }
+
+  .edit-field { // toplevel because of teleport
+    &.dark {
+      header span,
+      section h3 {
+        color: var(--text-secondary-dark);
+      }
+
+      section {
         .input,
         .tag-input,
-        .icon-picker
-          background-color: $bg-secondary-dark
-
-  header
-    margin-top: 8rem
-    max-width: 40rem
-    margin-left: auto
-    margin-right: auto
-
-    @media $tablet
-      margin-top: 4rem
-
-    @media $mobile
-      margin-top: 0
-      text-align: center
-
-    h2
-      margin: 0
-
-    span
-      text-transform: capitalize
-      color: $text-secondary
-
-    & + section
-      .highlight-box
-        margin-top: 3rem
-
-  > section
-    max-width: 40rem
-    margin-left: auto
-    margin-right: auto
-
-    &:not(:last-child)
-      margin-bottom: 4rem
-
-      @media $mobile
-        margin-bottom: 3rem
-
-    &.v-enter-active,
-    &.v-leave-active
-      transition: opacity 200ms ease
-
-      &.v-enter-from,
-      &.v-leave-to
-        opacity: 0
-
-    h3
-      color: $text-secondary
-
-    > .toggle
-      margin-bottom: 2rem
-
-      & + .input-row .input
-        margin-top: 0
-
-    .input-row
-      margin-left: -0.5rem
-      margin-right: @margin-left
-      display: flex
-      flex-wrap: wrap
-
-      &:not(:last-child)
-        margin-bottom: 2rem
-
-      & + .input-row .input
-        margin-top: 0
-
-      .input,
-      .date-picker
-        flex-grow: 1
-        width: calc(50% - 1rem)
-        margin-left: 0.5rem
-        margin-right: @margin-left
-
-        @media $tablet
-          width: 100%
-
-          &:not(:first-child)
-            margin-top: 2rem
-
-    .field-wrapper
-      display: flex
-      align-items: center
-
-      > .field
-        width: "calc(100% - %s)" % ((50 / 16) + 0.5)rem
-
-      > .clear-button
-        flex-shrink: 0
-        margin-left: 0.5rem
-
-    .select-wrapper,
-    .conditional-wrapper
-      display: flex
-      align-items: center
-      margin-bottom: 2rem
-
-      > span
-        margin-right: auto
-
-    .conditional-wrapper
-      > span
-        margin-right: 1rem
-        flex-shrink: 0
-
-      .input
-        margin-top: 0
-        flex-grow: 1
-        border-top-left-radius: 0
-        border-bottom-left-radius: 0
-        border-color: $accent
-
-      &::v-deep(.select)
-        border-top-right-radius: 0
-        border-bottom-right-radius: 0
-        height: (58 / 16)rem
-        border-right-width: 0
-
-        &.operator
-          border-radius: 0
-          flex-shrink: 0
-          min-width: (183 / 16)rem
-
-          &:last-child
-            border-top-right-radius: $radius-m
-            border-bottom-right-radius: $radius-m
-            border-right-width: 0.0625rem
-
-      @media $mobile
-        flex-wrap: wrap
-
-        > span
-          margin-bottom: 0.5rem
-          width: 100%
-
-        &::v-deep(.select)
-          width: 100%
-          margin-right: 0
-          border-right-width: 0.0625rem
-          border-bottom-width: 0
-          border-top-right-radius: $radius-m
-          border-bottom-left-radius: 0
-
-          &.operator:last-child
-            border-top-right-radius: 0
-            border-bottom-left-radius: $radius-m
-            border-bottom-width: 0.0625rem
-
-        .input
-          margin-top: 0
-          border-top-right-radius: 0
-          border-bottom-left-radius: $radius-m
-
-    .tag-input
-      margin-bottom: 2rem
-      margin-top: 3rem
-
-    .highlight-box
-      &:not(:last-child)
-        margin-bottom: 2rem
-
-      .button
-        display: flex
-        margin-left: auto
-
-        @media $mobile
-          width: 100%
-
-    .config-option
-      display: flex
-      align-items: center
-      justify-content: space-between
-
-      &.MbCheckboxGroup,
-      &.MbPalette,
-      &.MbEditableList,
-      &.MbItemList,
-      &.MbTagInput
-        align-items: flex-start
-
-        > span
-          margin-right: 1rem
-
-        > .checkbox-group
-          width: 100%
-          max-width: (192 / 16)rem
-
-        > .editable-list:not(:only-child)
-          width: 100%
-          max-width: (400 / 16)rem
-
-      &.MbPalette
-        .palette
-          &::v-deep(li.dark)
-            background-color: $bg-tertiary-dark
-
-            .input,
-            .color-picker
-              background-color: $bg-tertiary-dark
-
-            .input
-              border-left-color: $bg-secondary-dark
-              border-right-color: @border-left-color
-
-        > span
-          margin-top: 1rem
-
-          @media $mobile
-            margin-top: 0
-
-        > .palette
-          width: 100%
-          max-width: (355 / 16)rem
-
-      &.MbRadioGroup
-        .radio-group.dark::v-deep(label .fake-radio::after)
-          background-color: $bg-secondary-dark
-
-      &.MbEditableList
-        > span
-          margin-top: 0.75rem
-
-          @media $mobile
-            margin-top: 0
-
-        .editable-list
-          &::v-deep(.segmented-selector.dark)
-            background-color: $bg-tertiary-dark
-            box-shadow: 0 0 0 0.125rem @background-color
-
-          &::v-deep(.item.dark)
-            background-color: $bg-tertiary-dark
-
-            .input
-              background-color: $bg-tertiary-dark
-              border-left-color: $bg-secondary-dark
-              border-right-color: @border-left-color
-
-          &::v-deep(.file-picker.dark)
-            background-color: $bg-tertiary-dark
-
-            &:hover
-              background-color: lighten($bg-tertiary-dark, 5)
-
-      &.MbTagInput
-        > span
-          margin-top: 1rem
-
-          @media $mobile
-            margin-top: 0
-
-        .tag-input
-          margin-top: 0.5rem
-          margin-bottom: 0
-
-          &:not(:only-child)
-            margin-top: 0
-            width: 100%
-            max-width: (320 / 16)rem
-
-      &.MbFilePicker
-        .file-picker
-          &:not(:only-child)
-            width: 100%
-            max-width: (320 / 16)rem
-
-          &.dark
-            background-color: $bg-tertiary-dark
-
-            &:hover
-              background-color: lighten($bg-tertiary-dark, 5)
-
-      &.MbItemList
-        > span
-          margin-top: (14 / 16)rem
-
-          @media $mobile
-            margin-top: 0
-
-        .item-list
-          &::v-deep(.item.dark)
-            background-color: $bg-tertiary-dark
-            box-shadow: inset 0 0 0 0.0625rem lighten($bg-tertiary-dark, 5)
-
-      @media $mobile
-        flex-wrap: wrap
-
-        > span
-          margin-bottom: 0.5rem
-
-          & + .input
-            width: 100%
-
-        &::v-deep(> .select),
-        > .radio-group.inline::v-deep(label),
-        > .editable-list,
-        > .icon-picker
-          width: 100%
-
-      &:not(:last-child)
-        margin-bottom: 1rem
-
-        @media $mobile
-          margin-bottom: 2rem
-
-        &.MbCheckboxGroup
-          margin-bottom: 2rem
-
-      > *:only-child
-        width: 100%
-
-      > span + .input
-        margin-top: 0
-
-.custom-field-modal
-  .input
-    width: 100%
-    margin-bottom: 1rem
-
-    &.v-enter-active,
-    &.v-leave-active
-      transition: opacity 200ms ease
-
-      &.v-enter-from,
-      &.v-leave-to
-        opacity: 0
-
-  .icon-picker-wrapper,
-  .file-picker-wrapper
-    display: flex
-    align-items: center
-    margin-top: 2rem
-
-    &:last-child
-      margin-bottom: 0.125rem
-
-    > span
-      margin-right: 1rem
-      overflow: hidden
-      text-overflow: ellipsis
-      white-space: nowrap
-
-    > .icon-picker,
-    > .file-picker
-      margin-left: auto
-
-  .file-picker-wrapper > span
-    flex-shrink: 0
-
-.field-type-modal
-  &.dark
-    .fields-list .field-group h3
-      color: $text-secondary-dark
-
-  .input
-    margin-top: 0
-    width: 100%
-
-  .fields-list
-    .field-group
-      display: grid
-      grid-template-columns: repeat(2, 1fr)
-      grid-gap: 1rem
-
-      @media $mobile
-        display: block
-
-      h3
-        grid-column: span 2
-        text-transform: capitalize
-        color: $text-secondary
-
-      .button
-        width: 100%
-
-        @media $mobile
-          margin-bottom: 0.5rem
+        .icon-picker,
+        .date-picker {
+          background-color: var(--bg-tertiary-dark);
+        }
+
+        .editor {
+          &:deep(.content-wrapper) {
+            background-color: var(--bg-tertiary-dark);
+
+            &:not(:focus-within) {
+              box-shadow: inset 0 0.0625rem 0 0 var(--bg-tertiary-dark-lightened-10);
+            }
+          }
+        }
+
+        .highlight-box {
+          background-color: var(--bg-secondary-dark);
+        }
+      }
+
+      &.in-modal {
+        section {
+          .highlight-box {
+            background-color: var(--bg-dark);
+          }
+
+          .input,
+          .tag-input,
+          .icon-picker {
+            background-color: var(--bg-secondary-dark);
+          }
+        }
+      }
+    }
+
+    header {
+      margin-top: 8rem;
+      max-width: 40rem;
+      margin-left: auto;
+      margin-right: auto;
+
+      @media #{$tablet} {
+        margin-top: 4rem;
+      }
+
+      @media #{$mobile} {
+        margin-top: 0;
+        text-align: center;
+      }
+
+      h2 {
+        margin: 0;
+      }
+
+      span {
+        text-transform: capitalize;
+        color: var(--text-secondary);
+      }
+
+      & + section {
+        .highlight-box {
+          margin-top: 3rem;
+        }
+      }
+    }
+
+    > section {
+      max-width: 40rem;
+      margin-left: auto;
+      margin-right: auto;
+
+      &:not(:last-child) {
+        margin-bottom: 4rem;
+
+        @media #{$mobile} {
+          margin-bottom: 3rem;
+        }
+      }
+
+      &.v-enter-active,
+      &.v-leave-active {
+        transition: opacity 200ms ease;
+
+        &.v-enter-from,
+        &.v-leave-to {
+          opacity: 0;
+        }
+      }
+
+      h3 {
+        color: var(--text-secondary);
+      }
+
+      > .toggle {
+        margin-bottom: 2rem;
+
+        & + .input-row .input {
+          margin-top: 0;
+        }
+      }
+
+      .input-row {
+        margin-left: -0.5rem;
+        margin-right: -0.5rem;
+        display: flex;
+        flex-wrap: wrap;
+
+        &:not(:last-child) {
+          margin-bottom: 2rem;
+        }
+
+        & + .input-row .input {
+          margin-top: 0;
+        }
+
+        .input,
+        .date-picker {
+          flex-grow: 1;
+          width: calc(50% - 1rem);
+          margin-left: 0.5rem;
+          margin-right: 0.5rem;
+
+          @media #{$tablet} {
+            width: 100%;
+
+            &:not(:first-child) {
+              margin-top: 2rem;
+            }
+          }
+        }
+      }
+
+      .field-wrapper {
+        display: flex;
+        align-items: center;
+
+        > .field {
+          width: calc(100% - (rem(50) + 0.5rem));
+        }
+
+        > .clear-button {
+          flex-shrink: 0;
+          margin-left: 0.5rem;
+        }
+      }
+
+      .select-wrapper,
+      .conditional-wrapper {
+        display: flex;
+        align-items: center;
+        margin-bottom: 2rem;
+
+        > span {
+          margin-right: auto;
+        }
+      }
+
+      .conditional-wrapper {
+        > span {
+          margin-right: 1rem;
+          flex-shrink: 0;
+        }
+
+        .input {
+          margin-top: 0;
+          flex-grow: 1;
+          border-top-left-radius: 0;
+          border-bottom-left-radius: 0;
+          border-color: var(--accent);
+        }
+
+        &:deep(.select) {
+          border-top-right-radius: 0;
+          border-bottom-right-radius: 0;
+          height: rem(58);
+          border-right-width: 0;
+
+          &.operator {
+            border-radius: 0;
+            flex-shrink: 0;
+            min-width: rem(183);
+
+            &:last-child {
+              border-top-right-radius: var(--radius-m);
+              border-bottom-right-radius: var(--radius-m);
+              border-right-width: 0.0625rem;
+            }
+          }
+        }
+
+        @media #{$mobile} {
+          flex-wrap: wrap;
+
+          > span {
+            margin-bottom: 0.5rem;
+            width: 100%;
+          }
+
+          &:deep(.select) {
+            width: 100%;
+            margin-right: 0;
+            border-right-width: 0.0625rem;
+            border-bottom-width: 0;
+            border-top-right-radius: var(--radius-m);
+            border-bottom-left-radius: 0;
+
+            &.operator:last-child {
+              border-top-right-radius: 0;
+              border-bottom-left-radius: var(--radius-m);
+              border-bottom-width: 0.0625rem;
+            }
+          }
+
+          .input {
+            margin-top: 0;
+            border-top-right-radius: 0;
+            border-bottom-left-radius: var(--radius-m);
+          }
+        }
+      }
+
+      .tag-input {
+        margin-bottom: 2rem;
+        margin-top: 3rem;
+      }
+
+      .highlight-box {
+        &:not(:last-child) {
+          margin-bottom: 2rem;
+        }
+
+        .button {
+          display: flex;
+          margin-left: auto;
+
+          @media #{$mobile} {
+            width: 100%;
+          }
+        }
+      }
+
+      .config-option {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+
+        &.MbCheckboxGroup,
+        &.MbPalette,
+        &.MbEditableList,
+        &.MbItemList,
+        &.MbTagInput {
+          align-items: flex-start;
+
+          > span {
+            margin-right: 1rem;
+          }
+
+          > .checkbox-group {
+            width: 100%;
+            max-width: rem(192);
+          }
+
+          > .editable-list:not(:only-child) {
+            width: 100%;
+            max-width: rem(400);
+          }
+        }
+
+        &.MbPalette {
+          .palette {
+            &:deep(li.dark) {
+              background-color: var(--bg-tertiary-dark);
+
+              .input,
+              .color-picker {
+                background-color: var(--bg-tertiary-dark);
+              }
+
+              .input {
+                border-left-color: var(--bg-secondary-dark);
+                border-right-color: var(--bg-secondary-dark);
+              }
+            }
+          }
+
+          > span {
+            margin-top: 1rem;
+
+            @media #{$mobile} {
+              margin-top: 0;
+            }
+          }
+
+          > .palette {
+            width: 100%;
+            max-width: rem(355);
+          }
+        }
+
+        &.MbRadioGroup {
+          .radio-group.dark:deep(label .fake-radio::after) {
+            background-color: var(--bg-secondary-dark);
+          }
+        }
+
+        &.MbEditableList {
+          > span {
+            margin-top: 0.75rem;
+
+            @media #{$mobile} {
+              margin-top: 0;
+            }
+          }
+
+          .editable-list {
+            &:deep(.segmented-selector.dark) {
+              background-color: var(--bg-tertiary-dark);
+              box-shadow: 0 0 0 0.125rem var(--bg-tertiary-dark);
+            }
+
+            &:deep(.item.dark) {
+              background-color: var(--bg-tertiary-dark);
+
+              .input {
+                background-color: var(--bg-tertiary-dark);
+                border-left-color: var(--bg-secondary-dark);
+                border-right-color: var(--bg-secondary-dark);
+              }
+            }
+
+            &:deep(.file-picker.dark) {
+              background-color: var(--bg-tertiary-dark);
+
+              &:hover {
+                background-color: var(--bg-tertiary-dark-lightened-5);
+              }
+            }
+          }
+        }
+
+        &.MbTagInput {
+          > span {
+            margin-top: 1rem;
+
+            @media #{$mobile} {
+              margin-top: 0;
+            }
+          }
+
+          .tag-input {
+            margin-top: 0.5rem;
+            margin-bottom: 0;
+
+            &:not(:only-child) {
+              margin-top: 0;
+              width: 100%;
+              max-width: rem(320);
+            }
+          }
+        }
+
+        &.MbFilePicker {
+          .file-picker {
+            &:not(:only-child) {
+              width: 100%;
+              max-width: rem(320);
+            }
+
+            &.dark {
+              background-color: var(--bg-tertiary-dark);
+
+              &:hover {
+                background-color: var(--bg-tertiary-dark-lightened-5);
+              }
+            }
+          }
+        }
+
+        &.MbItemList {
+          > span {
+            margin-top: rem(14);
+
+            @media #{$mobile} {
+              margin-top: 0;
+            }
+          }
+
+          .item-list {
+            &:deep(.item.dark) {
+              background-color: var(--bg-tertiary-dark);
+              box-shadow: inset 0 0 0 0.0625rem var(--bg-tertiary-dark-lightened-5);
+            }
+          }
+        }
+
+        @media #{$mobile} {
+          flex-wrap: wrap;
+
+          > span {
+            margin-bottom: 0.5rem;
+
+            & + .input {
+              width: 100%;
+            }
+          }
+
+          &:deep(> .select),
+          > .radio-group.inline:deep(label),
+          > .editable-list,
+          > .icon-picker {
+            width: 100%;
+          }
+        }
+
+        &:not(:last-child) {
+          margin-bottom: 1rem;
+
+          @media #{$mobile} {
+            margin-bottom: 2rem;
+          }
+
+          &.MbCheckboxGroup {
+            margin-bottom: 2rem;
+          }
+        }
+
+        > *:only-child {
+          width: 100%;
+        }
+
+        > span + .input {
+          margin-top: 0;
+        }
+      }
+    }
+  }
+
+  .custom-field-modal {
+    .input {
+      width: 100%;
+      margin-bottom: 1rem;
+
+      &.v-enter-active,
+      &.v-leave-active {
+        transition: opacity 200ms ease;
+
+        &.v-enter-from,
+        &.v-leave-to {
+          opacity: 0;
+        }
+      }
+    }
+
+    .icon-picker-wrapper,
+    .file-picker-wrapper {
+      display: flex;
+      align-items: center;
+      margin-top: 2rem;
+
+      &:last-child {
+        margin-bottom: 0.125rem;
+      }
+
+      > span {
+        margin-right: 1rem;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+
+      > .icon-picker,
+      > .file-picker {
+        margin-left: auto;
+      }
+    }
+
+    .file-picker-wrapper > span {
+      flex-shrink: 0;
+    }
+  }
+
+  .field-type-modal {
+    &.dark {
+      .fields-list .field-group h3 {
+        color: var(--text-secondary-dark);
+      }
+    }
+
+    .input {
+      margin-top: 0;
+      width: 100%;
+    }
+
+    .fields-list {
+      .field-group {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        grid-gap: 1rem;
+
+        @media #{$mobile} {
+          display: block;
+        }
+
+        h3 {
+          grid-column: span 2;
+          text-transform: capitalize;
+          color: var(--text-secondary);
+        }
+
+        .button {
+          width: 100%;
+
+          @media #{$mobile} {
+            margin-bottom: 0.5rem;
+          }
+        }
+      }
+    }
+  }
 </style>

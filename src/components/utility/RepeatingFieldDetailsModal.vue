@@ -49,34 +49,42 @@ export default {
 };
 </script>
 
-<style lang="stylus" scoped>
-@require '../../assets/styles/breakpoints'
-@require '../../assets/styles/colors'
+<style lang="scss" scoped>
+  @use '../../assets/styles/breakpoints' as *;
 
-.field-details-editor.in-split
-  margin-bottom: 2rem
+  .field-details-editor.in-split {
+    margin-bottom: 2rem;
+  }
 
-.group-empty-state
-  color: $text-tertiary
+  .group-empty-state {
+    color: var(--text-tertiary);
 
-  &.dark
-    color: $text-tertiary-dark
+    &.dark {
+      color: var(--text-tertiary-dark);
+    }
 
-  &.centered
-    text-align: center
+    &.centered {
+      text-align: center;
+    }
+  }
 
-.field-details-actions
-  padding-bottom: 0.125rem
-  text-align: right
+  .field-details-actions {
+    padding-bottom: 0.125rem;
+    text-align: right;
 
-  .button
-    &:not(:last-child)
-      margin-right: 1rem
+    .button {
+      &:not(:last-child) {
+        margin-right: 1rem;
+      }
 
-    @media $mobile
-      width: 100%
+      @media #{$mobile} {
+        width: 100%;
 
-      &:not(:last-child)
-        margin-right: 0
-        margin-bottom: 0.5rem
+        &:not(:last-child) {
+          margin-right: 0;
+          margin-bottom: 0.5rem;
+        }
+      }
+    }
+  }
 </style>

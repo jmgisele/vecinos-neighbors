@@ -55,76 +55,94 @@ export default {
 };
 </script>
 
-<style lang="stylus" scoped>
-@require '../../assets/styles/breakpoints'
-@require '../../assets/styles/colors'
+<style lang="scss" scoped>
+  @use '../../assets/styles/breakpoints' as *;
 
-.tab-content
-  overflow-x: hidden
-  position: relative
+  .tab-content {
+    overflow-x: hidden;
+    position: relative;
 
-  &.split
-    .content-wrapper
-      &:first-child
-        width: 50%
-        transition-timing-function: cubic-bezier(0.215, 0.610, 0.355, 1.000)
-        background-color: $bg-tertiary
+    &.split {
+      .content-wrapper {
+        &:first-child {
+          width: 50%;
+          transition-timing-function: cubic-bezier(0.215, 0.61, 0.355, 1);
+          background-color: var(--bg-tertiary);
 
-        @media $mobile
-          width: 100%
+          @media #{$mobile} {
+            width: 100%;
+          }
 
-        &.dark
-          background-color: $bg-dark
+          &.dark {
+            background-color: var(--bg-dark);
+          }
+        }
+      }
+    }
 
-  .content-wrapper
-    width: 100%
-    height: 100%
-    overflow-x: hidden
-    overflow-y: auto
-    background-color: $bg
+    .content-wrapper {
+      width: 100%;
+      height: 100%;
+      overflow-x: hidden;
+      overflow-y: auto;
+      background-color: var(--bg);
 
-    &:first-child
-      transition: background-color 200ms ease, width 200ms cubic-bezier(0.645, 0.045, 0.355, 1.000)
+      &:first-child {
+        transition: background-color 200ms ease, width 200ms cubic-bezier(0.645, 0.045, 0.355, 1);
+      }
 
-    &.dark
-      background-color: $bg-dark
+      &.dark {
+        background-color: var(--bg-dark);
+      }
 
-    &.padded
-      padding: 0 2rem 8rem 2rem
+      &.padded {
+        padding: 0 2rem 8rem 2rem;
 
-      @media $tablet
-        padding: 0 1rem 4rem 1rem
+        @media #{$tablet} {
+          padding: 0 1rem 4rem 1rem;
+        }
 
-      &.right .close-wrapper .close-button
-        right: -1rem
+        &.right .close-wrapper .close-button {
+          right: -1rem;
+        }
+      }
 
-    &.right
-      position: absolute
-      top: 0
-      left: 50%
-      width: 50%
+      &.right {
+        position: absolute;
+        top: 0;
+        left: 50%;
+        width: 50%;
 
-      &.dark
-        background-color: $bg-secondary-dark
+        &.dark {
+          background-color: var(--bg-secondary-dark);
+        }
 
-      &.v-enter-active,
-      &.v-leave-active
-        transition: transform 200ms cubic-bezier(0.215, 0.610, 0.355, 1.000)
+        &.v-enter-active,
+        &.v-leave-active {
+          transition: transform 200ms cubic-bezier(0.215, 0.61, 0.355, 1);
 
-        &.v-enter-from,
-        &.v-leave-to
-          transform: translateX(100%)
+          &.v-enter-from,
+          &.v-leave-to {
+            transform: translateX(100%);
+          }
+        }
 
-      &.v-leave-active
-        transition-timing-function: cubic-bezier(0.645, 0.045, 0.355, 1.000)
+        &.v-leave-active {
+          transition-timing-function: cubic-bezier(0.645, 0.045, 0.355, 1);
+        }
 
-      .close-wrapper // HACK: this is needed to get the button positioned absolute **and** sticky
-        position: sticky
-        top: 1rem
-        z-index: 1
+        .close-wrapper  { // HACK: this is needed to get the button positioned absolute **and** sticky
+          position: sticky;
+          top: 1rem;
+          z-index: 1;
 
-        .close-button
-          position: absolute
-          top: 0
-          right: 1rem
+          .close-button {
+            position: absolute;
+            top: 0;
+            right: 1rem;
+          }
+        }
+      }
+    }
+  }
 </style>

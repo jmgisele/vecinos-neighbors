@@ -34,26 +34,28 @@ export default {
 };
 </script>
 
-<style lang="stylus" scoped>
-@require '../../assets/styles/colors'
+<style lang="scss" scoped>
+  .modal-overlay {
+    background-color: color-mix(in srgb, var(--bg-dark) 60%, transparent);
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 1;
 
-.modal-overlay
-  background-color: alpha($bg-dark, 0.6)
-  position: fixed
-  top: 0
-  left: 0
-  right: 0
-  bottom: 0
-  z-index: 1
+    &.dark {
+      background-color: color-mix(in srgb, black 60%, transparent);
+    }
 
-  &.dark
-    background-color: alpha(black, 0.6)
+    &.v-enter-active,
+    &.v-leave-active {
+      transition: opacity 200ms ease;
 
-  &.v-enter-active,
-  &.v-leave-active
-    transition: opacity 200ms ease
-
-    &.v-enter-from,
-    &.v-leave-to
-      opacity: 0
+      &.v-enter-from,
+      &.v-leave-to {
+        opacity: 0;
+      }
+    }
+  }
 </style>

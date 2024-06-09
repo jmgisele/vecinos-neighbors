@@ -50,25 +50,28 @@ export default {
 };
 </script>
 
-<style lang="stylus" scoped>
-@require '../../assets/styles/colors'
-@require '../../assets/styles/corners'
+<style lang="scss" scoped>
+  .git-login-modal {
 
-.git-login-modal
+    form {
+      margin-top: 1.5rem;
 
-  form
-    margin-top: 1.5rem
+      .input {
+        width: 100%;
 
-    .input
-      width: 100%
+        &:first-child {
+          margin-top: 0;
+        }
+      }
+    }
 
-      &:first-child
-        margin-top: 0
+    .checkbox {
+      margin-top: 1.5rem;
+    }
 
-  .checkbox
-    margin-top: 1.5rem
-
-  .highlight-box
-    margin-top: 2.5rem
-    margin-bottom: 0
+    .highlight-box {
+      margin-top: 2.5rem;
+      margin-bottom: 0;
+    }
+  }
 </style>

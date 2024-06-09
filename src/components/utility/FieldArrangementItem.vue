@@ -197,174 +197,216 @@ export default {
 };
 </script>
 
-<style lang="stylus" scoped>
-@require '../../assets/styles/breakpoints'
-@require '../../assets/styles/colors'
-@require '../../assets/styles/corners'
+<style lang="scss" scoped>
+  @use '../../assets/styles/breakpoints' as *;
 
-.field-arrangement-item
-  &.drag-active
-    > .info
-      pointer-events: none
+  .field-arrangement-item {
+    &.drag-active {
+      > .info {
+        pointer-events: none;
+      }
+    }
 
-  &.dragging
-    border-radius: $radius-l
-    box-shadow: inset 0 0 0 0.125rem $accent
-    pointer-events: none
+    &.dragging {
+      border-radius: var(--radius-l);
+      box-shadow: inset 0 0 0 0.125rem var(--accent);
+      pointer-events: none;
 
-    > .info,
-    > .field-arrangement-list
-      opacity: 0
+      > .info,
+      > .field-arrangement-list {
+        opacity: 0;
+      }
 
-    > .field-arrangement-list
-      transform: translateY(-2rem)
+      > .field-arrangement-list {
+        transform: translateY(-2rem);
+      }
+    }
 
-  &.hide-outline
-    height: 0
-    overflow: hidden
+    &.hide-outline {
+      height: 0;
+      overflow: hidden;
+    }
 
-  .field-arrangement-list
-    padding-top: 1rem // so it still counts as field space
-    margin-right: 0.125rem
-    margin-left: 2rem
-    transition: opacity 100ms ease, transform 100ms ease
+    .field-arrangement-list {
+      padding-top: 1rem;  // so it still counts as field space
+      margin-right: 0.125rem;
+      margin-left: 2rem;
+      transition: opacity 100ms ease, transform 100ms ease;
+    }
+  }
 
-// needs to be outdented so the styles work on the clone
-.info
-  display: flex
-  align-items: center
-  padding: 1rem
-  background-color: $bg-secondary
-  border-radius: $radius-l
-  cursor: pointer
-  transition: background-color 200ms ease
-  touch-action: none
+  // needs to be outdented so the styles work on the clone
+  .info {
+    display: flex;
+    align-items: center;
+    padding: 1rem;
+    background-color: var(--bg-secondary);
+    border-radius: var(--radius-l);
+    cursor: pointer;
+    transition: background-color 200ms ease;
+    touch-action: none;
 
-  @media $mobile
-    touch-action: auto
+    @media #{$mobile} {
+      touch-action: auto;
+    }
 
-  &:focus-visible
-    box-shadow: inset 0 0 0 0.125rem $accent
+    &:focus-visible {
+      box-shadow: inset 0 0 0 0.125rem var(--accent);
+    }
 
-  &:hover
-    background-color: $bg
+    &:hover {
+      background-color: var(--bg);
+    }
 
-  &.dark
-    background-color: $bg-secondary-dark
+    &.dark {
+      background-color: var(--bg-secondary-dark);
 
-    &:hover:not(.active)
-      background-color: $bg-tertiary-dark
+      &:hover:not(.active) {
+        background-color: var(--bg-tertiary-dark);
+      }
 
-    span
-      &.chip
-        background-color: $bg-dark
+      span {
+        &.chip {
+          background-color: var(--bg-dark);
+        }
 
-      &.key
-        color: $text-secondary-dark
+        &.key {
+          color: var(--text-secondary-dark);
+        }
+      }
 
-    .hidden
-      color: $text-tertiary-dark
+      .hidden {
+        color: var(--text-tertiary-dark);
+      }
+    }
 
-  &.active
-    background-color: $accent
-    color: $text-dark
+    &.active {
+      background-color: var(--accent);
+      color: var(--text-dark);
 
-    &:focus-visible,
-    &:hover
-      background-color: darken($accent, 5)
+      &:focus-visible,
+      &:hover {
+        background-color: var(--accent-darkened-5);
+      }
 
-    .field-icon
-      box-shadow: inset 0 0 0 0.0625rem $text-dark
+      .field-icon {
+        box-shadow: inset 0 0 0 0.0625rem var(--text-dark);
+      }
 
-    span
-      &.chip
-        background-color: $accent-secondary
-        color: $text
+      span {
+        &.chip {
+          background-color: var(--accent)-secondary;
+          color: var(--text);
+        }
 
-      &.key
-        color: $text-secondary-dark
+        &.key {
+          color: var(--text-secondary-dark);
+        }
+      }
 
-    .hidden
-      color: $text-tertiary-dark
+      .hidden {
+        color: var(--text-tertiary-dark);
+      }
+    }
 
-  .drag-handle
-    margin-right: 1rem
-    cursor: move
-    flex-shrink: 0
-    touch-action: none
+    .drag-handle {
+      margin-right: 1rem;
+      cursor: move;
+      flex-shrink: 0;
+      touch-action: none;
+    }
 
-  .field-icon
-    padding: 0.5rem
-    background-color: $accent
-    color: $text-dark
-    border-radius: $radius-m
-    margin-right: 1rem
+    .field-icon {
+      padding: 0.5rem;
+      background-color: var(--accent);
+      color: var(--text-dark);
+      border-radius: var(--radius-m);
+      margin-right: 1rem;
 
-    .icon
-      display: block
+      .icon {
+        display: block;
+      }
+    }
 
-  span
-    white-space: nowrap
-    overflow: hidden
-    text-overflow: ellipsis
+    span {
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
 
-    &.label
-      margin-right: 1rem
+      &.label {
+        margin-right: 1rem;
 
-      @media $tablet
-        margin-right: auto
+        @media #{$tablet} {
+          margin-right: auto;
+        }
+      }
 
-    &.chip
-      padding: (4 / 16)rem (12 / 16)rem
-      background-color: $bg
-      margin-right: 0.5rem
-      border-radius: 1rem
+      &.chip {
+        padding: rem(4), rem(12);
+        background-color: var(--bg);
+        margin-right: 0.5rem;
+        border-radius: 1rem;
 
-      @media $tablet
-        display: none
+        @media #{$tablet} {
+          display: none;
+        }
 
-      &.error,
-      &.warning
-        background-color: $negative
-        color: $text
+        &.error,
+        &.warning {
+          background-color: var(--negative);
+          color: var(--text);
 
-        @media $tablet
-          display: inline
-          flex-shrink: 0
+          @media #{$tablet} {
+            display: inline;
+            flex-shrink: 0;
+          }
 
-        @media $mobile
-          display: inline-block
-          width: 1rem
-          height: 1rem
-          padding: 0
-          color: transparent // hide the text
-          flex-shrink: 0
+          @media #{$mobile} {
+            display: inline-block;
+            width: 1rem;
+            height: 1rem;
+            padding: 0;
+            color: transparent; // hide the text
+            flex-shrink: 0;
+          }
+        }
 
-      &.warning
-        background-color: $warning-saturated
+        &.warning {
+          background-color: var(--warning-saturated);
+        }
+      }
 
-    &.key
-      margin-left: auto
-      margin-right: 0.5rem
-      color: $text-secondary
+      &.key {
+        margin-left: auto;
+        margin-right: 0.5rem;
+        color: var(--text-secondary);
 
-      @media $tablet
-        display: none
+        @media #{$tablet} {
+          display: none;
+        }
+      }
+    }
 
-  .hidden
-    flex-shrink: 0
-    color: $text-tertiary
-    margin: 0 0.5rem
+    .hidden {
+      flex-shrink: 0;
+      color: var(--text-tertiary);
+      margin: 0 0.5rem;
+    }
 
-  .action
-    margin: 0 0.5rem
-    flex-shrink: 0
+    .action {
+      margin: 0 0.5rem;
+      flex-shrink: 0;
 
-    @media $mobile
-      display: none
+      @media #{$mobile} {
+        display: none;
+      }
+    }
 
-  .hidden,
-  .action
-    &.push-right
-      margin-left: auto
+    .hidden,
+    .action {
+      &.push-right {
+        margin-left: auto;
+      }
+    }
+  }
 </style>

@@ -73,92 +73,111 @@ export default {
 };
 </script>
 
-<style lang="stylus" scoped>
-@require '../../assets/styles/colors'
-@require '../../assets/styles/corners'
+<style lang="scss" scoped>
+  .field-arrangement-list {
+    position: relative;
 
-.field-arrangement-list
-  position: relative
+    &.dark {
+      .empty-state {
+        border-color: var(--text-tertiary-dark);
+        color: var(--text-secondary-dark);
 
-  &.dark
-    .empty-state
-      border-color: $text-tertiary-dark
-      color: $text-secondary-dark
+        &::before {
+          background-color: var(--bg-tertiary-dark);
+          border-color: var(--accent-secondary);
+        }
+      }
+    }
 
-      &::before
-        background-color: $bg-tertiary-dark
-        border-color: $accent-secondary
+    .empty-state {
+      padding: 1.5rem;
+      border: 0.125rem dashed var(--text-tertiary);
+      border-radius: var(--radius-l);
+      position: relative;
+      text-align: center;
+      color: var(--text-secondary);
 
-  .empty-state
-    padding: 1.5rem
-    border: 0.125rem dashed $text-tertiary
-    border-radius: $radius-l
-    position: relative
-    text-align: center
-    color: $text-secondary
+      &.v-leave-active {
+        display: none;
+      }
 
-    &.v-leave-active
-      display: none
+      &.drag-active {
+        > * {
+          pointer-events: none;
+        }
 
-    &.drag-active
-      > *
-        pointer-events: none
+        &:hover::before {
+          opacity: 1;
+        }
+      }
 
-      &:hover::before
-        opacity: 1
+      &::before {
+        content: '';
+        display: block;
+        position: absolute;
+        border: inherit;
+        border-color: var(--accent);
+        border-radius: inherit;
+        top: -0.125rem;
+        left: -0.125rem;
+        width: 100%;
+        height: 100%;
+        opacity: 0;
+        pointer-events: none;
+        background-color: var(--accent-secondary);
+        transition: opacity 200ms ease;
+      }
 
-    &::before
-      content: ''
-      display: block
-      position: absolute
-      border: inherit
-      border-color: $accent
-      border-radius: inherit
-      top: -0.125rem
-      left: @top
-      width: 100%
-      height: 100%
-      opacity: 0
-      pointer-events: none
-      background-color: $accent-secondary
-      transition: opacity 200ms ease
+      p {
+        margin: 0;
+      }
+    }
 
-    p
-      margin: 0
+    .add-indicator {
+      padding: 1rem;
 
-  .add-indicator
-    padding: 1rem
+      &:first-child {
+        padding-top: 0;
+      }
 
-    &:first-child
-      padding-top: 0
+      &.v-enter-active,
+      &.v-leave-active {
+        transition: opacity 200ms ease;
 
-    &.v-enter-active,
-    &.v-leave-active
-      transition: opacity 200ms ease
+        &.v-enter-from,
+        &.v-leave-to {
+          opacity: 0;
+        }
+      }
 
-      &.v-enter-from,
-      &.v-leave-to
-        opacity: 0
+      &.v-leave-active {
+        position: absolute;
+      }
 
-    &.v-leave-active
-      position: absolute
+      > div {
+        height: 0.25rem;
+        background-color: var(--accent);
+        border-radius: 0.125rem;
+        pointer-events: none;
+      }
+    }
 
-    > div
-      height: 0.25rem
-      background-color: $accent
-      border-radius: (@height / 2)
-      pointer-events: none
+    .field-arrangement-item {
+      &:not(:last-child):not(.hide-outline) {
+        margin-bottom: 1rem;
 
-  .field-arrangement-item
-    &:not(:last-child):not(.hide-outline)
-      margin-bottom: 1rem
+        & + .add-indicator {
+          margin-top: -1rem;
+        }
+      }
 
-      & + .add-indicator
-        margin-top: -1rem
+      &.v-move:not(.drag-active) {
+        transition: transform 200ms ease;
+      }
 
-    &.v-move:not(.drag-active)
-      transition: transform 200ms ease
-
-    &.v-leave-active
-      display: none
+      &.v-leave-active {
+        display: none;
+      }
+    }
+  }
 </style>

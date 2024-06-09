@@ -443,204 +443,255 @@ export default {
 };
 </script>
 
-<style lang="stylus" scoped>
-@require '../../assets/styles/breakpoints'
-@require '../../assets/styles/colors'
-@require '../../assets/styles/corners'
+<style lang="scss" scoped>
+  @use '../../assets/styles/breakpoints' as *;
 
-.user-switcher
-  user-select: none
-  background-color: transparent
-  color: currentColor
-  border: none
-  padding: 0
-  margin: 0
-  display: inline-flex
-  align-items: center
-  cursor: pointer
-  padding: (2 / 16)rem
-  padding-left: 1.5rem
-  border-radius: (26 / 16)rem
-  transition: background-color 200ms ease
+  .user-switcher {
+    user-select: none;
+    background-color: transparent;
+    color: currentColor;
+    border: none;
+    padding: 0;
+    margin: 0;
+    display: inline-flex;
+    align-items: center;
+    cursor: pointer;
+    padding: rem(2);
+    padding-left: 1.5rem;
+    border-radius: rem(26);
+    transition: background-color 200ms ease;
 
-  @media $mobile
-    padding: 0
+    @media #{$mobile} {
+      padding: 0;
+    }
 
-  &:hover,
-  &:focus
-    background-color: $bg-secondary
+    &:hover,
+    &:focus {
+      background-color: var(--bg-secondary);
 
-    &.dark
-      background-color: $bg-secondary-dark
+      &.dark {
+        background-color: var(--bg-secondary-dark);
+      }
+    }
 
-  span
-    margin-right: 1rem
-    white-space: nowrap
-    overflow: hidden
-    text-overflow: ellipsis
+    span {
+      margin-right: 1rem;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
 
-  .async-image
-    width: (48 / 16)rem
-    height: @width
-    border-radius: 50%
+    .async-image {
+      width: rem(48);
+      height: rem(48);
+      border-radius: 50%;
+    }
+  }
 
-.user-popover
-  &.dark
-    .users .user
-      &:hover,
-      &:focus
-        background-color: $bg-tertiary-dark
-        color: $text-dark
+  .user-popover {
+    &.dark {
+      .users .user {
+        &:hover,
+        &:focus {
+          background-color: var(--bg-tertiary-dark);
+          color: var(--text-dark);
+        }
 
-      .email
-        color: $text-secondary-dark
+        .email {
+          color: var(--text-secondary-dark);
+        }
+      }
+    }
 
-  .loader,
-  .users
-    max-width: 100%
-    width: (488 / 16)rem
-    padding: 2rem 0.5rem
+    .loader,
+    .users {
+      max-width: 100%;
+      width: rem(488);
+      padding: 2rem 0.5rem;
 
-    &.v-enter-active,
-    &.v-leave-active
-      transition: opacity 200ms ease
+      &.v-enter-active,
+      &.v-leave-active {
+        transition: opacity 200ms ease;
 
-      &.v-enter-from,
-      &.v-leave-to
-        opacity: 0
+        &.v-enter-from,
+        &.v-leave-to {
+          opacity: 0;
+        }
+      }
+    }
 
-  .users
-    padding: 0.5rem
+    .users {
+      padding: 0.5rem;
 
-    .user
-      display: flex
-      align-items: center
-      padding: 1rem
-      cursor: pointer
-      border-radius: $radius-m
-      transition: background-color 200ms ease
+      .user {
+        display: flex;
+        align-items: center;
+        padding: 1rem;
+        cursor: pointer;
+        border-radius: var(--radius-m);
+        transition: background-color 200ms ease;
 
-      &:not(:last-child)
-        margin-bottom: 0.5rem
+        &:not(:last-child) {
+          margin-bottom: 0.5rem;
+        }
 
-      &.active
-        background-color: $accent
-        color: $text-dark
+        &.active {
+          background-color: var(--accent);
+          color: var(--text-dark);
 
-        .async-image
-          box-shadow: 0 0 0 2px $text-dark, inset 0 0 0 2px $text-dark
+          .async-image {
+            box-shadow: 0 0 0 2px var(--text-dark), inset 0 0 0 2px var(--text-dark);
+          }
 
-        .email
-          color: $text-secondary-dark
+          .email {
+            color: var(--text-secondary-dark);
+          }
+        }
 
-      &:hover,
-      &:focus
-        background-color: $bg-secondary
-        color: $text
+        &:hover,
+        &:focus {
+          background-color: var(--bg-secondary);
+          color: var(--text);
 
-        &.active
-          color: $text-dark
-          background-color: darken($accent, 5)
+          &.active {
+            color: var(--text-dark);
+            background-color: var(--accent-darkened-5);
 
-          .email
-            color: $text-secondary-dark
+            .email {
+              color: var(--text-secondary-dark);
+            }
+          }
+        }
 
-      &.disabled:not(.active)
-        color: $text-tertiary
-        pointer-events: none
-        padding: (1 - 0.0625)rem
-        border: 0.0625rem dashed currentColor
+        &.disabled:not(.active) {
+          color: var(--text-tertiary);
+          pointer-events: none;
+          padding: 1 - 0.0625 rem;
+          border: 0.0625rem dashed currentColor;
 
-        .async-image
-          opacity: 0.36
+          .async-image {
+            opacity: 0.36;
+          }
 
-        .email
-          color: inherit
+          .email {
+            color: inherit;
+          }
+        }
 
-      .async-image
-        width: 2rem
-        height: @width
-        margin-right: 1rem
-        border-radius: 50%
+        .async-image {
+          width: 2rem;
+          height: 2rem;
+          margin-right: 1rem;
+          border-radius: 50%;
+        }
 
-      span
-        text-overflow: ellipsis
-        overflow: hidden
-        white-space: nowrap
-        margin-right: 1rem
+        span {
+          text-overflow: ellipsis;
+          overflow: hidden;
+          white-space: nowrap;
+          margin-right: 1rem;
 
-        @media $mobile
-          &:not(.email)
-            flex-shrink: 0
+          @media #{$mobile} {
+            &:not(.email) {
+              flex-shrink: 0;
+            }
+          }
 
-        &.email
-          text-transform: none
-          color: $text-secondary
-          margin-left: auto
-          margin-right: 0
+          &.email {
+            text-transform: none;
+            color: var(--text-secondary);
+            margin-left: auto;
+            margin-right: 0;
+          }
+        }
+      }
+    }
+  }
 
-.settings-modal
-  p
-    &.h3
-      font-size: 1rem
+  .settings-modal {
+    p {
+      &.h3 {
+        font-size: 1rem;
+      }
 
-    &:first-child
-      margin-top: 0
+      &:first-child {
+        margin-top: 0;
+      }
 
-    &.negative
-      color: $negative-saturated
+      &.negative {
+        color: var(--negative-saturated);
+      }
+    }
 
-  .row
-    display: flex
-    align-items: center
-    margin: 1.5rem 0
+    .row {
+      display: flex;
+      align-items: center;
+      margin: 1.5rem 0;
 
-    &:last-child
-      margin-bottom: 0
+      &:last-child {
+        margin-bottom: 0;
+      }
 
-    &.avatar
-      @media $mobile
-        flex-wrap: wrap
+      &.avatar {
+        @media #{$mobile} {
+          flex-wrap: wrap;
 
-        .button:last-child
-          margin-left: auto
+          .button:last-child {
+            margin-left: auto;
+          }
+        }
+      }
 
-    p
-      margin: 0
-      margin-right: auto
+      p {
+        margin: 0;
+        margin-right: auto;
+      }
 
-    .async-image
-      width: 4rem
-      height: @width
-      border-radius: 50%
-      margin-right: auto
+      .async-image {
+        width: 4rem;
+        height: 4rem;
+        border-radius: 50%;
+        margin-right: auto;
 
-      + .button
-        margin-left: 1rem
+        + .button {
+          margin-left: 1rem;
+        }
+      }
 
-    .button:not(:last-child)
-      margin-right: 1rem
+      .button:not(:last-child) {
+        margin-right: 1rem;
 
-      @media $mobile
-        margin-right: 0
-        margin-bottom: 0.5rem
+        @media #{$mobile} {
+          margin-right: 0;
+          margin-bottom: 0.5rem;
+        }
+      }
+    }
 
-  .input
-    width: 100%
-    margin-bottom: 1rem
+    .input {
+      width: 100%;
+      margin-bottom: 1rem;
 
-    &.name
-      margin-top: 2rem
+      &.name {
+        margin-top: 2rem;
+      }
+    }
 
-  .button.delete-user
-    margin-bottom: 1rem
-    max-width: 100%
+    .button.delete-user {
+      margin-bottom: 1rem;
+      max-width: 100%;
+    }
+  }
 
-.confirmation-modal
-  p
-    margin: 0
+  .confirmation-modal {
+    p {
+      margin: 0;
+    }
+  }
 
-.deletion-progress-modal
-  .progress
-    width: 100%
+  .deletion-progress-modal {
+    .progress {
+      width: 100%;
+    }
+  }
 </style>
