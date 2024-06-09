@@ -58,54 +58,68 @@ export default {
 };
 </script>
 
-<style lang="stylus" scoped>
-@require '../../assets/styles/breakpoints'
-@require '../../assets/styles/colors'
-@require '../../assets/styles/fields'
+<style lang="scss" scoped>
+  @use '../../assets/styles/breakpoints' as *;
+  @use '../../assets/styles/fields';
 
-.columns.field
-  .container
-    @media $mobile
-      padding: 0.5rem
+  .columns.field {
+    .container {
+      @media #{$mobile} {
+        padding: 0.5rem;
+      }
 
-    &.empty
-      .add-button
-        margin-right: auto
+      &.empty {
+        .add-button {
+          margin-right: auto;
+        }
+      }
 
-    .add-button
-      display: flex
-      margin-left: auto
+      .add-button {
+        display: flex;
+        margin-left: auto;
 
-      @media $mobile
-        width: 100%
+        @media #{$mobile} {
+          width: 100%;
+        }
+      }
+    }
 
-  .columns
-    display: flex
-    flex-wrap: wrap
-    margin: -0.25rem
-    margin-bottom: 0.75rem
+    .columns {
+      display: flex;
+      flex-wrap: wrap;
+      margin: -0.25rem;
+      margin-bottom: 0.75rem;
 
-    &.single-column::v-deep(.drag-item)
-      max-width: 100%
+      &.single-column:deep(.drag-item) {
+        max-width: 100%;
+      }
 
-    &.two-columns::v-deep(.drag-item)
-      max-width: 50%
+      &.two-columns:deep(.drag-item) {
+        max-width: 50%;
+      }
 
-    &.three-columns::v-deep(.drag-item)
-      max-width: 33.33%
+      &.three-columns:deep(.drag-item) {
+        max-width: 33.33%;
+      }
 
-    &::v-deep(.drag-item)
-      flex: 1 1 33.33%
+      &:deep(.drag-item) {
+        flex: 1 1 33.33%;
+      }
+    }
+  }
 
-.column-item
-  margin: 0.25rem
+  .column-item {
+    margin: 0.25rem;
 
-  &.being-dragged
-    opacity: 0.5
+    &.being-dragged {
+      opacity: 0.5;
+    }
 
-  .drag-handle
-    padding: 1rem
-    margin: -1rem
-    margin-right: -0.25rem
-    cursor: move
+    .drag-handle {
+      padding: 1rem;
+      margin: -1rem;
+      margin-right: -0.25rem;
+      cursor: move;
+    }
+  }
 </style>

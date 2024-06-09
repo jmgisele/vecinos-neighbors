@@ -68,35 +68,44 @@ export default {
 };
 </script>
 
-<style lang="stylus" scoped>
-@require '../../assets/styles/colors'
+<style lang="scss" scoped>
+  .text.field {
+    .input {
+      margin-top: 0;
+      width: 100%;
+    }
 
-.text.field
-  .input
-    margin-top: 0
-    width: 100%
+    .editor:deep(.content-wrapper) {
+      margin-top: 0;
+    }
+  }
 
-  .editor::v-deep(.content-wrapper)
-    margin-top: 0
+  .localisation-modal .input {
+    display: flex;
+    width: 100%;
+  }
 
-.localisation-modal .input
-  display: flex
-  width: 100%
+  .input, .editor {
+    &:not(:last-child) {
+      margin-bottom: 2rem;
+    }
+  }
 
-.input, .editor
-  &:not(:last-child)
-    margin-bottom: 2rem
+  .in-split {
+    &.input {
+      width: 100%;
+      margin-top: 0;
 
-.in-split
-  &.input
-    width: 100%
-    margin-top: 0
+      &:not(:last-child) {
+        margin-bottom: 2rem;
+      }
+    }
 
-    &:not(:last-child)
-      margin-bottom: 2rem
-
-  &.dark
-    &.input,
-    &.editor::v-deep(.content-wrapper)
-      background-color: $bg-tertiary-dark
+    &.dark {
+      &.input,
+      &.editor:deep(.content-wrapper) {
+        background-color: var(--bg-tertiary-dark);
+      }
+    }
+  }
 </style>

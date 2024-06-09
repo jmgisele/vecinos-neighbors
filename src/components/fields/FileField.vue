@@ -96,36 +96,42 @@ export default {
 };
 </script>
 
-<style lang="stylus" scoped>
-@require '../../assets/styles/colors'
-@require '../../assets/styles/corners'
+<style lang="scss" scoped>
+  .label {
+    display: block;
+    font-size: 0.75rem;
+    margin-bottom: 0.25rem;
+    color: var(--text-secondary);
 
-.label
-  display: block
-  font-size: 0.75rem
-  margin-bottom: 0.25rem
-  color: $text-secondary
+    &.dark {
+      color: var(--text-secondary-dark);
+    }
 
-  &.dark
-    color: $text-secondary-dark
+    &.error {
+      color: var(--negative-saturated);
+    }
+  }
 
-  &.error
-    color: $negative-saturated
+  .file-picker {
+    width: 100%;
 
-.file-picker
-  width: 100%
+    &:not(:last-child) {
+      margin-bottom: 2rem;
+    }
 
-  &:not(:last-child)
-    margin-bottom: 2rem
+    &.error {
+      &::before {
+        border-color: var(--negative);
+        opacity: 1;
+      }
+    }
 
-  &.error
-    &::before
-      border-color: $negative
-      opacity: 1
+    &.in-split.dark {
+      background-color: var(--bg-tertiary-dark);
 
-  &.in-split.dark
-    background-color: $bg-tertiary-dark
-
-    &:hover
-      background-color: lighten($bg-tertiary-dark, 5)
+      &:hover {
+        background-color: var(--bg-tertiary-dark-lightened-5);
+      }
+    }
+  }
 </style>

@@ -4,6 +4,7 @@
 
 :root {
   --accent: #6c5ce7;
+  --accent-lightened-5: lighten(#6c5ce7, 5%)
   --accent-secondary: #A29BFE;
   --accent-darkened-5: darken(#6c5ce7, 5%);
   --accent-darkened-10: darken(#6c5ce7, 10%);
@@ -24,6 +25,7 @@
   --bg-secondary-dark: #2B2A32;
   --bg-secondary-dark-darkened-2: darken(#2B2A32, 2%);
   --bg-tertiary-dark: #343244;
+  --bg-tertiary-dark-lightened-3: lighten(#343244, 3%);
   --bg-tertiary-dark-lightened-5: lighten(#343244, 5%);
   --bg-tertiary-dark-lightened-10: lighten(#343244, 10%);
 
@@ -32,6 +34,7 @@
   --positive-saturated: #00b894;
   --positive: #55efc4;
   --warning-saturated: #fdcb6e;
+  --warning-saturated-darkened-25: darken(#fdcb6e, 25%);
   --warning: #ffeaa7;
 
   --radius-base: 3;

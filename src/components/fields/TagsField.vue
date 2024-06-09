@@ -121,19 +121,22 @@ export default {
 };
 </script>
 
-<style lang="stylus" scoped>
-@require '../../assets/styles/colors'
+<style lang="scss" scoped>
+  .tags.field {
+    .tag-input {
+      margin-top: 0;
+    }
+  }
 
-.tags.field
-  .tag-input
-    margin-top: 0
+  .tag-input:not(:last-child) {
+    margin-bottom: 2rem;
+  }
 
-.tag-input:not(:last-child)
-  margin-bottom: 2rem
+  .localisation-modal .tag-input:not(:last-child) {
+    margin-bottom: 2rem;
+  }
 
-.localisation-modal .tag-input:not(:last-child)
-  margin-bottom: 2rem
-
-.in-split.dark.tag-input
-    background-color: $bg-tertiary-dark
+  .in-split.dark.tag-input {
+    background-color: var(--bg-tertiary-dark);
+  }
 </style>

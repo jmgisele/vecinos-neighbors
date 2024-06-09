@@ -12,18 +12,17 @@ export default {
 };
 </script>
 
-<style lang="stylus" scoped>
-@require '../../assets/styles/colors'
-@require '../../assets/styles/corners'
+<style lang="scss" scoped>
+  .unknown.field {
+    padding: 1rem;
+    border: 0.0625rem dashed var(--text-tertiary);
+    border-radius: var(--radius-l);
+    color: var(--text-secondary);
+    text-align: center;
 
-.unknown.field
-  padding: 1rem
-  border: 0.0625rem dashed $text-tertiary
-  border-radius: $radius-l
-  color: $text-secondary
-  text-align: center
-
-  &.dark
-    color: $text-secondary-dark
-    border-color: $text-tertiary-dark
+    &.dark {
+      color: var(--text-secondary-dark);
+      border-color: var(--text-tertiary-dark);
+    }
+  }
 </style>

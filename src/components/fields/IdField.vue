@@ -16,20 +16,22 @@ export default {
 };
 </script>
 
-<style lang="stylus" scoped>
-@require '../../assets/styles/colors'
+<style lang="scss" scoped>
+  .id.field {
+    display: flex;
+    align-items: center;
 
-.id.field
-  display: flex
-  align-items: center
+    .input {
+      width: 100%;
+      margin-top: 0;
 
-  .input
-    width: 100%
-    margin-top: 0
+      &.dark.in-split {
+        background-color: var(--bg-tertiary-dark);
+      }
+    }
 
-    &.dark.in-split
-      background-color: $bg-tertiary-dark
-
-  .button
-    margin-left: 0.5rem
+    .button {
+      margin-left: 0.5rem;
+    }
+  }
 </style>

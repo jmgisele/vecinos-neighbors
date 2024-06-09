@@ -77,29 +77,35 @@ export default {
 };
 </script>
 
-<style lang="stylus" scoped>
-@require '../../assets/styles/colors'
+<style lang="scss" scoped>
+  .number.field {
+    .input {
+      margin-top: 0;
+      width: 100%;
+    }
+  }
 
-.number.field
-  .input
-    margin-top: 0
-    width: 100%
+  .localisation-modal .input {
+    display: flex;
+    width: 100%;
+  }
 
-.localisation-modal .input
-  display: flex
-  width: 100%
+  .input:not(:last-child) {
+    margin-bottom: 2rem;
+  }
 
-.input:not(:last-child)
-  margin-bottom: 2rem
+  .in-split {
+    &.input {
+      width: 100%;
+      margin-top: 0;
 
-.in-split
-  &.input
-    width: 100%
-    margin-top: 0
+      &:not(:last-child) {
+        margin-bottom: 1.5rem;
+      }
+    }
 
-    &:not(:last-child)
-      margin-bottom: 1.5rem
-
-  &.dark.input
-    background-color: $bg-tertiary-dark
+    &.dark.input {
+      background-color: var(--bg-tertiary-dark);
+    }
+  }
 </style>

@@ -93,100 +93,123 @@ export default {
 };
 </script>
 
-<style lang="stylus" scoped>
-@require '../../assets/styles/breakpoints'
-@require '../../assets/styles/colors'
-@require '../../assets/styles/fields'
+<style lang="scss" scoped>
+  @use '../../assets/styles/breakpoints' as *;
+  @use '../../assets/styles/fields';
 
-.rows.field
-  .container
-    @media $mobile
-      padding: 0.5rem
+  .rows.field {
+    .container {
+      @media #{$mobile} {
+        padding: 0.5rem;
+      }
 
-    &.empty
-      .add-button
-        margin-right: auto
+      &.empty {
+        .add-button {
+          margin-right: auto;
+        }
+      }
 
-    .add-button
-      display: flex
-      margin-left: auto
+      .add-button {
+        display: flex;
+        margin-left: auto;
 
-      @media $mobile
-        width: 100%
+        @media #{$mobile} {
+          width: 100%;
+        }
+      }
+    }
+  }
 
-.row-item
-  margin-bottom: 1rem
+  .row-item {
+    margin-bottom: 1rem;
 
-  &.being-dragged
-    opacity: 0.5
+    &.being-dragged {
+      opacity: 0.5;
+    }
 
-  &:not(.compact)
-    border: 0.0625rem solid alpha($text, 0.12)
-    border-radius: $radius-m
-    padding: 1rem
-    background-color: $bg
-    position: relative
+    &:not(.compact) {
+      border: 0.0625rem solid color-mix(in srgb, var(--text) 12%, transparent);
+      border-radius: var(--radius-m);
+      padding: 1rem;
+      background-color: var(--bg);
+      position: relative;
 
-    @media $mobile
-      padding: 0.5rem
+      @media #{$mobile} {
+        padding: 0.5rem;
+      }
 
-    &.dark
-      background-color: $bg-dark
-      border-color: alpha($text-dark, 0.12)
+      &.dark {
+        background-color: var(--bg-dark);
+        border-color: color-mix(in srgb, var(--text-dark) 12%, transparent);
 
-      &.in-split
-        background-color: $bg-secondary-dark
+        &.in-split {
+          background-color: var(--bg-secondary-dark);
+        }
 
-      .label
-        color: $text-secondary-dark
+        .label {
+          color: var(--text-secondary-dark);
+        }
+      }
 
-    &.error
-      &::before
-        opacity: 1
+      &.error {
+        &::before {
+          opacity: 1;
+        }
 
-      > header .label
-        color $negative-saturated
+        > header .label {
+          color: var(--negative-saturated);
+        }
+      }
 
-    &::before
-      content: ''
-      position: absolute
-      top: -0.0625rem // so the outer border gets overlapped
-      left: @top
-      right: @top
-      bottom: @top
-      border: 0.125rem solid $negative
-      opacity: 0
-      border-radius: inherit
-      z-index: 1
-      pointer-events: none
-      transition: opacity 200ms ease
+      &::before {
+        content: '';
+        position: absolute;
+        top: -0.0625rem;
+        left: -0.0625rem;
+        right: -0.0625rem;
+        bottom: -0.0625rem;
+        border: 0.125rem solid var(--negative);
+        opacity: 0;
+        border-radius: inherit;
+        z-index: 1;
+        pointer-events: none;
+        transition: opacity 200ms ease;
+      }
 
-    header
-      display: flex
-      align-items: center
+      header {
+        display: flex;
+        align-items: center;
 
-      & + .fields-editor:not(:empty) // this is done so Unknown Fields don’t have unnecessary white space below the header
-        margin-top: 1rem
+        & + .fields-editor:not(:empty)  {
+          margin-top: 1rem;
+        }
 
-      .label
-        margin: 0
-        color: $text-secondary
-        margin-right: auto
-        white-space: nowrap
-        overflow: hidden
-        text-overflow: ellipsis
+        .label {
+          margin: 0;
+          color: var(--text-secondary);
+          margin-right: auto;
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
+        }
 
-      .button
-        margin: -1rem 0
-        margin-right: 0.25rem
-        flex-shrink: 0
+        .button {
+          margin: -1rem 0;
+          margin-right: 0.25rem;
+          flex-shrink: 0;
 
-        &:last-child
-          margin-right: -0.75rem
+          &:last-child {
+            margin-right: -0.75rem;
+          }
+        }
+      }
+    }
 
-  .drag-handle
-    padding: 1rem
-    margin: -1rem
-    margin-right: -0.25rem
-    cursor: move
+    .drag-handle {
+      padding: 1rem;
+      margin: -1rem;
+      margin-right: -0.25rem;
+      cursor: move;
+    }
+  }
 </style>

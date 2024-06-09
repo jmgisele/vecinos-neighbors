@@ -19,14 +19,15 @@ export default {
 };
 </script>
 
-<style lang="stylus" scoped>
-@require '../../assets/styles/colors'
+<style lang="scss" scoped>
+  .languages.field {
+    > p {
+      margin-top: 0;
+      margin-bottom: 0.5rem;
 
-.languages.field
-  > p
-    margin-top: 0
-    margin-bottom: 0.5rem
-
-    &.error
-      color: $negative-saturated
+      &.error {
+        color: var(--negative-saturated);
+      }
+    }
+  }
 </style>

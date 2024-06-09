@@ -109,36 +109,43 @@ export default {
 };
 </script>
 
-<style lang="stylus" scoped>
-@require '../../assets/styles/colors'
+<style lang="scss" scoped>
+  .label {
+    display: block;
+    font-size: 0.75rem;
+    margin-bottom: 0.25rem;
+    color: var(--text-secondary);
 
-.label
-  display: block
-  font-size: 0.75rem
-  margin-bottom: 0.25rem
-  color: $text-secondary
+    &.dark {
+      color: var(--text-secondary-dark);
+    }
 
-  &.dark
-    color: $text-secondary-dark
+    &.error {
+      color: var(--negative-saturated);
+    }
+  }
 
-  &.error
-    color: $negative-saturated
+  .item-list:not(:last-child),
+  .editable-list:not(:last-child) {
+    margin-bottom: 2rem;
+  }
 
-.item-list:not(:last-child),
-.editable-list:not(:last-child)
-  margin-bottom: 2rem
+  .item-list.in-split {
+    &:deep(.item-dark) {
+      background-color: var(--bg-tertiary-dark);
+      box-shadow: inset 0 0 0 0.0625rem var(--bg-tertiary-dark-lightened-5);
+    }
+  }
 
-.item-list.in-split
-  &::v-deep(.item-dark)
-    background-color: $bg-tertiary-dark
-    box-shadow: inset 0 0 0 0.0625rem lighten($bg-tertiary-dark, 5)
+  .editable-list.in-split {
+    &:deep(.item.dark) {
+      background-color: var(--bg-tertiary-dark);
 
-.editable-list.in-split
-  &::v-deep(.item.dark)
-    background-color: $bg-tertiary-dark
-
-    .input
-      background-color: $bg-tertiary-dark
-      border-left-color: $bg-secondary-dark
-      border-right-color: @border-left-color
+      .input {
+        background-color: var(--bg-tertiary-dark);
+        border-left-color: var(--bg-secondary-dark);
+        border-right-color: var(--bg-secondary-dark);
+      }
+    }
+  }
 </style>

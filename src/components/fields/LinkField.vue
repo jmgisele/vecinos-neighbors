@@ -114,77 +114,97 @@ export default {
 };
 </script>
 
-<style lang="stylus" scoped>
-@require '../../assets/styles/colors'
-@require '../../assets/styles/corners'
+<style lang="scss" scoped>
+  .link.field .input {
+    width: 100%;
+    margin-top: 0;
+  }
 
-.link.field .input
-  width: 100%
-  margin-top: 0
+  .input {
+    &.in-modal,
+    &.in-split {
+      width: 100%;
+      margin-top: 0;
+    }
 
-.input
-  &.in-modal,
-  &.in-split
-    width: 100%
-    margin-top: 0
+    &.in-split.dark {
+      background-color: var(--bg-tertiary-dark);
+    }
+  }
 
-  &.in-split.dark
-    background-color: $bg-tertiary-dark
+  .localisation-modal {
+    .input {
+      display: flex;
+      width: 100%;
+      margin-top: 0;
 
-.localisation-modal
-  .input
-    display: flex
-    width: 100%
-    margin-top: 0
+      &.in-split.dark {
+        background-color: var(--bg-tertiary-dark);
+      }
+    }
+  }
 
-    &.in-split.dark
-      background-color: $bg-tertiary-dark
+  .label {
+    display: block;
+    font-size: 0.75rem;
+    margin-bottom: 0.25rem;
+    color: var(--text-secondary);
 
-.label
-  display: block
-  font-size: 0.75rem
-  margin-bottom: 0.25rem
-  color: $text-secondary
+    &:not(:first-child) {
+      margin-top: 2rem;
+    }
 
-  &:not(:first-child)
-    margin-top: 2rem
+    &.dark {
+      color: var(--text-secondary-dark);
+    }
 
-  &.dark
-    color: $text-secondary-dark
+    &.error {
+      color: var(--negative-saturated);
+    }
+  }
 
-  &.error
-    color: $negative-saturated
+  .segmented-selector {
+    margin-bottom: 0.5rem;
 
-.segmented-selector
-  margin-bottom: 0.5rem
+    &.dark.in-split {
+      background-color: var(--bg-tertiary-dark);
+      box-shadow: 0 0 0 0.125rem var(--bg-tertiary-dark);
+    }
+  }
 
-  &.dark.in-split
-    background-color: $bg-tertiary-dark
-    box-shadow: 0 0 0 0.125rem @background-color
+  .internal-link-helper {
+    margin-bottom: 0.125rem;
 
-.internal-link-helper
-  margin-bottom: 0.125rem
+    &.error {
+      &:deep(.view.url::before) {
+        opacity: 1;
+        border-color: var(--negative);
+      }
+    }
 
-  &.error
-    &::v-deep(.view.url::before)
-      opacity: 1
-      border-color: $negative
+    &.in-split {
+      &:deep(.view.url.dark),
+      &:deep(.collections ul > li.dark:not(.empty-state)) {
+        background-color: var(--bg-tertiary-dark);
 
-  &.in-split
-    &::v-deep(.view.url.dark),
-    &::v-deep(.collections ul > li.dark:not(.empty-state))
-      background-color: $bg-tertiary-dark
+        &:hover {
+          background-color: var(--bg-tertiary-dark-lightened-5);
+        }
+      }
 
-      &:hover
-        background-color: lighten($bg-tertiary-dark, 5)
+      &:deep(.view.files.dark .file-list) {
+        header .actions .input {
+          background-color: var(--bg-tertiary-dark);
+        }
 
-    &::v-deep(.view.files.dark .file-list)
-      header .actions .input
-        background-color: $bg-tertiary-dark
+        .files .file {
+          background-color: var(--bg-tertiary-dark);
 
-      .files .file
-        background-color: $bg-tertiary-dark
-
-        &:hover
-          background-color: lighten($bg-tertiary-dark, 5)
+          &:hover {
+            background-color: var(--bg-tertiary-dark-lightened-5);
+          }
+        }
+      }
+    }
+  }
 </style>

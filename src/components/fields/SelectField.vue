@@ -53,31 +53,37 @@ export default {
 };
 </script>
 
-<style lang="stylus" scoped>
-@require '../../assets/styles/breakpoints'
-@require '../../assets/styles/colors'
+<style lang="scss" scoped>
+  @use '../../assets/styles/breakpoints' as *;
 
-.select.field
-  display: flex
-  align-items: center
-  justify-content: space-between
+  .select.field {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
 
-  > p
-    margin: 0
-    margin-right: 1rem
+    > p {
+      margin: 0;
+      margin-right: 1rem;
 
-    &.error
-      color: $negative-saturated
+      &.error {
+        color: var(--negative-saturated);
+      }
+    }
 
-  ::v-deep(.select.error)
-    border-color: $negative
+    &:deep(.select.error) {
+      border-color: var(--negative);
+    }
 
-  @media $mobile
-    display: block
+    @media #{$mobile} {
+      display: block;
 
-    > p
-      margin-bottom: 0.5rem
+      > p {
+        margin-bottom: 0.5rem;
+      }
 
-    ::v-deep(.select)
-      width: 100%
+      &:deep(.select) {
+        width: 100%;
+      }
+    }
+  }
 </style>

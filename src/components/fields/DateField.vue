@@ -26,34 +26,42 @@ export default {
 };
 </script>
 
-<style lang="stylus" scoped>
-@require '../../assets/styles/colors'
+<style lang="scss" scoped>
+  .date.field {
+    display: flex;
+    align-items: center;
 
-.date.field
-  display: flex
-  align-items: center
+    &.in-split.dark {
+      > .date-picker {
+        background-color: var(--bg-tertiary-dark);
 
-  &.in-split.dark
-    > .date-picker
-      background-color: $bg-tertiary-dark
+        &:hover {
+          background-color: var(--bg-tertiary-dark-lightened-5);
+        }
 
-      &:hover
-        background-color: lighten($bg-tertiary-dark, 5)
+        &:active {
+          background-color: var(--bg-secondary-dark);
+        }
+      }
+    }
 
-      &:active
-        background-color: $bg-secondary-dark
+    > span {
+      margin-right: auto;
+    }
 
-  > span
-    margin-right: auto
+    > .date-picker {
+      margin-left: 1rem;
 
-  > .date-picker
-    margin-left: 1rem
+      &.error {
+        &:deep(.floating-label) {
+          color: var(--negative-saturated);
+        }
 
-    &.error
-      &::v-deep(.floating-label)
-        color: $negative-saturated
-
-      &:not(:focus)::before
-        opacity: 1
-        border-color: $negative
+        &:not(:focus)::before {
+          opacity: 1;
+          border-color: var(--negative);
+        }
+      }
+    }
+  }
 </style>

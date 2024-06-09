@@ -63,17 +63,19 @@ export default {
 };
 </script>
 
-<style lang="stylus" scoped>
-@require '../../assets/styles/colors'
+<style lang="scss" scoped>
+  .checkboxes.field {
+    > p {
+      margin-top: 0;
+      margin-bottom: 0.5rem;
 
-.checkboxes.field
-  > p
-    margin-top: 0
-    margin-bottom: 0.5rem
+      &.error {
+        color: var(--negative-saturated);
+      }
 
-    &.error
-      color: $negative-saturated
-
-    &.warning
-      color: $warning-saturated
+      &.warning {
+        color: var(--warning-saturated);
+      }
+    }
+  }
 </style>

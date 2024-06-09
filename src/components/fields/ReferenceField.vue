@@ -89,46 +89,57 @@ export default {
 };
 </script>
 
-<style lang="stylus" scoped>
-@require '../../assets/styles/colors'
-@require '../../assets/styles/corners'
+<style lang="scss" scoped>
+  .label {
+    display: block;
+    font-size: 0.75rem;
+    margin-bottom: 0.25rem;
+    color: var(--text-secondary);
 
-.label
-  display: block
-  font-size: 0.75rem
-  margin-bottom: 0.25rem
-  color: $text-secondary
+    &.dark {
+      color: var(--text-secondary-dark);
+    }
 
-  &.dark
-    color: $text-secondary-dark
+    &.error {
+      color: var(--negative-saturated);
+    }
+  }
 
-  &.error
-    color: $negative-saturated
+  .internal-link-helper {
+    &:not(:last-child) {
+      margin-bottom: 2rem;
+    }
 
-.internal-link-helper
-  &:not(:last-child)
-    margin-bottom: 2rem
+    &.error {
+      &:deep(.view.url::before) {
+        opacity: 1;
+        border-color: var(--negative);
+      }
+    }
 
-  &.error
-    &::v-deep(.view.url::before)
-      opacity: 1
-      border-color: $negative
+    &.in-split {
+      &:deep(.view.url.dark),
+      &:deep(.collections ul > li.dark:not(.empty-state)) {
+        background-color: var(--bg-tertiary-dark);
 
-  &.in-split
-    &::v-deep(.view.url.dark),
-    &::v-deep(.collections ul > li.dark:not(.empty-state))
-      background-color: $bg-tertiary-dark
+        &:hover {
+          background-color: var(--bg-tertiary-dark-lightened-5);
+        }
+      }
 
-      &:hover
-        background-color: lighten($bg-tertiary-dark, 5)
+      &:deep(.view.files.dark .file-list) {
+        header .actions .input {
+          background-color: var(--bg-tertiary-dark);
+        }
 
-    &::v-deep(.view.files.dark .file-list)
-      header .actions .input
-        background-color: $bg-tertiary-dark
+        .files .file {
+          background-color: var(--bg-tertiary-dark);
 
-      .files .file
-        background-color: $bg-tertiary-dark
-
-        &:hover
-          background-color: lighten($bg-tertiary-dark, 5)
+          &:hover {
+            background-color: var(--bg-tertiary-dark-lightened-5);
+          }
+        }
+      }
+    }
+  }
 </style>

@@ -179,30 +179,37 @@ export default {
 };
 </script>
 
-<style lang="stylus" scoped>
-@require '../../assets/styles/colors'
+<style lang="scss" scoped>
+  .rich-text.field {
+    .editor:deep(.toolbar) {
+      margin-top: 0;
+      top: 0;
+    }
+  }
 
-.rich-text.field
-  .editor::v-deep(.toolbar)
-    margin-top: 0
-    top: 0
+  .editor:not(:last-child) {
+    margin-bottom: 2rem;
+  }
 
-.editor:not(:last-child)
-  margin-bottom: 2rem
+  .in-split.dark {
+    &.editor:deep(.content-wrapper) {
+      background-color: var(--bg-tertiary-dark);
 
-.in-split.dark
-  &.editor::v-deep(.content-wrapper)
-    background-color: $bg-tertiary-dark
+      &:not(:focus-within) {
+        box-shadow: inset 0 0.0625rem 0 0 var(--bg-tertiary-dark-lightened-10);
+      }
 
-    &:not(:focus-within)
-      box-shadow: inset 0 0.0625rem 0 0 lighten($bg-tertiary-dark, 10)
+      code {
+        background-color: var(--bg-tertiary-dark-lightened-10);
+      }
 
-    code
-      background-color: lighten($bg-tertiary-dark, 10)
+      pre {
+        background-color: var(--bg-secondary-dark);
 
-    pre
-      background-color: $bg-secondary-dark
-
-      code
-        background-color: initial
+        code {
+          background-color: initial;
+        }
+      }
+    }
+  }
 </style>

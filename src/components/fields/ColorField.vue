@@ -22,40 +22,47 @@ export default {
 };
 </script>
 
-<style lang="stylus" scoped>
-@require '../../assets/styles/colors'
-@require '../../assets/styles/corners'
+<style lang="scss" scoped>
+  .color.field {
+    display: flex;
+    align-items: center;
 
-.color.field
-  display: flex
-  align-items: center
+    &.in-split.dark {
+      > .color-picker {
+        background-color: var(--bg-tertiary-dark);
 
-  &.in-split.dark
-    > .color-picker
-      background-color: $bg-tertiary-dark
+        &:hover {
+          background-color: var(--bg-tertiary-dark-lightened-5);
+        }
 
-      &:hover
-        background-color: lighten($bg-tertiary-dark, 5)
+        &:active {
+          background-color: var(--bg-secondary-dark);
+        }
+      }
+    }
 
-      &:active
-        background-color: $bg-secondary-dark
+    > span {
+      margin-right: auto;
+    }
 
-  > span
-    margin-right: auto
+    > .color-picker {
+      margin-left: 1rem;
 
-  > .color-picker
-    margin-left: 1rem
+      &.error {
+        &:not(:focus)::before {
+          opacity: 1;
+          border-color: var(--negative);
+        }
 
-    &.error
-      &:not(:focus)::before
-        opacity: 1
-        border-color: $negative
-
-      &::after
-        content: attr(data-error)
-        position: absolute
-        top: -1.125rem
-        left: $radius-m
-        font-size: 0.75rem
-        color: $negative-saturated
+        &::after {
+          content: attr(data-error);
+          position: absolute;
+          top: -1.125rem;
+          left: var(--radius-m);
+          font-size: 0.75rem;
+          color: var(--negative-saturated);
+        }
+      }
+    }
+  }
 </style>

@@ -50,38 +50,48 @@ export default {
 };
 </script>
 
-<style lang="stylus" scoped>
-@require '../../assets/styles/breakpoints'
-@require '../../assets/styles/colors'
+<style lang="scss" scoped>
+  @use '../../assets/styles/breakpoints' as *;
 
-.radio-group.field
-  &.inline
-    display: flex
-    align-items: center
-    justify-content: space-between
+  .radio-group.field {
+    &.inline {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
 
-    > p
-      margin-right: 1rem
+      > p {
+        margin-right: 1rem;
+      }
+    }
 
-  > p
-    margin: 0
-    margin-bottom: 0.5rem
+    > p {
+      margin: 0;
+      margin-bottom: 0.5rem;
 
-    &.error
-      color: $negative-saturated
+      &.error {
+        color: var(--negative-saturated);
+      }
+    }
 
-  > .radio-group.dark.in-split
-    &::v-deep(label .fake-radio::after)
-      background-color: $bg-secondary-dark
+    > .radio-group.dark.in-split {
+      &:deep(label .fake-radio::after) {
+        background-color: var(--bg-secondary-dark);
+      }
+    }
 
-  > .segmented-selector
-    &.dark.in-split
-      background-color: $bg-tertiary-dark
-      box-shadow: 0 0 0 0.125rem @background-color
+    > .segmented-selector {
+      &.dark.in-split {
+        background-color: var(--bg-tertiary-dark);
+        box-shadow: 0 0 0 0.125rem var(--bg-tertiary-dark);
+      }
+    }
 
-  @media $mobile
-    display: block
+    @media #{$mobile} {
+      display: block;
 
-    > p
-      margin-bottom: 0.5rem
+      > p {
+        margin-bottom: 0.5rem;
+      }
+    }
+  }
 </style>

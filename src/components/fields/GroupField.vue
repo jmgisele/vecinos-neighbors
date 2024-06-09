@@ -96,45 +96,57 @@ export default {
 };
 </script>
 
-<style lang="stylus" scoped>
-@require '../../assets/styles/fields'
+<style lang="scss" scoped>
+  @use '../../assets/styles/fields';
 
-.group.field
-  &.expanded
-    border: 0.0625rem solid alpha($text, 0.12)
-    border-radius: $radius-l
-    padding: 1rem
+  .group.field {
+    &.expanded {
+      border: 0.0625rem solid color-mix(in srgb, var(--text) 12%, transparent);
+      border-radius: var(--radius-l);
+      padding: 1rem;
 
-    &.dark
-      border-color: alpha($text-dark, 0.12)
+      &.dark {
+        border-color: color-mix(in srgb, var(--text-dark) 12%, transparent);
+      }
 
-    > .display-wrapper
-      background-color: transparent
-      pointer-events: none
-      padding: 0
-      color: $text-secondary
-      margin-bottom: 1rem
+      > .display-wrapper {
+        background-color: transparent;
+        pointer-events: none;
+        padding: 0;
+        color: var(--text-secondary);
+        margin-bottom: 1rem;
 
-      &.dark
-        color: $text-secondary-dark
+        &.dark {
+          color: var(--text-secondary-dark);
+        }
 
-      &.error::before
-        opacity: 0
+        &.error::before {
+          opacity: 0;
+        }
 
-      &.no-display-value
-        padding: 0
+        &.no-display-value {
+          padding: 0;
+        }
+      }
+    }
 
-  .display-wrapper
-    &.no-display-value // to match height of input fields
-      padding-top: 1.0625rem
-      padding-bottom: @padding-top
+    .display-wrapper {
+      &.no-display-value  {
+        padding-top: 1.0625rem;
+        padding-bottom: 1.0625rem;
+      }
+    }
+  }
 
-.group-empty-state
-  color: $text-tertiary
+  .group-empty-state {
+    color: var(--text-tertiary);
 
-  &.dark
-    color: $text-tertiary-dark
+    &.dark {
+      color: var(--text-tertiary-dark);
+    }
 
-  &.centered
-    text-align: center
+    &.centered {
+      text-align: center;
+    }
+  }
 </style>

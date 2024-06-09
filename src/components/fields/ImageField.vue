@@ -364,161 +364,194 @@ export default {
 };
 </script>
 
-<style lang="stylus" scoped>
-@require '../../assets/styles/colors'
-@require '../../assets/styles/corners'
-@require '../../assets/styles/fields'
+<style lang="scss" scoped>
+  @use '../../assets/styles/fields';
 
-.image.field
-  .display-wrapper
-    .image-wrapper
-      flex-shrink: 0
-      width: 3rem
-      height: @width
-      display: flex
-      align-items: center
-      justify-content: center
-      margin-right: 1rem
-      color: $text-dark
-      overflow: hidden
-      border-radius: $radius-s
-      background-image: linear-gradient(to right, rgba(0,0,0,0.75), rgba(0,0,0,0.75)), linear-gradient(to right, black 50%, white 50%), linear-gradient(to bottom, black 50%, white 50%)
-      background-size: 1.5rem 1.5rem
-      background-blend-mode: normal, difference
+  .image.field {
+    .display-wrapper {
+      .image-wrapper {
+        flex-shrink: 0;
+        width: 3rem;
+        height: 3rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-right: 1rem;
+        color: var(--text-dark);
+        overflow: hidden;
+        border-radius: var(--radius-s);
+        background-image: linear-gradient(to right, rgba(0, 0, 0, 0.75), rgba(0, 0, 0, 0.75)), linear-gradient(to right, black 50%, white 50%), linear-gradient(to bottom, black 50%, white 50%);
+        background-size: 1.5rem 1.5rem;
+        background-blend-mode: normal, difference;
 
-      &.dark
-        background-image: linear-gradient(to right, rgba(0,0,0,0.9), rgba(0,0,0,0.9)), linear-gradient(to right, black 50%, white 50%), linear-gradient(to bottom, black 50%, white 50%)
+        &.dark {
+          background-image: linear-gradient(to right, rgba(0, 0, 0, 0.9), rgba(0, 0, 0, 0.9)), linear-gradient(to right, black 50%, white 50%), linear-gradient(to bottom, black 50%, white 50%);
+        }
 
-      .icon
-        margin-left: 0
+        .icon {
+          margin-left: 0;
+        }
 
-      img
-        display: block
-        max-width: 100%
-        max-height: 100%
-        object-fit: cover
-        transition: opacity 200ms ease
+        img {
+          display: block;
+          max-width: 100%;
+          max-height: 100%;
+          object-fit: cover;
+          transition: opacity 200ms ease;
 
-        &.hidden
-          opacity: 0
+          &.hidden {
+            opacity: 0;
+          }
+        }
 
-      .icon,
-      img
-        &.v-enter-active,
-        &.v-leave-active
-          transition: opacity 200ms ease
+        .icon,
+        img {
+          &.v-enter-active,
+          &.v-leave-active {
+            transition: opacity 200ms ease;
 
-          &.v-enter-from,
-          &.v-leave-to
-            opacity: 0
+            &.v-enter-from,
+            &.v-leave-to {
+              opacity: 0;
+            }
+          }
+        }
+      }
+    }
+  }
 
-.image-details
-  .thumbnail
-    height: 16rem
-    color: $text-dark
-    display: flex
-    align-items: center
-    justify-content: center
-    background-image: linear-gradient(to right, rgba(0,0,0,0.75), rgba(0,0,0,0.75)), linear-gradient(to right, black 50%, white 50%), linear-gradient(to bottom, black 50%, white 50%)
-    background-size: 1.5rem 1.5rem
-    background-blend-mode: normal, difference
-    position: relative
-    border-top-left-radius: $radius-l
-    border-top-right-radius: @border-top-left-radius
-    overflow: hidden
+  .image-details {
+    .thumbnail {
+      height: 16rem;
+      color: var(--text-dark);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background-image: linear-gradient(to right, rgba(0, 0, 0, 0.75), rgba(0, 0, 0, 0.75)), linear-gradient(to right, black 50%, white 50%), linear-gradient(to bottom, black 50%, white 50%);
+      background-size: 1.5rem 1.5rem;
+      background-blend-mode: normal, difference;
+      position: relative;
+      border-top-left-radius: var(--radius-l);
+      border-top-right-radius: var(--radius-l);
+      overflow: hidden;
 
-    @media $mobile
-      height: 12rem
+      @media #{$mobile} {
+        height: 12rem;
+      }
 
-    &.dark
-      background-image: linear-gradient(to right, rgba(0,0,0,0.9), rgba(0,0,0,0.9)), linear-gradient(to right, black 50%, white 50%), linear-gradient(to bottom, black 50%, white 50%)
+      &.dark {
+        background-image: linear-gradient(to right, rgba(0, 0, 0, 0.9), rgba(0, 0, 0, 0.9)), linear-gradient(to right, black 50%, white 50%), linear-gradient(to bottom, black 50%, white 50%);
+      }
 
-    &.empty
-      border-bottom-left-radius: @border-top-left-radius
-      border-bottom-right-radius: @border-bottom-left-radius
+      &.empty {
+        border-bottom-left-radius: var(--radius-l);
+        border-bottom-right-radius: var(--radius-l);
+      }
 
-    img
-      max-width: 100%
-      max-height: 100%
+      img {
+        max-width: 100%;
+        max-height: 100%;
+      }
 
-    .button-wrapper
-      position: absolute
-      align-self: flex-end
-      background-color: alpha($bg-dark, 0.8)
-      width: 100%
-      text-align: center
+      .button-wrapper {
+        position: absolute;
+        align-self: flex-end;
+        background-color: color-mix(in srgb, var(--bg-dark) 80%, transparent);
+        width: 100%;
+        text-align: center;
 
-      .button
-        margin: 0.5rem
+        .button {
+          margin: 0.5rem;
+        }
+      }
+    }
 
-  .meta
-    background-color: $bg-secondary
-    margin: 0
-    padding: 1rem
-    display: flex
-    justify-content: center
-    border-bottom-left-radius: $radius-l
-    border-bottom-right-radius: @border-bottom-left-radius
+    .meta {
+      background-color: var(--bg-secondary);
+      margin: 0;
+      padding: 1rem;
+      display: flex;
+      justify-content: center;
+      border-bottom-left-radius: var(--radius-l);
+      border-bottom-right-radius: var(--radius-l);
 
-    &.dark
-      background-color: $bg-secondary-dark
+      &.dark {
+        background-color: var(--bg-secondary-dark);
 
-      &.in-split
-        background-color: $bg-tertiary-dark
+        &.in-split {
+          background-color: var(--bg-tertiary-dark);
+        }
 
-      dl
-        dt
-          color: $text-secondary-dark
+        dl {
+          dt {
+            color: var(--text-secondary-dark);
+          }
 
-        dd .color-indicator
-          box-shadow: inset 0 0 0 0.0625rem $text-tertiary-dark
+          dd .color-indicator {
+            box-shadow: inset 0 0 0 0.0625rem var(--text-tertiary-dark);
+          }
+        }
+      }
 
-    dl
-      margin: 0
-      overflow: hidden
-      flex-shrink: 0
+      dl {
+        margin: 0;
+        overflow: hidden;
+        flex-shrink: 0;
 
-      &:first-child
-          flex-shrink: 1
+        &:first-child {
+          flex-shrink: 1;
+        }
 
-      &:not(:last-child)
-        margin-right: 4rem
+        &:not(:last-child) {
+          margin-right: 4rem;
+        }
 
-      dt,
-      dd
-        margin: 0
-        white-space: nowrap
-        overflow: hidden
-        text-overflow: ellipsis
+        dt,
+        dd {
+          margin: 0;
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
+        }
 
-      dt
-        color: $text-secondary
-        font-size: 0.875rem
+        dt {
+          color: var(--text-secondary);
+          font-size: 0.875rem;
+        }
 
-      dd
-        .color-indicator
-          vertical-align: middle
-          margin-right: 0.5rem
-          display: inline-block
-          width: 1rem
-          height: @width
-          border-radius: 50%
-          box-shadow: inset 0 0 0 0.0625rem $text-tertiary
+        dd {
+          .color-indicator {
+            vertical-align: middle;
+            margin-right: 0.5rem;
+            display: inline-block;
+            width: 1rem;
+            height: 1rem;
+            border-radius: 50%;
+            box-shadow: inset 0 0 0 0.0625rem var(--text-tertiary);
+          }
 
-        .color-code
-          vertical-align: middle
-          user-select: all
+          .color-code {
+            vertical-align: middle;
+            user-select: all;
+          }
+        }
+      }
 
-    @media $mobile
-      display: block
-      padding: 1rem
-      border-bottom-left-radius: $radius-m
-      border-bottom-right-radius: $radius-m
+      @media #{$mobile} {
+        display: block;
+        padding: 1rem;
+        border-bottom-left-radius: var(--radius-m);
+        border-bottom-right-radius: var(--radius-m);
 
-      dl:not(:last-child)
-        margin-right: 0
-        margin-bottom: 0.5rem
+        dl:not(:last-child) {
+          margin-right: 0;
+          margin-bottom: 0.5rem;
+        }
+      }
+    }
 
-  .fields-editor
-    margin-top: 2rem
+    .fields-editor {
+      margin-top: 2rem;
+    }
+  }
 </style>
