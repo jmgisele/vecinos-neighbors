@@ -304,12 +304,12 @@ export default {
         .card {
           min-width: 16rem;
           padding: 0.5rem;
-          border-radius: $radius-l;
-          border: 0.0625rem solid color-mix(in srgb, var(--text-tertiary) 12%, transparent);
+          border-radius: var(--radius-l);
+          border: 0.0625rem solid color-mix(in srgb, var(--text) 12%, transparent);
           text-align: center;
 
           &.dark {
-            border-color: color-mix(in srgb, var(--text-tertiary-dark) 12%, transparent);
+            border-color: color-mix(in srgb, var(--text-dark) 12%, transparent);
           }
 
           &:not(:last-child) {
