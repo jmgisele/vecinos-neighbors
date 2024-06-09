@@ -1,13 +1,15 @@
+@use 'sass:color';
+
 @use './breakpoints.scss' as *;
 @use './fonts.scss';
 @use './helpers.scss' as *;
 
 :root {
   --accent: #6c5ce7;
-  --accent-lightened-5: lighten(#6c5ce7, 5%)
+  --accent-lightened-5: #{lighten(#6c5ce7, 5%)};
   --accent-secondary: #A29BFE;
-  --accent-darkened-5: darken(#6c5ce7, 5%);
-  --accent-darkened-10: darken(#6c5ce7, 10%);
+  --accent-darkened-5: #{darken(#6c5ce7, 5%)};
+  --accent-darkened-10: #{darken(#6c5ce7, 10%)};
 
   --text: #111028;
   --text-secondary: color-mix(in srgb, var(--text) 54%, transparent);
@@ -17,24 +19,24 @@
   --bg-secondary: #f4f3ff;
   --bg-tertiary: #fafaff;
 
-  --text-dark: --bg;
+  --text-dark: var(--bg);
   --text-secondary-dark: color-mix(in srgb, var(--bg) 70%, transparent);
   --text-tertiary-dark: color-mix(in srgb, var(--bg) 50%, transparent);
 
   --bg-dark: #1E1D22;
   --bg-secondary-dark: #2B2A32;
-  --bg-secondary-dark-darkened-2: darken(#2B2A32, 2%);
+  --bg-secondary-dark-darkened-2: #{darken(#2B2A32, 2%)};
   --bg-tertiary-dark: #343244;
-  --bg-tertiary-dark-lightened-3: lighten(#343244, 3%);
-  --bg-tertiary-dark-lightened-5: lighten(#343244, 5%);
-  --bg-tertiary-dark-lightened-10: lighten(#343244, 10%);
+  --bg-tertiary-dark-lightened-3: #{lighten(#343244, 3%)};
+  --bg-tertiary-dark-lightened-5: #{lighten(#343244, 5%)};
+  --bg-tertiary-dark-lightened-10: #{lighten(#343244, 10%)};
 
   --negative-saturated: #d63031;
   --negative: #ff7675;
   --positive-saturated: #00b894;
   --positive: #55efc4;
   --warning-saturated: #fdcb6e;
-  --warning-saturated-darkened-25: darken(#fdcb6e, 25%);
+  --warning-saturated-darkened-25: #{darken(#fdcb6e, 25%)};
   --warning: #ffeaa7;
 
   --radius-base: 3;
