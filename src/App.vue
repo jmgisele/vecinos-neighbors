@@ -11,14 +11,14 @@
   <ModalOverlay :dark="dark" />
   <LoadingOverlay :dark="dark" />
   <Snackbar :dark="dark" />
-  <!-- <MbModal id="componentsModal" :dark="dark" :padded-body="false" :visible="showComponentsModal" @close="showComponentsModal = false">
+  <MbModal v-if="inDevMode" id="componentsModal" :dark="dark" :padded-body="false" :visible="showComponentsModal" @close="showComponentsModal = false">
     <Components :dark="dark" />
-  </MbModal> -->
+  </MbModal>
 </template>
 
 <script>
+import { defineAsyncComponent } from 'vue';
 import GlobalTooltipController from './components/utility/GlobalTooltipController.vue';
-// import Components from './views/Components.vue';
 import LoadingOverlay from './components/utility/LoadingOverlay.vue';
 import ModalOverlay from './components/utility/ModalOverlay.vue';
 import Snackbar from './components/utility/Snackbar.vue';
@@ -28,7 +28,10 @@ import UserSwitcher from './components/utility/UserSwitcher.vue';
 export default {
   components: {
     GlobalTooltipController,
-    // Components,
+    Components: defineAsyncComponent(() => {
+      if (import.meta.env.DEV) return import('./views/Components.vue');
+      return undefined;
+    }),
     LoadingOverlay,
     ModalOverlay,
     Snackbar,
@@ -43,6 +46,9 @@ export default {
       if (theme === 'dark') return true;
       if (theme === 'light') return false;
       return (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) || false;
+    },
+    inDevMode() {
+      return import.meta.env.DEV;
     },
     isMobile() {
       return this.$store.state.application.mobile;
@@ -77,7 +83,7 @@ export default {
       tabletQuery.addEventListener('change', (e) => this.$store.commit('setTablet', e.matches));
     }
 
-    // window.addEventListener('keyup', this.handleComponentsModal);
+    if (this.inDevMode) window.addEventListener('keyup', this.handleComponentsModal);
     window.addEventListener('online', this.handleOnline);
     window.addEventListener('offline', this.handleOffline);
     window.addEventListener('beforeinstallprompt', (prompt) => {
@@ -92,12 +98,13 @@ export default {
     };
   },
   methods: {
-    // handleComponentsModal(e) {
-    //   if (e.key === 'c' && e.ctrlKey && e.altKey) {
-    //     e.preventDefault();
-    //     this.showComponentsModal = !this.showComponentsModal;
-    //   }
-    // },
+    handleComponentsModal(e) {
+      if (!this.inDevMode) return;
+      if (e.key === 'c' && e.ctrlKey && e.altKey) {
+        e.preventDefault();
+        this.showComponentsModal = !this.showComponentsModal;
+      }
+    },
     handleOffline() {
       this.$store.commit('addToast', {
         id: 'appIsOffline',
