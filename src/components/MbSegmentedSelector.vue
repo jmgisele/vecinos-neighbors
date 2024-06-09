@@ -47,92 +47,106 @@ export default {
 };
 </script>
 
-<style lang="stylus" scoped>
-@require '../assets/styles/colors'
-@require '../assets/styles/corners'
+<style lang="scss" scoped>
+  .segmented-selector {
+    background-color: var(--bg-secondary);
+    border-radius: var(--radius-m);
+    position: relative;
+    display: flex;
+    box-shadow: 0 0 0 0.125rem var(--bg-secondary);
 
-.segmented-selector
-  background-color: $bg-secondary
-  border-radius: $radius-m
-  position: relative
-  display: flex
-  box-shadow: 0 0 0 0.125rem @background-color
+    &.dark {
+      background-color: var(--bg-secondary-dark);
+      box-shadow: 0 0 0 0.125rem var(--bg-secondary-dark);
 
-  &.dark
-    background-color: $bg-secondary-dark
-    box-shadow: 0 0 0 0.125rem @background-color
+      .option.disabled {
+        color: var(--text-tertiary-dark);
+      }
+    }
 
-    .option.disabled
-      color: $text-tertiary-dark
+    .ink {
+      background-color: var(--accent);
+      border-radius: var(--radius-m);
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 0;
+      height: 100%;
+      transition: transform 200ms cubic-bezier(0.645, 0.045, 0.355, 1);
 
-  .ink
-    background-color: $accent
-    border-radius: @border-radius
-    position: absolute
-    top: 0
-    left: 0
-    width: 0
-    height: 100%
-    transition: transform 200ms cubic-bezier(0.645, 0.045, 0.355, 1.000)
+      &.disabled {
+        opacity: 0.7;
+      }
 
-    &.disabled
-      opacity: 0.7
+      &.v-enter-active,
+      &.v-leave-active {
+        transition: opacity 200ms ease;
 
-    &.v-enter-active,
-    &.v-leave-active
-      transition: opacity 200ms ease
+        &.v-enter-from,
+        &.v-leave-to {
+          opacity: 0;
+        }
+      }
+    }
 
-      &.v-enter-from,
-      &.v-leave-to
-        opacity: 0
+    .option {
+      display: inline-block;
+      width: 100%;
+      text-align: center;
+      text-overflow: ellipsis;
+      overflow: hidden;
+      position: relative;
+      padding: 0.75rem 1.25rem;
+      cursor: pointer;
+      border-radius: var(--radius-m);
+      white-space: nowrap;
 
-  .option
-    display: inline-block
-    width: 100%
-    text-align: center
-    text-overflow: ellipsis
-    overflow: hidden
-    position: relative
-    padding: 0.75rem 1.25rem
-    cursor: pointer
-    border-radius: @border-radius
-    white-space: nowrap
+      &:not(:last-child) {
+        margin-right: 0.125rem;
+      }
 
-    &:not(:last-child)
-      margin-right: 0.125rem
+      &.active {
+        color: var(--text-dark);
+        pointer-events: none;
 
-    &.active
-      color: $text-dark
-      pointer-events: none
+        &::before {
+          box-shadow: inset 0 0 0 0.125rem var(--accent-lightened-5);
+        }
 
-      &::before
-        box-shadow: inset 0 0 0 0.125rem lighten($accent, 5)
+        &.disabled {
+          color: var(--text-tertiary-dark);
+        }
+      }
 
-      &.disabled
-        color: $text-tertiary-dark
+      &:focus-visible,
+      &:hover {
+        &::before {
+          opacity: 1;
+        }
+      }
 
-    &:focus-visible,
-    &:hover
-      &::before
-        opacity: 1
+      &:active {
+        transform: translateY(0.125rem);
+      }
 
-    &:active
-      transform: translateY(0.125rem)
+      &.disabled {
+        pointer-events: none;
+        color: var(--text-tertiary);
+      }
 
-    &.disabled
-      pointer-events: none
-      color: $text-tertiary
-
-    &::before
-      content: ''
-      position: absolute
-      display: block
-      width: 100%
-      height: 100%
-      top: 0
-      left: 0
-      border-radius: @border-radius
-      box-shadow: inset 0 0 0 0.125rem $accent
-      opacity: 0
-      transition: opacity 200ms ease
+      &::before {
+        content: '';
+        position: absolute;
+        display: block;
+        width: 100%;
+        height: 100%;
+        top: 0;
+        left: 0;
+        border-radius: var(--radius-m);
+        box-shadow: inset 0 0 0 0.125rem var(--accent);
+        opacity: 0;
+        transition: opacity 200ms ease;
+      }
+    }
+  }
 </style>

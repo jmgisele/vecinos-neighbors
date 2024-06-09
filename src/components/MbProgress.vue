@@ -32,59 +32,73 @@ export default {
 };
 </script>
 
-<style lang="stylus" scoped>
-@require '../assets/styles/colors'
+<style lang="scss" scoped>
+  .progress {
+    display: inline-flex;
+    flex-direction: column;
+    width: rem(288);
+    user-select: none;
 
-.progress
-  display: inline-flex
-  flex-direction: column
-  width: (288 / 16)rem
-  user-select: none
+    .bar {
+      background-color: var(--bg-secondary);
+      height: 0.5rem;
+      border-radius: 0.25rem;
+      overflow: hidden;
 
-  .bar
-    background-color: $bg-secondary
-    height: 0.5rem
-    border-radius: 0.25rem
-    overflow: hidden
+      &.dark {
+        background-color: var(--bg-secondary-dark);
+      }
 
-    &.dark
-      background-color: $bg-secondary-dark
+      .ink {
+        background-color: var(--positive-saturated);
+        height: 100%;
+        transform-origin: left;
+        transition: transform 200ms ease, background-color 200ms ease;
 
-    .ink
-      background-color: $positive-saturated
-      height: 100%
-      transform-origin: left
-      transition: transform 200ms ease, background-color 200ms ease
+        &.positive {
+          background-color: var(--positive-saturated);
+        }
 
-      &.positive
-        background-color: $positive-saturated
+        &.negative {
+          background-color: var(--negative-saturated);
+        }
 
-      &.negative
-        background-color: $negative-saturated
+        &.warning {
+          background-color: var(--warning-saturated);
+        }
 
-      &.warning
-        background-color: $warning-saturated
+        &.accent {
+          background-color: var(--accent);
+        }
 
-      &.accent
-        background-color: $accent
+        &.indetermined {
+          // transform-origin: center
+          animation: sideToSide 1.2s ease infinite;
 
-      &.indetermined
-        // transform-origin: center
-        animation: sideToSide 1.2s ease infinite
+          @keyframes sideToSide {
+            0% {
+              transform: translateX(0) scaleX(0);
+            }
 
-        @keyframes sideToSide
-          0%
-            transform: translateX(0) scaleX(0)
-          50%
-            transform: translateX(25%) scaleX(0.5)
-          100%
-            transform: translateX(25%) scaleX(0)
-            transform-origin: right
+            50% {
+              transform: translateX(25%) scaleX(0.5);
+            }
 
-  .label
-    margin-top: 0.25rem
-    text-align: right
-    overflow: hidden
-    text-overflow: ellipsis
-    white-space: nowrap
+            100% {
+              transform: translateX(25%) scaleX(0);
+              transform-origin: right;
+            }
+          }
+        }
+      }
+    }
+
+    .label {
+      margin-top: 0.25rem;
+      text-align: right;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+  }
 </style>

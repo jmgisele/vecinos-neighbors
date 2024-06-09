@@ -186,149 +186,185 @@ export default {
 };
 </script>
 
-<style lang="stylus" scoped>
-@require '../assets/styles/breakpoints'
-@require '../assets/styles/colors'
-@require '../assets/styles/corners'
+<style lang="scss" scoped>
+  @use '../assets/styles/breakpoints' as *;
 
-.centerer
-  position: fixed
-  top: 0
-  left: 0
-  bottom: 0
-  right: 0
-  display: flex
-  align-items: center
-  justify-content: center
-  pointer-events: none
-  z-index: 1
+  .centerer {
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    pointer-events: none;
+    z-index: 1;
+  }
 
-.modal
-  width: 40rem
-  max-width: 100%
-  max-height: 70vh
-  display: flex
-  flex-direction: column
-  background-color: $bg
-  border-radius: $radius-xl
-  border: 1px solid $bg-secondary
-  box-shadow: 0 0.75rem 2rem 0 alpha($bg-dark, .18)
-  overflow: hidden
-  pointer-events: auto // needed to revert the pointer-events: none from the parent
-  touch-action: pan-y
-  user-select: none
+  .modal {
+    width: 40rem;
+    max-width: 100%;
+    max-height: 70vh;
+    display: flex;
+    flex-direction: column;
+    background-color: var(--bg);
+    border-radius: var(--radius-xl);
+    border: 1px solid var(--bg-secondary);
+    box-shadow: 0 0.75rem 2rem 0 color-mix(in srgb, var(--bg-dark) 18%, transparent);
+    overflow: hidden;
+    pointer-events: auto; // needed to revert the pointer-events: none from the parent
+    touch-action: pan-y;
+    user-select: none;
 
-  &.transition
-    transition: transform 200ms ease, opacity 200ms ease
+    &.transition {
+      transition: transform 200ms ease, opacity 200ms ease;
+    }
 
-  &.slim
-    width: (488 / 16)rem
+    &.slim {
+      width: rem(488);
+    }
 
-  @media $mobile
-    align-self: flex-end
-    max-height: 90vh
-    border-bottom-left-radius: 0
-    border-bottom-right-radius: 0
-    box-shadow: 0 -0.75rem 2rem 0 alpha($bg-dark, .18)
-    transform-origin: bottom
+    @media #{$mobile} {
+      align-self: flex-end;
+      max-height: 90vh;
+      border-bottom-left-radius: 0;
+      border-bottom-right-radius: 0;
+      box-shadow: 0 -0.75rem 2rem 0 color-mix(in srgb, var(--bg-dark) 18%, transparent);
+      transform-origin: bottom;
 
-    &.transition
-      transition-duration: 250ms
+      &.transition {
+        transition-duration: 250ms;
+      }
+    }
 
-  &.darkened
-    background-color: $bg-secondary
-    border-bottom-left-radius: $radius-xl
-    border-bottom-right-radius: $radius-xl
+    &.darkened {
+      background-color: var(--bg-secondary);
+      border-bottom-left-radius: var(--radius-xl);
+      border-bottom-right-radius: var(--radius-xl);
 
-    *
-      opacity: 0.3
+      > * {
+        transition: opacity 200ms ease;
+        opacity: 0.3;
+      }
+    }
 
-  &.dark
-    background-color: $bg-dark
-    border-color: $bg-secondary-dark
+    &.dark {
+      background-color: var(--bg-dark);
+      border-color: var(--bg-secondary-dark);
 
-    &.darkened
-      background-color: mix(black, $bg-dark, 20)
-      border-color: $bg-dark
+      &.darkened {
+        background-color: color-mix(in srgb, black 20%, var(--bg-dark));
+        border-color: var(--bg-dark);
+      }
+    }
 
-  &.wiggle
-    animation: wiggle 350ms ease
+    &.wiggle {
+      animation: wiggle 350ms ease;
 
-    @keyframes wiggle
-      0%
-        transform: none
-      50%
-        transform: scale(1.1)
-      100%
-        transform: none
+      @keyframes wiggle {
+        0% {
+          transform: none;
+        }
 
-  &.v-enter-active,
-  &.v-leave-active
-    transition: opacity 150ms ease, transform 150ms cubic-bezier(0.215, 0.610, 0.355, 1.000) !important // Hack: needed so the leave transition works after swiping modal away
+        50% {
+          transform: scale(1.1);
+        }
 
-    @media $mobile
-      transition-duration: 250ms !important // Hack: needed so the leave transition works after swiping modal away
+        100% {
+          transform: none;
+        }
+      }
+    }
 
-    &.v-enter-from,
-    &.v-leave-to
-      opacity: 0
-      transform: scale(0.8)
+    &.v-enter-active,
+    &.v-leave-active {
+      transition: opacity 150ms ease, transform 150ms cubic-bezier(0.215, 0.61, 0.355, 1) !important;
 
-      @media $mobile
-        transform: translateY(100%)
-        opacity: 1
+      @media #{$mobile} {
+        transition-duration: 250ms !important;
+      }
 
-  &.v-leave-active
-    transition-timing-function: cubic-bezier(0.645, 0.045, 0.355, 1.000)
+      &.v-enter-from,
+      &.v-leave-to {
+        opacity: 0;
+        transform: scale(0.8);
 
-  header
-    flex-shrink: 0
-    text-align: center
-    padding: (32 / 16)rem
+        @media #{$mobile} {
+          transform: translateY(100%);
+          opacity: 1;
+        }
+      }
+    }
 
-    @media $mobile
-      padding: 1rem
+    &.v-leave-active {
+      transition-timing-function: cubic-bezier(0.645, 0.045, 0.355, 1);
+    }
 
-    .h3
-      margin: 0
+    header {
+      flex-shrink: 0;
+      text-align: center;
+      padding: rem(32);
 
-  .body
-    overflow-y: auto
-    overflow-x: hidden
-    background-color: inherit
+      @media #{$mobile} {
+        padding: 1rem;
+      }
 
-    &.padded
-      padding: 0 (32 / 16)rem
+      .h3 {
+        margin: 0;
+      }
+    }
 
-      @media $mobile
-        padding: 0 1rem
+    .body {
+      overflow-y: auto;
+      overflow-x: hidden;
+      background-color: inherit;
 
-    &.no-header
-      padding-top: (32 / 16)rem
+      &.padded {
+        padding: 0 rem(32);
 
-      @media $mobile
-        padding-bottom: 1rem
+        @media #{$mobile} {
+          padding: 0 1rem;
+        }
+      }
 
-    &.no-footer
-      padding-bottom: (32 / 16)rem
+      &.no-header {
+        padding-top: rem(32);
 
-      @media $mobile
-        padding-bottom: 1rem
+        @media #{$mobile} {
+          padding-bottom: 1rem;
+        }
+      }
 
-  footer
-    flex-shrink: 0
-    padding: (32 / 16)rem
-    text-align: right
+      &.no-footer {
+        padding-bottom: rem(32);
 
-    ::v-deep(.button):not(:last-child)
-      margin-right: 1rem
+        @media #{$mobile} {
+          padding-bottom: 1rem;
+        }
+      }
+    }
 
-    @media $mobile
-      padding: 0.5rem
+    footer {
+      flex-shrink: 0;
+      padding: rem(32);
+      text-align: right;
 
-      ::v-deep(.button)
-        margin: 0.5rem
+      &:deep(.button):not(:last-child) {
+        margin-right: 1rem;
+      }
 
-        &:not(:last-child)
-          margin-right: 0.5rem
+      @media #{$mobile} {
+        padding: 0.5rem;
+
+        &:deep(.button) {
+          margin: 0.5rem;
+
+          &:not(:last-child) {
+            margin-right: 0.5rem;
+          }
+        }
+      }
+    }
+  }
 </style>

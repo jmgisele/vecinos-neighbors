@@ -114,108 +114,123 @@ export default {
 };
 </script>
 
-<style lang="stylus" scoped>
-@require '../assets/styles/colors'
-@require '../assets/styles/corners'
+<style lang="scss" scoped>
+  .project-card {
+    position: relative;
+    user-select: none;
+    border: none;
+    box-shadow: inset 0 0 0 0.0625rem var(--bg);
+    border-radius: var(--radius-m);
+    padding: 0;
+    background-color: var(--bg);
+    color: inherit;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    cursor: pointer;
+    transition: background-color 200ms ease;
 
-.project-card
-  position: relative
-  user-select: none
-  border: none
-  box-shadow: inset 0 0 0 0.0625rem $bg
-  border-radius: $radius-m
-  padding: 0
-  background-color: $bg
-  color: inherit
-  display: flex
-  flex-direction: column
-  overflow: hidden
-  cursor: pointer
-  transition: background-color 200ms ease
+    &.dark {
+      box-shadow: inset 0 0 0 0.0625rem var(--bg-tertiary-dark);
+      background-color: var(--bg-tertiary-dark);
 
-  &.dark
-    box-shadow: inset 0 0 0 0.0625rem $bg-tertiary-dark
-    background-color: $bg-tertiary-dark
+      &:focus,
+      &:hover {
+        background-color: var(--bg-secondary-dark);
+      }
+
+      &:active {
+        background-color: var(--bg-dark);
+      }
+
+      footer div p.meta {
+        color: var(--text-secondary-dark);
+      }
+    }
 
     &:focus,
-    &:hover
-      background-color: $bg-secondary-dark
+    &:hover {
+      background-color: var(--bg-secondary);
 
-    &:active
-      background-color: $bg-dark
+      .project-avatar:deep(img) {
+        transform: scale(1.2);
+      }
+    }
 
-    footer div p.meta
-      color: $text-secondary-dark
+    &:focus::before {
+      opacity: 1;
+    }
 
-  &:focus,
-  &:hover
-    background-color: $bg-secondary
+    &:active {
+      background-color: var(--bg-tertiary);
+      transform: translateY(2px);
+    }
 
-    .project-avatar::v-deep(img)
-      transform: scale(1.2)
+    &::before {
+      content: '';
+      position: absolute;
+      top: 0px;
+      left: 0px;
+      right: 0px;
+      bottom: 0px;
+      border: 2px solid var(--accent);
+      opacity: 0;
+      border-radius: var(--radius-m);
+      z-index: 1;
+      pointer-events: none;
+      transition: opacity 200ms ease;
+    }
 
-  &:focus::before
-      opacity: 1
+    .project-avatar {
+      border-bottom-left-radius: var(--radius-m);
+      border-bottom-right-radius: var(--radius-m);
 
-  &:active
-    background-color: $bg-tertiary
-    transform: translateY(2px)
+      &:deep(img) {
+        transition: transform 350ms ease;
+      }
+    }
 
-  &::before
-    content: ''
-    position: absolute
-    top: 0px
-    left: @top
-    right: @top
-    bottom: @top
-    border: 2px solid $accent
-    opacity: 0
-    border-radius: @border-radius
-    z-index: 1
-    pointer-events: none
-    transition: opacity 200ms ease
+    footer {
+      height: 100%;
+      width: 100%;
+      display: flex;
+      align-items: center;
+      padding: 0.5rem;
+      padding-left: 1rem;
 
-  .project-avatar
-    border-bottom-left-radius: $radius-m
-    border-bottom-right-radius: $radius-m
+      div {
+        margin-right: 1rem;
+        text-align: left;
+        overflow: hidden;
 
-    &::v-deep(img)
-      transition: transform 350ms ease
+        p {
+          margin: 0;
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
 
-  footer
-    height: 100%
-    width: 100%
-    display: flex
-    align-items: center
-    padding: 0.5rem
-    padding-left: 1rem
+          &.meta {
+            font-size: 0.875rem;
+            margin-top: 0.5rem;
+            color: var(--text-secondary);
+          }
 
-    div
-      margin-right: 1rem
-      text-align: left
-      overflow: hidden
+          .local-changes-indicator {
+            width: 0.5rem;
+            height: 0.5rem;
+            border-radius: 50%;
+            background-color: var(--warning-saturated);
+            display: inline-block;
+            margin-right: 0.5rem;
+            margin-top: rem(5);
+            vertical-align: top;
+          }
+        }
+      }
 
-      p
-        margin: 0
-        white-space: nowrap
-        overflow: hidden
-        text-overflow: ellipsis
-
-        &.meta
-          font-size: 0.875rem
-          margin-top: 0.5rem
-          color: $text-secondary
-
-        .local-changes-indicator
-          width: 0.5rem
-          height: @width
-          border-radius: 50%
-          background-color: $warning-saturated
-          display: inline-block
-          margin-right: 0.5rem
-          margin-top: (5 / 16)rem
-          vertical-align: top
-
-    .button
-      margin-left: auto
+      .button {
+        margin-left: auto;
+      }
+    }
+  }
 </style>

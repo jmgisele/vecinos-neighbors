@@ -9,11 +9,11 @@ export default {
 };
 </script>
 
-<style lang="stylus" scoped>
-
-.logo-text
-  width: (262 / 16)rem
-  height: (43 / 16)rem
-  display: block
-  margin: (24 / 16)rem auto
+<style lang="scss" scoped>
+  .logo-text {
+    width: rem(262);
+    height: rem(43);
+    display: block;
+    margin: rem(24) auto;
+  }
 </style>

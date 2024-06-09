@@ -25,53 +25,61 @@ export default {
 };
 </script>
 
-<style lang="stylus" scoped>
-@require '../assets/styles/colors'
+<style lang="scss" scoped>
+  .chip {
+    padding: 0.5rem 0.75rem;
+    border-radius: 1rem;
+    background-color: var(--accent);
+    color: var(--text-dark);
+    white-space: nowrap;
+    overflow: hidden;
+    font-size: rem(12);
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    vertical-align: middle;
+    display: inline-block;
+    line-height: 1;
+    transition: background-color 200ms ease;
 
-.chip
-  padding: 0.5rem 0.75rem
-  border-radius: 1rem
-  background-color: $accent
-  color: $text-dark
-  white-space: nowrap
-  overflow: hidden
-  font-size: (12 / 16)rem
-  font-weight: 700
-  letter-spacing: 0.05em
-  text-transform: uppercase
-  vertical-align: middle
-  display: inline-block
-  line-height: 1
-  transition: background-color 200ms ease
+    &.negative {
+      background-color: var(--negative-saturated);
+    }
 
-  &.negative
-    background-color: $negative-saturated
+    &.positive {
+      background-color: var(--positive-saturated);
+    }
 
-  &.positive
-    background-color: $positive-saturated
+    &.warning {
+      color: var(--text-secondary);
+      background-color: var(--warning-saturated);
 
-  &.warning
-    color: $text-secondary
-    background-color: $warning-saturated
+      &.dark {
+        color: var(--text-dark);
+      }
+    }
 
-    &.dark
-      color: $text-dark
+    .inline-loader {
+      height: rem(12);
+    }
 
-  .inline-loader
-    height: (12 / 16)rem
+    span {
+      display: block;
+      overflow: hidden;
+      text-overflow: ellipsis;
 
-  span
-    display: block
-    overflow: hidden
-    text-overflow: ellipsis
+      &.v-enter-active,
+      &.v-leave-active {
+        transition: transform 200ms ease;
 
-    &.v-enter-active,
-    &.v-leave-active
-      transition: transform 200ms ease
+        &.v-enter-from {
+          transform: translateY(-1.25rem);
+        }
 
-      &.v-enter-from
-        transform: translateY(-1.25rem)
-
-      &.v-leave-to
-        transform: translateY(1.25rem)
+        &.v-leave-to {
+          transform: translateY(1.25rem);
+        }
+      }
+    }
+  }
 </style>

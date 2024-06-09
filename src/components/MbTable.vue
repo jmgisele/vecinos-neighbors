@@ -39,11 +39,14 @@ export default {
 };
 </script>
 
-<style lang="stylus" scoped>
-.table.table-wrapper
-  tbody
-    tr td
-      word-wrap: normal
-      word-break: normal
-      overflow-wrap: normal
+<style lang="scss" scoped>
+  .table.table-wrapper {
+    tbody {
+      tr td {
+        word-wrap: normal;
+        word-break: normal;
+        overflow-wrap: normal;
+      }
+    }
+  }
 </style>

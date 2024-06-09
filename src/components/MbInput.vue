@@ -94,176 +94,214 @@ export default {
 };
 </script>
 
-<style lang="stylus" scoped>
-@require '../assets/styles/colors'
-@require '../assets/styles/corners'
+<style lang="scss" scoped>
+  .input {
+    display: inline-flex;
+    vertical-align: middle;
+    align-items: center;
+    background-color: var(--bg-secondary);
+    border-radius: var(--radius-m);
+    padding: 1rem;
+    position: relative;
+    width: 16rem;
+    max-width: 100%;
+    cursor: text;
+    margin-top: 1.5rem;
+    border: 0.0625rem solid transparent; // exists for the disabled fields
+    transition: box-shadow 200ms ease;
 
-.input
-  display: inline-flex
-  vertical-align: middle
-  align-items: center
-  background-color: $bg-secondary
-  border-radius: $radius-m
-  padding: 1rem
-  position: relative
-  width: 16rem
-  max-width: 100%
-  cursor: text
-  margin-top: 1.5rem
-  border: 0.0625rem solid transparent // exists for the disabled fields
-  transition: box-shadow 200ms ease
+    &.dark {
+      background-color: var(--bg-secondary-dark);
 
-  &.dark
-    background-color: $bg-secondary-dark
+      &.error.warn {
+        > label {
+          color: var(--warning-saturated);
+        }
+      }
 
-    &.error.warn
-      > label
-        color: $warning-saturated
+      > label {
+        color: var(--text-secondary-dark);
+      }
 
-    > label
-      color: $text-secondary-dark
+      > input {
+        caret-color: currentColor;
 
-    > input
-      caret-color: currentColor
+        &::placeholder {
+          color: var(--text-secondary-dark);
+        }
 
-      &::placeholder
-        color: $text-secondary-dark
+        &:-webkit-autofill {
+          box-shadow: inset 0 0 0 rem(100) var(--bg-secondary-dark);
+        }
+      }
+    }
 
-      &:-webkit-autofill
-        box-shadow: inset 0 0 0 (100 / 16)rem $bg-secondary-dark
+    &.icon {
+      > label {
+        left: 3rem;
+        width: calc(100% - 4rem);
 
-  &.icon
-    > label
-      left: 3rem
-      width: calc(100% - 4rem)
+        &.clearable {
+          width: calc(100% - 4rem - 2.65625rem); // 100% - padding - width of the clear button
+        }
 
-      &.clearable
-        width: calc(100% - 4rem - 2.65625rem) // 100% - padding - width of the clear button
+        &.spinners {
+          width: calc(100% - 4rem - 2.65625rem * 2); // 100% - padding - width of the clear button
+        }
+      }
 
-      &.spinners
-        width: calc(100% - 4rem - 2.65625rem * 2) // 100% - padding - width of the clear button
+      > input {
+        width: calc(100% - 2rem); // firefox doesn’t shrink input fields apparently
+      }
+    }
 
-    > input
-      width: calc(100% - 2rem) // firefox doesn’t shrink input fields apparently
+    &.error {
+      color: var(--negative-saturated);
+      box-shadow: inset 0 0 0 0.125rem var(--negative);
 
-  &.error
-    color: $negative-saturated
-    box-shadow: inset 0 0 0 0.125rem $negative
+      &:focus-within {
+        color: inherit;
+      }
 
-    &:focus-within
-      color: inherit
+      > label {
+        color: var(--negative-saturated);
+      }
 
-    > label
-      color: $negative-saturated
+      &.warn {
+        color: inherit;
+        box-shadow: inset 0 0 0 0.125rem var(--warning-saturated);
 
-    &.warn
-      color: inherit
-      box-shadow: inset 0 0 0 0.125rem $warning-saturated
+        &:focus-within .icon {
+          color: inherit;
+        }
 
-      &:focus-within .icon
-        color: inherit
+        > label {
+          color: var(--warning-saturated-darkened-25);
+        }
 
-      > label
-        color: darken($warning-saturated, 25)
-      .icon
-        color: $warning-saturated
+        .icon {
+          color: var(--warning-saturated);
+        }
+      }
+    }
 
-  &.disabled
-    pointer-events: none
-    background-color: transparent
-    border-style: dashed
-    border-color: $text-tertiary
-    color: $text-tertiary
-    box-shadow: none
+    &.disabled {
+      pointer-events: none;
+      background-color: transparent;
+      border-style: dashed;
+      border-color: var(--text-tertiary);
+      color: var(--text-tertiary);
+      box-shadow: none;
 
-    &.dark
-      border-color: $text-tertiary-dark
-      color: $text-tertiary-dark
+      &.dark {
+        border-color: var(--text-tertiary-dark);
+        color: var(--text-tertiary-dark);
+      }
 
-    > label
-      color: inherit
+      > label {
+        color: inherit;
+      }
 
-    > input::placeholder
-      color: inherit
+      > input::placeholder {
+        color: inherit;
+      }
+    }
 
-  &:focus-within
-    box-shadow: inset 0 0 0 2px $accent
+    &:focus-within {
+      box-shadow: inset 0 0 0 2px var(--accent);
+    }
 
-  &:focus-within,
-  &.dirty
-    label,
-    label.spinners,
-    label.clearable
-      transform: translate((-1rem + $radius-m), calc(-100% - 1.25rem)) scale(0.75)
-      width: 'calc(125% + 1rem - %s)' % (2 * $radius-m) // it’s scaled down by 0.75 and we can’t use stylus expressions in calc
+    &:focus-within,
+    &.dirty {
+      label,
+      label.spinners,
+      label.clearable {
+        transform: translate(calc(-1rem + var(--radius-m)), calc(-100% - 1.25rem)) scale(0.75);
+        width: calc(125% + 1rem - (2 * var(--radius-m))); // it’s scaled down by 0.75
+      }
 
-    &.icon > label
-      width: 'calc(125% + 1rem - %s)' % (2 * $radius-m)
-      transform: translate((-3rem + $radius-m), calc(-100% - 1.25rem)) scale(0.75)
+      &.icon > label {
+        width: calc(125% + 1rem - (2 * var(--radius-m)));
+        transform: translate(calc(-3rem + var(--radius-m)), calc(-100% - 1.25rem)) scale(0.75);
+      }
+    }
 
-  > .icon
-    margin-right: 0.5rem
-    flex-shrink: 0
+    > .icon {
+      margin-right: 0.5rem;
+      flex-shrink: 0;
+    }
 
-  > label
-    flex-shrink: 0
-    display: block
-    cursor: text
-    user-select: none
-    color: $text-secondary
-    transform-origin: bottom left
-    position: absolute
-    white-space: nowrap
-    width: calc(100% - 2rem)
-    overflow: hidden
-    text-overflow: ellipsis
-    transition: transform 200ms ease
-    pointer-events: none
+    > label {
+      flex-shrink: 0;
+      display: block;
+      cursor: text;
+      user-select: none;
+      color: var(--text-secondary);
+      transform-origin: bottom left;
+      position: absolute;
+      white-space: nowrap;
+      width: calc(100% - 2rem);
+      overflow: hidden;
+      text-overflow: ellipsis;
+      transition: transform 200ms ease;
+      pointer-events: none;
 
-    &.right
-      text-align: right
+      &.right {
+        text-align: right;
+      }
 
-    &.clearable
-      width: calc(100% - 2rem - 2.65625rem) // 100% - padding - width of the clear button
+      &.clearable {
+        width: calc(100% - 2rem - 2.65625rem); // 100% - padding - width of the clear button
+      }
 
-    &.spinners
-      width: calc(100% - 2rem - 2.65625rem * 2) // 100% - padding - width of the spinner buttons
+      &.spinners {
+        width: calc(100% - 2rem - 2.65625rem * 2); // 100% - padding - width of the spinner buttons
+      }
+    }
 
-  > input
-    width: 100%
-    font-size: inherit
-    color: inherit
-    border: none
-    background-color: transparent
-    padding: 0
-    height: 1.5rem
-    text-overflow: ellipsis
-    caret-color: $accent
-    -moz-appearance: textfield
+    > input {
+      width: 100%;
+      font-size: inherit;
+      color: inherit;
+      border: none;
+      background-color: transparent;
+      padding: 0;
+      height: 1.5rem;
+      text-overflow: ellipsis;
+      caret-color: var(--accent);
+      appearance: textfield;
+      -moz-appearance: textfield;
 
-    &::-webkit-outer-spin-button,
-    &::-webkit-inner-spin-button,
-    &::-webkit-clear-button,
-    &::-webkit-search-decoration,
-    &::-webkit-search-cancel-button,
-    &::-webkit-search-results-button,
-    &::-webkit-search-results-decoration
-      -webkit-appearance: none
-      margin: 0
+      &::-webkit-outer-spin-button,
+      &::-webkit-inner-spin-button,
+      &::-webkit-clear-button,
+      &::-webkit-search-decoration,
+      &::-webkit-search-cancel-button,
+      &::-webkit-search-results-button,
+      &::-webkit-search-results-decoration {
+        -webkit-appearance: none;
+        margin: 0;
+      }
 
-    &::placeholder
-      color: $text-secondary
-      opacity: 1
-      user-select: none
+      &::placeholder {
+        color: var(--text-secondary);
+        opacity: 1;
+        user-select: none;
+      }
 
-    &:-webkit-autofill
-      box-shadow: inset 0 0 0 (100 / 16)rem $bg-secondary
+      &:-webkit-autofill {
+        box-shadow: inset 0 0 0 rem(100) var(--bg-secondary);
+      }
+    }
 
-  > .button.icon.no-label
-    margin: (-9 / 16)rem 0
-    margin-left: 0.25rem
-    padding: 0.75rem
+    > .button.icon.no-label {
+      margin: rem(-9) 0;
+      margin-left: 0.25rem;
+      padding: 0.75rem;
 
-    &:last-child
-      margin-right: (-9 / 16)rem
+      &:last-child {
+        margin-right: rem(-9);
+      }
+    }
+  }
 </style>

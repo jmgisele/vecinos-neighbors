@@ -103,73 +103,88 @@ export default {
 };
 </script>
 
-<style lang="stylus" scoped>
-@require '../assets/styles/colors'
-@require '../assets/styles/corners'
+<style lang="scss" scoped>
+  .context-menu {
+    .wrapper {
+      list-style: none;
+      padding: 0.5rem;
+      margin: 0;
+      user-select: none;
 
-.context-menu
-  .wrapper
-    list-style: none
-    padding: 0.5rem
-    margin: 0
-    user-select: none
+      li {
+        display: flex;
+        align-items: center;
+        width: 100%;
+        padding: 0.75rem 1rem;
+        cursor: pointer;
+        border-radius: var(--radius-m);
+        white-space: nowrap;
+        transition: background-color 200ms ease;
 
-    li
-      display: flex
-      align-items: center
-      width: 100%
-      padding: 0.75rem 1rem
-      cursor: pointer
-      border-radius: $radius-m
-      white-space: nowrap
-      transition: background-color 200ms ease
+        &.icon {
+          padding-left: 3.75rem;
+        }
 
-      &.icon
-        padding-left: 3.75rem
+        &.negative {
+          color: var(--negative-saturated);
+        }
 
-      &.negative
-        color: $negative-saturated
+        &.positive {
+          color: var(--positive-saturated);
+        }
 
-      &.positive
-        color: $positive-saturated
+        &.warning {
+          color: var(--warning-saturated);
+        }
 
-      &.warning
-        color: $warning-saturated
+        &.disabled {
+          pointer-events: none;
+          color: var(--text-tertiary);
 
-      &.disabled
-        pointer-events: none
-        color: $text-tertiary
+          span.hint kbd {
+            opacity: 0.38;
+          }
+        }
 
-        span.hint kbd
-          opacity: 0.38
+        &.dark {
+          &:hover,
+          &:focus {
+            background-color: var(--bg-tertiary-dark);
+          }
 
-      &.dark
+          &.disabled {
+            color: var(--text-tertiary-dark);
+          }
+        }
+
+        &:not(:last-child) {
+          margin-bottom: 0.5rem;
+        }
+
         &:hover,
-        &:focus
-          background-color: $bg-tertiary-dark
+        &:focus {
+          background-color: var(--bg-secondary);
+        }
 
-        &.disabled
-          color: $text-tertiary-dark
+        .icon {
+          margin-right: 0.75rem;
+          flex-shrink: 0;
+        }
 
-      &:not(:last-child)
-        margin-bottom: 0.5rem
+        span {
+          max-width: 100%;
+          overflow: hidden;
+          text-overflow: ellipsis;
 
-      &:hover,
-      &:focus
-        background-color: $bg-secondary
+          &.hinted {
+            margin-right: 1rem;
+          }
 
-      .icon
-        margin-right: 0.75rem
-        flex-shrink: 0
-
-      span
-        max-width: 100%
-        overflow: hidden
-        text-overflow: ellipsis
-
-        &.hinted
-          margin-right: 1rem
-
-        &.hint
-          margin-left: auto
+          &.hint {
+            margin-left: auto;
+          }
+        }
+      }
+    }
+  }
 </style>

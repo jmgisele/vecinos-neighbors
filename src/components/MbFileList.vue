@@ -539,466 +539,576 @@ export default {
 };
 </script>
 
-<style lang="stylus" scoped>
-@require '../assets/styles/breakpoints'
-@require '../assets/styles/colors'
-@require '../assets/styles/corners'
+<style lang="scss" scoped>
+  @use '../assets/styles/breakpoints' as *;
 
-.file-list
-  user-select: none
+  .file-list {
+    user-select: none;
 
-  &.dark
-    header
-      nav > .breadcrumb
-        color: $text-secondary-dark
-        span
-          &.step:hover
-            color: $text-dark
+    &.dark {
+      header {
+        nav > .breadcrumb {
+          color: var(--text-secondary-dark);
 
-    .folder-wrapper .folder
-      background-color: $bg-secondary-dark
+          span {
+            &.step:hover {
+              color: var(--text-dark);
+            }
+          }
+        }
+      }
 
-      &:hover
-        background-color: $bg-tertiary-dark
+      .folder-wrapper .folder {
+        background-color: var(--bg-secondary-dark);
 
-      p.meta
-        color: $text-secondary-dark
+        &:hover {
+          background-color: var(--bg-tertiary-dark);
+        }
 
-    .files li
-      background-color: $bg-secondary-dark
+        p.meta {
+          color: var(--text-secondary-dark);
+        }
+      }
 
-      &:hover
-        background-color: $bg-tertiary-dark
+      .files li {
+        background-color: var(--bg-secondary-dark);
 
-      span.meta
-        color: $text-secondary-dark
+        &:hover {
+          background-color: var(--bg-tertiary-dark);
+        }
 
-    .files.thumbnails li .thumbnail
-        background-image: linear-gradient(to right, rgba(0,0,0,0.9), rgba(0,0,0,0.9)), linear-gradient(to right, black 50%, white 50%), linear-gradient(to bottom, black 50%, white 50%)
+        span.meta {
+          color: var(--text-secondary-dark);
+        }
+      }
 
-    .empty-state
-      color: $text-secondary-dark
+      .files.thumbnails li .thumbnail {
+        background-image: linear-gradient(to right, rgba(0, 0, 0, 0.9), rgba(0, 0, 0, 0.9)), linear-gradient(to right, black 50%, white 50%), linear-gradient(to bottom, black 50%, white 50%);
+      }
 
-      &.v-enter-active
-        transition: opacity 200ms ease
+      .empty-state {
+        color: var(--text-secondary-dark);
 
-        &.v-enter-from
-          opacity: 0
+        &.v-enter-active {
+          transition: opacity 200ms ease;
 
-      &.v-leave-active
-        display: none
+          &.v-enter-from {
+            opacity: 0;
+          }
+        }
+
+        &.v-leave-active {
+          display: none;
+        }
+      }
+
+      .folder-wrapper .folder,
+      .files li {
+        &:active {
+          background-color: var(--bg-dark);
+        }
+      }
+    }
+
+    header {
+      margin-bottom: 1rem;
+      nav {
+        display: flex;
+        align-items: center;
+        margin-bottom: 1rem;
+
+        &:only-child {
+          margin-bottom: 0;
+        }
+
+        .button {
+          margin-right: 0.5rem;
+        }
+
+        > .breadcrumb {
+          font-weight: 700;
+          color: var(--text-secondary);
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          margin: 0;
+
+          span {
+            &.step {
+              cursor: pointer;
+              transition: color 200ms ease;
+
+              &.active {
+                color: var(--accent);
+              }
+
+              &:hover {
+                color: var(--text);
+              }
+            }
+
+            &.separator {
+              margin: 0 0.5rem;
+            }
+          }
+        }
+      }
+
+      .actions {
+        display: flex;
+        align-items: center;
+
+        @media #{$mobile} {
+          flex-wrap: wrap;
+        }
+
+        .input {
+          margin-top: 0;
+          margin-right: 4rem;
+          flex-grow: 1;
+          max-width: rem(512);
+
+          @media #{$mobile} {
+            margin-right: 0;
+            max-width: none;
+            width: 100%;
+            margin-bottom: 1rem;
+          }
+        }
+
+        .sort {
+          margin-left: auto;
+          white-space: nowrap;
+
+          @media #{$mobile} {
+            margin-bottom: 1rem;
+          }
+
+          .select-label {
+            margin-right: 0.5rem;
+            white-space: nowrap;
+
+            @media #{$mobile} {
+              display: none;
+            }
+          }
+
+          &:deep(.select) {
+            min-width: 10rem;
+            border-top-right-radius: 0;
+            border-bottom-right-radius: 0;
+
+            &::before {
+              border-top-right-radius: 0;
+              border-bottom-right-radius: 0;
+            }
+
+            @media #{$mobile} {
+              display: none;
+            }
+          }
+
+          .button.no-label {
+            border: 0.0625rem solid var(--accent);
+            border-left: none;
+            border-top-left-radius: 0;
+            border-bottom-left-radius: 0;
+
+            &::before {
+              border-radius: inherit;
+            }
+
+            &.mobile-sort-by {
+              border-left: 0.0625rem solid var(--accent);
+              border-top-left-radius: var(--radius-m);
+              border-bottom-left-radius: var(--radius-m);
+              border-top-right-radius: 0;
+              border-bottom-right-radius: 0;
+              display: none;
+
+              @media #{$mobile} {
+                display: inline-flex;
+              }
+            }
+          }
+        }
+
+        .action {
+          margin-left: 1rem;
+          flex-shrink: 1;
+
+          &:only-child {
+            margin-left: auto;
+          }
+
+          @media #{$mobile} {
+            margin-bottom: 1rem;
+            flex-grow: 1;
+
+            &:only-child {
+              margin-bottom: 0;
+            }
+          }
+        }
+      }
+    }
+
+    .folder-scroller {
+      &:deep(.shadow) {
+        bottom: 0.125rem;
+      }
+    }
+
+    .folder-wrapper {
+      display: flex;
+      padding-bottom: 0.125rem;
+      position: relative;
+
+      .folder {
+        border: none;
+        background-color: var(--bg-secondary);
+        border-radius: var(--radius-m);
+        align-items: center;
+        padding-left: 1rem;
+        padding-top: 0.5rem;
+        padding-right: 0.5rem;
+        padding-bottom: 1rem;
+        white-space: nowrap;
+        cursor: pointer;
+        min-width: rem(192);
+        transition: background-color 200ms ease;
+
+        &.v-enter-active,
+        &.v-leave-active,
+        &.v-move {
+          transition: opacity 200ms ease, transform 350ms ease;
+
+          &.v-enter-from,
+          &.v-leave-to {
+            opacity: 0;
+            transform: scale(0.8);
+          }
+        }
+
+        &:not(:last-child) {
+          margin-right: 1rem;
+        }
+
+        &.no-actions {
+          padding-top: calc(0.5rem + rem(9));
+        }
+
+        &:hover {
+          background-color: var(--bg-tertiary);
+        }
+
+        header {
+          display: flex;
+          align-items: center;
+
+          .icon:not(.button) {
+            margin-right: 1rem;
+            width: 2rem;
+            height: 2rem;
+            margin-right: auto;
+            color: var(--accent);
+          }
+        }
+
+        p {
+          margin-bottom: 0;
+          margin-right: 0.5rem;
+          max-width: 100%;
+          font-weight: 700;
+
+          &:not(.meta)  {
+            display: flex;
+            align-items: center;
+
+            span {
+              overflow: hidden;
+              text-overflow: ellipsis;
+            }
+          }
+
+          &.meta {
+            font-weight: 400;
+            margin-top: 0;
+            margin-bottom: 0;
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+          }
+        }
+      }
+    }
+
+    > p.h3 {
+      font-size: 1rem;
+
+      & + .files {
+        margin-top: 1.5rem;
+
+        &.thumbnails {
+          margin-top: 1rem;
+        }
+      }
+    }
+
+    .files {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      position: relative;
+
+      li {
+        background-color: var(--bg-secondary);
+        padding: 0.5rem;
+        padding-left: 1rem;
+        border-radius: var(--radius-m);
+        display: flex;
+        align-items: center;
+        cursor: pointer;
+        transition: background-color 200ms ease;
+
+        &.v-enter-active,
+        &.v-leave-active,
+        &.v-move {
+          transition: opacity 200ms ease, transform 350ms ease;
+
+          &.v-enter-from,
+          &.v-leave-to {
+            opacity: 0;
+          }
+        }
+
+        &.v-leave-active {
+          position: absolute;
+          width: 100%;
+        }
+
+        &:hover {
+          background-color: var(--bg-tertiary);
+        }
+
+        &.no-actions {
+          padding-top: calc(0.5rem + rem(13));
+          padding-bottom: calc(0.5rem + rem(13));
+          padding-right: calc(0.5rem + rem(13));
+        }
+
+        &:not(:last-child) {
+          margin-bottom: 1rem;
+        }
+
+        &.active {
+          background-color: var(--accent);
+          color: var(--text-dark);
+
+          &:hover,
+          &:focus-visible {
+            background-color: var(--accent-darkened-5);
+          }
+
+          span.meta {
+            color: var(--text-secondary-dark);
+          }
+
+          .button {
+            &:hover {
+              background-color: var(--accent);
+            }
+
+            &:focus-visible {
+              background-color: var(--accent-darkened-5);
+            }
+          }
+        }
+
+        .icon:not(.button) {
+          margin-right: 1rem;
+          flex-shrink: 0;
+        }
+
+        span {
+          white-space: nowrap;
+          text-overflow: ellipsis;
+          overflow: hidden;
+
+          &:not(.meta) {
+            margin-right: 0.5rem;
+          }
+
+          &.meta {
+            margin-left: auto;
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+          }
+        }
+
+        .chip {
+          margin-left: 0.5rem;
+          margin-right: 0.5rem;
+          margin-top: -0.125rem;
+          margin-bottom: -0.125rem;
+          flex-shrink: 0;
+        }
+
+        .button {
+          margin-left: 1rem;
+        }
+      }
+
+      &.thumbnails {
+        margin: -0.5rem;
+        display: flex;
+        flex-wrap: wrap;
+
+        li {
+          overflow: hidden;
+          margin: 0.5rem;
+          display: block;
+          padding: 0;
+          width: calc(33.33% - 1rem);
+
+          @media #{$tablet} {
+            width: calc(50% - 1rem);
+          }
+
+          @media #{$mobile} {
+            width: 100%;
+          }
+
+          &.active .thumbnail {
+            box-shadow: inset 0 0 0 0.125rem var(--accent);
+          }
+
+          .thumbnail {
+            color: var(--text-dark);
+            height: 12rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-image: linear-gradient(to right, rgba(0, 0, 0, 0.75), rgba(0, 0, 0, 0.75)), linear-gradient(to right, black 50%, white 50%), linear-gradient(to 0.125rem, black 50%, white 50%);
+            background-size: 1.5rem 1.5rem;
+            background-blend-mode: normal, difference;
+            position: relative;
+
+            .icon,
+            img {
+              &.v-enter-active,
+              &.v-leave-active {
+                position: absolute;
+                transition: opacity 200ms ease;
+
+                &.v-enter-from,
+                &.v-leave-to {
+                  opacity: 0;
+                }
+              }
+            }
+
+            .icon {
+              margin: 0;
+              width: 3rem;
+              height: 3rem;
+            }
+
+            img {
+              max-width: 100%;
+              max-height: 100%;
+
+              &.hidden {
+                opacity: 0;
+              }
+            }
+          }
+
+          footer {
+            padding: 0.75rem;
+            padding-right: 0.5rem;
+            display: flex;
+            align-items: center;
+            overflow: hidden;
+
+            .left {
+              margin-right: auto;
+              overflow: hidden;
+
+              header {
+                height: rem(28); // so chip fits fully
+                margin-top: -0.125rem; // to even out the paddings
+                margin-bottom: 0;
+                display: flex;
+                align-items: center;
+              }
+
+              .chip {
+                margin: 0;
+                margin-left: 0.5rem;
+                flex-shrink: 0;
+              }
+
+              .meta {
+                text-overflow: ellipsis;
+                overflow: hidden;
+                display: block;
+              }
+            }
+
+            .button {
+              flex-shrink: 0;
+            }
+          }
+        }
+      }
+    }
+
+    .empty-state {
+      color: var(--text-secondary);
+      text-align: center;
+      margin-bottom: 0;
+    }
 
     .folder-wrapper .folder,
-    .files li
-      &:active
-        background-color: $bg-dark
-
-  header
-    margin-bottom: 1rem
-    nav
-      display: flex
-      align-items: center
-      margin-bottom: 1rem
-
-      &:only-child
-        margin-bottom: 0
-
-      .button
-        margin-right: 0.5rem
-
-      > .breadcrumb
-        font-weight: 700
-        color: $text-secondary
-        white-space: nowrap
-        overflow: hidden
-        text-overflow: ellipsis
-        margin: 0
-
-        span
-          &.step
-            cursor: pointer
-            transition: color 200ms ease
-
-            &.active
-              color: $accent
-
-            &:hover
-              color: $text
-
-          &.separator
-            margin: 0 0.5rem
-
-    .actions
-      display: flex
-      align-items: center
-
-      @media $mobile
-        flex-wrap: wrap
-
-      .input
-        margin-top: 0
-        margin-right: 4rem
-        flex-grow: 1
-        max-width: (512 / 16)rem
-
-        @media $mobile
-          margin-right: 0
-          max-width: none
-          width: 100%
-          margin-bottom: 1rem
-
-      .sort
-        margin-left: auto
-        white-space: nowrap
-
-        @media $mobile
-          margin-bottom: 1rem
-
-        .select-label
-          margin-right: 0.5rem
-          white-space: nowrap
-
-          @media $mobile
-            display: none
-
-        ::v-deep(.select)
-          min-width: 10rem
-          border-top-right-radius: 0
-          border-bottom-right-radius: 0
-
-          &::before
-            border-top-right-radius: 0
-            border-bottom-right-radius: 0
-
-          @media $mobile
-            display: none
-
-        .button.no-label
-          border: 0.0625rem solid $accent
-          border-left: none
-          border-top-left-radius: 0
-          border-bottom-left-radius: 0
-
-          &::before
-            border-radius: inherit
-
-          &.mobile-sort-by
-            border-left: @border
-            border-top-left-radius: $radius-m
-            border-bottom-left-radius: @border-top-left-radius
-            border-top-right-radius: 0
-            border-bottom-right-radius: 0
-            display: none
-
-            @media $mobile
-              display: inline-flex
-
-      .action
-        margin-left: 1rem
-        flex-shrink: 1
-
-        &:only-child
-          margin-left: auto
-
-        @media $mobile
-          margin-bottom: 1rem
-          flex-grow: 1
-
-          &:only-child
-            margin-bottom: 0
-
-  .folder-scroller
-    &::v-deep(.shadow)
-      bottom: 0.125rem
-
-  .folder-wrapper
-    display: flex
-    padding-bottom: 0.125rem
-    position: relative
-
-    .folder
-      border: none
-      background-color: $bg-secondary
-      border-radius: $radius-m
-      align-items: center
-      padding-left: 1rem
-      padding-top: 0.5rem
-      padding-right: 0.5rem
-      padding-bottom: 1rem
-      white-space: nowrap
-      cursor: pointer
-      min-width: (192 / 16)rem
-      transition: background-color 200ms ease
-
-      &.v-enter-active,
-      &.v-leave-active,
-      &.v-move
-        transition: opacity 200ms ease, transform 350ms ease
-
-        &.v-enter-from,
-        &.v-leave-to
-          opacity: 0
-          transform: scale(0.8)
-
-      &:not(:last-child)
-        margin-right: 1rem
-
-      &.no-actions
-        padding-top: (0.5rem + (9 / 16))rem
-
-      &:hover
-        background-color: $bg-tertiary
-
-      header
-        display: flex
-        align-items: center
-
-        .icon:not(.button)
-          margin-right: 1rem
-          width: 2rem
-          height: @width
-          margin-right: auto
-          color: $accent
-
-      p
-        margin-bottom: 0
-        margin-right: 0.5rem
-        max-width: 100%
-        font-weight: 700
-
-        &:not(.meta) // ie the name, styles needed for the local changes indicator
-          display: flex
-          align-items: center
-
-          span
-            overflow: hidden
-            text-overflow: ellipsis
-
-        &.meta
-          font-weight: 400
-          margin-top: 0
-          margin-bottom: 0
-          font-size: 0.875rem
-          color: $text-secondary
-
-  > p.h3
-    font-size: 1rem
-
-    & + .files
-      margin-top: 1.5rem
-
-      &.thumbnails
-        margin-top: 1rem
-
-  .files
-    list-style: none
-    padding: 0
-    margin: 0
-    position: relative
-
-    li
-      background-color: $bg-secondary
-      padding: 0.5rem
-      padding-left: 1rem
-      border-radius: $radius-m
-      display: flex
-      align-items: center
-      cursor: pointer
-      transition: background-color 200ms ease
-
-      &.v-enter-active,
-      &.v-leave-active,
-      &.v-move
-        transition: opacity 200ms ease, transform 350ms ease
-
-        &.v-enter-from,
-        &.v-leave-to
-          opacity: 0
-
-      &.v-leave-active
-        position: absolute
-        width: 100%
-
-      &:hover
-        background-color: $bg-tertiary
-
-      &.no-actions
-        padding-top: (0.5rem + (13 / 16))rem
-        padding-bottom: @padding-top
-        padding-right: (0.5rem + (13 / 16))rem
-
-      &:not(:last-child)
-        margin-bottom: 1rem
-
-      &.active
-        background-color: $accent
-        color: $text-dark
-
-        &:hover,
-        &:focus-visible
-          background-color: darken($accent, 5)
-
-        span.meta
-          color: $text-secondary-dark
-
-        .button
-          &:hover
-            background-color: $accent
-
-          &:focus-visible
-            background-color: darken($accent, 5)
-
-      .icon:not(.button)
-        margin-right: 1rem
-        flex-shrink: 0
-
-      span
-        white-space: nowrap
-        text-overflow: ellipsis
-        overflow: hidden
-
-        &:not(.meta)
-          margin-right: 0.5rem
-
-        &.meta
-          margin-left: auto
-          font-size: 0.875rem
-          color: $text-secondary
-
-      .chip
-        margin-left: 0.5rem
-        margin-right: 0.5rem
-        margin-top: -0.125rem // so the entry stays the same height despite the chip
-        margin-bottom: @margin-top
-        flex-shrink: 0
-
-      .button
-        margin-left: 1rem
-
-    &.thumbnails
-      margin: -0.5rem
-      display: flex
-      flex-wrap: wrap
-
-      li
-        overflow: hidden
-        margin: 0.5rem
-        display: block
-        padding: 0
-        width: calc(33.33% - 1rem)
-
-        @media $tablet
-          width: calc(50% - 1rem)
-
-        @media $mobile
-          width: 100%
-
-        &.active .thumbnail
-          box-shadow: inset 0 0 0 0.125rem $accent
-
-        .thumbnail
-          color: $text-dark
-          height: 12rem
-          display: flex
-          align-items: center
-          justify-content: center
-          background-image: linear-gradient(to right, rgba(0,0,0,0.75), rgba(0,0,0,0.75)), linear-gradient(to right, black 50%, white 50%), linear-gradient(to bottom, black 50%, white 50%)
-          background-size: 1.5rem 1.5rem
-          background-blend-mode: normal, difference
-          position: relative
-
-          .icon,
-          img
-            &.v-enter-active,
-            &.v-leave-active
-              position: absolute
-              transition: opacity 200ms ease
-
-              &.v-enter-from,
-              &.v-leave-to
-                opacity: 0
-
-          .icon
-            margin: 0
-            width: 3rem
-            height: @width
-
-          img
-            max-width: 100%
-            max-height: 100%
-
-            &.hidden
-              opacity: 0
-
-        footer
-          padding: 0.75rem
-          padding-right: 0.5rem
-          display: flex
-          align-items: center
-          overflow: hidden
-
-          .left
-            margin-right: auto
-            overflow: hidden
-
-            header
-              height: (28 / 16)rem // so chip fits fully
-              margin-top: -0.125rem // to even out the paddings
-              margin-bottom: 0
-              display: flex
-              align-items: center
-
-            .chip
-              margin: 0
-              margin-left: 0.5rem
-              flex-shrink: 0
-
-            .meta
-              text-overflow: ellipsis
-              overflow: hidden
-              display: block
-
-          .button
-            flex-shrink: 0
-
-  .empty-state
-    color: $text-secondary
-    text-align: center
-    margin-bottom: 0
-
-  .folder-wrapper .folder,
-  .files li
-    position: relative
-
-    &:focus,
-    &:active
-      &::before
-        opacity: 1
-
-    &:active
-      transform: translateY(0.125rem)
-      background-color: $bg
-
-    &::before
-      content: ''
-      position: absolute
-      top: 0px
-      left: @top
-      right: @top
-      bottom: @top
-      border: 2px solid $accent
-      opacity: 0
-      border-radius: $radius-m
-      z-index: 1
-      pointer-events: none
-      transition: opacity 200ms ease
-
-    .local-changes-indicator
-      width: 0.5rem
-      height: @width
-      border-radius: 50%
-      background-color: $warning-saturated
-      display: inline-block
-      margin-right: 0.5rem
-      flex-shrink: 0
+    .files li {
+      position: relative;
+
+      &:focus,
+      &:active {
+        &::before {
+          opacity: 1;
+        }
+      }
+
+      &:active {
+        transform: translateY(0.125rem);
+        background-color: var(--bg);
+      }
+
+      &::before {
+        content: '';
+        position: absolute;
+        top: 0px;
+        left: 0px;
+        right: 0px;
+        bottom: 0px;
+        border: 2px solid var(--accent);
+        opacity: 0;
+        border-radius: var(--radius-m);
+        z-index: 1;
+        pointer-events: none;
+        transition: opacity 200ms ease;
+      }
+
+      .local-changes-indicator {
+        width: 0.5rem;
+        height: 0.5rem;
+        border-radius: 50%;
+        background-color: var(--warning-saturated);
+        display: inline-block;
+        margin-right: 0.5rem;
+        flex-shrink: 0;
+      }
+    }
+  }
 </style>

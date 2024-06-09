@@ -48,106 +48,131 @@ export default {
 };
 </script>
 
-<style lang="stylus" scoped>
-@require '../assets/styles/colors'
+<style lang="scss" scoped>
+  .toggle {
+    display: inline-flex;
+    vertical-align: middle;
+    align-items: center;
+    user-select: none;
 
-.toggle
-  display: inline-flex
-  vertical-align: middle
-  align-items: center
-  user-select: none
+    &.full-width {
+      display: flex;
+    }
 
-  &.full-width
-    display: flex
+    &.dark {
+      button {
+        &:hover,
+        &:focus {
+          background-color: var(--bg-tertiary-dark);
+        }
 
-  &.dark
-    button
+        &:active {
+          background-color: var(--bg-secondary-dark);
+        }
+      }
+    }
+
+    &.active {
+      button .icon-wrapper {
+        background-color: var(--accent);
+        transform: translateX(1rem);
+
+        .icon {
+          &.v-enter-from {
+            transform: rotate(-45deg);
+          }
+
+          &.v-leave-to {
+            transform: rotate(45deg);
+          }
+        }
+      }
+    }
+
+    &.disabled {
+      pointer-events: none;
+      color: var(--text-tertiary);
+
+      &.dark {
+        color: var(--text-tertiary-dark);
+
+        button {
+          border-color: var(--text-tertiary-dark);
+
+          .icon-wrapper {
+            background-color: var(--text-tertiary-dark);
+          }
+        }
+      }
+
+      button {
+        box-shadow: none;
+        border: 1px dashed var(--text-tertiary-dark);
+        padding: calc(0.25rem - 1px);
+
+        .icon-wrapper {
+          background-color: var(--text-tertiary-dark);
+        }
+      }
+    }
+
+    span {
+      margin-right: auto;
+    }
+
+    button {
+      box-shadow: inset 0 0 0 1px var(--accent);
+      display: flex;
+      flex-shrink: 0;
+      background-color: transparent;
+      width: 3rem;
+      height: 2rem;
+      padding: 0.25rem;
+      border: none;
+      border-radius: 1rem;
+      cursor: pointer;
+      transition: background-color 200ms ease;
+
+      &:not(:first-child) {
+        margin-left: 1rem;
+      }
+
       &:hover,
-      &:focus
-        background-color: $bg-tertiary-dark
+      &:focus {
+        background-color: var(--bg-tertiary);
+      }
 
-      &:active
-        background-color: $bg-secondary-dark
+      &:focus {
+        box-shadow: inset 0 0 0 2px var(--accent);
+      }
 
-  &.active
-    button .icon-wrapper
-      background-color: $accent
-      transform: translateX(1rem)
+      &:active {
+        background-color: var(--bg-secondary);
+      }
 
-      .icon
-        &.v-enter-from
-          transform: rotate(-45deg)
+      .icon-wrapper {
+        background-color: var(--accent-secondary);
+        color: var(--text-dark);
+        padding: 0.25rem;
+        width: 1.5rem;
+        height: 1.5rem;
+        border-radius: 1rem;
+        transition: transform 200ms ease, background-color 200ms ease;
 
-        &.v-leave-to
-          transform: rotate(45deg)
+        .icon {
+          width: 100%;
+          height: 100%;
+          display: block;
 
-  &.disabled
-    pointer-events: none
-    color: $text-tertiary
+          &.v-enter-from {
+            transform: rotate(45deg);
+          }
 
-    &.dark
-      color: $text-tertiary-dark
-
-      button
-        border-color: @color
-
-        .icon-wrapper
-          background-color: @color
-
-    button
-      box-shadow: none
-      border: 1px dashed @color
-      padding: calc(0.25rem - 1px)
-
-      .icon-wrapper
-        background-color: @color
-
-  span
-    margin-right: auto
-
-  button
-    box-shadow: inset 0 0 0 1px $accent
-    display: flex
-    flex-shrink: 0
-    background-color: transparent
-    width: 3rem
-    height: 2rem
-    padding: 0.25rem
-    border: none
-    border-radius: (@height / 2)
-    cursor: pointer
-    transition: background-color 200ms ease
-
-    &:not(:first-child)
-      margin-left: 1rem
-
-    &:hover,
-    &:focus
-      background-color: $bg-tertiary
-
-    &:focus
-      box-shadow: inset 0 0 0 2px $accent
-
-    &:active
-      background-color: $bg-secondary
-
-    .icon-wrapper
-      background-color: $accent-secondary
-      color: $text-dark
-      padding: 0.25rem
-      width: (@height - 0.5)
-      height: @width
-      border-radius: @border-radius
-      transition: transform 200ms ease, background-color 200ms ease
-
-      .icon
-        width: 100%
-        height: @width
-        display: block
-
-        &.v-enter-from
-          transform: rotate(45deg)
-
-        &.v-leave-to
-          transform: rotate(-45deg)
+          &.v-leave-to {
+            transform: rotate(-45deg);
+          }
+        }
+      }
+    }
+  }
 </style>

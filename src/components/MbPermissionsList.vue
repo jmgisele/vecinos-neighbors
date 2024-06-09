@@ -111,73 +111,87 @@ export default {
 };
 </script>
 
-<style lang="stylus" scoped>
-@require '../assets/styles/breakpoints'
-@require '../assets/styles/colors'
+<style lang="scss" scoped>
+  @use '../assets/styles/breakpoints' as *;
 
-.permissions-list
-  list-style: none
-  margin: 0
-  position: relative
+  .permissions-list {
+    list-style: none;
+    margin: 0;
+    position: relative;
 
-  li
-    display: flex
-    align-items: center
+    li {
+      display: flex;
+      align-items: center;
 
-    &.v-enter-active,
-    &.v-leave-active
-      transition: opacity 200ms ease
+      &.v-enter-active,
+      &.v-leave-active {
+        transition: opacity 200ms ease;
 
-      &.v-enter-from,
-      &.v-leave-to
-        opacity: 0
+        &.v-enter-from,
+        &.v-leave-to {
+          opacity: 0;
+        }
+      }
 
-    &.v-leave-active
-      position: absolute
-      width: 100%
+      &.v-leave-active {
+        position: absolute;
+        width: 100%;
+      }
 
-    &.v-move
-      transition: transform 200ms ease
+      &.v-move {
+        transition: transform 200ms ease;
+      }
 
-    &:not(:last-child)
-      margin-bottom: 1rem
+      &:not(:last-child) {
+        margin-bottom: 1rem;
+      }
 
-    > ::v-deep(.select)
-      margin-right: 1rem
-      width: 100%
+      > :deep(.select) {
+        margin-right: 1rem;
+        width: 100%;
+      }
 
-    > span
-      flex-shrink: 0
-      margin-right: 1rem
+      > span {
+        flex-shrink: 0;
+        margin-right: 1rem;
+      }
 
-    > .button
-      flex-shrink: 0
+      > .button {
+        flex-shrink: 0;
+      }
 
-    @media $mobile
-      flex-wrap: wrap
-      justify-content: center
+      @media #{$mobile} {
+        flex-wrap: wrap;
+        justify-content: center;
 
-      > .button
-        width: 100%
-        border-top-left-radius: 0
-        border-top-right-radius: 0
-        border-top: none
+        > .button {
+          width: 100%;
+          border-top-left-radius: 0;
+          border-top-right-radius: 0;
+          border-top: none;
+        }
 
-      > span
-        display: block
-        border-left: 0.0625rem solid $accent
-        border-right: @border-left
-        padding: 0.5rem 0
-        margin: 0
-        width: 100%
-        text-align: center
+        > span {
+          display: block;
+          border-left: 0.0625rem solid var(--accent);
+          border-right: 0.0625rem solid var(--accent);
+          padding: 0.5rem 0;
+          margin: 0;
+          width: 100%;
+          text-align: center;
 
-        & + ::v-deep(.select)
-          border-top-left-radius: 0
-          border-top-right-radius: 0
+          & + :deep(.select) {
+            border-top-left-radius: 0;
+            border-top-right-radius: 0;
+          }
+        }
 
-      > ::v-deep(.select)
-        margin-right: 0
-        border-bottom-left-radius: 0
-        border-bottom-right-radius: 0
+        > :deep(.select) {
+          margin-right: 0;
+          border-bottom-left-radius: 0;
+          border-bottom-right-radius: 0;
+        }
+      }
+    }
+  }
 </style>

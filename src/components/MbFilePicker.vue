@@ -183,142 +183,170 @@ export default {
 };
 </script>
 
-<style lang="stylus" scoped>
-@require '../assets/styles/breakpoints'
-@require '../assets/styles/colors'
-@require '../assets/styles/corners'
+<style lang="scss" scoped>
+  @use '../assets/styles/breakpoints' as *;
 
-.file-picker
-  position: relative
-  border: none
-  background-color: $bg-secondary
-  color: inherit
-  border-radius: $radius-m
-  padding: 1rem
-  padding-right: 1.5rem
-  display: inline-flex
-  align-items: center
-  cursor: pointer
-  transition: background-color 200ms ease
-  user-select: none
-  text-align: left
-  white-space: nowrap
-  max-width: 100%
-  overflow: hidden
+  .file-picker {
+    position: relative;
+    border: none;
+    background-color: var(--bg-secondary);
+    color: inherit;
+    border-radius: var(--radius-m);
+    padding: 1rem;
+    padding-right: 1.5rem;
+    display: inline-flex;
+    align-items: center;
+    cursor: pointer;
+    transition: background-color 200ms ease;
+    user-select: none;
+    text-align: left;
+    white-space: nowrap;
+    max-width: 100%;
+    overflow: hidden;
 
-  &:hover
-    background-color: $bg-tertiary
+    &:hover {
+      background-color: var(--bg-tertiary);
+    }
 
-  &:focus
-    background-color: $bg-secondary
+    &:focus {
+      background-color: var(--bg-secondary);
 
-    &::before
-      opacity: 1
+      &::before {
+        opacity: 1;
+      }
+    }
 
-  &:active
-    transform: translateY(2px)
+    &:active {
+      transform: translateY(2px);
+    }
 
-  &.dark
-    background-color: $bg-secondary-dark
+    &.dark {
+      background-color: var(--bg-secondary-dark);
 
-    &:hover
-      background-color: $bg-tertiary-dark
+      &:hover {
+        background-color: var(--bg-tertiary-dark);
+      }
 
-    &:focus
-      background-color: $bg-secondary-dark
+      &:focus {
+        background-color: var(--bg-secondary-dark);
+      }
 
-    .label.placeholder
-      color: $text-secondary-dark
+      .label.placeholder {
+        color: var(--text-secondary-dark);
+      }
+    }
 
-  &::before
-    content: ''
-    position: absolute
-    top: 0px
-    left: @top
-    right: @top
-    bottom: @top
-    border: 0.125rem solid $accent
-    opacity: 0
-    border-radius: inherit
-    transition: opacity 200ms ease
+    &::before {
+      content: '';
+      position: absolute;
+      top: 0px;
+      left: 0px;
+      right: 0px;
+      bottom: 0px;
+      border: 0.125rem solid var(--accent);
+      opacity: 0;
+      border-radius: inherit;
+      transition: opacity 200ms ease;
+    }
 
-  .label
-    margin-left: 0.75rem
-    overflow: hidden
-    text-overflow: ellipsis
-    margin-right: auto
+    .label {
+      margin-left: 0.75rem;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      margin-right: auto;
 
-    &.placeholder
-      color: $text-secondary
+      &.placeholder {
+        color: var(--text-secondary);
+      }
+    }
 
-  .icon
-    flex-shrink: 0
+    .icon {
+      flex-shrink: 0;
+    }
 
-  .button.icon
-    margin: -0.5rem
-    margin-left: 0.5rem
-    margin-right: -1rem
-    padding: (8.5 / 16)rem
+    .button.icon {
+      margin: -0.5rem;
+      margin-left: 0.5rem;
+      margin-right: -1rem;
+      padding: rem(8.5);
+    }
+  }
 
-.picker-popover
-  .content-wrapper
-    padding: 0 1rem
-    max-height: 30rem
+  .picker-popover {
+    .content-wrapper {
+      padding: 0 1rem;
+      max-height: 30rem;
 
-    &::after
-      content: ''
-      height: 1rem
-      display: block
+      &::after {
+        content: '';
+        height: 1rem;
+        display: block;
+      }
 
-    .create-button
-      width: 100%
-      margin-top: 1rem
+      .create-button {
+        width: 100%;
+        margin-top: 1rem;
+      }
 
-    .file-list
-      width: 20rem
-      max-width: 100%
+      .file-list {
+        width: 20rem;
+        max-width: 100%;
 
-      @media $mobile
-        height: auto
+        @media #{$mobile} {
+          height: auto;
+        }
 
-      &.dark
-        &::v-deep(> header)
-          background-color: $bg-secondary-dark
+        &.dark {
+          &:deep(> header) {
+            background-color: var(--bg-secondary-dark);
+          }
 
-        &::v-deep(.file),
-        &::v-deep(.folder)
-          background-color: $bg-tertiary-dark
+          &:deep(.file),
+          &:deep(.folder) {
+            background-color: var(--bg-tertiary-dark);
 
-          &:active
-            background-color: $bg-dark
+            &:active {
+              background-color: var(--bg-dark);
+            }
+          }
+        }
 
-      &::v-deep(> header)
-        position: sticky
-        top: 0
-        z-index: 1
-        background-color: $bg
-        padding: 1rem
-        margin-bottom: 0
-        margin-left: -1rem
-        margin-right: @margin-left
+        &:deep(> header) {
+          position: sticky;
+          top: 0;
+          z-index: 1;
+          background-color: var(--bg);
+          padding: 1rem;
+          margin-bottom: 0;
+          margin-left: -1rem;
+          margin-right: -1rem;
+        }
 
-      &::v-deep(.empty-state)
-        text-align: center
-        margin: 2rem 0
+        &:deep(.empty-state) {
+          text-align: center;
+          margin: 2rem 0;
+        }
 
-      &::v-deep(.folder-scroller)
-        margin-left: -1rem
-        margin-right: -1rem
+        &:deep(.folder-scroller) {
+          margin-left: -1rem;
+          margin-right: -1rem;
 
-        .folder-wrapper
-          padding-left: 1rem
-          padding-right: @padding-left
+          .folder-wrapper {
+            padding-left: 1rem;
+            padding-right: 1rem;
 
-          &::after
-            content: ''
-            width: 1rem
-            flex-shrink: 0
+            &::after {
+              content: '';
+              width: 1rem;
+              flex-shrink: 0;
+            }
+          }
+        }
+      }
 
-    input[type=file]
-      display: none
+      input[type=file] {
+        display: none;
+      }
+    }
+  }
 </style>

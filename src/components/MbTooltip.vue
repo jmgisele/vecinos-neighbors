@@ -126,49 +126,55 @@ export default {
 };
 </script>
 
-<style lang="stylus" scoped>
-@require '../assets/styles/colors'
-@require '../assets/styles/corners'
+<style lang="scss" scoped>
+  .tooltip {
+    position: fixed;
+    top: 0;
+    left: 0;
+    background-color: color-mix(in srgb, var(--bg-tertiary-dark) 80%, transparent);
+    padding: 0.5rem 1rem;
+    color: var(--text-dark);
+    border-radius: var(--radius-m);
+    pointer-events: none;
+    clip-path: circle(100% at 50% 0%);
+    z-index: 999; // needs to be on top of everything
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: calc(100% - 1rem);
 
-.tooltip
-  position: fixed
-  top: 0
-  left: 0
-  background-color: alpha($bg-tertiary-dark, 0.8)
-  padding: 0.5rem 1rem
-  color: $text-dark
-  border-radius: $radius-m
-  pointer-events: none
-  clip-path: circle(100% at 50% 0%)
-  z-index: 999 // needs to be on top of everything
-  white-space: nowrap
-  overflow: hidden
-  text-overflow: ellipsis
-  max-width: calc(100% - 1rem)
+    &.left {
+      clip-path: circle(141.42135624% at 100% 50%);
+    }
 
-  &.left
-    clip-path: circle(141.42135624% at 100% 50%)
+    &.right {
+      clip-path: circle(141.42135624% at 0% 50%);
+    }
 
-  &.right
-    clip-path: circle(141.42135624% at 0% 50%)
+    &.top {
+      clip-path: circle(100% at 50% 100%);
+    }
 
-  &.top
-    clip-path: circle(100% at 50% 100%)
+    &.v-enter-active,
+    &.v-leave-active {
+      transition: clip-path 200ms ease;
 
-  &.v-enter-active,
-  &.v-leave-active
-    transition: clip-path 200ms ease
+      &.v-enter-from,
+      &.v-leave-to {
+        clip-path: circle(0% at 50% 0%);
 
-    &.v-enter-from,
-    &.v-leave-to
-      clip-path: circle(0% at 50% 0%)
+        &.left {
+          clip-path: circle(0% at 100% 50%);
+        }
 
-      &.left
-        clip-path: circle(0% at 100% 50%)
+        &.right {
+          clip-path: circle(0% at 0% 50%);
+        }
 
-      &.right
-        clip-path: circle(0% at 0% 50%)
-
-      &.top
-        clip-path: circle(0% at 50% 100%)
+        &.top {
+          clip-path: circle(0% at 50% 100%);
+        }
+      }
+    }
+  }
 </style>

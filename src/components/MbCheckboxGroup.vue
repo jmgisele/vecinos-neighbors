@@ -24,19 +24,23 @@ export default {
 };
 </script>
 
-<style lang="stylus" scoped>
-.checkbox-group
-  display: flex
-  flex-direction: column
+<style lang="scss" scoped>
+  .checkbox-group {
+    display: flex;
+    flex-direction: column;
 
-  &.inline
-    flex-direction: row
-    flex-wrap: wrap
-    margin: -0.5rem
+    &.inline {
+      flex-direction: row;
+      flex-wrap: wrap;
+      margin: -0.5rem;
 
-    .checkbox
-      margin: 0.5rem
+      .checkbox {
+        margin: 0.5rem;
+      }
+    }
 
-  .checkbox:not(:last-child)
-    margin-bottom: 0.5rem
+    .checkbox:not(:last-child) {
+      margin-bottom: 0.5rem;
+    }
+  }
 </style>

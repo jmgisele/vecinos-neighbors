@@ -141,86 +141,103 @@ export default {
 };
 </script>
 
-<style lang="stylus">
-// so we can overwrite from the outside
-.popover
-  header,
-  .content,
-  footer
-    > :first-child
-      margin-top: 0
+<style lang="scss">
+  // so we can overwrite from the outside
+  .popover {
+    header,
+    .content,
+    footer {
+      > :first-child {
+        margin-top: 0;
+      }
 
-    > :last-child
-      margin-bottom: 0
+      > :last-child {
+        margin-bottom: 0;
+      }
+    }
+  }
 </style>
 
-<style lang="stylus" scoped>
-@require '../assets/styles/breakpoints'
-@require '../assets/styles/colors'
-@require '../assets/styles/corners'
+<style lang="scss" scoped>
+  @use '../assets/styles/breakpoints' as *;
 
-.popover
-  position: fixed
-  max-width: calc(100% - 1rem)
-  max-height: calc(100% - 1rem)
-  background-color: $bg
-  border-radius: $radius-l
-  border: 1px solid $bg-secondary
-  box-shadow: 0 0.75rem 2rem 0 alpha($bg-dark, .18)
-  overflow: hidden
-  display: flex
-  flex-direction: column
-  z-index: 100 // HACK: this is a hack that’s needed because of the modal z-indexes so modals don’t cover popovers
+  .popover {
+    position: fixed;
+    max-width: calc(100% - 1rem);
+    max-height: calc(100% - 1rem);
+    background-color: var(--bg);
+    border-radius: var(--radius-l);
+    border: 1px solid var(--bg-secondary);
+    box-shadow: 0 0.75rem 2rem 0 color-mix(in srgb, var(--bg-dark) 18%, transparent);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    z-index: 100; // HACK: this is a hack that’s needed because of the modal z-indexes so modals don’t cover popovers
 
-  &.dark
-    background-color: $bg-secondary-dark
-    border-color: $bg-tertiary-dark
+    &.dark {
+      background-color: var(--bg-secondary-dark);
+      border-color: var(--bg-tertiary-dark);
 
-    footer
-      background-color: $bg-tertiary-dark
+      footer {
+        background-color: var(--bg-tertiary-dark);
+      }
+    }
 
-  &.v-enter-active,
-  &.v-leave-active
-    transform-origin: top left
-    transition: opacity 150ms ease, transform 150ms cubic-bezier(0.215, 0.610, 0.355, 1.000)
+    &.v-enter-active,
+    &.v-leave-active {
+      transform-origin: top left;
+      transition: opacity 150ms ease, transform 150ms cubic-bezier(0.215, 0.61, 0.355, 1);
 
-    &.v-enter-from,
-    &.v-leave-to
-      opacity: 0
-      transform: scale(0.8)
+      &.v-enter-from,
+      &.v-leave-to {
+        opacity: 0;
+        transform: scale(0.8);
+      }
+    }
 
-  &.v-leave-active
-    transition-timing-function: cubic-bezier(0.645, 0.045, 0.355, 1.000)
+    &.v-leave-active {
+      transition-timing-function: cubic-bezier(0.645, 0.045, 0.355, 1);
+    }
 
-  header
-    flex-shrink: 0
+    header {
+      flex-shrink: 0;
 
-    &:not(.no-padding)
-      padding: 1rem
-      padding-bottom: 0
+      &:not(.no-padding) {
+        padding: 1rem;
+        padding-bottom: 0;
+      }
+    }
 
-  .content
-    overflow-x: hidden
-    overflow-y: auto
-    background-color: inherit
+    .content {
+      overflow-x: hidden;
+      overflow-y: auto;
+      background-color: inherit;
 
-    &:not(.no-padding)
-      padding: 1rem
+      &:not(.no-padding) {
+        padding: 1rem;
+      }
+    }
 
-  footer
-    background-color: $bg-secondary
+    footer {
+      background-color: var(--bg-secondary);
 
-    &:not(.no-padding)
-      display: flex
-      padding: 0.5rem
-      flex-shrink: 0
+      &:not(.no-padding) {
+        display: flex;
+        padding: 0.5rem;
+        flex-shrink: 0;
+      }
 
-    ::v-deep(> .button)
-      width: 100%
+      &:deep(> .button) {
+        width: 100%;
 
-      @media $mobile
-        min-width: 0
+        @media #{$mobile} {
+          min-width: 0;
+        }
 
-      &:not(:last-child)
-        margin-right: 0.5rem
+        &:not(:last-child) {
+          margin-right: 0.5rem;
+        }
+      }
+    }
+  }
 </style>

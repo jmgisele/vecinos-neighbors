@@ -12,9 +12,10 @@ export default {
 };
 </script>
 
-<style lang="stylus" scoped>
-.logo
-  display: block
-  width: (40 / 16)rem
-  height: @width
+<style lang="scss" scoped>
+  .logo {
+    display: block;
+    width: rem(40);
+    height: rem(40);
+  }
 </style>

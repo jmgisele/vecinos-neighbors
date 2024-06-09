@@ -341,303 +341,358 @@ export default {
 };
 </script>
 
-<style lang="stylus" scoped>
-@require '../assets/styles/colors'
-@require '../assets/styles/corners'
+<style lang="scss" scoped>
+  @mixin checkerboardBG($color, $size: 1rem) {
+    background-image: linear-gradient(to right, $color, $color), linear-gradient(to right, black 50%, white 50%), linear-gradient(to bottom, black 50%, white 50%);
+    background-size: $size $size;
+    background-blend-mode: normal, difference;
+  }
 
-$checkerboardBG(color, size = 1rem)
-  background-image: linear-gradient(to right, color, color), linear-gradient(to right, black 50%, white 50%), linear-gradient(to bottom, black 50%, white 50%)
-  background-size: size size
-  background-blend-mode: normal, difference
+  .color-picker {
+    position: relative;
+    border: none;
+    background-color: var(--bg-secondary);
+    color: inherit;
+    border-radius: var(--radius-m);
+    padding: 0.5rem;
+    padding-right: 1.5rem;
+    display: inline-flex;
+    align-items: center;
+    cursor: pointer;
+    transition: background-color 200ms ease;
+    user-select: none;
+    text-align: left;
+    white-space: nowrap;
+    max-width: 100%;
 
-.color-picker
-  position: relative
-  border: none
-  background-color: $bg-secondary
-  color: inherit
-  border-radius: $radius-m
-  padding: 0.5rem
-  padding-right: 1.5rem
-  display: inline-flex
-  align-items: center
-  cursor: pointer
-  transition: background-color 200ms ease
-  user-select: none
-  text-align: left
-  white-space: nowrap
-  max-width: 100%
+    &.no-label {
+      padding-right: 0.5rem;
+    }
 
-  &.no-label
-    padding-right: 0.5rem
+    &:hover {
+      background-color: var(--bg-tertiary);
+    }
 
-  &:hover
-    background-color: $bg-tertiary
+    &:focus {
+      background-color: var(--bg-secondary);
 
-  &:focus
-    background-color: $bg-secondary
+      &::before {
+        opacity: 1;
+      }
+    }
 
-    &::before
-      opacity: 1
+    &:active {
+      transform: translateY(2px);
+    }
 
-  &:active
-    transform: translateY(2px)
+    &.dark {
+      background-color: var(--bg-secondary-dark);
 
-  &.dark
-    background-color: $bg-secondary-dark
+      &:hover {
+        background-color: var(--bg-tertiary-dark);
+      }
 
-    &:hover
-      background-color: $bg-tertiary-dark
+      &:focus {
+        background-color: var(--bg-secondary-dark);
+      }
+    }
 
-    &:focus
-      background-color: $bg-secondary-dark
+    &::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      border: 0.125rem solid var(--accent);
+      opacity: 0;
+      border-radius: inherit;
+      transition: opacity 200ms ease;
+    }
 
-  &::before
-    content: ''
-    position: absolute
-    top: 0
-    left: @top
-    right: @top
-    bottom: @top
-    border: 0.125rem solid $accent
-    opacity: 0
-    border-radius: inherit
-    transition: opacity 200ms ease
+    .color-swatch {
+      border-radius: var(--radius-s);
+      width: 2.625rem;
+      height: 2.625rem;
+      margin-right: 1rem;
+      @include checkerboardBG(color-mix(in srgb, white 75%, transparent), 1.3125rem);
+      position: relative;
+      overflow: hidden;
+      flex-shrink: 0;
+      padding: 0.0625rem;
+      background-clip: content-box;
 
-  .color-swatch
-    border-radius: $radius-s
-    width: 2.625rem
-    height: @width
-    margin-right: 1rem
-    $checkerboardBG(alpha(white, 0.75), @width / 2)
-    position: relative
-    overflow: hidden
-    flex-shrink: 0
-    padding: 0.0625rem
-    background-clip: content-box
+      &.no-label {
+        margin-right: 0;
+      }
 
-    &.no-label
-      margin-right: 0
+      .old-color,
+      .new-color {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+      }
 
-    .old-color,
-    .new-color
-      position: absolute
-      top: 0
-      left: 0
-      width: 100%
-      height: 100%
+      .new-color {
+        top: auto;
+        bottom: 0;
+        @include checkerboardBG(color-mix(in srgb, white 75%, transparent), 50%);
+        transform: translateY(50%);
+        padding: 0 0.0625rem;
+        background-clip: content-box;
 
-    .new-color
-      top: auto
-      bottom: 0
-      $checkerboardBG(alpha(white, 0.75), @width / 2)
-      transform: translateY(50%)
-      padding: 0 0.0625rem
-      background-clip: content-box
+        &.v-enter-active,
+        &.v-leave-active {
+          transition: transform 150ms ease;
 
-      &.v-enter-active,
-      &.v-leave-active
-        transition: transform 150ms ease
+          &.v-enter-from {
+            transform: translateY(100%);
+          }
 
-        &.v-enter-from
-          transform: translateY(100%)
+          &.v-leave-to {
+            transform: translateY(0);
 
-        &.v-leave-to
-          transform: translateY(0)
+            &.cancelled {
+              transform: translateY(100%);
+            }
+          }
+        }
 
-          &.cancelled
-            transform: translateY(100%)
+        .color {
+          position: absolute;
+          top: 0;
+          left: 0;
+          width: 100%;
+          height: 100%;
+        }
+      }
+    }
 
-      .color
-        position: absolute
-        top: 0
-        left: 0
-        width: 100%
-        height: 100%
+    span {
+      overflow: hidden;
+      width: 100%;
+      text-overflow: ellipsis;
+    }
+  }
 
-  span
-    overflow: hidden
-    width: 100%
-    text-overflow: ellipsis
+  .color-popover {
+    .padder {
+      padding: 0.5rem;
+      max-width: 17rem;
 
-.color-popover
-  .padder
-    padding: 0.5rem
-    max-width: 17rem
+      &.rgb {
+        &.removable {
+          max-width: 19rem;
+        }
+      }
 
-    &.rgb
-      &.removable
-        max-width: 19rem
+      &.rgba {
+        max-width: 20rem;
 
-    &.rgba
-      max-width: 20rem
+        &.removable {
+          max-width: 22rem;
+        }
+      }
 
-      &.removable
-        max-width: 22rem
+      .saturation-picker {
+        position: relative;
+        height: 8rem;
+        margin-bottom: 0.5rem;
+        border-radius: var(--radius-m);
+        touch-action: none;
 
-    .saturation-picker
-      position: relative
-      height: 8rem
-      margin-bottom: 0.5rem
-      border-radius: $radius-m
-      touch-action: none
+        .saturation {
+          position: absolute;
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          border-radius: var(--radius-m);
+          pointer-events: none;
+        }
 
-      .saturation
-        position: absolute
-        top: 0
-        left: @top
-        right: @top
-        bottom: @top
-        border-radius: $radius-m
-        pointer-events: none
+        .saturation {
+          background-image: linear-gradient(to top, #000, rgba(0, 0, 0, 0)), linear-gradient(to right, #fff, rgba(255, 255, 255, 0));
+        }
+      }
 
-      .saturation
-        background-image: linear-gradient(to top, #000, rgba(0,0,0,0)), linear-gradient(to right, #fff, rgba(255,255,255,0))
+      .hue-picker,
+      .alpha-picker {
+        position: relative;
+        height: 1.5rem;
+        margin-bottom: 0.5rem;
+        touch-action: none;
 
-    .hue-picker,
-    .alpha-picker
-      position: relative
-      height: 1.5rem
-      margin-bottom: 0.5rem
-      touch-action: none
+        .hue,
+        .alpha {
+          height: 100%;
+          border-radius: var(--radius-m);
+          background-image: linear-gradient(to right, #f00 0%, #ff0 17%, #0f0 33%, #0ff 50%, #00f 67%, #f0f 83%, #f00 100%);
+          pointer-events: none;
+        }
+      }
 
-      .hue,
-      .alpha
-        height: 100%
-        border-radius: $radius-m
-        background-image: linear-gradient(to right, #f00 0%, #ff0 17%, #0f0 33%, #0ff 50%, #00f 67%, #f0f 83%, #f00 100%);
-        pointer-events: none
+      .alpha-picker {
+        @include checkerboardBG(color-mix(in srgb, white 75%, transparent), 0.75rem);
+        border-radius: var(--radius-m);
+        padding: 0.0625rem;
+        background-clip: content-box;
 
-    .alpha-picker
-      $checkerboardBG(alpha(white, 0.75), 0.75rem)
-      border-radius: $radius-m
-      padding: 0.0625rem
-      background-clip: content-box
+        .alpha {
+          position: absolute;
+          top: 0;
+          bottom: 0;
+          left: 0;
+          right: 0;
+        }
+      }
 
-      .alpha
-        position: absolute
-        top: 0
-        bottom: 0
-        left: 0
-        right: 0
+      .picker {
+        border: 0.125rem solid white;
+        width: 0.75rem;
+        height: 0.75rem;
+        border-radius: 0.5rem;
+        position: absolute;
+        left: 0;
+        top: 50%;
+        transform: translate(-50%, -50%);
+        box-shadow: 0 0 0 0.0625rem color-mix(in srgb, black 50%, transparent);
+      }
 
-    .picker
-      border: 0.125rem solid white
-      width: 0.75rem
-      height: @width
-      border-radius: 0.5rem
-      position: absolute
-      left: 0
-      top: 50%
-      transform: translate(-50%, -50%)
-      box-shadow: 0 0 0 0.0625rem alpha(black, 0.5)
+      .color-info {
+        display: flex;
+        align-items: center;
 
-    .color-info
-      display: flex
-      align-items: center
+        .color-swatch {
+          width: rem(40); // height of the smaller input minus shadow
+          height: rem(40);
+          margin-right: 0.5rem;
+        }
 
-      .color-swatch
-        width: (40 / 16)rem // height of the smaller input minus shadow
-        height: @width
-        margin-right: 0.5rem
+        .input {
+          flex-shrink: 1;
+          padding: 0.5rem;
+          margin-top: 0;
+          transition: margin 150ms ease;
+          width: 100%;
 
-      .input
-        flex-shrink: 1
-        padding: 0.5rem
-        margin-top: 0
-        transition: margin 150ms ease
-        width: 100%
+          &.dark {
+            background-color: var(--bg-tertiary-dark);
+          }
 
-        &.dark
-          background-color: $bg-tertiary-dark
+          &.error {
+            margin-top: 1rem;
 
-        &.error
-          margin-top: 1rem
+            &:deep(span) {
+              transform: translate(calc(-3rem + var(--radius-m)), calc(-100% - 0.5rem)) scale(0.75);
+            }
+          }
+        }
 
-          &::v-deep(span)
-            transform: translate((-3rem + $radius-m), calc(-100% - 0.5rem)) scale(0.75)
+        .button {
+          margin-left: 0.5rem;
+          flex-shrink: 0;
+        }
+      }
 
-      .button
-        margin-left: 0.5rem
-        flex-shrink: 0
+      .scroller {
+        margin-top: 0.5rem;
+        width: 100%;
 
-    .scroller
-      margin-top: 0.5rem
-      width: 100%
+        .swatches {
+          display: flex;
+          padding: 0.5rem;
 
-      .swatches
-        display: flex
-        padding: 0.5rem
+          &::after {
+            content: '';
+            display: block;
+            width: 0.5rem;
+            flex-shrink: 0;
+          }
 
-        &::after
-          content: ''
-          display: block
-          width: 0.5rem
-          flex-shrink: 0
+          .color-swatch:last-child {
+            margin-right: 0;
+          }
+        }
+      }
+    }
 
-        .color-swatch:last-child
-          margin-right: 0
+    .palette-list {
+      list-style: none;
+      padding: 0.5rem;
+      margin: 0;
 
-  .palette-list
-    list-style: none
-    padding: 0.5rem
-    margin: 0
+      li {
+        display: flex;
+        align-items: center;
+        padding: 0.75rem 1rem;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        cursor: pointer;
+        border-radius: var(--radius-m);
+        transition: background-color 200ms ease;
 
-    li
-      display: flex
-      align-items: center
-      padding: 0.75rem 1rem
-      white-space: nowrap
-      overflow: hidden
-      text-overflow: ellipsis
-      cursor: pointer
-      border-radius: $radius-m
-      transition: background-color 200ms ease
+        &:not(:last-child) {
+          margin-bottom: 0.5rem;
+        }
 
-      &:not(:last-child)
-        margin-bottom: 0.5rem
+        &.active {
+          background-color: var(--accent);
+          color: var(--text-dark);
+        }
 
-      &.active
-        background-color: $accent
-        color: $text-dark
+        &.dark {
+          &:hover,
+          &:focus {
+            background-color: var(--bg-tertiary-dark);
+          }
+        }
 
-      &.dark
         &:hover,
-        &:focus
-          background-color: $bg-tertiary-dark
+        &:focus {
+          background-color: var(--bg-secondary);
 
-      &:hover,
-      &:focus
-        background-color: $bg-secondary
+          &.active {
+            background-color: var(--accent-darkened-5);
+          }
+        }
+      }
+    }
 
-        &.active
-          background-color: darken($accent, 5)
+    .color-swatch {
+      box-shadow: 0 0 0 0.0625rem var(--text-secondary);
+      flex-shrink: 0;
+      width: 1.5rem;
+      height: 1.5rem;
+      border-radius: 50%;
+      margin-right: 0.75rem;
+      overflow: hidden;
+      @include checkerboardBG(color-mix(in srgb, white 75%, transparent), 0.75rem);
+      padding: 0.0625rem;
+      background-clip: content-box;
+      position: relative;
 
-  .color-swatch
-    box-shadow: 0 0 0 0.0625rem $text-secondary
-    flex-shrink: 0
-    width: 1.5rem
-    height: @width
-    border-radius: 50%
-    margin-right: 0.75rem
-    overflow: hidden
-    $checkerboardBG(alpha(white, 0.75), 0.75rem)
-    padding: 0.0625rem
-    background-clip: content-box
-    position: relative
+      .color {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+      }
+    }
 
-    .color
-      position: absolute
-      top: 0
-      left: 0
-      width: 100%
-      height: @width
+    .palette-filter {
+      margin: 0.5rem;
+      margin-bottom: 0;
+      width: calc(100% - 1rem);
+      padding: 0.75rem;
 
-  .palette-filter
-    margin: 0.5rem
-    margin-bottom: 0
-    width: calc(100% - 1rem)
-    padding: 0.75rem
-
-    &.dark
-      background-color: $bg-tertiary-dark
+      &.dark {
+        background-color: var(--bg-tertiary-dark);
+      }
+    }
+  }
 </style>

@@ -20,61 +20,72 @@ export default {
 };
 </script>
 
-<style lang="stylus" scoped>
-@require '../assets/styles/colors'
-@require '../assets/styles/corners'
+<style lang="scss" scoped>
+  .highlight-box {
+    margin-top: 1rem;
+    border-radius: var(--radius-l);
+    padding: rem(24);
+    border: rem(1) solid var(--accent);
+    position: relative;
+    background-color: var(--bg);
 
-.highlight-box
-  margin-top: 1rem
-  border-radius: $radius-l
-  padding: (24 / 16)rem
-  border: (1 / 16)rem solid $accent
-  position: relative
-  background-color: $bg
+    &.dark {
+      background-color: var(--bg-dark);
 
-  &.dark
-    background-color: $bg-dark
+      &.warning::before {
+        color: var(--warning-saturated);
+      }
+    }
 
-    &.warning::before
-      color: $warning-saturated
+    &.accent {
+      border-color: var(--accent);
 
-  &.accent
-    border-color: $accent
+      &::before {
+        color: var(--accent);
+      }
+    }
 
-    &::before
-      color: @border-color
+    &.negative {
+      border-color: var(--negative-saturated);
 
-  &.negative
-    border-color: $negative-saturated
+      &::before {
+        color: var(--negative-saturated);
+      }
+    }
 
-    &::before
-      color: @border-color
+    &.positive {
+      border-color: var(--positive-saturated);
 
-  &.positive
-    border-color: $positive-saturated
+      &::before {
+        color: var(--positive-saturated);
+      }
+    }
 
-    &::before
-      color: @border-color
+    &.warning {
+      border-color: var(--warning-saturated);
 
-  &.warning
-    border-color: $warning-saturated
+      &::before {
+        color: var(--text-secondary);
+      }
+    }
 
-    &::before
-      color: $text-secondary
+    &::before {
+      content: attr(data-label);
+      display: inline-block;
+      padding: rem(2) rem(8);
+      position: absolute;
+      top: rem(-14);
+      left: 1rem;
+      font-weight: 700;
+      background-color: inherit;
+    }
 
-  &::before
-    content: attr(data-label)
-    display: inline-block
-    padding: (2 / 16)rem (8 / 16)rem
-    position: absolute
-    top: (-14 / 16)rem
-    left: 1rem
-    font-weight: 700
-    background-color: inherit
+    :first-child {
+      margin-top: 0;
+    }
 
-  :first-child
-    margin-top: 0
-
-  :last-child
-    margin-bottom: 0
+    :last-child {
+      margin-bottom: 0;
+    }
+  }
 </style>

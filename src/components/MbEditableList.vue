@@ -201,121 +201,149 @@ export default {
 };
 </script>
 
-<style lang="stylus" scoped>
-@require '../assets/styles/breakpoints'
-@require '../assets/styles/colors'
-@require '../assets/styles/corners'
+<style lang="scss" scoped>
+  @use '../assets/styles/breakpoints' as *;
 
-.editable-list
-  .segmented-selector
-    margin-bottom: 1rem
+  .editable-list {
+    .segmented-selector {
+      margin-bottom: 1rem;
+    }
 
-  .mode
-    &.v-enter-active,
-    &.v-leave-active
-      transition: opacity 200ms ease
+    .mode {
+      &.v-enter-active,
+      &.v-leave-active {
+        transition: opacity 200ms ease;
 
-      &.v-enter-from,
-      &.v-leave-to
-        opacity: 0
+        &.v-enter-from,
+        &.v-leave-to {
+          opacity: 0;
+        }
+      }
 
-    &.file
-      display: flex
+      &.file {
+        display: flex;
 
-      @media $mobile
-        display: block
+        @media #{$mobile} {
+          display: block;
 
-        > .file-picker
-          margin-right: 0
-          margin-bottom: 1rem
+          > .file-picker {
+            margin-right: 0;
+            margin-bottom: 1rem;
+          }
 
-        ::v-deep(> .select)
-          width: 100%
+          &:deep(> .select) {
+            width: 100%;
+          }
+        }
 
-      > .file-picker
-        width: 100%
-        margin-right: 1rem
+        > .file-picker {
+          width: 100%;
+          margin-right: 1rem;
+        }
+      }
 
-    .sortable-list
-      position: relative
+      .sortable-list {
+        position: relative;
 
-      &::v-deep(.drag-item)
-        margin-bottom: 0.5rem
+        &:deep(.drag-item) {
+          margin-bottom: 0.5rem;
 
-        &.v-enter-active,
-        &.v-leave-active
-          transition: opacity 500ms ease // needs to be higher for the initial enter to look good
+          &.v-enter-active,
+          &.v-leave-active {
+            transition: opacity 500ms ease; // needs to be higher for the initial enter to look good
 
-          &.v-enter-from,
-          &.v-leave-to
-            opacity: 0
+            &.v-enter-from,
+            &.v-leave-to {
+              opacity: 0;
+            }
+          }
 
-        &.v-leave-active
-          position: absolute
-          width: 100%
+          &.v-leave-active {
+            position: absolute;
+            width: 100%;
+          }
+        }
+      }
+    }
+  }
 
-.item
-  display: flex
-  align-items: center
-  background-color: $bg-secondary
-  border-radius: $radius-m
-  padding-right: 0.25rem
-  position: relative
-  transition: box-shadow 200ms ease, color 200ms ease
+  .item {
+    display: flex;
+    align-items: center;
+    background-color: var(--bg-secondary);
+    border-radius: var(--radius-m);
+    padding-right: 0.25rem;
+    position: relative;
+    transition: box-shadow 200ms ease, color 200ms ease;
 
-  &.dark
-    background-color: $bg-secondary-dark
+    &.dark {
+      background-color: var(--bg-secondary-dark);
 
-    .input
-      border-color: $bg-dark
+      .input {
+        border-color: var(--bg-dark);
+      }
+    }
 
-  &.being-dragged
-    opacity: 0.25
+    &.being-dragged {
+      opacity: 0.25;
+    }
 
-  &.advanced
-    .drag-handle + .input,
-    .item-icon + .input
-      margin-right: 0
-      border-right: none
+    &.advanced {
+      .drag-handle + .input,
+      .item-icon + .input {
+        margin-right: 0;
+        border-right: none;
+      }
+    }
 
-  &.error
-    margin-top: 1.5rem
+    &.error {
+      margin-top: 1.5rem;
 
-    &:not(:focus-within)
-      box-shadow: 0 0 0 0.125rem $negative
-      color: $negative-saturated
+      &:not(:focus-within) {
+        box-shadow: 0 0 0 0.125rem var(--negative);
+        color: var(--negative-saturated);
+      }
+    }
 
-  &::before
-    content: attr(data-error)
-    color: $negative-saturated
-    position: absolute
-    top: -1.5rem
-    left: $radius-m
-    font-size: 0.875rem
+    &::before {
+      content: attr(data-error);
+      color: var(--negative-saturated);
+      position: absolute;
+      top: -1.5rem;
+      left: var(--radius-m);
+      font-size: 0.875rem;
+    }
 
-  .drag-handle,
-  .item-icon
-    padding: 1rem
+    .drag-handle,
+    .item-icon {
+      padding: 1rem;
+    }
 
-  .drag-handle
-    cursor: move
+    .drag-handle {
+      cursor: move;
+    }
 
-  .input
-    margin-top: 0
-    flex-grow: 1
-    border-radius: 0
-    margin-right: 0.25rem
-    border-left: 0.0625rem solid $bg
-    border-right: @border-left
-    border-top: none
-    border-bottom: none
+    .input {
+      margin-top: 0;
+      flex-grow: 1;
+      border-radius: 0;
+      margin-right: 0.25rem;
+      border-left: 0.0625rem solid var(--bg);
+      border-right: 0.0625rem solid var(--bg);
+      border-top: none;
+      border-bottom: none;
 
-    &:focus-within
-      border-radius: $radius-m
+      &:focus-within {
+        border-radius: var(--radius-m);
+      }
 
-    &:first-child
-      margin-left: 3.5rem
+      &:first-child {
+        margin-left: 3.5rem;
+      }
+    }
 
-  .button
-    flex-shrink: 0
+    .button {
+      flex-shrink: 0;
+    }
+  }
 </style>

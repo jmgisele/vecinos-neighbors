@@ -90,67 +90,78 @@ export default {
 };
 </script>
 
-<style lang="stylus" scoped>
-@require '../assets/styles/breakpoints'
-@require '../assets/styles/colors'
-@require '../assets/styles/corners'
+<style lang="scss" scoped>
+@use '../assets/styles/breakpoints' as *;
 
-.palette
-  list-style: none
-  margin: 0
-  padding: 0
-  position: relative
+.palette {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  position: relative;
 
-  > li
-    display: flex
-    align-items: center
-    background-color: $bg-secondary
-    border-radius: $radius-m
+  > li {
+    display: flex;
+    align-items: center;
+    background-color: var(--bg-secondary);
+    border-radius: var(--radius-m);
 
-    &.dark
-      background-color: $bg-secondary-dark
+    &.dark {
+      background-color: var(--bg-secondary-dark);
 
-      > .input
-        border-left-color: $bg-dark
-        border-right-color: @border-left-color
+      > .input {
+        border-left-color: var(--bg-dark);
+        border-right-color: var(--bg-dark);
+      }
+    }
 
-    &:not(:last-child)
-      margin-bottom: 1rem
+    &:not(:last-child) {
+      margin-bottom: 1rem;
+    }
 
-    &.error
-      margin-top: 2rem
+    &.error {
+      margin-top: 2rem;
+    }
 
-    &.v-move
-      transition: transform 200ms ease
+    &.v-move {
+      transition: transform 200ms ease;
+    }
 
     &.v-enter-active,
-    &.v-leave-active
-      transition: opacity  200ms ease
+    &.v-leave-active {
+      transition: opacity 200ms ease;
 
       &.v-enter-from,
-      &.v-leave-to
-        opacity: 0
+      &.v-leave-to {
+        opacity: 0;
+      }
+    }
 
-    &.v-leave-active
-      position: absolute
-      width: 100%
+    &.v-leave-active {
+      position: absolute;
+      width: 100%;
+    }
 
-    .color-picker
-      border-top-right-radius: 0
-      border-bottom-right-radius: 0
+    .color-picker {
+      border-top-right-radius: 0;
+      border-bottom-right-radius: 0;
+    }
 
-    > .input
-      margin-top: 0
-      margin-left: 0.0625rem
-      flex-grow: 1
-      border-left-color: $bg
-      border-right-color: $bg
+    > .input {
+      margin-top: 0;
+      margin-left: 0.0625rem;
+      flex-grow: 1;
+      border-left-color: var(--bg);
+      border-right-color: var(--bg);
 
-      &:not(:focus-within)
-        border-radius: 0
+      &:not(:focus-within) {
+        border-radius: 0;
+      }
+    }
 
-    > .button.icon
-      margin: 0.25rem
-      flex-shrink: 0
-
+    > .button.icon {
+      margin: 0.25rem;
+      flex-shrink: 0;
+    }
+  }
+}
 </style>

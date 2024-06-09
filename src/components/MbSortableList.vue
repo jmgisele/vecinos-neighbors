@@ -137,32 +137,42 @@ export default {
 };
 </script>
 
-<style lang="stylus">
-.sortable-list
-  position: relative
+<style lang="scss">
+  .sortable-list {
+    position: relative;
 
-  &.dragging
-    > .drag-item > *
-      pointer-events: none
+    &.dragging {
+      > .drag-item > * {
+        pointer-events: none;
+      }
+    }
 
-  > .drag-item
-      &.transitions
+    > .drag-item {
+      &.transitions {
         &.v-enter-active,
-        &.v-leave-active
-          transition: opacity 200ms ease
+        &.v-leave-active {
+          transition: opacity 200ms ease;
 
           &.v-enter-from,
-          &.v-leave-to
-            opacity: 0
+          &.v-leave-to {
+            opacity: 0;
+          }
+        }
 
-        &.v-leave-active
-          position: absolute
-          width: 100%
+        &.v-leave-active {
+          position: absolute;
+          width: 100%;
+        }
+      }
 
-      &.v-move
-        transition: transform 200ms cubic-bezier(0.190, 0.005, 0.000, 1.005)
-        pointer-events: none
+      &.v-move {
+        transition: transform 200ms cubic-bezier(0.19, 0.005, 0, 1.005);
+        pointer-events: none;
+      }
 
-      [data-drag-handle]
-        touch-action: none
+      [data-drag-handle] {
+        touch-action: none;
+      }
+    }
+  }
 </style>

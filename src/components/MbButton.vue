@@ -49,182 +49,221 @@ export default {
 };
 </script>
 
-<style lang="stylus" scoped>
-@require '../assets/styles/colors'
-@require '../assets/styles/corners'
-
-.button
-  display: inline-flex
-  padding: 1rem 1.5rem
-  border: 1px solid $accent
-  border-radius: $radius-m
-  background-color: transparent
-  color: currentColor
-  cursor: pointer
-  user-select: none
-  white-space: nowrap
-  position: relative
-  vertical-align: middle
-  overflow: hidden
-  transition: background-color 200ms ease
-
-  &:hover,
-  &:focus
-    background-color: $bg-tertiary
-
-  &:focus::before
-    opacity: 1
-
-  &:active
-    transform: translateY(2px)
-    background-color: $bg-secondary
-
-  &.dark
-    &:hover,
-    &:focus
-      background-color: $bg-tertiary-dark
-
-    &:active
-      background-color: $bg-secondary-dark
-
-  &.icon
-    align-items: center
-    padding-right: 2.5rem
-    padding-left: 1rem
-
-    &.reversed
-      flex-direction: row-reverse
-      padding-right: 1rem
-      padding-left: 2.5rem
-
-      .icon
-        margin-left: 1rem
-        margin-right: 0
-
-    &.no-label
-      padding-right: 1rem
-      padding-left: 1rem
-      border: none
-
-      .icon
-        margin: -0.1875rem // needed so the buttons keep the same height even with the icon
-
-    .icon
-      margin-right: 1rem
-      margin-top: -0.1875rem // needed so the buttons keep the same height even with the icon
-      margin-bottom: @margin-top
-
-  &.primary
-    background-color: $accent
-    color: $text-dark
+<style lang="scss" scoped>
+  .button {
+    display: inline-flex;
+    padding: 1rem 1.5rem;
+    border: 1px solid var(--accent);
+    border-radius: var(--radius-m);
+    background-color: transparent;
+    color: currentColor;
+    cursor: pointer;
+    user-select: none;
+    white-space: nowrap;
+    position: relative;
+    vertical-align: middle;
+    overflow: hidden;
+    transition: background-color 200ms ease;
 
     &:hover,
-    &:focus
-      background-color: darken($accent, 5)
+    &:focus {
+      background-color: var(--bg-tertiary);
+    }
 
-    &:active
-      background-color: darken($accent, 10)
+    &:focus::before {
+      opacity: 1;
+    }
 
-    &::before
-      border-color: $accent-secondary
+    &:active {
+      transform: translateY(2px);
+      background-color: var(--bg-secondary);
+    }
 
-  &.rounded
-    border-radius: ((52 / 16) / 2)rem // 52 === Button.height
+    &.dark {
+      &:hover,
+      &:focus {
+        background-color: var(--bg-tertiary-dark);
+      }
 
-  &.positive
-    border-color: $positive
-    color: $positive-saturated
+      &:active {
+        background-color: var(--bg-secondary-dark);
+      }
+    }
 
-    &:hover,
-    &:focus
-      background-color: alpha($positive, 0.1)
+    &.icon {
+      align-items: center;
+      padding-right: 2.5rem;
+      padding-left: 1rem;
 
-    &:active
-      background-color: alpha($positive, 0.15)
+      &.reversed {
+        flex-direction: row-reverse;
+        padding-right: 1rem;
+        padding-left: 2.5rem;
 
-    &::before
-      border-color: @border-color
+        .icon {
+          margin-left: 1rem;
+          margin-right: 0;
+        }
+      }
 
-  &.negative
-    border-color: $negative
-    color: $negative-saturated
+      &.no-label {
+        padding-right: 1rem;
+        padding-left: 1rem;
+        border: none;
 
-    &:hover,
-    &:focus
-      background-color: alpha($negative, 0.1)
+        .icon {
+          margin: -0.1875rem; // needed so the buttons keep the same height even with the icon
+        }
+      }
 
-    &:active
-      background-color: alpha($negative, 0.15)
+      .icon {
+        margin-right: 1rem;
+        margin-top: -0.1875rem; // needed so the buttons keep the same height even with the icon
+        margin-bottom: -0.1875rem;
+      }
+    }
 
-    &::before
-      border-color: @border-color
+    &.primary {
+      background-color: var(--accent);
+      color: var(--text-dark);
 
-  &.warning
-    border-color: $warning-saturated
+      &:hover,
+      &:focus {
+        background-color: var(--accent-darkened-5);
+      }
 
-    &:hover,
-    &:focus
-      background-color: alpha($warning, 0.1)
+      &:active {
+        background-color: var(--accent-darkened-10);
+      }
 
-    &:active
-      background-color: alpha($warning, 0.15)
+      &::before {
+        border-color: var(--accent-secondary);
+      }
+    }
 
-    &::before
-      border-color: @border-color
+    &.rounded {
+      border-radius: rem(26); // 26 === Button.height / 2
+    }
 
-  &.disabled,
-  &.loading
-    pointer-events: none
-    border: 1px dashed $text-tertiary
-    color: $text-tertiary
+    &.positive {
+      border-color: var(--positive);
+      color: var(--positive-saturated);
 
-    &.primary
-      background-color: $bg-secondary
+      &:hover,
+      &:focus {
+        background-color: color-mix(in srgb, var(--positive) 10%, transparent);
+      }
 
-    &.dark
-      border-color: $text-tertiary-dark
-      color: @border-color
+      &:active {
+        background-color: color-mix(in srgb, var(--positive) 15%, transparent);
+      }
 
-      .inline-loader
-        color: $text-dark
+      &::before {
+        border-color: var(--positive);
+      }
+    }
 
-      &.primary
-        background-color: $bg-secondary-dark
+    &.negative {
+      border-color: var(--negative);
+      color: var(--negative-saturated);
 
-    .inline-loader
-      color: $text
+      &:hover,
+      &:focus {
+        background-color: color-mix(in srgb, var(--negative) 10%, transparent);
+      }
 
-  &::before
-    content: ''
-    position: absolute
-    top: -1px
-    left: @top
-    right: @top
-    bottom: @top
-    border: 2px solid $accent
-    opacity: 0
-    border-radius: inherit
-    transition: opacity 200ms ease
+      &:active {
+        background-color: color-mix(in srgb, var(--negative) 15%, transparent);
+      }
 
-  .label
-    overflow: hidden
-    text-overflow: ellipsis
-    width: 100%
+      &::before {
+        border-color: var(--negative);
+      }
+    }
 
-  .icon
-    flex-shrink: 0
+    &.warning {
+      border-color: var(--warning-saturated);
 
-  .label,
-  .icon
-    transition: opacity 200ms ease
+      &:hover,
+      &:focus {
+        background-color: color-mix(in srgb, var(--warning) 10%, transparent);
+      }
 
-    &.invisible
-      opacity: 0
+      &:active {
+        background-color: color-mix(in srgb, var(--warning) 15%, transparent);
+      }
 
-  .inline-loader
-    position: absolute
-    top: 0
-    left: @top
-    right: @top
-    bottom: @top
+      &::before {
+        border-color: var(--warning-saturated);
+      }
+    }
+
+    &.disabled,
+    &.loading {
+      pointer-events: none;
+      border: 1px dashed var(--text-tertiary);
+      color: var(--text-tertiary);
+
+      &.primary {
+        background-color: var(--bg-secondary);
+      }
+
+      &.dark {
+        border-color: var(--text-tertiary-dark);
+        color: var(--text-tertiary-dark);
+
+        .inline-loader {
+          color: var(--text-dark);
+        }
+
+        &.primary {
+          background-color: var(--bg-secondary-dark);
+        }
+      }
+
+      .inline-loader {
+        color: var(--text);
+      }
+    }
+
+    &::before {
+      content: '';
+      position: absolute;
+      top: -1px;
+      left: -1px;
+      right: -1px;
+      bottom: -1px;
+      border: 2px solid var(--accent);
+      opacity: 0;
+      border-radius: inherit;
+      transition: opacity 200ms ease;
+    }
+
+    .label {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      width: 100%;
+    }
+
+    .icon {
+      flex-shrink: 0;
+    }
+
+    .label,
+    .icon {
+      transition: opacity 200ms ease;
+
+      &.invisible {
+        opacity: 0;
+      }
+    }
+
+    .inline-loader {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+    }
+  }
 </style>

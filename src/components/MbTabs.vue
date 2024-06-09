@@ -89,101 +89,117 @@ export default {
 };
 </script>
 
-<style lang="stylus" scoped>
-@require '../assets/styles/colors'
-@require '../assets/styles/corners'
+<style lang="scss" scoped>
+  .tabs {
+    position: relative;
+    color: var(--text);
+    background-color: var(--bg);
+    box-shadow: inset 0 -2px 0 0 var(--bg-secondary);
+    white-space: nowrap;
+    max-width: 100%;
+    user-select: none;
 
-.tabs
-  position: relative
-  color: $text
-  background-color: $bg
-  box-shadow: inset 0 -2px 0 0 $bg-secondary
-  white-space: nowrap
-  max-width: 100%
-  user-select: none
+    &.dark {
+      color: var(--text-dark);
+      background-color: var(--bg-dark);
+      box-shadow: inset 0 -2px 0 0 var(--bg-secondary-dark);
 
-  &.dark
-    color: $text-dark
-    background-color: $bg-dark
-    box-shadow: inset 0 -2px 0 0 $bg-secondary-dark
-
-    .scroll-wrapper > ul li
-      &:hover,
-      &:focus
-        background-color: $bg-secondary-dark
-
-  .scroll-wrapper
-    position: relative
-
-    > ul
-      margin: 0
-      width: 100%
-      list-style: none
-      padding: 0
-
-      li
-        display: inline-flex
-        vertical-align: top
-        align-items: center
-        padding: 1rem 1.5rem
-        cursor: pointer
-        border-top-left-radius: $radius-m
-        border-top-right-radius: @border-top-left-radius
-        position: relative
-        transition: background-color 200ms ease
-
-        &.add-option
-          line-height: 0
-          vertical-align: top
-
+      .scroll-wrapper > ul li {
         &:hover,
-        &:focus
-          background-color: $bg-secondary
+        &:focus {
+          background-color: var(--bg-secondary-dark);
+        }
+      }
+    }
 
-        &:focus
-          outline: none
+    .scroll-wrapper {
+      position: relative;
 
-        &.v-enter-active,
-        &.v-leave-active
-          transition: transform 200ms ease, opacity 200ms ease
+      > ul {
+        margin: 0;
+        width: 100%;
+        list-style: none;
+        padding: 0;
 
-          &.v-enter-from,
-          &.v-leave-to
-            transform: translateY(1rem)
-            opacity: 0
+        li {
+          display: inline-flex;
+          vertical-align: top;
+          align-items: center;
+          padding: 1rem 1.5rem;
+          cursor: pointer;
+          border-top-left-radius: var(--radius-m);
+          border-top-right-radius: var(--radius-m);
+          position: relative;
+          transition: background-color 200ms ease;
 
-        .error-indicator
-          display: inline-block
-          width: 0.5rem
-          height: @width
-          background-color: $negative
-          border-radius: 50%
-          margin-right: 0.5rem
+          &.add-option {
+            line-height: 0;
+            vertical-align: top;
+          }
+
+          &:hover,
+          &:focus {
+            background-color: var(--bg-secondary);
+          }
+
+          &:focus {
+            outline: none;
+          }
 
           &.v-enter-active,
-          &.v-leave-active
-            transition: transform 350ms ease
+          &.v-leave-active {
+            transition: transform 200ms ease, opacity 200ms ease;
 
             &.v-enter-from,
-            &.v-leave-to
-              transform: scale(0)
+            &.v-leave-to {
+              transform: translateY(1rem);
+              opacity: 0;
+            }
+          }
 
-          &.v-enter-active
-            transition-timing-function: cubic-bezier(0.175, 0.885, 0.320, 1.275);;
+          .error-indicator {
+            display: inline-block;
+            width: 0.5rem;
+            height: 0.5rem;
+            background-color: var(--negative);
+            border-radius: 50%;
+            margin-right: 0.5rem;
 
-          &.v-leave-active
-            transition-timing-function: cubic-bezier(0.600, -0.280, 0.735, 0.045);
+            &.v-enter-active,
+            &.v-leave-active {
+              transition: transform 350ms ease;
 
-    .active-indicator
-      position: absolute
-      width: 100px
-      height: 2px
-      background-color: $accent
-      bottom: 0
-      left: 0
-      transform-origin: left
-      transition: transform 200ms cubic-bezier(0.645, 0.045, 0.355, 1.000)
+              &.v-enter-from,
+              &.v-leave-to {
+                transform: scale(0);
+              }
+            }
 
-  ::v-deep(.shadow)
-    bottom: 2px
+            &.v-enter-active {
+              transition-timing-function: cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            }
+
+            &.v-leave-active {
+              transition-timing-function: cubic-bezier(0.6, -0.28, 0.735, 0.045);
+            }
+          }
+        }
+      }
+
+      .active-indicator {
+        position: absolute;
+        width: 100px;
+        height: 2px;
+        background-color: var(--accent);
+        bottom: 0;
+        left: 0;
+        transform-origin: left;
+        transition: transform 200ms cubic-bezier(0.645, 0.045, 0.355, 1);
+      }
+    }
+
+    &:deep(.shadow) {
+      bottom: 2px;
+    }
+  }
 </style>

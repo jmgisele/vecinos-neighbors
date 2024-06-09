@@ -285,210 +285,259 @@ export default {
 };
 </script>
 
-<style lang="stylus">
-.date-popover // needs to be unscoped for the select to pick up the styles
-  .month-picker.select.button
-    border: none
-    min-width: auto
+<style lang="scss">
+  .date-popover  { // needs to be unscoped for the select to pick up the styles
+    .month-picker.select.button {
+      border: none;
+      min-width: auto;
 
-    &:focus
-      border: none
+      &:focus {
+        border: none;
+      }
+    }
+  }
 </style>
 
-<style lang="stylus" scoped>
-@require '../assets/styles/breakpoints'
-@require '../assets/styles/colors'
-@require '../assets/styles/corners'
+<style lang="scss" scoped>
+  @use '../assets/styles/breakpoints' as *;
 
-.date-picker
-  position: relative
-  border: none
-  background-color: $bg-secondary
-  color: inherit
-  border-radius: $radius-m
-  padding: 1rem
-  padding-right: 1.5rem
-  display: inline-flex
-  align-items: center
-  cursor: pointer
-  transition: background-color 200ms ease
-  user-select: none
-  text-align: left
-  white-space: nowrap
-  max-width: 100%
+  .date-picker {
+    position: relative;
+    border: none;
+    background-color: var(--bg-secondary);
+    color: inherit;
+    border-radius: var(--radius-m);
+    padding: 1rem;
+    padding-right: 1.5rem;
+    display: inline-flex;
+    align-items: center;
+    cursor: pointer;
+    transition: background-color 200ms ease;
+    user-select: none;
+    text-align: left;
+    white-space: nowrap;
+    max-width: 100%;
 
-  &:hover
-    background-color: $bg-tertiary
+    &:hover {
+      background-color: var(--bg-tertiary);
+    }
 
-  &:focus
-    background-color: $bg-secondary
+    &:focus {
+      background-color: var(--bg-secondary);
 
-    &::before
-      opacity: 1
+      &::before {
+        opacity: 1;
+      }
+    }
 
-  &:active
-    transform: translateY(2px)
+    &:active {
+      transform: translateY(2px);
+    }
 
-  &.dark
-    background-color: $bg-secondary-dark
+    &.dark {
+      background-color: var(--bg-secondary-dark);
 
-    &:hover
-      background-color: $bg-tertiary-dark
+      &:hover {
+        background-color: var(--bg-tertiary-dark);
+      }
 
-    &:focus
-      background-color: $bg-secondary-dark
+      &:focus {
+        background-color: var(--bg-secondary-dark);
+      }
 
-    .floating-label
-    .label.placeholder
-      color: $text-secondary-dark
+      .floating-label,
+      .label.placeholder {
+        color: var(--text-secondary-dark);
+      }
+    }
 
-  &::before
-    content: ''
-    position: absolute
-    top: 0
-    left: @top
-    right: @top
-    bottom: @top
-    border: 0.125rem solid $accent
-    opacity: 0
-    border-radius: @border-radius
-    transition: opacity 200ms ease
+    &::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      border: 0.125rem solid var(--accent);
+      opacity: 0;
+      border-radius: var(--radius-m);
+      transition: opacity 200ms ease;
+    }
 
-  .floating-label
-    position: absolute
-    top: -1.25rem
-    left: $radius-m
-    font-size: 0.75rem
-    color: $text-secondary
+    .floating-label {
+      position: absolute;
+      top: -1.25rem;
+      left: var(--radius-m);
+      font-size: 0.75rem;
+      color: var(--text-secondary);
+    }
 
-  .label
-    margin-left: 0.75rem
-    margin-right: auto
-    overflow: hidden
-    text-overflow: ellipsis
+    .label {
+      margin-left: 0.75rem;
+      margin-right: auto;
+      overflow: hidden;
+      text-overflow: ellipsis;
 
-    &.placeholder
-      color: $text-secondary
+      &.placeholder {
+        color: var(--text-secondary);
+      }
+    }
 
-  .icon
-    flex-shrink: 0
+    .icon {
+      flex-shrink: 0;
 
-    &.clock
-      margin-left: 1.5rem
+      &.clock {
+        margin-left: 1.5rem;
 
-      @media $mobile
-        margin-left: 1rem
+        @media #{$mobile} {
+          margin-left: 1rem;
+        }
+      }
+    }
 
-  .button.icon
-    margin: -0.5rem
-    margin-left: 0.5rem
-    margin-right: -1rem
-    padding: (8.5 / 16)rem
+    .button.icon {
+      margin: -0.5rem;
+      margin-left: 0.5rem;
+      margin-right: -1rem;
+      padding: rem(8.5);
+    }
+  }
 
-.date-popover
-  &.dark
-    .calendar
-      header
-        color: $text-secondary-dark
+  .date-popover {
+    &.dark {
+      .calendar {
+        header {
+          color: var(--text-secondary-dark);
+        }
 
-      .days
-        .button.other-month:not(.disabled)
-          color: $text-secondary-dark
-  *
-    user-select: none
+        .days {
+          .button.other-month:not(.disabled) {
+            color: var(--text-secondary-dark);
+          }
+        }
+      }
+    }
 
-  header
-    display: flex
-    justify-content: space-between
-    align-items: center
-    margin-bottom: 1rem
+    * {
+      user-select: none;
+    }
 
-    @media $mobile
-      justify-content: center
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1rem;
 
-    .button
-      &:first-child
-        margin-right: 0.5rem
+      @media #{$mobile} {
+        justify-content: center;
+      }
 
-      &:last-child
-        margin-left: 0.5rem
+      .button {
+        &:first-child {
+          margin-right: 0.5rem;
+        }
 
-  .calendar
-    margin: 0 auto
-    width: 100%
-    max-width: (((7 * (40 + 6)) - 6) / 16)rem // 7 Buttons a 48px + 6px margin - negative margin of 6px
+        &:last-child {
+          margin-left: 0.5rem;
+        }
+      }
+    }
 
-    header
-      display: flex
-      justify-content: space-around
-      color: $text-secondary
-      margin-bottom: 0.75rem
+    .calendar {
+      margin: 0 auto;
+      width: 100%;
+      max-width: rem(7 * (40 + 6) - 6); // 7 Buttons a 48px + 6px margin - negative margin of 6px
 
-      .label
-        margin: 0 0.375rem
-        width: 100%
-        text-align: center
-        font-size: 0.75rem
+      header {
+        display: flex;
+        justify-content: space-around;
+        color: var(--text-secondary);
+        margin-bottom: 0.75rem;
 
-        &:first-child
-          margin-left: 0
+        .label {
+          margin: 0 0.375rem;
+          width: 100%;
+          text-align: center;
+          font-size: 0.75rem;
 
-        &:last-child
-          margin-right: 0
+          &:first-child {
+            margin-left: 0;
+          }
 
-    .days
-      display: flex
-      flex-wrap: wrap
-      margin: 0 -0.1875rem
+          &:last-child {
+            margin-right: 0;
+          }
+        }
+      }
 
-      &.forwards-enter-active,
-      &.backwards-enter-active,
-      &.forwards-leave-active,
-      &.backwards-leave-active
-        transition: transform 150ms ease-out, opacity 150ms ease-out
+      .days {
+        display: flex;
+        flex-wrap: wrap;
+        margin: 0 -0.1875rem;
 
-        &.forwards-enter-from,
-        &.backwards-leave-to
-          opacity: 0
-          transform: translateX(-2rem)
+        &.forwards-enter-active,
+        &.backwards-enter-active,
+        &.forwards-leave-active,
+        &.backwards-leave-active {
+          transition: transform 150ms ease-out, opacity 150ms ease-out;
 
-        &.backwards-enter-from,
-        &.forwards-leave-to
-          opacity: 0
-          transform: translateX(2rem)
+          &.forwards-enter-from,
+          &.backwards-leave-to {
+            opacity: 0;
+            transform: translateX(-2rem);
+          }
 
-      &.forwards-leave-active,
-      &.backwards-leave-active
-        transition-timing-function: ease-in
+          &.backwards-enter-from,
+          &.forwards-leave-to {
+            opacity: 0;
+            transform: translateX(2rem);
+          }
+        }
 
-      .button
-        margin: 0.1875rem
-        padding: 0
-        width: calc(100% / 7 - 0.375rem)
-        height: (40 / 16)rem
-        border: none
-        display: inline-block;
+        &.forwards-leave-active,
+        &.backwards-leave-active {
+          transition-timing-function: ease-in;
+        }
 
-        &.other-month:not(.disabled)
-          color: $text-secondary
+        .button {
+          margin: 0.1875rem;
+          padding: 0;
+          width: calc(100% / 7 - 0.375rem);
+          height: rem(40);
+          border: none;
+          display: inline-block;
 
-  footer
-    display: flex
-    align-items: center
-    justify-content: space-between
-    margin-top: 1.5rem
+          &.other-month:not(.disabled) {
+            color: var(--text-secondary);
+          }
+        }
+      }
+    }
 
-    &:last-child
-      margin-bottom: 0.5rem
+    footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-top: 1.5rem;
 
-    .button.icon
-      &:first-child
-        margin-right: 0.75rem
+      &:last-child {
+        margin-bottom: 0.5rem;
+      }
 
-      &:last-child
-        margin-left: 0.75rem
+      .button.icon {
+        &:first-child {
+          margin-right: 0.75rem;
+        }
 
-    .input
-      margin-top: 0
-      width: 8rem
+        &:last-child {
+          margin-left: 0.75rem;
+        }
+      }
+
+      .input {
+        margin-top: 0;
+        width: 8rem;
+      }
+    }
+  }
 </style>

@@ -997,499 +997,621 @@ export default {
 };
 </script>
 
-<style lang="stylus">
-@require '../assets/styles/breakpoints'
-@require '../assets/styles/colors'
-@require '../assets/styles/corners'
+<style lang="scss">
+  @use '../assets/styles/breakpoints' as *;
 
-.editor
-  .toolbar
-    background-color: $bg-tertiary
-    border-radius: $radius-m
-    border-bottom-left-radius: 0
-    border-bottom-right-radius: 0
-    margin-top: 1.5rem
-    position: sticky
-    top: 0.5rem
-    overflow: hidden
-    z-index: 1
+  .editor {
+    .toolbar {
+      background-color: var(--bg-tertiary);
+      border-radius: var(--radius-m);
+      border-bottom-left-radius: 0;
+      border-bottom-right-radius: 0;
+      margin-top: 1.5rem;
+      position: sticky;
+      top: 0.5rem;
+      overflow: hidden;
+      z-index: 1;
 
-    &.dark
-      background-color: $bg-tertiary-dark
+      &.dark {
+        background-color: var(--bg-tertiary-dark);
+      }
 
-    .scroll-wrapper
-      padding: 0.5rem
-      display: flex
-      align-items: center
+      .scroll-wrapper {
+        padding: 0.5rem;
+        display: flex;
+        align-items: center;
 
-      &::after /* so the last item isn’t glued to the right */
-        content: ''
-        display: block
-        width: 0.5rem
-        flex-shrink: 0
-        align-self: stretch
+        &::after  { // so the last item isn’t glued to the right
+          content: '';
+          display: block;
+          width: 0.5rem;
+          flex-shrink: 0;
+          align-self: stretch;
+        }
 
-      .tool-group
-        flex-shrink: 0
+        .tool-group {
+          flex-shrink: 0;
 
-        &.align-right
-          margin-left: auto
+          &.align-right {
+            margin-left: auto;
+          }
 
-        &:not(:last-child)
-          &::after
-            content: ''
-            display: inline-block
-            vertical-align: middle
-            width: 0.0625rem
-            height: 2rem
-            background-color: alpha($accent-secondary, 0.25)
-            margin: 0 0.5rem
+          &:not(:last-child) {
+            &::after {
+              content: '';
+              display: inline-block;
+              vertical-align: middle;
+              width: 0.0625rem;
+              height: 2rem;
+              background-color: color-mix(in srgb, var(--accent-secondary) 25%, transparent);
+              margin: 0 0.5rem;
+            }
+          }
 
-        .button.paragraph-type
-          border: none
-          min-width: (96 / 16)rem
-          flex-shrink: 0
+          .button.paragraph-type {
+            border: none;
+            min-width: rem(96);
+            flex-shrink: 0;
+          }
 
-        .button.icon
-          padding: ((16 - 3) / 16)rem
+          .button.icon {
+            padding: rem(13);
 
-          &:not(:last-child)
-            margin-right: 0.5rem
+            &:not(:last-child) {
+              margin-right: 0.5rem;
+            }
 
-          &:not(.primary):hover
-            background-color: $bg-secondary
+            &:not(.primary):hover {
+              background-color: var(--bg-secondary);
 
-            &.dark
-              background-color: $bg-secondary-dark
+              &.dark {
+                background-color: var(--bg-secondary-dark);
+              }
+            }
 
-          &.space-next
-            margin-right: 1rem
+            &.space-next {
+              margin-right: 1rem;
+            }
+          }
 
-        .toggle
-          margin-left: auto
+          .toggle {
+            margin-left: auto;
+          }
+        }
+      }
+    }
 
-  .content-wrapper
-    display: block
-    background-color: $bg-secondary
-    border-radius: $radius-m
-    padding: 1rem
-    position: relative
-    cursor: text
-    margin-top: 1.5rem
-    border: 1px solid transparent
-    transition: box-shadow 200ms ease
+    .content-wrapper {
+      display: block;
+      background-color: var(--bg-secondary);
+      border-radius: var(--radius-m);
+      padding: 1rem;
+      position: relative;
+      cursor: text;
+      margin-top: 1.5rem;
+      border: 1px solid transparent;
+      transition: box-shadow 200ms ease;
 
-    &.raw
-      .autogrow-area
-        font-family: monospace
+      &.raw {
+        .autogrow-area {
+          font-family: monospace;
+        }
+      }
 
-    &.rich
-      border-top-left-radius: 0
-      border-top-right-radius: 0
-      margin-top: 0
+      &.rich {
+        border-top-left-radius: 0;
+        border-top-right-radius: 0;
+        margin-top: 0;
+      }
 
-    &.dark
-      background-color: $bg-secondary-dark
+      &.dark {
+        background-color: var(--bg-secondary-dark);
 
-      .label
-        color: $text-secondary-dark
+        .label {
+          color: var(--text-secondary-dark);
+        }
 
-      .editor-wrapper.ProseMirror
+        .editor-wrapper.ProseMirror {
+          pre,
+          code {
+            background-color: var(--bg-tertiary-dark);
+          }
+
+          figure {
+            &.loading {
+              background-color: var(--bg-tertiary-dark);
+            }
+
+            figcaption {
+              &.empty::before {
+                color: var(--text-secondary-dark);
+              }
+            }
+          }
+        }
+
+        .placeholder {
+          color: var(--text-secondary-dark);
+        }
+
+        .fake-caret {
+          background-color: currentColor;
+        }
+
+        .autogrow-area textarea {
+          caret-color: currentColor;
+
+          &::placeholder {
+            color: var(--text-secondary-dark);
+          }
+        }
+      }
+
+      &.error {
+        color: var(--negative-saturated);
+        box-shadow: inset 0 0 0 0.125rem var(--negative);
+
+        &:focus-within {
+          color: inherit;
+        }
+
+        .label {
+          color: var(--negative-saturated);
+        }
+
+        &.warn {
+          color: inherit;
+          box-shadow: inset 0 0 0 0.125rem var(--warning-saturated);
+
+          .label {
+            color: var(--warning-saturated);
+          }
+        }
+      }
+
+      &.disabled {
+        pointer-events: none;
+        background-color: transparent;
+        border-style: dashed;
+        border-color: var(--text-tertiary);
+        color: var(--text-tertiary);
+        box-shadow: none;
+
+        &.dark {
+          border-color: var(--text-tertiary-dark);
+          color: var(--text-tertiary-dark);
+        }
+
+        .label {
+          color: inherit;
+        }
+
+        .autogrow-area textarea::placeholder {
+          color: inherit;
+        }
+      }
+
+      &:focus-within {
+        box-shadow: inset 0 0 0 2px var(--accent);
+      }
+
+      &:focus-within,
+      &.dirty {
+        .label {
+          transform: translate(calc(-1rem + var(--radius-m)), calc(-100% - 1.25rem)) scale(0.75);
+          width: calc(125% + 1rem - (2 * var(--radius-m)));
+        }
+
+        &.rich .label {
+          transform: translate(calc(-1rem + var(--radius-m)), calc(-6.5rem)) scale(0.75);
+        }
+      }
+
+      .label {
+        display: block;
+        cursor: text;
+        user-select: none;
+        color: var(--text-secondary);
+        transform-origin: bottom left;
+        position: absolute;
+        white-space: nowrap;
+        width: calc(100% - 2rem);
+        overflow: hidden;
+        text-overflow: ellipsis;
+        transition: transform 200ms ease;
+
+        &.right {
+          text-align: right;
+        }
+      }
+
+      .dropcursor {
+        background-color: var(--accent) !important; // to override the style-attribute
+        border-radius: 1px;
+      }
+
+      .editor-wrapper.ProseMirror  { // adapted from prosemirror-view/style/prosemirror.css
+        position: relative;
+        word-wrap: break-word;
+        white-space: pre-wrap;
+        white-space: break-spaces;
+        // font-variant-ligatures: none // ligatures were disabled because Chrome couldn’t select inbetween them, but it seems fixed now
+        // font-feature-settings: "liga" 0; /* the above doesn't seem to work in Edge */
+        caret-color: transparent;
+        user-select: auto;
+
+        &.ProseMirror-focused {
+          .ProseMirror-gapcursor {
+            display: block;
+          }
+        }
+
+        &.ProseMirror-hideselection {
+          caret-color: transparent;
+
+          *::selection {
+            background-color: transparent;
+          }
+        }
+
+        > :first-child,
+        > :first-child :first-child {
+          margin-top: 0;
+        }
+
+        > :last-child,
+        > :last-child > :last-child {
+          margin-bottom: 0;
+        }
+
+        .ProseMirror-gapcursor  { // adapted from prosemirror-gapcursor/style/gapcursor.css
+          display: none;
+          pointer-events: none;
+          position: absolute;
+
+          &::after {
+            content: "";
+            display: block;
+            position: absolute;
+            top: -0.125rem;
+            width: 1.5rem;
+            height: 0.125rem;
+            background-color: var(--accent);
+            border-radius: rem(1);
+            animation: blink 1s ease infinite;
+          }
+        }
+
+        pre {
+          white-space: pre-wrap;
+
+          code {
+            background-color: transparent;
+          }
+        }
+
+        hr {
+          cursor: pointer;
+          background-color: var(--accent-secondary);
+          width: 30%;
+        }
+
+        code {
+          background-color: var(--bg);
+        }
+
+        li {
+          position: relative;
+
+          &.ProseMirror-selectednode {
+            outline: none;
+
+            &::after {
+              content: '';
+              position: absolute;
+              left: rem(-32);
+              right: rem(-2);
+              top: rem(-2);
+              bottom: rem(-2);
+              border: rem(2) solid var(--accent);
+              pointer-events: none;
+            }
+          }
+        }
+
+        figure {
+          margin: rem(32) 0;
+          text-align: center;
+          cursor: pointer;
+          transition: background-color 350ms ease;
+
+          &.loading {
+            padding-top: calc(9 / 16 * 100%);
+            background-color: var(--bg-tertiary);
+
+            img {
+              opacity: 0;
+              height: 0;
+              transition: none;
+            }
+          }
+
+          img {
+            display: block;
+            margin: 0 auto;
+            max-width: 100%;
+            transition: opacity 350ms ease;
+          }
+
+          figcaption {
+            position: relative;
+            cursor: text;
+            margin-top: 1rem;
+
+            &.empty::before {
+              content: 'Add caption…';
+              color: var(--text-secondary);
+              position: absolute;
+              width: 100%;
+              left: 0;
+              top: 0;
+            }
+          }
+        }
+
+        .ProseMirror-selectednode {
+          outline: 0.125rem solid var(--accent);
+          outline-offset: 0.25rem;
+
+          &::selection,
+          ::selection {
+            color: inherit;
+          }
+        }
+      }
+
+      .editor-wrapper.ProseMirror-hideselection + .fake-caret {
+        display: none;
+      }
+
+      .placeholder {
+        color: var(--text-secondary);
+        pointer-events: none;
+        margin: 0;
+        position: absolute;
+        top: 1rem;
+        left: 1rem;
+
+        &.h1, &.h2, &.h3, &.h4, &.h5, &.h6 {
+          font-weight: bold;
+        }
+
+        &.code,
+        &.code-lang {
+          font-family: monospace;
+          color: var(--text-secondary-dark);
+          top: 2rem;
+          left: 2rem;
+        }
+
+        &.code-lang {
+          top: 3rem;
+        }
+      }
+
+      .fake-caret {
+        width: 0.125rem;
+        min-height: 1em;
+        border-radius: rem(1);
+        background-color: var(--accent);
+        position: absolute;
+        top: 1rem;
+        left: 1rem;
+        margin: 0;
+        pointer-events: none;
+        transition: transform 100ms ease-out;
+        animation: blink 1s ease infinite;
+
+        &.code,
+        &.code-lang {
+          background-color: var(--text-dark);
+        }
+
+        @keyframes blink {
+          0% {
+            opacity: 0;
+          }
+
+          50% {
+            opacity: 1;
+          }
+
+          100% {
+            opacity: 0;
+          }
+        }
+      }
+
+      .autogrow-area {
+        position: relative;
+        width: 100%;
+
         pre,
-        code
-          background-color: $bg-tertiary-dark
-
-        figure
-          &.loading
-            background-color: $bg-tertiary-dark
-
-          figcaption
-            &.empty::before
-              color: $text-secondary-dark
-
-      .placeholder
-        color: $text-secondary-dark
-
-      .fake-caret
-        background-color: currentColor
-
-      .autogrow-area textarea
-        caret-color: currentColor
-
-        &::placeholder
-          color: $text-secondary-dark
-
-    &.error
-      color: $negative-saturated
-      box-shadow: inset 0 0 0 0.125rem $negative
-
-      &:focus-within
-        color: inherit
-
-      .label
-        color: $negative-saturated
-
-      &.warn
-        color: inherit
-        box-shadow: inset 0 0 0 0.125rem $warning-saturated
-
-        .label
-          color: $warning-saturated
-
-    &.disabled
-      pointer-events: none
-      background-color: transparent
-      border-style: dashed
-      border-color: $text-tertiary
-      color: $text-tertiary
-      box-shadow: none
-
-      &.dark
-        border-color: $text-tertiary-dark
-        color: $text-tertiary-dark
-
-      .label
-        color: inherit
-
-      .autogrow-area textarea::placeholder
-        color: inherit
-
-    &:focus-within
-      box-shadow: inset 0 0 0 2px $accent
-
-    &:focus-within,
-    &.dirty
-      .label
-        transform: translate((-1rem + $radius-m), calc(-100% - 1.25rem)) scale(0.75)
-        width: 'calc(125% + 1rem - %s)' % (2 * $radius-m) // it’s scaled down by 0.75 and we can’t use stylus expressions in calc
-
-      &.rich .label
-        transform: translate((-1rem + $radius-m), calc(-6.5rem)) scale(0.75)
-
-    .label
-      display: block
-      cursor: text
-      user-select: none
-      color: $text-secondary
-      transform-origin: bottom left
-      position: absolute
-      white-space: nowrap
-      width: calc(100% - 2rem)
-      overflow: hidden
-      text-overflow: ellipsis
-      transition: transform 200ms ease
-
-      &.right
-        text-align: right
-
-    .dropcursor
-      background-color: $accent !important // to override the style-attribute
-      border-radius: 1px
-
-    .editor-wrapper.ProseMirror // adapted from prosemirror-view/style/prosemirror.css
-      position: relative
-      word-wrap: break-word
-      white-space: pre-wrap
-      white-space: break-spaces
-      // font-variant-ligatures: none // ligatures were disabled because Chrome couldn’t select inbetween them, but it seems fixed now
-      // font-feature-settings: "liga" 0; /* the above doesn't seem to work in Edge */
-      caret-color: transparent
-      user-select: auto
-
-      &.ProseMirror-focused
-        .ProseMirror-gapcursor
-          display: block
-
-      &.ProseMirror-hideselection
-        caret-color: transparent
-
-        *::selection
-          background-color: transparent
-
-      > :first-child,
-      > :first-child :first-child
-        margin-top: 0
-
-      > :last-child,
-      > :last-child > :last-child
-        margin-bottom: 0
-
-      .ProseMirror-gapcursor // adapted from prosemirror-gapcursor/style/gapcursor.css
-        display: none
-        pointer-events: none
-        position: absolute
-
-        &::after
-          content: ""
-          display: block
-          position: absolute
-          top: -0.125rem
-          width: 1.5rem
-          height: 0.125rem
-          background-color: $accent
-          border-radius: (1 / 16)rem
-          animation: blink 1s ease infinite
-
-      pre
-        white-space: pre-wrap
-
-        code
-          background-color: transparent
-
-      hr
-        cursor: pointer
-        background-color: $accent-secondary
-        width: 30%
-
-      code
-        background-color: $bg
-
-      li
-        position: relative
-
-        &.ProseMirror-selectednode
-          outline: none
-
-          &::after
-            content: ''
-            position: absolute
-            left: (-32 / 16)rem
-            right: (-2 / 16)rem;
-            top: (-2 / 16)rem;
-            bottom: (-2 / 16)rem
-            border: (2 / 16)rem solid $accent
-            pointer-events: none
-
-      figure
-        margin: (32 / 16)rem 0
-        text-align: center
-        cursor: pointer
-        transition: background-color 350ms ease
-
-        &.loading
-          padding-top: (9 / 16 * 100)%
-          background-color: $bg-tertiary
-
-          img
-            opacity: 0
-            height: 0
-            transition: none
-
-        img
-          display: block
-          margin: 0 auto
-          max-width: 100%
-          transition: opacity 350ms ease
-
-        figcaption
-          position: relative
-          cursor: text
-          margin-top: 1rem
-
-          &.empty::before
-            content: 'Add caption…'
-            color: $text-secondary
-            position: absolute
-            width: 100%
-            left: 0
-            top: 0
-
-      .ProseMirror-selectednode
-        outline: 0.125rem solid $accent
-        outline-offset: 0.25rem
-
-        &::selection,
-        ::selection
-          color: inherit
-
-    .editor-wrapper.ProseMirror-hideselection + .fake-caret
-      display: none
-
-    .placeholder
-      color: $text-secondary
-      pointer-events: none
-      margin: 0
-      position: absolute
-      top: 1rem
-      left: 1rem
-
-      &.h1, &.h2, &.h3, &.h4, &.h5, &.h6
-        font-weight: bold
-
-      &.code,
-      &.code-lang
-        font-family: monospace
-        color: $text-secondary-dark
-        top: 2rem
-        left: 2rem
-
-      &.code-lang
-        top: 3rem
-
-    .fake-caret
-      width: 0.125rem
-      min-height: 1em
-      border-radius: (1 / 16)rem
-      background-color: $accent
-      position: absolute
-      top: 1rem
-      left: 1rem
-      margin: 0
-      pointer-events: none
-      transition: transform 100ms ease-out
-      animation: blink 1s ease infinite
-
-      &.code,
-      &.code-lang
-        background-color: $text-dark
-
-      @keyframes blink
-        0%
-          opacity: 0
-        50%
-          opacity: 1
-        100%
-          opacity: 0
-
-    .autogrow-area
-      position: relative
-      width: 100%
-
-      pre,
-      textarea
-        vertical-align: top
-        margin: 0
-        padding: 0
-        outline: 0
-        border: 0
-        font-family: inherit
-        font-size: inherit
-        font-weight: inherit
-        letter-spacing: inherit
-        color: inherit
-        background-color: transparent
-        resize: none
-        white-space: pre-wrap
-        word-wrap: break-word
-        line-height: inherit
-        overflow: hidden
-        text-align: inherit
-
-      textarea
-        width: 100%
-        height: 100%
-        resize: none
-        caret-color: $accent
-
-        &::placeholder
-          color: $text-secondary
-          opacity: 1
-          user-select: none
-
-      pre
-        position: absolute
-        top: 0px
-        left: @top
-        right: @top
-        visibility: hidden
-
-.popover
-  &.add-link,
-  &.edit-image
-    h3
-      text-align: center
-
-    .input
-      width: 100%
-      display: flex
-
-      &.dark
-        background-color: $bg-tertiary-dark
-
-      & + .remove-link
-        margin-top: 1.5rem
-
-    .input,
-    .internal-link
-      &.v-enter-active,
-      &.v-leave-active
-        transition:  opacity 200ms ease
-
-        &.v-enter-from,
-        &.v-leave-to
-          opacity: 0
-
-    .internal-link
-      margin-top: 1.5rem
-      max-width: (309 / 16)rem
-
-      &.dark
-        background-color: $bg-secondary-dark
-
-        .url,
-        .collections ul li:not(:last-child)
-          background-color: $bg-tertiary-dark
-
-          &:hover
-            background-color: lighten($bg-tertiary-dark, 5)
-
-        .view.files
-          .file-list
-            .files
-              background-color: $bg-secondary-dark
-
-              .file
-                background-color: $bg-tertiary-dark
-
-                &:hover
-                  background-color: lighten($bg-tertiary-dark, 5)
-
-                &:active
-                  background-color: $bg-secondary-dark
-
-      .view.files
-        .file-list
-          header
-            .actions
-              flex-direction: column-reverse
-              align-items: flex-start
-
-              .input
-                width: 100%
-                margin-right: 0
-                margin-top: 0.5rem
-
-              > .button
-                width: 100%
-                margin: 0
-
-          .files
-            max-height: (400 / 16)rem
-            overflow-y: auto
-
-    .segmented-selector.dark
-      background-color: $bg-tertiary-dark
-
-    .toggle
-      margin-top: 1rem
-
-    .remove-link,
-    .replace-image
-      margin-top: 1rem
-      width: 100%
-
-  &.edit-image
-    min-width: (320 / 16)rem
-
-    @media $mobile
-      min-width: auto
-
-    .fields-editor
-      margin-bottom: 0.5rem
-
-      > .field.text:not(.localised):first-child
-        margin-top: 0.5rem
-
-      > .field:not(:last-child)
-        margin-bottom: 1.5rem
+        textarea {
+          vertical-align: top;
+          margin: 0;
+          padding: 0;
+          outline: 0;
+          border: 0;
+          font-family: inherit;
+          font-size: inherit;
+          font-weight: inherit;
+          letter-spacing: inherit;
+          color: inherit;
+          background-color: transparent;
+          resize: none;
+          white-space: pre-wrap;
+          word-wrap: break-word;
+          line-height: inherit;
+          overflow: hidden;
+          text-align: inherit;
+        }
+
+        textarea {
+          width: 100%;
+          height: 100%;
+          resize: none;
+          caret-color: var(--accent);
+
+          &::placeholder {
+            color: var(--text-secondary);
+            opacity: 1;
+            user-select: none;
+          }
+        }
+
+        pre {
+          position: absolute;
+          top: 0px;
+          left: 0px;
+          right: 0px;
+          visibility: hidden;
+        }
+      }
+    }
+  }
+
+  .popover {
+    &.add-link,
+    &.edit-image {
+      h3 {
+        text-align: center;
+      }
+
+      .input {
+        width: 100%;
+        display: flex;
+
+        &.dark {
+          background-color: var(--bg-tertiary-dark);
+        }
+
+        & + .remove-link {
+          margin-top: 1.5rem;
+        }
+      }
+
+      .input,
+      .internal-link {
+        &.v-enter-active,
+        &.v-leave-active {
+          transition: opacity 200ms ease;
+
+          &.v-enter-from,
+          &.v-leave-to {
+            opacity: 0;
+          }
+        }
+      }
+
+      .internal-link {
+        margin-top: 1.5rem;
+        max-width: rem(309);
+
+        &.dark {
+          background-color: var(--bg-secondary-dark);
+
+          .url,
+          .collections ul li:not(:last-child) {
+            background-color: var(--bg-tertiary-dark);
+
+            &:hover {
+              background-color: var(--bg-tertiary-dark-lightened-5);
+            }
+          }
+
+          .view.files {
+            .file-list {
+              .files {
+                background-color: var(--bg-secondary-dark);
+
+                .file {
+                  background-color: var(--bg-tertiary-dark);
+
+                  &:hover {
+                    background-color: var(--bg-tertiary-dark-lightened-5);
+                  }
+
+                  &:active {
+                    background-color: var(--bg-secondary-dark);
+                  }
+                }
+              }
+            }
+          }
+        }
+
+        .view.files {
+          .file-list {
+            header {
+              .actions {
+                flex-direction: column-reverse;
+                align-items: flex-start;
+
+                .input {
+                  width: 100%;
+                  margin-right: 0;
+                  margin-top: 0.5rem;
+                }
+
+                > .button {
+                  width: 100%;
+                  margin: 0;
+                }
+              }
+            }
+
+            .files {
+              max-height: rem(400);
+              overflow-y: auto;
+            }
+          }
+        }
+      }
+
+      .segmented-selector.dark {
+        background-color: var(--bg-tertiary-dark);
+      }
+
+      .toggle {
+        margin-top: 1rem;
+      }
+
+      .remove-link,
+      .replace-image {
+        margin-top: 1rem;
+        width: 100%;
+      }
+    }
+
+    &.edit-image {
+      min-width: rem(320);
+
+      @media #{$mobile} {
+        min-width: auto;
+      }
+
+      .fields-editor {
+        margin-bottom: 0.5rem;
+
+        > .field.text:not(.localised):first-child {
+          margin-top: 0.5rem;
+        }
+
+        > .field:not(:last-child) {
+          margin-bottom: 1.5rem;
+        }
+      }
+    }
+  }
 </style>

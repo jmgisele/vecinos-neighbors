@@ -110,62 +110,74 @@ export default {
 };
 </script>
 
-<style lang="stylus" scoped>
-@require '../assets/styles/colors'
+<style lang="scss" scoped>
+  .scroller {
+    position: relative;
+    overflow: hidden;
 
-.scroller
-  position: relative
-  overflow: hidden
+    &.horizontal {
+      .scroll-area {
+        overflow-x: auto;
+        overflow-y: hidden;
+      }
+    }
 
-  &.horizontal
-    .scroll-area
-      overflow-x: auto
-      overflow-y: hidden
+    &.vertical {
+      .scroll-area {
+        overflow-x: hidden;
+        overflow-y: auto;
+      }
 
-  &.vertical
-    .scroll-area
-      overflow-x: hidden
-      overflow-y: auto
+      .shadow {
+        left: 0;
+        right: 0;
 
-    .shadow
-      left: 0
-      right: 0
+        &.start {
+          top: 0;
+          bottom: auto;
+          border-top: 2px dashed var(--accent-secondary);
+        }
 
-      &.start
-        top: 0
-        bottom: auto
-        border-top: 2px dashed $accent-secondary
+        &.end {
+          bottom: 0;
+          top: auto;
+          border-bottom: 2px dashed var(--accent-secondary);
+        }
+      }
+    }
 
-      &.end
-        bottom: 0
-        top: auto
-        border-bottom: 2px dashed $accent-secondary
+    .scroll-area {
+      max-height: inherit;
+      max-width: inherit;
+      scrollbar-width: none;
+      -ms-overflow-style: none;
 
-  .scroll-area
-    max-height: inherit
-    max-width: inherit
-    scrollbar-width: none
-    -ms-overflow-style: none
+      &::-webkit-scrollbar {
+        display: none;
+      }
+    }
 
-    &::-webkit-scrollbar
-      display: none
+    .shadow {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 200ms ease;
 
-  .shadow
-    position: absolute
-    top: 0
-    bottom: 0
-    pointer-events: none
-    opacity: 0
-    transition: opacity 200ms ease
+      &.visible {
+        opacity: 1;
+      }
 
-    &.visible
-      opacity: 1
+      &.start {
+        left: 0;
+        border-left: 2px dashed var(--accent-secondary);
+      }
 
-    &.start
-      left: 0
-      border-left: 2px dashed $accent-secondary
-
-    &.end
-      right: 0
-      border-right: 2px dashed $accent-secondary
+      &.end {
+        right: 0;
+        border-right: 2px dashed var(--accent-secondary);
+      }
+    }
+  }
 </style>

@@ -129,13 +129,15 @@ export default {
 };
 </script>
 
-<style lang="stylus" scoped>
-.project-avatar
-  width: 100%
-  max-width: (320 / 16)rem
+<style lang="scss" scoped>
+  .project-avatar {
+    width: 100%;
+    max-width: rem(320);
 
-  &::before
-    content: ''
-    display: block
-    padding-top: (180 / 320 * 100)%
+    &::before {
+      content: '';
+      display: block;
+      padding-top: calc((180 / 320) * 100%);
+    }
+  }
 </style>

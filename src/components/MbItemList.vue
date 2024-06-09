@@ -60,41 +60,45 @@ export default {
 };
 </script>
 
-<style lang="stylus" scoped>
-@require '../assets/styles/colors'
-@require '../assets/styles/corners'
+<style lang="scss" scoped>
+  .item-list {
+    &:deep(.select) {
+      width: 100%;
+    }
+  }
 
-.item-list
-  ::v-deep(.select)
-    width: 100%
+  .item {
+    display: flex;
+    align-items: center;
+    border-radius: var(--radius-m);
+    padding-right: 1rem;
+    flex-grow: 1;
+    box-shadow: inset 0 0 0 0.0625rem var(--text-tertiary);
+    overflow: hidden;
+    background-color: var(--bg);
+    margin-bottom: 0.5rem;
+    padding-right: 0.25rem;
 
-.item
-  display: flex
-  align-items: center
-  border-radius: $radius-m
-  padding-right: 1rem
-  flex-grow: 1
-  box-shadow: inset 0 0 0 0.0625rem $text-tertiary
-  overflow: hidden
-  background-color: $bg
-  margin-bottom: 0.5rem
-  padding-right: 0.25rem
+    &.dark {
+      background-color: var(--bg-secondary-dark);
+      box-shadow: inset 0 0 0 0.0625rem var(--bg-tertiary-dark);
+    }
 
-  &.dark
-    background-color: $bg-secondary-dark
-    box-shadow: inset 0 0 0 0.0625rem $bg-tertiary-dark
+    &.being-dragged {
+      opacity: 0.25;
+    }
 
-  &.being-dragged
-    opacity: 0.25
+    .drag-handle {
+      padding: 1rem;
+      cursor: move;
+    }
 
-  .drag-handle
-    padding: 1rem
-    cursor: move
+    .button {
+      flex-shrink: 0;
+    }
 
-  .button
-    flex-shrink: 0
-
-  > span
-    flex-grow: 1
-
+    > span {
+      flex-grow: 1;
+    }
+  }
 </style>

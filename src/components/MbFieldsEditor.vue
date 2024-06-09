@@ -195,104 +195,130 @@ export default {
 };
 </script>
 
-<style lang="stylus" scoped>
-@require '../assets/styles/breakpoints'
-@require '../assets/styles/colors'
-@require '../assets/styles/corners'
+<style lang="scss" scoped>
+  @use '../assets/styles/breakpoints' as *;
 
-.fields-editor
-  .field
-    &.text:not(.localised):first-child,
-    &.number:not(.localised):first-child,
-    &.rich-text:not(.localised):first-child,
-    &.color.error:first-child,
-    &.date.error:first-child // so the label is still visible even when it’s floating
-      margin-top: 2rem
+  .fields-editor {
+    .field {
+      &.text:not(.localised):first-child,
+      &.number:not(.localised):first-child,
+      &.rich-text:not(.localised):first-child,
+      &.color.error:first-child,
+      &.date.error:first-child  { // so the label is still visible even when it’s floating
+        margin-top: 2rem;
+      }
 
-    &:not(:last-child)
-      margin-bottom: 2rem
+      &:not(:last-child) {
+        margin-bottom: 2rem;
+      }
 
-    &:last-child
-      margin-bottom: 0.125rem // so we can still see the active state while :active
+      &:last-child {
+        margin-bottom: 0.125rem; // so we can still see the active state while :active
+      }
+    }
 
-  .container
-    width: 100%
+    .container {
+      width: 100%;
 
-    &.bordered
-      box-shadow: inset 0 0 0 0.0625rem alpha($text, 0.12)
-      padding: 1rem
-      border-radius: $radius-l
-      position: relative
+      &.bordered {
+        box-shadow: inset 0 0 0 0.0625rem color-mix(in srgb, var(--text) 12%, transparent);
+        padding: 1rem;
+        border-radius: var(--radius-l);
+        position: relative;
 
-      &.dark
-        box-shadow: inset 0 0 0 0.0625rem alpha($text-dark, 0.12)
+        &.dark {
+          box-shadow: inset 0 0 0 0.0625rem color-mix(in srgb, var(--text-dark) 12%, transparent);
+        }
 
-      &.collapsible
-        > header
-          cursor: pointer
+        &.collapsible {
+          > header {
+            cursor: pointer;
 
-          > .label
-            font-size: 1rem
-            transition: color 200ms ease
+            > .label {
+              font-size: 1rem;
+              transition: color 200ms ease;
 
-            &.collapsed
-              color: $text
+              &.collapsed {
+                color: var(--text);
 
-              &.dark
-                color: $text-dark
+                &.dark {
+                  color: var(--text-dark);
+                }
+              }
+            }
+          }
+        }
 
-      > header
-        display: flex
-        align-items: center
+        > header {
+          display: flex;
+          align-items: center;
 
-        > .label
-          font-size: 0.75rem
-          margin: 0
-          margin-right: auto
-          color: $text-secondary
+          > .label {
+            font-size: 0.75rem;
+            margin: 0;
+            margin-right: auto;
+            color: var(--text-secondary);
 
-          &.dark
-            color: $text-secondary-dark
+            &.dark {
+              color: var(--text-secondary-dark);
+            }
+          }
 
-        > .button
-          padding: 0.75rem
-          margin: -0.75rem
-          margin-left: 0
+          > .button {
+            padding: 0.75rem;
+            margin: -0.75rem;
+            margin-left: 0;
+          }
+        }
 
-      > .fields-editor
-        margin-top: 1rem
+        > .fields-editor {
+          margin-top: 1rem;
 
-        &.row
-          margin-top: 1rem
+          &.row {
+            margin-top: 1rem;
+          }
+        }
+      }
 
-    &:not(:last-child)
-      margin-bottom: 2rem
+      &:not(:last-child) {
+        margin-bottom: 2rem;
+      }
 
-    .fields-editor
-      @media $larger-than-mobile
-        &.row
-          display: flex
-          align-items: flex-start
-          margin: 0 -1rem
+      .fields-editor {
+        @media #{$larger-than-mobile} {
+          &.row {
+            display: flex;
+            align-items: flex-start;
+            margin: 0 -1rem;
 
-          > .container
-            margin: 0 1rem
-            overflow: hidden
-            flex-basis: 100%
+            > .container {
+              margin: 0 1rem;
+              overflow: hidden;
+              flex-basis: 100%;
+            }
 
-          > .field
-            flex-basis: 100%
-            margin: 0 1rem
+            > .field {
+              flex-basis: 100%;
+              margin: 0 1rem;
 
-            &.rich-text,
-            &.image,
-            &.group
-              overflow: hidden
+              &.rich-text,
+              &.image,
+              &.group {
+                overflow: hidden;
+              }
 
-            &.rich-text
-              padding-top: 1rem
-              margin-top: -1rem
+              &.rich-text {
+                padding-top: 1rem;
+                margin-top: -1rem;
+              }
+            }
+          }
+        }
 
-      > .container.bordered
-        border-radius: $radius-m
+        > .container.bordered {
+          border-radius: var(--radius-m);
+        }
+      }
+    }
+  }
 </style>

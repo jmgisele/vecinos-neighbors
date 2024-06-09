@@ -312,200 +312,232 @@ export default {
 };
 </script>
 
-<style lang="stylus" scoped>
-@require '../assets/styles/colors'
-@require '../assets/styles/corners'
+<style lang="scss" scoped>
+  .tag-input {
+    vertical-align: middle;
+    align-items: center;
+    background-color: var(--bg-secondary);
+    border-radius: var(--radius-m);
+    padding: 1rem;
+    position: relative;
+    cursor: text;
+    margin-top: 1.5rem;
+    user-select: none;
+    display: flex;
+    transition: box-shadow 200ms ease;
 
-.tag-input
-  vertical-align: middle
-  align-items: center
-  background-color: $bg-secondary
-  border-radius: $radius-m
-  padding: 1rem
-  position: relative
-  cursor: text
-  margin-top: 1.5rem
-  user-select: none
-  display: flex
-  transition: box-shadow 200ms ease
+    &.dark {
+      background-color: var(--bg-secondary-dark);
 
-  &.dark
-    background-color: $bg-secondary-dark
+      .label {
+        color: var(--text-secondary-dark);
+      }
 
-    .label
-      color: $text-secondary-dark
+      .tags-wrapper {
+        .autogrow-input {
+          input {
+            caret-color: currentColor;
+          }
 
-    .tags-wrapper
-      .autogrow-input
-        input
-          caret-color: currentColor
+          .top-suggestion,
+          input::placeholder {
+            color: var(--text-secondary-dark);
+          }
+        }
+      }
+    }
 
+    &.error {
+      box-shadow: inset 0 0 0 2px var(--negative);
+
+      .label {
+        color: var(--negative-saturated);
+      }
+    }
+
+    &:focus-within {
+      box-shadow: inset 0 0 0 2px var(--accent);
+    }
+
+    .label {
+      flex-shrink: 0;
+      display: block;
+      cursor: text;
+      user-select: none;
+      color: var(--text-secondary);
+      transform-origin: bottom left;
+      position: absolute;
+      white-space: nowrap;
+      width: calc(100% - 0.75rem);
+      overflow: hidden;
+      text-overflow: ellipsis;
+      pointer-events: none;
+      top: -1.25rem;
+      left: var(--radius-m);
+      font-size: 0.75rem;
+
+      &.right {
+        text-align: right;
+      }
+    }
+
+    .tags-wrapper {
+      margin: -0.25rem;
+      max-width: 100%;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+
+      .autogrow-input {
+        position: relative;
+        display: inline-block;
+        height: 1.5rem;
+        max-width: 100%;
+        vertical-align: top;
+        margin: 0.25rem;
+
+        .spacer,
         .top-suggestion,
-        input::placeholder
-          color: $text-secondary-dark
+        input {
+          height: 100%;
+          background-color: transparent;
+          border: none;
+          color: inherit;
+          font-family: inherit;
+          font-size: 1rem;
+          margin: 0;
+          padding: 0;
+          outline: none;
+          text-overflow: ellipsis;
+          min-width: 0;
+          white-space: pre;
+          appearance: none;
+        }
 
-  &.error
-    box-shadow: inset 0 0 0 2px $negative
+        input {
+          position: absolute;
+          width: 100%;
+          left: 0;
+          top: 0;
+          right: 0;
+          bottom: 0;
+          user-select: text;
+          caret-color: var(--accent);
+          appearance: textfield;
+          -moz-appearance: textfield;
 
-    .label
-      color: $negative-saturated
+          &::-webkit-outer-spin-button,
+          &::-webkit-inner-spin-button,
+          &::-webkit-search-decoration,
+          &::-webkit-search-cancel-button,
+          &::-webkit-search-results-button,
+          &::-webkit-search-results-decoration {
+            appearance: none;
+            display: none;
+            margin: 0;
+          }
 
-  &:focus-within
-    box-shadow: inset 0 0 0 2px $accent
+          &::placeholder {
+            color: var(--text-secondary);
+          }
+        }
 
-  .label
-    flex-shrink: 0
-    display: block
-    cursor: text
-    user-select: none
-    color: $text-secondary
-    transform-origin: bottom left
-    position: absolute
-    white-space: nowrap
-    width: calc(100% - 0.75rem)
-    overflow: hidden
-    text-overflow: ellipsis
-    pointer-events: none
-    top: -1.25rem
-    left: $radius-m
-    font-size: 0.75rem
+        .spacer {
+          display: block;
+          overflow: hidden;
+          visibility: hidden;
+          padding-right: 0.0625rem; // so it doesn’t cause a scroll / jitter
+        }
 
-    &.right
-      text-align: right
+        .top-suggestion {
+          display: block;
+          overflow: hidden;
+          color: var(--text-secondary);
+        }
+      }
 
-  .tags-wrapper
-    margin: -0.25rem
-    max-width: 100%
-    display: flex
-    flex-wrap: wrap
-    align-items: center
+      .v-enter-active,
+      .v-leave-active,
+      .v-move {
+        transition: transform 200ms cubic-bezier(0.19, 0.005, 0, 1.005), opacity 200ms ease;
 
-    .autogrow-input
-      position: relative
-      display: inline-block
-      height: 1.5rem
-      max-width: 100%
-      vertical-align: top
-      margin: 0.25rem
+        &.v-enter-from,
+        &.v-leave-to {
+          transform: scale(0.8);
+          opacity: 0;
+        }
+      }
 
-      .spacer,
-      .top-suggestion,
-      input
-        height: 100%
-        background-color: transparent
-        border: none
-        color: inherit
-        font-family: inherit
-        font-size: 1rem
-        text-shadow: $text-shadow
-        margin: 0
-        padding: 0
-        outline: none
-        text-overflow: ellipsis
-        min-width: 0
-        white-space: pre
-        appearance: none
+      .v-move {
+        pointer-events: none;
+      }
+    }
+  }
 
-      input
-        position: absolute
-        width: 100%
-        left: 0
-        top: 0
-        right: 0
-        bottom: 0
-        user-select: text
-        caret-color: $accent
-        -moz-appearance: textfield
+  // needs to be unnested so the tag clone has the same styles
+  .tag {
+    padding: 0.25rem;
+    background-color: var(--bg);
+    border-radius: var(--radius-m);
+    margin: 0.25rem;
+    display: inline-flex;
+    align-items: center;
+    white-space: nowrap;
+    max-width: 100%;
+    touch-action: none;
+    cursor: default;
+    box-shadow: inset 0 0 0 0.0625rem var(--text-tertiary);
 
-        &::-webkit-outer-spin-button,
-        &::-webkit-inner-spin-button,
-        &::-webkit-search-decoration,
-        &::-webkit-search-cancel-button,
-        &::-webkit-search-results-button,
-        &::-webkit-search-results-decoration
-          appearance: none
-          display: none
-          margin: 0
+    &.dark {
+      background-color: var(--bg-dark);
+      box-shadow: none;
+    }
 
-        &::placeholder
-          color: $text-secondary
+    &.overflow {
+      color: var(--negative-saturated);
+    }
 
-      .spacer
-        display: block
-        overflow: hidden
-        visibility: hidden
-        padding-right: 0.0625rem // so it doesn’t cause a scroll / jitter
+    &.being-dragged {
+      box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--accent) 50%, transparent);
+      background-color: transparent;
 
-      .top-suggestion
-        display: block
-        overflow: hidden
-        color: $text-secondary
+      > * {
+        opacity: 0;
+      }
+    }
 
-    .v-enter-active,
-    .v-leave-active,
-    .v-move
-      transition: transform 200ms cubic-bezier(0.190, 0.005, 0.000, 1.005), opacity 200ms ease
+    &.drag-active {
+      > * {
+        pointer-events: none;
+      }
+    }
 
-      &.v-enter-from,
-      &.v-leave-to
-        transform: scale(0.8)
-        opacity: 0
+    > .icon {
+      flex-shrink: 0;
 
-    .v-move
-      pointer-events: none
+      &:not(.button) {
+        cursor: move;
+        width: 1rem;
+        height: 1rem;
+      }
+    }
 
-// needs to be unnested so the tag clone has the same styles
-.tag
-  padding: 0.25rem
-  background-color: $bg
-  border-radius: $radius-m
-  margin: 0.25rem
-  display: inline-flex
-  align-items: center
-  white-space: nowrap
-  max-width: 100%
-  touch-action: none
-  cursor: default
-  box-shadow: inset 0 0 0 0.0625rem $text-tertiary
+    span {
+      margin-left: 0.25rem;
+      max-width: 100%;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
 
-  &.dark
-    background-color: $bg-dark
-    box-shadow: none
+    .button.icon {
+      padding: 0.5rem;
+      margin-left: 0.25rem;
+      border-radius: var(--radius-s);
 
-  &.overflow
-    color: $negative-saturated
-
-  &.being-dragged
-    box-shadow: inset 0 0 0 2px alpha($accent, 0.5)
-    background-color: transparent
-
-    > *
-      opacity: 0
-
-  &.drag-active
-    > *
-      pointer-events: none
-
-  > .icon
-    flex-shrink: 0
-
-    &:not(.button)
-      cursor: move
-      width: 1rem
-      height: @width
-
-  span
-    margin-left: 0.25rem
-    max-width: 100%
-    overflow: hidden
-    text-overflow: ellipsis
-
-  .button.icon
-    padding: 0.5rem
-    margin-left: 0.25rem
-    border-radius: $radius-s
-
-    &::v-deep(.icon)
-      width: 1rem
-      height: @width
+      &:deep(.icon) {
+        width: 1rem;
+        height: 1rem;
+      }
+    }
+  }
 </style>

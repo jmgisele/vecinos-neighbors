@@ -24,28 +24,32 @@ export default {
 };
 </script>
 
-<style lang="stylus" scoped>
-.icon
-  display: inline-block
-  stroke-width: 2px
-  stroke-linejoin: round
-  stroke-linecap: round
-  width: 1.5rem
-  height: 1.5rem
-  vertical-align: middle
+<style lang="scss" scoped>
+  .icon {
+    display: inline-block;
+    stroke-width: 2px;
+    stroke-linejoin: round;
+    stroke-linecap: round;
+    width: 1.5rem;
+    height: 1.5rem;
+    vertical-align: middle;
 
-  &.swirl-enter-active,
-  &.swirl-leave-active
-    transition: transform 200ms ease, opacity 200ms ease
+    &.swirl-enter-active,
+    &.swirl-leave-active {
+      transition: transform 200ms ease, opacity 200ms ease;
 
-    &.swirl-enter-from,
-    &.swirl-leave-to
-      opacity: 0
+      &.swirl-enter-from,
+      &.swirl-leave-to {
+        opacity: 0;
+      }
 
-    &.swirl-enter-from
-      transform: rotate(-45deg)
+      &.swirl-enter-from {
+        transform: rotate(-45deg);
+      }
 
-    &.swirl-leave-to
-      transform: rotate(45deg)
-
+      &.swirl-leave-to {
+        transform: rotate(45deg);
+      }
+    }
+  }
 </style>

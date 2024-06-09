@@ -126,81 +126,101 @@ export default {
 };
 </script>
 
-<style lang="stylus" scoped>
-@require '../assets/styles/breakpoints'
-@require '../assets/styles/colors'
-@require '../assets/styles/corners'
+<style lang="scss" scoped>
+  @use '../assets/styles/breakpoints' as *;
 
-.select
-  min-width: (192 / 16)rem
+  .select {
+    min-width: rem(192);
 
-  @media $mobile
-    min-width: (128 / 16)rem
+    @media #{$mobile} {
+      min-width: rem(128);
+    }
 
-  &.icon.reversed
-    padding-left: 1rem
+    &.icon.reversed {
+      padding-left: 1rem;
+    }
 
-  &.placeholder
-    ::v-deep(.label)
-      color: $text-secondary
+    &.placeholder {
+      :deep(.label) {
+        color: var(--text-secondary);
+      }
 
-    &.dark
-      ::v-deep(.label)
-        color: $text-secondary-dark
+      &.dark {
+        :deep(.label) {
+          color: var(--text-secondary-dark);
+        }
+      }
+    }
 
-  ::v-deep(.label)
-    margin-right: auto
-    width: auto
+    &:deep(.label) {
+      margin-right: auto;
+      width: auto;
+    }
+  }
 
-.item-wrapper
-  .input
-    margin: 0.5rem
-    margin-bottom: 0
-    width: calc(100% - 1rem)
-    padding: 0.75rem
+  .item-wrapper {
+    .input {
+      margin: 0.5rem;
+      margin-bottom: 0;
+      width: calc(100% - 1rem);
+      padding: 0.75rem;
 
-    &.dark
-      background-color: $bg-tertiary-dark
+      &.dark {
+        background-color: var(--bg-tertiary-dark);
+      }
+    }
 
-  .items
-    list-style: none
-    user-select: none
-    padding: 0.5rem
-    margin: 0
+    .items {
+      list-style: none;
+      user-select: none;
+      padding: 0.5rem;
+      margin: 0;
 
-    &.dark
-      li
-        &.disabled
-          color: $text-tertiary-dark
+      &.dark {
+        li {
+          &.disabled {
+            color: var(--text-tertiary-dark);
+          }
+
+          &:hover,
+          &:focus {
+            background-color: var(--bg-tertiary-dark);
+          }
+        }
+      }
+
+      li {
+        padding: 0.75rem 1rem;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        cursor: pointer;
+        border-radius: var(--radius-m);
+        transition: background-color 200ms ease;
+
+        &:not(:last-child) {
+          margin-bottom: 0.5rem;
+        }
+
+        &.active {
+          background-color: var(--accent);
+          color: var(--text-dark);
+        }
+
+        &.disabled {
+          pointer-events: none;
+          color: var(--text-tertiary);
+        }
 
         &:hover,
-        &:focus
-          background-color: $bg-tertiary-dark
+        &:focus {
+          background-color: var(--bg-secondary);
 
-    li
-      padding: 0.75rem 1rem
-      white-space: nowrap
-      overflow: hidden
-      text-overflow: ellipsis
-      cursor: pointer
-      border-radius: $radius-m
-      transition: background-color 200ms ease
-
-      &:not(:last-child)
-        margin-bottom: 0.5rem
-
-      &.active
-        background-color: $accent
-        color: $text-dark
-
-      &.disabled
-        pointer-events: none
-        color: $text-tertiary
-
-      &:hover,
-      &:focus
-        background-color: $bg-secondary
-
-        &.active
-          background-color: darken($accent, 5)
+          &.active {
+            background-color: var(--accent-darkened-5);
+          }
+        }
+      }
+    }
+  }
 </style>
