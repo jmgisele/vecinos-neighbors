@@ -100,7 +100,7 @@ export default {
   methods: {
     handleComponentsModal(e) {
       if (!this.inDevMode) return;
-      if (e.key === 'c' && e.ctrlKey && e.altKey) {
+      if (['c', 'ç'].includes(e.key) && e.ctrlKey && e.altKey) {
         e.preventDefault();
         this.showComponentsModal = !this.showComponentsModal;
       }
