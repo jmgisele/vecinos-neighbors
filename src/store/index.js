@@ -1,3 +1,5 @@
+/* eslint no-param-reassign: ["error", { "props": true, "ignorePropertyModificationsFor": ["state"] }] */
+
 import { createStore } from 'vuex';
 import { set as _set } from 'lodash-es';
 
