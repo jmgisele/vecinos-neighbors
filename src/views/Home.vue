@@ -282,7 +282,7 @@ export default {
         let projectId = this.repoURL.split('/').slice(-1)[0].replace(/\.git$/, '');
         const exists = await this.projectExists(projectId, this.repoURL);
         // If a project with that filename exists, but it’s not the same
-        if (exists && !exists.remote) projectId = `${projectId}-${Math.random().toString(36).substr(2, 9)}`; // add a pseudo-random suffix to make the id unique, could technically still cause collisions, but that’s so unlikely it’s negligible
+        if (exists && !exists.remote) projectId = `${projectId}-${Math.random().toString(36).substring(2, 9)}`; // add a pseudo-random suffix to make the id unique, could technically still cause collisions, but that’s so unlikely it’s negligible
         else if (exists && exists.remote && !exists.user) { // the project was already imported by a different user
           this.$store.commit('addProjectToActiveUser', projectId);
           await this.$store.dispatch('saveUser');

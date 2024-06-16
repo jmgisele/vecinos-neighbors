@@ -106,7 +106,7 @@ export default createStore({
       if (state.application.toasts.length > 5) state.application.toasts.shift();
 
       state.application.toasts.push({
-        id: toast.id || Math.random().toString(36).substr(2, 9),
+        id: toast.id || Math.random().toString(36).substring(2, 9),
         ...toast,
         timeout, // override the timeout set in the toast-object
         type: toast.type === 'error' ? 'negative' : toast.type, // error toasts are negative toasts that don’t disappear
