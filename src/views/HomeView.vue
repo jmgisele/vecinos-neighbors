@@ -445,7 +445,7 @@ export default {
     &.dark {
       main,
       main .loader-wrapper {
-        background-color: var(-var(--bg-secondary-dark));
+        background-color: var(--bg-secondary-dark);
       }
     }
 
