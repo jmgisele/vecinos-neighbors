@@ -1,11 +1,11 @@
 import { createRouter, createWebHistory } from 'vue-router';
 import Store from '../store';
 
-import GeneralError from '../views/GeneralError.vue';
-import Forbidden from '../views/Forbidden.vue';
-import Home from '../views/Home.vue';
-import NotFound from '../views/NotFound.vue';
-import Onboarding from '../views/Onboarding.vue';
+import GeneralError from '../views/GeneralErrorView.vue';
+import Forbidden from '../views/ForbiddenView.vue';
+import Home from '../views/HomeView.vue';
+import NotFound from '../views/NotFoundView.vue';
+import Onboarding from '../views/OnboardingView.vue';
 
 const routes = [
   {
@@ -59,7 +59,7 @@ const routes = [
   {
     path: '/import',
     name: 'Import',
-    component: () => import('../views/Import.vue'),
+    component: () => import('../views/ImportView.vue'),
     meta: {
       title: 'Import Project',
       hideAppHeader: true,
@@ -71,7 +71,7 @@ const routes = [
     // route level code-splitting
     // this generates a separate chunk (Project.[hash].js) for this route
     // which is lazy-loaded when the route is visited.
-    component: () => import('../views/Project.vue'),
+    component: () => import('../views/ProjectView.vue'),
     meta: {
       sidebar: true,
       title: 'Project',
@@ -80,7 +80,7 @@ const routes = [
       {
         name: 'Project',
         path: '', // this sub-route will be loaded when we enter the parent route
-        component: () => import('../views/ProjectDashboard.vue'),
+        component: () => import('../views/ProjectDashboardView.vue'),
         meta: {
           label: 'Dashboard',
           title: 'Project Dashboard',
@@ -89,7 +89,7 @@ const routes = [
       {
         name: 'Project.MediaLibrary',
         path: 'media',
-        component: () => import('../views/ProjectMediaLibrary.vue'),
+        component: () => import('../views/ProjectMediaLibraryView.vue'),
         meta: {
           title: 'Project Media Library',
         },
@@ -97,7 +97,7 @@ const routes = [
       {
         name: 'Project.Collection',
         path: 'collection/:path',
-        component: () => import('../views/ProjectCollection.vue'),
+        component: () => import('../views/ProjectCollectionView.vue'),
         meta: {
           label: 'Collection',
           title: 'Collection Details',
@@ -106,7 +106,7 @@ const routes = [
       {
         name: 'Project.Documentation',
         path: 'documentation/:path',
-        component: () => import('../views/ProjectDocumentation.vue'),
+        component: () => import('../views/ProjectDocumentationView.vue'),
         meta: {
           label: 'Documentation',
           title: 'Project Documentation',
@@ -115,7 +115,7 @@ const routes = [
       {
         name: 'Project.Settings',
         path: 'settings',
-        component: () => import('../views/ProjectSettings.vue'),
+        component: () => import('../views/ProjectSettingsView.vue'),
         meta: {
           label: 'Settings',
           title: 'Project Settings',
@@ -130,7 +130,7 @@ const routes = [
   {
     path: '/edit-schema/:id/:path',
     name: 'Edit Schema',
-    component: () => import('../views/EditSchema.vue'),
+    component: () => import('../views/EditSchemaView.vue'),
     meta: {
       label: 'Edit Schema',
       projectRoute: true,
@@ -145,7 +145,7 @@ const routes = [
   {
     path: '/edit-custom-field/:id/:path',
     name: 'Edit Custom Field',
-    component: () => import('../views/EditCustomField.vue'),
+    component: () => import('../views/EditCustomFieldView.vue'),
     meta: {
       label: 'Edit Custom Field',
       projectRoute: true,
@@ -160,7 +160,7 @@ const routes = [
   {
     path: '/edit-content/:id/:collection/:path',
     name: 'Edit Content',
-    component: () => import('../views/EditContent.vue'),
+    component: () => import('../views/EditContentView.vue'),
     meta: {
       label: 'Edit Content',
       projectRoute: true,

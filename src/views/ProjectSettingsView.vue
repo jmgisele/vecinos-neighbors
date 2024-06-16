@@ -15,14 +15,14 @@
 </template>
 
 <script>
-import CollectionSettings from './settings/CollectionSettings.vue';
-import CustomFieldSettings from './settings/CustomFieldSettings.vue';
-import DashboardSettings from './settings/DashboardSettings.vue';
-import GeneralSettings from './settings/GeneralSettings.vue';
-import MediaSettings from './settings/MediaSettings.vue';
-import SchemaSettings from './settings/SchemaSettings.vue';
-import SidebarSettings from './settings/SidebarSettings.vue';
-import UserSettings from './settings/UserSettings.vue';
+import CollectionSettings from './settings/CollectionSettingsView.vue';
+import CustomFieldSettings from './settings/CustomFieldSettingsView.vue';
+import DashboardSettings from './settings/DashboardSettingsView.vue';
+import GeneralSettings from './settings/GeneralSettingsView.vue';
+import MediaSettings from './settings/MediaSettingsView.vue';
+import SchemaSettings from './settings/SchemaSettingsView.vue';
+import SidebarSettings from './settings/SidebarSettingsView.vue';
+import UserSettings from './settings/UserSettingsView.vue';
 
 import { pathDirname } from '../fs';
 import Store from '../store';

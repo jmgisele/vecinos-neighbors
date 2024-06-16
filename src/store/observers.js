@@ -1,3 +1,5 @@
+/* eslint no-param-reassign: ["error", { "props": true, "ignorePropertyModificationsFor": ["state"] }] */
+
 export default {
   namespaced: true,
   state: () => ({

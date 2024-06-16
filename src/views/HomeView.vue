@@ -82,7 +82,6 @@ import projectExists from '../mixins/projectExists';
 import LegalModal from '../components/utility/LegalModal.vue';
 
 export default {
-  name: 'Home',
   components: {
     LegalModal,
   },

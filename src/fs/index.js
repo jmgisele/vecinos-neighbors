@@ -25,7 +25,6 @@ async function exists(filepath) {
 async function mkdirp(filepath, _selfCall = false) {
   try {
     await fs.promises.mkdir(filepath);
-    return;
   } catch (err) {
     // If err is null then operation succeeded!
     if (err === null) return;

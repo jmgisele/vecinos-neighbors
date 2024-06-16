@@ -10,7 +10,7 @@
   <router-view :dark="dark" />
   <ModalOverlay :dark="dark" />
   <LoadingOverlay :dark="dark" />
-  <Snackbar :dark="dark" />
+  <MbSnackbar :dark="dark" />
   <MbModal v-if="inDevMode" id="componentsModal" :dark="dark" :padded-body="false" :visible="showComponentsModal" @close="showComponentsModal = false">
     <Components :dark="dark" />
   </MbModal>
@@ -21,7 +21,7 @@ import { defineAsyncComponent } from 'vue';
 import GlobalTooltipController from './components/utility/GlobalTooltipController.vue';
 import LoadingOverlay from './components/utility/LoadingOverlay.vue';
 import ModalOverlay from './components/utility/ModalOverlay.vue';
-import Snackbar from './components/utility/Snackbar.vue';
+import MbSnackbar from './components/utility/MbSnackbar.vue';
 import SvgSprite from './components/utility/SvgSprite.vue';
 import UserSwitcher from './components/utility/UserSwitcher.vue';
 
@@ -29,12 +29,12 @@ export default {
   components: {
     GlobalTooltipController,
     Components: defineAsyncComponent(() => {
-      if (import.meta.env.DEV) return import('./views/Components.vue');
+      if (import.meta.env.DEV) return import('./views/ComponentsView.vue');
       return undefined;
     }),
     LoadingOverlay,
     ModalOverlay,
-    Snackbar,
+    MbSnackbar,
     SvgSprite,
     UserSwitcher,
   },

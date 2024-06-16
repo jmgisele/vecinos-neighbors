@@ -563,8 +563,8 @@
         <h3 id="toast">Toast</h3>
         <p>A component to inform the user of things happening throughout the app. It will usually be displayed in a <code>Snackbar</code> component.</p>
         <p>Toasts are meant to be ephemeral, so they will disappear after a configured timeout or can be manually dismissed. This has been disabled for the demo toasts below.</p>
-        <Toast :dark="dark" :toast="{ message: 'I’m a basic toast', permanent: true, timeout: 0 }" />
-        <Toast :dark="dark" :toast="{ action: sayHi, actionLabel: 'Say Hi', message: 'I’m an advanced toast', permanent: true, timeout: 0, type: 'positive' }" />
+        <MbToast :dark="dark" :toast="{ message: 'I’m a basic toast', permanent: true, timeout: 0 }" />
+        <MbToast :dark="dark" :toast="{ action: sayHi, actionLabel: 'Say Hi', message: 'I’m an advanced toast', permanent: true, timeout: 0, type: 'positive' }" />
         <h4>Props</h4>
         <MbTable :data="props.toasts" />
         <h4>Notes</h4>
@@ -729,20 +729,19 @@ import EntityMoveModal from '../components/utility/EntityMoveModal.vue';
 import EntityRenameModal from '../components/utility/EntityRenameModal.vue';
 import GitLoginModal from '../components/utility/GitLoginModal.vue';
 import InternalLinkHelper from '../components/utility/InternalLinkHelper.vue';
-import Toast from '../components/utility/Toast.vue';
+import MbToast from '../components/utility/MbToast.vue';
 
 import fs, { pathBasename } from '../fs';
 import { rmrf } from '../fs/workerFS';
 
 export default {
-  name: 'Components',
   components: {
     EntityCreationModal,
     EntityMoveModal,
     EntityRenameModal,
     GitLoginModal,
     InternalLinkHelper,
-    Toast,
+    MbToast,
   },
   computed: {
     activeTabValue() {
