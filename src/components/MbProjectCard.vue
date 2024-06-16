@@ -77,7 +77,7 @@ export default {
       }
       if (this.showDeleteWarning) {
         this.showDeleteWarning = false;
-        await new Promise((res) => window.setTimeout(res, this.$store.state.application.mobile ? 250 : 150)); // HACK: Allow the modal close animation to play before proceeding
+        await new Promise((res) => { window.setTimeout(res, this.$store.state.application.mobile ? 250 : 150); }); // HACK: Allow the modal close animation to play before proceeding
       }
       this.$emit('delete');
     },

@@ -1,4 +1,5 @@
-import FsWorker from './fs.worker?worker';
+// eslint-disable-next-line import/no-unresolved
+import FsWorker from './fs.worker?worker'; // false positive because plugin-import can't handle query strings
 
 import MagicPortal from '../assets/js/FixedMagicPortal';
 

@@ -44,6 +44,7 @@ export default {
   async created() {
     const dirExists = await exists(this.schemaDir);
     if (!dirExists) await fs.mkdir(this.schemaDir);
+    this.currentPath = this.schemaDir;
     this.initialised = true;
   },
   data() {
@@ -55,7 +56,7 @@ export default {
         iconFirst: true,
         type: 'primary',
       },
-      currentPath: this.schemaDir,
+      currentPath: null,
       defaultSchemaContent: {
         fields: [],
         tabs: [{ label: 'Untitled Tab', groupAs: null }],

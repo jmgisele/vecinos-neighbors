@@ -44,6 +44,7 @@ export default {
   async created() {
     const dirExists = await exists(this.customFieldDir);
     if (!dirExists) await fs.mkdir(this.customFieldDir);
+    this.currentPath = this.customFieldDir;
     this.initialised = true;
   },
   data() {
@@ -55,7 +56,7 @@ export default {
         iconFirst: true,
         type: 'primary',
       },
-      currentPath: this.customFieldDir,
+      currentPath: null,
       defaultCustomFieldContent: { // custom fields are groups by default
         type: 'group',
         customField: null, // this needs to be set to the path of the newly created field by EditCustomField.vue

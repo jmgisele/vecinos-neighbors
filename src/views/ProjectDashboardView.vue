@@ -78,7 +78,8 @@ import { formatDistanceToNow } from 'date-fns';
 import { log } from 'isomorphic-git';
 import matter from 'gray-matter';
 
-import CHANGELOG from '../../CHANGELOG.md?raw';
+// eslint-disable-next-line import/no-unresolved
+import CHANGELOG from '../../CHANGELOG.md?raw'; // false positive because plugin-import can't handle query strings
 
 import fs, { joinPath, PlainFS } from '../fs';
 import MarkdownParser from '../assets/js/MarkdownParser';

@@ -10,7 +10,7 @@
 </template>
 
 <script>
-import getSlotTextContent from '@/assets/js/getSlotTextContent';
+import getSlotTextContent from '../assets/js/getSlotTextContent';
 
 export default {
   computed: {

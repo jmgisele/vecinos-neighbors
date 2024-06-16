@@ -12,7 +12,7 @@ import getFieldsByPredicate from './getFieldsByPredicate';
  *
  * @returns {array} of languages
  */
-export default function getContentLanguages(content = {}, schema, defaultLanguages) {
+export default function getContentLanguages(content = {}, schema, defaultLanguages) { // eslint-disable-line default-param-last
   if (!schema.fields) return defaultLanguages;
   const [languagesField] = getFieldsByPredicate(schema, (field) => field.type === 'languages');
   let languages;
