@@ -68,7 +68,6 @@
 </template>
 
 <script>
-import ColorThief from 'colorthief';
 import { debounce } from 'lodash-es';
 import fs, { exists, joinPath, mkdirp, pathBasename, pathDirname } from '../fs'; // eslint-disable-line object-curly-newline
 import { rmrf } from '../fs/workerFS';
@@ -76,11 +75,11 @@ import { rmrf } from '../fs/workerFS';
 import generateDefaultContentFromSchema from '../assets/js/generateDefaultContentFromSchema';
 import humanReadableSize from '../assets/js/humanReadableSize';
 import prettifyEntityName from '../assets/js/prettifyEntityName';
-import rgbToHex from '../assets/js/rgbToHex';
 import getFilenameAndExtension from '../assets/js/getFilenameAndExtension';
 import { imageRegExp } from '../data/regExps';
 
 import isPrivilegedUser from '../mixins/isPrivilegedUser';
+import setImageResolutionAndColor from '../mixins/setImageResolutionAndColor';
 import updateLocallyChangedFiles from '../mixins/updateLocallyChangedFiles';
 
 import EntityMoveModal from '../components/utility/EntityMoveModal.vue';
@@ -490,20 +489,6 @@ export default {
       this.$refs.replaceFileInput.click();
       // TODO: entityBeingModified doesn’t get reset when cancel is clicked in the dialog, but detecting that reliably is impossible. Maybe something will show up in the future
     },
-    setImageResolutionAndColor(e) {
-      const img = e.target;
-      this.fileDetails.width = img.naturalWidth;
-      this.fileDetails.height = img.naturalHeight;
-
-      try {
-        const ct = new ColorThief();
-        const c = ct.getColor(img, 10);
-        this.fileDetails.dominantColor = rgbToHex(c);
-      } catch (err) {
-        if (process.env.NODE_ENV !== 'production') console.warn(err);
-        // do nothing, it’s not that important
-      }
-    },
     showPathTooltip(e) {
       if (!this.fileDetails.name) return;
 
@@ -523,7 +508,7 @@ export default {
       this.$store.dispatch('saveAppData');
     }, 500),
   },
-  mixins: [isPrivilegedUser, updateLocallyChangedFiles],
+  mixins: [isPrivilegedUser, setImageResolutionAndColor, updateLocallyChangedFiles],
   props: {
     dark: Boolean,
   },

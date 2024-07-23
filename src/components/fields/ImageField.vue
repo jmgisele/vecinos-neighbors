@@ -57,17 +57,16 @@
 </template>
 
 <script>
-import ColorThief from 'colorthief';
 import { cloneDeep as _cloneDeep } from 'lodash-es';
 
 import fs, { joinPath, pathBasename } from '../../fs';
 
 import { loadImage } from '../../fs/workerFS';
 
-import rgbToHex from '../../assets/js/rgbToHex';
 import validateContent from '../../assets/js/validateContent';
 
 import field from '../../mixins/field';
+import setImageResolutionAndColor from '../../mixins/setImageResolutionAndColor';
 
 import MediaSelectModal from '../utility/MediaSelectModal.vue';
 
@@ -270,20 +269,6 @@ export default {
         this.$store.dispatch('saveAppData');
       }
     },
-    setImageResolutionAndColor(e) {
-      const img = e.target;
-      this.fileDetails.width = img.naturalWidth;
-      this.fileDetails.height = img.naturalHeight;
-
-      try {
-        const ct = new ColorThief();
-        const c = ct.getColor(img, 10);
-        this.fileDetails.dominantColor = rgbToHex(c);
-      } catch (err) {
-        if (process.env.NODE_ENV !== 'production') console.warn(err);
-        // do nothing, it’s not that important
-      }
-    },
     showNameTooltip(e) {
       if (!this.fileDetails.name) return;
 
@@ -314,7 +299,7 @@ export default {
       } else this.$emit('update:error', errors.size > 0 ? errors : '');
     },
   },
-  mixins: [field],
+  mixins: [field, setImageResolutionAndColor],
   mounted() {
     if (this.normalisedSrc) this.fetchImage(this.normalisedSrc);
   },
@@ -351,8 +336,8 @@ export default {
         this.fileDetails.name = this.modelValue && this.modelValue.src && pathBasename(this.modelValue && this.modelValue.src);
         this.fileDetails.type = this.fileDetails.name && this.fileDetails.name.slice(this.fileDetails.name.lastIndexOf('.') + 1).toUpperCase();
         this.fileDetails.width = null;
-        window.setTimeout(() => this.fetchImage(this.normalisedSrc), 200); // this timeout is to avoid a brief bit of lag if the images are too big and ColorThief blocks for a bit
-        // this.fetchImage(this.normalisedSrc)
+        // window.setTimeout(() => this.fetchImage(this.normalisedSrc), 200); // this timeout is to avoid a brief bit of lag if the images are too big and ColorThief blocks for a bit
+        this.fetchImage(this.normalisedSrc);
         if (this.error && this.error.get(this.fieldKey)) {
           const clone = _cloneDeep(this.error);
           clone.delete(this.fieldKey);
