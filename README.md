@@ -16,8 +16,8 @@ providers. In fact, there is no backend logic in Mattrbld at all, it’s a stati
 application itself, meaning that it works fully offline until you need to
 synchronise changes back to a central Git repository.
 
-It’s built with [Vue.js](https://vuejs.org) and uses [Isomorphic Git](https://isomorphic-git.org) for the Git integration and was initially developed as part
-of a BA in communication design at UAS Munich by [Amadeus](https://amxmln.com).
+It’s built with [Vue.js](https://vuejs.org) and uses [Isomorphic Git](https://isomorphic-git.org) for the Git integration. Mattrbld was initially developed as
+part of a BA in communication design at UAS Munich by [Amadeus](https://amxmln.com).
 Due to those heavy time constraints, the code is not as clean as it should be
 and for the time being, there are no automated tests.
 
@@ -26,8 +26,8 @@ The name is derived from the terms “Frontmatter” and “Build”, as it can 
 in Jamstack websites.
 
 If you just want to use Mattrbld and not contribute to its development, take a
-look at the [Quickstart Guide](https://mattrbld.com/docs/quickstart-guide) and
-have fun trying out the official instance at
+look at the [Quickstart Guide](https://mattrbld.com/docs/quickstart/) and have
+fun trying out the official instance at
 [app.mattrbld.com](https://app.mattrbld.com)!
 
 ## Project setup
