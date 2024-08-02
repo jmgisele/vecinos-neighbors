@@ -2,6 +2,16 @@
 currentVersion: 0.7.1
 updatedAt: 2024-02-18
 ---
+## Version 1.0.0
+
+### New Features
+
+* Mattrbld is using a faster way to extract colours from images
+* There are more links to the documentation placed in key areas of the UI, for
+  example a link to the authentication documentation in the authentication modal
+  or a link to the quickstart guide when importing a project for the very first
+  time
+
 ## Version 0.7.1 Beta
 
 ### Bugfixes
