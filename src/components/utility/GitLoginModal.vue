@@ -4,15 +4,16 @@
     <p v-else>To confirm that you may perform this action, please sign into your Git account.</p>
     <form @submit.prevent>
       <MbInput v-model="user" autofocus :dark="dark" icon="user" label="Username or Email Address" name="username" ref="username" />
-      <MbInput v-model="password" :dark="dark" icon="key" label="Password" name="password" type="password" />
+      <MbInput v-model="password" :dark="dark" icon="key" label="Password or Access Token" name="password" type="password" />
     </form>
     <MbCheckbox v-model="savePassword" :dark="dark">Remember password until the end of the session</MbCheckbox>
     <MbHighlightBox color="warning" :dark="dark">
       <p>
         If you have set up two-factor authentication (2FA) on your account or are
         importing from Github, you will have to generate an App Password or Personal
-        Access Token to use instead of your password. You may also want to do this in
+        Access Token to use in place of your password. You may also want to do this in
         order to increase security for your account while using Mattrbld.
+        <a href="https://mattrbld.com/docs/authentication/" target="_blank" rel="noreferrer noopener">Learn more about authentication.</a>
       </p>
     </MbHighlightBox>
     <template #actions>
