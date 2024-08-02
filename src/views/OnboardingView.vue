@@ -45,7 +45,7 @@
                 it with very large sites, please host your own instance or lobby your Git provider to support requests from a browser.
               </p>
               <p>
-                Learn more about how <a href="https://github.com/isomorphic-git/cors-proxy" rel="noopener noreferrer nofollow" target="_blank">here</a>.
+                <a href="https://mattrbld.com/docs/cors-proxy/" rel="noopener noreferrer" target="_blank">Learn more about how</a>.
               </p>
             </MbHighlightBox>
             <template #actions>
@@ -88,7 +88,10 @@
         <div v-else-if="currentSlide === 4" class="slide">
           <h1>You’re all set!</h1>
           <p v-if="isMattrbldProject">Your project has been imported successfully and is ready to be edited.</p>
-          <p v-else>Your project has been imported successfully and is now ready to be set up to work with Mattrbld.</p>
+          <template v-else>
+            <p>Your project has been imported successfully and is now ready to be set up to work with Mattrbld.</p>
+            <p>If you’re not sure where to begin, check out the <a href="https://mattrbld.com/docs/quickstart" target="_blank" rel="noopener noreferrer">Quickstart Guide</a>.</p>
+          </template>
           <footer>
             <MbButton :dark="dark" type="primary" @click="openProject">Start {{ isMattrbldProject ? 'Editing' : 'Setup' }}</MbButton>
           </footer>
