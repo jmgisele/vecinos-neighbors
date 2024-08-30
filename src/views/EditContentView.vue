@@ -625,12 +625,12 @@ export default {
         targetOrigin = new URL(this.previewUrl).origin;
         handshake = Math.random().toString(36).substring(2, 9); // we just need something pseudo-random here to verify that the previewUrl implements the protocol
         if (this.previewInNewTab) this.$options.winref.postMessage({ handshake }, targetOrigin);
-        else this.$refs.preview.contentWindow.postMessage({ handshake }, targetOrigin);
+        else this.$refs.preview?.contentWindow.postMessage({ handshake }, targetOrigin);
         window.addEventListener('message', handshakeListener, false);
         handshakeTimeout = window.setTimeout(() => {
           // send again in case the first message wasn’t received
           if (this.previewInNewTab) this.$options.winref.postMessage({ handshake }, targetOrigin);
-          else this.$refs.preview.contentWindow.postMessage({ handshake }, targetOrigin);
+          else this.$refs.preview?.contentWindow.postMessage({ handshake }, targetOrigin);
 
           handshakeTimeout = window.setTimeout(() => { // if the first retry didn’t work, let the user decide
             window.removeEventListener('message', handshakeListener, false);
@@ -1436,7 +1436,7 @@ export default {
       transition: opacity 200ms ease;
 
       &.dark {
-        background-color: color-mix(var(--bg-dark) 50%, transparent);
+        background-color: color-mix(in srgb, var(--bg-dark) 50%, transparent);
       }
 
       &:hover {
