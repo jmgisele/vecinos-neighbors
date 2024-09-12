@@ -8,25 +8,25 @@
           <div class="drag-handle" data-drag-handle>
             <MbIcon icon="drag-handle" />
           </div>
-          <MbIcon :icon="entry.icon || (entry.target ? entry.target.name === 'Project.Collection' ? 'folder' : 'document' : 'heading')" />
-          <span>{{entry.label}}</span>
-          <MbButton :dark="dark" data-ignore-drag icon="trash" rounded tooltip="Delete entry" type="negative" @click="deleteEntry(entry)" />
+          <MbIcon :icon="entry.icon || (entry.target ? entry.target.name === 'Project.Collection' ? 'folder' : 'document' : entry.label ? 'heading' : 'add-separator')" />
+          <span>{{entry.label || 'Separator'}}</span>
+          <MbButton v-if="!entry.protected" :dark="dark" data-ignore-drag icon="trash" rounded tooltip="Delete entry" type="negative" @click="deleteEntry(entry)" />
         </div>
       </MbSortableList>
       <transition>
         <footer v-show="!showSplit">
           <MbInput v-model.trim="newEntryLabel" :dark="dark" :error="newEntryError" placeholder="New entry label" @keyup.enter="addEntry" @update:model-value="newEntryError = $event && validateLabel($event)" />
-          <MbButton :dark="dark" :disabled="!newEntryLabel || Boolean(newEntryError)" icon="plus" tooltip="Add entry" type="positive" @click="addEntry" />
+          <MbButton :dark="dark" :disabled="Boolean(newEntryError)" icon="plus" tooltip="Add entry" type="positive" @click="addEntry" />
         </footer>
       </transition>
     </section>
     <template #right>
       <div class="edit-entry" :class="{ dark }">
         <header>
-          <h2 :class="{ h3: isMobile }">{{entryError ? (entryBeingModified && entryBeingModified.label) || entryDetails.label : entryDetails.label}}</h2>
+          <h2 :class="{ h3: isMobile }">{{entryError ? entryBeingModified?.label || entryDetails.label || 'Separator' : entryDetails.label || 'Separator'}}</h2>
           <span>Edit sidebar entry</span>
         </header>
-        <section>
+        <section v-if="entryDetails.type !== 'separator'">
           <h3>Appearance</h3>
           <div class="input-row">
             <span>Label:</span>
@@ -37,22 +37,22 @@
             <MbIconPicker v-model="entryDetails.icon" :dark="dark" removable @update:model-value="updateEntry"/>
           </div>
         </section>
-        <section>
+        <section v-if="entryDetails.type !== 'system'">
           <h3>Functionality</h3>
           <div class="input-row">
             <span>Type:</span>
-            <MbSelect v-model="entryDetails.type" :dark="dark" :options="[{ label: 'Heading', value: 'heading' }, { label: 'Collection', value: 'collection' }, { label: 'Content item', value: 'content' }, { label: 'Document', value: 'document' }]" @update:model-value="handleTypePick" />
+            <MbSelect v-model="entryDetails.type" :dark="dark" :options="[{ label: 'Heading', value: 'heading' }, { label: 'Collection', value: 'collection' }, { label: 'Content item', value: 'content' }, { label: 'Document', value: 'document' }, { label: 'Separator', value: 'separator' }]" @update:model-value="handleTypePick" />
           </div>
-          <div v-show="entryDetails.type !== 'heading'" class="input-row target">
+          <div v-show="!['heading', 'separator'].includes(entryDetails.type)" class="input-row target">
             <span>Target:</span>
             <MbFilePicker v-if="entryDetails.type === 'collection'" :dark="dark" :filetypes="['json']" :folders-first="false" mode="file" :model-value="entryDetails.target && entryDetails.target.params.path" placeholder="Pick a collection…" pretty-filenames relative-to-root removable :root="collectionsDir" @update:model-value="setEntryTarget" />
             <MbFilePicker v-if="entryDetails.type === 'document'" :dark="dark" :filetypes="['md']" :folders-first="false" mode="file" :model-value="entryDetails.target && entryDetails.target.params.path" placeholder="Pick a document…" pretty-filenames relative-to-root removable :root="`/projects/${currentProject.id}`" @update:model-value="setEntryTarget" />
             <InternalLinkHelper v-if="entryDetails.type === 'content'" allow-unlinkable :collections-path="collectionsDir" :dark="dark" full-path :model-value="entryDetails.target && entryDetails.target.params.path" removable use-file-path @update:model-value="setEntryTarget" />
           </div>
         </section>
-        <section>
+        <section v-if="entryDetails.type !== 'system'">
           <h3>Visibility</h3>
-          <MbToggle v-if="entryDetails.type !== 'heading'" :dark="dark" :disabled="entryDetails.type === 'heading' || !entryDetails.target" :model-value="entryDetails.showInDashboard" @update:model-value="entryDetails.showInDashboard = $event; updateEntry()">Show as a card on the Dashboard</MbToggle>
+          <MbToggle v-if="!['heading', 'separator'].includes(entryDetails.type)" :dark="dark" :disabled="entryDetails.type === 'heading' || !entryDetails.target" :model-value="entryDetails.showInDashboard" @update:model-value="entryDetails.showInDashboard = $event; updateEntry()">Show as a card on the Dashboard</MbToggle>
           <MbTagInput v-model="entryDetails.limitToRoles" :autocomplete-model="projectRoles" autocomplete-property="label" :dark="dark" label="Limit visibility to (optional)" placeholder="Role(s)" value-property="value" @update:model-value="updateEntry" />
         </section>
       </div>
@@ -122,10 +122,13 @@ export default {
   },
   methods: {
     addEntry() {
-      this.newEntryError = this.validateLabel(this.newEntryLabel);
-      if (this.newEntryError) return;
+      if (!this.newEntryLabel) this.sidebarOptions = this.sidebarOptions.concat([{ separator: true }]);
+      else {
+        this.newEntryError = this.validateLabel(this.newEntryLabel);
+        if (this.newEntryError) return;
 
-      this.sidebarOptions = this.sidebarOptions.concat([{ icon: null, label: this.newEntryLabel, target: null }]);
+        this.sidebarOptions = this.sidebarOptions.concat([{ icon: null, label: this.newEntryLabel, target: null }]);
+      }
       this.newEntryLabel = '';
     },
     deleteEntry(entry) {
@@ -175,6 +178,8 @@ export default {
     },
     handleTypePick() {
       this.entryDetails.target = null; // reset the target
+
+      if (this.entryDetails.type === 'separator') this.entryError = this.validateLabel(); // to clear any potential errors
       this.updateEntry();
     },
     openEntry(index) {
@@ -182,10 +187,12 @@ export default {
       if (entry === this.entryBeingModified) this.entryBeingModified = null;
       else {
         this.entryDetails = cloneDeep(entry);
-        if (entry.target && entry.target.name === 'Project.Collection') this.entryDetails.type = 'collection';
-        else if (entry.target && entry.target.name === 'Edit Content') this.entryDetails.type = 'content';
+        if (entry.target?.name === 'Project.Collection') this.entryDetails.type = 'collection';
+        else if (entry.target?.name === 'Edit Content') this.entryDetails.type = 'content';
+        else if (['Project', 'Project.MediaLibrary', 'Project.Settings'].includes(entry.target?.name)) this.entryDetails.type = 'system';
         else if (entry.target) this.entryDetails.type = 'document';
-        else this.entryDetails.type = 'heading';
+        else if (entry.label) this.entryDetails.type = 'heading';
+        else this.entryDetails.type = 'separator';
         this.entryBeingModified = entry;
       }
     },
@@ -200,8 +207,10 @@ export default {
       if (this.entryError) return;
       const shallowCopy = [...this.sidebarOptions];
       const entryIndex = shallowCopy.indexOf(this.entryBeingModified);
-      const modifiedEntry = cloneDeep(this.entryDetails);
-      delete modifiedEntry.type;
+      let modifiedEntry = cloneDeep(this.entryDetails);
+
+      if (modifiedEntry.type === 'separator') modifiedEntry = { separator: true };
+      else delete modifiedEntry.type;
 
       if (isEqual(modifiedEntry, this.entryBeingModified)) return;
 
@@ -210,6 +219,7 @@ export default {
       this.sidebarOptions = shallowCopy;
     },
     validateLabel(label) {
+      if (this.entryDetails?.type === 'separator') return '';
       if (!label) return 'A label is required';
       if ((!this.entryBeingModified || label !== this.entryBeingModified.label) && this.sidebarOptions.find((option) => option.label === label)) return 'An entry with this label already exists';
       return '';

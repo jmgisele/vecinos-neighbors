@@ -20,28 +20,9 @@
               <span>{{option.label}}</span>
             </li>
           </router-link>
-          <li class="separator" v-else>{{option.label}}</li>
+          <li class="separator" v-else-if="option.label">{{option.label}}</li>
+          <li class="separator line" v-else></li>
         </template>
-      </ul>
-      <ul class="default options">
-        <router-link custom :to="{ name: 'Project'}" v-slot="{ isExactActive, navigate }">
-          <li :class="{ active: isExactActive }" role="link" tabindex="0" @click="goTo(navigate)" @keydown.space.prevent @keyup.enter.space="goTo(navigate)">
-            <MbIcon icon="grid" />
-            <span>Dashboard</span>
-          </li>
-        </router-link>
-        <router-link custom :to="{ name: 'Project.MediaLibrary'}" v-slot="{ isExactActive, navigate }">
-          <li :class="{ active: isExactActive }" role="link" tabindex="0" @click="goTo(navigate)" @keydown.space.prevent @keyup.enter.space="goTo(navigate)">
-            <MbIcon icon="image-stack" />
-            <span>Media Library</span>
-          </li>
-        </router-link>
-        <router-link v-if="isPrivilegedUser" custom :to="{ name: 'Project.Settings'}" v-slot="{ isExactActive, navigate }">
-          <li :class="{ active: isExactActive }" role="link" tabindex="0" @click="goTo(navigate)" @keydown.space.prevent @keyup.enter.space="goTo(navigate)">
-            <MbIcon icon="settings" />
-            <span>Settings</span>
-          </li>
-        </router-link>
       </ul>
       <MbButton class="back-button" :dark="dark" icon="chevron-left" icon-first @click="backToProjects">Back to all projects</MbButton>
     </div>
@@ -50,6 +31,7 @@
 
 <script>
 import isPrivilegedUser from '../../mixins/isPrivilegedUser';
+import { projectDefaults } from '../../store';
 
 export default {
   beforeUnmount() {
@@ -67,18 +49,64 @@ export default {
       return `/projects/${this.currentProject.id}`;
     },
     sidebarOptions() {
-      if (this.currentProject.sidebar && this.currentProject.sidebar.length > 0) {
-        return this.currentProject.sidebar
-          .filter((entry) => !entry.limitToRoles || entry.limitToRoles.length === 0 || entry.limitToRoles.includes(this.$store.getters.userInCurrentProject.role))
+      if (this.currentProject.sidebar) {
+        const sidebarCopy = [...this.currentProject.sidebar];
+        const includesDashboard = sidebarCopy.find((entry) => entry.target?.name === 'Project');
+        const includesMediaLibrary = sidebarCopy.find((entry) => entry.target?.name === 'Project.MediaLibrary');
+        const includesSettings = sidebarCopy.find((entry) => entry.target?.name === 'Project.Settings');
+
+        if (!includesDashboard || !includesMediaLibrary || !includesSettings) {
+          sidebarCopy.push({ separator: true });
+        }
+
+        if (!includesDashboard) {
+          sidebarCopy.push({
+            label: 'Dashboard',
+            icon: 'grid',
+            target: {
+              name: 'Project',
+            },
+            protected: true,
+          });
+        }
+
+        if (!includesMediaLibrary) {
+          sidebarCopy.push({
+            label: 'Media Library',
+            icon: 'image-stack',
+            target: {
+              name: 'Project.MediaLibrary',
+            },
+            protected: true,
+          });
+        }
+
+        if (!includesSettings) {
+          sidebarCopy.push({
+            label: 'Settings',
+            icon: 'settings',
+            target: {
+              name: 'Project.Settings',
+            },
+            onlyPrivileged: true,
+            protected: true,
+          });
+        }
+
+        return sidebarCopy
+          .filter((entry) => {
+            if (entry.onlyPrivileged && !this.isPrivilegedUser) return false;
+            return !entry.limitToRoles
+            || entry.limitToRoles.length === 0
+            || entry.limitToRoles.includes(this.$store.getters.userInCurrentProject.role);
+          })
           .map((entry) => {
             if (!entry.target) return entry;
             return { ...entry, target: this.transformRouterTarget(entry.target) };
           });
       }
-      const defaultOptions = [{ label: 'The sidebar has not yet been configured for this project' }];
 
-      if (this.isPrivilegedUser) defaultOptions.push({ icon: 'wrench-and-driver', label: 'Configure now', target: { name: 'Project.Settings', query: { tab: 'sidebar' } } });
-      return defaultOptions;
+      return projectDefaults.sidebar;
     },
     visible: {
       get() {
@@ -175,6 +203,7 @@ export default {
       const transformedTarget = {
         name: target.name,
         params: target.params ? { ...target.params } : {},
+        query: target.query ? { ...target.query } : {},
       };
 
       transformedTarget.params.id = this.currentProject.id;
@@ -462,6 +491,13 @@ export default {
 
         &:not(:first-child) {
           margin-top: 1.5rem;
+        }
+
+        &.line {
+          margin-block: 1.5rem;
+          background-color: currentColor;
+          height: rem(1);
+          opacity: 0.25;
         }
       }
     }

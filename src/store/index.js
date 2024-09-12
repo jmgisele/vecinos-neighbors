@@ -32,7 +32,48 @@ export const projectDefaults = {
   },
   name: null,
   previewUrl: null,
-  sidebar: [],
+  sidebar: [
+    {
+      label: 'The sidebar has not yet been configured for this project',
+    },
+    {
+      icon: 'wrench-and-driver',
+      label: 'Configure now',
+      target: {
+        name: 'Project.Settings',
+        query: { tab: 'sidebar' },
+      },
+      onlyPrivileged: true,
+    },
+    {
+      separator: true,
+    },
+    {
+      label: 'Dashboard',
+      icon: 'grid',
+      target: {
+        name: 'Project',
+      },
+      protected: true,
+    },
+    {
+      label: 'Media Library',
+      icon: 'image-stack',
+      target: {
+        name: 'Project.MediaLibrary',
+      },
+      protected: true,
+    },
+    {
+      label: 'Settings',
+      icon: 'settings',
+      target: {
+        name: 'Project.Settings',
+      },
+      onlyPrivileged: true,
+      protected: true,
+    },
+  ],
   slugifyOptions: null,
   users: [],
 };
