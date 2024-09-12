@@ -50,7 +50,7 @@
             <InternalLinkHelper v-if="entryDetails.type === 'content'" allow-unlinkable :collections-path="collectionsDir" :dark="dark" full-path :model-value="entryDetails.target && entryDetails.target.params.path" removable use-file-path @update:model-value="setEntryTarget" />
           </div>
         </section>
-        <section v-if="entryDetails.type !== 'system'">
+        <section>
           <h3>Visibility</h3>
           <MbToggle v-if="!['heading', 'separator'].includes(entryDetails.type)" :dark="dark" :disabled="entryDetails.type === 'heading' || !entryDetails.target" :model-value="entryDetails.showInDashboard" @update:model-value="entryDetails.showInDashboard = $event; updateEntry()">Show as a card on the Dashboard</MbToggle>
           <MbTagInput v-model="entryDetails.limitToRoles" :autocomplete-model="projectRoles" autocomplete-property="label" :dark="dark" label="Limit visibility to (optional)" placeholder="Role(s)" value-property="value" @update:model-value="updateEntry" />
