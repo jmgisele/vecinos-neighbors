@@ -498,6 +498,10 @@ export default {
           background-color: currentColor;
           height: rem(1);
           opacity: 0.25;
+
+          &:first-child {
+            margin-top: 0;
+          }
         }
       }
     }
