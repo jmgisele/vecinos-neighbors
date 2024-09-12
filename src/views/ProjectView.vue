@@ -838,6 +838,7 @@ export default {
 
     pre {
       margin-bottom: 0;
+      user-select: text;
     }
   }
 
