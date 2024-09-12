@@ -7,6 +7,13 @@ updatedAt: 2024-02-18
 ### New Features
 
 * Mattrbld is using a faster way to extract colours from images
+* The custom and default sections of the Project Sidebar have been merged, you
+  can now customise and rearrange the Dashboard, Media Library, and Settings
+  options. Please note that for projects initialised pre-v1.0, you will have to
+  manually add the new entries to the sidebar by editing the `config.json` file
+  in your `.mattrbld` directory if you want to customise them.
+* You can now add separator lines to the Project Sidebar
+* The error message in the sync modal is now selectable
 * There are more links to the documentation placed in key areas of the UI, for
   example a link to the authentication documentation in the authentication modal
   or a link to the quickstart guide when importing a project for the very first
