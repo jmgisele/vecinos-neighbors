@@ -11,7 +11,7 @@ const persistentAppProperties = ['activeUser', 'corsProxy', 'initialised', 'loca
 const persistentProjectProperties = ['autoquotes', 'brandColors', 'corsProxy', 'name', 'sidebar', 'slugifyOptions', 'customRoles', 'draftsDir', 'previewUrl', 'languages', 'media'];
 const persistentUserProperties = ['email', 'id', 'name', 'projectAccessDates', 'projects', 'role', 'theme', 'uiScale'];
 
-const projectDefaults = {
+export const projectDefaults = {
   autoquotes: null,
   avatar: null,
   brandColors: [],
