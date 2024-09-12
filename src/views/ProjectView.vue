@@ -93,7 +93,7 @@ import {
 
 import fs, { PlainFS, exists, joinPath } from '../fs';
 import { addAllAndCommit, pull, push } from '../git';
-import Store from '../store';
+import Store, { projectDefaults } from '../store';
 import isMattrbldProject from '../assets/js/isMattrbldProject';
 import loadProject from '../assets/js/loadProject';
 
@@ -132,7 +132,7 @@ export default {
 
     if (!hasConfigDir || !hasConfigFile) {
       try {
-        await fs.mkdir(`/projects/${to.params.id}/.mattrbld`);
+        if (!hasConfigDir) await fs.mkdir(`/projects/${to.params.id}/.mattrbld`);
         await fs.mkdir(usersPath);
       } catch (err) {
         if (err.code !== 'EEXIST') { // it might exist, but there’s no config.json
@@ -175,7 +175,7 @@ export default {
 
       // Create config.json with defaults
       Store.commit('setCurrentProject', {
-        ...Store.state.currentProject,
+        ...projectDefaults,
         corsProxy: Store.state.application.corsProxy,
         id: to.params.id,
         name: to.params.id,
