@@ -209,7 +209,7 @@ export default {
       const entryIndex = shallowCopy.indexOf(this.entryBeingModified);
       let modifiedEntry = cloneDeep(this.entryDetails);
 
-      if (modifiedEntry.type === 'separator') modifiedEntry = { separator: true };
+      if (modifiedEntry.type === 'separator') modifiedEntry = { limitToRoles: modifiedEntry.limitToRoles, separator: true };
       else delete modifiedEntry.type;
 
       if (isEqual(modifiedEntry, this.entryBeingModified)) return;
