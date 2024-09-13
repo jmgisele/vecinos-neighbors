@@ -11,6 +11,25 @@
   </div>
 </template>
 
+<script>
+export default {
+  name: 'FieldCandidateItem',
+  data() {
+    return {
+    };
+  },
+  emits: ['typechange'],
+  props: {
+    children: Array,
+    dark: Boolean,
+    fieldKey: String,
+    localised: Boolean,
+    type: String,
+    typeCandidates: Array,
+  },
+};
+</script>
+
 <style lang="scss" scoped>
   @use '../../assets/styles/breakpoints' as *;
 
