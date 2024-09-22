@@ -13,7 +13,7 @@
   "dependencies": {
     "@isomorphic-git/lightning-fs": "^4.4.1",
     "@sindresorhus/slugify": "^2.1.0",
-    "date-fns": "^3.6.0",
+    "date-fns": "^4.1.0",
     "diff": "^7.0.0",
     "fast-average-color": "^9.4.0",
     "gray-matter": "^4.0.3",
