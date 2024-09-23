@@ -618,6 +618,14 @@ export default {
       wrapInList(type)(this.editorState, this.editorView.dispatch);
       this.editorView.focus();
     },
+    looksLikeUrl(value) {
+      if (!value || typeof value !== 'string') return false;
+
+      return value.startsWith('/')
+      || value.startsWith('#')
+      || /^tel:\+{0,1}[-0-9]+$/.test(value)
+      || /^(?:https?:\/\/|mailto:)(?:www\.)?(?:[-a-zA-Z0-9@:%._+~#=]{2,256}\.[a-z]{2,6}|localhost:[0-9]+|[.0-9]+:[0-9]+)\b([-a-zA-Z0-9@:%_+.~#?&//=]*$)/.test(value); // Regex source: https://graphcms.com/user-guides/working-with/field-validations, adjusted to work for mailto and localhost / IP addresses by me. Still breaks on invalid TLDs if there’s a path attached, but should still be fine for most usecases
+    },
     openLinkPopover() {
       const { doc, schema } = this.editorState;
       let { selection } = this.editorState;
@@ -766,6 +774,19 @@ export default {
         handleDOMEvents: {
           blur: () => { vm.caretVisible = false; },
           focus: (view) => { vm.handleSelectionChange(view.state.selection); },
+        },
+        handlePaste: (view, event) => {
+          if (event.clipboardData && this.looksLikeUrl(event.clipboardData.getData('Text')) && view.state.selection.from !== view.state.selection.to) {
+            view.dispatch(view.state.tr.addMark(
+              view.state.selection.from,
+              view.state.selection.to,
+              view.state.schema.marks.link.create({
+                href: event.clipboardData.getData('Text'),
+              }),
+            ));
+            return true;
+          }
+          return false;
         },
         nodeViews: vm.formats.block && vm.formats.block.includes('image') ? {
           image(node, view, getPos) { return new PmImageView(node, view, getPos, vm.formatOptions.allowImageCaptions && vm.outputFormat === 'html', vm.mediaSettings, vm.projectsDir, (msg) => vm.$store.commit('addToast', msg)); },
