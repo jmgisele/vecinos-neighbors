@@ -310,7 +310,6 @@ export default {
           break;
         case 'name':
           if (!this.name) error = 'Please let your collaborators know who you are';
-          else if (!this.name.includes(' ')) error = 'Please make sure to use your full name';
           break;
         case 'proxy':
           if (!this.proxy) error = 'A proxy server url is required in most cases';

@@ -598,7 +598,6 @@ export default {
           break;
         case 'userName':
           if (!this.userBeingEdited.name) error = 'A name is required';
-          else if (!this.userBeingEdited.name.includes(' ')) error = 'Please use your full name';
           break;
         default:
       }

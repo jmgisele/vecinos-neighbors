@@ -424,7 +424,6 @@ export default {
           break;
         case 'userName':
           if (!this.newUserData.name) error = 'A name is required';
-          else if (!this.newUserData.name.includes(' ')) error = 'Please use your full name';
           break;
         default:
           // no op
