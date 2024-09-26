@@ -4,8 +4,8 @@
       <MbScroller>
         <div class="scroll-wrapper">
           <div class="tool-group">
-            <MbButton :dark="dark" icon="undo" :disabled="undoDepth === 0" :tooltip="{ message: `Undo <kbd>${mac ? '⌘' : 'Ctrl'}</kbd>+<kbd>Z</kbd>`, position: 'top' }" @click="undo" />
-            <MbButton :dark="dark" icon="redo" :disabled="redoDepth === 0" :tooltip="{ message: `Redo <kbd>${mac ? '⌘' : 'Ctrl'}</kbd>+<kbd>Y</kbd>`, position: 'top' }" @click="redo" />
+            <MbButton :dark="dark" icon="undo" :disabled="undoDepth === 0" :tooltip="{ message: `Undo <kbd>${isMac ? '⌘' : 'Ctrl'}</kbd>+<kbd>Z</kbd>`, position: 'top' }" @click="undo" />
+            <MbButton :dark="dark" icon="redo" :disabled="redoDepth === 0" :tooltip="{ message: `Redo <kbd>${isMac ? '⌘' : 'Ctrl'}</kbd>+<kbd>Y</kbd>`, position: 'top' }" @click="redo" />
           </div>
           <div v-if="formats.block" class="tool-group">
             <MbSelect class="paragraph-type" :dark="dark" :disabled="cleanActiveParagraphType === 'Document Block' || disabled || raw" :model-value="cleanActiveParagraphType" :options="paragraphTypes" :refocus="false" :tooltip="{ message: 'Paragraph type', position: 'top'}" @update:model-value="setParagraphType" />
@@ -89,6 +89,7 @@ import formatHTML from '../assets/js/formatHTML';
 import generateInputRules from '../assets/js/generateInputRules';
 import generateKeymap, { insertHr } from '../assets/js/generateKeymap';
 import generateSchema from '../assets/js/generateSchema';
+import isMac from '../assets/js/isMac';
 import MarkdownParser from '../assets/js/MarkdownParser';
 import MarkdownSerializer from '../assets/js/MarkdownSerializer';
 import PmImageView from '../assets/js/PmImageView';
@@ -190,9 +191,8 @@ export default {
       if (this.linkOptions.only === 'internal') return [{ label: 'Internal', value: 'internal' }];
       return [{ label: 'External', value: 'external' }, { label: 'Internal', value: 'internal' }];
     },
-    mac() {
-      const mac = typeof navigator !== 'undefined' ? /Mac/.test(navigator.platform) : false;
-      return mac;
+    isMac() {
+      return isMac();
     },
     mediaSettings() {
       return this.$store.state.currentProject.media;
@@ -392,7 +392,7 @@ export default {
           group: 'formatting',
           name: 'strong',
           icon: 'bold',
-          tooltip: `Toggle bold <kbd>${this.mac ? '⌘' : 'Ctrl'}</kbd>+<kbd>B</kbd>`,
+          tooltip: `Toggle bold <kbd>${this.isMac ? '⌘' : 'Ctrl'}</kbd>+<kbd>B</kbd>`,
         });
       }
       if (type = schema.marks.em) {
@@ -402,7 +402,7 @@ export default {
           group: 'formatting',
           name: 'em',
           icon: 'italic',
-          tooltip: `Toggle italics <kbd>${this.mac ? '⌘' : 'Ctrl'}</kbd>+<kbd>I</kbd>`,
+          tooltip: `Toggle italics <kbd>${this.isMac ? '⌘' : 'Ctrl'}</kbd>+<kbd>I</kbd>`,
         });
       }
       if (type = schema.marks.strike) {
@@ -412,7 +412,7 @@ export default {
           group: 'formatting',
           name: 'strike',
           icon: 'strikethrough',
-          tooltip: `Toggle strikethrough <kbd>${this.mac ? '⌘' : 'Ctrl'}</kbd>+<kbd>S</kbd>`,
+          tooltip: `Toggle strikethrough <kbd>${this.isMac ? '⌘' : 'Ctrl'}</kbd>+<kbd>S</kbd>`,
         });
       }
       if (type = schema.marks.code) {
@@ -422,7 +422,7 @@ export default {
           group: 'formatting',
           name: 'code',
           icon: 'inline-code',
-          tooltip: `Toggle code font <kbd>${this.mac ? '⌘' : 'Ctrl'}</kbd>+<kbd>Shift</kbd>+<kbd>C</kbd>`,
+          tooltip: `Toggle code font <kbd>${this.isMac ? '⌘' : 'Ctrl'}</kbd>+<kbd>Shift</kbd>+<kbd>C</kbd>`,
         });
       }
       if (type = schema.marks.link) {
@@ -432,7 +432,7 @@ export default {
           group: 'formatting',
           name: 'link',
           icon: 'link',
-          tooltip: `Insert link <kbd>${this.mac ? '⌘' : 'Ctrl'}</kbd>+<kbd>K</kbd>`,
+          tooltip: `Insert link <kbd>${this.isMac ? '⌘' : 'Ctrl'}</kbd>+<kbd>K</kbd>`,
         });
       }
       if (type = schema.nodes.unorderedList) {
@@ -442,7 +442,7 @@ export default {
           group: 'block-formats',
           name: 'ul',
           icon: 'bullet-list',
-          tooltip: `Format as bullet list <kbd>${this.mac ? '⌘' : 'Ctrl'}</kbd>+<kbd>Shift</kbd>+<kbd>8</kbd>`,
+          tooltip: `Format as bullet list <kbd>${this.isMac ? '⌘' : 'Ctrl'}</kbd>+<kbd>Shift</kbd>+<kbd>8</kbd>`,
         });
       }
       if (type = schema.nodes.orderedList) {
@@ -452,7 +452,7 @@ export default {
           group: 'block-formats',
           name: 'ol',
           icon: 'number-list',
-          tooltip: `Format as numbered list <kbd>${this.mac ? '⌘' : 'Ctrl'}</kbd>+<kbd>Shift</kbd>+<kbd>9</kbd>`,
+          tooltip: `Format as numbered list <kbd>${this.isMac ? '⌘' : 'Ctrl'}</kbd>+<kbd>Shift</kbd>+<kbd>9</kbd>`,
         });
       }
       if (type = schema.nodes.image) {
@@ -461,7 +461,7 @@ export default {
           group: 'block-formats',
           name: 'image',
           icon: 'image',
-          tooltip: `Insert an image <kbd>${this.mac ? '⌘' : 'Ctrl'}</kbd>+<kbd>Shift</kbd>+<kbd>I</kbd>`,
+          tooltip: `Insert an image <kbd>${this.isMac ? '⌘' : 'Ctrl'}</kbd>+<kbd>Shift</kbd>+<kbd>I</kbd>`,
         });
       }
       if (type = schema.nodes.blockquote) {
@@ -470,7 +470,7 @@ export default {
           group: 'block-formats',
           name: 'blockquote',
           icon: 'blockquote',
-          tooltip: `Format as quote <kbd>${this.mac ? '⌘' : 'Ctrl'}</kbd>+<kbd>&gt;</kbd>`,
+          tooltip: `Format as quote <kbd>${this.isMac ? '⌘' : 'Ctrl'}</kbd>+<kbd>&gt;</kbd>`,
         });
       }
       if (this.formatOptions.allowNestedLists && (schema.nodes.unorderedList || schema.nodes.orderedList)) {
@@ -500,7 +500,7 @@ export default {
           group: 'inserts',
           name: 'hr',
           icon: 'add-separator',
-          tooltip: `Insert separator <kbd>${this.mac ? '⌘' : 'Ctrl'}</kbd>+<kbd>_</kbd>`,
+          tooltip: `Insert separator <kbd>${this.isMac ? '⌘' : 'Ctrl'}</kbd>+<kbd>_</kbd>`,
         });
       }
       /* eslint-enable no-cond-assign */
