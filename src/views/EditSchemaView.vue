@@ -8,7 +8,7 @@
       <div class="right">
         <MbButton :dark="dark" icon="settings" :tooltip="isTablet ? 'Settings' : null" @click="showSchemaSettings = true">{{isTablet ? '' : 'Settings'}}</MbButton>
         <MbButton :dark="dark" icon="eye" :tooltip="isTablet ? 'Preview' : null" @click="showPreview = true">{{isTablet ? '' : 'Preview'}}</MbButton>
-        <MbButton :dark="dark" :disabled="!wasChanged" icon="save" :icon-first="true" :loading="saveLoading" :tooltip="isTablet ? 'Save' : null" type="primary" @click="saveChanges">{{isTablet && !isMobile ? '' : 'Save'}}</MbButton>
+        <MbButton :dark="dark" :disabled="!wasChanged" icon="save" :icon-first="true" :loading="saveLoading" :tooltip="isTablet ? 'Save' : `Save <kbd>${isMac ? '⌘' : 'Ctrl'}</kbd>+<kbd>S</kbd>`" type="primary" @click="saveChanges">{{isTablet && !isMobile ? '' : 'Save'}}</MbButton>
       </div>
     </header>
     <MbTabs v-model="activeTab" :dark="dark" :errors="tabErrors" show-add-option :tabs="cleanTabs" @add-tab="resetTabBeingEdited(); showEditTab = true" @contextmenu.prevent="handleTabContextMenu" />
@@ -75,6 +75,7 @@ import fs, { exists, PlainFS, joinPath, pathBasename, pathDirname } from '../fs'
 import { generateFieldCandidates, generateSchemaFromCandidates } from '../assets/js/generateSchemaFromFile';
 import flattenFields from '../assets/js/flattenFields';
 import hasAccess from '../assets/js/hasAccess';
+import isMac from '../assets/js/isMac';
 import loadProject from '../assets/js/loadProject';
 import prettifyEntityName from '../assets/js/prettifyEntityName';
 import Store from '../store';
@@ -165,6 +166,7 @@ export default {
   },
   beforeUnmount() {
     window.removeEventListener('beforeunload', this.preventUnintentionalClose);
+    window.removeEventListener('keydown', this.handleGlobalKeyUp);
   },
   components: {
     FieldCandidateItem,
@@ -175,6 +177,9 @@ export default {
     cleanTabs() {
       if (!this.schema.tabs) return [];
       return this.schema.tabs.map((tab) => tab.label);
+    },
+    isMac() {
+      return isMac();
     },
     isMobile() {
       return this.$store.state.application.mobile;
@@ -353,6 +358,12 @@ export default {
       }
       this.generateSchema.loading = false;
       this.generateSchema.file = file;
+    },
+    handleGlobalKeyUp(e) {
+      if (e.key === 's' && (isMac() ? e.metaKey : e.ctrlKey)) {
+        e.preventDefault();
+        this.saveChanges();
+      }
     },
     handleTabClick(index) {
       const data = this.schema.tabs[index];
@@ -556,6 +567,8 @@ export default {
       this.activeTab = 0;
       this.initialised = true;
     });
+
+    window.addEventListener('keydown', this.handleGlobalKeyUp);
   },
   props: {
     dark: Boolean,

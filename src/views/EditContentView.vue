@@ -12,7 +12,7 @@
         <MbToggle v-if="draftsDir && canToggleDraft" v-model="isDraft" :dark="dark" :disabled="isDraft && (!content.___mb_schema || errors.fields.size > 0)" :icons="['cross', 'check']">Draft</MbToggle>
         <MbButton :class="{ 'push-right': draftsDir }" :dark="dark" icon="settings" :tooltip="isTablet ? 'Settings' : null" @click="showSettings = true">{{isTablet ? '' : 'Settings'}}</MbButton>
         <MbButton v-if="canPreview" :dark="dark" :disabled="noSchema" :icon="showPreview ? 'hide' : 'eye'" :tooltip="isTablet ? showPreview ? previewInNewTab ? 'Hide Preview Controls' : 'Hide Preview' : 'Preview' : null" @click.left="togglePreview" @click.middle="openPreviewInNewTab">{{isTablet ? '' : showPreview ? previewInNewTab ? 'Hide Preview Controls' : 'Hide Preview' : 'Preview'}}</MbButton>
-        <MbButton :dark="dark" :disabled="!wasChanged || (errors.fields.size > 0 && !isDraft)" icon="save" :icon-first="true" :loading="saveLoading" :tooltip="isTablet ? 'Save' : null" type="primary" @click="saveChanges">{{isTablet ? '' : 'Save'}}</MbButton>
+        <MbButton :dark="dark" :disabled="!wasChanged || (errors.fields.size > 0 && !isDraft)" icon="save" :icon-first="true" :loading="saveLoading" :tooltip="isTablet ? 'Save' : `Save <kbd>${isMac ? '⌘' : 'Ctrl'}</kbd>+<kbd>S</kbd>`" type="primary" @click="saveChanges">{{isTablet ? '' : 'Save'}}</MbButton>
       </div>
     </header>
     <MbTabs v-if="schema.tabs && schema.tabs.length > 1" v-model="activeTab" :dark="dark" :errors="tabErrors" :tabs="cleanTabs" />
@@ -107,10 +107,12 @@ import { formatISO } from 'date-fns';
 import fs, { exists, PlainFS, joinPath, mkdirp, pathBasename, pathDirname, rmrf } from '../fs'; // eslint-disable-line object-curly-newline
 
 import assembleUrlFromTemplate from '../assets/js/assembleUrlFromTemplate';
+import formatTimestamp from '../assets/js/formatTimestamp';
 import generateDefaultContentFromSchema from '../assets/js/generateDefaultContentFromSchema';
 import generateDefaultFilePathFields from '../assets/js/generateDefaultFilePathFields';
 import getFieldsByPredicate from '../assets/js/getFieldsByPredicate';
 import getContentLanguages from '../assets/js/getContentLanguages';
+import isMac from '../assets/js/isMac';
 import loadProject from '../assets/js/loadProject';
 import prettifyEntityName from '../assets/js/prettifyEntityName';
 import validateContent from '../assets/js/validateContent';
@@ -118,7 +120,6 @@ import Store from '../store';
 
 import TabContent from '../components/utility/TabContent.vue';
 import PreviewCommentThread from '../components/utility/PreviewCommentThread.vue';
-import formatTimestamp from '../assets/js/formatTimestamp';
 
 function hasAccess(role, permissions) {
   if (!role || !permissions) return false;
@@ -244,6 +245,7 @@ export default {
     if (this.previewInNewTab) this.closeOpenPreview();
     if (this.previewConnected) window.removeEventListener('message', this.handlePreviewMessage, false);
     window.removeEventListener('beforeunload', this.preventUnintentionalClose);
+    window.removeEventListener('keydown', this.handleGlobalKeyUp);
   },
   components: {
     TabContent,
@@ -370,6 +372,9 @@ export default {
           this.handleEntityMoved(newPath);
         }
       },
+    },
+    isMac() {
+      return isMac();
     },
     isMobile() {
       return this.$store.state.application.mobile;
@@ -723,6 +728,12 @@ export default {
       this.$store.commit('addLocallyChangedFile', newPath);
       await this.$router.replace({ params: { collection: this.$route.params.collection, id: this.$route.params.id, path: newPath } });
       this.findAndSetFilepathIds(this.schema);
+    },
+    handleGlobalKeyUp(e) {
+      if (e.key === 's' && (isMac() ? e.metaKey : e.ctrlKey)) {
+        e.preventDefault();
+        this.saveChanges();
+      }
     },
     handleNewTabPreviewLoaded(e) {
       if (this.previewInNewTabTimeout) {
@@ -1090,6 +1101,8 @@ export default {
       this.activeTab = 0;
       this.initialised = true;
     });
+
+    window.addEventListener('keydown', this.handleGlobalKeyUp);
   },
   props: {
     dark: Boolean,

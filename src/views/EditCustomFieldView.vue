@@ -8,7 +8,7 @@
       <div class="right">
         <MbButton :dark="dark" icon="settings" :tooltip="isTablet ? 'Settings' : null" @click="showCustomFieldSettings = true">{{isTablet ? '' : 'Settings'}}</MbButton>
         <MbButton :dark="dark" icon="eye" :tooltip="isTablet ? 'Preview' : null" @click="showPreview = true">{{isTablet ? '' : 'Preview'}}</MbButton>
-        <MbButton :dark="dark" :disabled="!wasChanged" icon="save" :icon-first="true" :loading="saveLoading" :tooltip="isTablet ? 'Save' : null" type="primary" @click="saveChanges">{{isTablet && !isMobile ? '' : 'Save'}}</MbButton>
+        <MbButton :dark="dark" :disabled="!wasChanged" icon="save" :icon-first="true" :loading="saveLoading" :tooltip="isTablet ? 'Save' : `Save <kbd>${isMac ? '⌘' : 'Ctrl'}</kbd>+<kbd>S</kbd>`" type="primary" @click="saveChanges">{{isTablet && !isMobile ? '' : 'Save'}}</MbButton>
       </div>
     </header>
     <SchemaFieldsEditor v-model="customField" :active-tab="0" :dark="dark" :project-id="$route.params.id" :tabs="[]" @update:modelValue="checkForChanges" />
@@ -41,6 +41,7 @@ import slugify from '@sindresorhus/slugify';
 import fs, { exists, PlainFS, joinPath, pathBasename, pathDirname } from '../fs'; // eslint-disable-line object-curly-newline, no-unused-vars
 import flattenFields from '../assets/js/flattenFields';
 import hasAccess from '../assets/js/hasAccess';
+import isMac from '../assets/js/isMac';
 import loadProject from '../assets/js/loadProject';
 import prettifyEntityName from '../assets/js/prettifyEntityName';
 import Store from '../store';
@@ -131,6 +132,9 @@ export default {
     fakeSchema() {
       return { fields: this.customField.slice(0, 1), tabs: [{ label: 'fake tab' }] };
     },
+    isMac() {
+      return isMac();
+    },
     isMobile() {
       return this.$store.state.application.mobile;
     },
@@ -145,6 +149,7 @@ export default {
   },
   beforeUnmount() {
     window.removeEventListener('beforeunload', this.preventUnintentionalClose);
+    window.removeEventListener('keydown', this.handleGlobalKeyUp);
   },
   data() {
     return {
@@ -207,6 +212,12 @@ export default {
         type: 'warning',
       });
       this.$router.replace({ name: 'Project.Settings', params: { id }, query: { tab: 'custom-fields' } });
+    },
+    handleGlobalKeyUp(e) {
+      if (e.key === 's' && (isMac() ? e.metaKey : e.ctrlKey)) {
+        e.preventDefault();
+        this.saveChanges();
+      }
     },
     handleTitleTooltip(e) {
       const tooltip = {
@@ -312,6 +323,9 @@ export default {
     },
   },
   mixins: [isPrivilegedUser],
+  mounted() {
+    window.addEventListener('keydown', this.handleGlobalKeyUp);
+  },
   props: {
     dark: Boolean,
   },
