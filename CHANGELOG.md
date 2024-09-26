@@ -16,6 +16,9 @@ updatedAt: 2024-02-18
 * The error message in the sync modal is now selectable
 * You can now simply highlight one or more words and paste a URL to format that
   selection as a link
+* You can now save content, schemas and custom fields by pressing ⌘ / Ctrl + S
+* You can now duplicate schemas, collections and custom fields in the project
+  settings
 * There are more links to the documentation placed in key areas of the UI, for
   example a link to the authentication documentation in the authentication modal
   or a link to the quickstart guide when importing a project for the very first
@@ -24,8 +27,8 @@ updatedAt: 2024-02-18
 ### Other Changes
 
 * User names are no longer required to contain a space character
-* You can no longer use Ctrl/CMD + S to enable the strikethrough format in rich
-  text editors, use Ctrl/CMD + Shift + S instead
+* You can no longer use ⌘ / Ctrl + S to enable the strikethrough format in rich
+  text editors, use ⌘ / Ctrl + Shift + S instead
 
 ## Version 0.7.1 Beta
 

@@ -15,6 +15,8 @@
 import fs, { exists } from '../../fs';
 import { rmrf } from '../../fs/workerFS';
 
+import duplicateEntity from '../../assets/js/duplicateEntity';
+
 import updateLocallyChangedFiles from '../../mixins/updateLocallyChangedFiles';
 
 import EntityCreationModal from '../../components/utility/EntityCreationModal.vue';
@@ -82,6 +84,12 @@ export default {
           icon: 'arrow-right',
         },
         {
+          action: this.duplicateSchema,
+          label: 'Duplicate',
+          icon: 'duplicate',
+          filesOnly: true,
+        },
+        {
           action: this.deleteEntity,
           label: 'Delete',
           icon: 'trash',
@@ -121,6 +129,9 @@ export default {
         timeout: 5000,
         type: 'warning',
       });
+    },
+    duplicateSchema(path) {
+      duplicateEntity(path, this.$refs.fileList, this.openSchema, 'Schema');
     },
     handleEntityCreated(name) {
       if (!name.endsWith('.json')) this.$refs.fileList.refresh();

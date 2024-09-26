@@ -78,6 +78,7 @@
 import { cloneDeep } from 'lodash-es';
 import fs, { exists, readdirDeep } from '../../fs';
 
+import duplicateEntity from '../../assets/js/duplicateEntity';
 import prettifyEntityName from '../../assets/js/prettifyEntityName';
 
 import EntityCreationModal from '../../components/utility/EntityCreationModal.vue';
@@ -171,6 +172,12 @@ export default {
           action: this.renameCollection,
           label: 'Rename',
           icon: 'text-input',
+        },
+        {
+          action: this.duplicateCollection,
+          label: 'Duplicate',
+          icon: 'duplicate',
+          filesOnly: true,
         },
         {
           action: this.deleteCollection,
@@ -287,6 +294,9 @@ export default {
         timeout: 5000,
         type: 'warning',
       });
+    },
+    duplicateCollection(path) {
+      duplicateEntity(path, this.$refs.fileList, this.openCollectionSettings, 'Collection');
     },
     handleCollectionCreated(name) {
       this.$refs.fileList.refresh();
