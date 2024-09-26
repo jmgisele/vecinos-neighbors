@@ -465,7 +465,7 @@ export default {
           type: 'positive',
         });
       } catch (err) {
-        this.$store.commit('addToast', { message: `Something went wrong while duplicationg the file: ${err.message}`, type: 'error' });
+        this.$store.commit('addToast', { message: `Something went wrong while duplicating the file: ${err.message}`, type: 'error' });
         console.error(err);
       }
     },
