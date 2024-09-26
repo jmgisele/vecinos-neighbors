@@ -95,7 +95,6 @@ export default function generateKeymap(schema, vm) {
   }
 
   if (type = schema.marks.strike) {
-    bindings['Mod-s'] = toggleMark(type);
     bindings['Mod-S'] = toggleMark(type);
   }
 
