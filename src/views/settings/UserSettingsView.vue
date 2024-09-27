@@ -35,7 +35,7 @@
           <MbButton :dark="dark" icon="trash" rounded tooltip="Delete role" type="negative" @click="removeCustomRole(index, role)" />
         </li>
         <li v-if="customRolesWithoutSoftDeleted.length === 0" class="empty-state">
-          <span class="secondary">There are currently no custom roles for this project</span>
+          <span class="secondary" v-html="emptyStateMessage" />
         </li>
       </transition-group>
     </section>
@@ -146,6 +146,7 @@ export default {
     return {
       availableRoles,
       avatarUploaded: false,
+      emptyStateMessage: 'There are currently no custom roles for this project. <a href="https://mattrbld.com/docs/roles/#custom-roles" target="_blank">What are custom roles?</a>',
       errors: {
         roleLabel: null,
         roleValue: null,
@@ -805,7 +806,21 @@ export default {
             &.empty-state {
               text-align: center;
               background-color: transparent;
-              pointer-events: none;
+
+              &:hover {
+                background-color: transparent;
+              }
+
+              &::before {
+                content: none;
+              }
+
+              @media #{$mobile} {
+                span.secondary {
+                  display: inline;
+                  white-space: normal;
+                }
+              }
             }
 
             .local-changes-indicator {

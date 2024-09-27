@@ -2,7 +2,7 @@
   <TabContent class="schema-settings" :class="{ dark }" :dark="dark">
     <section class="wrapper wide">
       <h1 class="h2">Schemas</h1>
-      <MbFileList v-if="initialised" :action="createSchemaAction" :dark="dark" empty-state="There are no schemas in this folder" :file-actions="schemaActions" file-list-label="Schemas" :initial-path="resolvedLastDir" pretty-filenames ref="fileList" :root="schemaDir" @fileclick="openSchema" @list-change="listedFiles = $event.files" @path-change="currentPath = $event" />
+      <MbFileList v-if="initialised" :action="createSchemaAction" :dark="dark" :empty-state="emptyStateMessage" :file-actions="schemaActions" file-list-label="Schemas" :initial-path="resolvedLastDir" pretty-filenames ref="fileList" :root="schemaDir" @fileclick="openSchema" @list-change="listedFiles = $event.files" @path-change="currentPath = $event" />
       <MbButton v-show="listedFiles === 0" :dark="dark" icon="plus" type="positive" @click="showEntityCreation = true">Create one</MbButton>
     </section>
     <EntityCreationModal :dark="dark" :file-content="JSON.stringify(defaultSchemaContent, null, 2)" file-extension="json" :path="currentPath" title="Add new…" :visible="showEntityCreation" @close="showEntityCreation = false" @entity-created="handleEntityCreated" />
@@ -63,6 +63,7 @@ export default {
         fields: [],
         tabs: [{ label: 'Untitled Tab', groupAs: null }],
       },
+      emptyStateMessage: 'There are no Schemas in this folder. <a href="https://mattrbld.com/docs/schemas/" target="_blank">What is a Schema?</a>',
       entityBeingModified: null,
       initialised: false,
       listedFiles: 0,

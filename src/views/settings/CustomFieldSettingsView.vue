@@ -2,7 +2,7 @@
   <TabContent class="custom-field-settings" :class="{ dark }" :dark="dark">
     <section class="wrapper wide">
       <h1 class="h2">Custom Fields</h1>
-      <MbFileList v-if="initialised" :action="createCustomFieldAction" :dark="dark" empty-state="There are no custom fields in this folder" :file-actions="customFieldActions" file-list-label="Custom Fields" :initial-path="resolvedLastDir" pretty-filenames ref="fileList" :root="customFieldDir" @fileclick="openCustomField" @list-change="listedFiles = $event.files" @path-change="currentPath = $event" />
+      <MbFileList v-if="initialised" :action="createCustomFieldAction" :dark="dark" :empty-state="emptyStateMessage" :file-actions="customFieldActions" file-list-label="Custom Fields" :initial-path="resolvedLastDir" pretty-filenames ref="fileList" :root="customFieldDir" @fileclick="openCustomField" @list-change="listedFiles = $event.files" @path-change="currentPath = $event" />
       <MbButton v-show="listedFiles === 0" :dark="dark" icon="plus" type="positive" @click="showEntityCreation = true">Create one</MbButton>
     </section>
     <EntityCreationModal :dark="dark" :file-content="JSON.stringify(defaultCustomFieldContent, null, 2)" file-extension="json" :path="currentPath" title="Add new…" :visible="showEntityCreation" @close="showEntityCreation = false" @entity-created="handleEntityCreated" />
@@ -59,23 +59,6 @@ export default {
         type: 'primary',
       },
       currentPath: null,
-      defaultCustomFieldContent: { // custom fields are groups by default
-        type: 'group',
-        customField: null, // this needs to be set to the path of the newly created field by EditCustomField.vue
-        description: '',
-        displayField: null,
-        group: 'custom fields',
-        icon: 'group',
-        key: 'custom-field',
-        label: 'Custom Field',
-        tab: null,
-        value: [],
-        version: 1,
-        visibility: { hidden: false, showByValue: { field: null } },
-      },
-      entityBeingModified: null,
-      initialised: false,
-      listedFiles: 0,
       customFieldActions: [
         {
           action: this.openCustomField,
@@ -106,6 +89,24 @@ export default {
           type: 'negative',
         },
       ],
+      defaultCustomFieldContent: { // custom fields are groups by default
+        type: 'group',
+        customField: null, // this needs to be set to the path of the newly created field by EditCustomField.vue
+        description: '',
+        displayField: null,
+        group: 'custom fields',
+        icon: 'group',
+        key: 'custom-field',
+        label: 'Custom Field',
+        tab: null,
+        value: [],
+        version: 1,
+        visibility: { hidden: false, showByValue: { field: null } },
+      },
+      emptyStateMessage: 'There are no custom fields in this folder. <a href="https://mattrbld.com/docs/custom-fields/" target="_blank">What is a custom field?</a>',
+      entityBeingModified: null,
+      initialised: false,
+      listedFiles: 0,
       showEntityCreation: false,
       showEntityMove: false,
       showEntityRename: false,

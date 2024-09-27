@@ -16,8 +16,8 @@ updatedAt: 2024-02-18
 * The error message in the sync modal is now selectable
 * You can now simply highlight one or more words and paste a URL to format that
   selection as a link
-* You can now save content, schemas and custom fields by pressing ⌘ / Ctrl + S
-* You can now duplicate schemas, collections and custom fields in the project
+* You can now save content, Schemas and custom fields by pressing ⌘ / Ctrl + S
+* You can now duplicate Schemas, Collections and custom fields in the project
   settings
 * There are more links to the documentation placed in key areas of the UI, for
   example a link to the authentication documentation in the authentication modal
