@@ -92,7 +92,7 @@ comment near the code. Here is a non-exhaustive selection:
 
 ## Licence
 
-Copyright (C) 2024 Amadeus Maximilian Stadler
+Copyright (C) 2024 Amadeus Maximilian Stadler and Mattrbld Contributors
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU Affero General Public License as published
