@@ -69,7 +69,7 @@
       </li>
     </transition-group>
     <transition>
-      <p v-show="filteredFiles.length === 0 && ((foldersFirst && !foldersOnly) || filteredFolders.length === 0)" class="empty-state">{{searchTerm ? 'No results…' : emptyStateMessage}}</p>
+      <p v-show="filteredFiles.length === 0 && ((foldersFirst && !foldersOnly) || filteredFolders.length === 0)" class="empty-state" v-html="searchTerm ? 'No results…' : emptyStateMessage" />
     </transition>
     <MbContextMenu class="options" :dark="dark" :from-right="popover.fromRight" :options="popover.isFolder ? modifiedFolderActions : modifiedFileActions" :show="popover.show" :target="popover.target" :x="popover.x" :y="popover.y" @close="popover.show = false" />
   </div>
