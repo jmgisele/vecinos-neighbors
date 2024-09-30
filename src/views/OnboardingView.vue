@@ -375,7 +375,6 @@ export default {
           break;
         case 'userName':
           if (!this.userName) error = 'Please let your collaborators know who you are';
-          else if (!this.userName.includes(' ')) error = 'Please make sure to use your full name';
           break;
         default:
           // no op
