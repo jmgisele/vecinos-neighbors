@@ -225,12 +225,12 @@ export default {
     },
     slugifyOptions_preserveTrailingDash: {
       get() {
-        return this.currentProject.slugifyOptions && this.currentProject.slugifyOptions.preserveTrailingslugifyOptions_preserveTrailingDash;
+        return this.currentProject.slugifyOptions && this.currentProject.slugifyOptions.preserveTrailingDash;
       },
       set(v) {
         let newOptions;
-        if (!this.currentProject.slugifyOptions) newOptions = { preserveTrailingslugifyOptions_preserveTrailingDash: v };
-        else newOptions = { ...this.currentProject.slugifyOptions, preserveTrailingslugifyOptions_preserveTrailingDash: v };
+        if (!this.currentProject.slugifyOptions) newOptions = { preserveTrailingDash: v };
+        else newOptions = { ...this.currentProject.slugifyOptions, preserveTrailingDash: v };
         this.$store.commit('setCurrentProjectProperty', { key: 'slugifyOptions', value: newOptions });
         this.$store.dispatch('saveCurrentProject');
       },
@@ -245,8 +245,8 @@ export default {
           v.splice(v.indexOf(this.slugifyOptions_separator), 1);
         } else this.errors.slugifyPreserveCharacters = '';
         let newOptions;
-        if (!this.currentProject.slugifyOptions) newOptions = { slugifyOptions_preserveCharacters: v };
-        else newOptions = { ...this.currentProject.slugifyOptions, slugifyOptions_preserveCharacters: v };
+        if (!this.currentProject.slugifyOptions) newOptions = { preserveCharacters: v };
+        else newOptions = { ...this.currentProject.slugifyOptions, preserveCharacters: v };
         this.$store.commit('setCurrentProjectProperty', { key: 'slugifyOptions', value: newOptions });
         this.$store.dispatch('saveCurrentProject');
       },
