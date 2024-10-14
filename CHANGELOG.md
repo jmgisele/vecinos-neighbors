@@ -11,7 +11,7 @@ updatedAt: 2024-02-18
   can now customise and rearrange the Dashboard, Media Library, and Settings
   options. Please note that for projects initialised pre-v1.0, you will have to
   manually add the new entries to the sidebar by editing the `config.json` file
-  in your `.mattrbld` directory if you want to customise them.
+  in your `.mattrbld` directory in a text editor if you want to customise them.
 * You can now add separator lines to the Project Sidebar
 * The error message in the sync modal is now selectable
 * You can now simply highlight one or more words and paste a URL to format that
@@ -23,6 +23,11 @@ updatedAt: 2024-02-18
   example a link to the authentication documentation in the authentication modal
   or a link to the quickstart guide when importing a project for the very first
   time
+
+### Bugfixes
+
+* Setting the `preserveTrailingDash` and `preserveCharacters` options in the
+  slugify options of a project now works correctly
 
 ### Other Changes
 
