@@ -34,6 +34,7 @@ updatedAt: 2024-02-18
 * User names are no longer required to contain a space character
 * You can no longer use ⌘ / Ctrl + S to enable the strikethrough format in rich
   text editors, use ⌘ / Ctrl + Shift + S instead
+* Umami 2.0 is now supported for collecting basic analytics
 
 ## Version 0.7.1 Beta
 
