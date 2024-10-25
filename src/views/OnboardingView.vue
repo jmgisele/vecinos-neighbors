@@ -342,7 +342,8 @@ export default {
     async openProject() {
       if (this.isMattrbldProject) this.$router.push({ name: 'Project', params: { id: this.projectName } }); // go to project dashboard
       else this.$router.push({ name: 'Project.Settings', params: { id: this.projectName }, query: { tab: 'general' } }); // go to project settings
-      if (window.umami) window.umami.trackEvent('import', { type: 'Onboarding completed' });
+      if (window.umami?.trackEvent) window.umami.trackEvent('import', { type: 'Onboarding completed' }); // legacy Umami 1.0
+      else if (window.umami?.track) window.umami.track(() => ({ name: 'import', data: { type: 'Onboarding completed' } }));
     },
     regenerateAvatar() {
       const split = this.userName.split(' ');
@@ -386,7 +387,8 @@ export default {
     gitTools,
   ],
   mounted() {
-    if (window.umami) window.umami.trackView('/onboarding');
+    if (window.umami?.trackView) window.umami.trackView('/onboarding'); // legacy Umami 1.0
+    else if (window.umami?.track) window.umami.track((props) => ({ ...props, url: '/onboarding' }));
   },
   props: {
     dark: Boolean,

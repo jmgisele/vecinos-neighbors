@@ -349,7 +349,8 @@ export default {
           this.$store.commit('addToast', { message: wasConfigured ? `${project.name} was imported successfully and is ready to be edited` : 'Your project was imported successfully and is ready to be configured', type: 'positive' });
           if (wasConfigured) this.$router.push({ name: 'Project', params: { id: projectId } });
           else this.$router.push({ name: 'Project.Settings', params: { id: projectId }, query: { tab: 'general' } });
-          if (window.umami) window.umami.trackEvent('import', { type: 'Project imported from Home' });
+          if (window.umami?.trackEvent) window.umami.trackEvent('import', { type: 'Project imported from Home' }); // legacy Umami 1.0
+          else if (window.umami?.track) window.umami.track(() => ({ name: 'import', data: { type: 'Project imported from Home' } }));
         } catch (err) {
           this.$store.commit('addToast', { message: `Something went wrong while importing the project: ${err.message}`, type: 'error' });
           this.$store.commit('removeProjectFromActiveUser', projectId);
@@ -421,7 +422,8 @@ export default {
     projectExists,
   ],
   mounted() {
-    if (window.umami) window.umami.trackView('/');
+    if (window.umami?.trackView) window.umami.trackView('/'); // legacy Umami 1.0
+    else if (window.umami?.track) window.umami.track((props) => ({ ...props, url: '/' }));
   },
   props: {
     dark: Boolean,

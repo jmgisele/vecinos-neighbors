@@ -299,7 +299,8 @@ export default {
       if (!project) return; // there must’ve been an error
       if (project.wasConfigured) this.$router.replace({ name: 'Project', params: { id: project.id } });
       else this.$router.replace({ name: 'Project.Settings', params: { id: project.id }, query: { tab: 'general' } });
-      if (window.umami) window.umami.trackEvent('import', { type: 'Invite link used' });
+      if (window.umami?.trackEvent) window.umami.trackEvent('import', { type: 'Invite link used' }); // legacy Umami 1.0
+      else if (window.umami?.track) window.umami.track(() => ({ name: 'import', data: { type: 'Invite link used' } }));
     },
     validate(field) {
       let error = '';
@@ -323,7 +324,8 @@ export default {
   },
   mixins: [gitTools, projectExists],
   mounted() {
-    if (window.umami) window.umami.trackView('/import');
+    if (window.umami?.trackView) window.umami.trackView('/import'); // legacy Umami 1.0
+    else if (window.umami?.track) window.umami.track((props) => ({ ...props, url: '/import' }));
   },
   props: {
     dark: Boolean,
