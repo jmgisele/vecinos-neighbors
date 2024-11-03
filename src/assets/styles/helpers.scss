@@ -1,7 +1,8 @@
 @use 'sass:math';
+@use 'sass:meta';
 
 @function rem($pixels) {
-  @if type-of($pixels)=='number' and not unitless($pixels) {
+  @if meta.type-of($pixels)=='number' and not math.is-unitless($pixels) {
     @return math.div(math.div($pixels, $pixels * 0 + 1), 16) * 1rem;
   }
 
