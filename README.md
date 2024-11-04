@@ -60,12 +60,17 @@ npm run preview
 npm run proxy
 ```
 
-
 ## Technical Documentation
 
 You can learn more about all the concepts and functions of Mattrbld in the official
 documentation which is being managed through Mattrbld itself as a testing ground.
 You can find it [here](https://mattrbld.com/docs/).
+
+## Contributing
+
+If you wish to report a bug, request a feature, or contribute code or something
+else to the project, please see [our contributing guidelines](./CONTRIBUTING.md)
+for more information on how to do so.
 
 ## Built on the Shoulders of Giants
 
