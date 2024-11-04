@@ -90,6 +90,15 @@ export default {
       prompt.preventDefault();
       this.$store.commit('setInstallPrompt', prompt);
     });
+
+    if (import.meta.env.MODE === 'staging') {
+      this.$store.commit('addToast', {
+        id: 'stagingWarning',
+        message: 'You are running a preview version of Mattrbld. Things might not work properly or may break unexpectedly.',
+        timeout: false,
+        type: 'warning',
+      });
+    }
   },
   data() {
     return {

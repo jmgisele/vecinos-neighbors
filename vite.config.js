@@ -9,6 +9,7 @@ import { nodePolyfills } from 'vite-plugin-node-polyfills';
 
 import umami from './vite-plugins/umami';
 import createSvgoPlugin from './vite-plugins/svgo';
+import robots from './vite-plugins/robots';
 
 // https://vitejs.dev/config/
 export default defineConfig({
@@ -53,6 +54,7 @@ export default defineConfig({
     }),
     vue(),
     umami(),
+    robots(),
     VitePWA({
       devOptions: {
         enabled: true,
