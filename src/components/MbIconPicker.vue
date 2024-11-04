@@ -28,7 +28,8 @@
 import { pathBasename } from '../fs';
 
 function generateIconsList() {
-  return Object.keys(import.meta.glob('@/assets/icons/**.svg')).map((path) => pathBasename(path).replace(/^(.*)\.\w+$/, '$1'));
+  // using ?url here to avoid a warning during build (since the icons are also imported by the SvgSprite), adding import: 'default' inflates the bundle
+  return Object.keys(import.meta.glob('@/assets/icons/**.svg', { query: '?url' })).map((path) => pathBasename(path).replace(/^(.*)\.\w+$/, '$1'));
 }
 
 export default {
