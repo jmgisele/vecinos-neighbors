@@ -35,6 +35,8 @@ updatedAt: 2024-02-18
 * You can no longer use ⌘ / Ctrl + S to enable the strikethrough format in rich
   text editors, use ⌘ / Ctrl + Shift + S instead
 * Umami 2.0 is now supported for collecting basic analytics
+* There is now a button for inserting hard line breaks in rich text editors
+  which have them enabled, making the feature more discoverable
 
 ## Version 0.7.1 Beta
 

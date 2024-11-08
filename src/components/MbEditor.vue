@@ -87,7 +87,7 @@ import cleanField from '../assets/js/cleanField';
 import defaultFields from '../data/defaultFields';
 import formatHTML from '../assets/js/formatHTML';
 import generateInputRules from '../assets/js/generateInputRules';
-import generateKeymap, { insertHr } from '../assets/js/generateKeymap';
+import generateKeymap, { insertBreak, insertHr } from '../assets/js/generateKeymap';
 import generateSchema from '../assets/js/generateSchema';
 import isMac from '../assets/js/isMac';
 import MarkdownParser from '../assets/js/MarkdownParser';
@@ -140,12 +140,14 @@ export default {
         disabled.strong = true;
         disabled.ul = true;
         disabled.image = true;
+        disabled.br = true;
       }
       if (this.activeParentType === 'listItem' || this.activeParagraphType === 'listItem' || this.activeParagraphType === 'quoteFooter') {
         disabled.ol = true;
         disabled.ul = true;
         disabled.blockquote = true;
         disabled.image = true;
+        disabled.br = true;
       }
       if (['blockquote', 'orderedList', 'unorderedList'].includes(this.activeParagraphType)) {
         disabled.ol = true;
@@ -158,6 +160,7 @@ export default {
       if (this.activeParagraphType === 'image') {
         disabled.ol = true;
         disabled.ul = true;
+        disabled.br = true;
       }
       return disabled;
     },
@@ -503,6 +506,15 @@ export default {
           tooltip: `Insert separator <kbd>${this.isMac ? '⌘' : 'Ctrl'}</kbd>+<kbd>_</kbd>`,
         });
       }
+      if (type = schema.nodes.br) {
+        actions.push({
+          action: this.insertBreak,
+          group: 'inserts',
+          name: 'br',
+          icon: 'line-break',
+          tooltip: 'Insert line break <kbd>Shift</kbd>+<kbd>Enter</kbd>',
+        });
+      }
       /* eslint-enable no-cond-assign */
 
       return actions.filter((action) => action);
@@ -608,6 +620,10 @@ export default {
     },
     insertBlockquote() {
       wrapIn(this.editorState.schema.nodes.blockquote)(this.editorState, this.editorView.dispatch);
+      this.editorView.focus();
+    },
+    insertBreak() {
+      insertBreak(this.editorState, this.editorView.dispatch);
       this.editorView.focus();
     },
     insertHr() {

@@ -11,7 +11,7 @@ import {
 import { undo, redo } from 'prosemirror-history';
 import { undoInputRule } from 'prosemirror-inputrules';
 
-function insertBreak(state, dispatch) {
+export function insertBreak(state, dispatch) {
   dispatch(state.tr.replaceSelectionWith(state.schema.nodes.br.create()).scrollIntoView());
   return true;
 }
