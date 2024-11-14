@@ -66,6 +66,9 @@ export default {
           const draftsDir = joinPath('/projects', to.params.id, unprefixedDraftsDir, pathBasename(collection.dir));
           if (lastDir.startsWith(draftsDir)) lastDir = lastDir.replace(joinPath(unprefixedDraftsDir, pathBasename(collection.dir)), collection.dir);
         }
+      } else if (collection.dir) { // if there is no last dir, we need to check if the collection.dir is set and exists, and if it doesn't, recreate it
+        const contentDir = joinPath('/projects', to.params.id, collection.dir);
+        if (!(await exists(contentDir))) await mkdirp(contentDir);
       }
 
       return next((vm) => {
@@ -94,8 +97,14 @@ export default {
 
     try {
       const collection = JSON.parse(await fs.readFile(joinPath('/projects', to.params.id, path), 'utf8'));
+      const contentDir = joinPath('/projects', to.params.id, collection.dir);
+
+      if (collection.dir) { // check if dir exists and if it doesn’t, create it
+        if (!(await exists(contentDir))) await mkdirp(contentDir);
+      }
+
       this.collection = { ...collection, name: prettifyEntityName(pathBasename(path)) };
-      this.currentPath = joinPath('/projects', to.params.id, collection.dir);
+      this.currentPath = contentDir;
 
       if (collection.type === 'media') {
         window.addEventListener('dragenter', this.handleWindowDragEnter);
