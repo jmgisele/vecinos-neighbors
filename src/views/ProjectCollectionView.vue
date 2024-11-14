@@ -11,7 +11,7 @@
       <p v-else>A developer needs to add one in the settings.</p>
       <MbButton v-if="isPrivilegedUser" :dark="dark" icon="wrench-and-driver" type="primary" @click="$router.push({ name: 'Project.Settings', params: { id: $route.params.id }, query: { tab: 'collections' }})">Configure now</MbButton>
     </div>
-    <input v-if="collection.type === 'media'" type="file" ref="replaceFileInput" @change="handleReplaceFileInput">
+    <input v-if="collection.type === 'media'" type="file" ref="replaceFileInput" @change="handleReplaceFileInput" @cancel="handleReplaceFileInputCancel">
     <EntityCreationModal v-if="collection.type !== 'media'" :dark="dark" :file-content="typeof defaultCollectionContent !== 'string' ? JSON.stringify(defaultCollectionContent, null, 2) : defaultCollectionContent" :file-extension="collection.type" :only="createOnly" :path="{ file: draftsDir && collection.draftByDefault ? currentDraftsPath : currentPath, directory: currentPath }" :title="entityCreationTitle" :visible="showEntityCreation" @close="handleEntityCreationClose" @entity-created="handleEntityCreated" />
     <EntityMoveModal :dark="dark" :old-path="entityBeingModified" pretty-filenames :root="moveRootDir" :visible="showEntityMove" @close="showEntityMove = false; entityBeingModified = null" @entity-moved="handleEntityRenamed" />
     <EntityRenameModal :dark="dark" :old-path="entityBeingModified" :visible="showEntityRename" @close="showEntityRename = false; entityBeingModified = null" @entity-renamed="handleEntityRenamed" />
@@ -611,6 +611,9 @@ export default {
         }
       }
     },
+    handleReplaceFileInputCancel() {
+      this.entityBeingModified = null;
+    },
     handleWindowDragEnter(e) {
       e.preventDefault();
       if ((this.userPermissions.has('everything') || this.userPermissions.has('upload')) && (!this.showEntityCreation || this.mediaCreationModalType === 'directory')) {
@@ -650,7 +653,6 @@ export default {
     replaceFile(path) {
       if (typeof path === 'string') this.entityBeingModified = path;
       this.$refs.replaceFileInput.click();
-      // TODO: entityBeingModified doesn’t get reset when cancel is clicked in the dialog, but detecting that reliably is impossible. Maybe something will show up in the future
     },
     async toggleDraft(path) {
       const isDraft = path.startsWith(this.draftsDir);

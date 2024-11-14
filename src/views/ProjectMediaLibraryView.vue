@@ -12,7 +12,7 @@
         <p v-else>A developer can do so in the project settings.</p>
         <MbButton v-if="isPrivilegedUser" :dark="dark" icon="wrench-and-driver" type="primary" @click="$router.push({ name: 'Project.Settings', params: { id: currentProject.id }, query: { tab: 'media' }})">Configure now</MbButton>
       </div>
-      <input type="file" ref="replaceFileInput" @change="handleReplaceFileInput">
+      <input type="file" ref="replaceFileInput" @change="handleReplaceFileInput" @cancel="handleReplaceFileInputCancel">
 
       <template #right="{ isModal }">
         <transition mode="out-in">
@@ -443,6 +443,9 @@ export default {
         }
       }
     },
+    handleReplaceFileInputCancel() {
+      this.entityBeingModified = null;
+    },
     handleSplitClosed() {
       this.fileDetails = {
         dominantColor: null,
@@ -487,7 +490,6 @@ export default {
     replaceFile(path) {
       if (typeof path === 'string') this.entityBeingModified = path;
       this.$refs.replaceFileInput.click();
-      // TODO: entityBeingModified doesn’t get reset when cancel is clicked in the dialog, but detecting that reliably is impossible. Maybe something will show up in the future
     },
     showPathTooltip(e) {
       if (!this.fileDetails.name) return;
