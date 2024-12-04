@@ -1,5 +1,5 @@
 <template>
-  <transition-group class="snackbar" duration="600" tag="div">
+  <transition-group class="snackbar" duration="350" tag="div">
     <MbToast v-for="toast in toasts" :dark="dark" :key="toast.id" :toast="toast" />
   </transition-group>
 </template>
@@ -68,20 +68,18 @@ export default {
         }
 
         &.v-leave-to {
-          transform: translateX(1rem) scale(0.8);
-
           @media #{$mobile} {
-            transform: translate(1rem, calc(-100% - 1rem)) scale(0.8);
+            transform: translateY(calc(-100% - 1rem)) scale(0.8);
           }
         }
       }
 
       &.v-leave-active {
         position: absolute;
-        transform: translateX(1rem);
+        translate: 1rem 0;
 
         @media #{$mobile} {
-          transform: translate(1rem, calc(-100% - 1rem));
+          transform: translateY(calc(-100% - 1rem));
         }
 
         &::before {
