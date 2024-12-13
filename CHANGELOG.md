@@ -1,6 +1,6 @@
 ---
-currentVersion: 0.7.1
-updatedAt: 2024-02-18
+currentVersion: 1.0.0
+updatedAt: 2024-12-18
 ---
 ## Version 1.0.0
 
@@ -37,6 +37,7 @@ updatedAt: 2024-02-18
 * Umami 2.0 is now supported for collecting basic analytics
 * There is now a button for inserting hard line breaks in rich text editors
   which have them enabled, making the feature more discoverable
+* Mattrbld is now an open source project released under AGPL 3.0! 🥳
 
 ## Version 0.7.1 Beta
 
