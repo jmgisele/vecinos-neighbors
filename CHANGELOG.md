@@ -1,7 +1,14 @@
 ---
-currentVersion: 1.0.1
+currentVersion: 1.0.2
 updatedAt: 2024-12-18
 ---
+## Version 1.0.2
+
+### Bugfixes
+
+* Ensure the name in the PWA manifest is set to “Mattrbld” with a capital ‘M’
+* Include a .htaccess file which always redirects to index.html for virutal routing
+
 ## Version 1.0.1
 
 ### New Features
