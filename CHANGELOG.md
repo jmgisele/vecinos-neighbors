@@ -1,8 +1,8 @@
 ---
-currentVersion: 0.7.1
-updatedAt: 2024-02-18
+currentVersion: 1.0.1
+updatedAt: 2024-12-18
 ---
-## Version 1.0.0
+## Version 1.0.1
 
 ### New Features
 
