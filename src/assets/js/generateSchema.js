@@ -156,8 +156,12 @@ export default function generateSchema(
           attrs: {
             alt: { default: null },
             data: { default: null },
+            decoding: { default: null },
+            height: { default: null },
+            loading: { default: null },
             src: {},
             title: { default: null },
+            width: { default: null },
           },
           content: options.allowImageCaptions ? 'text*' : null,
           draggable: false,
@@ -175,8 +179,12 @@ export default function generateSchema(
                 return {
                   alt: img.getAttribute('alt'),
                   data,
+                  decoding: img.getAttribute('decoding'),
+                  height: img.getAttribute('height'),
+                  loading: img.getAttribute('loading'),
                   src: img.getAttribute('src'),
                   title: img.getAttribute('title'),
+                  width: img.getAttribute('width'),
                 };
               },
             },
@@ -187,8 +195,12 @@ export default function generateSchema(
                 return {
                   alt: dom.getAttribute('alt'),
                   data,
+                  decoding: dom.getAttribute('decoding'),
+                  height: dom.getAttribute('height'),
+                  loading: dom.getAttribute('loading'),
                   src: dom.getAttribute('src'),
                   title: dom.getAttribute('title'),
+                  width: dom.getAttribute('width'),
                 };
               },
             },
@@ -197,8 +209,12 @@ export default function generateSchema(
           toDOM(node) {
             const attrs = {
               alt: node.attrs.alt,
+              decoding: node.attrs.decoding,
+              height: node.attrs.height,
+              loading: node.attrs.loading,
               src: node.attrs.src,
               title: node.attrs.title,
+              width: node.attrs.width,
             };
 
             if (node.attrs.data) {
@@ -206,7 +222,7 @@ export default function generateSchema(
                 // data-attributes in HTML must be all lowercase
                 // accessing them via el.dataset returns them as camelCased though, so we convert them back here
                 const cleanKey = key.replace(/[A-Z]/g, (match) => `-${match.toLowerCase()}`);
-                attrs[`data-${cleanKey}`] = String(value);
+                if (typeof value !== 'undefined' && value !== null && value !== '') attrs[`data-${cleanKey}`] = String(value);
               });
             }
             if (options.allowImageCaptions) return ['figure', ['img', attrs], ['figcaption', 0]];

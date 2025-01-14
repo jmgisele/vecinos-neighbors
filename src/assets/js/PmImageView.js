@@ -143,9 +143,11 @@ export default class PmImageView {
           // data-attributes in HTML must be all lowercase
           // accessing them via el.dataset returns them as camelCased though, so we convert them back here
           const cleanKey = dataName.replace(/[A-Z]/g, (match) => `-${match.toLowerCase()}`);
-          img.setAttribute(`data-${cleanKey}`, String(dataValue));
+          if (typeof dataValue !== 'undefined' && dataValue !== null && dataValue !== '') img.setAttribute(`data-${cleanKey}`, String(dataValue));
+          else img.removeAttribute(`data-${cleanKey}`);
         });
-      } else if (value) img.setAttribute(name, value);
+      } else if (typeof value !== 'undefined' && value !== null && value !== '') img.setAttribute(name, value);
+      else img.removeAttribute(name);
     });
 
     return true;
