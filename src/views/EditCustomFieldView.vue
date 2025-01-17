@@ -214,7 +214,7 @@ export default {
       this.$router.replace({ name: 'Project.Settings', params: { id }, query: { tab: 'custom-fields' } });
     },
     handleGlobalKeyUp(e) {
-      if (e.key === 's' && (isMac() ? e.metaKey : e.ctrlKey)) {
+      if (e.key === 's' && (isMac() ? e.metaKey : e.ctrlKey) && !e.altKey && !e.shiftKey) {
         e.preventDefault();
         this.saveChanges();
       }

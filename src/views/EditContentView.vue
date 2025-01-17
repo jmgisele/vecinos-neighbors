@@ -730,7 +730,7 @@ export default {
       this.findAndSetFilepathIds(this.schema);
     },
     handleGlobalKeyUp(e) {
-      if (e.key === 's' && (isMac() ? e.metaKey : e.ctrlKey)) {
+      if (e.key === 's' && (isMac() ? e.metaKey : e.ctrlKey) && !e.altKey && !e.shiftKey) {
         e.preventDefault();
         this.saveChanges();
       }
