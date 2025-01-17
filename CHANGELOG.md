@@ -2,6 +2,17 @@
 currentVersion: 1.0.2
 updatedAt: 2024-12-18
 ---
+## Version 1.0.3
+
+### Bugfixes
+
+* Allow `width`, `height`, `loading`, and `decoding` values to be passed as
+  non-data attributes to images inserted into rich-text fields
+* The “Refresh to update” notification will only be shown once, even if there
+  have been multiple updates since it was last shown
+* Using the shortcut ⌘ / Ctrl + Shift + S to enable strikethrough formatting in
+  rich text fields no longer also saves the content item you are editing
+
 ## Version 1.0.2
 
 ### Bugfixes
