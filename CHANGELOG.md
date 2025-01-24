@@ -2,6 +2,15 @@
 currentVersion: 1.1.0
 updatedAt: 2025-01-18
 ---
+## Version 1.1.1
+
+### Other Changes
+
+* “Full Name” labels throughout the UI have been shortened to just “Name” to
+  better reflect the fact that a username can be anything
+* User avatars can now consist of just a single letter if only a first name or
+  pseudonym are used as a username
+
 ## Version 1.1.0
 
 ### New Features
