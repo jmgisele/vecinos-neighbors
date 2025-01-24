@@ -9,6 +9,8 @@ stored as JSON or Markdown + YAML frontmatter. You can learn more about the
 benefits and current limitations of the project on the
 [official website](https://mattrbld.com).
 
+![Screenshot of the dashboard of the Mattrbld website displayed within Mattrbld, stylised to show both the light and dark theme. The Dashboard consists of a sidebar with various locations such as “Pages”, “Blog” and “Media Library” and a central area with the options to check for updates, quick access to “Pages” and “Blog” collections, a section for news and announcements and recent updates](/public/img/screenshots/screenshot-light-dark.webp)
+
 What distinguishes Mattrbld from other similar projects is that it runs as much
 on the client-side as possible. It also uses the standard Git protocol instead
 of proprietary APIs and thus should work with almost all Git servers and
