@@ -60,7 +60,7 @@
       </template>
     </MbModal>
     <MbModal class="user-modal" :dark="dark" slim :title="userBeingEdited.new ? 'Add new user' : 'Edit user'" :visible="showUserModal" @close="showUserModal = false" @after-close="resetUserBeingEdited">
-      <MbInput v-model="userBeingEdited.name" class="name-input" :dark="dark" :error="errors.userName" icon="user" label="Full Name" @blur="showUserModal && validate('userName'); checkAvatarRegeneration()" />
+      <MbInput v-model="userBeingEdited.name" class="name-input" :dark="dark" :error="errors.userName" icon="user" label="Name" @blur="showUserModal && validate('userName'); checkAvatarRegeneration()" />
       <MbInput v-model="userBeingEdited.email" :dark="dark" :error="errors.userEmail" icon="mail" label="Email Address" type="email" @blur="showUserModal && validate('userEmail'); checkAvatarRegeneration()" />
       <div class="select-wrapper">
         <span>Role:</span>

@@ -28,7 +28,7 @@
       </div>
       <p class="h3">Default Details</p>
       <p>These settings are used as defaults when you join a project, but can be overridden on a per-project basis.</p>
-      <MbInput v-model="newUserData.name" class="name" :dark="dark" :error="errors.userName" icon="user" label="Full Name" @blur="validate('userName'); checkAvatarRegeneration()" />
+      <MbInput v-model="newUserData.name" class="name" :dark="dark" :error="errors.userName" icon="user" label="Name" @blur="validate('userName'); checkAvatarRegeneration()" />
       <MbInput v-model="newUserData.email" :dark="dark" :error="errors.userEmail" icon="mail" label="Email Address" type="email" @blur="validate('userEmail'); checkAvatarRegeneration()" />
       <p class="h3">Avatar</p>
       <div class="row avatar">
@@ -56,7 +56,7 @@
     <MbModal class="settings-modal" :dark="dark" slim title="Add New User" :visible="showAddUser" @close="handleSettingsModalClose">
       <p>You can create additional local users in case this device is used by multiple people, or to separate your personal projects from your work.</p>
       <p class="h3">Default Details</p>
-      <MbInput v-model="newUserData.name" :autofocus="!isMobile" :dark="dark" :error="errors.userName" icon="user" label="Full Name" @blur="validate('userName'); checkAvatarRegeneration()" />
+      <MbInput v-model="newUserData.name" :autofocus="!isMobile" :dark="dark" :error="errors.userName" icon="user" label="Name" @blur="validate('userName'); checkAvatarRegeneration()" />
       <MbInput v-model="newUserData.email" :dark="dark" :error="errors.userEmail" icon="mail" label="Email Address" type="email" @blur="validate('userEmail'); checkAvatarRegeneration()" />
       <p class="h3">Avatar</p>
       <div class="row avatar">

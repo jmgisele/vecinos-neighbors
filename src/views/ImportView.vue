@@ -14,7 +14,7 @@
     <section>
       <h2>User Information</h2>
       <MbInput v-model.lazy="email" :dark="dark" :disabled="Boolean($route.query.email)" :error="errors.email" icon="mail" label="Email address" type="email" @blur="validate('email')" />
-      <MbInput v-model.lazy="name" :dark="dark" :error="errors.name" icon="user" label="Full name" @blur="validate('name')" />
+      <MbInput v-model.lazy="name" :dark="dark" :error="errors.name" icon="user" label="Name" @blur="validate('name')" />
       <MbButton v-if="$route.query.proxy" :dark="dark" :disabled="Boolean(!name || !email || errors.name || errors.email)" type="primary" @click="handleImportClik">Start editing</MbButton>
     </section>
     <section v-if="!$route.query.proxy">
