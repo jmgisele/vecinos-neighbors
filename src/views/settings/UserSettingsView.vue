@@ -238,11 +238,7 @@ export default {
         if (avatarFiles.includes(`${id}.jpg`)) acc.push(fs.readFile(`${usersPath}/${id}.jpg`));
         else if (localAvatars.includes(`${id}.jpg`)) acc.push(fs.readFile(`/users/${id}.jpg`)); // only works if the local user id matches the repo user’s id, which should be the case
         else if (email === this.$store.state.user.email && localAvatars.includes(`${this.$store.state.user.id}.jpg`)) acc.push(fs.readFile(`/users/${this.$store.state.user.id}.jpg`)); // if not at least we can show the current users local avatar, since we know their local id
-        else {
-          const split = name.split(' ');
-          const initials = `${split[0][0]}${split[split.length - 1][0]}`.toUpperCase();
-          acc.push(new Promise((res) => { res(generateAvatar(initials, '#A29BFE', '#6c5ce7', 'light', email)); }));
-        }
+        else acc.push(new Promise((res) => { res(generateAvatar(name, '#A29BFE', '#6c5ce7', 'light', email)); }));
 
         return acc;
       }, []);
@@ -342,9 +338,7 @@ export default {
     },
     regenerateAvatar() {
       if (this.userBeingEdited.avatar && this.userBeingEdited.avatar.startsWith('blob:')) URL.revokeObjectURL(this.userBeingEdited.avatar); // we’re removing an existing avatar and should revoke the reference
-      const split = this.userBeingEdited.name.split(' ');
-      const initials = `${split[0][0]}${split[split.length - 1][0]}`.toUpperCase();
-      this.userBeingEdited.avatar = generateAvatar(initials, '#A29BFE', '#6c5ce7', 'light', this.userBeingEdited.email);
+      this.userBeingEdited.avatar = generateAvatar(this.userBeingEdited.name, '#A29BFE', '#6c5ce7', 'light', this.userBeingEdited.email);
       if (this.avatarUploaded) this.avatarUploaded = false;
     },
     removeCustomRole(index, { value, label, accessLevel }) {

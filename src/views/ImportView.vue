@@ -116,9 +116,7 @@ export default {
         alreadyExists = await entityExists(`/users/${newUserId}.json`); // eslint-disable-line no-await-in-loop
       }
 
-      const split = this.name.split(' ');
-      const initials = `${split[0][0]}${split[split.length - 1][0]}`.toUpperCase();
-      const avatar = generateAvatar(initials, '#A29BFE', '#6c5ce7', 'light', this.email);
+      const avatar = generateAvatar(this.name, '#A29BFE', '#6c5ce7', 'light', this.email);
       const byteString = window.atob(avatar.split(',')[1]);
       const avatarData = Uint8Array.from(byteString, (ch) => ch.charCodeAt(0));
       const user = {

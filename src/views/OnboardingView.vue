@@ -346,9 +346,7 @@ export default {
       else if (window.umami?.track) window.umami.track(() => ({ name: 'import', data: { type: 'Onboarding completed' } }));
     },
     regenerateAvatar() {
-      const split = this.userName.split(' ');
-      const initials = `${split[0][0]}${split[split.length - 1][0]}`.toUpperCase();
-      this.userAvatar = generateAvatar(initials, '#A29BFE', '#6c5ce7', 'light', this.userEmail);
+      this.userAvatar = generateAvatar(this.userName, '#A29BFE', '#6c5ce7', 'light', this.userEmail);
       if (this.avatarUploaded) this.avatarUploaded = false;
     },
     async renderLegalInfo() {

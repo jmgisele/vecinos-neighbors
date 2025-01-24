@@ -175,9 +175,7 @@ export default {
         else if (localAvatars.includes(`${id}.jpg`)) avatarPromises.push(fs.readFile(`/users/${id}.jpg`)); // only works if the local user id matches the repo user’s id, which should be the case
         else if (email === this.$store.state.user.email && localAvatars.includes(`${this.$store.state.user.id}.jpg`)) avatarPromises.push(fs.readFile(`/users/${this.$store.state.user.id}.jpg`)); // if not at least we can show the current users local avatar, since we know their local id
         else {
-          const split = name.split(' ');
-          const initials = `${split[0][0]}${split[split.length - 1][0]}`.toUpperCase();
-          avatarPromises.push(generateAvatar(initials, '#A29BFE', '#6c5ce7', 'light', email));
+          avatarPromises.push(generateAvatar(name, '#A29BFE', '#6c5ce7', 'light', email));
         }
         userEmails.push(email);
       });

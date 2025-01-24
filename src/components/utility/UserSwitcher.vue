@@ -347,9 +347,7 @@ export default {
       this.showUserSettings = true;
     },
     regenerateAvatar() {
-      const split = this.newUserData.name.split(' ');
-      const initials = `${split[0][0]}${split[split.length - 1][0]}`.toUpperCase();
-      this.newUserData.avatar = generateAvatar(initials, '#A29BFE', '#6c5ce7', 'light', this.newUserData.email);
+      this.newUserData.avatar = generateAvatar(this.newUserData.name, '#A29BFE', '#6c5ce7', 'light', this.newUserData.email);
       if (this.avatarUploaded) this.avatarUploaded = false;
     },
     async saveUser() {

@@ -39,7 +39,9 @@ function rotatedGradient(ctx, x1, y1, x2, y2, index) {
   }
 }
 
-export default (initials, color, color2, textColor, seed = 'Mattrbld rocks!') => {
+export default (userName, color, color2, textColor, seed = 'Mattrbld rocks!') => {
+  const split = (userName || 'A').split(' ');
+  const initials = split.length < 2 ? split[0][0].toUpperCase() : `${split[0][0]}${split[split.length - 1][0]}`.toUpperCase();
   const rng = new SeededRNG(seed);
   const weight = '700';
   const fontFamily = '"Inter", sans-serif';
