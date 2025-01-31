@@ -10,6 +10,7 @@ updatedAt: 2025-01-18
   better reflect the fact that a username can be anything
 * User avatars can now consist of just a single letter if only a first name or
   pseudonym are used as a username
+* The link to the Quickstart Guide now shows earlier in the onboarding process
 
 ## Version 1.1.0
 
