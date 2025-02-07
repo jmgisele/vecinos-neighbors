@@ -8,7 +8,7 @@
       <div class="right">
         <MbButton :dark="dark" icon="settings" :tooltip="isTablet ? 'Settings' : null" @click="showCustomFieldSettings = true">{{isTablet ? '' : 'Settings'}}</MbButton>
         <MbButton :dark="dark" icon="eye" :tooltip="isTablet ? 'Preview' : null" @click="showPreview = true">{{isTablet ? '' : 'Preview'}}</MbButton>
-        <MbButton :dark="dark" :disabled="!wasChanged" icon="save" :icon-first="true" :loading="saveLoading" :tooltip="isTablet ? 'Save' : `Save <kbd>${isMac ? '⌘' : 'Ctrl'}</kbd>+<kbd>S</kbd>`" type="primary" @click="saveChanges">{{isTablet && !isMobile ? '' : 'Save'}}</MbButton>
+        <MbButton :dark="dark" :disabled="!wasChanged || !customField.length" icon="save" :icon-first="true" :loading="saveLoading" :tooltip="isTablet ? 'Save' : `Save <kbd>${isMac ? '⌘' : 'Ctrl'}</kbd>+<kbd>S</kbd>`" type="primary" @click="saveChanges">{{isTablet && !isMobile ? '' : 'Save'}}</MbButton>
       </div>
     </header>
     <SchemaFieldsEditor v-model="customField" :active-tab="0" :dark="dark" :project-id="$route.params.id" :tabs="[]" @update:modelValue="checkForChanges" />
@@ -270,6 +270,11 @@ export default {
       this.nameError = '';
     },
     async saveChanges() {
+      if (this.customField.length === 0) {
+        this.$store.commit('addToast', { message: 'Empty custom fields cannot be saved.', type: 'negative' });
+        return;
+      }
+
       if (this.customField.length > 1) {
         this.$store.commit('addToast', { message: 'Custom fields with more than one root field are not supported. Make sure they are properly grouped in a Field Group, Container, Columns or Rows field.', type: 'negative' });
         return;
