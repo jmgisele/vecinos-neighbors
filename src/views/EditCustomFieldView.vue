@@ -434,6 +434,10 @@ export default {
 
         @media #{$mobile} {
           margin-left: 0;
+
+          .button:last-child {
+            margin-left: auto;
+          }
         }
 
         .button {
