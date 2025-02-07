@@ -3,7 +3,7 @@
     <div v-if="isTablet && visible" class="mask" :class="{ dark, swiping }" :style="{ opacity: maskOpacity }" @click="visible = false" />
   </transition>
   <transition>
-    <div v-if="currentProject.id" v-show="visible" v-bind="$attrs" class="project-sidebar" :class="{ dark, swiping }" ref="el" :style="{ transform: sidebarTransform }" tabindex="-1" @touchstart="swipeStart" @touchmove="swipeUpdate" @touchend="swipeEnd">
+    <div v-if="currentProject.id" v-show="visible" v-bind="$attrs" class="project-sidebar" :class="{ dark, swiping }" ref="el" :style="{ transform: sidebarTransform }" tabindex="-1">
       <router-link custom :to="{ name: 'Project' }" v-slot="{ navigate }">
         <MbProjectAvatar :avatar="currentProject.avatar" :project-id="currentProject.id" :project-name="currentProject.name" @click="goTo(navigate)" />
       </router-link>
@@ -123,13 +123,13 @@ export default {
   },
   data() {
     return {
+      isOpen: false,
       maskOpacity: null,
       maxSwipeDistance: null,
       sidebarTransform: null,
       swipeStartX: 0,
       swipeStartY: 0,
       swiping: false,
-      windowSwipe: false,
     };
   },
   emits: ['git-status-click'],
@@ -159,45 +159,6 @@ export default {
         );
       }
     },
-    async swipeEnd(e) {
-      if (!this.swiping) return;
-      const finalX = e.changedTouches[0].clientX;
-      const distance = finalX - this.swipeStartX;
-      this.swiping = false;
-
-      await this.$nextTick(); // wait a tick so the swiping class is removed and the transitions can take over
-
-      if (distance < 0 && Math.abs(distance) > this.maxSwipeDistance / 2) {
-        this.sidebarTransform = 'translateX(-100%)';
-        this.maskOpacity = 0;
-        this.visible = false;
-      } else {
-        this.sidebarTransform = null;
-        this.maskOpacity = null;
-      }
-    },
-    swipeStart(e) {
-      if (!this.isTablet) return;
-      this.maxSwipeDistance = this.$refs.el.getBoundingClientRect().width;
-      this.swipeStartX = e.changedTouches[0].clientX;
-      this.swipeStartY = e.changedTouches[0].clientY;
-      this.swiping = true;
-    },
-    swipeUpdate(e) {
-      if (!this.swiping) return;
-      const currentX = e.changedTouches[0].clientX;
-      const currentY = e.changedTouches[0].clientY;
-      const distance = currentX - this.swipeStartX;
-      const distanceY = currentY - this.swipeStartY;
-
-      if (Math.abs(distance) < 15 && Math.abs(distanceY) > Math.abs(distance)) { // if we haven’t moved much horizontally, but the y direction is bigger, we want to scroll, so abort
-        this.swipeEnd(e);
-        return;
-      }
-
-      this.sidebarTransform = `translateX(${Math.min(distance, 0)}px)`;
-      this.maskOpacity = Math.min(1 + distance / this.maxSwipeDistance, 1);
-    },
     transformRouterTarget(target) {
       if (!target) return null;
       const transformedTarget = {
@@ -214,33 +175,35 @@ export default {
     async windowSwipeEnd(e) {
       window.removeEventListener('touchmove', this.windowSwipeUpdate, { passive: false });
       window.removeEventListener('touchend', this.windowSwipeEnd);
+
       if (!this.swiping) return;
+
       const finalX = e.changedTouches[0].clientX;
       const distance = finalX - this.swipeStartX;
       this.swiping = false;
-      this.windowSwipe = false;
 
       await this.$nextTick(); // wait a tick so the swiping class is removed and the transitions can take over
 
-      if (this.maxSwipeDistance && distance > this.maxSwipeDistance / 3) {
+      if (this.maxSwipeDistance && (distance > this.maxSwipeDistance / 3 || (distance < 0 && Math.abs(distance) < this.maxSwipeDistance / 2))) {
         this.sidebarTransform = null;
         this.maskOpacity = null;
-      } else {
+      } else if (distance < 0) {
         this.sidebarTransform = 'translateX(-100%)';
         this.maskOpacity = 0;
         this.visible = false;
       }
     },
     windowSwipeStart(e) {
-      if (!this.isTablet || this.swiping || this.visible || this.$store.state.application.openModals.length > 0) return;
-      if (e.changedTouches[0].clientX > 48) return;
+      if (!this.isTablet || this.swiping || this.$store.state.application.openModals.length > 0) return;
+      if (!this.visible && e.changedTouches[0].clientX > 48) return;
 
       // e.preventDefault(); // this would be needed to prevent chromes and safaris swipe to go back, but it also prevents clicks from firing, maybe it could be avoided with overscroll-behaviour on body?
 
       this.swipeStartX = e.changedTouches[0].clientX;
       this.swipeStartY = e.changedTouches[0].clientY;
-      this.sidebarTransform = 'translateX(-100%)';
-      this.maskOpacity = 0;
+      this.isOpen = this.visible;
+      this.sidebarTransform = this.isOpen ? null : 'translateX(-100%)';
+      this.maskOpacity = this.isOpen ? 1 : 0;
 
       window.addEventListener('touchmove', this.windowSwipeUpdate, { passive: false });
       window.addEventListener('touchend', this.windowSwipeEnd);
@@ -251,16 +214,18 @@ export default {
       const distance = currentX - this.swipeStartX;
       const distanceY = currentY - this.swipeStartY;
 
-      if (distance > 5) {
+      if (Math.abs(distance) > 5) {
         if (e.cancelable) e.preventDefault();
-        this.windowSwipe = true;
         this.swiping = true;
-        this.$nextTick(() => { // wait a tick so it picks up on the set transform and opacity
-          this.visible = true;
-          this.$nextTick(() => { // wait another tick so we actually have the correct width
-            this.maxSwipeDistance = this.$refs.el.getBoundingClientRect().width;
+
+        if (!this.visible) {
+          this.$nextTick(() => { // wait a tick so it picks up on the set transform and opacity
+            this.visible = true;
+            this.$nextTick(() => { // wait another tick so we actually have the correct width
+              this.maxSwipeDistance = this.$refs.el.getBoundingClientRect().width;
+            });
           });
-        });
+        } else this.maxSwipeDistance = this.$refs.el.getBoundingClientRect().width;
       }
       if (!this.swiping) return;
 
@@ -269,8 +234,13 @@ export default {
         return;
       }
 
-      this.sidebarTransform = `translateX(${Math.min(-this.maxSwipeDistance + distance, 0)}px)`;
-      this.maskOpacity = Math.min(distance / this.maxSwipeDistance, 1);
+      if (this.maxSwipeDistance) {
+        this.sidebarTransform = this.isOpen ? `translateX(${Math.min(Math.min(0, distance), this.maxSwipeDistance)}px)` : `translateX(${Math.min(-this.maxSwipeDistance + distance, 0)}px)`;
+        this.maskOpacity = this.isOpen ? Math.min(1 + distance / this.maxSwipeDistance, 1) : Math.min(distance / this.maxSwipeDistance, 1);
+      } else {
+        this.sidebarTransform = 'translateX(-100%)';
+        this.maskOpacity = 0;
+      }
     },
   },
   mixins: [
@@ -292,13 +262,14 @@ export default {
         this.visible = true;
         window.removeEventListener('touchstart', this.windowSwipeStart, { passive: false });
       }
+
+      if (!nv) {
+        this.sidebarTransform = null;
+        this.maskOpacity = null;
+      }
     },
     visible(nv) {
       if (nv) {
-        if (!this.windowSwipe) {
-          if (this.sidebarTransform) this.sidebarTransform = null;
-          if (this.maskOpacity !== null) this.maskOpacity = null;
-        }
         this.$nextTick(() => this.$refs.el.focus());
       }
     },
