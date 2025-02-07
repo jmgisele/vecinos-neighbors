@@ -20,8 +20,8 @@
         <div v-if="currentSlide === 0" class="slide">
           <h1>Welcome to Mattrbld!</h1>
           <p class="blurb">
-            Let’s get started by importing your first project—this won’t take long. Unsure what to do?
-            Check out the <a href="https://mattrbld.com/docs/quickstart/" rel="noopener noreferrer" target="_blank">Quickstart Guide</a>
+            Let’s get started by importing your first project—this won’t take long. Unsure what this means?
+            Take a look at the <a href="https://mattrbld.com/docs/quickstart/" rel="noopener noreferrer" target="_blank">Quickstart Guide</a>
           </p>
           <MbInput v-model="repoURL" :autofocus="!isMobile" :dark="dark" :error="errors.repoURL" icon="repo" label="Project Repository URL" ref="repoInput" @blur="handleRepoInput" @keyup.enter="$event.target.blur()" />
           <div class="label">
@@ -93,7 +93,7 @@
           <p v-if="isMattrbldProject">Your project has been imported successfully and is ready to be edited.</p>
           <template v-else>
             <p>Your project has been imported successfully and is now ready to be set up to work with Mattrbld.</p>
-            <p>If you’re not sure where to begin, check out the <a href="https://mattrbld.com/docs/quickstart/#defining-your-first-schema" target="_blank" rel="noopener noreferrer">Quickstart Guide</a>.</p>
+            <p>If you’re not sure where to begin, read more about <a href="https://mattrbld.com/docs/configuration/" target="_blank" rel="noopener noreferrer">project configuration</a>.</p>
           </template>
           <footer>
             <MbButton :dark="dark" type="primary" @click="openProject">Start {{ isMattrbldProject ? 'Editing' : 'Setup' }}</MbButton>
