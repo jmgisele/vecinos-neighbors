@@ -12,6 +12,10 @@ updatedAt: 2025-01-18
   pseudonym are used as a username
 * The link to the Quickstart Guide now shows earlier in the onboarding process
 
+### Bugfixes
+
+* The sidebar no longer flashes when swiping to open it on small screen devices
+
 ## Version 1.1.0
 
 ### New Features
