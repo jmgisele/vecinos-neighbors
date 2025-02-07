@@ -118,10 +118,7 @@ export default {
         border: inherit;
         border-color: var(--accent);
         border-radius: inherit;
-        top: -0.125rem;
-        left: -0.125rem;
-        width: 100%;
-        height: 100%;
+        inset: -0.125rem;
         opacity: 0;
         pointer-events: none;
         background-color: var(--accent-secondary);
