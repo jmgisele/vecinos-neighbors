@@ -494,6 +494,10 @@ export default {
           color: var(--text-dark);
         }
 
+        &.disabled:not(.active) {
+          color: var(--text-tertiary-dark);
+        }
+
         .email {
           color: var(--text-secondary-dark);
         }
@@ -563,7 +567,7 @@ export default {
         &.disabled:not(.active) {
           color: var(--text-tertiary);
           pointer-events: none;
-          padding: 1 - 0.0625 rem;
+          padding: calc(1rem - 0.0625rem);
           border: 0.0625rem dashed currentColor;
 
           .async-image {
