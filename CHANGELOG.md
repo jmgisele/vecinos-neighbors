@@ -1,6 +1,6 @@
 ---
-currentVersion: 1.1.0
-updatedAt: 2025-01-18
+currentVersion: 1.1.1
+updatedAt: 2025-02-22
 ---
 ## Version 1.1.1
 
@@ -15,6 +15,10 @@ updatedAt: 2025-01-18
 ### Bugfixes
 
 * The sidebar no longer flashes when swiping to open it on small screen devices
+* Users that are not part of the currently open project are now properly
+  styled when using dark mode
+* The Umami integration (if enabled) now properly doesn’t auto-track and reports
+  import events correctly
 
 ## Version 1.1.0
 
