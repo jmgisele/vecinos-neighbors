@@ -271,6 +271,7 @@ export default {
       caret-color: var(--accent);
       appearance: textfield;
       -moz-appearance: textfield;
+      hyphens: manual;
 
       &::-webkit-outer-spin-button,
       &::-webkit-inner-spin-button,
