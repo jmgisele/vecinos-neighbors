@@ -350,7 +350,14 @@ export default {
           if (wasConfigured) this.$router.push({ name: 'Project', params: { id: projectId } });
           else this.$router.push({ name: 'Project.Settings', params: { id: projectId }, query: { tab: 'general' } });
           if (window.umami?.trackEvent) window.umami.trackEvent('import', { type: 'Project imported from Home' }); // legacy Umami 1.0
-          else if (window.umami?.track) window.umami.track(() => ({ name: 'import', data: { type: 'Project imported from Home' } }));
+          else if (window.umami?.track) {
+            window.umami.track((props) => ({
+              name: 'import',
+              data: { type: 'Project imported from Home' },
+              website: props.website,
+              url: '/',
+            }));
+          }
         } catch (err) {
           this.$store.commit('addToast', { message: `Something went wrong while importing the project: ${err.message}`, type: 'error' });
           this.$store.commit('removeProjectFromActiveUser', projectId);

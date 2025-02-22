@@ -346,7 +346,14 @@ export default {
       if (this.isMattrbldProject) this.$router.push({ name: 'Project', params: { id: this.projectName } }); // go to project dashboard
       else this.$router.push({ name: 'Project.Settings', params: { id: this.projectName }, query: { tab: 'general' } }); // go to project settings
       if (window.umami?.trackEvent) window.umami.trackEvent('import', { type: 'Onboarding completed' }); // legacy Umami 1.0
-      else if (window.umami?.track) window.umami.track(() => ({ name: 'import', data: { type: 'Onboarding completed' } }));
+      else if (window.umami?.track) {
+        window.umami.track((props) => ({
+          name: 'import',
+          data: { type: 'Onboarding completed' },
+          website: props.website,
+          url: '/onboarding',
+        }));
+      }
     },
     regenerateAvatar() {
       this.userAvatar = generateAvatar(this.userName, '#A29BFE', '#6c5ce7', 'light', this.userEmail);

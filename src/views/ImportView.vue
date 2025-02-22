@@ -298,7 +298,14 @@ export default {
       if (project.wasConfigured) this.$router.replace({ name: 'Project', params: { id: project.id } });
       else this.$router.replace({ name: 'Project.Settings', params: { id: project.id }, query: { tab: 'general' } });
       if (window.umami?.trackEvent) window.umami.trackEvent('import', { type: 'Invite link used' }); // legacy Umami 1.0
-      else if (window.umami?.track) window.umami.track(() => ({ name: 'import', data: { type: 'Invite link used' } }));
+      else if (window.umami?.track) {
+        window.umami.track((props) => ({
+          name: 'import',
+          data: { type: 'Invite link used' },
+          website: props.website,
+          url: '/',
+        }));
+      }
     },
     validate(field) {
       let error = '';
