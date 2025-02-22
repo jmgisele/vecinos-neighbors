@@ -187,7 +187,7 @@ export default {
       if (this.maxSwipeDistance && (distance > this.maxSwipeDistance / 3 || (distance < 0 && Math.abs(distance) < this.maxSwipeDistance / 2))) {
         this.sidebarTransform = null;
         this.maskOpacity = null;
-      } else if (distance < 0) {
+      } else if (distance < 0 || distance <= this.maxSwipeDistance / 3) {
         this.sidebarTransform = 'translateX(-100%)';
         this.maskOpacity = 0;
         this.visible = false;
