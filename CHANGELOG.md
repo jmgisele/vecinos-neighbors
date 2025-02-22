@@ -1,7 +1,14 @@
 ---
-currentVersion: 1.1.1
+currentVersion: 1.1.2
 updatedAt: 2025-02-22
 ---
+## Version 1.1.2
+
+### Bugfixes
+
+* The sidebar no longer gets stuck if it is swiped only a little into the screen
+  on small screen devices
+
 ## Version 1.1.1
 
 ### Other Changes
