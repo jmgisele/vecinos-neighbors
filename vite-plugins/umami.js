@@ -11,10 +11,10 @@ export default () => ({
       {
         tag: 'script',
         attrs: {
-          async: null,
-          defer: null,
+          async: true,
+          defer: true,
           'data-website-id': env.VITE_UMAMI_ID,
-          'data-auto-track': false,
+          'data-auto-track': 'false',
           'data-do-not-track': true,
           src: env.VITE_UMAMI_SCRIPT,
         },
