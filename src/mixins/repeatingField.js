@@ -369,6 +369,15 @@ export default {
       const inferredType = this.cachedKeystrings.get(itemKeyString);
       return { ...item, ___mb_type: inferredType };
     },
+    isCustomGroupFieldAtIndex(index) {
+      if (!this.modelValue || this.modelValue.length === 0 || typeof index !== 'number') return null;
+
+      let childField;
+      if (this.filteredChildren.length === 1) [childField] = this.filteredChildren;
+      else childField = this.filteredChildren.find((child) => child.key === this.modelValue[index].___mb_type);
+
+      return Boolean(childField?.customField && childField?.value);
+    },
     modelValueForIndex(index) {
       if (!this.modelValue || this.modelValue.length === 0 || !this.modelValue[index]) return null;
       if (this.modelValue[index].___mb_type || this.filteredChildren[0].type === 'group') return this.modelValue[index];

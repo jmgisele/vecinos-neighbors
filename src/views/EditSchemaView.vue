@@ -12,7 +12,7 @@
       </div>
     </header>
     <MbTabs v-model="activeTab" :dark="dark" :errors="tabErrors" show-add-option :tabs="cleanTabs" @add-tab="resetTabBeingEdited(); showEditTab = true" @contextmenu.prevent="handleTabContextMenu" />
-    <SchemaFieldsEditor v-model="schema.fields" :active-tab="activeTab" :dark="dark" :project-id="$route.params.id" show-generate-button :tabs="cleanTabs" @generate-click="generateSchema.show = true" @update:active-tab="activeTab = $event" @update:model-value="wasChanged = true" />
+    <SchemaFieldsEditor v-model="schema.fields" :active-tab="activeTab" :dark="dark" :project-id="$route.params.id" show-generate-button :tabs="schema.tabs || []" @generate-click="generateSchema.show = true" @update:active-tab="activeTab = $event" @update:model-value="wasChanged = true" />
     <MbModal class="edit-tab-modal" :dark="dark" slim :title="tabBeingEdited.index !== null ? 'Edit Tab' : 'Add Tab'" :visible="showEditTab" @close="showEditTab = false" @after-close="resetTabBeingEdited" @after-open="!tabBeingEdited.data.label && $refs.tabLabelInput.focus()">
       <MbInput v-model="tabBeingEdited.data.label" :dark="dark" :error="errors.tabLabel" icon="tag" label="Tab label" ref="tabLabelInput" @blur="showEditTab && validate('tabLabel')" @keyup.ctrl.enter="saveTab" />
       <MbToggle v-model="enableGroupAs" :dark="dark" :icons="['cross', 'check']" @update:model-value="!$event ? tabBeingEdited.data.groupAs = '' : $nextTick(() => $refs.tabGroupAsInput.focus())">Group fields in this tab as an object</MbToggle>

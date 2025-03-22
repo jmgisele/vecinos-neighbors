@@ -11,7 +11,7 @@
         <MbButton :dark="dark" :disabled="!wasChanged || !customField.length" icon="save" :icon-first="true" :loading="saveLoading" :tooltip="isTablet ? 'Save' : `Save <kbd>${isMac ? '⌘' : 'Ctrl'}</kbd>+<kbd>S</kbd>`" type="primary" @click="saveChanges">{{isTablet && !isMobile ? '' : 'Save'}}</MbButton>
       </div>
     </header>
-    <SchemaFieldsEditor v-model="customField" :active-tab="0" :dark="dark" :project-id="$route.params.id" :tabs="[]" @update:modelValue="checkForChanges" />
+    <SchemaFieldsEditor v-model="customField" :active-tab="0" :dark="dark" :project-id="$route.params.id" strip-toplevel-field-key :tabs="[]" @update:modelValue="checkForChanges" />
     <MbModal class="edit-custom-field-modal" :dark="dark" slim title="Custom Field Settings" :visible="showCustomFieldSettings" @after-close="resetCustomFieldName" @close="showCustomFieldSettings = false">
       <MbInput v-model.lazy="newCustomFieldName" :dark="dark" :error="nameError" icon="document" label="Name" @blur="validateName" />
       <MbInput v-model.lazy="group" :dark="dark" icon="folder" label="Category" />
@@ -130,7 +130,12 @@ export default {
       return prettifyEntityName(pathBasename(this.$route.params.path));
     },
     fakeSchema() {
-      return { fields: this.customField.slice(0, 1), tabs: [{ label: 'fake tab' }] };
+      const [firstField] = this.customField;
+      let fields = this.customField.slice(0, 1);
+
+      if (firstField?.type === 'group') fields = firstField.value;
+
+      return { fields, tabs: [{ label: 'fake tab' }] };
     },
     isMac() {
       return isMac();

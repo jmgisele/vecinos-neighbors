@@ -24,6 +24,7 @@
 
 <script>
 import { set as _set } from 'lodash-es';
+import { computed } from 'vue';
 
 import assembleUrlFromTemplate from '../../assets/js/assembleUrlFromTemplate';
 import generateDefaultContentFromSchema from '../../assets/js/generateDefaultContentFromSchema';
@@ -83,6 +84,11 @@ export default {
       default: 'Schema Preview',
     },
     visible: Boolean,
+  },
+  provide() {
+    return {
+      fullModel: computed(() => this.fakeModel),
+    };
   },
   watch: {
     visible(nv) {

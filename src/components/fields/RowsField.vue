@@ -31,6 +31,7 @@
               :dark="dark"
               :error="errorMapForIndex(index)"
               :fields="fieldsForIndex(index)"
+              :full-model-override="isCustomGroupFieldAtIndex(index)"
               :in-split="inSplit"
               :model-value="modelValueForIndex(index)"
               :languages="languages"

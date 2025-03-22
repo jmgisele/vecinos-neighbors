@@ -11,6 +11,7 @@
         :dark="dark"
         :error="fieldBeingEditedErrors"
         :fields="fieldBeingEdited.type === 'group' ? fieldBeingEdited.value : [fieldBeingEdited]"
+        :full-model-override="Boolean(fieldBeingEdited.customField && fieldBeingEdited.value)"
         :in-split="Boolean(teleportTarget)"
         :model-value="currentValue"
         :languages="languages"
