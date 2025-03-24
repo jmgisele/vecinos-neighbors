@@ -2,6 +2,13 @@
 currentVersion: 1.1.2
 updatedAt: 2025-02-22
 ---
+## Version 1.1.3
+
+### Bugfixes
+
+* Field visibility rules referring to other fields in the schema will now work
+  more reliably, especially in custom fields and nested fields
+
 ## Version 1.1.2
 
 ### Bugfixes
