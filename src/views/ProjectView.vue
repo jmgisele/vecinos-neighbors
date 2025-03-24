@@ -60,7 +60,8 @@
     </MbModal>
     <MbModal class="change-details-modal" :dark="dark" title="Change Details" :visible="showChangeDetailsModal" @close="showChangeDetailsModal = false" @after-close="resetChangeDetails">
       <p v-if="changeDetails.type !== 'modify'">You have moved or {{changeDetails.type === 'add' ? 'created' : 'deleted'}} <code>{{changeDetails.file}}</code></p>
-      <p v-else>You have modified <code>{{changeDetails.file}}</code> in the following sections:</p>
+      <p v-else-if="changeDetails.diff">You have modified <code>{{changeDetails.file}}</code> in the following sections:</p>
+      <p v-else>You replaced the entire content of <code>{{changeDetails.file}}</code>.</p>
       <template v-if="changeDetails.diff">
         <div v-for="(change, index) in changeDetails.diff" class="change" :key="index">
           <template v-if="changeDetails.diff[index + 1] && changeDetails.diff[index + 1].line === change.line">
@@ -76,6 +77,16 @@
           </template>
         </div>
       </template>
+      <div v-else-if="changeDetails.oldFileUrl && changeDetails.newFileUrl" class="image-diff">
+        <figure class="old">
+          <figcaption class="h4">Old file:</figcaption>
+          <img :src="changeDetails.oldFileUrl" alt="The old version of the file" @load="revokeObjectUrl(changeDetails.oldFileUrl)" @error="revokeObjectUrl(changeDetails.oldFileUrl)">
+        </figure>
+        <figure class="new">
+          <figcaption class="h4">New file:</figcaption>
+          <img :src="changeDetails.newFileUrl" alt="The new version of the file" @load="revokeObjectUrl(changeDetails.newFileUrl)" @error="revokeObjectUrl(changeDetails.newFileUrl)">
+        </figure>
+      </div>
       <template #actions>
         <MbButton :dark="dark" @click="showChangeDetailsModal = false">Close</MbButton>
       </template>
@@ -100,6 +111,7 @@ import loadProject from '../assets/js/loadProject';
 import ProjectSidebar from '../components/utility/ProjectSidebar.vue';
 
 import gitAuth from '../mixins/gitAuth';
+import { imageRegExp } from '../data/regExps';
 
 const GIT_STATUS_MESSAGES = {
   ERROR: 'Something went wrong syncing the latest changes. Click to learn more.',
@@ -742,15 +754,20 @@ export default {
       this.changeDetails.type = null;
       this.changeDetails.file = null;
       this.changeDetails.diff = null;
+      this.changeDetails.newFileUrl = null;
+      this.changeDetails.oldFileUrl = null;
     },
     resetChangesModal() {
       this.changes = [];
       this.commitMessage = '';
     },
+    revokeObjectUrl(url) {
+      URL.revokeObjectURL(url);
+    },
     async showFileChanges(index) {
       const change = this.changes[index];
 
-      if (change.type === 'modify' && change.file.match(/.*\.(md|json|yml|yaml|config|conf)/)) { // NOTE: is there a better way to detect a plaintext file?
+      if (change.type === 'modify' && change.file.match(/.*\.(md|json|yml|yaml|config|conf|svg)/)) { // NOTE: is there a better way to detect a plaintext file?
         const content = await fs.readFile(joinPath(this.projectDir, change.file), 'utf8');
         const headOid = await resolveRef({ fs: PlainFS, dir: this.projectDir, ref: 'HEAD' });
         const { blob } = await readBlob({ fs: PlainFS, dir: this.projectDir, oid: headOid, filepath: change.file }); // eslint-disable-line object-curly-newline
@@ -778,6 +795,13 @@ export default {
           }
           return acc;
         }, []);
+      } else if (change.type === 'modify' && change.file.match(imageRegExp)) {
+        const newBlob = await fs.readFile(joinPath(this.projectDir, change.file));
+        const headOid = await resolveRef({ fs: PlainFS, dir: this.projectDir, ref: 'HEAD' });
+        const { blob: oldBlob } = await readBlob({ fs: PlainFS, dir: this.projectDir, oid: headOid, filepath: change.file }); // eslint-disable-line object-curly-newline
+
+        this.changeDetails.newFileUrl = URL.createObjectURL(new Blob([newBlob]));
+        this.changeDetails.oldFileUrl = URL.createObjectURL(new Blob([oldBlob]));
       }
 
       this.changeDetails.file = change.file;
@@ -1008,6 +1032,33 @@ export default {
 
         &.remove {
           background-color: color-mix(in srgb, var(--negative) 25%, transparent);
+        }
+      }
+    }
+
+    .image-diff {
+      display: flex;
+      align-items: flex-start;
+      gap: rem(16);
+
+      figure {
+        width: 50%;
+        margin: 0;
+
+        figcaption {
+          font-weight: 700;
+        }
+
+        img {
+          max-width: 100%;
+        }
+      }
+
+      @media #{$mobile} {
+        flex-direction: column;
+
+        figure {
+          width: 100%;
         }
       }
     }
