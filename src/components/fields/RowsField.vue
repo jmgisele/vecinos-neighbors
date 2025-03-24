@@ -31,10 +31,10 @@
               :dark="dark"
               :error="errorMapForIndex(index)"
               :fields="fieldsForIndex(index)"
-              :full-model-override="isCustomGroupFieldAtIndex(index)"
               :in-split="inSplit"
               :model-value="modelValueForIndex(index)"
               :languages="languages"
+              :provide-model-value="isCustomGroupFieldAtIndex(index)"
               @update:error="handleFieldError($event, index)"
               @update:model-value="updateField($event, index)"
             />

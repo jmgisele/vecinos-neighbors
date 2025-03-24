@@ -27,7 +27,7 @@
             </li>
           </ul>
         </div>
-        <MbFieldsEditor v-else v-model="contentForTab" v-model:error="errors.fields" v-model:split-visible="showSplit" :class="{ 'preview-open': showPreview && !isMobile }" :compact="!showPreview" :dark="dark" :fields="fieldsForTab" :key="activeTab" :languages="contentLanguages" :split-target="!showPreview ? '#splitTarget' : null" @image-load="addPreviewImage" />
+        <MbFieldsEditor v-else v-model="contentForTab" v-model:error="errors.fields" v-model:split-visible="showSplit" :class="{ 'preview-open': showPreview && !isMobile }" :compact="!showPreview" :dark="dark" :fields="fieldsForTab" :key="activeTab" :languages="contentLanguages" provide-model-value :split-target="!showPreview ? '#splitTarget' : null" @image-load="addPreviewImage" />
       </transition>
 
       <template #right="{ isModal }">

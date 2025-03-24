@@ -93,15 +93,13 @@ export default {
       type: Object,
       default: () => ({}),
     },
-    provideFullModel: Boolean,
+    provideModelValue: Boolean,
     splitTarget: [String, HTMLElement],
     type: String,
     validation: Object,
   },
   provide() {
-    if (this.provideFullModel) {
-      console.log(this.fieldKey, 'required to provide full model');
-
+    if (this.provideModelValue) {
       return {
         fullModel: computed(() => this.modelValue),
       };

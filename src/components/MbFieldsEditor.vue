@@ -18,7 +18,7 @@
         :languages="languages"
         :localised="field.localised"
         :options="field.options"
-        :provide-full-model="Boolean(field.customField) && Boolean(field.value)"
+        :provide-model-value="Boolean(field.customField) && Boolean(field.value)"
         :split-target="splitTarget"
         :type="field.type"
         :validation="field.validation"
@@ -120,7 +120,7 @@ export default {
       const { comparator, field: fieldToComparePath, value } = field.visibility.showByValue;
       let model = this.fullModel || this.model;
 
-      if (this.fullModelOverride) model = this.model; // this needs to be done in case we're at the top of a custom field
+      if (this.provideModelValue) model = this.model; // this needs to be done in case we're at the top of a custom field
 
       const valueToCompare = _get(model, fieldToComparePath);
       // value can be either null, true, false, or a string
@@ -163,7 +163,7 @@ export default {
       default: () => new Map(),
     },
     fields: Array,
-    fullModelOverride: Boolean,
+    provideModelValue: Boolean,
     inSplit: Boolean,
     languages: Array,
     modelValue: Object,
@@ -172,7 +172,7 @@ export default {
     splitVisible: Boolean,
   },
   provide() {
-    if (this.fullModelOverride) {
+    if (this.provideModelValue) {
       return {
         fullModel: computed(() => this.model),
       };

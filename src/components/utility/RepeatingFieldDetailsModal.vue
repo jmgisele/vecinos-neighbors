@@ -11,10 +11,10 @@
         :dark="dark"
         :error="fieldBeingEditedErrors"
         :fields="fieldBeingEdited.type === 'group' ? fieldBeingEdited.value : [fieldBeingEdited]"
-        :full-model-override="Boolean(fieldBeingEdited.customField && fieldBeingEdited.value)"
         :in-split="Boolean(teleportTarget)"
         :model-value="currentValue"
         :languages="languages"
+        :provide-model-value="Boolean(fieldBeingEdited.customField && fieldBeingEdited.value)"
         @update:error="$emit('field-being-edited-error', $event)"
         @update:model-value="$emit('field-being-edited-update', $event)"
       />

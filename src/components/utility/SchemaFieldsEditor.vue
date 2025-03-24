@@ -245,18 +245,6 @@ export default {
       if (!this.stripToplevelFieldKey) return extractedFieldKeys;
       return extractedFieldKeys.map(({ label, value }) => ({ label, value: value?.split('.').slice(1).join('.') }));
     },
-    // just for backup, in case the top-down solution doesn't work, this allows for sibling and child fields to be used for visibility
-    // parentFieldKeys() {
-    //   if (!this.fields || this.fields.length === 0 || !this.fieldBeingEdited) return [];
-    //   const fieldBeingEditedPath = this.getFieldPath(this.fieldBeingEdited, this.fields);
-    //   const parentField = this.getField(fieldBeingEditedPath.substring(0, Math.max(0, fieldBeingEditedPath.lastIndexOf('.')) || Infinity));
-    //   const parentFieldFields = fieldBeingEditedPath === parentField.key ? this.fields : parentField.value;
-
-    //   const res = this.extractFieldKeys(parentFieldFields, null, true).concat([{ label: 'Unset', value: null }]);
-    //   console.log(res);
-
-    //   return res;
-    // },
     isMobile() {
       return this.$store.state.application.mobile;
     },
