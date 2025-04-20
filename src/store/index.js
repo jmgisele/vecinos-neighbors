@@ -9,7 +9,7 @@ import observers from './observers';
 
 const persistentAppProperties = ['activeUser', 'corsProxy', 'initialised', 'locallyChangedFiles', 'prompted'];
 const persistentProjectProperties = ['autoquotes', 'brandColors', 'corsProxy', 'name', 'sidebar', 'slugifyOptions', 'customRoles', 'draftsDir', 'previewUrl', 'languages', 'media'];
-const persistentUserProperties = ['email', 'id', 'name', 'projectAccessDates', 'projects', 'role', 'theme', 'uiScale'];
+const persistentUserProperties = ['email', 'id', 'name', 'projectAccessDates', 'projects', 'role', 'sortRules', 'theme', 'uiScale'];
 
 export const projectDefaults = {
   autoquotes: null,
@@ -111,6 +111,10 @@ export default createStore({
       name: null,
       projectAccessDates: {},
       projects: [],
+      sortRules: {
+        by: 'name',
+        reverseOrder: false,
+      },
       theme: 'auto',
       uiScale: 'auto',
     },
@@ -233,7 +237,7 @@ export default createStore({
       state.user = data;
     },
     setUserProperty(state, { key, value }) {
-      state.user[key] = value;
+      _set(state.user, key, value);
     },
     setTablet(state, value) {
       state.application.tablet = value;
