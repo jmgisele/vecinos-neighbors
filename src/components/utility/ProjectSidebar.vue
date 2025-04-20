@@ -194,6 +194,7 @@ export default {
       }
     },
     windowSwipeStart(e) {
+      if (!this.visible && (e.target?.classList.contains('.button') || e.target?.closest('.button'))) return;
       if (!this.isTablet || this.swiping || this.$store.state.application.openModals.length > 0) return;
       if (!this.visible && e.changedTouches[0].clientX > 48) return;
 
@@ -271,6 +272,11 @@ export default {
     visible(nv) {
       if (nv) {
         this.$nextTick(() => this.$refs.el.focus());
+      } else {
+        window.setTimeout(() => {
+          this.sidebarTransform = null;
+          this.maskOpacity = null;
+        }, 10); // this is rather arbitrary, but avoids a little jitter caused by the transition
       }
     },
   },
