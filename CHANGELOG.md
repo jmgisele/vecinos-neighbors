@@ -8,11 +8,14 @@ updatedAt: 2025-02-22
 
 * When replacing an image file, the change details now show the old and new image
   side by side
+* The last sorting state for file lists is now stored locallly on a per-user basis
 
 ### Bugfixes
 
 * Field visibility rules referring to other fields in the schema will now work
   more reliably, especially in custom fields and nested fields
+* Opening the project sidebar via the button will now work more reliably on small
+  screen devices
 
 ## Version 1.1.2
 
