@@ -1,6 +1,6 @@
 ---
-currentVersion: 1.1.2
-updatedAt: 2025-02-22
+currentVersion: 1.2.0
+updatedAt: 2025-05-09
 ---
 ## Version 1.2.0
 
