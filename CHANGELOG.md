@@ -1,7 +1,13 @@
 ---
-currentVersion: 1.2.0
+currentVersion: 1.2.1
 updatedAt: 2025-05-09
 ---
+## Version 1.2.1
+
+### Bugfixes
+
+* The project sidebar should no longer close unexpectedly when scrolling down
+
 ## Version 1.2.0
 
 ### New Features
