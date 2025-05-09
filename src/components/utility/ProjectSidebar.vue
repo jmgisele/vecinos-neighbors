@@ -231,6 +231,7 @@ export default {
       if (!this.swiping) return;
 
       if (Math.abs(distance) < 15 && Math.abs(distanceY) > Math.abs(distance)) { // if we haven’t moved much horizontally, but the y direction is bigger, we want to scroll, so abort
+        this.swiping = false;
         this.windowSwipeEnd(e);
         return;
       }
