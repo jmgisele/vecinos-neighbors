@@ -96,10 +96,14 @@
 </template>
 
 <script>
-import * as Diff from 'diff';
 import slugify from '@sindresorhus/slugify';
+import * as Diff from 'diff';
 import {
-  checkout, currentBranch as getCurrentBranch, log as gitLog, resetIndex, statusMatrix, resolveRef, readBlob,
+  checkout, currentBranch as getCurrentBranch, log as gitLog,
+  readBlob,
+  resetIndex,
+  resolveRef,
+  statusMatrix,
 } from 'isomorphic-git';
 
 import fs, { PlainFS, exists, joinPath } from '../fs';
@@ -112,8 +116,8 @@ import loadProjectAvatar from '../assets/js/loadProjectAvatar';
 
 import ProjectSidebar from '../components/utility/ProjectSidebar.vue';
 
-import gitAuth from '../mixins/gitAuth';
 import { imageRegExp } from '../data/regExps';
+import gitAuth from '../mixins/gitAuth';
 
 const GIT_STATUS_MESSAGES = {
   ERROR: 'Something went wrong syncing the latest changes. Click to learn more.',
@@ -142,6 +146,7 @@ export default {
 
     const hasConfigDir = await isMattrbldProject(to.params.id);
     const hasConfigFile = await exists(configPath);
+    const hasUsersPath = await exists(usersPath);
 
     if (!hasConfigDir || !hasConfigFile) {
       try {
@@ -211,6 +216,7 @@ export default {
 
     // if we’re here the project was initialised before
     try {
+      if (!hasUsersPath) await fs.mkdir(usersPath);
       const { project, users, avatarUrl } = await loadProject(to.params.id, fs);
 
       if (!users.find((user) => user.email === Store.state.user.email)) { // this user isn’t a member of this project yet
