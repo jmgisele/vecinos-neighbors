@@ -79,6 +79,7 @@ import warnAboutMeteredConnection from '../assets/js/warnAboutMeteredConnection'
 import gitTools from '../mixins/gitTools';
 import projectExists from '../mixins/projectExists';
 
+import loadProjectAvatar from '../assets/js/loadProjectAvatar';
 import LegalModal from '../components/utility/LegalModal.vue';
 
 export default {
@@ -213,7 +214,7 @@ export default {
         const avatarPromises = [];
         const jsonPromises = [];
         projects.forEach((project) => {
-          avatarPromises.push(fs.readFile(`/projects/${project}/.mattrbld/avatar.jpg`));
+          avatarPromises.push(loadProjectAvatar(project, fs));
           jsonPromises.push(fs.readFile(`/projects/${project}/.mattrbld/config.json`, 'utf8'));
         });
         const avatars = await Promise.allSettled(avatarPromises);
@@ -229,7 +230,7 @@ export default {
           project.updatedAt = this.$store.state.user.projectAccessDates[id] || Date.now();
 
           if (avatars[index].status !== 'rejected') {
-            project.avatar = URL.createObjectURL(new Blob([avatars[index].value], { type: 'image/jpeg' })); // revoking is handled by the ProjectAvatar component
+            project.avatar = avatars[index].value;
           }
 
           project.localChanges = this.$store.getters.hasLocalChanges(`/projects/${id}`);
@@ -374,8 +375,7 @@ export default {
       const project = this.projects.find((existingProject) => existingProject.id === projectId);
       if (project.avatar) {
         project.avatar = null;
-        const avatarData = await fs.readFile(`/projects/${projectId}/.mattrbld/avatar.jpg`);
-        const avatarUrl = URL.createObjectURL(new Blob([avatarData], { type: 'image/jpeg' })); // revoking is handled by the ProjectAvatar component
+        const avatarUrl = await loadProjectAvatar(projectId, fs);
         project.avatar = avatarUrl;
       }
     },

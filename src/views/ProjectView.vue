@@ -105,8 +105,10 @@ import {
 import fs, { PlainFS, exists, joinPath } from '../fs';
 import { addAllAndCommit, pull, push } from '../git';
 import Store, { projectDefaults } from '../store';
+
 import isMattrbldProject from '../assets/js/isMattrbldProject';
 import loadProject from '../assets/js/loadProject';
+import loadProjectAvatar from '../assets/js/loadProjectAvatar';
 
 import ProjectSidebar from '../components/utility/ProjectSidebar.vue';
 
@@ -126,12 +128,11 @@ export default {
     // if the project is already loaded, we just need to reload the avatar (because it got revoked) and are good to go
     if (Store.state.currentProject.id === to.params.id) {
       try {
-        const avatarData = await fs.readFile(`/projects/${to.params.id}/.mattrbld/avatar.jpg`);
-        const avatarUrl = URL.createObjectURL(new Blob([avatarData], { type: 'image/jpeg' })); // revoking is handled by the ProjectAvatar component
+        const avatarUrl = await loadProjectAvatar(to.params.id, fs);
         Store.commit('setCurrentProjectProperty', { key: 'avatar', value: avatarUrl });
         return next();
       } catch (err) {
-        if (err.code !== 'ENOENT') return next(err);
+        return next(err);
       }
     }
 
