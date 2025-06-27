@@ -8,12 +8,15 @@ export default {
       if (!this.cloneStep) return 'Initialising';
       if (this.cloneStep === 'done') return 'Done';
       if (this.cloneStep === 'checking configuration') return 'Checking Configuration';
+      if (this.cloneStep === 'Compressing objects' && this.cloneIndetermined) return 'Downloading data…';
       return `${this.cloneStep[0].toUpperCase()}${this.cloneStep.slice(1)}: ${(this.cloneProgress * 100).toFixed(2)}%`;
     },
   },
   data() {
     return {
+      cloneIndetermined: false,
       cloneProgress: 0,
+      cloneProgressTimeout: null,
       cloneStep: '',
     };
   },
@@ -38,10 +41,29 @@ export default {
       }
     },
     async onGitProgress(progress) {
+      if (this.cloneProgressTimeout) {
+        window.clearTimeout(this.cloneProgressTimeout);
+        this.cloneProgressTimeout = null;
+      }
+
+      this.cloneIndetermined = false;
       this.cloneStep = progress.phase;
+
       if (progress.total) this.cloneProgress = progress.loaded / progress.total;
       else this.cloneProgress = 0;
+
+      if (this.cloneProgress === 1) {
+        this.cloneProgressTimeout = window.setTimeout(() => { this.cloneIndetermined = true; }, 1000);
+      }
     },
   },
   mixins: [gitAuth],
+  watch: {
+    cloneStep(nv) {
+      if (nv === 'done' && this.cloneProgressTimeout) {
+        window.clearTimeout(this.cloneProgressTimeout);
+        this.cloneProgressTimeout = null;
+      }
+    },
+  },
 };

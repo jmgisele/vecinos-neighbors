@@ -24,7 +24,7 @@
     </section>
     <MbModal class="import-project-modal" :dark="dark" permanent title="Importing Project" :visible="importing" @after-open="startProjectImport">
       <div class="loader">
-        <MbProgress :dark="dark" :indetermined="!cloneProgress" :label="cloneLabel" :progress="cloneProgress" />
+        <MbProgress :dark="dark" :indetermined="!cloneProgress || cloneIndetermined" :label="cloneLabel" :progress="cloneProgress" />
       </div>
     </MbModal>
     <GitLoginModal :dark="dark" :message="gitLoginMessage" :visible="showGitLoginModal" @cancel="credentialPromise('cancel')" @submit="credentialPromise" />

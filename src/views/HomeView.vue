@@ -56,7 +56,7 @@
           </transition>
         </div>
         <div v-else class="loader">
-          <MbProgress :dark="dark" :indetermined="!cloneProgress" :label="cloneLabel" :progress="cloneProgress" />
+          <MbProgress :dark="dark" :indetermined="!cloneProgress || cloneIndetermined" :label="cloneLabel" :progress="cloneProgress" />
         </div>
       </transition>
       <template #actions>
