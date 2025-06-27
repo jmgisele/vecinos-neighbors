@@ -2,6 +2,25 @@
 currentVersion: 1.2.1
 updatedAt: 2025-05-09
 ---
+## Version 1.3.0
+
+### New Features
+
+* Support non-JPG avatars
+* Project avatars are now higher resolution and stored as webP to mitigate the
+  increase in storage, this way the generated avatars are roughly the same size
+  as their lower-resolution JPG equivalents
+
+### Bugfixes
+
+* Fixed an issue where the users directory was missing after importing a
+  pre-configured project
+
+### Other Changes
+
+* Added a new progress step while importing a project to show activity while
+  the files are downloaded from the remote repository
+
 ## Version 1.2.1
 
 ### Bugfixes
