@@ -1,12 +1,12 @@
 module.exports = {
   root: true,
   env: {
-    node: true,
-    es2022: true,
+    browser: true,
+    es2024: true,
   },
   extends: [
     'airbnb-base',
-    'plugin:vue/vue3-essential',
+    'plugin:vue/essential',
     'eslint:recommended',
   ],
   rules: {

@@ -14,12 +14,15 @@
     </section>
     <section class="steps">
       <header>
-        <MbProgress :class="{ faded: !cloneStep }" :dark="dark" :indetermined="!cloneProgress" :label="cloneLabel" :progress="cloneProgress" />
+        <MbProgress :class="{ faded: !cloneStep }" :dark="dark" :indetermined="!cloneProgress || cloneIndetermined" :label="cloneLabel" :progress="cloneProgress" />
       </header>
       <transition mode="out-in">
         <div v-if="currentSlide === 0" class="slide">
           <h1>Welcome to Mattrbld!</h1>
-          <p class="blurb">Let’s get started by importing your first project—this won’t take long.</p>
+          <p class="blurb">
+            Let’s get started by importing your first project—this won’t take long. Unsure what this means?
+            Take a look at the <a href="https://mattrbld.com/docs/quickstart/" rel="noopener noreferrer" target="_blank">Quickstart Guide</a>
+          </p>
           <MbInput v-model="repoURL" :autofocus="!isMobile" :dark="dark" :error="errors.repoURL" icon="repo" label="Project Repository URL" ref="repoInput" @blur="handleRepoInput" @keyup.enter="$event.target.blur()" />
           <div class="label">
             <span>Repository branch:</span>
@@ -62,7 +65,7 @@
         <div v-else-if="currentSlide === 1" class="slide">
           <h1>Great!</h1>
           <p class="blurb">While the project is being imported, let’s set up your local user. This data will be used to let your collaborators know who you are.</p>
-          <MbInput v-model="userName" :autofocus="!isMobile" :dark="dark" :error="errors.userName" icon="user" label="Full Name" @blur="validate('userName')" />
+          <MbInput v-model="userName" :autofocus="!isMobile" :dark="dark" :error="errors.userName" icon="user" label="Name" @blur="validate('userName')" />
           <MbInput v-model="userEmail" :dark="dark" :error="errors.userEmail" icon="mail" label="Email Address" type="email" @blur="validate('userEmail')" />
           <footer>
             <MbButton :dark="dark" :disabled="Boolean(!userName || !userEmail || errors.userName || errors.userEmail)" type="primary" @click="createUser">Create User</MbButton>
@@ -90,7 +93,7 @@
           <p v-if="isMattrbldProject">Your project has been imported successfully and is ready to be edited.</p>
           <template v-else>
             <p>Your project has been imported successfully and is now ready to be set up to work with Mattrbld.</p>
-            <p>If you’re not sure where to begin, check out the <a href="https://mattrbld.com/docs/quickstart" target="_blank" rel="noopener noreferrer">Quickstart Guide</a>.</p>
+            <p>If you’re not sure where to begin, read more about <a href="https://mattrbld.com/docs/configuration/" target="_blank" rel="noopener noreferrer">project configuration</a>.</p>
           </template>
           <footer>
             <MbButton :dark="dark" type="primary" @click="openProject">Start {{ isMattrbldProject ? 'Editing' : 'Setup' }}</MbButton>
@@ -343,12 +346,17 @@ export default {
       if (this.isMattrbldProject) this.$router.push({ name: 'Project', params: { id: this.projectName } }); // go to project dashboard
       else this.$router.push({ name: 'Project.Settings', params: { id: this.projectName }, query: { tab: 'general' } }); // go to project settings
       if (window.umami?.trackEvent) window.umami.trackEvent('import', { type: 'Onboarding completed' }); // legacy Umami 1.0
-      else if (window.umami?.track) window.umami.track(() => ({ name: 'import', data: { type: 'Onboarding completed' } }));
+      else if (window.umami?.track) {
+        window.umami.track((props) => ({
+          name: 'import',
+          data: { type: 'Onboarding completed' },
+          website: props.website,
+          url: '/onboarding',
+        }));
+      }
     },
     regenerateAvatar() {
-      const split = this.userName.split(' ');
-      const initials = `${split[0][0]}${split[split.length - 1][0]}`.toUpperCase();
-      this.userAvatar = generateAvatar(initials, '#A29BFE', '#6c5ce7', 'light', this.userEmail);
+      this.userAvatar = generateAvatar(this.userName, '#A29BFE', '#6c5ce7', 'light', this.userEmail);
       if (this.avatarUploaded) this.avatarUploaded = false;
     },
     async renderLegalInfo() {

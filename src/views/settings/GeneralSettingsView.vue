@@ -7,7 +7,7 @@
       <div class="avatar-wrapper">
         <MbProjectAvatar v-if="currentProject.id" :avatar="avatar" :project-id="currentProject.id" :project-name="currentProject.name" />
         <div class="buttons">
-          <AvatarUploader :compression="0.9" :height="180" ref="uploader" :width="320" @ready="handleAvatarReady" />
+          <AvatarUploader :compression="0.75" format="image/webp" :height="360" ref="uploader" :width="640" @ready="handleAvatarReady" />
           <MbButton v-show="avatar" :dark="dark" icon-first icon="trash" type="negative" @click="removeAvatar">Remove</MbButton>
           <MbButton :dark="dark" icon-first :icon="avatar ? 'replace-alt' : 'upload'" @click="$refs.uploader.$el.click()">{{ avatar ? 'Replace' : 'Upload' }}</MbButton>
         </div>
@@ -96,6 +96,7 @@ import { currentBranch, listBranches, listRemotes } from 'isomorphic-git';
 
 import fs, { PlainFS } from '../../fs';
 
+import loadProjectAvatar from '../../assets/js/loadProjectAvatar';
 import AvatarUploader from '../../components/utility/AvatarUploader.vue';
 import TabContent from '../../components/utility/TabContent.vue';
 
@@ -329,12 +330,7 @@ export default {
       // TODO: allow changing remote? Even adding a new one?
     },
     async fetchAvatar() {
-      try {
-        const avatarData = await fs.readFile(`/projects/${this.currentProject.id}/.mattrbld/avatar.jpg`);
-        this.avatar = URL.createObjectURL(new Blob([avatarData], { type: 'image/jpeg' })); // revoking is handled by the ProjectAvatar component
-      } catch (err) {
-        if (err.code !== 'ENOENT') throw err;
-      }
+      this.avatar = await loadProjectAvatar(this.currentProject.id, fs);
     },
     async handleAvatarReady(avatar) {
       try {
@@ -342,18 +338,16 @@ export default {
         // Based on https://stackoverflow.com/questions/12168909/blob-from-dataurl
         const byteString = window.atob(avatar.split(',')[1]);
         const avatarData = Uint8Array.from(byteString, (ch) => ch.charCodeAt(0));
-        const path = `/projects/${this.currentProject.id}/.mattrbld/avatar.jpg`;
-        await fs.writeFile(path, avatarData, 'utf8'); // we know it’s a image/jpeg because we converted it ourselves in AvatarUploader
+        const path = `/projects/${this.currentProject.id}/.mattrbld/avatar.webp`;
+        await fs.writeFile(path, avatarData, 'utf8');
         this.$store.commit('addLocallyChangedFile', path);
-        this.avatar = URL.createObjectURL(new Blob([avatarData], { type: 'image/jpeg' })); // revoking is handled by the ProjectAvatar component
+        this.avatar = URL.createObjectURL(new Blob([avatarData])); // revoking is handled by the ProjectAvatar component
         this.$store.commit('setCurrentProjectProperty', { key: 'avatar', value: this.avatar }); // might become an issue if the url is already revoked → then we just need to create a new object URL for this one
       } catch (err) {
         this.$store.commit('addToast', { message: `Something went wrong while saving the project avatar: ${err.message}`, type: 'error' });
       }
     },
     removeAvatar() {
-      const path = `/projects/${this.currentProject.id}/.mattrbld/avatar.jpg`;
-
       this.avatar = null;
       this.$store.commit('setCurrentProjectProperty', { key: 'avatar', value: null });
 
@@ -368,6 +362,9 @@ export default {
           if (undone) return;
 
           try {
+            const avatarFile = (await fs.readdir(`/projects/${this.currentProject.id}/.mattrbld`)).find((file) => file.startsWith('avatar.'));
+            const path = `/projects/${this.currentProject.id}/.mattrbld/${avatarFile}`;
+
             await fs.unlink(path);
             this.$store.commit('addLocallyChangedFile', path);
           } catch (err) {

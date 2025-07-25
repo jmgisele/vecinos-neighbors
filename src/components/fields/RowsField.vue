@@ -34,6 +34,7 @@
               :in-split="inSplit"
               :model-value="modelValueForIndex(index)"
               :languages="languages"
+              :provide-model-value="isCustomGroupFieldAtIndex(index)"
               @update:error="handleFieldError($event, index)"
               @update:model-value="updateField($event, index)"
             />

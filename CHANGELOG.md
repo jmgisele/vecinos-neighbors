@@ -1,8 +1,96 @@
 ---
-currentVersion: 1.0.0
-updatedAt: 2024-12-18
+currentVersion: 1.2.1
+updatedAt: 2025-05-09
 ---
-## Version 1.0.0
+## Version 1.3.0
+
+### New Features
+
+* Support non-JPG avatars
+* Project avatars are now higher resolution and stored as webP to mitigate the
+  increase in storage, this way the generated avatars are roughly the same size
+  as their lower-resolution JPG equivalents
+* Collections now support selecting a default value for new files created in
+  them. This is opt-in and controlled per-collection.
+
+### Bugfixes
+
+* Fixed an issue where the users directory was missing after importing a
+  pre-configured project
+
+### Other Changes
+
+* Added a new progress step while importing a project to show activity while
+  the files are downloaded from the remote repository
+
+## Version 1.2.1
+
+### Bugfixes
+
+* The project sidebar should no longer close unexpectedly when scrolling down
+
+## Version 1.2.0
+
+### New Features
+
+* When replacing an image file, the change details now show the old and new image
+  side by side
+* The last sorting state for file lists is now stored locallly on a per-user basis
+
+### Bugfixes
+
+* Field visibility rules referring to other fields in the schema will now work
+  more reliably, especially in custom fields and nested fields
+* Opening the project sidebar via the button will now work more reliably on small
+  screen devices
+
+## Version 1.1.2
+
+### Bugfixes
+
+* The sidebar no longer gets stuck if it is swiped only a little into the screen
+  on small screen devices
+
+## Version 1.1.1
+
+### Other Changes
+
+* “Full Name” labels throughout the UI have been shortened to just “Name” to
+  better reflect the fact that a username can be anything
+* User avatars can now consist of just a single letter if only a first name or
+  pseudonym are used as a username
+* The link to the Quickstart Guide now shows earlier in the onboarding process
+
+### Bugfixes
+
+* The sidebar no longer flashes when swiping to open it on small screen devices
+* Users that are not part of the currently open project are now properly
+  styled when using dark mode
+* The Umami integration (if enabled) now properly doesn’t auto-track and reports
+  import events correctly
+
+## Version 1.1.0
+
+### New Features
+
+* Allow `width`, `height`, `loading`, and `decoding` values to be passed as
+  non-data attributes to images inserted into rich-text fields
+
+### Bugfixes
+
+* The “Refresh to update” notification will only be shown once, even if there
+  have been multiple updates since it was last shown
+* Using the shortcut ⌘ / Ctrl + Shift + S to enable strikethrough formatting in
+  rich text fields no longer also saves the content item you are editing
+
+## Version 1.0.2
+
+### Bugfixes
+
+* Ensure the name in the PWA manifest is set to “Mattrbld” with a capital ‘M’
+* Include a .htaccess file which always redirects to index.html for virutal routing
+
+## Version 1.0.1
 
 ### New Features
 

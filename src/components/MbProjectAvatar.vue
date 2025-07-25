@@ -35,8 +35,8 @@ export default {
     generateAvatar() {
       const canvas = document.createElement('canvas');
       const ctx = canvas.getContext('2d');
-      const width = 320; // could be scaled by remBase for ultimate crispness
-      const height = 180; // could be scaled by remBase for ultimate crispness
+      const width = 640; // could be scaled by remBase for ultimate crispness
+      const height = 360; // could be scaled by remBase for ultimate crispness
       const color = this.projectColor;
       const color2 = tinycolor(color).spin(48).toHexString();
       const bg = ctx.createLinearGradient(0, height, width, 0);
@@ -45,15 +45,15 @@ export default {
       let fg;
       const circle1 = {
         angle: this.rng.random() * Math.PI * 2,
-        radius: this.rng.random(56, height),
-        x: this.rng.random(-16, width + 16),
-        y: this.rng.random(0, 16),
+        radius: this.rng.random(112, height),
+        x: this.rng.random(-32, width + 32),
+        y: this.rng.random(0, 32),
       };
       const circle2 = {
         angle: this.rng.random() * Math.PI * 2,
-        radius: this.rng.random(56, height),
-        x: this.rng.random(-16, width + 16),
-        y: this.rng.random(height - 16, height),
+        radius: this.rng.random(112, height),
+        x: this.rng.random(-32, width + 32),
+        y: this.rng.random(height - 32, height),
       };
 
       canvas.width = width;
@@ -90,14 +90,14 @@ export default {
       ctx.restore();
 
       if (this.projectName) {
-        ctx.font = '700 24px "Inter", sans-serif';
+        ctx.font = '700 40px "Inter", sans-serif';
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
         ctx.fillStyle = tinycolor(color).isLight() ? 'rgba(0,0,0,0.5)' : 'rgba(255,255,255,0.75)';
-        ctx.fillText(this.projectName, width / 2, height / 2 + 4);
+        ctx.fillText(this.projectName, width / 2, height / 2 + 8);
       }
 
-      this.generatedAvatar = canvas.toDataURL('image/jpeg', 0.92);
+      this.generatedAvatar = canvas.toDataURL('image/webp', 1);
     },
     handleLoad() {
       if (this.avatar) URL.revokeObjectURL(this.avatar); // we get passed an ObjectURL and don’t need it anymore after we displayed the image

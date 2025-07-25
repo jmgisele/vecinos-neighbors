@@ -222,8 +222,8 @@ export default {
     },
     fieldsForTab() {
       if (!this.fields) return [];
-      if (this.activeTab === 0) return this.fields.filter((field) => field.tab === this.tabs[0] || !field.tab); // first tab shows all fields without tab, too
-      return this.fields.filter((field) => field.tab === this.tabs[this.activeTab] || field.key === '___addIndicator');
+      if (this.activeTab === 0) return this.fields.filter((field) => field.tab === this.tabs[0]?.label || !field.tab); // first tab shows all fields without tab, too
+      return this.fields.filter((field) => field.tab === this.tabs[this.activeTab]?.label || field.key === '___addIndicator');
     },
     filteredFields() {
       if (!this.availableFields) return new Map();
@@ -240,7 +240,10 @@ export default {
     },
     flattenedFieldKeys() {
       if (!this.fields || this.fields.length === 0) return [];
-      return this.extractFieldKeys(this.fields, null, true).concat([{ label: 'Unset', value: null }]);
+      const extractedFieldKeys = this.extractFieldKeys(this.fields, null, true).concat([{ label: 'Unset', value: null }]);
+
+      if (!this.stripToplevelFieldKey) return extractedFieldKeys;
+      return extractedFieldKeys.map(({ label, value }) => ({ label, value: value?.split('.').slice(1).join('.') }));
     },
     isMobile() {
       return this.$store.state.application.mobile;
@@ -258,7 +261,7 @@ export default {
       ];
     },
     tabsForSelect() {
-      return this.tabs.map((tab) => ({ value: tab }));
+      return this.tabs.map((tab) => ({ value: tab.label }));
     },
   },
   async created() {
@@ -417,7 +420,7 @@ export default {
         } else cleanField[key] = cloneDeep(value);
       });
 
-      this.moveFieldToTab(cleanField, this.tabs[this.activeTab], true); // moveFieldToTab mutates the passed field and all subfields
+      this.moveFieldToTab(cleanField, this.tabs[this.activeTab]?.label, true); // moveFieldToTab mutates the passed field and all subfields
       delete cleanField.description; // not needed, so let’s save space
       delete cleanField.group; // not needed, so let’s save space
 
@@ -585,7 +588,15 @@ export default {
     },
     extractFieldKeys(fields, parent, hideRepeating) {
       return fields.reduce((acc, field) => {
+        if (!parent && fields === this.fields && this.tabs.length) {
+          // if we are at the top level, we have to ensure the tab groupAs key is prefixed if set
+          const { groupAs } = this.tabs.find((tab) => tab.label === field.tab);
+
+          if (groupAs) parent = groupAs; // eslint-disable-line no-param-reassign
+        }
+
         if (hideRepeating && this.isInRepeatingField(field)) return acc;
+
         if (Array.isArray(field.value)) acc.push(...this.extractFieldKeys(field.value, parent ? `${parent}.${field.key}` : field.key, hideRepeating));
         else if (field === this.fieldBeingEdited || field.visualOnly) return acc;
         else acc.push({ label: field.label, value: parent ? `${parent}.${field.key}` : field.key });
@@ -818,11 +829,11 @@ export default {
       }
       return false;
     },
-    moveFieldToTab(field, tab, recursiveCall) {
-      field.tab = tab; // eslint-disable-line no-param-reassign
-      if (Array.isArray(field.value)) field.value.forEach((childField) => this.moveFieldToTab(childField, tab, true));
+    moveFieldToTab(field, tabLabel, recursiveCall) {
+      field.tab = tabLabel; // eslint-disable-line no-param-reassign
+      if (Array.isArray(field.value)) field.value.forEach((childField) => this.moveFieldToTab(childField, tabLabel, true));
       if (!recursiveCall) {
-        this.$emit('update:activeTab', this.tabs.indexOf(tab));
+        this.$emit('update:activeTab', this.tabs.findIndex((tab) => tab.label === tabLabel));
       }
     },
     openContextMenu({ detail }) {
@@ -944,7 +955,7 @@ export default {
       const field = parentFieldFields[index];
       const tab = this.tabs[this.fieldAddIndex];
 
-      if (field.tab !== tab) this.moveFieldToTab(field, tab);
+      if (field.tab !== tab.label) this.moveFieldToTab(field, tab.label);
       this.fieldToTransfer = null;
     },
     updateModelValue() {
@@ -1043,6 +1054,7 @@ export default {
     noSubfields: Boolean,
     projectId: String,
     showGenerateButton: Boolean,
+    stripToplevelFieldKey: Boolean,
     tabs: Array,
   },
   watch: {

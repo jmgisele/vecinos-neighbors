@@ -1062,7 +1062,10 @@ export default {
         avatarUploaders: [
           ['Name', 'Type', 'Default', 'Notes'],
           ['`compression`', 'Number', '`0.45`', ''],
+          ['`format`', 'String', '`image/jpeg`', 'The file type of the returned avatar'],
+          ['`height`', 'Number', '`undefined`', 'The height of the avatar in px, "size" takes precedence'],
           ['`size`', 'Number', '`128`', 'The width of the avatar in px'],
+          ['`width`', 'Number', '`undefined`', 'The width of the avatar in px, "size" takes precedence'],
         ],
         buttons: [
           ['Name', 'Type', 'Default', 'Allowed Values'],

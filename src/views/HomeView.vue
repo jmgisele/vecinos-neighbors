@@ -56,7 +56,7 @@
           </transition>
         </div>
         <div v-else class="loader">
-          <MbProgress :dark="dark" :indetermined="!cloneProgress" :label="cloneLabel" :progress="cloneProgress" />
+          <MbProgress :dark="dark" :indetermined="!cloneProgress || cloneIndetermined" :label="cloneLabel" :progress="cloneProgress" />
         </div>
       </transition>
       <template #actions>
@@ -79,6 +79,7 @@ import warnAboutMeteredConnection from '../assets/js/warnAboutMeteredConnection'
 import gitTools from '../mixins/gitTools';
 import projectExists from '../mixins/projectExists';
 
+import loadProjectAvatar from '../assets/js/loadProjectAvatar';
 import LegalModal from '../components/utility/LegalModal.vue';
 
 export default {
@@ -213,7 +214,7 @@ export default {
         const avatarPromises = [];
         const jsonPromises = [];
         projects.forEach((project) => {
-          avatarPromises.push(fs.readFile(`/projects/${project}/.mattrbld/avatar.jpg`));
+          avatarPromises.push(loadProjectAvatar(project, fs));
           jsonPromises.push(fs.readFile(`/projects/${project}/.mattrbld/config.json`, 'utf8'));
         });
         const avatars = await Promise.allSettled(avatarPromises);
@@ -229,7 +230,7 @@ export default {
           project.updatedAt = this.$store.state.user.projectAccessDates[id] || Date.now();
 
           if (avatars[index].status !== 'rejected') {
-            project.avatar = URL.createObjectURL(new Blob([avatars[index].value], { type: 'image/jpeg' })); // revoking is handled by the ProjectAvatar component
+            project.avatar = avatars[index].value;
           }
 
           project.localChanges = this.$store.getters.hasLocalChanges(`/projects/${id}`);
@@ -350,7 +351,14 @@ export default {
           if (wasConfigured) this.$router.push({ name: 'Project', params: { id: projectId } });
           else this.$router.push({ name: 'Project.Settings', params: { id: projectId }, query: { tab: 'general' } });
           if (window.umami?.trackEvent) window.umami.trackEvent('import', { type: 'Project imported from Home' }); // legacy Umami 1.0
-          else if (window.umami?.track) window.umami.track(() => ({ name: 'import', data: { type: 'Project imported from Home' } }));
+          else if (window.umami?.track) {
+            window.umami.track((props) => ({
+              name: 'import',
+              data: { type: 'Project imported from Home' },
+              website: props.website,
+              url: '/',
+            }));
+          }
         } catch (err) {
           this.$store.commit('addToast', { message: `Something went wrong while importing the project: ${err.message}`, type: 'error' });
           this.$store.commit('removeProjectFromActiveUser', projectId);
@@ -367,8 +375,7 @@ export default {
       const project = this.projects.find((existingProject) => existingProject.id === projectId);
       if (project.avatar) {
         project.avatar = null;
-        const avatarData = await fs.readFile(`/projects/${projectId}/.mattrbld/avatar.jpg`);
-        const avatarUrl = URL.createObjectURL(new Blob([avatarData], { type: 'image/jpeg' })); // revoking is handled by the ProjectAvatar component
+        const avatarUrl = await loadProjectAvatar(projectId, fs);
         project.avatar = avatarUrl;
       }
     },

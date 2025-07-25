@@ -28,7 +28,7 @@
       </div>
       <p class="h3">Default Details</p>
       <p>These settings are used as defaults when you join a project, but can be overridden on a per-project basis.</p>
-      <MbInput v-model="newUserData.name" class="name" :dark="dark" :error="errors.userName" icon="user" label="Full Name" @blur="validate('userName'); checkAvatarRegeneration()" />
+      <MbInput v-model="newUserData.name" class="name" :dark="dark" :error="errors.userName" icon="user" label="Name" @blur="validate('userName'); checkAvatarRegeneration()" />
       <MbInput v-model="newUserData.email" :dark="dark" :error="errors.userEmail" icon="mail" label="Email Address" type="email" @blur="validate('userEmail'); checkAvatarRegeneration()" />
       <p class="h3">Avatar</p>
       <div class="row avatar">
@@ -56,7 +56,7 @@
     <MbModal class="settings-modal" :dark="dark" slim title="Add New User" :visible="showAddUser" @close="handleSettingsModalClose">
       <p>You can create additional local users in case this device is used by multiple people, or to separate your personal projects from your work.</p>
       <p class="h3">Default Details</p>
-      <MbInput v-model="newUserData.name" :autofocus="!isMobile" :dark="dark" :error="errors.userName" icon="user" label="Full Name" @blur="validate('userName'); checkAvatarRegeneration()" />
+      <MbInput v-model="newUserData.name" :autofocus="!isMobile" :dark="dark" :error="errors.userName" icon="user" label="Name" @blur="validate('userName'); checkAvatarRegeneration()" />
       <MbInput v-model="newUserData.email" :dark="dark" :error="errors.userEmail" icon="mail" label="Email Address" type="email" @blur="validate('userEmail'); checkAvatarRegeneration()" />
       <p class="h3">Avatar</p>
       <div class="row avatar">
@@ -347,9 +347,7 @@ export default {
       this.showUserSettings = true;
     },
     regenerateAvatar() {
-      const split = this.newUserData.name.split(' ');
-      const initials = `${split[0][0]}${split[split.length - 1][0]}`.toUpperCase();
-      this.newUserData.avatar = generateAvatar(initials, '#A29BFE', '#6c5ce7', 'light', this.newUserData.email);
+      this.newUserData.avatar = generateAvatar(this.newUserData.name, '#A29BFE', '#6c5ce7', 'light', this.newUserData.email);
       if (this.avatarUploaded) this.avatarUploaded = false;
     },
     async saveUser() {
@@ -496,6 +494,10 @@ export default {
           color: var(--text-dark);
         }
 
+        &.disabled:not(.active) {
+          color: var(--text-tertiary-dark);
+        }
+
         .email {
           color: var(--text-secondary-dark);
         }
@@ -565,7 +567,7 @@ export default {
         &.disabled:not(.active) {
           color: var(--text-tertiary);
           pointer-events: none;
-          padding: 1 - 0.0625 rem;
+          padding: calc(1rem - 0.0625rem);
           border: 0.0625rem dashed currentColor;
 
           .async-image {

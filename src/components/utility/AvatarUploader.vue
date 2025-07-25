@@ -47,7 +47,7 @@ export default {
           ctx.drawImage(image, cropDistance, 0, sourceWidth, sourceHeight, 0, 0, width, height);
         }
 
-        const avatar = canvas.toDataURL('image/jpeg', Math.max(Math.min(this.compression, 1), 0));
+        const avatar = canvas.toDataURL(this.format, Math.max(Math.min(this.compression, 1), 0));
         this.$emit('ready', avatar);
       };
       image.src = imageURL;
@@ -57,6 +57,10 @@ export default {
     compression: {
       type: Number,
       default: 0.45,
+    },
+    format: {
+      type: String,
+      default: 'image/jpeg',
     },
     height: Number,
     size: {

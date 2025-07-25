@@ -14,7 +14,7 @@
     <section>
       <h2>User Information</h2>
       <MbInput v-model.lazy="email" :dark="dark" :disabled="Boolean($route.query.email)" :error="errors.email" icon="mail" label="Email address" type="email" @blur="validate('email')" />
-      <MbInput v-model.lazy="name" :dark="dark" :error="errors.name" icon="user" label="Full name" @blur="validate('name')" />
+      <MbInput v-model.lazy="name" :dark="dark" :error="errors.name" icon="user" label="Name" @blur="validate('name')" />
       <MbButton v-if="$route.query.proxy" :dark="dark" :disabled="Boolean(!name || !email || errors.name || errors.email)" type="primary" @click="handleImportClik">Start editing</MbButton>
     </section>
     <section v-if="!$route.query.proxy">
@@ -24,7 +24,7 @@
     </section>
     <MbModal class="import-project-modal" :dark="dark" permanent title="Importing Project" :visible="importing" @after-open="startProjectImport">
       <div class="loader">
-        <MbProgress :dark="dark" :indetermined="!cloneProgress" :label="cloneLabel" :progress="cloneProgress" />
+        <MbProgress :dark="dark" :indetermined="!cloneProgress || cloneIndetermined" :label="cloneLabel" :progress="cloneProgress" />
       </div>
     </MbModal>
     <GitLoginModal :dark="dark" :message="gitLoginMessage" :visible="showGitLoginModal" @cancel="credentialPromise('cancel')" @submit="credentialPromise" />
@@ -116,9 +116,7 @@ export default {
         alreadyExists = await entityExists(`/users/${newUserId}.json`); // eslint-disable-line no-await-in-loop
       }
 
-      const split = this.name.split(' ');
-      const initials = `${split[0][0]}${split[split.length - 1][0]}`.toUpperCase();
-      const avatar = generateAvatar(initials, '#A29BFE', '#6c5ce7', 'light', this.email);
+      const avatar = generateAvatar(this.name, '#A29BFE', '#6c5ce7', 'light', this.email);
       const byteString = window.atob(avatar.split(',')[1]);
       const avatarData = Uint8Array.from(byteString, (ch) => ch.charCodeAt(0));
       const user = {
@@ -300,7 +298,14 @@ export default {
       if (project.wasConfigured) this.$router.replace({ name: 'Project', params: { id: project.id } });
       else this.$router.replace({ name: 'Project.Settings', params: { id: project.id }, query: { tab: 'general' } });
       if (window.umami?.trackEvent) window.umami.trackEvent('import', { type: 'Invite link used' }); // legacy Umami 1.0
-      else if (window.umami?.track) window.umami.track(() => ({ name: 'import', data: { type: 'Invite link used' } }));
+      else if (window.umami?.track) {
+        window.umami.track((props) => ({
+          name: 'import',
+          data: { type: 'Invite link used' },
+          website: props.website,
+          url: '/',
+        }));
+      }
     },
     validate(field) {
       let error = '';

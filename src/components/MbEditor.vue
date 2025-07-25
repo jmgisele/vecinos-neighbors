@@ -726,6 +726,10 @@ export default {
           alt: attrs.alt,
           src: attrs.src,
           title: attrs.title,
+          width: attrs.width,
+          height: attrs.height,
+          loading: attrs.loading,
+          decoding: attrs.decoding,
         };
         this.imagePopover.x = left + width / 2;
         this.imagePopover.y = top + 4 * Number.parseInt(window.getComputedStyle(document.documentElement).fontSize, 10);
@@ -889,7 +893,7 @@ export default {
     transformImageDataToAttrs(data) {
       if (typeof data === 'string') return { src: data }; // like when Advanced Media Library is off
       return Object.entries(data).reduce((acc, [key, value]) => {
-        if (['alt', 'src', 'title'].includes(key)) {
+        if (['alt', 'src', 'title', 'width', 'height', 'loading', 'decoding'].includes(key)) {
           if (key === 'src') acc[key] = this.mediaSettings.outputPath ? value.replace(this.mediaSettings.dir, this.mediaSettings.outputPath) : value;
           else if (value && typeof value === 'object' && !Array.isArray(value)) {
             if (this.lang) acc[key] = value[this.lang];

@@ -18,6 +18,7 @@
         :languages="languages"
         :localised="field.localised"
         :options="field.options"
+        :provide-model-value="Boolean(field.customField) && Boolean(field.value)"
         :split-target="splitTarget"
         :type="field.type"
         :validation="field.validation"
@@ -52,6 +53,7 @@
 
 <script>
 import { cloneDeep as _cloneDeep, get as _get } from 'lodash-es';
+import { computed } from 'vue';
 
 import fieldTypeToComponent from '../assets/js/fieldTypeToComponent';
 import userInputToRegex from '../assets/js/userInputToRegex';
@@ -76,7 +78,7 @@ export default {
         && !field.visibility.hidden
         && (field.type !== 'languages' || (this.languages && this.languages.length > 0)) // showing languages fields when there are no languages or localisation is disabled doesn’t make sense
         && (!field.visibility.limitToRoles || field.visibility.limitToRoles.length === 0 || field.visibility.limitToRoles.includes(currentUser.role))
-        && (!field.visibility.showByValue || !field.visibility.showByValue.field || this.fieldShouldBeVisible(field.visibility.showByValue))
+        && (!field.visibility.showByValue || !field.visibility.showByValue.field || this.fieldShouldBeVisible(field))
       ));
     },
   },
@@ -100,6 +102,12 @@ export default {
     };
   },
   emits: ['update:activeField', 'update:error', 'update:modelValue', 'update:splitVisible'],
+  inject: {
+    fullModel: {
+      from: 'fullModel',
+      default: null,
+    },
+  },
   methods: {
     componentForType(type) {
       const componentName = fieldTypeToComponent(type);
@@ -107,8 +115,14 @@ export default {
       if (componentName && this.$options.components && this.$options.components[componentName]) return componentName;
       return 'UnknownField';
     },
-    fieldShouldBeVisible({ comparator, field, value }) { // field is actually a path to a field in the Schema, comparator is a number or string to compare the field value to
-      const valueToCompare = _get(this.model, field);
+    fieldShouldBeVisible(field) {
+      // field is actually a path to a field in the schema, comparator is a number or string to compare the field value to
+      const { comparator, field: fieldToComparePath, value } = field.visibility.showByValue;
+      let model = this.fullModel || this.model;
+
+      if (this.provideModelValue) model = this.model; // this needs to be done in case we're at the top of a custom field
+
+      const valueToCompare = _get(model, fieldToComparePath);
       // value can be either null, true, false, or a string
       if (typeof value !== 'string') return valueToCompare === value;
       // if it’s a string things get a little more complex
@@ -149,12 +163,22 @@ export default {
       default: () => new Map(),
     },
     fields: Array,
+    provideModelValue: Boolean,
     inSplit: Boolean,
     languages: Array,
     modelValue: Object,
     parentActiveField: String,
     splitTarget: [String, HTMLElement],
     splitVisible: Boolean,
+  },
+  provide() {
+    if (this.provideModelValue) {
+      return {
+        fullModel: computed(() => this.model),
+      };
+    }
+
+    return {};
   },
   watch: {
     activeField(nv, ov) {

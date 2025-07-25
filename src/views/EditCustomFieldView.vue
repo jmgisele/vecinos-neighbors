@@ -8,10 +8,10 @@
       <div class="right">
         <MbButton :dark="dark" icon="settings" :tooltip="isTablet ? 'Settings' : null" @click="showCustomFieldSettings = true">{{isTablet ? '' : 'Settings'}}</MbButton>
         <MbButton :dark="dark" icon="eye" :tooltip="isTablet ? 'Preview' : null" @click="showPreview = true">{{isTablet ? '' : 'Preview'}}</MbButton>
-        <MbButton :dark="dark" :disabled="!wasChanged" icon="save" :icon-first="true" :loading="saveLoading" :tooltip="isTablet ? 'Save' : `Save <kbd>${isMac ? '⌘' : 'Ctrl'}</kbd>+<kbd>S</kbd>`" type="primary" @click="saveChanges">{{isTablet && !isMobile ? '' : 'Save'}}</MbButton>
+        <MbButton :dark="dark" :disabled="!wasChanged || !customField.length" icon="save" :icon-first="true" :loading="saveLoading" :tooltip="isTablet ? 'Save' : `Save <kbd>${isMac ? '⌘' : 'Ctrl'}</kbd>+<kbd>S</kbd>`" type="primary" @click="saveChanges">{{isTablet && !isMobile ? '' : 'Save'}}</MbButton>
       </div>
     </header>
-    <SchemaFieldsEditor v-model="customField" :active-tab="0" :dark="dark" :project-id="$route.params.id" :tabs="[]" @update:modelValue="checkForChanges" />
+    <SchemaFieldsEditor v-model="customField" :active-tab="0" :dark="dark" :project-id="$route.params.id" strip-toplevel-field-key :tabs="[]" @update:modelValue="checkForChanges" />
     <MbModal class="edit-custom-field-modal" :dark="dark" slim title="Custom Field Settings" :visible="showCustomFieldSettings" @after-close="resetCustomFieldName" @close="showCustomFieldSettings = false">
       <MbInput v-model.lazy="newCustomFieldName" :dark="dark" :error="nameError" icon="document" label="Name" @blur="validateName" />
       <MbInput v-model.lazy="group" :dark="dark" icon="folder" label="Category" />
@@ -130,7 +130,12 @@ export default {
       return prettifyEntityName(pathBasename(this.$route.params.path));
     },
     fakeSchema() {
-      return { fields: this.customField.slice(0, 1), tabs: [{ label: 'fake tab' }] };
+      const [firstField] = this.customField;
+      let fields = this.customField.slice(0, 1);
+
+      if (firstField?.type === 'group') fields = firstField.value;
+
+      return { fields, tabs: [{ label: 'fake tab' }] };
     },
     isMac() {
       return isMac();
@@ -214,7 +219,7 @@ export default {
       this.$router.replace({ name: 'Project.Settings', params: { id }, query: { tab: 'custom-fields' } });
     },
     handleGlobalKeyUp(e) {
-      if (e.key === 's' && (isMac() ? e.metaKey : e.ctrlKey)) {
+      if (e.key === 's' && (isMac() ? e.metaKey : e.ctrlKey) && !e.altKey && !e.shiftKey) {
         e.preventDefault();
         this.saveChanges();
       }
@@ -270,6 +275,11 @@ export default {
       this.nameError = '';
     },
     async saveChanges() {
+      if (this.customField.length === 0) {
+        this.$store.commit('addToast', { message: 'Empty custom fields cannot be saved.', type: 'negative' });
+        return;
+      }
+
       if (this.customField.length > 1) {
         this.$store.commit('addToast', { message: 'Custom fields with more than one root field are not supported. Make sure they are properly grouped in a Field Group, Container, Columns or Rows field.', type: 'negative' });
         return;
@@ -434,6 +444,10 @@ export default {
 
         @media #{$mobile} {
           margin-left: 0;
+
+          .button:last-child {
+            margin-left: auto;
+          }
         }
 
         .button {

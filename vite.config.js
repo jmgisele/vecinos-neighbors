@@ -2,14 +2,14 @@
 
 import { fileURLToPath, URL } from 'node:url';
 
-import { defineConfig } from 'vite';
 import vue from '@vitejs/plugin-vue';
-import { VitePWA } from 'vite-plugin-pwa';
+import { defineConfig } from 'vite';
 import { nodePolyfills } from 'vite-plugin-node-polyfills';
+import { VitePWA } from 'vite-plugin-pwa';
 
-import umami from './vite-plugins/umami';
-import createSvgoPlugin from './vite-plugins/svgo';
 import robots from './vite-plugins/robots';
+import createSvgoPlugin from './vite-plugins/svgo';
+import umami from './vite-plugins/umami';
 
 // https://vitejs.dev/config/
 export default defineConfig({
@@ -37,7 +37,6 @@ export default defineConfig({
                 convertColors: {
                   currentColor: true,
                 },
-                removeViewBox: false,
               },
             },
           },
@@ -49,6 +48,8 @@ export default defineConfig({
           },
           'sortAttrs',
           'removeDimensions',
+          'removeTitle',
+          'removeScripts',
         ],
       },
     }),
@@ -94,8 +95,10 @@ export default defineConfig({
             purpose: 'maskable',
           },
         ],
+        name: 'Mattrbld',
         orientation: 'portrait',
         screenshots: [],
+        short_name: 'Mattrbld',
         start_url: '/',
         theme_color: '#6c5ce7',
       },

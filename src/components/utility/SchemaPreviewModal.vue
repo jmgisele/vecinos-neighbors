@@ -3,7 +3,7 @@
     <MbTabs v-if="schema.tabs && schema.tabs.length > 1" v-model="activeTab" :dark="dark" :tabs="cleanTabs" />
     <transition mode="out-in">
       <div v-if="fieldsForTab.length > 0" class="content-wrapper" :key="Math.max(0, activeTab)">
-        <MbFieldsEditor v-model="contentForTab" :class="{ 'tabs-visible': schema.tabs && schema.tabs.length > 1 }" compact :dark="dark" :fields="fieldsForTab" :languages="languages" />
+        <MbFieldsEditor v-model="contentForTab" :class="{ 'tabs-visible': schema.tabs && schema.tabs.length > 1 }" compact :dark="dark" :fields="fieldsForTab" :languages="languages" provide-model-value />
         <h3 :class="{ dark }">Output</h3>
         <pre>{{fakeModel}}</pre>
       </div>

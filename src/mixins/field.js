@@ -1,4 +1,5 @@
 import { cloneDeep as _cloneDeep } from 'lodash-es';
+import { computed } from 'vue';
 
 import { validateField } from '../assets/js/validateContent';
 import richToPlainText from '../assets/js/richToPlainText';
@@ -92,9 +93,18 @@ export default {
       type: Object,
       default: () => ({}),
     },
+    provideModelValue: Boolean,
     splitTarget: [String, HTMLElement],
     type: String,
     validation: Object,
+  },
+  provide() {
+    if (this.provideModelValue) {
+      return {
+        fullModel: computed(() => this.modelValue),
+      };
+    }
+    return {};
   },
   watch: {
     showLocalisedOptions(nv) {

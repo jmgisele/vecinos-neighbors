@@ -26,6 +26,7 @@ const updateSW = registerSW({
     store.commit('addToast', {
       action: updateSW,
       actionLabel: 'Refresh',
+      id: 'refresh-to-update',
       message: 'A new version of Mattrbld is available, refresh to start using the newest verison',
       timeout: false,
     });

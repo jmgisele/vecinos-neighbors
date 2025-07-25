@@ -14,9 +14,9 @@
         <MbInput v-if="filterable" clearable :dark="dark" icon="search" label="Search current directory" type="search" :model-value="searchTerm" @update:model-value="debouncedSearch" />
         <div v-if="sortable" class="sort">
           <span class="select-label">Sort by:</span>
-          <MbSelect v-model="sortBy" :dark="dark" :options="sortOptions" @update:model-value="sortEntities" />
-          <MbButton class="mobile-sort-by" :dark="dark" :icon="sortBy === 'name' ? 'text-alt' : 'calendar'" :tooltip="{ position: 'right', message: sortBy === 'name' ? 'By name' : 'By date' }" @click="sortBy === 'name' ? sortBy = 'edited' : sortBy = 'name'; sortEntities()"/>
-          <MbButton :dark="dark" :icon="reverseOrder ? 'descending' : 'ascending'" :tooltip="{ position: 'right', message: reverseOrder ? 'Descending' : 'Ascending' }" @click="reverseOrder = !reverseOrder; sortEntities()"/>
+          <MbSelect v-model="sortBy" :dark="dark" :options="sortOptions" @update:model-value="handleSortByChange" />
+          <MbButton class="mobile-sort-by" :dark="dark" :icon="sortBy === 'name' ? 'text-alt' : 'calendar'" :tooltip="{ position: 'right', message: sortBy === 'name' ? 'By name' : 'By date' }" @click="handleSortByChange"/>
+          <MbButton :dark="dark" :icon="reverseOrder ? 'descending' : 'ascending'" :tooltip="{ position: 'right', message: reverseOrder ? 'Descending' : 'Ascending' }" @click="handleSortOrderChange"/>
         </div>
         <MbButton v-if="action && (action.label || action.icon) && action.callback" class="action" :dark="dark" :icon="action.icon" :icon-first="action.iconFirst !== false" :loading="action.loading" :tooltip="action.tooltip" :type="action.type" @click="action.callback(currentPath)">{{action.label}}</MbButton>
       </div>
@@ -148,8 +148,9 @@ export default {
     },
   },
   created() {
-    this.sortBy = this.initialSortBy;
-    this.reverseOrder = this.initialReverseSortOrder;
+    this.sortBy = (this.sortable && this.$store.state.user?.sortRules?.by) || this.initialSortBy;
+    this.reverseOrder = (this.sortable && this.$store.state.user?.sortRules?.reverseOrder) || this.initialReverseSortOrder;
+
     this.currentPath = this.initialPath || this.root;
   },
   data() {
@@ -347,6 +348,24 @@ export default {
     handleFileClick(name, e, isDraft, size, imageUrl) {
       if (e.target.classList.contains('button')) return; // buttons have a ::before that covers them completely, so this is enough
       this.$emit('fileclick', joinPath(isDraft ? this.cleanDraftsDir : this.currentPath, name), size, imageUrl);
+    },
+    handleSortByChange(e) {
+      if (typeof e === 'string') this.sortBy = e;
+      else if (this.sortBy === 'name') this.sortBy = 'edited';
+      else this.sortBy = 'name';
+
+      this.$store.commit('setUserProperty', { key: 'sortRules.by', value: this.sortBy });
+      this.$store.dispatch('saveUser');
+
+      this.sortEntities();
+    },
+    handleSortOrderChange() {
+      this.reverseOrder = !this.reverseOrder;
+
+      this.$store.commit('setUserProperty', { key: 'sortRules.reverseOrder', value: this.reverseOrder });
+      this.$store.dispatch('saveUser');
+
+      this.sortEntities();
     },
     jumpTo(index) {
       if (this.currentPath === this.root) return;
