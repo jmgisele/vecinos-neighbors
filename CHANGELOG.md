@@ -10,7 +10,7 @@ updatedAt: 2025-08-01
 * Project avatars are now higher resolution and stored as webP to mitigate the
   increase in storage, this way the generated avatars are roughly the same size
   as their lower-resolution JPG equivalents
-* Collections now support selecting a default value for new files created in
+* Collections now support selecting a default name for new files created in
   them. This is opt-in and controlled per-collection.
 
 ### Bugfixes
