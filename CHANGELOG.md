@@ -2,6 +2,13 @@
 currentVersion: 1.3.0
 updatedAt: 2025-08-01
 ---
+
+## Version 1.4.0
+
+### New Features
+
+* Avif images are now supported in the Media Library
+
 ## Version 1.3.0
 
 ### New Features
