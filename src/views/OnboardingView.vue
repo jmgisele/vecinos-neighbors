@@ -14,7 +14,7 @@
     </section>
     <section class="steps">
       <header>
-        <MbProgress :class="{ faded: !cloneStep }" :dark="dark" :indetermined="!cloneProgress" :label="cloneLabel" :progress="cloneProgress" />
+        <MbProgress :class="{ faded: !cloneStep }" :dark="dark" :indetermined="!cloneProgress || cloneIndetermined" :label="cloneLabel" :progress="cloneProgress" />
       </header>
       <transition mode="out-in">
         <div v-if="currentSlide === 0" class="slide">

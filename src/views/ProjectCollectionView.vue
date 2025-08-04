@@ -12,7 +12,7 @@
       <MbButton v-if="isPrivilegedUser" :dark="dark" icon="wrench-and-driver" type="primary" @click="$router.push({ name: 'Project.Settings', params: { id: $route.params.id }, query: { tab: 'collections' }})">Configure now</MbButton>
     </div>
     <input v-if="collection.type === 'media'" type="file" ref="replaceFileInput" @change="handleReplaceFileInput" @cancel="handleReplaceFileInputCancel">
-    <EntityCreationModal v-if="collection.type !== 'media'" :dark="dark" :file-content="typeof defaultCollectionContent !== 'string' ? JSON.stringify(defaultCollectionContent, null, 2) : defaultCollectionContent" :file-extension="collection.type" :only="createOnly" :path="{ file: draftsDir && collection.draftByDefault ? currentDraftsPath : currentPath, directory: currentPath }" :title="entityCreationTitle" :visible="showEntityCreation" @close="handleEntityCreationClose" @entity-created="handleEntityCreated" />
+    <EntityCreationModal v-if="collection.type !== 'media'" :dark="dark" :default-name="defaultFilename" :file-content="typeof defaultCollectionContent !== 'string' ? JSON.stringify(defaultCollectionContent, null, 2) : defaultCollectionContent" :file-extension="collection.type" :only="createOnly" :path="{ file: draftsDir && collection.draftByDefault ? currentDraftsPath : currentPath, directory: currentPath }" :title="entityCreationTitle" :visible="showEntityCreation" @close="handleEntityCreationClose" @entity-created="handleEntityCreated" />
     <EntityMoveModal :dark="dark" :old-path="entityBeingModified" pretty-filenames :root="moveRootDir" :visible="showEntityMove" @close="showEntityMove = false; entityBeingModified = null" @entity-moved="handleEntityRenamed" />
     <EntityRenameModal :dark="dark" :old-path="entityBeingModified" :visible="showEntityRename" @close="showEntityRename = false; entityBeingModified = null" @entity-renamed="handleEntityRenamed" />
     <MediaCreationModal v-if="collection.type === 'media'" :allowed-types="allowedFileTypes" :current-path="currentPath" :dark="dark" :max-size="collection.maxSize ? collection.maxSize : null" :permissions="userPermissions" :title="action && action.label !== 'Add' ? action.label : 'Add new…'" :type="mediaCreationModalType" :visible="showEntityCreation" @close="handleEntityCreationClose" @entity-created="refreshFileList" @update-type="mediaCreationModalType = $event" />
@@ -20,9 +20,9 @@
 </template>
 
 <script>
-import pluralize from 'pluralize';
 import matter from 'gray-matter';
 import { set as _set } from 'lodash-es';
+import pluralize from 'pluralize';
 import { v4 as uuidv4 } from 'uuid';
 
 import fs, {
@@ -33,11 +33,11 @@ import { rmrf } from '../fs/workerFS';
 import Store from '../store';
 
 import generateDefaultContentFromSchema from '../assets/js/generateDefaultContentFromSchema';
-import getFieldsByPredicate from '../assets/js/getFieldsByPredicate';
 import getContentLanguages from '../assets/js/getContentLanguages';
+import getFieldsByPredicate from '../assets/js/getFieldsByPredicate';
+import getFilenameAndExtension from '../assets/js/getFilenameAndExtension';
 import prettifyEntityName from '../assets/js/prettifyEntityName';
 import validateContent from '../assets/js/validateContent';
-import getFilenameAndExtension from '../assets/js/getFilenameAndExtension';
 import { imageRegExp } from '../data/regExps';
 
 import isPrivilegedUser from '../mixins/isPrivilegedUser';
@@ -177,6 +177,22 @@ export default {
     currentDraftsPath() {
       if (!this.draftsDir || !this.currentPath) return null;
       return joinPath(this.draftsDir, this.currentPath.replace(this.contentDir, ''));
+    },
+    defaultFilename() {
+      if (!this.collection.defaultFilename) return '';
+
+      const date = new Date();
+
+      switch (this.collection.defaultFilename) {
+        case 'date':
+          return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+        case 'datetime':
+          return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}_${String(date.getHours()).padStart(2, '0')}-${String(date.getMinutes()).padStart(2, '0')}-${String(date.getSeconds()).padStart(2, '0')}`;
+        case 'collection':
+          return `${pluralize.singular(this.collection.name)}-${this.listedFiles + 1}`;
+        default:
+          return '';
+      }
     },
     draftsDir() {
       if (!this.collection.dir || !this.$store.state.currentProject.draftsDir) return null;

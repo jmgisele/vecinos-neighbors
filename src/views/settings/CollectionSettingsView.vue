@@ -27,6 +27,10 @@
                 <span>Allowed Schemas:</span>
                 <MbItemList v-model="collectionDetails.schemas" :dark="dark" :options="availableSchemas" placeholder="Select a Schema…" />
               </div>
+              <div class="input-row">
+                <span>Default file name format:</span>
+                <MbSelect v-model="collectionDetails.defaultFilename" allow-null :dark="dark" :options="[{ label: 'Date', value: 'date' }, { label: 'Date and Time', value: 'datetime' }, { label: 'Collection Name', value: 'collection' }, { label: 'None', value: null }]" placeholder="Select a default filename format…" />
+              </div>
               <MbToggle v-if="currentProject.draftsDir" v-model="collectionDetails.draftByDefault" :dark="dark">Create new content as drafts</MbToggle>
               <MbToggle v-if="currentProject.previewUrl" v-model="collectionDetails.disablePreview" :dark="dark">Disable previews for content in this collection</MbToggle>
               <transition>
@@ -196,6 +200,7 @@ export default {
       collectionBeingModified: null,
       collectionDetails: {
         allowedTypes: null,
+        defaultFilename: null,
         dir: null,
         disableComments: false,
         disablePreview: false,
@@ -209,6 +214,7 @@ export default {
       },
       defaultCollectionContent: {
         allowedTypes: null,
+        defaultFilename: null,
         dir: null,
         disableComments: false,
         disablePreview: false,
@@ -235,6 +241,7 @@ export default {
     cleanCollectionDetails(type) {
       if (type === 'media') {
         this.collectionDetails.allowedTypes = ['pdf', 'zip'];
+        this.defaultFilename = null;
         this.collectionDetails.disableComments = true;
         this.collectionDetails.disablePreview = true;
         this.collectionDetails.draftByDefault = false;
@@ -335,6 +342,7 @@ export default {
     },
     handleSplitClosed() {
       if (!this.showEntityRename) this.collectionBeingModified = null; // split closes when whe rename, but we dont want to reset the collectionBeingModified so we still know which one we’re renaming
+      this.collectionDetails.defaultFilename = null;
       this.collectionDetails.dir = null;
       this.collectionDetails.disableComments = false;
       this.collectionDetails.disablePreview = false;
@@ -355,6 +363,9 @@ export default {
       if (this.collectionBeingModified === path) return;
       this.showSplit = true;
       this.collectionDetails = JSON.parse(await fs.readFile(path, 'utf8'));
+
+      if (!this.collectionDetails.defaultFilename) this.collectionDetails.defaultFilename = null;
+
       this.$nextTick(() => { this.collectionBeingModified = path; }); // wait a tick so the save handler doesn’t fire immediately
       this.splitLoading = false;
     },

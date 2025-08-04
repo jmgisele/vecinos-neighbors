@@ -1,14 +1,14 @@
 import FS from '@isomorphic-git/lightning-fs';
-import http from 'isomorphic-git/http/web/index.cjs';
 import {
   add,
   commit,
   clone as gitClone,
-  listServerRefs,
   pull as gitPull,
   push as gitPush,
+  listServerRefs,
   remove,
 } from 'isomorphic-git';
+import http from 'isomorphic-git/http/web';
 
 import MagicPortal from '../assets/js/FixedMagicPortal';
 import TimeoutError from '../assets/js/TimeoutError';

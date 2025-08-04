@@ -1,5 +1,5 @@
 <template>
-  <MbModal class="entity-creation-modal" :dark="dark" slim :title="title" :visible="visible" @after-open="$refs.nameInput.focus()" @close="$emit('close')">
+  <MbModal class="entity-creation-modal" :dark="dark" slim :title="title" :visible="visible" @after-open="$refs.nameInput.focus(); $refs.nameInput.$refs.input.select()" @close="$emit('close')">
     <MbSegmentedSelector v-if="!only" v-model="entity" :dark="dark" :options="[{ label: 'File', value: 'file' }, { label: 'Folder', value: 'directory' }]" />
     <div class="input-group">
       <MbInput v-model="name" :class="{ 'no-extension': !showExtension }" :dark="dark" :error="nameError" :icon="entity === 'file' ? 'document-add' : 'folder-add'" label="Name" :max-len="currentFileExtension && showExtension ? 255 - currentFileExtension.length + 1 : 255" ref="nameInput" @keyup.ctrl.enter="createEntity" @update:model-value="validateName" />
@@ -46,7 +46,7 @@ export default {
   emits: ['close', 'entity-created'],
   methods: {
     reInitialize() {
-      this.name = '';
+      this.name = (this.entity === 'file' && this.defaultName) || '';
       this.nameError = '';
 
       if (this.only) this.entity = this.only;
@@ -107,6 +107,10 @@ export default {
   },
   props: {
     dark: Boolean,
+    defaultName: {
+      type: String,
+      default: '',
+    },
     fileContent: String,
     fileExtension: [String, Array],
     only: {
@@ -124,6 +128,14 @@ export default {
     visible: Boolean,
   },
   watch: {
+    defaultName(nv) {
+      if (nv && this.entity === 'file') this.name = nv;
+      else this.name = '';
+    },
+    entity(nv) {
+      if (nv !== 'file' && this.name === this.defaultName) this.name = '';
+      else if (!this.name && this.defaultName) this.name = this.defaultName;
+    },
     fileExtension(nv) {
       if (Array.isArray(nv)) [this.currentFileExtension] = nv;
       else if (typeof nv === 'string') this.currentFileExtension = nv;

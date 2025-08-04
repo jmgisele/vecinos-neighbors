@@ -1,7 +1,28 @@
 ---
-currentVersion: 1.2.1
-updatedAt: 2025-05-09
+currentVersion: 1.3.0
+updatedAt: 2025-08-01
 ---
+## Version 1.3.0
+
+### New Features
+
+* Support non-JPG avatars
+* Project avatars are now higher resolution and stored as webP to mitigate the
+  increase in storage, this way the generated avatars are roughly the same size
+  as their lower-resolution JPG equivalents
+* Collections now support selecting a default name for new files created in
+  them. This is opt-in and controlled per-collection.
+
+### Bugfixes
+
+* Fixed an issue where the users directory was missing after importing a
+  pre-configured project
+
+### Other Changes
+
+* Added a new progress step while importing a project to show activity while
+  the files are downloaded from the remote repository
+
 ## Version 1.2.1
 
 ### Bugfixes
@@ -104,6 +125,7 @@ updatedAt: 2025-05-09
 * Umami 2.0 is now supported for collecting basic analytics
 * There is now a button for inserting hard line breaks in rich text editors
   which have them enabled, making the feature more discoverable
+* Mattrbld is now an open source project released under AGPL 3.0! 🥳
 
 ## Version 0.7.1 Beta
 
