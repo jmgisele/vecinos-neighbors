@@ -324,10 +324,16 @@ export default {
       }
     },
     deleteCollection(path) {
+      const sidebarOptionIndex = this.sidebarOptions.findIndex((option) => option.target?.name === 'Project.Collection' && option.target?.params?.path === path.replace(this.projectDir, ''));
+      const sidebarOptionBackup = this.sidebarOptions[sidebarOptionIndex];
+
       if (this.collectionBeingModified === path) this.showSplit = false;
+      if (sidebarOptionBackup) this.sidebarOptions = this.sidebarOptions.toSpliced(this.sidebarOptions.indexOf(sidebarOptionBackup), 1);
+
       this.$store.commit('addToSoftDeleted', path);
       this.$store.commit('addToast', {
         action: () => {
+          this.sidebarOptions = this.sidebarOptions.toSpliced(sidebarOptionIndex, null, sidebarOptionBackup);
           this.$store.commit('removeFromSoftDeleted', path);
         },
         actionLabel: 'Undo',
