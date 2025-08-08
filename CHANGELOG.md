@@ -10,6 +10,11 @@ updatedAt: 2025-08-01
 * Avif images are now supported in the Media Library
 * Newly created Collections will now automatically be added to the project sidebar
 
+### Bugfixes
+
+* The input field for the `preserveCharacters` slugify option now accurately
+  reflects the value of that setting
+
 ## Version 1.3.0
 
 ### New Features
