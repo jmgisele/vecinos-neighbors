@@ -8,7 +8,9 @@ updatedAt: 2025-08-01
 ### New Features
 
 * Avif images are now supported in the Media Library
-* Newly created Collections will now automatically be added to the project sidebar
+* Newly created or duplicated Collections will now automatically be added to the
+  project sidebar
+* Deleted Collections will be automatically removed from the project sidebar
 * Collections which aren’t accessible via the project sidebar will now show a warning
   and a button to open them in the collection settings
 
