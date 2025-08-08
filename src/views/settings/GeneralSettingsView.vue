@@ -238,7 +238,7 @@ export default {
     },
     slugifyOptions_preserveCharacters: {
       get() {
-        return (this.currentProject.slugifyOptions && this.currentProject.slugifyOptions.slugifyOptions_preserveCharacters) || [];
+        return (this.currentProject.slugifyOptions && this.currentProject.slugifyOptions.preserveCharacters) || [];
       },
       set(v) {
         if (v && v.includes(this.slugifyOptions_separator)) {
@@ -258,8 +258,8 @@ export default {
         return '-';
       },
       set(v) {
-        if (this.currentProject.slugifyOptions && this.currentProject.slugifyOptions.slugifyOptions_preserveCharacters && this.currentProject.slugifyOptions.slugifyOptions_preserveCharacters.includes(v)) {
-          this.currentProject.slugifyOptions.slugifyOptions_preserveCharacters.splice(this.currentProject.slugifyOptions.slugifyOptions_preserveCharacters.indexOf(v), 1);
+        if (this.currentProject.slugifyOptions && this.currentProject.slugifyOptions.preserveCharacters && this.currentProject.slugifyOptions.preserveCharacters.includes(v)) {
+          this.currentProject.slugifyOptions.preserveCharacters.splice(this.currentProject.slugifyOptions.preserveCharacters.indexOf(v), 1);
         }
         let newOptions;
         if (!this.currentProject.slugifyOptions) newOptions = { separator: v };
