@@ -9,6 +9,8 @@ updatedAt: 2025-08-01
 
 * Avif images are now supported in the Media Library
 * Newly created Collections will now automatically be added to the project sidebar
+* Collections which aren’t accessible via the project sidebar will now show a warning
+  and a button to open them in the collection settings
 
 ### Bugfixes
 
