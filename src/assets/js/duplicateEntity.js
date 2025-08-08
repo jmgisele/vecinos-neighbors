@@ -16,7 +16,7 @@ export default async function duplicateEntity(path, fileListRef, openAction = ()
     existingFiles = await fs.readdir(directory);
   } catch (err) {
     store.commit('addToast', { message: `Something went wrong while reading the existing files: ${err.message}`, type: 'error' });
-    return;
+    return null;
   }
 
   while (existingFiles.indexOf(nameCandidate) > -1) {
@@ -39,8 +39,10 @@ export default async function duplicateEntity(path, fileListRef, openAction = ()
       message: `The ${fileKind} was duplicated as “${nameCandidate}”. Would you like to open it?`,
       type: 'positive',
     });
+    return newPath;
   } catch (err) {
     store.commit('addToast', { message: `Something went wrong while duplicating the ${fileKind}: ${err.message}`, type: 'error' });
     console.error(err);
+    return null;
   }
 }
