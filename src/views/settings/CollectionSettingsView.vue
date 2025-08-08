@@ -148,6 +148,15 @@ export default {
     roles() {
       return [{ label: 'Everybody', value: 'everybody' }, ...availableRoles, ...this.currentProject.customRoles];
     },
+    sidebarOptions: {
+      get() {
+        return this.currentProject.sidebar;
+      },
+      set(v) {
+        this.$store.commit('setCurrentProjectProperty', { key: 'sidebar', value: v });
+        this.$store.dispatch('saveCurrentProject');
+      },
+    },
   },
   async created() {
     const dirExists = await exists(this.collectionDir);
@@ -306,9 +315,38 @@ export default {
     duplicateCollection(path) {
       duplicateEntity(path, this.$refs.fileList, this.openCollectionSettings, 'Collection');
     },
+    findSidebarOptionByLabel(label) {
+      return this.sidebarOptions.find((option) => option.label === label);
+    },
     handleCollectionCreated(name) {
+      const collectionPath = `${this.collectionDir}/${name}`;
+      const nameWithoutExtension = name.slice(0, name.lastIndexOf('.'));
+      let counter = 0;
+      let nameCandidate = nameWithoutExtension;
+      let settingsIndex = this.sidebarOptions.findIndex((option) => option.target?.name === 'Project.Settings' && option.protected); // we can’t just look for label, because that might be changed
+
+      while (this.findSidebarOptionByLabel(nameCandidate)) {
+        counter += 1;
+        nameCandidate = `${nameWithoutExtension}-${counter}`;
+      }
+
+      if (settingsIndex === -1) settingsIndex = this.sidebarOptions.length; // could happen in legacy projects so we just append to the end
+
+      this.sidebarOptions = this.sidebarOptions.toSpliced(
+        settingsIndex,
+        null,
+        {
+          icon: null,
+          label: nameCandidate,
+          target: {
+            name: 'Project.Collection',
+            params: { path: collectionPath.replace(this.projectDir, '') }, // collectionPath is the full path, but sidebar targets use only the part after projectDir
+          },
+        },
+      );
+
       this.$refs.fileList.refresh();
-      this.$store.commit('addLocallyChangedFile', `${this.collectionDir}/${name}`);
+      this.$store.commit('addLocallyChangedFile', collectionPath);
       this.$store.dispatch('saveAppData');
       this.openCollectionSettings(`${this.collectionDir}/${name}`);
     },
