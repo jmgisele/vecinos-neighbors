@@ -5,7 +5,7 @@
       <MbFileList v-if="initialised" :action="createCollectionAction" :active-file="collectionBeingModified" :dark="dark" :empty-state="emptyStateMessage" :file-actions="collectionActions" file-list-label="Collections" pretty-filenames ref="fileList" :root="collectionDir" @fileclick="$event === collectionBeingModified ? showSplit = false : openCollectionSettings($event)" @list-change="listedFiles = $event.files" />
       <MbButton v-show="listedFiles === 0" :dark="dark" icon="plus" type="positive" @click="showEntityCreation = true">Create one</MbButton>
     </section>
-    <template #right>
+    <template #right="{ isModal }">
       <transition mode="out-in">
         <div v-if="!splitLoading" class="edit-collection" :class="{ dark }" :key="collectionBeingModifiedName">
           <header>
@@ -69,6 +69,13 @@
             <h3>Permissions</h3>
             <MbPermissionsList v-model="collectionDetails.permissions" :dark="dark" :permissions="permissions" :roles="roles" />
           </section>
+          <MbHighlightBox v-if="!collectionBeingModifiedInSidebar" :class="{ 'in-modal': isModal }" color="warning" :dark="dark" label="Inaccessible Collection">
+            <p>
+              This Collection is not shown in the <a href="https://mattrbld.com/docs/sidebar/" target="_blank" rel="noopener noreferrer">project sidebar</a>.
+              It will not be accessible to users who cannot access the project settings.
+            </p>
+            <MbButton :dark="dark" @click="openCollection">Open Collection</MbButton>
+          </MbHighlightBox>
         </div>
         <MbLoader :class="{ dark }" v-else />
       </transition>
@@ -107,6 +114,10 @@ export default {
     collectionBeingModifiedName() {
       if (!this.collectionBeingModified) return '';
       return prettifyEntityName(this.collectionBeingModified.split('/').slice(-1)[0]);
+    },
+    collectionBeingModifiedInSidebar() {
+      if (!this.collectionBeingModified) return false;
+      return this.sidebarOptions.find((option) => option.target?.name === 'Project.Collection' && option.target?.params?.path === this.collectionBeingModified.replace(this.projectDir, ''));
     },
     currentURLTemplate() {
       if (this.currentProject.languages.length === 0) {
@@ -397,6 +408,11 @@ export default {
       else if (!this.collectionDetails.urlTemplate || typeof this.collectionDetails.urlTemplate !== 'object') this.collectionDetails.urlTemplate = { [lang]: newVal };
       else this.collectionDetails.urlTemplate[lang] = newVal;
     },
+    openCollection() {
+      if (!this.collectionBeingModified) return;
+
+      this.$router.push({ name: 'Project.Collection', params: { path: this.collectionBeingModified.replace(this.projectDir, '') } });
+    },
     async openCollectionSettings(path) {
       if (this.collectionBeingModified === path) return;
       this.showSplit = true;
@@ -582,6 +598,26 @@ export default {
 
       .permissions-list {
         margin-top: 1.5rem;
+      }
+    }
+
+    .highlight-box {
+      max-width: 40rem;
+      margin-left: auto;
+      margin-right: auto;
+      margin-top: rem(96);
+
+      @media #{$mobile} {
+        margin-top: rem(64);
+      }
+
+      &.dark:not(.in-modal) {
+        background-color: var(--bg-secondary-dark);
+      }
+
+      .button {
+        display: flex;
+        margin-left: auto;
       }
     }
   }
