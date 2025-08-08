@@ -258,6 +258,33 @@ export default {
     };
   },
   methods: {
+    addCollectionToSidebar(path) {
+      const name = path.split('/').at(-1);
+      const prettyEntityName = prettifyEntityName(name);
+      let counter = 0;
+      let nameCandidate = prettyEntityName;
+      let settingsIndex = this.sidebarOptions.findIndex((option) => option.target?.name === 'Project.Settings' && option.protected); // we can’t just look for label, because that might be changed
+
+      while (this.findSidebarOptionByLabel(nameCandidate)) {
+        counter += 1;
+        nameCandidate = `${prettyEntityName} ${counter}`;
+      }
+
+      if (settingsIndex === -1) settingsIndex = this.sidebarOptions.length; // could happen in legacy projects so we just append to the end
+
+      this.sidebarOptions = this.sidebarOptions.toSpliced(
+        settingsIndex,
+        null,
+        {
+          icon: null,
+          label: nameCandidate,
+          target: {
+            name: 'Project.Collection',
+            params: { path: path.replace(this.projectDir, '') }, // path is the full path, but sidebar targets use only the part after projectDir
+          },
+        },
+      );
+    },
     cleanCollectionDetails(type) {
       if (type === 'media') {
         this.collectionDetails.allowedTypes = ['pdf', 'zip'];
@@ -323,38 +350,16 @@ export default {
         type: 'warning',
       });
     },
-    duplicateCollection(path) {
-      duplicateEntity(path, this.$refs.fileList, this.openCollectionSettings, 'Collection');
+    async duplicateCollection(path) {
+      const newPath = await duplicateEntity(path, this.$refs.fileList, this.openCollectionSettings, 'Collection');
+      if (newPath) this.addCollectionToSidebar(newPath);
     },
     findSidebarOptionByLabel(label) {
       return this.sidebarOptions.find((option) => option.label === label);
     },
     handleCollectionCreated(name) {
       const collectionPath = `${this.collectionDir}/${name}`;
-      const prettyEntityName = prettifyEntityName(name);
-      let counter = 0;
-      let nameCandidate = prettyEntityName;
-      let settingsIndex = this.sidebarOptions.findIndex((option) => option.target?.name === 'Project.Settings' && option.protected); // we can’t just look for label, because that might be changed
-
-      while (this.findSidebarOptionByLabel(nameCandidate)) {
-        counter += 1;
-        nameCandidate = `${prettyEntityName} ${counter}`;
-      }
-
-      if (settingsIndex === -1) settingsIndex = this.sidebarOptions.length; // could happen in legacy projects so we just append to the end
-
-      this.sidebarOptions = this.sidebarOptions.toSpliced(
-        settingsIndex,
-        null,
-        {
-          icon: null,
-          label: nameCandidate,
-          target: {
-            name: 'Project.Collection',
-            params: { path: collectionPath.replace(this.projectDir, '') }, // collectionPath is the full path, but sidebar targets use only the part after projectDir
-          },
-        },
-      );
+      this.addCollectionToSidebar(collectionPath);
 
       this.$refs.fileList.refresh();
       this.$store.commit('addLocallyChangedFile', collectionPath);
