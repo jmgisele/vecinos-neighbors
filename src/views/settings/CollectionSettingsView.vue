@@ -331,14 +331,14 @@ export default {
     },
     handleCollectionCreated(name) {
       const collectionPath = `${this.collectionDir}/${name}`;
-      const nameWithoutExtension = name.slice(0, name.lastIndexOf('.'));
+      const prettyEntityName = prettifyEntityName(name);
       let counter = 0;
-      let nameCandidate = nameWithoutExtension;
+      let nameCandidate = prettyEntityName;
       let settingsIndex = this.sidebarOptions.findIndex((option) => option.target?.name === 'Project.Settings' && option.protected); // we can’t just look for label, because that might be changed
 
       while (this.findSidebarOptionByLabel(nameCandidate)) {
         counter += 1;
-        nameCandidate = `${nameWithoutExtension}-${counter}`;
+        nameCandidate = `${prettyEntityName} ${counter}`;
       }
 
       if (settingsIndex === -1) settingsIndex = this.sidebarOptions.length; // could happen in legacy projects so we just append to the end
