@@ -8,6 +8,7 @@ updatedAt: 2025-08-01
 ### New Features
 
 * Avif images are now supported in the Media Library
+* Newly created Collections will now automatically be added to the project sidebar
 
 ## Version 1.3.0
 
