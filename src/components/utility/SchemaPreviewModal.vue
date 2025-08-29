@@ -29,6 +29,7 @@ import assembleUrlFromTemplate from '../../assets/js/assembleUrlFromTemplate';
 import generateDefaultContentFromSchema from '../../assets/js/generateDefaultContentFromSchema';
 import getContentLanguages from '../../assets/js/getContentLanguages';
 import getFieldsByPredicate from '../../assets/js/getFieldsByPredicate';
+import { slugifyDefaults } from '../../store';
 
 export default {
   computed: {
@@ -71,7 +72,7 @@ export default {
     findAndSetTemplateIds(schema) {
       if (!this.cachedTemplateIdFields) this.cachedTemplateIdFields = getFieldsByPredicate(schema, (field) => field.type === 'id' && field.options && field.options.type === 'template');
       this.cachedTemplateIdFields.forEach(({ field, contentpath }) => {
-        _set(this.fakeModel, contentpath, assembleUrlFromTemplate((field.options && field.options.idTemplate) || '', this.fakeModel, null, true, this.$store.state.currentProject.slugifyOptions || { lowercase: true, decamelize: true, preserveLeadingUnderscore: true }));
+        _set(this.fakeModel, contentpath, assembleUrlFromTemplate((field.options && field.options.idTemplate) || '', this.fakeModel, null, true, this.$store.state.currentProject.slugifyOptions || slugifyDefaults));
       });
     },
   },

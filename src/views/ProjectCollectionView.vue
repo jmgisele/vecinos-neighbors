@@ -30,7 +30,7 @@ import fs, {
 } from '../fs';
 import { rmrf } from '../fs/workerFS';
 
-import Store from '../store';
+import Store, { slugifyDefaults } from '../store';
 
 import assembleUrlFromTemplate from '../assets/js/assembleUrlFromTemplate';
 import generateDefaultContentFromSchema from '../assets/js/generateDefaultContentFromSchema';
@@ -382,10 +382,10 @@ export default {
     },
     async copyUrl(path) {
       const fields = generateDefaultFilePathFields(path, this.projectDir, this.contentDir, this.draftsDir);
-      const url = assembleUrlFromTemplate(this.collection.urlTemplate, fields, undefined, true, this.$store.state.currentProject.slugifyOptions || { lowercase: true, decamelize: true, preserveLeadingUnderscore: true });
+      const url = assembleUrlFromTemplate(this.collection.urlTemplate, fields, undefined, true, this.$store.state.currentProject.slugifyOptions || slugifyDefaults);
 
       try {
-        await navigator.clipboard.writeText(url.replace(/\\\./g, '.')); // we’re replacing escaped dots here since that’s the only way to separate a dot from a property-path
+        await navigator.clipboard.writeText(url);
         this.$store.commit('addToast', { message: 'Copied item URL to clipboard!', timeout: 1500, type: 'positive' });
       } catch (err) {
         this.$store.commit('addToast', { message: `Unable to copy item URL: ${err}`, type: 'error' });

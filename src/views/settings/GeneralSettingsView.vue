@@ -99,6 +99,7 @@ import fs, { PlainFS } from '../../fs';
 import loadProjectAvatar from '../../assets/js/loadProjectAvatar';
 import AvatarUploader from '../../components/utility/AvatarUploader.vue';
 import TabContent from '../../components/utility/TabContent.vue';
+import { slugifyDefaults } from '../../store';
 
 export default {
   components: {
@@ -190,7 +191,7 @@ export default {
     },
     slugifyOptions_lowercase: {
       get() {
-        return this.currentProject.slugifyOptions && this.currentProject.slugifyOptions.lowercase;
+        return this.currentProject.slugifyOptions?.lowercase ?? slugifyDefaults.lowercase;
       },
       set(v) {
         let newOptions;
@@ -202,7 +203,7 @@ export default {
     },
     slugifyOptions_decamelize: {
       get() {
-        return this.currentProject.slugifyOptions && this.currentProject.slugifyOptions.decamelize;
+        return this.currentProject.slugifyOptions?.decamelize ?? slugifyDefaults.decamelize;
       },
       set(v) {
         let newOptions;
@@ -214,7 +215,7 @@ export default {
     },
     slugifyOptions_preserveLeadingUnderscore: {
       get() {
-        return this.currentProject.slugifyOptions && this.currentProject.slugifyOptions.preserveLeadingUnderscore;
+        return this.currentProject.slugifyOptions?.preserveLeadingUnderscore ?? slugifyDefaults.preserveLeadingUnderscore;
       },
       set(v) {
         let newOptions;
@@ -226,7 +227,7 @@ export default {
     },
     slugifyOptions_preserveTrailingDash: {
       get() {
-        return this.currentProject.slugifyOptions && this.currentProject.slugifyOptions.preserveTrailingDash;
+        return this.currentProject.slugifyOptions?.preserveTrailingDash ?? slugifyDefaults.preserveTrailingDash;
       },
       set(v) {
         let newOptions;
@@ -238,7 +239,7 @@ export default {
     },
     slugifyOptions_preserveCharacters: {
       get() {
-        return (this.currentProject.slugifyOptions && this.currentProject.slugifyOptions.preserveCharacters) || [];
+        return this.currentProject.slugifyOptions?.preserveCharacters ?? slugifyDefaults.preserveCharacters;
       },
       set(v) {
         if (v && v.includes(this.slugifyOptions_separator)) {
@@ -255,7 +256,7 @@ export default {
     slugifyOptions_separator: {
       get() {
         if (this.currentProject.slugifyOptions && typeof this.currentProject.slugifyOptions.separator !== 'undefined') return this.currentProject.slugifyOptions.separator;
-        return '-';
+        return slugifyDefaults.separator;
       },
       set(v) {
         if (this.currentProject.slugifyOptions && this.currentProject.slugifyOptions.preserveCharacters && this.currentProject.slugifyOptions.preserveCharacters.includes(v)) {

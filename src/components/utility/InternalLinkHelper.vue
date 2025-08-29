@@ -40,6 +40,7 @@ import fs, { joinPath, pathBasename, pathDirname } from '../../fs';
 import assembleUrlFromTemplate from '../../assets/js/assembleUrlFromTemplate';
 import generateDefaultFilePathFields from '../../assets/js/generateDefaultFilePathFields';
 import prettifyEntityName from '../../assets/js/prettifyEntityName';
+import { slugifyDefaults } from '../../store';
 
 export default {
   computed: {
@@ -99,7 +100,7 @@ export default {
 
           const urlTemplate = this.urlTemplate || this.currentTemplate; // if we were passed a urlTemplate, use that, otherwise fall back to the collection’s urlTemplate
 
-          newUrl = assembleUrlFromTemplate(urlTemplate, fields, this.lang, this.slugify, this.$store.state.currentProject.slugifyOptions || { lowercase: true, decamelize: true, preserveLeadingUnderscore: true });
+          newUrl = assembleUrlFromTemplate(urlTemplate, fields, this.lang, this.slugify, this.$store.state.currentProject.slugifyOptions || slugifyDefaults);
         } catch (err) {
           if (err.name === 'SyntaxError') {
             this.$store.commit('addToast', { message: 'The file you selected is not a valid JSON file', type: 'error' });
@@ -109,7 +110,7 @@ export default {
           return;
         }
       }
-      this.$emit('update:modelValue', newUrl.replace(/\\\./g, '.'), this.currentCollection); // we’re replacing escaped dots here since that’s the only way to separate a dot from a property-path
+      this.$emit('update:modelValue', newUrl, this.currentCollection);
       this.view = 'url';
     },
     async loadCollections() {

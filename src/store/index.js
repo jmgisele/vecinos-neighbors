@@ -1,7 +1,7 @@
 /* eslint no-param-reassign: ["error", { "props": true, "ignorePropertyModificationsFor": ["state"] }] */
 
-import { createStore } from 'vuex';
 import { set as _set } from 'lodash-es';
+import { createStore } from 'vuex';
 
 import fs from '../fs';
 
@@ -10,6 +10,16 @@ import observers from './observers';
 const persistentAppProperties = ['activeUser', 'corsProxy', 'initialised', 'locallyChangedFiles', 'prompted'];
 const persistentProjectProperties = ['autoquotes', 'brandColors', 'corsProxy', 'name', 'sidebar', 'slugifyOptions', 'customRoles', 'draftsDir', 'previewUrl', 'languages', 'media'];
 const persistentUserProperties = ['email', 'id', 'name', 'projectAccessDates', 'projects', 'role', 'sortRules', 'theme', 'uiScale'];
+
+export const slugifyDefaults = {
+  customReplacements: [], // slugify default is  ['&', ' and '], ['🦄', ' unicorn '], ['♥', ' love '] but we have no way to change the option currently, so we shouldn’t use that
+  lowercase: true,
+  decamelize: true,
+  preserveLeadingUnderscore: true,
+  preserveTrailingDash: false,
+  preserveCharacters: [],
+  separator: '-',
+};
 
 export const projectDefaults = {
   autoquotes: null,
@@ -74,7 +84,7 @@ export const projectDefaults = {
       protected: true,
     },
   ],
-  slugifyOptions: null,
+  slugifyOptions: { ...slugifyDefaults },
   users: [],
 };
 

@@ -95,31 +95,34 @@
 </template>
 
 <script>
-import {
-  cloneDeep as _cloneDeep, debounce, get as _get, set as _set, isEqual,
-} from 'lodash-es';
-import { status } from 'isomorphic-git';
-import pluralize from 'pluralize';
 import slugify from '@sindresorhus/slugify';
-import matter from 'gray-matter';
 import { formatISO } from 'date-fns';
+import matter from 'gray-matter';
+import { status } from 'isomorphic-git';
+import {
+  cloneDeep as _cloneDeep,
+  get as _get, set as _set,
+  debounce,
+  isEqual,
+} from 'lodash-es';
+import pluralize from 'pluralize';
 
-import fs, { exists, PlainFS, joinPath, mkdirp, pathBasename, pathDirname, rmrf } from '../fs'; // eslint-disable-line object-curly-newline
+import fs, { exists, joinPath, mkdirp, pathBasename, pathDirname, PlainFS, rmrf } from '../fs'; // eslint-disable-line object-curly-newline
 
 import assembleUrlFromTemplate from '../assets/js/assembleUrlFromTemplate';
 import formatTimestamp from '../assets/js/formatTimestamp';
 import generateDefaultContentFromSchema from '../assets/js/generateDefaultContentFromSchema';
 import generateDefaultFilePathFields from '../assets/js/generateDefaultFilePathFields';
-import getFieldsByPredicate from '../assets/js/getFieldsByPredicate';
 import getContentLanguages from '../assets/js/getContentLanguages';
+import getFieldsByPredicate from '../assets/js/getFieldsByPredicate';
 import isMac from '../assets/js/isMac';
 import loadProject from '../assets/js/loadProject';
 import prettifyEntityName from '../assets/js/prettifyEntityName';
 import validateContent from '../assets/js/validateContent';
-import Store from '../store';
+import Store, { slugifyDefaults } from '../store';
 
-import TabContent from '../components/utility/TabContent.vue';
 import PreviewCommentThread from '../components/utility/PreviewCommentThread.vue';
+import TabContent from '../components/utility/TabContent.vue';
 
 function hasAccess(role, permissions) {
   if (!role || !permissions) return false;
@@ -675,7 +678,7 @@ export default {
     findAndSetTemplateIds(schema) {
       if (!this.cachedTemplateIdFields) this.cachedTemplateIdFields = getFieldsByPredicate(schema, (field) => field.type === 'id' && field.options && field.options.type === 'template');
       this.cachedTemplateIdFields.forEach(({ field, contentpath }) => {
-        const newId = assembleUrlFromTemplate((field.options && field.options.idTemplate) || '', this.content, null, true, this.$store.state.currentProject.slugifyOptions || { lowercase: true, decamelize: true, preserveLeadingUnderscore: true });
+        const newId = assembleUrlFromTemplate((field.options && field.options.idTemplate) || '', this.content, null, true, this.$store.state.currentProject.slugifyOptions || slugifyDefaults);
         const oldId = _get(this.content, contentpath);
         if (newId !== oldId) {
           _set(this.content, contentpath, newId);
@@ -945,9 +948,9 @@ export default {
         url = {};
         this.contentLanguages.forEach((lang) => {
           const template = this.collection.urlTemplate[lang] || Object.values(this.collection.urlTemplate).find((existingTemplate) => existingTemplate);
-          url[lang] = template ? assembleUrlFromTemplate(template, urlFields, lang, true, this.$store.state.currentProject.slugifyOptions || { lowercase: true, decamelize: true, preserveLeadingUnderscore: true }).replace(/\\\./g, '.') : defaultUrl; // we’re replacing escaped dots here since that’s the only way to separate a dot from a property-path
+          url[lang] = template ? assembleUrlFromTemplate(template, urlFields, lang, true, this.$store.state.currentProject.slugifyOptions || slugifyDefaults) : defaultUrl;
         });
-      } else url = this.collection.urlTemplate ? assembleUrlFromTemplate(this.collection.urlTemplate, urlFields, null, true, this.$store.state.currentProject.slugifyOptions || { lowercase: true, decamelize: true, preserveLeadingUnderscore: true }).replace(/\\\./g, '.') : defaultUrl; // we’re replacing escaped dots here since that’s the only way to separate a dot from a property-path
+      } else url = this.collection.urlTemplate ? assembleUrlFromTemplate(this.collection.urlTemplate, urlFields, null, true, this.$store.state.currentProject.slugifyOptions || slugifyDefaults) : defaultUrl;
       const data = {
         collection: this.$route.params.collection,
         url,
