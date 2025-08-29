@@ -895,7 +895,7 @@ export default {
       if (typeof data === 'string') return { src: data }; // like when Advanced Media Library is off
       return Object.entries(data).reduce((acc, [key, value]) => {
         if (['alt', 'src', 'title', 'width', 'height', 'loading', 'decoding'].includes(key)) {
-          if (key === 'src') acc[key] = this.mediaSettings.outputPath ? joinPath(this.mediaSettings.outputPath, value.replace(this.mediaSettings.dir, '')) : value;
+          if (key === 'src') acc[key] = this.mediaSettings.outputPath && !value.startsWith(this.mediaSettings.outputPath) ? joinPath(this.mediaSettings.outputPath, value.replace(this.mediaSettings.dir, '')) : value;
           else if (value && typeof value === 'object' && !Array.isArray(value)) {
             if (this.lang) acc[key] = value[this.lang];
             else acc[key] = Object.values(value).find((v) => v);
