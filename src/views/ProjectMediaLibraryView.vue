@@ -73,9 +73,9 @@ import fs, { exists, joinPath, mkdirp, pathBasename, pathDirname } from '../fs';
 import { rmrf } from '../fs/workerFS';
 
 import generateDefaultContentFromSchema from '../assets/js/generateDefaultContentFromSchema';
+import getFilenameAndExtension from '../assets/js/getFilenameAndExtension';
 import humanReadableSize from '../assets/js/humanReadableSize';
 import prettifyEntityName from '../assets/js/prettifyEntityName';
-import getFilenameAndExtension from '../assets/js/getFilenameAndExtension';
 import { imageRegExp } from '../data/regExps';
 
 import isPrivilegedUser from '../mixins/isPrivilegedUser';
@@ -122,7 +122,9 @@ export default {
       return this.$store.state.currentProject;
     },
     fileActions() {
-      const actions = [];
+      const actions = [{
+        action: this.copyEntityUrl, label: 'Copy URL', icon: 'copy-url', filesOnly: true,
+      }];
 
       if (this.userPermissions.has('everything')) {
         actions.push(
@@ -142,10 +144,6 @@ export default {
             label: 'Move',
             icon: 'arrow-right',
           },
-        );
-
-        // so delete is always last
-        actions.push(
           {
             action: this.deleteEntity,
             label: 'Delete',
@@ -220,10 +218,16 @@ export default {
       return actions;
     },
     mediaDir() {
-      return joinPath('/projects', this.currentProject.id, this.currentProject.media.dir);
+      return joinPath(this.projectsDir, this.currentProject.media.dir);
     },
     mediaMetaDir() {
-      return joinPath('/projects', this.currentProject.id, '.mattrbld', 'media');
+      return joinPath(this.projectsDir, '.mattrbld', 'media');
+    },
+    outputPath() {
+      return this.currentProject.media.outputPath;
+    },
+    projectsDir() {
+      return joinPath('/projects', this.$store.state.currentProject.id);
     },
     userPermissions() {
       if (!this.currentProject.media.permissions || !this.$store.getters.userInCurrentProject) return new Set();
@@ -269,6 +273,16 @@ export default {
     };
   },
   methods: {
+    async copyEntityUrl(path) {
+      const url = this.outputPath ? joinPath(this.outputPath, path.replace(this.mediaDir, '')) : path.replace(this.projectsDir, '');
+
+      try {
+        await navigator.clipboard.writeText(url);
+        this.$store.commit('addToast', { message: 'Copied item URL to clipboard!', timeout: 1500, type: 'positive' });
+      } catch (err) {
+        this.$store.commit('addToast', { message: `Unable to copy item URL: ${err}`, type: 'error' });
+      }
+    },
     async deleteEntity(path) {
       const isFile = (await fs.stat(path)).isFile();
 
