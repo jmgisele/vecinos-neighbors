@@ -13,11 +13,18 @@ updatedAt: 2025-08-01
 * Deleted Collections will be automatically removed from the project sidebar
 * Collections which aren’t accessible via the project sidebar will now show a warning
   and a button to open them in the collection settings
+* You can now copy the URL of an item in Media Collections if the Collection is
+  linkable and has a URL template as well as in the Media Library
 
 ### Bugfixes
 
 * The input field for the `preserveCharacters` slugify option now accurately
   reflects the value of that setting
+* The slugify options now accurately display the defaults when no options were
+  set for the project
+* `\.` in URL templates is now consistently unescaped to `.`
+* There will no longer be consecutive slashes in the image src when `outputPath`
+  is set to a path ending in a slash in the Media Library
 
 ## Version 1.3.0
 
