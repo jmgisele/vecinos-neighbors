@@ -15,7 +15,7 @@
         </div>
         <div class="input-row">
           <span class="label">Output path (optional):</span>
-          <MbInput v-model="outputPath" :dark="dark" placeholder="e.g. /uploads" />
+          <MbInput v-model="outputPath" clearable :dark="dark" placeholder="e.g. /uploads" />
         </div>
         <h3>Permissions</h3>
         <MbPermissionsList v-model="permissions" :dark="dark" :permissions="availablePermissions" :roles="roles" />
@@ -31,10 +31,10 @@
 
 <script>
 import { debounce } from 'lodash-es';
-import availableRoles from '../../data/availableRoles';
 import cleanField from '../../assets/js/cleanField';
-import defaultFields from '../../data/defaultFields';
 import getFieldsByPredicate from '../../assets/js/getFieldsByPredicate';
+import availableRoles from '../../data/availableRoles';
+import defaultFields from '../../data/defaultFields';
 
 import SchemaFieldsEditor from '../../components/utility/SchemaFieldsEditor.vue';
 

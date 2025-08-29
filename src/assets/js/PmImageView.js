@@ -99,7 +99,7 @@ export default class PmImageView {
   }
 
   normalisedSrc(src) {
-    if (this.mediaSettings.outputPath && src && src.startsWith(this.mediaSettings.outputPath)) return src.replace(this.mediaSettings.outputPath, this.mediaSettings.dir);
+    if (this.mediaSettings.outputPath && src && src.startsWith(this.mediaSettings.outputPath)) return joinPath(this.mediaSettings.dir, src.replace(this.mediaSettings.outputPath, ''));
     return src;
   }
 

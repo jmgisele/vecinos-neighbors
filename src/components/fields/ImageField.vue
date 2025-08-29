@@ -64,7 +64,6 @@ import fs, { joinPath, pathBasename } from '../../fs';
 import { loadImage } from '../../fs/workerFS';
 
 import validateContent from '../../assets/js/validateContent';
-
 import field from '../../mixins/field';
 import setImageResolutionAndColor from '../../mixins/setImageResolutionAndColor';
 
@@ -105,10 +104,10 @@ export default {
     },
     normalisedSrc() {
       if (this.modelValue && typeof this.modelValue === 'object') {
-        if (this.modelValue.src && this.outputPath && this.modelValue.src.startsWith(this.outputPath)) return this.modelValue.src.replace(this.outputPath, this.mediaSettings.dir);
+        if (this.modelValue.src && this.outputPath && this.modelValue.src.startsWith(this.outputPath)) return joinPath(this.mediaSettings.dir, this.modelValue.src.replace(this.outputPath, ''));
         return this.modelValue.src;
       }
-      if (this.outputPath && this.modelValue && this.modelValue.startsWith(this.outputPath)) return this.modelValue.replace(this.outputPath, this.mediaSettings.dir);
+      if (this.outputPath && this.modelValue && this.modelValue.startsWith(this.outputPath)) return joinPath(this.mediaSettings.dir, this.modelValue.replace(this.outputPath, ''));
       return this.modelValue;
     },
     outputPath() {
@@ -214,8 +213,8 @@ export default {
 
       let prefixedNewVal = newVal;
       if (newVal && this.outputPath) {
-        if (typeof newVal === 'string') prefixedNewVal = newVal.replace(this.mediaSettings.dir, this.outputPath);
-        else if (newVal.src) prefixedNewVal.src = newVal.src.replace(this.mediaSettings.dir, this.outputPath);
+        if (typeof newVal === 'string') prefixedNewVal = joinPath(this.outputPath, newVal.replace(this.mediaSettings.dir, ''));
+        else if (newVal.src) prefixedNewVal.src = joinPath(this.outputPath, newVal.src.replace(this.mediaSettings.dir, ''));
       }
 
       this.$emit('update:modelValue', prefixedNewVal);

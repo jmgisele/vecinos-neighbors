@@ -67,24 +67,23 @@
 </template>
 
 <script>
+import { cloneDeep, debounce, isEqual } from 'lodash-es';
 import {
   baseKeymap, lift, setBlockType, toggleMark, wrapIn,
 } from 'prosemirror-commands';
-import { DOMParser, DOMSerializer } from 'prosemirror-model';
 import { dropCursor } from 'prosemirror-dropcursor';
-import { EditorState, NodeSelection, TextSelection } from 'prosemirror-state';
-import { EditorView } from 'prosemirror-view';
 import { gapCursor } from 'prosemirror-gapcursor';
 import { history, redo, redoDepth, undo, undoDepth } from 'prosemirror-history'; // eslint-disable-line object-curly-newline
 import { inputRules } from 'prosemirror-inputrules';
-import { cloneDeep, isEqual, debounce } from 'lodash-es';
 import { keymap } from 'prosemirror-keymap';
+import { DOMParser, DOMSerializer } from 'prosemirror-model';
 import { liftListItem, sinkListItem, wrapInList } from 'prosemirror-schema-list';
+import { EditorState, NodeSelection, TextSelection } from 'prosemirror-state';
+import { EditorView } from 'prosemirror-view';
 
 import fs, { joinPath } from '../fs';
 
 import cleanField from '../assets/js/cleanField';
-import defaultFields from '../data/defaultFields';
 import formatHTML from '../assets/js/formatHTML';
 import generateInputRules from '../assets/js/generateInputRules';
 import generateKeymap, { insertBreak, insertHr } from '../assets/js/generateKeymap';
@@ -93,10 +92,12 @@ import isMac from '../assets/js/isMac';
 import MarkdownParser from '../assets/js/MarkdownParser';
 import MarkdownSerializer from '../assets/js/MarkdownSerializer';
 import PmImageView from '../assets/js/PmImageView';
+import validateContent from '../assets/js/validateContent';
+
+import defaultFields from '../data/defaultFields';
 
 import InternalLinkHelper from './utility/InternalLinkHelper.vue';
 import MediaSelectModal from './utility/MediaSelectModal.vue';
-import validateContent from '../assets/js/validateContent';
 
 export default {
   beforeUnmount() {
@@ -831,7 +832,7 @@ export default {
     replaceImage() {
       const { src } = this.imagePopover.content;
       let normalisedSrc = null;
-      if (this.mediaSettings.outputPath && src && src.startsWith(this.mediaSettings.outputPath)) normalisedSrc = src.replace(this.mediaSettings.outputPath, this.mediaSettings.dir);
+      if (this.mediaSettings.outputPath && src && src.startsWith(this.mediaSettings.outputPath)) normalisedSrc = joinPath(this.mediaSettings.dir, src.replace(this.mediaSettings.outputPath, ''));
       else normalisedSrc = src;
 
       this.currentImagePath = joinPath(this.projectsDir, normalisedSrc);
@@ -894,7 +895,7 @@ export default {
       if (typeof data === 'string') return { src: data }; // like when Advanced Media Library is off
       return Object.entries(data).reduce((acc, [key, value]) => {
         if (['alt', 'src', 'title', 'width', 'height', 'loading', 'decoding'].includes(key)) {
-          if (key === 'src') acc[key] = this.mediaSettings.outputPath ? value.replace(this.mediaSettings.dir, this.mediaSettings.outputPath) : value;
+          if (key === 'src') acc[key] = this.mediaSettings.outputPath ? joinPath(this.mediaSettings.outputPath, value.replace(this.mediaSettings.dir, '')) : value;
           else if (value && typeof value === 'object' && !Array.isArray(value)) {
             if (this.lang) acc[key] = value[this.lang];
             else acc[key] = Object.values(value).find((v) => v);
