@@ -86,8 +86,8 @@ export default class PmImageView {
       this.dom.dispatchEvent(new CustomEvent('image-load', { detail: { image: raw, path }, bubbles: true, composed: true })); // Using a CustomEvent here so we get bubbling and can listen to it in Edit Content
       return url;
     } catch (err) {
-      if (err.code === 'ENOENT') this.addToasts({ message: `The image for “${path}” could not be found. It may have been moved, renamed, or deleted and should be updated accordingly`, timeout: 10000, type: 'warning' });
-      else this.addToasts({ message: `Something went wrong when fetching the image thumbnail for ${path}: ${err.message}`, type: 'error' });
+      if (err.code === 'ENOENT') this.addToast({ message: `The image for “${path}” could not be found. It may have been moved, renamed, or deleted and should be updated accordingly`, timeout: 10000, type: 'warning' });
+      else this.addToast({ message: `Something went wrong when fetching the image thumbnail for ${path}: ${err.message}`, type: 'error' });
       return null;
     }
   }
