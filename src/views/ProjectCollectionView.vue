@@ -32,7 +32,9 @@ import { rmrf } from '../fs/workerFS';
 
 import Store from '../store';
 
+import assembleUrlFromTemplate from '../assets/js/assembleUrlFromTemplate';
 import generateDefaultContentFromSchema from '../assets/js/generateDefaultContentFromSchema';
+import generateDefaultFilePathFields from '../assets/js/generateDefaultFilePathFields';
 import getContentLanguages from '../assets/js/getContentLanguages';
 import getFieldsByPredicate from '../assets/js/getFieldsByPredicate';
 import getFilenameAndExtension from '../assets/js/getFilenameAndExtension';
@@ -235,7 +237,10 @@ export default {
           });
 
           if (this.draftsDir) actions.push({ action: this.toggleDraft, label: 'Toggle draft', icon: 'document-draft', filesOnly: true }); // eslint-disable-line object-curly-newline
-        } else actions.unshift({ action: this.replaceFile, label: 'Replace', icon: 'replace-alt', filesOnly: true }); // eslint-disable-line object-curly-newline
+        } else {
+          actions.unshift({ action: this.replaceFile, label: 'Replace', icon: 'replace-alt', filesOnly: true }); // eslint-disable-line object-curly-newline
+          if (this.collection.linkable && this.collection.urlTemplate) actions.unshift({ action: this.copyUrl, label: 'Copy URL', icon: 'copy-url', filesOnly: true }); // eslint-disable-line object-curly-newline
+        }
 
         // so delete is always last
         actions.push(
@@ -287,6 +292,8 @@ export default {
       if (this.collection.type !== 'media') {
         if (this.userPermissions.has('createContent')) actions.push({ action: this.duplicateContentItem, label: 'Duplicate', icon: 'duplicate', filesOnly: true }); // eslint-disable-line object-curly-newline
         if (this.draftsDir && this.userPermissions.has('publishDrafts')) actions.push({ action: this.toggleDraft, label: 'Toggle draft', icon: 'document-draft', filesOnly: true }); // eslint-disable-line object-curly-newline
+      } else if (this.collection.linkable && this.collection.urlTemplate) {
+        actions.push({ action: this.copyUrl, label: 'Copy URL', icon: 'copy-url', filesOnly: true }); // eslint-disable-line object-curly-newline
       }
 
       if (this.userPermissions.has('deleteContent')) {
@@ -372,6 +379,17 @@ export default {
       else this.defaultCollectionContent = { ___mb_unedited: true };
 
       this.showEntityCreation = true;
+    },
+    async copyUrl(path) {
+      const fields = generateDefaultFilePathFields(path, this.projectDir, this.contentDir, this.draftsDir);
+      const url = assembleUrlFromTemplate(this.collection.urlTemplate, fields, undefined, true, this.$store.state.currentProject.slugifyOptions || { lowercase: true, decamelize: true, preserveLeadingUnderscore: true });
+
+      try {
+        await navigator.clipboard.writeText(url.replace(/\\\./g, '.')); // we’re replacing escaped dots here since that’s the only way to separate a dot from a property-path
+        this.$store.commit('addToast', { message: 'Copied item URL to clipboard!', timeout: 1500, type: 'positive' });
+      } catch (err) {
+        this.$store.commit('addToast', { message: `Unable to copy item URL: ${err}`, type: 'error' });
+      }
     },
     async deleteEntity(path) {
       const isFile = (await fs.stat(path)).isFile();
