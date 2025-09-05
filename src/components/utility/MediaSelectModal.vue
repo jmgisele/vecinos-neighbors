@@ -17,7 +17,7 @@
       only-images
       :permissions="userPermissions"
       single-file
-      :title="uploadAction && uploadAction.label !== 'Add' ? uploadAction.label : 'Add new…'"
+      :title="uploadAction && uploadAction.label !== 'New' ? uploadAction.label : 'Add new…'"
       :type="mediaCreationType"
       :visible="showUploadModal"
       @close="showUploadModal = false"
@@ -75,7 +75,7 @@ export default {
       if (uploadAllowed) { // there’s no reason to offer folder creation if the user cannot upload
         return {
           callback: () => { this.showUploadModal = true; },
-          label: folderCreationAllowed ? 'Add' : 'Upload',
+          label: folderCreationAllowed ? 'New' : 'Upload',
           icon: folderCreationAllowed ? 'plus' : 'upload',
           iconFirst: true,
           type: 'primary',

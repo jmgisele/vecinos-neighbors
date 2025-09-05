@@ -3,7 +3,7 @@
     <section class="wrapper wide">
       <h1 class="h2">Collections</h1>
       <MbFileList v-if="initialised" :action="createCollectionAction" :active-file="collectionBeingModified" :dark="dark" :empty-state="emptyStateMessage" :file-actions="collectionActions" file-list-label="Collections" pretty-filenames ref="fileList" :root="collectionDir" @fileclick="$event === collectionBeingModified ? showSplit = false : openCollectionSettings($event)" @list-change="listedFiles = $event.files" />
-      <MbButton v-show="listedFiles === 0" :dark="dark" icon="plus" type="positive" @click="showEntityCreation = true">Create one</MbButton>
+      <MbButton v-show="listedFiles === 0" :dark="dark" icon="plus" type="positive" @click="showEntityCreation = true">New Collection</MbButton>
     </section>
     <template #right="{ isModal }">
       <transition mode="out-in">
@@ -80,7 +80,7 @@
         <MbLoader :class="{ dark }" v-else />
       </transition>
     </template>
-    <EntityCreationModal :dark="dark" :file-content="JSON.stringify(defaultCollectionContent, null, 2)" file-extension="json" only="file" :path="collectionDir" title="Add new Collection" :visible="showEntityCreation" @close="showEntityCreation = false" @entity-created="handleCollectionCreated" />
+    <EntityCreationModal :dark="dark" :file-content="JSON.stringify(defaultCollectionContent, null, 2)" file-extension="json" only="file" :path="collectionDir" title="Create new Collection" :visible="showEntityCreation" @close="showEntityCreation = false" @entity-created="handleCollectionCreated" />
     <EntityRenameModal :dark="dark" :old-path="collectionBeingModified" title="Rename Collection" :visible="showEntityRename" @close="showEntityRename = false; collectionBeingModified = null" @entity-renamed="handleEntityRenamed" />
   </TabContent>
 </template>
@@ -212,7 +212,7 @@ export default {
       ],
       createCollectionAction: {
         callback: () => { this.showEntityCreation = true; },
-        label: 'Add Collection',
+        label: 'Create Collection',
         icon: 'plus',
         iconFirst: true,
         type: 'primary',

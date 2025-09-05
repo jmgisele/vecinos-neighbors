@@ -3,7 +3,7 @@
     <h1>{{collection.name}}</h1>
     <template v-if="collection.dir">
       <MbFileList v-if="typeof collection.dir !== 'undefined'" :action="action" :dark="dark" :drafts-dir="draftsDir" :empty-state="emptyState" :file-actions="fileActions" :file-list-label="fileListLabel" :filetypes="collection.type === 'media' ? allowedFileTypes : [collection.type]" :initial-path="lastDir" pretty-filenames ref="fileList" :root="contentDir" :thumbnails="collection.type === 'media'" @fileclick="handleFileClick" @list-change="listedFiles = $event.files" @path-change="currentPath = $event" />
-      <MbButton v-if="(userPermissions.has('everything') || userPermissions.has('createContent') || userPermissions.has('upload')) && listedFiles === 0" :dark="dark" icon="plus" type="positive" @click="createEntity">{{collection.type === 'media' ? 'Upload one' : 'Create one'}}</MbButton>
+      <MbButton v-if="(userPermissions.has('everything') || userPermissions.has('createContent') || userPermissions.has('upload')) && listedFiles === 0" :dark="dark" icon="plus" type="positive" @click="createEntity">New {{ collectionNameSingular }}</MbButton>
     </template>
     <div v-else class="unconfigured-state" :class="{ dark }">
       <h2>This Collection has no content directory</h2>
@@ -15,7 +15,7 @@
     <EntityCreationModal v-if="collection.type !== 'media'" :dark="dark" :default-name="defaultFilename" :file-content="typeof defaultCollectionContent !== 'string' ? JSON.stringify(defaultCollectionContent, null, 2) : defaultCollectionContent" :file-extension="collection.type" :only="createOnly" :path="{ file: draftsDir && collection.draftByDefault ? currentDraftsPath : currentPath, directory: currentPath }" :title="entityCreationTitle" :visible="showEntityCreation" @close="handleEntityCreationClose" @entity-created="handleEntityCreated" />
     <EntityMoveModal :dark="dark" :old-path="entityBeingModified" pretty-filenames :root="moveRootDir" :visible="showEntityMove" @close="showEntityMove = false; entityBeingModified = null" @entity-moved="handleEntityRenamed" />
     <EntityRenameModal :dark="dark" :old-path="entityBeingModified" :visible="showEntityRename" @close="showEntityRename = false; entityBeingModified = null" @entity-renamed="handleEntityRenamed" />
-    <MediaCreationModal v-if="collection.type === 'media'" :allowed-types="allowedFileTypes" :current-path="currentPath" :dark="dark" :max-size="collection.maxSize ? collection.maxSize : null" :permissions="userPermissions" :title="action && action.label !== 'Add' ? action.label : 'Add new…'" :type="mediaCreationModalType" :visible="showEntityCreation" @close="handleEntityCreationClose" @entity-created="refreshFileList" @update-type="mediaCreationModalType = $event" />
+    <MediaCreationModal v-if="collection.type === 'media'" :allowed-types="allowedFileTypes" :current-path="currentPath" :dark="dark" :max-size="collection.maxSize ? collection.maxSize : null" :permissions="userPermissions" :title="action && action.label !== 'New' ? action.label : 'Add new…'" :type="mediaCreationModalType" :visible="showEntityCreation" @close="handleEntityCreationClose" @entity-created="refreshFileList" @update-type="mediaCreationModalType = $event" />
   </div>
 </template>
 
@@ -145,9 +145,9 @@ export default {
     action() {
       if (this.userPermissions.has('everything') || this.userPermissions.has('createFolder') || this.userPermissions.has('createContent') || this.userPermissions.has('upload')) {
         let label;
-        if (this.userPermissions.has('everything') || (this.userPermissions.has('createFolder') && (this.userPermissions.has('createContent') || this.userPermissions.has('upload')))) label = 'Add';
-        else if (this.userPermissions.has('createFolder')) label = 'Add folder';
-        else if (this.userPermissions.has('createContent')) label = `Add ${pluralize.singular(this.collection.name)}`;
+        if (this.userPermissions.has('everything') || (this.userPermissions.has('createFolder') && (this.userPermissions.has('createContent') || this.userPermissions.has('upload')))) label = 'New';
+        else if (this.userPermissions.has('createFolder')) label = 'New folder';
+        else if (this.userPermissions.has('createContent')) label = `New ${this.collectionNameSingular}`;
         else if (this.userPermissions.has('upload')) label = 'Upload files';
 
         return {
@@ -163,6 +163,9 @@ export default {
     allowedFileTypes() {
       if (this.collection.allowedTypes && this.collection.allowedTypes.length) return this.collection.allowedTypes;
       return null;
+    },
+    collectionNameSingular() {
+      return pluralize.singular(this.collection.name);
     },
     commentsDir() {
       return joinPath(this.projectDir, '.mattrbld', 'comments');
@@ -191,7 +194,7 @@ export default {
         case 'datetime':
           return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}_${String(date.getHours()).padStart(2, '0')}-${String(date.getMinutes()).padStart(2, '0')}-${String(date.getSeconds()).padStart(2, '0')}`;
         case 'collection':
-          return `${pluralize.singular(this.collection.name)}-${this.listedFiles + 1}`;
+          return `${this.collectionNameSingular}-${this.listedFiles + 1}`;
         default:
           return '';
       }
@@ -201,9 +204,9 @@ export default {
       return joinPath(this.projectDir, this.$store.state.currentProject.draftsDir, pathBasename(this.contentDir));
     },
     entityCreationTitle() {
-      if (this.userPermissions.has('everything') || (this.userPermissions.has('createContent') && this.userPermissions.has('createFolder'))) return 'Add new…';
-      if (this.userPermissions.has('createContent')) return `Add new ${pluralize.singular(this.collection.name)}…`;
-      return 'Add new folder…';
+      if (this.userPermissions.has('everything') || (this.userPermissions.has('createContent') && this.userPermissions.has('createFolder'))) return 'Create new…';
+      if (this.userPermissions.has('createContent')) return `Create new ${this.collectionNameSingular}…`;
+      return 'Create new folder…';
     },
     fileActions() {
       const actions = [];
@@ -400,7 +403,7 @@ export default {
           this.$store.commit('removeFromSoftDeleted', path);
         },
         actionLabel: 'Undo',
-        message: isFile ? `The ${pluralize.singular(this.collection.name)} “${prettifyEntityName(pathBasename(path))}” was deleted` : `The folder and all ${pluralize.plural(this.collection.name)} within have been deleted`,
+        message: isFile ? `The ${this.collectionNameSingular} “${prettifyEntityName(pathBasename(path))}” was deleted` : `The folder and all ${pluralize.plural(this.collection.name)} within have been deleted`,
         onClose: async (undone) => {
           if (undone) return;
           try {
@@ -438,7 +441,7 @@ export default {
             } else this.$store.commit('removeLocallyChangedFolder', path);
             this.$store.dispatch('saveAppData');
           } catch (err) {
-            this.$store.commit('addToast', { message: `Something went wrong while deleting the ${isFile ? pluralize.singular(this.collection.name) : 'folder'}: ${err.message}`, type: 'error' });
+            this.$store.commit('addToast', { message: `Something went wrong while deleting the ${isFile ? this.collectionNameSingular : 'folder'}: ${err.message}`, type: 'error' });
           } finally {
             this.$store.commit('removeFromSoftDeleted', path);
           }
@@ -703,7 +706,7 @@ export default {
       if (isDraft) { // we’re trying to publish a post, we need to validate it
         const valid = await this.validateContent(path);
         if (!valid) { // if it’s not valid, warn and abort
-          this.$store.commit('addToast', { message: `At least one of the fields in this ${pluralize.singular(this.collection.name)} has errors, please fix them before publishing.`, type: 'negative' });
+          this.$store.commit('addToast', { message: `At least one of the fields in this ${this.collectionNameSingular} has errors, please fix them before publishing.`, type: 'negative' });
           return;
         }
         newPath = path.replace(this.draftsDir, this.contentDir); // we do not need to ensure that newPath exists here, because a draft in a folder that only exists in draftsDir wouldn’t show up here
@@ -714,7 +717,7 @@ export default {
       const existsAlready = await exists(newPath);
 
       if (existsAlready) {
-        this.$store.commit('addToast', { message: `A ${!isDraft ? 'draft' : pluralize.singular(this.collection.name)} with this name exists already, please rename it and try again`, type: 'warning' });
+        this.$store.commit('addToast', { message: `A ${!isDraft ? 'draft' : this.collectionNameSingular} with this name exists already, please rename it and try again`, type: 'warning' });
       } else {
         await fs.rename(path, newPath);
         this.handleEntityRenamed({ oldPath: path, newPath });
@@ -731,7 +734,7 @@ export default {
         }
 
         if (!content || !content.___mb_schema) {
-          this.$store.commit('addToast', { message: `This ${pluralize.singular(this.collection.name)} has no Schema assigned to it`, type: 'warning' });
+          this.$store.commit('addToast', { message: `This ${this.collectionNameSingular} has no Schema assigned to it`, type: 'warning' });
           return false;
         }
 

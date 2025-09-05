@@ -63,7 +63,7 @@
 
     <EntityMoveModal :dark="dark" :old-path="entityBeingModified" pretty-filenames :root="mediaDir" :visible="showEntityMove" @close="showEntityMove = false; if (!showSplit) entityBeingModified = null" @entity-moved="handleEntityMoved" />
     <EntityRenameModal :dark="dark" :old-path="entityBeingModified" :visible="showEntityRename" @close="showEntityRename = false; if (!showSplit) entityBeingModified = null" @entity-renamed="handleEntityRenamed" />
-    <MediaCreationModal :current-path="currentPath" :dark="dark" :permissions="userPermissions" :title="action && action.label !== 'Add' ? action.label : 'Add new…'" :type="type" :visible="showEntityCreation" @close="showEntityCreation = false" @entity-created="refreshFileList" @update-type="type = $event" />
+    <MediaCreationModal :current-path="currentPath" :dark="dark" :permissions="userPermissions" :title="action && action.label !== 'New' ? action.label : 'Add new…'" :type="type" :visible="showEntityCreation" @close="showEntityCreation = false" @entity-created="refreshFileList" @update-type="type = $event" />
   </div>
 </template>
 
@@ -104,14 +104,14 @@ export default {
     action() {
       if (this.userPermissions.has('everything') || this.userPermissions.has('createFolder') || this.userPermissions.has('upload')) {
         let label;
-        if (this.userPermissions.has('everything') || (this.userPermissions.has('createFolder') && this.userPermissions.has('upload'))) label = 'Add';
-        else if (this.userPermissions.has('createFolder')) label = 'Add folder';
+        if (this.userPermissions.has('everything') || (this.userPermissions.has('createFolder') && this.userPermissions.has('upload'))) label = 'New';
+        else if (this.userPermissions.has('createFolder')) label = 'Create folder';
         else if (this.userPermissions.has('upload')) label = 'Upload files';
 
         return {
           callback: () => { this.showEntityCreation = true; },
           label,
-          icon: label.includes('Add') ? 'plus' : 'upload',
+          icon: label.includes('Create') || label.includes('New') ? 'plus' : 'upload',
           iconFirst: true,
           type: 'primary',
         };

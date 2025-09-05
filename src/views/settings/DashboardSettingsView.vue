@@ -22,9 +22,9 @@
 </template>
 
 <script>
-import matter from 'gray-matter';
 import slugify from '@sindresorhus/slugify';
 import { formatISO } from 'date-fns';
+import matter from 'gray-matter';
 import { status as gitStatus } from 'isomorphic-git';
 import fs, { exists, joinPath, PlainFS } from '../../fs';
 
@@ -50,7 +50,7 @@ export default {
       createAction: {
         callback: () => { this.showSplit = true; },
         icon: 'plus',
-        label: 'Add Post',
+        label: 'Create Post',
         type: 'primary',
       },
       fileActions: [

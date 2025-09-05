@@ -3,9 +3,9 @@
     <section class="wrapper wide">
       <h1 class="h2">Schemas</h1>
       <MbFileList v-if="initialised" :action="createSchemaAction" :dark="dark" :empty-state="emptyStateMessage" :file-actions="schemaActions" file-list-label="Schemas" :initial-path="resolvedLastDir" pretty-filenames ref="fileList" :root="schemaDir" @fileclick="openSchema" @list-change="listedFiles = $event.files" @path-change="currentPath = $event" />
-      <MbButton v-show="listedFiles === 0" :dark="dark" icon="plus" type="positive" @click="showEntityCreation = true">Create one</MbButton>
+      <MbButton v-show="listedFiles === 0" :dark="dark" icon="plus" type="positive" @click="showEntityCreation = true">New Schema</MbButton>
     </section>
-    <EntityCreationModal :dark="dark" :file-content="JSON.stringify(defaultSchemaContent, null, 2)" file-extension="json" :path="currentPath" title="Add new…" :visible="showEntityCreation" @close="showEntityCreation = false" @entity-created="handleEntityCreated" />
+    <EntityCreationModal :dark="dark" :file-content="JSON.stringify(defaultSchemaContent, null, 2)" file-extension="json" :path="currentPath" title="Create new…" :visible="showEntityCreation" @close="showEntityCreation = false" @entity-created="handleEntityCreated" />
     <EntityMoveModal v-if="initialised" :dark="dark" :old-path="entityBeingModified" pretty-filenames :root="schemaDir" :visible="showEntityMove" @close="showEntityMove = false; entityBeingModified = null" @entity-moved="handleEntityMoved" />
     <EntityRenameModal :dark="dark" :old-path="entityBeingModified" :visible="showEntityRename" @close="showEntityRename = false; entityBeingModified = null" @entity-renamed="handleEntityRenamed" />
   </TabContent>
@@ -53,7 +53,7 @@ export default {
     return {
       createSchemaAction: {
         callback: () => { this.showEntityCreation = true; },
-        label: 'Add',
+        label: 'New',
         icon: 'plus',
         iconFirst: true,
         type: 'primary',

@@ -6,7 +6,7 @@
     <MbPopover center-x class="picker-popover" :dark="dark" no-content-padding ref="popover" :visible="showPicker" :x="popover.x" :y="popover.y" @close="deactivate">
       <div class="content-wrapper">
         <MbFileList :dark="dark" :empty-state="emptyState" :filetypes="filetypes" :filterable="false" :folders-first="mode === 'file' && foldersFirst" :folders-only="mode === 'folder'" :pretty-filenames="prettyFilenames" ref="fileList" :root="root" :show-hidden="showHidden" :sortable="false" :style="{ width: `${listWidth}rem` }" @fileclick="pickEntity" @path-change="currentPath = $event" />
-        <MbButton v-if="mode === 'folder'" class="create-button" :dark="dark" icon="plus" type="positive" @click="handleFolderCreation">Add Folder</MbButton>
+        <MbButton v-if="mode === 'folder'" class="create-button" :dark="dark" icon="plus" type="positive" @click="handleFolderCreation">Create Folder</MbButton>
         <input v-if="showUpload" :accept="allowedTypes" ref="fileInput" type="file" @change="uploadFile">
       </div>
       <template #footer>
@@ -15,7 +15,7 @@
         <MbButton v-if="mode === 'folder'" :dark="dark" type="primary" @click="pickEntity($refs.fileList.currentPath)">Pick this folder</MbButton>
       </template>
     </MbPopover>
-    <EntityCreationModal :dark="dark" only="directory" :path="currentPath" title="Add folder" :visible="showEntityCreationModal" @after-close="activate" @close="showEntityCreationModal = false" @entity-created="handleEntityCreated" />
+    <EntityCreationModal :dark="dark" only="directory" :path="currentPath" title="Create folder" :visible="showEntityCreationModal" @after-close="activate" @close="showEntityCreationModal = false" @entity-created="handleEntityCreated" />
   </div>
 </template>
 
