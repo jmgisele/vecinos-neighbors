@@ -15,6 +15,8 @@ updatedAt: 2025-08-01
   and a button to open them in the collection settings
 * You can now copy the URL of an item in Media Collections if the Collection is
   linkable and has a URL template as well as in the Media Library
+* There will now be a toast showing the status of the initial sync when the
+  project sidebar is not visible
 
 ### Bugfixes
 
@@ -25,6 +27,14 @@ updatedAt: 2025-08-01
 * `\.` in URL templates is now consistently unescaped to `.`
 * There will no longer be consecutive slashes in the image src when `outputPath`
   is set to a path ending in a slash in the Media Library
+
+### Other Changes
+
+* The labels of the “Add” and empty state action buttons in file lists have been
+  uniformly changed to “New” in order to make their function clearer and unify
+  the wording
+* Additional “Add” labels throughout the UI have been changed to “Create” where
+  appropriate to improve clarity and consistency
 
 ## Version 1.3.0
 
