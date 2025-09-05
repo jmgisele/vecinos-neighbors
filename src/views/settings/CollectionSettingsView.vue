@@ -212,7 +212,7 @@ export default {
       ],
       createCollectionAction: {
         callback: () => { this.showEntityCreation = true; },
-        label: 'Create Collection',
+        label: 'New Collection',
         icon: 'plus',
         iconFirst: true,
         type: 'primary',
