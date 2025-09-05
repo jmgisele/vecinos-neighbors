@@ -99,11 +99,8 @@
 import slugify from '@sindresorhus/slugify';
 import * as Diff from 'diff';
 import {
-  checkout, currentBranch as getCurrentBranch, log as gitLog,
-  readBlob,
-  resetIndex,
-  resolveRef,
-  statusMatrix,
+  checkout, currentBranch as getCurrentBranch, log as gitLog, readBlob,
+  resetIndex, resolveRef, statusMatrix,
 } from 'isomorphic-git';
 
 import fs, { PlainFS, exists, joinPath } from '../fs';
@@ -541,10 +538,18 @@ export default {
     async performInitialPull() {
       this.currentOperation.type = 'initial-pull';
       this.gitLoading = true;
+
+      if (!this.$store.state.application.sidebarVisible) this.$store.commit('addToast', { id: 'initial-pull-start', permanent: true, message: `${GIT_STATUS_MESSAGES.PULLING}…` });
+
       try {
         const configHasChanged = await this.pullAndCheckForConfigChange();
         if (configHasChanged) this.handleConfigChanged();
         else if (this.$refs.subview && this.$refs.subview.refresh) this.$refs.subview.refresh(); // refresh the dashboard
+
+        this.$store.commit('removeToast', 'initial-pull-start'); // removing this regardless of whether the sidebar is open or not
+        if (!this.$store.state.application.sidebarVisible) {
+          this.$store.commit('addToast', { type: 'positive', message: GIT_STATUS_MESSAGES.SYNCED });
+        }
       } catch (err) {
         let hint;
         // NOTE: This isn’t exactly a robust way to detect errors, but it’s all the data I have…
@@ -557,6 +562,16 @@ export default {
           hint,
         };
         this.gitErrorRetryAction = this.performInitialPull;
+
+        this.$store.commit('removeToast', 'initial-pull-start'); // removing this regardless of whether the sidebar is open or not
+        if (!this.$store.state.application.sidebarVisible) {
+          this.$store.commit('addToast', {
+            action: () => { this.showGitErrorModal = true; },
+            actionLabel: 'Show details',
+            message: 'Something went wrong syncing the latest changes',
+            type: 'error',
+          });
+        }
       }
       this.currentOperation.type = null;
       this.currentOperation.step = null;
