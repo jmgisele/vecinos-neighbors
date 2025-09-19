@@ -50,7 +50,7 @@
     </MbModal>
     <MbModal class="generate-schema-modal" :dark="dark" title="Schema from Content" :permanent="generateSchema.loading" :visible="generateSchema.show" @close="generateSchema.show = false" @after-close="resetGenerateSchema">
       <MbFilePicker :dark="dark" :empty-state="{ noFolders: 'This directory is empty', empty: 'This directory is empty', noFiles: 'There are no eligible files in this folder' }" :filetypes="['json', 'md']" mode="file" :model-value="generateSchema.file" placeholder="Pick a content file…" :root="`/projects/${$route.params.id}`" @update:model-value="handleFilePick" />
-      <MbToggle v-model="generateSchema.tabs" :dark="dark">Convert top level object fields into tabs</MbToggle>
+      <MbToggle v-if="generateSchema.file && generateSchema.fieldCandidates?.some((field) => field.type === 'group')" v-model="generateSchema.tabs" :dark="dark">Convert top level field groups into tabs</MbToggle>
       <div class="field-candidates">
         <h2 v-show="generateSchema.fieldCandidates.length > 0" class="h3">Field Candidates</h2>
         <FieldCandidateItem v-for="candidate in generateSchema.fieldCandidates" :children="candidate.children" :dark="dark" :field-key="candidate.key" :key="candidate.key" :localised="candidate.localised" :type="candidate.type" :type-candidates="candidate.typeCandidates" @typechange="candidate.type = $event" />
@@ -66,18 +66,18 @@
 </template>
 
 <script>
-import { cloneDeep } from 'lodash-es';
-import { status } from 'isomorphic-git';
 import slugify from '@sindresorhus/slugify';
 import matter from 'gray-matter';
+import { status } from 'isomorphic-git';
+import { cloneDeep } from 'lodash-es';
 
-import fs, { exists, PlainFS, joinPath, pathBasename, pathDirname } from '../fs'; // eslint-disable-line object-curly-newline
-import { generateFieldCandidates, generateSchemaFromCandidates } from '../assets/js/generateSchemaFromFile';
 import flattenFields from '../assets/js/flattenFields';
+import { generateFieldCandidates, generateSchemaFromCandidates } from '../assets/js/generateSchemaFromFile';
 import hasAccess from '../assets/js/hasAccess';
 import isMac from '../assets/js/isMac';
 import loadProject from '../assets/js/loadProject';
 import prettifyEntityName from '../assets/js/prettifyEntityName';
+import fs, { exists, joinPath, pathBasename, pathDirname, PlainFS } from '../fs'; // eslint-disable-line object-curly-newline
 import Store from '../store';
 
 import isPrivilegedUser from '../mixins/isPrivilegedUser';
