@@ -56,6 +56,7 @@
       <MbToggle v-model="slugifyOptions_decamelize" :dark="dark" :icons="['cross', 'check']">Convert camelCase to separate words</MbToggle>
       <MbToggle v-model="slugifyOptions_preserveLeadingUnderscore" :dark="dark" :icons="['cross', 'check']">Preserve leading underscores</MbToggle>
       <MbToggle v-model="slugifyOptions_preserveTrailingDash" :dark="dark" :icons="['cross', 'check']">Preserve trailing dashes</MbToggle>
+      <MbToggle v-model="slugifyOptions_transliterate" :dark="dark" :icons="['cross', 'check']">Transliterate special characters, e.g. ä -> ae</MbToggle>
       <div class="input-wrapper">
         <span>Separator:</span>
         <MbInput v-model="slugifyOptions_separator" :dark="dark" placeholder="-" />
@@ -265,6 +266,18 @@ export default {
         let newOptions;
         if (!this.currentProject.slugifyOptions) newOptions = { separator: v };
         else newOptions = { ...this.currentProject.slugifyOptions, separator: v };
+        this.$store.commit('setCurrentProjectProperty', { key: 'slugifyOptions', value: newOptions });
+        this.$store.dispatch('saveCurrentProject');
+      },
+    },
+    slugifyOptions_transliterate: {
+      get() {
+        return this.currentProject.slugifyOptions?.transliterate ?? slugifyDefaults.transliterate;
+      },
+      set(v) {
+        let newOptions;
+        if (!this.currentProject.slugifyOptions) newOptions = { transliterate: v };
+        else newOptions = { ...this.currentProject.slugifyOptions, transliterate: v };
         this.$store.commit('setCurrentProjectProperty', { key: 'slugifyOptions', value: newOptions });
         this.$store.dispatch('saveCurrentProject');
       },

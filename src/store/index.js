@@ -19,6 +19,7 @@ export const slugifyDefaults = {
   preserveTrailingDash: false,
   preserveCharacters: [],
   separator: '-',
+  transliterate: true,
 };
 
 export const projectDefaults = {
