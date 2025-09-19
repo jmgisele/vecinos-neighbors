@@ -17,6 +17,7 @@ updatedAt: 2025-08-01
   linkable and has a URL template as well as in the Media Library
 * There will now be a toast showing the status of the initial sync when the
   project sidebar is not visible
+* The new `transliterate` option for slugification is now supported
 
 ### Bugfixes
 
