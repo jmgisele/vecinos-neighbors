@@ -1,7 +1,18 @@
 ---
-currentVersion: 1.4.0
+currentVersion: 1.4.1
 updatedAt: 2025-10-12
 ---
+
+## Version 1.4.1
+
+### Bugfixes
+
+* The new fetching status toast no longer covers the buttons in the Git
+  authentication modal
+
+### Other Changes
+
+* The colours of autofilled text should now be more readable across all browsers
 
 ## Version 1.4.0
 
