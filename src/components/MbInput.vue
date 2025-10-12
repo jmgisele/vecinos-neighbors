@@ -130,8 +130,11 @@ export default {
           color: var(--text-secondary-dark);
         }
 
-        &:-webkit-autofill {
-          box-shadow: inset 0 0 0 rem(100) var(--bg-secondary-dark);
+        &:-webkit-autofill,
+        &:autofill {
+          // trying to get around user-agent-styles
+          background-clip: text;
+          -webkit-text-fill-color: var(--text-dark);
         }
       }
     }
@@ -290,8 +293,11 @@ export default {
         user-select: none;
       }
 
-      &:-webkit-autofill {
-        box-shadow: inset 0 0 0 rem(100) var(--bg-secondary);
+      &:-webkit-autofill,
+      &:autofill {
+        // trying to get around user-agent-styles
+        background-clip: text;
+        -webkit-text-fill-color: var(--text);
       }
     }
 
