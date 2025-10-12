@@ -1,6 +1,6 @@
 ---
-currentVersion: 1.3.0
-updatedAt: 2025-08-01
+currentVersion: 1.4.0
+updatedAt: 2025-10-12
 ---
 
 ## Version 1.4.0
@@ -28,6 +28,8 @@ updatedAt: 2025-08-01
 * `\.` in URL templates is now consistently unescaped to `.`
 * There will no longer be consecutive slashes in the image src when `outputPath`
   is set to a path ending in a slash in the Media Library
+* Localized Sortable List fields now work as intended when content languages are
+  changed
 
 ### Other Changes
 
