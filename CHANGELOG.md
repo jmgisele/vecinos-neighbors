@@ -36,6 +36,9 @@ updatedAt: 2025-08-01
   the wording
 * Additional “Add” labels throughout the UI have been changed to “Create” where
   appropriate to improve clarity and consistency
+* The option to move top level group fields into separate tabs while generating
+  a Schema from existing content now only shows up if there are top level group
+  fields
 
 ## Version 1.3.0
 
