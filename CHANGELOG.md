@@ -1,7 +1,13 @@
 ---
-currentVersion: 1.4.1
-updatedAt: 2025-10-12
+currentVersion: 1.4.2
+updatedAt: 2025-10-13
 ---
+
+## Version 1.4.2
+
+### Bugfixes
+
+* `\.` in URL templates will now be correctly replaced with `.` in all cases
 
 ## Version 1.4.1
 
