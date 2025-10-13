@@ -41,8 +41,7 @@ export default function assembleUrlFromTemplate(template, fields, lang, slugifyO
         return 'undefined';
       }
       if (value && Array.isArray(value)) return slugifyOutput ? value.map((item) => slugify(String(item), slugifyOptions)).join('/') : value.join('/');
-      const output = slugifyOutput ? slugify(String(value), slugifyOptions) : value;
-      return output.replace(/\\\./g, '.'); // we’re replacing escaped dots here since that’s the only way to separate a dot from a property-path
+      return slugifyOutput ? slugify(String(value), slugifyOptions) : value;
     },
-  );
+  ).replace(/\\\./g, '.'); // we’re replacing escaped dots here since that’s the only way to separate a dot from a property-path;
 }
