@@ -55,8 +55,8 @@ export default {
 
     next((vm) => {
       /* eslint-disable no-param-reassign */
-      vm.name = name;
-      vm.email = email;
+      vm.name = name || vm.$store.state.user.name;
+      vm.email = email || vm.$store.state.user.email;
       vm.repo = repo;
       vm.branch = branch;
       vm.proxy = proxy;
