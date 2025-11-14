@@ -119,6 +119,7 @@ import warnAboutMeteredConnection from '../assets/js/warnAboutMeteredConnection'
 import AvatarUploader from '../components/utility/AvatarUploader.vue';
 import LegalModal from '../components/utility/LegalModal.vue';
 
+import generateProjectId from '../assets/js/generateProjectId';
 import gitTools from '../mixins/gitTools';
 
 export default {
@@ -303,8 +304,8 @@ export default {
       this.validate(this.repoURL);
 
       if (this.repoURL && !this.errors.repoURL && this.repoBranch) {
-        // Create a projects folder and one to clone into based on the repoURL (naive implementation, but should work considering we’re forcing the URL to be a HTTP one)
-        this.projectName = this.repoURL.split('/').slice(-1)[0].replace(/\.git$/, '');
+        // Create a projects folder and one to clone into based on the repoURL
+        this.projectName = generateProjectId(this.repoURL);
         try {
           try {
             await fs.mkdir('/projects');

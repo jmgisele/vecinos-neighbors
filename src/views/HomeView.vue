@@ -79,6 +79,7 @@ import warnAboutMeteredConnection from '../assets/js/warnAboutMeteredConnection'
 import gitTools from '../mixins/gitTools';
 import projectExists from '../mixins/projectExists';
 
+import generateProjectId from '../assets/js/generateProjectId';
 import loadProjectAvatar from '../assets/js/loadProjectAvatar';
 import LegalModal from '../components/utility/LegalModal.vue';
 
@@ -279,8 +280,8 @@ export default {
           if (!saved) return; // abort
         }
         // Generate Project Name (naive implementation, but should work considering we’re forcing the URL to be a HTTP one)
-        let projectId = this.repoURL.split('/').slice(-1)[0].replace(/\.git$/, '');
-        const exists = await this.projectExists(projectId, this.repoURL);
+        let projectId = generateProjectId(this.repoURL);
+        const exists = await this.projectExists(projectId, this.repoURL, this.$store.state.user.projects);
         // If a project with that filename exists, but it’s not the same
         if (exists && !exists.remote) projectId = `${projectId}-${Math.random().toString(36).substring(2, 9)}`; // add a pseudo-random suffix to make the id unique, could technically still cause collisions, but that’s so unlikely it’s negligible
         else if (exists && exists.remote && !exists.user) { // the project was already imported by a different user

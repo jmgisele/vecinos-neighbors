@@ -38,7 +38,10 @@ import fs, { exists as entityExists } from '../fs';
 import { rmrf } from '../fs/workerFS';
 import { clone } from '../git';
 
+import Store from '../store';
+
 import generateAvatar from '../assets/js/generateAvatar';
+import generateProjectId from '../assets/js/generateProjectId';
 import isMattrbldProject from '../assets/js/isMattrbldProject';
 import warnAboutMeteredConnection from '../assets/js/warnAboutMeteredConnection';
 
@@ -46,14 +49,20 @@ import gitTools from '../mixins/gitTools';
 import projectExists from '../mixins/projectExists';
 
 export default {
-  beforeRouteEnter(to, from, next) {
+  async beforeRouteEnter(to, from, next) {
     const {
       name, email, repo, branch, proxy,
     } = to.query;
 
     if (!repo || !branch) next({ name: 'Error', state: { message: 'The invite URL is invalid', name: 'InvalidInviteError', stage: 'init' } });
 
-    next((vm) => {
+    const id = generateProjectId(repo);
+    const userId = email ? slugify(email.trim()) : Store.state.user.id;
+    const exists = await projectExists.methods.projectExists(id, repo, Store.state.user.projects);
+
+    if (userId === Store.state.user.id && exists.remote && exists.user) return next({ name: 'Project', params: { id } });
+
+    return next((vm) => {
       /* eslint-disable no-param-reassign */
       vm.name = name || vm.$store.state.user.name;
       vm.email = email || vm.$store.state.user.email;
@@ -144,8 +153,8 @@ export default {
       const corsProxy = this.proxy || this.$store.state.application.corsProxy; // fall back to application proxy if it exists and is not provided in URL
 
       // Generate Project Name (naive implementation, but should work considering we’re forcing the URL to be a HTTP one)
-      let projectId = this.repo.split('/').slice(-1)[0].replace(/\.git$/, '');
-      const exists = await this.projectExists(projectId, this.repo);
+      let projectId = generateProjectId(this.repo);
+      const exists = await this.projectExists(projectId, this.repo, this.$store.state.user.projects);
       // If a project with that filename exists, but it’s not the same
       if (exists && !exists.remote) projectId = `${projectId}-${Math.random().toString(36).substring(2, 9)}`; // add a pseudo-random suffix to make the id unique, could technically still cause collisions, but that’s so unlikely it’s negligible
       else if (exists && exists.remote && !exists.user) { // the project was already imported by a different user
