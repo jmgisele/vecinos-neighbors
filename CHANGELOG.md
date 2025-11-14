@@ -2,6 +2,14 @@
 currentVersion: 1.4.2
 updatedAt: 2025-10-13
 ---
+## Version 1.5.0
+
+### New Features
+
+* When opening an Invite-Link for a project that was imported before by the
+  current user, Mattrbld will now redirect straight to the project Dashboard.
+  This allows for `/admin` URLs on websites which redirect to a generic Mattrbld
+  [Invite-Link](https://mattrbld.com/docs/importing-projects/#import-via-invite-link)
 
 ## Version 1.4.2
 
