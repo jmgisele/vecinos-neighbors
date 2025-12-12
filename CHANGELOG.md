@@ -10,6 +10,16 @@ updatedAt: 2025-10-13
   current user, Mattrbld will now redirect straight to the project Dashboard.
   This allows for `/admin` URLs on websites which redirect to a generic Mattrbld
   [Invite-Link](https://mattrbld.com/docs/importing-projects/#import-via-invite-link)
+  
+### Bugfixes
+
+* Re-trying to import a project in case the onboarding was aborted is now more
+  reliable
+  
+### Other Changes
+
+* During onboarding, the buttons now switch to a loading state if the file
+  system is congested by a large download
 
 ## Version 1.4.2
 
