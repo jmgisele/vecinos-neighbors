@@ -107,7 +107,7 @@
 <script>
 import slugify from '@sindresorhus/slugify';
 
-import fs from '../fs';
+import fs, { exists } from '../fs';
 import { rmrf } from '../fs/workerFS';
 import { clone, listRemoteBranches } from '../git';
 
@@ -306,13 +306,20 @@ export default {
       if (this.repoURL && !this.errors.repoURL && this.repoBranch) {
         // Create a projects folder and one to clone into based on the repoURL
         this.projectName = generateProjectId(this.repoURL);
+        const projectPath = `/projects/${this.projectName}`;
+
         try {
           try {
             await fs.mkdir('/projects');
           } catch (err) {
             if (err.code !== 'EEXIST') throw err;
           }
-          await fs.mkdir(`/projects/${this.projectName}`);
+
+          // projectPath may exist because of an aborted clone/onboarding
+          // so we delete it here – it’s fine, because during onboarding there
+          // won’t be any pre-existing projects that may cause naming collisions
+          if (await exists(projectPath)) await rmrf(projectPath);
+          await fs.mkdir(projectPath);
         } catch (err) {
           this.$store.commit('addToast', { message: `Something went wrong while creating the folder structure: ${err.message}`, type: 'error' });
           return; // abort
