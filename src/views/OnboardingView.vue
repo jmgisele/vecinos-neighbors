@@ -68,7 +68,7 @@
           <MbInput v-model="userName" :autofocus="!isMobile" :dark="dark" :error="errors.userName" icon="user" label="Name" @blur="validate('userName')" />
           <MbInput v-model="userEmail" :dark="dark" :error="errors.userEmail" icon="mail" label="Email Address" type="email" @blur="validate('userEmail')" />
           <footer>
-            <MbButton :dark="dark" :disabled="Boolean(!userName || !userEmail || errors.userName || errors.userEmail)" type="primary" @click="createUser">Create User</MbButton>
+            <MbButton :dark="dark" :disabled="Boolean(!userName || !userEmail || errors.userName || errors.userEmail)" :loading="userCreationLoading" type="primary" @click="createUser">Create User</MbButton>
           </footer>
         </div>
         <div v-else-if="currentSlide === 2" class="slide">
@@ -81,7 +81,7 @@
             <MbButton :dark="dark" icon-first :icon="avatarUploaded ? 'replace-alt' : 'upload'" @click="$refs.uploader.$el.click()">{{ avatarUploaded ? 'Replace Image' : 'Upload Image' }}</MbButton>
           </div>
           <footer>
-            <MbButton :dark="dark" type="primary" @click="completeSetup">Save Avatar</MbButton>
+            <MbButton :dark="dark" :loading="avatarCreationLoading" type="primary" @click="completeSetup">Save Avatar</MbButton>
           </footer>
         </div>
         <div v-else-if="currentSlide === 3" class="slide">
@@ -148,6 +148,7 @@ export default {
   },
   data() {
     return {
+      avatarCreationLoading: false,
       avatarUploaded: false,
       corsProxy: process.env.NODE_ENV === 'production' ? '/corsprox' : 'http://localhost:9999', // Requires a /corsprox route configured on the server, or a CORSProx instance on 9999
       currentSlide: 0,
@@ -222,6 +223,7 @@ export default {
         },
       ],
       userAvatar: '',
+      userCreationLoading: false,
       userEmail: '',
       userId: '',
       userName: '',
@@ -229,6 +231,7 @@ export default {
   },
   methods: {
     async completeSetup() {
+      this.avatarCreationLoading = true;
       try {
         // Save the avatar uri as Uint8Array along with the rest of the user configuration data
         // Based on https://stackoverflow.com/questions/12168909/blob-from-dataurl
@@ -247,15 +250,18 @@ export default {
         };
         this.$store.commit('setAppData', { ...this.$store.state.application, ...config });
         const saved = await this.$store.dispatch('saveAppData');
+        this.avatarCreationLoading = false;
         if (saved) {
           if (this.cloneStep !== 'done') this.currentSlide += 1;
           else this.currentSlide += 2;
         }
       } catch (err) {
+        this.avatarCreationLoading = false;
         this.$store.commit('addToast', { message: `Something went wrong while saving the configuration: ${err.message}`, type: 'error' });
       }
     },
     async createUser() {
+      this.userCreationLoading = true;
       try {
         this.userId = slugify(this.userEmail.trim()); // WARNING: this could lead to collisions if there’s two very similar email addresses (foo-bar@exmaple.com foo.bar@example.com), but this is the first user, so it’s fine
         const user = {
@@ -271,9 +277,11 @@ export default {
         }
         await fs.writeFile(`/users/${this.userId}.json`, JSON.stringify(user, null, 2), 'utf8');
         this.$store.commit('setUserData', { ...this.$store.state.user, ...user });
+        this.userCreationLoading = false;
         this.regenerateAvatar();
         this.currentSlide += 1;
       } catch (err) {
+        this.userCreationLoading = false;
         this.$store.commit('addToast', { message: `Something went wrong while creating the user: ${err.message}`, type: 'error' });
       }
     },
