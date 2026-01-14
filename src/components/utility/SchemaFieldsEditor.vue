@@ -130,7 +130,7 @@
           <MbTagInput v-if="!fieldBeingEdited.visibility.hidden" v-model="fieldBeingEdited.visibility.limitToRoles" :autocomplete-model="projectRoles" autocomplete-property="label" :dark="dark" label="Limit visibility to (optional)" placeholder="Role(s)" value-property="value" />
           <div v-if="flattenedFieldKeys.length > 1 && !fieldBeingEdited.visibility.hidden && fieldBeingEdited.visibility.showByValue" class="conditional-wrapper">
             <span>Show if</span>
-            <MbSelect v-model="fieldBeingEdited.visibility.showByValue.field" :dark="dark" :options="flattenedFieldKeys" placeholder="Field…" />
+            <MbSelect v-model="fieldBeingEdited.visibility.showByValue.field" :dark="dark" :options="flattenedFieldKeys" placeholder="Field…" @update:model-value="handleShowByValueFieldChange" />
             <MbSelect v-model="fieldBeingEdited.visibility.showByValue.value" allow-null class="operator" :dark="dark" :options="showByValueOptions" placeholder="Condition…" @update:model-value="validateField('comparatorRegex')" />
             <MbInput v-if="fieldBeingEdited.visibility.showByValue.value === 'matches'" v-model.lazy="fieldBeingEdited.visibility.showByValue.comparator" :error="fieldErrors.comparatorRegex" :dark="dark" placeholder="Regular expression" @update:model-value="validateField('comparatorRegex')" />
             <MbInput v-else-if="['equals', 'greater', 'smaller'].includes(fieldBeingEdited.visibility.showByValue.value)" v-model.lazy.number="fieldBeingEdited.visibility.showByValue.comparator" :dark="dark" placeholder="Number" type="number" />
@@ -243,7 +243,7 @@ export default {
       const extractedFieldKeys = this.extractFieldKeys(this.fields, null, true).concat([{ label: 'Unset', value: null }]);
 
       if (!this.stripToplevelFieldKey) return extractedFieldKeys;
-      return extractedFieldKeys.map(({ label, value }) => ({ label, value: value?.split('.').slice(1).join('.') }));
+      return extractedFieldKeys.map(({ label, value }) => ({ label, value: typeof value === 'string' ? value.split('.').slice(1).join('.') : value }));
     },
     isMobile() {
       return this.$store.state.application.mobile;
@@ -811,6 +811,12 @@ export default {
 
           window.addEventListener('pointerup', this.transferField, { once: true, capture: true });
         }
+      }
+    },
+    handleShowByValueFieldChange(newValue) {
+      if (newValue === null) {
+        delete this.fieldBeingEdited.visibility.showByValue.comparator;
+        delete this.fieldBeingEdited.visibility.showByValue.value;
       }
     },
     handleSplitClosed() {
