@@ -10,6 +10,8 @@ updatedAt: 2025-10-13
   current user, Mattrbld will now redirect straight to the project Dashboard.
   This allows for `/admin` URLs on websites which redirect to a generic Mattrbld
   [Invite-Link](https://mattrbld.com/docs/importing-projects/#import-via-invite-link)
+* Consecutive collapsible visual container fields are now visually grouped into
+  an accordion
   
 ### Bugfixes
 
@@ -19,6 +21,8 @@ updatedAt: 2025-10-13
   when the other field is within a visual container
 * Unsetting the “Show if” rule of a field now properly clears the underlying
   values
+* The display value for group fields will now be correctly fetched even if the
+  referenced field is within a visual container
 
 ### Other Changes
 
