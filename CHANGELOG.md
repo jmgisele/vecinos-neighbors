@@ -15,7 +15,11 @@ updatedAt: 2025-10-13
 
 * Re-trying to import a project in case the onboarding was aborted is now more
   reliable
-  
+* Showing fields conditionally by the value of another field now works properly
+  when the other field is within a visual container
+* Unsetting the “Show if” rule of a field now properly clears the underlying
+  values
+
 ### Other Changes
 
 * During onboarding, the buttons now switch to a loading state if the file
