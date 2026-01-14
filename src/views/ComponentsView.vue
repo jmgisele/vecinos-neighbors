@@ -479,6 +479,10 @@
         <MbTable :data="props.asyncImages" />
         <h4>Events</h4>
         <MbTable :data="events.asyncImages" />
+        <h3 id="async icon">Async Icon</h3>
+        <p>This component can be used to show a preview of an icon asynchronously. If there is an issue, it will show a red error icon instead.</p>
+        <h4>Props</h4>
+        <MbTable :data="props.asyncIcons" />
         <h3 id="avatar uploader">Avatar Uploader</h3>
         <p>This component crops a user picked image to a square and compresses it to a given resolution and quality.</p>
         <h4>Props</h4>
@@ -1052,6 +1056,11 @@ export default {
       popover2: null,
       popoverFromRight: false,
       props: {
+        asyncIcons: [
+          ['Name', 'Type', 'Default', 'Allowed Values'],
+          ['`src`', 'String', '`undefined`', 'Path to an image'],
+          ['`visible`', 'Boolean', '`false`', 'Whether to consider the icon visible'],
+        ],
         asyncImages: [
           ['Name', 'Type', 'Default', 'Allowed Values'],
           ['`alt`', 'String', '`undefined`', ''],
