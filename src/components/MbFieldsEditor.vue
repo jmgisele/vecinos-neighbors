@@ -255,6 +255,22 @@ export default {
         }
 
         &.collapsible {
+          &:has(+ .container.collapsible) {
+            border-bottom-left-radius: 0;
+            border-bottom-right-radius: 0;
+            margin-bottom: rem(-1); // pulls the next item up by one px
+            clip-path: inset(0 0 rem(1) 0); // hides the bottom box-shadow
+
+            &:has(> header .label:not(.collapsed)) {
+              padding-bottom: 2rem;
+            }
+          }
+
+          + .container.collapsible {
+            border-top-left-radius: 0;
+            border-top-right-radius: 0;
+          }
+
           > header {
             cursor: pointer;
 
@@ -304,7 +320,7 @@ export default {
         }
       }
 
-      &:not(:last-child) {
+      &:not(:last-child, :has(+ .container.collapsible)) {
         margin-bottom: 2rem;
       }
 
