@@ -597,8 +597,10 @@ export default {
 
         if (hideRepeating && this.isInRepeatingField(field)) return acc;
 
-        if (Array.isArray(field.value)) acc.push(...this.extractFieldKeys(field.value, parent ? `${parent}.${field.key}` : field.key, hideRepeating));
-        else if (field === this.fieldBeingEdited || field.visualOnly) return acc;
+        if (Array.isArray(field.value)) {
+          if (!field.visualOnly) acc.push(...this.extractFieldKeys(field.value, parent ? `${parent}.${field.key}` : field.key, hideRepeating));
+          else acc.push(...this.extractFieldKeys(field.value, parent, hideRepeating)); // visual only containers should not show in the final keys as they are not present in content
+        } else if (field === this.fieldBeingEdited || field.visualOnly) return acc;
         else acc.push({ label: field.label, value: parent ? `${parent}.${field.key}` : field.key });
         return acc;
       }, []);
