@@ -12,18 +12,21 @@
           <MbInput v-model="iconFilter" :dark="dark" icon="search" placeholder="Filter icons…" />
         </header>
         <MbScroller direction="vertical" ref="scroller">
-          <ul v-if="!customIcons">
-            <li v-for="icon in filteredIcons" :class="{ active: icon === modelValue, dark }" :key="icon" tabindex="0" @click="pickIcon(icon)" @keydown.space.prevent @keyup.space.enter="pickIcon(icon)">
-              <MbIcon :icon="icon" />
-              <span>{{icon}}</span>
-            </li>
-          </ul>
-          <ul v-else>
-            <li v-for="[icon, src] in filteredIcons" :class="{ active: icon === modelValue, dark }" :data-icon="icon" :key="icon" tabindex="0" ref="asyncIcons" @click="pickIcon(icon)" @keydown.space.prevent @keyup.space.enter="pickIcon(icon)">
-              <AsyncIcon :src="src" :visible="visibleIcons.has(icon)" />
-              <span>{{icon}}</span>
-            </li>
-          </ul>
+          <template v-if="filteredIcons.length">
+            <ul v-if="!customIcons">
+              <li v-for="icon in filteredIcons" :class="{ active: icon === modelValue, dark }" :key="icon" tabindex="0" @click="pickIcon(icon)" @keydown.space.prevent @keyup.space.enter="pickIcon(icon)">
+                <MbIcon :icon="icon" />
+                <span>{{icon}}</span>
+              </li>
+            </ul>
+            <ul v-else>
+              <li v-for="[icon, src] in filteredIcons" :class="{ active: icon === modelValue, dark }" :data-icon="icon" :key="icon" tabindex="0" ref="asyncIcons" @click="pickIcon(icon)" @keydown.space.prevent @keyup.space.enter="pickIcon(icon)">
+                <AsyncIcon :src="src" :visible="visibleIcons.has(icon)" />
+                <span>{{icon}}</span>
+              </li>
+            </ul>
+          </template>
+          <p v-else class="empty-state">There are no matching icons.</p>
         </MbScroller>
       </div>
       <template #footer>
@@ -244,6 +247,12 @@ export default {
   }
 
   .picker-popover {
+    &.dark {
+      .content-wrapper .empty-state {
+        color: var(--text-tertiary-dark);
+      }
+    }
+
     .content-wrapper {
       background-color: inherit;
 
@@ -365,6 +374,12 @@ export default {
             max-width: 100%;
           }
         }
+      }
+
+      .empty-state {
+        color: var(--text-tertiary);
+        text-align: center;
+        margin-bottom: rem(24);
       }
     }
   }
