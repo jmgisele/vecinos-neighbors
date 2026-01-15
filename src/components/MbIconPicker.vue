@@ -1,6 +1,9 @@
 <template>
   <div class="icon-picker" :class="{ dark }" tabindex="0" @click="activate" @keydown.space.prevent @keyup.space.enter="activate">
-    <MbIcon :icon="modelValue || 'mattrbld'" />
+    <transition mode="out-in" name="swirl">
+      <MbIcon v-if="!customIcons || !modelValue" :icon="modelValue || 'mattrbld'" />
+      <AsyncIcon v-else :key="modelValue" :src="customIcons[modelValue]" visible />
+    </transition>
     <span class="label" :class="{ placeholder: !modelValue }">{{modelValue || placeholder}}</span>
     <MbButton v-if="removable" v-show="modelValue" :dark="dark" icon="cross" ref="removeButton" rounded tooltip="Clear path" @click="$emit('update:modelValue', null)" />
     <MbPopover center-x class="picker-popover" :dark="dark" no-content-padding ref="popover" :visible="showPicker" :x="popover.x" :y="popover.y" @after-close="iconFilter = ''" @close="deactivate">
@@ -8,10 +11,16 @@
         <header>
           <MbInput v-model="iconFilter" :dark="dark" icon="search" placeholder="Filter icons…" />
         </header>
-        <MbScroller direction="vertical">
-          <ul>
+        <MbScroller direction="vertical" ref="scroller">
+          <ul v-if="!customIcons">
             <li v-for="icon in filteredIcons" :class="{ active: icon === modelValue, dark }" :key="icon" tabindex="0" @click="pickIcon(icon)" @keydown.space.prevent @keyup.space.enter="pickIcon(icon)">
               <MbIcon :icon="icon" />
+              <span>{{icon}}</span>
+            </li>
+          </ul>
+          <ul v-else>
+            <li v-for="[icon, src] in filteredIcons" :class="{ active: icon === modelValue, dark }" :data-icon="icon" :key="icon" tabindex="0" ref="asyncIcons" @click="pickIcon(icon)" @keydown.space.prevent @keyup.space.enter="pickIcon(icon)">
+              <AsyncIcon :src="src" :visible="visibleIcons.has(icon)" />
               <span>{{icon}}</span>
             </li>
           </ul>
@@ -26,6 +35,7 @@
 
 <script>
 import { pathBasename } from '../fs';
+import AsyncIcon from './utility/AsyncIcon.vue';
 
 function generateIconsList() {
   // using ?url here to avoid a warning during build (since the icons are also imported by the SvgSprite), adding import: 'default' inflates the bundle
@@ -34,20 +44,33 @@ function generateIconsList() {
 
 export default {
   availableIcons: generateIconsList(),
+  beforeUnmount() {
+    if (this.iconObserver) this.iconObserver.disconnect();
+  },
+  components: {
+    AsyncIcon,
+  },
   computed: {
     filteredIcons() {
-      if (!this.iconFilter) return this.$options.availableIcons;
-      return this.$options.availableIcons.filter((icon) => icon.includes(this.iconFilter.toLowerCase()));
+      if (!this.customIcons) {
+        if (!this.iconFilter) return this.$options.availableIcons;
+        return this.$options.availableIcons.filter((icon) => icon.includes(this.iconFilter.toLowerCase()));
+      }
+
+      if (!this.iconFilter) return Object.entries(this.customIcons);
+      return Object.entries(this.customIcons).filter(([icon]) => icon.includes(this.iconFilter.toLowerCase()));
     },
   },
   data() {
     return {
       iconFilter: '',
+      iconObserver: null,
       popover: {
         x: 0,
         y: 0,
       },
       showPicker: false,
+      visibleIcons: new Set(),
     };
   },
   emits: ['update:modelValue'],
@@ -72,8 +95,25 @@ export default {
       this.$emit('update:modelValue', icon);
       this.deactivate();
     },
+    setupIconObserver() {
+      if (!this.$refs.asyncIcons) return;
+
+      this.visibleIcons = new Set();
+      this.iconObserver = new IntersectionObserver((entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) this.visibleIcons.add(entry.target.dataset.icon);
+          else this.visibleIcons.delete(entry.target.dataset.icon);
+        });
+      }, { root: this.$refs.scroller.$refs.scrollArea });
+
+      this.$refs.asyncIcons.forEach((icon) => this.iconObserver.observe(icon));
+    },
+  },
+  mounted() {
+    if (this.customIcons) this.setupIconObserver();
   },
   props: {
+    customIcons: Object,
     dark: Boolean,
     modelValue: String,
     placeholder: {
@@ -81,6 +121,15 @@ export default {
       default: 'Pick an icon…',
     },
     removable: Boolean,
+  },
+  watch: {
+    customIcons(nv, ov) {
+      if (nv && !ov) {
+        this.setupIconObserver();
+      } else if (!nv && ov) {
+        this.iconObserver.disconnect();
+      }
+    },
   },
 };
 </script>
@@ -162,8 +211,28 @@ export default {
       }
     }
 
-    .icon {
+    .icon, .async-icon {
       flex-shrink: 0;
+    }
+
+    .async-icon {
+      &.swirl-enter-active,
+      &.swirl-leave-active {
+        transition: transform 200ms ease, opacity 200ms ease;
+
+        &.swirl-enter-from,
+        &.swirl-leave-to {
+          opacity: 0;
+        }
+
+        &.swirl-enter-from {
+          transform: rotate(-45deg);
+        }
+
+        &.swirl-leave-to {
+          transform: rotate(45deg);
+        }
+      }
     }
 
     .button.icon {
