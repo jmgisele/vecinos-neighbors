@@ -12,7 +12,9 @@ updatedAt: 2025-10-13
   [Invite-Link](https://mattrbld.com/docs/importing-projects/#import-via-invite-link)
 * Consecutive collapsible visual container fields are now visually grouped into
   an accordion
-  
+* There is a new icon field for picking an icon from a source folder, you can
+  [learn more in the docs](https://mattrbld.com/docs/fields/icon/)
+
 ### Bugfixes
 
 * Re-trying to import a project in case the onboarding was aborted is now more
