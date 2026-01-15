@@ -1060,6 +1060,7 @@ export default {
       props: {
         asyncIcons: [
           ['Name', 'Type', 'Default', 'Allowed Values'],
+          ['`preserveColor`', 'Boolean', '`false`', 'Whether to preserve the icon color or use it as a mask'],
           ['`src`', 'String', '`undefined`', 'Path to an image'],
           ['`visible`', 'Boolean', '`false`', 'Whether to consider the icon visible'],
         ],
@@ -1237,7 +1238,9 @@ export default {
           ['`customIcons`', 'Object', '`null`'],
           ['`dark`', 'Boolean', '`false`'],
           ['`modelValue`', 'String', '`false`'],
-          ['`placeholder`', 'String', "`'mattrbld'`"],
+          ['`placeholder`', 'String', "`'Pick an icon…'`"],
+          ['`preserveColor`', 'Boolean', '`false`'],
+          ['`prettyFilenames`', 'Boolean', '`false`'],
           ['`removable`', 'Boolean', '`false`'],
         ],
         internalLinkHelpers: [
