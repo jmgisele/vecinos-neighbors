@@ -1,5 +1,5 @@
 <template>
-  <div class="async-icon" :class="{ error, visible }" :style="{ maskImage: mask }">
+  <div class="async-icon" :class="{ error, monochrome: preserveColor, loaded }" :style="{ [preserveColor ? 'backgroundImage' : 'maskImage']: mask }">
     <MbIcon v-if="error" icon="error" @mouseenter="handleTooltip" />
   </div>
 </template>
@@ -17,6 +17,7 @@ export default {
   data() {
     return {
       error: false,
+      loaded: false,
       mask: null,
     };
   },
@@ -47,24 +48,27 @@ export default {
         };
 
         img.src = this.url;
+        this.loaded = true;
       } catch (err) {
         this.error = err.message;
       }
     },
   },
   props: {
+    preserveColor: Boolean,
     src: String,
     visible: Boolean,
   },
   watch: {
     src(nv) {
       if (nv) {
+        this.error = ''; // clear leftover errors
         if (this.url) URL.revokeObjectURL(this.url);
         this.loadImage();
       }
     },
     visible(nv, ov) {
-      if (nv && !ov) this.loadImage();
+      if (nv && !ov && !this.loaded) this.loadImage();
     },
   },
 };
@@ -73,7 +77,9 @@ export default {
 <style lang="scss" scoped>
   .async-icon {
     aspect-ratio: 1 / 1;
+    background-size: contain;
     mask-size: contain;
+    background-repeat: no-repeat;
     mask-repeat: no-repeat;
     display: grid;
     place-items: center;
@@ -81,7 +87,7 @@ export default {
     height: rem(24);
     transition: background-color 200ms ease;
 
-    &.visible {
+    &.loaded:not(.monochrome) {
       background-color: currentColor;
     }
 

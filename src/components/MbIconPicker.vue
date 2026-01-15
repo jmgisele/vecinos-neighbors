@@ -2,9 +2,9 @@
   <div class="icon-picker" :class="{ dark }" tabindex="0" @click="activate" @keydown.space.prevent @keyup.space.enter="activate">
     <transition mode="out-in" name="swirl">
       <MbIcon v-if="!customIcons || !modelValue" :icon="modelValue || 'mattrbld'" />
-      <AsyncIcon v-else :key="modelValue" :src="customIcons[modelValue]" visible />
+      <AsyncIcon v-else :key="modelValue" :preserve-color="preserveColor" :src="customIcons[modelValue]" visible />
     </transition>
-    <span class="label" :class="{ placeholder: !modelValue }">{{modelValue || placeholder}}</span>
+    <span class="label" :class="{ placeholder: !modelValue }">{{buttonLabel}}</span>
     <MbButton v-if="removable" v-show="modelValue" :dark="dark" icon="cross" ref="removeButton" rounded tooltip="Clear path" @click="$emit('update:modelValue', null)" />
     <MbPopover center-x class="picker-popover" :dark="dark" no-content-padding ref="popover" :visible="showPicker" :x="popover.x" :y="popover.y" @after-close="iconFilter = ''" @close="deactivate">
       <div class="content-wrapper">
@@ -21,8 +21,8 @@
             </ul>
             <ul v-else>
               <li v-for="[icon, src] in filteredIcons" :class="{ active: icon === modelValue, dark }" :data-icon="icon" :key="icon" tabindex="0" ref="asyncIcons" @click="pickIcon(icon)" @keydown.space.prevent @keyup.space.enter="pickIcon(icon)">
-                <AsyncIcon :src="src" :visible="visibleIcons.has(icon)" />
-                <span>{{icon}}</span>
+                <AsyncIcon :preserve-color="preserveColor" :src="src" :visible="visibleIcons.has(icon)" />
+                <span>{{cleanIconName(icon)}}</span>
               </li>
             </ul>
           </template>
@@ -54,6 +54,11 @@ export default {
     AsyncIcon,
   },
   computed: {
+    buttonLabel() {
+      if (!this.modelValue) return this.placeholder;
+      if (this.prettyFilenames) return this.cleanIconName(this.modelValue);
+      return this.modelValue;
+    },
     filteredIcons() {
       if (!this.customIcons) {
         if (!this.iconFilter) return this.$options.availableIcons;
@@ -87,6 +92,10 @@ export default {
       this.popover.y = rect.bottom + 0.5 * remBase;
       window.addEventListener('scroll', this.deactivate, { capture: true, passive: true });
       this.showPicker = true;
+    },
+    cleanIconName(name) {
+      const filename = pathBasename(name);
+      return filename.slice(0, filename.lastIndexOf('.'));
     },
     deactivate(e) {
       if (e && e.type === 'scroll' && this.$refs.popover.$refs.el.contains(e.target)) return;
@@ -123,12 +132,15 @@ export default {
       type: String,
       default: 'Pick an icon…',
     },
+    preserveColor: Boolean,
+    prettyFilenames: Boolean,
     removable: Boolean,
   },
   watch: {
     customIcons(nv, ov) {
-      if (nv && !ov) {
-        this.setupIconObserver();
+      if (nv) {
+        // wait a tick so the $refs can update
+        this.$nextTick(() => this.setupIconObserver());
       } else if (!nv && ov) {
         this.iconObserver.disconnect();
       }
@@ -156,7 +168,7 @@ export default {
     text-align: left;
     white-space: nowrap;
     max-width: 100%;
-    overflow: hidden;
+    min-width: 0;
 
     &:hover {
       background-color: var(--bg-tertiary);
