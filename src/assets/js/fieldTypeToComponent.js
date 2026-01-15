@@ -14,6 +14,8 @@ export default function fieldTypeToComponent(type) {
       return 'GroupField';
     case 'heading':
       return 'HeadingField';
+    case 'icon':
+      return 'IconField';
     case 'id':
       return 'IdField';
     case 'image':
