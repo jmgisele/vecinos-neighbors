@@ -689,6 +689,8 @@
         <MbTable :data="props.iconPickers" />
         <h3>Events</h3>
         <MbTable :data="events.iconPickers" />
+        <h3>Notes</h3>
+        <p>If <code>customIcons</code> is passed, it has to be an Object mapping icon names to local icon paths. It can be used to create pickers for a folder of user-controlled icons.</p>
       </section>
       <section v-else-if="activeTabValue === 'sortable-lists'" class="tab sortable-lists">
         <h2>Sortable Lists</h2>
@@ -1232,6 +1234,7 @@ export default {
         ],
         iconPickers: [
           ['Name', 'Type', 'Default'],
+          ['`customIcons`', 'Object', '`null`'],
           ['`dark`', 'Boolean', '`false`'],
           ['`modelValue`', 'String', '`false`'],
           ['`placeholder`', 'String', "`'mattrbld'`"],
