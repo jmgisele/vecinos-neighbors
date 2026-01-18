@@ -1,5 +1,5 @@
 <template>
-  <div class="async-icon" :class="{ error, monochrome: preserveColor, loaded }" :style="{ [preserveColor ? 'backgroundImage' : 'maskImage']: mask }">
+  <div class="async-icon" :class="{ error, monochrome: !preserveColor, loaded }" :style="{ [preserveColor ? 'backgroundImage' : 'maskImage']: mask }">
     <MbIcon v-if="error" icon="error" @mouseenter="handleTooltip" />
   </div>
 </template>
@@ -87,7 +87,7 @@ export default {
     height: rem(24);
     transition: background-color 200ms ease;
 
-    &.loaded:not(.monochrome) {
+    &.loaded.monochrome {
       background-color: currentColor;
     }
 
