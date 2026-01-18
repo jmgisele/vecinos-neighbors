@@ -32,6 +32,8 @@ import { joinPath, readdirDeep } from '../../fs';
 import assembleUrlFromTemplate from '../../assets/js/assembleUrlFromTemplate';
 import generateDefaultFilePathFields from '../../assets/js/generateDefaultFilePathFields';
 
+import { imageRegExp } from '../../data/regExps';
+
 import field from '../../mixins/field';
 
 import LocalisedFieldsContainer from '../utility/LocalisedFieldsContainer.vue';
@@ -89,7 +91,7 @@ export default {
 
       try {
         const projectDir = joinPath('/projects', this.$store.state.currentProject.id);
-        this.iconPaths = await readdirDeep(joinPath(projectDir, this.options.sourceDir));
+        this.iconPaths = (await readdirDeep(joinPath(projectDir, this.options.sourceDir))).filter((path) => imageRegExp.test(path));
       } catch (err) {
         if (err.code === 'ENOENT') this.$store.commit('addToast', { message: `Something went wrong while loading the model for ${this.label}: the icon source folder doesn’t exist`, type: 'error' });
         else this.$store.commit('addToast', { message: `Something went wrong while loading the icons for ${this.label}: ${err}`, type: 'error' });
