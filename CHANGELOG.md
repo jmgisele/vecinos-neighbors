@@ -30,6 +30,8 @@ updatedAt: 2025-10-13
 
 * During onboarding, the buttons now switch to a loading state if the file
   system is congested by a large download
+* When hovering icons, a tooltip will be shown with the full icon name. This way
+  even truncated names can be read fully
 
 ## Version 1.4.2
 
