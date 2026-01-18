@@ -14,13 +14,13 @@
         <MbScroller direction="vertical" ref="scroller">
           <template v-if="filteredIcons.length">
             <ul v-if="!customIcons">
-              <li v-for="icon in filteredIcons" :class="{ active: icon === modelValue, dark }" :key="icon" tabindex="0" @click="pickIcon(icon)" @keydown.space.prevent @keyup.space.enter="pickIcon(icon)">
+              <li v-for="icon in filteredIcons" :class="{ active: icon === modelValue, dark }" :key="icon" tabindex="0" @click="pickIcon(icon)" @keydown.space.prevent @keyup.space.enter="pickIcon(icon)" @mouseenter="showNameTooltip($event, icon)">
                 <MbIcon :icon="icon" />
                 <span>{{icon}}</span>
               </li>
             </ul>
             <ul v-else>
-              <li v-for="[icon, src] in filteredIcons" :class="{ active: icon === modelValue, dark }" :data-icon="icon" :key="icon" tabindex="0" ref="asyncIcons" @click="pickIcon(icon)" @keydown.space.prevent @keyup.space.enter="pickIcon(icon)">
+              <li v-for="[icon, src] in filteredIcons" :class="{ active: icon === modelValue, dark }" :data-icon="icon" :key="icon" tabindex="0" ref="asyncIcons" @click="pickIcon(icon)" @keydown.space.prevent @keyup.space.enter="pickIcon(icon)" @mouseenter="showNameTooltip($event, icon)">
                 <AsyncIcon :preserve-color="preserveColor" :src="src" :visible="visibleIcons.has(icon)" />
                 <span>{{cleanIconName(icon)}}</span>
               </li>
@@ -119,6 +119,13 @@ export default {
       }, { root: this.$refs.scroller.$refs.scrollArea });
 
       this.$refs.asyncIcons.forEach((icon) => this.iconObserver.observe(icon));
+    },
+    showNameTooltip(e, icon) {
+      const tooltip = {
+        message: icon,
+        target: e.currentTarget,
+      };
+      this.$store.commit('setTooltip', tooltip);
     },
   },
   mounted() {
