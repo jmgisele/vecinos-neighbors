@@ -34,16 +34,16 @@
 </template>
 
 <script>
-import { cloneDeep, isEqual } from 'lodash-es';
-import { status } from 'isomorphic-git';
 import slugify from '@sindresorhus/slugify';
+import { status } from 'isomorphic-git';
+import { cloneDeep, isEqual } from 'lodash-es';
 
-import fs, { exists, PlainFS, joinPath, pathBasename, pathDirname } from '../fs'; // eslint-disable-line object-curly-newline, no-unused-vars
 import flattenFields from '../assets/js/flattenFields';
 import hasAccess from '../assets/js/hasAccess';
 import isMac from '../assets/js/isMac';
 import loadProject from '../assets/js/loadProject';
 import prettifyEntityName from '../assets/js/prettifyEntityName';
+import fs, { exists, joinPath, pathBasename, pathDirname, PlainFS } from '../fs'; // eslint-disable-line object-curly-newline, no-unused-vars
 import Store from '../store';
 
 import isPrivilegedUser from '../mixins/isPrivilegedUser';
@@ -294,8 +294,7 @@ export default {
       if (valid) {
         try {
           const newField = cloneDeep(this.customField[0]);
-          if (!newField.version || typeof newField.version !== 'number') newField.version = 1;
-          else newField.version += 1;
+          newField.version = this.originalField.version + 1; // using the original field version here in case the type was changed and the version reset
           newField.description = this.description;
           newField.group = this.group;
           newField.icon = this.icon;
