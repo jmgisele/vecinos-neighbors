@@ -25,6 +25,10 @@ updatedAt: 2025-10-13
   values
 * The display value for group fields will now be correctly fetched even if the
   referenced field is within a visual container
+* The versions of custom fields will now always be increased, even if the field
+  type of the custom field was changed
+* Changing the field type of a custom field and then updating outdated versions
+  of that field in other Schemas now works reliably
 
 ### Other Changes
 
