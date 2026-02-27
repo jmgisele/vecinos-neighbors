@@ -95,7 +95,7 @@ export default {
     },
     cleanIconName(name) {
       const filename = pathBasename(name);
-      return filename.slice(0, filename.lastIndexOf('.'));
+      return filename.substring(0, Math.max(0, filename.lastIndexOf('.')) || Infinity);
     },
     deactivate(e) {
       if (e && e.type === 'scroll' && this.$refs.popover.$refs.el.contains(e.target)) return;
