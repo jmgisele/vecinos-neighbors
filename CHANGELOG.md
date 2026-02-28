@@ -1,7 +1,13 @@
 ---
-currentVersion: 1.4.2
-updatedAt: 2025-10-13
+currentVersion: 1.5.1
+updatedAt: 2026-03-01
 ---
+## Version 1.5.1
+
+### Other Changes
+
+* Fix versioning info display in the Project Dashboard
+
 ## Version 1.5.0
 
 ### New Features
