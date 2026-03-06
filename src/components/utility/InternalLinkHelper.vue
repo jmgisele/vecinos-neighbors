@@ -12,7 +12,7 @@
           <li v-if="linkableCollections.length === 0" class="empty-state" :class="{ dark }">
             <p>There are no linkable collections in this project yet</p>
           </li>
-          <li v-for="collection in linkableCollections" :class="{ dark }" :key="collection.value" tabindex="0" @click="handleCollectionClick(collection.value, collection.type, collection.template, collection.collection)" @keydown.space.prevent @keyup.space.enter="handleCollectionClick(collection.value, collection.type, collection.template)">
+          <li v-for="collection in linkableCollections" :class="{ dark }" :key="collection.value" tabindex="0" @click="handleCollectionClick(collection.value, collection.type, collection.template, collection.collection, collection.rawEntityNames)" @keydown.space.prevent @keyup.space.enter="handleCollectionClick(collection.value, collection.type, collection.template, collection.rawEntityNames)">
             <MbIcon icon="folder" />
             <span class="label">{{collection.label}}</span>
           </li>
@@ -23,7 +23,7 @@
         </ul>
       </div>
       <div v-else-if="view === 'files'" class="view files" :class="{ dark }" key="files">
-        <MbFileList :dark="dark" :empty-state="{ noFiles: 'There are no content items in this directory', noFolders: 'There are no folders in this directory', empty: 'There are no content items in this collection' }" file-list-label="Content Items" :filetypes="filetype === 'media' ? null : [filetype]" :folders-first="false" pretty-filenames :root="currentRoot" :sortable="false" @fileclick="handleFileClick" />
+        <MbFileList :dark="dark" :empty-state="{ noFiles: 'There are no content items in this directory', noFolders: 'There are no folders in this directory', empty: 'There are no content items in this collection' }" file-list-label="Content Items" :filetypes="filetype === 'media' ? null : [filetype]" :folders-first="false" :pretty-filenames="!rawEntityNames" :root="currentRoot" :sortable="false" @fileclick="handleFileClick" />
         <MbButton :dark="dark" icon="chevron-left" @click="linkableCollections.length === 1 ? view = 'url' : view = 'collections'">Back</MbButton>
       </div>
       <div v-else-if="view === 'loading'" class="view loading" key="loading">
@@ -55,6 +55,7 @@ export default {
       currentTemplate: null,
       filetype: 'json',
       linkableCollections: [],
+      rawEntityNames: false,
       view: 'url',
     };
   },
@@ -67,10 +68,11 @@ export default {
       if (this.linkableCollections.length === 1) this.handleCollectionClick(this.linkableCollections[0].value, this.linkableCollections[0].type, this.linkableCollections[0].template, this.linkableCollections[0].collection);
       else this.view = 'collections';
     },
-    handleCollectionClick(dir, type, template, collection) {
+    handleCollectionClick(dir, type, template, collection, rawEntityNames) {
       this.currentRoot = joinPath(this.projectDir, dir);
       this.currentCollection = collection;
-      this.currentTemplate = null; // resetting the template here is needed since an old value would break line 74
+      this.rawEntityNames = rawEntityNames;
+      this.currentTemplate = null; // resetting the template here is needed since an old value would break line 76
 
       if (template && typeof template === 'object') {
         if (this.lang) this.currentTemplate = template[this.lang];
@@ -126,6 +128,7 @@ export default {
             acc.push({
               collection: collectionFiles[index],
               label: prettifyEntityName(collectionFiles[index]),
+              rawEntityNames: collection.rawEntityNames,
               template: collection.urlTemplate,
               type: collection.type,
               value: collection.dir,

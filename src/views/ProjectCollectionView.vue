@@ -2,7 +2,7 @@
   <div class="collection">
     <h1>{{collection.name}}</h1>
     <template v-if="collection.dir">
-      <MbFileList v-if="typeof collection.dir !== 'undefined'" :action="action" :dark="dark" :drafts-dir="draftsDir" :empty-state="emptyState" :file-actions="fileActions" :file-list-label="fileListLabel" :filetypes="collection.type === 'media' ? allowedFileTypes : [collection.type]" :initial-path="lastDir" pretty-filenames ref="fileList" :root="contentDir" :thumbnails="collection.type === 'media'" @fileclick="handleFileClick" @list-change="listedFiles = $event.files" @path-change="currentPath = $event" />
+      <MbFileList v-if="typeof collection.dir !== 'undefined'" :action="action" :dark="dark" :drafts-dir="draftsDir" :empty-state="emptyState" :file-actions="fileActions" :file-list-label="fileListLabel" :filetypes="collection.type === 'media' ? allowedFileTypes : [collection.type]" :initial-path="lastDir" :pretty-filenames="!collection.rawEntityNames" ref="fileList" :root="contentDir" :thumbnails="collection.type === 'media'" @fileclick="handleFileClick" @list-change="listedFiles = $event.files" @path-change="currentPath = $event" />
       <MbButton v-if="(userPermissions.has('everything') || userPermissions.has('createContent') || userPermissions.has('upload')) && listedFiles === 0" :dark="dark" icon="plus" type="positive" @click="createEntity">New {{ collectionNameSingular }}</MbButton>
     </template>
     <div v-else class="unconfigured-state" :class="{ dark }">
@@ -13,7 +13,7 @@
     </div>
     <input v-if="collection.type === 'media'" type="file" ref="replaceFileInput" @change="handleReplaceFileInput" @cancel="handleReplaceFileInputCancel">
     <EntityCreationModal v-if="collection.type !== 'media'" :dark="dark" :default-name="defaultFilename" :file-content="typeof defaultCollectionContent !== 'string' ? JSON.stringify(defaultCollectionContent, null, 2) : defaultCollectionContent" :file-extension="collection.type" :only="createOnly" :path="{ file: draftsDir && collection.draftByDefault ? currentDraftsPath : currentPath, directory: currentPath }" :title="entityCreationTitle" :visible="showEntityCreation" @close="handleEntityCreationClose" @entity-created="handleEntityCreated" />
-    <EntityMoveModal :dark="dark" :old-path="entityBeingModified" pretty-filenames :root="moveRootDir" :visible="showEntityMove" @close="showEntityMove = false; entityBeingModified = null" @entity-moved="handleEntityRenamed" />
+    <EntityMoveModal :dark="dark" :old-path="entityBeingModified" :pretty-filenames="!collection.rawEntityNames" :root="moveRootDir" :visible="showEntityMove" @close="showEntityMove = false; entityBeingModified = null" @entity-moved="handleEntityRenamed" />
     <EntityRenameModal :dark="dark" :old-path="entityBeingModified" :visible="showEntityRename" @close="showEntityRename = false; entityBeingModified = null" @entity-renamed="handleEntityRenamed" />
     <MediaCreationModal v-if="collection.type === 'media'" :allowed-types="allowedFileTypes" :current-path="currentPath" :dark="dark" :max-size="collection.maxSize ? collection.maxSize : null" :permissions="userPermissions" :title="action && action.label !== 'New' ? action.label : 'Add new…'" :type="mediaCreationModalType" :visible="showEntityCreation" @close="handleEntityCreationClose" @entity-created="refreshFileList" @update-type="mediaCreationModalType = $event" />
   </div>
@@ -26,7 +26,7 @@ import pluralize from 'pluralize';
 import { v4 as uuidv4 } from 'uuid';
 
 import fs, {
-  exists, joinPath, mkdirp, pathBasename, pathDirname,
+    exists, joinPath, mkdirp, pathBasename, pathDirname,
 } from '../fs';
 import { rmrf } from '../fs/workerFS';
 

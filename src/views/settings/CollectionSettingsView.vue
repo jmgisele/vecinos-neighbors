@@ -47,6 +47,7 @@
                 <MbTagInput v-model="collectionDetails.allowedTypes" allow-unsuggested :dark="dark" :placeholder="!collectionDetails.allowedTypes || !collectionDetails.allowedTypes.length ? 'Any' : 'New extension…'" />
               </div>
             </template>
+            <MbToggle v-model="collectionDetails.rawEntityNames" :dark="dark">Show raw file and folder names:</MbToggle>
           </section>
           <section>
             <h3>Linking</h3>
@@ -225,10 +226,11 @@ export default {
         disableComments: false,
         disablePreview: false,
         draftByDefault: false,
-        schemas: [],
         linkable: false,
         maxSize: null,
         permissions: {},
+        rawEntityNames: false,
+        schemas: [],
         type: 'json',
         urlTemplate: '',
       },
@@ -239,12 +241,13 @@ export default {
         disableComments: false,
         disablePreview: false,
         draftByDefault: false,
-        schemas: [],
         linkable: false,
         maxSize: null,
         permissions: {
           everybody: ['everything'],
         },
+        rawEntityNames: false,
+        schemas: [],
         type: 'json',
         urlTemplate: '',
       },
