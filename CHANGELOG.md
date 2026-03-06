@@ -1,7 +1,19 @@
 ---
-currentVersion: 1.5.1
-updatedAt: 2026-03-01
+currentVersion: 1.6.0
+updatedAt: 2026-03-06
 ---
+## Versoin 1.6.0
+
+### New Features
+
+* You can now enable an option in th ecollection settings to show raw file and
+  folder names
+
+### Bugfixes
+
+* The algorithm for prettyifing file and folder names is now more robust and
+  will no longer try stripping (non-existent) file extensions from folder names
+
 ## Version 1.5.1
 
 ### Other Changes
