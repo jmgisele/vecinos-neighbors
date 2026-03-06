@@ -5,7 +5,7 @@
         <MbButton :dark="dark" :disabled="currentPath === root" icon="chevron-left" rounded @click="back" />
         <p class="breadcrumb">
           <template v-for="(step, index) in breadcrumb" :key="index">
-            <span class="step" :class="{ active: index === breadcrumb.length - 1 }" @click="jumpTo(index)">{{prettyFilenames ? prettify(step) : step}}</span>
+            <span class="step" :class="{ active: index === breadcrumb.length - 1 }" @click="jumpTo(index)">{{prettyFilenames ? prettify(step, true) : step}}</span>
             <span v-if="index !== breadcrumb.length - 1" class="separator">/</span>
           </template>
         </p>
@@ -29,7 +29,7 @@
             <MbButton v-if="modifiedFolderActions.length > 1" :dark="dark" icon="more-vertical" rounded tooltip="More" @click="openMenu($event, joinPath(currentPath, folder.name), true)" />
             <MbButton v-else-if="modifiedFolderActions.length === 1" :dark="dark" :icon="modifiedFolderActions[0].icon" rounded :tooltip="modifiedFolderActions[0].label" :type="modifiedFolderActions[0].type" @click="executeAction(modifiedFolderActions[0].action, joinPath(currentPath, folder.name))" />
           </header>
-          <p @mouseenter="showNameTooltip($event, folder.name)"><span v-show="folder.localChanges" class="local-changes-indicator"/><span>{{prettyFilenames ? prettify(folder.name) : folder.name}}</span></p>
+          <p @mouseenter="showNameTooltip($event, folder.name)"><span v-show="folder.localChanges" class="local-changes-indicator"/><span>{{prettyFilenames ? prettify(folder.name, true) : folder.name}}</span></p>
           <p class="meta">{{formattedUpdatedAt(folder.updatedAt)}}</p>
         </div>
       </transition-group>
@@ -79,9 +79,9 @@
 import { formatDistanceToNowStrict } from 'date-fns';
 import { debounce } from 'lodash-es';
 
-import fs, { pathDirname, joinPath } from '../fs';
 import humanReadableSize from '../assets/js/humanReadableSize';
 import prettifyEntityName from '../assets/js/prettifyEntityName';
+import fs, { joinPath, pathDirname } from '../fs';
 
 import { archiveRegExp, imageRegExp, videoRegExp } from '../data/regExps';
 
@@ -399,8 +399,8 @@ export default {
       this.popover.target = e.currentTarget;
       this.popover.show = true;
     },
-    prettify(name) {
-      return prettifyEntityName(name);
+    prettify(name, isFolder) {
+      return prettifyEntityName(name, isFolder);
     },
     async refresh() {
       this.pagination.currentPage = 0;
