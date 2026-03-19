@@ -27,7 +27,7 @@
       />
       <div v-else class="container" :class="{ bordered: field.options.bordered || field.options.collapsible, collapsible: field.options.collapsible, dark }">
         <header v-if="field.options.bordered || field.options.collapsible" @click="collapsed.set(field.key, !collapsed.get(field.key))">
-          <p class="label" :class="{ collapsed: collapsed.get(field.key), dark }">{{field.label}}</p>
+          <p class="label" :class="{ collapsed: field.options.collapsible && collapsed.get(field.key), dark }">{{field.label}}</p>
           <MbButton v-if="field.options.collapsible" :dark="dark" :icon="collapsed.get(field.key) ? 'chevron-down' : 'chevron-up'" rounded :tooltip="`Collapse ${field.label}`" />
         </header>
         <MbFieldsEditor
@@ -243,6 +243,7 @@ export default {
 
     .container {
       width: 100%;
+      overflow: clip;
 
       &.bordered {
         box-shadow: inset 0 0 0 0.0625rem color-mix(in srgb, var(--text) 12%, transparent);
@@ -274,6 +275,11 @@ export default {
           > header {
             cursor: pointer;
 
+            &:has(.collapsed) + .fields-editor {
+              height: 0;
+              transition-timing-function: cubic-bezier(0.645, 0.045, 0.355, 1);
+            }
+
             > .label {
               font-size: 1rem;
               transition: color 200ms ease;
@@ -285,6 +291,20 @@ export default {
                   color: var(--text-dark);
                 }
               }
+            }
+          }
+
+          > .fields-editor {
+            transition-timing-function: cubic-bezier(0.215, 0.61, 0.355, 1);
+            interpolate-size: allow-keywords;
+            // This animation stutters a little because of the margin-top, but
+            // without introducing a wrapper element, that's the best I can do
+            transition-duration: 200ms;
+            transition-behavior: allow-discrete;
+            transition-property: height, display;
+
+            @starting-style {
+              height: 0;
             }
           }
         }
@@ -320,7 +340,7 @@ export default {
         }
       }
 
-      &:not(:last-child, :has(+ .container.collapsible)) {
+      &:not(:last-child, .collapsible:has(+ .container.collapsible)) {
         margin-bottom: 2rem;
       }
 
