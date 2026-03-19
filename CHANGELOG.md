@@ -2,7 +2,24 @@
 currentVersion: 1.6.0
 updatedAt: 2026-03-06
 ---
-## Versoin 1.6.0
+## Version 1.7.0
+
+### New Features
+
+
+### Bugfixes
+
+* Uncollapsible container fields no longer stick to consecutive collapsible
+  container fields
+* Editable lists now try harder to keep the input field visible in supported
+  browsers
+
+### Other Changes
+
+* Collapsible container fields now animate between collapsed and uncollapsed
+  states in supported browsers
+
+## Version 1.6.0
 
 ### New Features
 
