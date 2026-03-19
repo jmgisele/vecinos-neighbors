@@ -13,7 +13,7 @@
             <MbButton :dark="dark" icon="trash" tooltip="Delete item" type="negative" @click="deleteItem(item)" />
           </div>
         </MbSortableList>
-        <div class="item" :class="[mode, { dark, error: newItem.error }]" :data-error="newItem.error">
+        <div class="item" :class="[mode, { dark, error: newItem.error }]" :data-error="newItem.error" ref="item">
           <div class="item-icon">
             <MbIcon :icon="newItem.error ? 'error' : 'document-add'" />
           </div>
@@ -81,6 +81,9 @@ export default {
       this.newItem.label = '';
       this.newItem.value = '';
       if (this.mode === 'advanced') this.$refs.labelInput.focus();
+
+      // scroll the item input back into view if it got pushed out of the screen
+      this.$nextTick(() => this.$refs.item.scrollIntoViewIfNeeded?.());
     },
     deleteItem(item) {
       this.softDeleted.add(item);
