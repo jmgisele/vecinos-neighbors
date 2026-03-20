@@ -366,6 +366,7 @@ export default {
           const folderExists = await entityExists(`/projects/${projectId}`);
           if (folderExists) rmrf(`/projects/${projectId}`);
           this.$store.dispatch('saveUser');
+          this.importing = false;
         }
       }
     },
