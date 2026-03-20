@@ -13,6 +13,8 @@ updatedAt: 2026-03-06
   container fields
 * Editable lists now try harder to keep the input field visible in supported
   browsers
+* If a project import fails on the home screen due to a network or other error,
+  the importing modal will now properly reset
 
 ### Other Changes
 
