@@ -19,8 +19,6 @@
 </template>
 
 <script>
-import { defineAsyncComponent } from 'vue';
-
 import findClosestScrollParent from '../../assets/js/findClosestScrollParent';
 
 import autoscroll from '../../mixins/autoscroll';
@@ -28,8 +26,7 @@ import autoscroll from '../../mixins/autoscroll';
 export default {
   name: 'FieldArrangementItem',
   components: {
-    // this is neccessary for recursive component definitions, despite causing a warning in vite
-    FieldArrangementList: defineAsyncComponent(() => import('./FieldArrangementList.vue')),
+    // FieldArrangementList is defined globally
   },
   computed: {
     dragActive() {

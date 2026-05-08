@@ -2,6 +2,7 @@ import { createApp } from 'vue';
 import { registerSW } from 'virtual:pwa-register'; // eslint-disable-line import/no-unresolved
 
 import App from './App.vue';
+import FieldArrangementList from './components/utility/FieldArrangementList.vue';
 import router from './router';
 import store from './store';
 
@@ -18,6 +19,10 @@ Object.entries(modules).forEach(([filePath, module]) => {
   const componentName = filePath.split('/').pop().replace(/\.\w+$/, '');
   app.component(componentName, module.default || module);
 });
+
+// Needs to be defined globally because FieldArrangementItems need to reference
+// it without importing it (as that causes a build warning)
+app.component('FieldArrangementList', FieldArrangementList);
 
 app.mount('#app');
 

@@ -193,7 +193,6 @@ import fs, { exists, joinPath, readdirDeep } from '../../fs';
 import availableRoles from '../../data/availableRoles';
 import defaultFields from '../../data/defaultFields';
 
-import FieldArrangementList from './FieldArrangementList.vue';
 import FieldThumbnail from './FieldThumbnail.vue';
 import TabContent from './TabContent.vue';
 
@@ -207,7 +206,7 @@ const fieldComponents = Object.entries(modules).reduce((acc, [filePath, module])
 
 export default {
   components: {
-    FieldArrangementList,
+    // FieldArrangementList is defined globally
     FieldThumbnail,
     TabContent,
     ...fieldComponents,
