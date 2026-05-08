@@ -28,6 +28,7 @@ import autoscroll from '../../mixins/autoscroll';
 export default {
   name: 'FieldArrangementItem',
   components: {
+    // this is neccessary for recursive component definitions, despite causing a warning in vite
     FieldArrangementList: defineAsyncComponent(() => import('./FieldArrangementList.vue')),
   },
   computed: {
