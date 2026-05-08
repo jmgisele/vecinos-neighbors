@@ -1,4 +1,5 @@
 import FS from '@isomorphic-git/lightning-fs';
+import { Buffer } from 'buffer';
 import {
   add,
   commit,
@@ -12,6 +13,9 @@ import http from 'isomorphic-git/http/web';
 
 import MagicPortal from '../assets/js/FixedMagicPortal';
 import TimeoutError from '../assets/js/TimeoutError';
+
+// Isomorphic-Git needs this
+self.Buffer = Buffer; // eslint-disable-line no-restricted-globals
 
 const fs = new FS('mattrfs');
 const portal = new MagicPortal(self); // eslint-disable-line no-restricted-globals

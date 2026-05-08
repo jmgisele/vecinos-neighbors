@@ -4,7 +4,6 @@ import { fileURLToPath, URL } from 'node:url';
 
 import vue from '@vitejs/plugin-vue';
 import { defineConfig } from 'vite';
-import { nodePolyfills } from 'vite-plugin-node-polyfills';
 import { VitePWA } from 'vite-plugin-pwa';
 
 import robots from './vite-plugins/robots';
@@ -18,14 +17,13 @@ export default defineConfig({
     preprocessorOptions: {
       scss: {
         additionalData: '@use "/src/assets/styles/helpers.scss" as *;',
-        api: 'modern-compiler',
       },
     },
   },
+  define: {
+    global: 'globalThis', // without this LightningFS breaks in workers
+  },
   plugins: [
-    nodePolyfills({
-      include: ['buffer'], // buffer is needed for isomorphic-git
-    }),
     createSvgoPlugin({
       include: 'src/assets/icons/**/*.svg',
       svgo: {

@@ -1,5 +1,6 @@
-import { createApp } from 'vue';
+import { Buffer } from 'buffer';
 import { registerSW } from 'virtual:pwa-register'; // eslint-disable-line import/no-unresolved
+import { createApp } from 'vue';
 
 import App from './App.vue';
 import FieldArrangementList from './components/utility/FieldArrangementList.vue';
@@ -9,6 +10,8 @@ import store from './store';
 import 'modern-normalize';
 
 import './assets/styles/base.scss';
+
+window.Buffer = Buffer; // polyfilling Buffer is required by gray-matter and isomorphic-git
 
 const app = createApp(App).use(store).use(router);
 
