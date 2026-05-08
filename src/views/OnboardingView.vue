@@ -354,6 +354,8 @@ export default {
             // If cloning fails, reset and start anew
             this.$store.commit('addToast', { message: `Something went wrong while cloning the project: ${err.message}. Please try again.`, type: 'error' });
             rmrf('/projects').then(() => { this.currentSlide = 0; }); // clean up the projects dir with the zombie project
+            this.cloneProgress = 0;
+            this.cloneStep = '';
           });
         this.currentSlide += 1;
       }
