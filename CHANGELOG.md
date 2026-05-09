@@ -15,11 +15,15 @@ updatedAt: 2026-03-06
   browsers
 * If a project import fails on the home screen due to a network or other error,
   the importing modal will now properly reset
+* If a project import fails during onboarding, the progress steps are now reset
+  correctly
 
 ### Other Changes
 
 * Collapsible container fields now animate between collapsed and uncollapsed
   states in supported browsers
+* The underlying tool stack was upgraded to newest versions, improving bundle
+  size and improving development time
 
 ## Version 1.6.0
 
