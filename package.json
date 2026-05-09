@@ -19,7 +19,7 @@
     "diff": "^9.0.0",
     "fast-average-color": "^9.4.0",
     "gray-matter": "^4.0.3",
-    "isomorphic-git": "^1.37.4",
+    "isomorphic-git": "1.37.4",
     "js-yaml": "^4.1.0",
     "lodash-es": "^4.17.21",
     "markdown-it": "^14.0.0",
