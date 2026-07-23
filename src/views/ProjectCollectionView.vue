@@ -26,7 +26,7 @@ import pluralize from 'pluralize';
 import { v4 as uuidv4 } from 'uuid';
 
 import fs, {
-    exists, joinPath, mkdirp, pathBasename, pathDirname,
+  exists, joinPath, mkdirp, pathBasename, pathDirname,
 } from '../fs';
 import { rmrf } from '../fs/workerFS';
 
@@ -296,7 +296,7 @@ export default {
         if (this.userPermissions.has('createContent')) actions.push({ action: this.duplicateContentItem, label: 'Duplicate', icon: 'duplicate', filesOnly: true }); // eslint-disable-line object-curly-newline
         if (this.draftsDir && this.userPermissions.has('publishDrafts')) actions.push({ action: this.toggleDraft, label: 'Toggle draft', icon: 'document-draft', filesOnly: true }); // eslint-disable-line object-curly-newline
       } else if (this.collection.linkable && this.collection.urlTemplate) {
-        actions.push({ action: this.copyUrl, label: 'Copy URL', icon: 'copy-url', filesOnly: true }); // eslint-disable-line object-curly-newline
+        if (this.collection.linkable && this.collection.urlTemplate) actions.push({ action: this.copyUrl, label: 'Copy URL', icon: 'copy-url', filesOnly: true }); // eslint-disable-line object-curly-newline
       }
 
       if (this.userPermissions.has('deleteContent')) {
@@ -385,7 +385,8 @@ export default {
     },
     async copyUrl(path) {
       const fields = generateDefaultFilePathFields(path, this.projectDir, this.contentDir, this.draftsDir);
-      const url = assembleUrlFromTemplate(this.collection.urlTemplate, fields, undefined, true, this.$store.state.currentProject.slugifyOptions || slugifyDefaults);
+      const cleanUrlTemplate = typeof this.collection.urlTemplate === 'string' ? this.collection.urlTemplate : Object.values(this.collection.urlTemplate).find((v) => v); // might be an object if multi-lang project
+      const url = assembleUrlFromTemplate(cleanUrlTemplate, fields, undefined, true, this.$store.state.currentProject.slugifyOptions || slugifyDefaults);
 
       try {
         await navigator.clipboard.writeText(url);
