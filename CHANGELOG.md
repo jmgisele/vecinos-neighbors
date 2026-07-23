@@ -17,6 +17,8 @@ updatedAt: 2026-03-06
   the importing modal will now properly reset
 * If a project import fails during onboarding, the progress steps are now reset
   correctly
+* Copying the URL of a file in a Media Collection now correctly applies the first
+  available URL template
 
 ### Other Changes
 
