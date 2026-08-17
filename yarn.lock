@@ -899,7 +899,7 @@
   resolved "https://registry.yarnpkg.com/@isaacs/cliui/-/cliui-9.0.0.tgz#4d0a3f127058043bf2e7ee169eaf30ed901302f3"
   integrity sha512-AokJm4tuBHillT+FpMtxQ60n8ObyXBatq7jD2/JA9dxbDDokKQm8KMht5ibGzLVU9IJDIKK4TPKgMHEYMn3lMg==
 
-"@isomorphic-git/cors-proxy@^3.0.0":
+"@isomorphic-git/cors-proxy@^3.0.2":
   version "3.0.2"
   resolved "https://registry.yarnpkg.com/@isomorphic-git/cors-proxy/-/cors-proxy-3.0.2.tgz#211079a20362bf966fdd660e3ceb4fd35db4cf16"
   integrity sha512-/gxYl1bdyTLKkycRDYH8nzx5Uz6y5Hjb7eLshGdW++qG4lIn7riZ3QLfVQCVgObpfmAgvqWuxrjxXyWsIOtrJA==
