@@ -15,7 +15,7 @@ const config = (await getSiteConfig()) ?? null;
 		<ul class="grid list-none gap-6 p-0 sm:grid-cols-2">
 				{posts.map((post: any) => (
 				<li>
-						<a href={`/blog/${post?._sys?.filename ?? ''}/`} class="group block overflow-hidden rounded-xl border bg-card shadow-sm transition-shadow hover:shadow-md">
+						<a href={`${post?.slug}/`} class="group block overflow-hidden rounded-xl border bg-card shadow-sm transition-shadow hover:shadow-md">
 								{post.heroImage && (
 								<img width={720} height={360} src={post.heroImage} alt={post.title ?? ''} class="aspect-video w-full object-cover" />
 								)}

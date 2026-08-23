@@ -74,9 +74,9 @@ export async function getSiteConfig(): Promise<any> {
 export function getBlogContent(id: string): any {
 	try {
 		const fullPath = path.join(BLOG_DIR, `${id}.md`);
+
 		const fileContents = fs.readFileSync(fullPath, "utf8");
 		const matterResult = matter(fileContents);
-
 		let frontmatter = matterResult.data;
 
 		const contentHtml = mdIt(matterResult.content);
