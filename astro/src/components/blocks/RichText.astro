@@ -1,7 +1,8 @@
 ---
-interface Props { body: any, additionalClasses: string }
+interface Props { body: any, additionalClasses?: string }
 
 const { body, additionalClasses = "" } = Astro.props;
 ---
-<p set:html={body} class={additionalClasses}>
-</p>
+<section set:html={body} class={"prose prose prose-md max-w-none " + additionalClasses}>
+</section>
+

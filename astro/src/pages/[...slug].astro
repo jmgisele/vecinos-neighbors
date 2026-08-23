@@ -1,7 +1,7 @@
 ---
 import Base from '../layouts/Base.astro';
 import PageBody from '../components/islands/PageBody.astro';
-import { getAllPageSlugs, getPageContent, getSiteConfig } from '@/utils/file_utils';
+import { getAllPageSlugs, getPageContent, getSiteConfig, mdIt } from '@/utils/file_utils';
 
 
 export async function getStaticPaths() {
@@ -10,8 +10,16 @@ export async function getStaticPaths() {
 
 const slug = (Astro.params.slug ?? '').toString();
 const page = await getPageContent(slug);
-const data = page.blocks;
+let data = page.blocks;
 if (!data) return new Response('Not Found', { status: 404 });
+data = page.blocks.map((e: any) => {
+		const copy = e;
+		if (!!copy.body) {
+				copy.content = mdIt(copy.body)
+		} // todo make me recursive
+		return copy;
+})
+
 const config = await getSiteConfig();
 ---
 

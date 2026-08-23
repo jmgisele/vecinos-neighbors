@@ -78,8 +78,7 @@ export function getBlogContent(id: string): any {
 		const fileContents = fs.readFileSync(fullPath, "utf8");
 		const matterResult = matter(fileContents);
 		let frontmatter = matterResult.data;
-
-		const contentHtml = mdIt(matterResult.content);
+		const contentHtml = mdIt(matterResult.data.body);
 		return {
 			file: `${id}.md`,
 			content: contentHtml,
@@ -100,7 +99,7 @@ export function getPageContent(id: string): any {
 		let frontmatter = matterResult.data;
 
 		console.log(matterResult)
-		const contentHtml = mdIt(matterResult.content);
+		const contentHtml = mdIt(matterResult.data.body);
 		return {
 			file: `${id}.md`,
 			content: contentHtml,

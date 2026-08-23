@@ -5,6 +5,7 @@ import Button from '../ui/Button.astro';
 import Icon from '../ui/Icon.astro';
 import { cn } from '../../lib/cn';
 import type { SplitBlock } from '../../lib/data';
+import RichText from './RichText.astro';
 
 interface Props { data: SplitBlock }
 
@@ -17,7 +18,7 @@ const actions = (data.actions ?? []).filter(a => a !== null);
 						{data?.title && <h2  class="text-balance text-3xl font-semibold lg:text-4xl">{data?.title}</h2>}
 						{data?.body && (
 						<div  class="prose prose-lg max-w-none text-muted-foreground">
-								{data.body}
+								<RichText body={data.content} ></RichText>
 						</div>
 						)}
 						{actions?.length > 0 && (

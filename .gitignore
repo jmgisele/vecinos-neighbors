@@ -6,3 +6,5 @@ node_modules
 
 astro/example-images
 astro/.astro
+
+*.org
