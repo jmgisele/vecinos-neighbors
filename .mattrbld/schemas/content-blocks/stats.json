@@ -18,7 +18,7 @@
         "min": null,
         "regex": null,
         "regexError": null,
-        "required": true,
+        "required": false,
         "unit": "length"
       },
       "value": null,
@@ -31,51 +31,15 @@
       }
     },
     {
-      "type": "rich text",
+      "type": "text",
       "default": null,
-      "icon": "text",
-      "key": "body",
-      "label": "Body",
+      "icon": "text-input",
+      "key": "description",
+      "label": "Description",
       "localised": false,
       "options": {
-        "outputFormat": "markdown",
-        "blockFormats": [
-          "blockquote",
-          "heading",
-          "hr",
-          "orderedList",
-          "unorderedList",
-          "image"
-        ],
-        "inlineFormats": [
-          "em",
-          "strong",
-          "link",
-          "br"
-        ],
-        "formatOptions": [
-          "allowQuoteFooters",
-          "allowNestedLists",
-          "allowImageCaptions"
-        ],
-        "inputRuleOptions": [
-          "autoquotes",
-          "dashes",
-          "ellipsis",
-          "noDoubleCaps",
-          "noDoubleSpace"
-        ],
-        "minHeading": 2,
-        "maxHeading": 4,
-        "codeLangs": [],
-        "allowRaw": false,
-        "urlTemplate": "",
-        "urlSuffix": "",
-        "linkOptions": [
-          "forceBlankTarget",
-          "allowExternal",
-          "allowInternal"
-        ]
+        "wrapping": true,
+        "multiline": false
       },
       "tab": "ungrouped",
       "validation": {
@@ -100,8 +64,8 @@
       "type": "rows",
       "default": null,
       "icon": "rows",
-      "key": "actions",
-      "label": "Actions",
+      "key": "stats",
+      "label": "Stats",
       "options": {
         "compact": true,
         "allowEditing": true,
@@ -118,16 +82,16 @@
           "type": "group",
           "displayField": null,
           "icon": "group",
-          "key": "action",
-          "label": "Action",
+          "key": "stat",
+          "label": "Stat",
           "tab": "ungrouped",
           "value": [
             {
               "type": "text",
               "default": null,
               "icon": "text-input",
-              "key": "label",
-              "label": "Display text",
+              "key": "stat",
+              "label": "Stat",
               "localised": false,
               "options": {
                 "wrapping": true,
@@ -140,7 +104,7 @@
                 "min": null,
                 "regex": null,
                 "regexError": null,
-                "required": true,
+                "required": false,
                 "unit": "length"
               },
               "value": null,
@@ -153,76 +117,25 @@
               }
             },
             {
-              "type": "select",
+              "type": "text",
               "default": null,
-              "icon": "dropdown",
+              "icon": "text-input",
               "key": "type",
               "label": "Type",
-              "options": {
-                "filterable": false,
-                "removable": false,
-                "placeholder": "Select a value…",
-                "options": [
-                  "button"
-                ]
-              },
-              "tab": "ungrouped",
-              "validation": {
-                "required": true
-              },
-              "value": null,
-              "version": 1,
-              "visibility": {
-                "hidden": false,
-                "showByValue": {
-                  "field": null
-                }
-              }
-            },
-            {
-              "type": "icon",
-              "default": null,
-              "icon": "mattrbld",
-              "key": "icon",
-              "label": "Icon",
               "localised": false,
               "options": {
-                "sourceDir": "/cms/icons",
-                "insertAs": "template",
-                "urlTemplate": "tabler::filename",
-                "preserveColor": false,
-                "prettyFilenames": false,
-                "removable": true
+                "wrapping": true,
+                "multiline": false
               },
               "tab": "ungrouped",
               "validation": {
-                "required": false
-              },
-              "value": null,
-              "version": 1,
-              "visibility": {
-                "hidden": false,
-                "showByValue": {
-                  "field": null
-                }
-              }
-            },
-            {
-              "type": "link",
-              "default": null,
-              "icon": "link",
-              "key": "link",
-              "label": "Link",
-              "localised": false,
-              "options": {
-                "type": "both",
-                "byFilePath": false,
-                "urlSuffix": "/",
-                "urlTemplate": ""
-              },
-              "tab": "ungrouped",
-              "validation": {
-                "required": false
+                "enforceMinMax": true,
+                "max": null,
+                "min": null,
+                "regex": null,
+                "regexError": null,
+                "required": false,
+                "unit": "length"
               },
               "value": null,
               "version": 1,

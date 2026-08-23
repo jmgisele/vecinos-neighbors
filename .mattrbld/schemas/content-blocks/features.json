@@ -38,7 +38,7 @@
       "label": "Body",
       "localised": false,
       "options": {
-        "outputFormat": "markdown",
+        "outputFormat": "html",
         "blockFormats": [
           "blockquote",
           "heading",
@@ -50,8 +50,7 @@
         "inlineFormats": [
           "em",
           "strong",
-          "link",
-          "br"
+          "link"
         ],
         "formatOptions": [
           "allowQuoteFooters",
@@ -67,7 +66,12 @@
         ],
         "minHeading": 2,
         "maxHeading": 4,
-        "codeLangs": [],
+        "codeLangs": [
+          "html",
+          "css",
+          "javascript",
+          "markdown"
+        ],
         "allowRaw": false,
         "urlTemplate": "",
         "urlSuffix": "",
@@ -100,8 +104,8 @@
       "type": "rows",
       "default": null,
       "icon": "rows",
-      "key": "actions",
-      "label": "Actions",
+      "key": "items",
+      "label": "Items",
       "options": {
         "compact": true,
         "allowEditing": true,
@@ -118,16 +122,44 @@
           "type": "group",
           "displayField": null,
           "icon": "group",
-          "key": "action",
-          "label": "Action",
+          "key": "item",
+          "label": "Item",
           "tab": "ungrouped",
           "value": [
+            {
+              "type": "icon",
+              "default": null,
+              "icon": "mattrbld",
+              "key": "icon",
+              "label": "Icon",
+              "localised": false,
+              "options": {
+                "sourceDir": "/cms/icons",
+                "insertAs": "template",
+                "urlTemplate": "tabler::filename",
+                "preserveColor": false,
+                "prettyFilenames": false,
+                "removable": false
+              },
+              "tab": "ungrouped",
+              "validation": {
+                "required": true
+              },
+              "value": null,
+              "version": 1,
+              "visibility": {
+                "hidden": false,
+                "showByValue": {
+                  "field": null
+                }
+              }
+            },
             {
               "type": "text",
               "default": null,
               "icon": "text-input",
-              "key": "label",
-              "label": "Display text",
+              "key": "title",
+              "label": "Title",
               "localised": false,
               "options": {
                 "wrapping": true,
@@ -153,76 +185,65 @@
               }
             },
             {
-              "type": "select",
+              "type": "rich text",
               "default": null,
-              "icon": "dropdown",
-              "key": "type",
-              "label": "Type",
+              "icon": "text",
+              "key": "body",
+              "label": "Body",
+              "localised": false,
               "options": {
-                "filterable": false,
-                "removable": false,
-                "placeholder": "Select a value…",
-                "options": [
-                  "button"
+                "outputFormat": "markdown",
+                "blockFormats": [
+                  "blockquote",
+                  "heading",
+                  "hr",
+                  "orderedList",
+                  "unorderedList",
+                  "image"
+                ],
+                "inlineFormats": [
+                  "em",
+                  "strong",
+                  "link"
+                ],
+                "formatOptions": [
+                  "allowQuoteFooters",
+                  "allowNestedLists",
+                  "allowImageCaptions"
+                ],
+                "inputRuleOptions": [
+                  "autoquotes",
+                  "dashes",
+                  "ellipsis",
+                  "noDoubleCaps",
+                  "noDoubleSpace"
+                ],
+                "minHeading": 2,
+                "maxHeading": 4,
+                "codeLangs": [
+                  "html",
+                  "css",
+                  "javascript",
+                  "markdown"
+                ],
+                "allowRaw": false,
+                "urlTemplate": "",
+                "urlSuffix": "",
+                "linkOptions": [
+                  "forceBlankTarget",
+                  "allowExternal",
+                  "allowInternal"
                 ]
               },
               "tab": "ungrouped",
               "validation": {
-                "required": true
-              },
-              "value": null,
-              "version": 1,
-              "visibility": {
-                "hidden": false,
-                "showByValue": {
-                  "field": null
-                }
-              }
-            },
-            {
-              "type": "icon",
-              "default": null,
-              "icon": "mattrbld",
-              "key": "icon",
-              "label": "Icon",
-              "localised": false,
-              "options": {
-                "sourceDir": "/cms/icons",
-                "insertAs": "template",
-                "urlTemplate": "tabler::filename",
-                "preserveColor": false,
-                "prettyFilenames": false,
-                "removable": true
-              },
-              "tab": "ungrouped",
-              "validation": {
-                "required": false
-              },
-              "value": null,
-              "version": 1,
-              "visibility": {
-                "hidden": false,
-                "showByValue": {
-                  "field": null
-                }
-              }
-            },
-            {
-              "type": "link",
-              "default": null,
-              "icon": "link",
-              "key": "link",
-              "label": "Link",
-              "localised": false,
-              "options": {
-                "type": "both",
-                "byFilePath": false,
-                "urlSuffix": "/",
-                "urlTemplate": ""
-              },
-              "tab": "ungrouped",
-              "validation": {
-                "required": false
+                "enforceMinMax": true,
+                "max": null,
+                "min": null,
+                "regex": null,
+                "regexError": null,
+                "required": true,
+                "unit": "length"
               },
               "value": null,
               "version": 1,
