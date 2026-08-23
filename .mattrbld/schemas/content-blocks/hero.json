@@ -1,8 +1,197 @@
 {
-  "fields": [],
+  "fields": [
+    {
+      "type": "text",
+      "default": null,
+      "icon": "text-input",
+      "key": "headline",
+      "label": "Headline",
+      "localised": false,
+      "options": {
+        "wrapping": true,
+        "multiline": false
+      },
+      "tab": "ungrouped",
+      "validation": {
+        "enforceMinMax": true,
+        "max": null,
+        "min": null,
+        "regex": null,
+        "regexError": null,
+        "required": false,
+        "unit": "length"
+      },
+      "value": null,
+      "version": 1,
+      "visibility": {
+        "hidden": false,
+        "showByValue": {
+          "field": null
+        }
+      }
+    },
+    {
+      "type": "text",
+      "default": null,
+      "icon": "text-input",
+      "key": "tagline",
+      "label": "Tagline",
+      "localised": false,
+      "options": {
+        "wrapping": true,
+        "multiline": false
+      },
+      "tab": "ungrouped",
+      "validation": {
+        "enforceMinMax": true,
+        "max": null,
+        "min": null,
+        "regex": null,
+        "regexError": null,
+        "required": false,
+        "unit": "length"
+      },
+      "value": null,
+      "version": 1,
+      "visibility": {
+        "hidden": false,
+        "showByValue": {
+          "field": null
+        }
+      }
+    },
+    {
+      "type": "rows",
+      "default": null,
+      "icon": "rows",
+      "key": "actions",
+      "label": "Action Buttons",
+      "options": {
+        "compact": true,
+        "allowEditing": true,
+        "itemLabel": "Row"
+      },
+      "tab": "ungrouped",
+      "validation": {
+        "max": null,
+        "min": null,
+        "unit": "rows"
+      },
+      "value": [
+        {
+          "type": "group",
+          "displayField": "label",
+          "icon": "group",
+          "key": "action",
+          "label": "Button",
+          "tab": "ungrouped",
+          "value": [
+            {
+              "type": "text",
+              "default": null,
+              "icon": "text-input",
+              "key": "label",
+              "label": "Label",
+              "localised": false,
+              "options": {
+                "wrapping": true,
+                "multiline": false
+              },
+              "tab": "ungrouped",
+              "validation": {
+                "enforceMinMax": true,
+                "max": null,
+                "min": null,
+                "regex": null,
+                "regexError": null,
+                "required": true,
+                "unit": "length"
+              },
+              "value": null,
+              "version": 1,
+              "visibility": {
+                "hidden": false,
+                "showByValue": {
+                  "field": null
+                }
+              }
+            },
+            {
+              "type": "icon",
+              "default": null,
+              "icon": "mattrbld",
+              "key": "icon",
+              "label": "Button Icon",
+              "localised": false,
+              "options": {
+                "sourceDir": null,
+                "insertAs": "template",
+                "urlTemplate": "tabler::filename",
+                "preserveColor": false,
+                "prettyFilenames": false,
+                "removable": true
+              },
+              "tab": "ungrouped",
+              "validation": {
+                "required": false
+              },
+              "value": null,
+              "version": 1,
+              "visibility": {
+                "hidden": false,
+                "showByValue": {
+                  "field": null
+                }
+              }
+            }
+          ],
+          "version": 1,
+          "visibility": {
+            "hidden": false,
+            "showByValue": {
+              "field": null
+            }
+          }
+        }
+      ],
+      "version": 1,
+      "visibility": {
+        "hidden": false,
+        "showByValue": {
+          "field": null
+        }
+      }
+    },
+    {
+      "type": "image",
+      "default": null,
+      "icon": "image",
+      "key": "image",
+      "label": "Callout Image",
+      "options": {
+        "resolutionHint": "",
+        "removable": true,
+        "simple": false
+      },
+      "tab": "ungrouped",
+      "validation": {
+        "max": null,
+        "required": false,
+        "unit": "filesize (MB)"
+      },
+      "value": null,
+      "version": 1,
+      "visibility": {
+        "hidden": false,
+        "showByValue": {
+          "field": null
+        }
+      }
+    }
+  ],
   "tabs": [
     {
-      "label": "Untitled Tab",
+      "label": "ungrouped",
       "groupAs": null
     }
   ]
