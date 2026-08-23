@@ -6,7 +6,10 @@ description: >-
 pubDate: 2026-04-08T09:00:00.000Z
 heroImage: /blog-placeholder-5.jpg
 updatedDate: '2026-08-23T14:44:00-04:00'
-body: >
+body: >-
+  ## How it works
+
+
   The defining choice in TinaCMS is where your content is stored. Instead of a
   hosted database, your content is a set of Markdown, MDX, and JSON files in
   your repository. When an editor saves, TinaCMS writes the file and commits it.
@@ -20,19 +23,19 @@ body: >
   tools you already trust for code:
 
 
-  - **History and blame.** Every change has an author, a timestamp, and a diff.
-  You can see who changed a headline and revert it in seconds.
-
-  - **Branches and previews.** Draft a campaign on a branch, open a pull
+  -   **History and blame.** Every change has an author, a timestamp, and a
+  diff. You can see who changed a headline and revert it in seconds.
+      
+  -   **Branches and previews.** Draft a campaign on a branch, open a pull
   request, and review the rendered result on a deploy preview before it touches
   production.
-
-  - **No lock-in.** Your content is portable Markdown. If you ever move off
+      
+  -   **No lock-in.** Your content is portable Markdown. If you ever move off
   TinaCMS, the files are right there, readable without any export step.
-
-  - **One source of truth.** Code and content travel together, so a deploy is
+      
+  -   **One source of truth.** Code and content travel together, so a deploy is
   always a consistent snapshot of both.
-
+      
 
   ## How a save flows
 
@@ -40,15 +43,15 @@ body: >
   The path from edit to published is short and legible:
 
 
-  1. An editor changes a field in the TinaCMS sidebar.
-
-  2. TinaCMS writes the value to the underlying file.
-
-  3. The change is committed to Git, locally in dev or through TinaCloud in
+  1.  An editor changes a field in the TinaCMS sidebar.
+      
+  2.  TinaCMS writes the value to the underlying file.
+      
+  3.  The change is committed to Git, locally in dev or through TinaCloud in
   production.
-
-  4. Your host rebuilds from the new commit, and the change goes live.
-
+      
+  4.  Your host rebuilds from the new commit, and the change goes live.
+      
 
   ## The trade you are making
 
