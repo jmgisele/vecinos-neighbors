@@ -1,0 +1,23 @@
+---
+import Base from '../layouts/Base.astro';
+import PageBody from '../components/islands/PageBody.astro';
+import { getAllPageSlugs, getPageContent, getSiteConfig } from '@/utils/file_utils';
+
+
+export async function getStaticPaths() {
+		return getAllPageSlugs();
+}
+
+const slug = (Astro.params.slug ?? '').toString();
+const page = await getPageContent(slug);
+const data = page.blocks;
+if (!data) return new Response('Not Found', { status: 404 });
+const config = await getSiteConfig();
+---
+
+<Base
+		title={data.seoTitle || config?.seo?.title || 'TinaCMS + Astro'}
+		description={config?.seo?.description ?? 'Welcome to my website!'}
+>
+<PageBody data={data}  />
+</Base>

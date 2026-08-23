@@ -1,0 +1,13 @@
+---
+import Section from '../ui/Section.astro';
+import type { ContentBlock } from '../../lib/data';
+import RichText from './RichText.astro';
+interface Props { data: ContentBlock }
+
+const { data } = Astro.props;
+---
+<Section class="prose prose-lg max-w-none">
+		<div class="mx-auto max-w-3xl" >
+				<RichText body={data.body} />
+	</div>
+</Section>

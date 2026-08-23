@@ -1,0 +1,20 @@
+---
+import Base from '../layouts/Base.astro';
+import PageBody from '../components/islands/PageBody.astro';
+import { getPageContent, getSiteConfig } from '@/utils/file_utils';
+
+const slug = 'home';
+const page = await getPageContent(slug);
+const data = page.blocks;
+if (!data) return new Response('Not Found', { status: 404 });
+const config = await getSiteConfig();
+const firstTitle = data.seoTitle ? (data.seoTitle + ' | ') : '';
+const postTitle = config?.seo?.title ?? 'Vecinos Neighbors';
+---
+
+<Base
+		title={firstTitle + postTitle}
+		description={config?.seo?.description ?? 'Welcome to my website!'}
+>
+<PageBody data={data} />
+</Base>

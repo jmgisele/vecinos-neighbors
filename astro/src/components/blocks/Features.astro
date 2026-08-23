@@ -1,0 +1,45 @@
+---
+import Section from '../ui/Section.astro';
+import { mdxComponents } from '../mdx/components';
+import Card from '../ui/Card.astro';
+import CardHeader from '../ui/CardHeader.astro';
+import CardContent from '../ui/CardContent.astro';
+import Icon from '../ui/Icon.astro';
+import type { FeaturesBlock } from '../../lib/data';
+import RichText from './RichText.astro';
+
+interface Props { data: FeaturesBlock }
+
+const { data } = Astro.props;
+
+const items = (data.items ?? []).filter((it: any) => it !== null);
+---
+<Section>
+		<div class="mx-auto max-w-5xl px-6">
+				<div class="text-center">
+						<h2  class="text-balance text-4xl font-semibold lg:text-5xl">{data.title}</h2>
+						<p  class="mt-4 text-muted-foreground">{data.description}</p>
+				</div>
+				<div class="grid grid-cols-1 lg:grid-cols-3 gap-4 mx-auto mt-8 max-w-6xl overflow-hidden md:mt-16 *:text-center">
+						{items.map((item: any) => (
+						<Card class="">
+								<div  >
+										<CardHeader class="pb-3">
+												<div class="relative mx-auto size-36">
+														<div  class="absolute inset-0 m-auto flex items-center justify-center">
+																{item.icon && <Icon name={item.icon} class="size-20 text-primary" />}
+														</div>
+												</div>
+												<h3  class="mt-6 font-medium text-lg">{item.title}</h3>
+										</CardHeader>
+										<CardContent class="text-base pb-8 text-muted-foreground">
+												<div >
+														<RichText additionalClasses="prose-sm" body={item.text} />
+												</div>
+										</CardContent>
+								</div>
+						</Card>
+						))}
+				</div>
+		</div>
+</Section>

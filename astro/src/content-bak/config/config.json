@@ -1,0 +1,38 @@
+{
+  "seo": {
+    "title": "Vecinos Neighbors",
+    "description": "We are committed to bringing together agricultural workers and their neighbors in Woodburn to foster relationships that strengthen community ties.",
+    "siteOwner": "Vecinos Neighbors",
+    "logo": "/vecinos_logo.webp"
+  },
+  "nav": [
+    {
+      "title": "Home",
+      "link": "/"
+    },
+    {
+      "title": "About",
+      "link": "/about"
+    },
+    {
+      "title": "Blog",
+      "link": "/blog"
+    },
+    {
+      "title": "Get Involved",
+      "link": "/get-involved"
+    }
+  ],
+  "contactLinks": [
+    {
+      "title": "X",
+      "link": "https://example.com",
+      "icon": "tabler:brand-x"
+    },
+    {
+      "title": "Facebook",
+      "link": "https://www.example.com",
+      "icon": "tabler:brand-facebook"
+    }
+  ]
+}

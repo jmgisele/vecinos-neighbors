@@ -1,0 +1,39 @@
+---
+import Content from './Content.astro';
+import Cta from './Cta.astro';
+import Features from './Features.astro';
+import Hero from './Hero.astro';
+import Split from './Split.astro';
+import Stats from './Stats.astro';
+import Testimonial from './Testimonial.astro';
+import Video from './Video.astro';
+import Divider from '../space/Divider.astro';
+import type { CmsPage } from '../../lib/data';
+
+interface Props {
+	data?: CmsPage | null;
+}
+
+const { data } = Astro.props;
+const blocks = (data ?? []).filter((b: any) => b !== null);
+---
+{blocks.map((block: any, i: number) => {
+	const rendered = (() => {
+switch (block._template) {
+			case 'content': return <Content data={block} />;
+			case 'cta': return <Cta data={block} />;
+			case 'features': return <Features data={block} />;
+			case 'hero': return <Hero data={block} />;
+			case 'split': return <Split data={block} />;
+			case 'stats': return <Stats data={block} />;
+			case 'testimonial': return <Testimonial data={block} />;
+			case 'video': return <Video data={block} />;
+		}
+	})();
+	return (
+		<>
+			<div >{rendered}</div>
+			{i < blocks.length - 1 && <Divider class="my-2" />}
+		</>
+	);
+})}

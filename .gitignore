@@ -1,0 +1,8 @@
+.ignore
+.projectile
+.env.local
+.env
+node_modules
+
+astro/example-images
+astro/.astro
