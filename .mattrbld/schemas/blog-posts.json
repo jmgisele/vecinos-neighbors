@@ -192,7 +192,7 @@
         "minHeading": 2,
         "maxHeading": 4,
         "codeLangs": [],
-        "allowRaw": false,
+        "allowRaw": true,
         "urlTemplate": "/blog/:title",
         "urlSuffix": ".md",
         "linkOptions": [
