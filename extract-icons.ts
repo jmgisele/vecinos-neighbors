@@ -7,7 +7,7 @@ import { parseIconSet, iconToSVG } from '@iconify/utils';
 // Source file and target directory
 
 const source = './node_modules/@iconify-json/tabler/icons.json';
-const target = './mattrbld/public/icons';
+const target = './cms/icons';
 
 // Read icon set from file
 const iconSet = JSON.parse(readFileSync(source, 'utf8')) as IconifyJSON;
