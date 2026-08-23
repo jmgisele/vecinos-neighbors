@@ -1,0 +1,94 @@
+{
+  "fields": [
+    {
+      "type": "text",
+      "default": null,
+      "icon": "text-input",
+      "key": "seoTitle",
+      "label": "SeoTitle",
+      "localised": false,
+      "options": {
+        "wrapping": true,
+        "multiline": false
+      },
+      "tab": "ungrouped",
+      "validation": {
+        "enforceMinMax": true,
+        "max": null,
+        "min": null,
+        "regex": null,
+        "regexError": null,
+        "required": false,
+        "unit": "length"
+      },
+      "value": null,
+      "version": 1,
+      "visibility": {
+        "hidden": false,
+        "showByValue": {
+          "field": null
+        }
+      }
+    },
+    {
+      "type": "rows",
+      "default": null,
+      "icon": "rows",
+      "key": "blocks",
+      "label": "Blocks",
+      "options": {
+        "compact": true,
+        "allowEditing": true,
+        "itemLabel": "Row"
+      },
+      "tab": "ungrouped",
+      "validation": {
+        "max": null,
+        "min": null,
+        "unit": "rows"
+      },
+      "value": [
+        {
+          "type": "reference",
+          "default": null,
+          "icon": "document-link",
+          "key": "reference",
+          "label": "Content Reference",
+          "localised": false,
+          "options": {
+            "collections": [
+              "/.mattrbld/collections/blocks.json"
+            ],
+            "field": "title",
+            "removable": true
+          },
+          "tab": "ungrouped",
+          "validation": {
+            "required": false
+          },
+          "value": null,
+          "version": 2,
+          "visibility": {
+            "hidden": false,
+            "showByValue": {
+              "field": null
+            }
+          }
+        }
+      ],
+      "version": 1,
+      "visibility": {
+        "hidden": false,
+        "showByValue": {
+          "field": null
+        }
+      }
+    }
+  ],
+  "tabs": [
+    {
+      "label": "ungrouped",
+      "groupAs": null
+    }
+  ]
+}

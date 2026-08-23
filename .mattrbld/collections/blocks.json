@@ -1,0 +1,27 @@
+{
+  "allowedTypes": [],
+  "defaultFilename": "collection",
+  "dir": null,
+  "disableComments": false,
+  "disablePreview": false,
+  "draftByDefault": false,
+  "linkable": false,
+  "maxSize": null,
+  "permissions": {
+    "everybody": [
+      "everything"
+    ]
+  },
+  "rawEntityNames": false,
+  "schemas": [
+    "/.mattrbld/schemas/content-blocks/hero.json",
+    "/.mattrbld/schemas/content-blocks/cta.json",
+    "/.mattrbld/schemas/content-blocks/rich-text.json",
+    "/.mattrbld/schemas/content-blocks/features.json",
+    "/.mattrbld/schemas/content-blocks/split.json",
+    "/.mattrbld/schemas/content-blocks/stats.json",
+    "/.mattrbld/schemas/content-blocks/testimonials.json"
+  ],
+  "type": "md",
+  "urlTemplate": ""
+}
