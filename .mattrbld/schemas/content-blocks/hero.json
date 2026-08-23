@@ -124,7 +124,7 @@
               "label": "Button Icon",
               "localised": false,
               "options": {
-                "sourceDir": null,
+                "sourceDir": "/cms/icons",
                 "insertAs": "template",
                 "urlTemplate": "tabler::filename",
                 "preserveColor": false,
