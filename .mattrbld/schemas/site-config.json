@@ -1,0 +1,371 @@
+{
+  "fields": [
+    {
+      "type": "group",
+      "displayField": null,
+      "icon": "group",
+      "key": "seo",
+      "label": "Seo Information",
+      "tab": "ungrouped",
+      "value": [
+        {
+          "type": "text",
+          "default": null,
+          "icon": "text-input",
+          "key": "title",
+          "label": "Title",
+          "localised": false,
+          "options": {
+            "wrapping": true,
+            "multiline": false
+          },
+          "tab": "ungrouped",
+          "validation": {
+            "enforceMinMax": true,
+            "max": null,
+            "min": null,
+            "regex": null,
+            "regexError": null,
+            "required": true,
+            "unit": "length"
+          },
+          "value": null,
+          "version": 1,
+          "visibility": {
+            "hidden": false,
+            "showByValue": {
+              "field": null
+            }
+          }
+        },
+        {
+          "type": "text",
+          "default": null,
+          "icon": "text-input",
+          "key": "description",
+          "label": "Description",
+          "localised": false,
+          "options": {
+            "wrapping": true,
+            "multiline": false
+          },
+          "tab": "ungrouped",
+          "validation": {
+            "enforceMinMax": true,
+            "max": null,
+            "min": null,
+            "regex": null,
+            "regexError": null,
+            "required": true,
+            "unit": "length"
+          },
+          "value": null,
+          "version": 1,
+          "visibility": {
+            "hidden": false,
+            "showByValue": {
+              "field": null
+            }
+          }
+        },
+        {
+          "type": "text",
+          "default": null,
+          "icon": "text-input",
+          "key": "siteOwner",
+          "label": "SiteOwner",
+          "localised": false,
+          "options": {
+            "wrapping": true,
+            "multiline": false
+          },
+          "tab": "ungrouped",
+          "validation": {
+            "enforceMinMax": true,
+            "max": null,
+            "min": null,
+            "regex": null,
+            "regexError": null,
+            "required": false,
+            "unit": "length"
+          },
+          "value": null,
+          "version": 1,
+          "visibility": {
+            "hidden": false,
+            "showByValue": {
+              "field": null
+            }
+          }
+        },
+        {
+          "type": "image",
+          "default": null,
+          "icon": "image",
+          "key": "logo",
+          "label": "Logo",
+          "options": {
+            "resolutionHint": "",
+            "removable": true,
+            "simple": false
+          },
+          "tab": "ungrouped",
+          "validation": {
+            "max": null,
+            "required": false,
+            "unit": "filesize (MB)"
+          },
+          "value": null,
+          "version": 1,
+          "visibility": {
+            "hidden": false,
+            "showByValue": {
+              "field": null
+            }
+          }
+        }
+      ],
+      "version": 1,
+      "visibility": {
+        "hidden": false,
+        "showByValue": {
+          "field": null
+        }
+      }
+    },
+    {
+      "type": "rows",
+      "default": null,
+      "icon": "rows",
+      "key": "nav",
+      "label": "Nav",
+      "options": {
+        "compact": true,
+        "allowEditing": true,
+        "itemLabel": "Row"
+      },
+      "tab": "ungrouped",
+      "validation": {
+        "max": null,
+        "min": null,
+        "unit": "rows"
+      },
+      "value": [
+        {
+          "type": "group",
+          "displayField": "title",
+          "icon": "group",
+          "key": "nav-element",
+          "label": "Nav Element",
+          "tab": "ungrouped",
+          "value": [
+            {
+              "type": "text",
+              "default": null,
+              "icon": "text-input",
+              "key": "title",
+              "label": "Title",
+              "localised": false,
+              "options": {
+                "wrapping": true,
+                "multiline": false
+              },
+              "tab": "ungrouped",
+              "validation": {
+                "enforceMinMax": true,
+                "max": null,
+                "min": null,
+                "regex": null,
+                "regexError": null,
+                "required": false,
+                "unit": "length"
+              },
+              "value": null,
+              "version": 1,
+              "visibility": {
+                "hidden": false,
+                "showByValue": {
+                  "field": null
+                }
+              }
+            },
+            {
+              "type": "link",
+              "default": null,
+              "icon": "link",
+              "key": "link",
+              "label": "Link",
+              "localised": false,
+              "options": {
+                "type": "both",
+                "byFilePath": false,
+                "urlSuffix": "/",
+                "urlTemplate": ""
+              },
+              "tab": "ungrouped",
+              "validation": {
+                "required": false
+              },
+              "value": null,
+              "version": 1,
+              "visibility": {
+                "hidden": false,
+                "showByValue": {
+                  "field": null
+                }
+              }
+            }
+          ],
+          "version": 1,
+          "visibility": {
+            "hidden": false,
+            "showByValue": {
+              "field": null
+            }
+          }
+        }
+      ],
+      "version": 1,
+      "visibility": {
+        "hidden": false,
+        "showByValue": {
+          "field": null
+        }
+      }
+    },
+    {
+      "type": "rows",
+      "default": null,
+      "icon": "rows",
+      "key": "contactLinks",
+      "label": "Social Media Links",
+      "options": {
+        "compact": true,
+        "allowEditing": true,
+        "itemLabel": "Row"
+      },
+      "tab": "ungrouped",
+      "validation": {
+        "max": null,
+        "min": null,
+        "unit": "rows"
+      },
+      "value": [
+        {
+          "type": "group",
+          "displayField": "title",
+          "icon": "group",
+          "key": "contactLink",
+          "label": "Social Media Link",
+          "tab": "ungrouped",
+          "value": [
+            {
+              "type": "text",
+              "default": null,
+              "icon": "text-input",
+              "key": "title",
+              "label": "Title",
+              "localised": false,
+              "options": {
+                "wrapping": true,
+                "multiline": false
+              },
+              "tab": "ungrouped",
+              "validation": {
+                "enforceMinMax": true,
+                "max": null,
+                "min": null,
+                "regex": null,
+                "regexError": null,
+                "required": false,
+                "unit": "length"
+              },
+              "value": null,
+              "version": 1,
+              "visibility": {
+                "hidden": false,
+                "showByValue": {
+                  "field": null
+                }
+              }
+            },
+            {
+              "type": "link",
+              "default": null,
+              "icon": "link",
+              "key": "link",
+              "label": "Link",
+              "localised": false,
+              "options": {
+                "type": "both",
+                "byFilePath": false,
+                "urlSuffix": "/",
+                "urlTemplate": ""
+              },
+              "tab": "ungrouped",
+              "validation": {
+                "required": true
+              },
+              "value": null,
+              "version": 1,
+              "visibility": {
+                "hidden": false,
+                "showByValue": {
+                  "field": null
+                }
+              }
+            },
+            {
+              "type": "icon",
+              "default": null,
+              "icon": "mattrbld",
+              "key": "icon",
+              "label": "Icon",
+              "localised": false,
+              "options": {
+                "sourceDir": "/cms/icons",
+                "insertAs": "template",
+                "urlTemplate": "tabler::filename",
+                "preserveColor": false,
+                "prettyFilenames": false,
+                "removable": false
+              },
+              "tab": "ungrouped",
+              "validation": {
+                "required": true
+              },
+              "value": null,
+              "version": 1,
+              "visibility": {
+                "hidden": false,
+                "showByValue": {
+                  "field": null
+                }
+              }
+            }
+          ],
+          "version": 1,
+          "visibility": {
+            "hidden": false,
+            "showByValue": {
+              "field": null
+            }
+          }
+        }
+      ],
+      "version": 1,
+      "visibility": {
+        "hidden": false,
+        "showByValue": {
+          "field": null
+        }
+      }
+    }
+  ],
+  "tabs": [
+    {
+      "label": "ungrouped",
+      "groupAs": null
+    }
+  ]
+}
