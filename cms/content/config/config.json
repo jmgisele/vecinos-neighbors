@@ -34,5 +34,6 @@
       "link": "https://www.example.com",
       "icon": "tabler:brand-facebook"
     }
-  ]
+  ],
+  "___mb_schema": "/.mattrbld/schemas/site-config.json"
 }
