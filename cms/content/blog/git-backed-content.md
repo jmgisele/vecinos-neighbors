@@ -1,5 +1,5 @@
 ---
-title: 'Heads Up: Your content lives in Git'
+title: 'Changed Heads Up: Your content lives in Git'
 description: >-
   With TinaCMS, every edit is a commit. Here is what a Git-backed CMS gives you
   that a database-backed one cannot.
@@ -8,6 +8,9 @@ heroImage: /blog-placeholder-5.jpg
 updatedDate: '2026-08-23T14:44:00-04:00'
 body: >-
   ## How it works
+
+
+  I am a new sentence!!!
 
 
   The defining choice in TinaCMS is where your content is stored. Instead of a
