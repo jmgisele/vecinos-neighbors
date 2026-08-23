@@ -5,7 +5,7 @@
   "disableComments": false,
   "disablePreview": false,
   "draftByDefault": false,
-  "linkable": false,
+  "linkable": true,
   "maxSize": null,
   "permissions": {
     "everybody": [
