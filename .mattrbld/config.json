@@ -16,6 +16,36 @@
       "showInDashboard": true
     },
     {
+      "icon": null,
+      "label": "Pages",
+      "target": {
+        "name": "Project.Collection",
+        "params": {
+          "path": "/.mattrbld/collections/pages.json"
+        }
+      }
+    },
+    {
+      "icon": null,
+      "label": "Content Blocks",
+      "target": {
+        "name": "Project.Collection",
+        "params": {
+          "path": "/.mattrbld/collections/blocks.json"
+        }
+      }
+    },
+    {
+      "icon": null,
+      "label": "Site Config",
+      "target": {
+        "name": "Project.Collection",
+        "params": {
+          "path": "/.mattrbld/collections/site-config.json"
+        }
+      }
+    },
+    {
       "separator": true
     },
     {
@@ -44,36 +74,6 @@
         "name": "Project.MediaLibrary"
       },
       "protected": true
-    },
-    {
-      "icon": null,
-      "label": "blog post",
-      "target": {
-        "name": "Project.Collection",
-        "params": {
-          "path": "/.mattrbld/collections/blog-post.json"
-        }
-      }
-    },
-    {
-      "icon": null,
-      "label": "blocks",
-      "target": {
-        "name": "Project.Collection",
-        "params": {
-          "path": "/.mattrbld/collections/blocks.json"
-        }
-      }
-    },
-    {
-      "icon": null,
-      "label": "pages",
-      "target": {
-        "name": "Project.Collection",
-        "params": {
-          "path": "/.mattrbld/collections/pages.json"
-        }
-      }
     },
     {
       "label": "Settings",

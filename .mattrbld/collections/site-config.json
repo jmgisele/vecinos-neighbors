@@ -1,0 +1,21 @@
+{
+  "allowedTypes": [],
+  "defaultFilename": "collection",
+  "dir": "/cms/content/config",
+  "disableComments": false,
+  "disablePreview": false,
+  "draftByDefault": false,
+  "linkable": false,
+  "maxSize": null,
+  "permissions": {
+    "everybody": [
+      "everything"
+    ]
+  },
+  "rawEntityNames": false,
+  "schemas": [
+    "/.mattrbld/schemas/site-config.json"
+  ],
+  "type": "md",
+  "urlTemplate": ""
+}

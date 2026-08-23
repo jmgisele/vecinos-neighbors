@@ -2,7 +2,11 @@
 seoTitle: Home
 blocks:
   - headline: Food brings us together
-    tagline: 'We envision in the greater Woodburn area, a welcoming, warm, and thriving, community where all neighbors, especially those working in agriculture, come together to form friendships while supporting and celebrating one another’s lives.'
+    tagline: >-
+      We envision in the greater Woodburn area, a welcoming, warm, and thriving,
+      community where all neighbors, especially those working in agriculture,
+      come together to form friendships while supporting and celebrating one
+      another’s lives.
     actions:
       - label: Get Involved
         type: button
@@ -20,8 +24,10 @@ blocks:
           Lorem ipsum dolor sit amet, consectetur adipiscing elit.
       - icon: heart-filled
         title: Mission
-        text: |
-          We are committed to bringing together agricultural workers and their neighbors in Woodburn to foster relationships that strengthen community ties.
+        text: >
+          We are committed to bringing together agricultural workers and their
+          neighbors in Woodburn to foster relationships that strengthen
+          community ties.
       - icon: sunset-2-filled
         title: What We Do
         text: |
@@ -77,12 +83,24 @@ blocks:
       ![](/Meal-Prep.png)
     _template: content
   - title: Testimonials
-    description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin at odio sit amet nulla condimentum volutpat sit amet ac mi. '
+    description: >-
+      Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin at odio sit
+      amet nulla condimentum volutpat sit amet ac mi. 
     testimonials:
-      - quote: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin at odio sit amet nulla condimentum volutpat sit amet ac mi. Phasellus lacinia justo ut ex faucibus, sed euismod nulla pellentesque. Sed efficitur tortor sed sapien pharetra, sed hendrerit nunc placerat. Pellentesque lacus mi, dignissim eget tortor non, elementum vulputate'
+      - quote: >-
+          Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin at odio
+          sit amet nulla condimentum volutpat sit amet ac mi. Phasellus lacinia
+          justo ut ex faucibus, sed euismod nulla pellentesque. Sed efficitur
+          tortor sed sapien pharetra, sed hendrerit nunc placerat. Pellentesque
+          lacus mi, dignissim eget tortor non, elementum vulputate
         author: Jane Doe
         role: 'Community Member, Woodburn, OR'
-      - quote: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin at odio sit amet nulla condimentum volutpat sit amet ac mi. Phasellus lacinia justo ut ex faucibus, sed euismod nulla pellentesque. Sed efficitur tortor sed sapien pharetra, sed hendrerit nunc placerat. Pellentesque lacus mi, dignissim eget tortor non, elementum vulputate'
+      - quote: >-
+          Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin at odio
+          sit amet nulla condimentum volutpat sit amet ac mi. Phasellus lacinia
+          justo ut ex faucibus, sed euismod nulla pellentesque. Sed efficitur
+          tortor sed sapien pharetra, sed hendrerit nunc placerat. Pellentesque
+          lacus mi, dignissim eget tortor non, elementum vulputate
         author: Joseph Doe
         role: Regular Volunteer
       - quote: Lorem ipsum dolor sit amet
@@ -99,5 +117,6 @@ blocks:
         type: link
         link: /get-involved
     _template: cta
+___mb_schema: /.mattrbld/schemas/pages.json
 ---
 

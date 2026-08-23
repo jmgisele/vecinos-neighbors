@@ -14,7 +14,10 @@ blocks:
       Shoot us a line at [example@example.org](mailto\:example@example.org)
     image:
       src: /converted_0009.png
-      alt: Picture of a bunch of Vecinos Neighbors volunteers in front of a trailer in the sunshine.
+      alt: >-
+        Picture of a bunch of Vecinos Neighbors volunteers in front of a trailer
+        in the sunshine.
     _template: split
+___mb_schema: /.mattrbld/schemas/pages.json
 ---
 

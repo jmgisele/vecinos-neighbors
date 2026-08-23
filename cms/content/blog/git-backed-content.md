@@ -1,10 +1,14 @@
 ---
 title: Your content lives in Git
-description: With TinaCMS, every edit is a commit. Here is what a Git-backed CMS gives you that a database-backed one cannot.
+description: >-
+  With TinaCMS, every edit is a commit. Here is what a Git-backed CMS gives you
+  that a database-backed one cannot.
 pubDate: 2026-04-08T09:00:00.000Z
 heroImage: /blog-placeholder-5.jpg
+updatedDate: '2026-08-23T14:44:00-04:00'
+body: null
+___mb_schema: /.mattrbld/schemas/blog-posts.json
 ---
-
 The defining choice in TinaCMS is where your content is stored. Instead of a hosted database, your content is a set of Markdown, MDX, and JSON files in your repository. When an editor saves, TinaCMS writes the file and commits it. That single decision shapes nearly everything else about the workflow.
 
 ## What you get for free
