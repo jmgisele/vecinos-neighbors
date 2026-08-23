@@ -1,0 +1,21 @@
+{
+  "title": "What we stand for",
+  "body": "A few convictions that shape every decision we make.",
+  "items": [
+    {
+      "icon": "code",
+      "title": "Developer-first",
+      "body": "blah"
+    },
+    {
+      "icon": "wand",
+      "title": "Editor-friendly",
+      "body": "In-context visual editing means content creators see changes as they make them no config files, no guesswork."
+    },
+    {
+      "icon": "lock-open",
+      "title": "No lock-in, ever",
+      "body": "Your content lives in your repo as plain Markdown. Walk away whenever you like and take all of it with you."
+    }
+  ]
+}

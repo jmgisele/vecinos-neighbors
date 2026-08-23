@@ -1,0 +1,18 @@
+{
+  "headline": "Food brings us together",
+  "tagline": "We envision in the greater Woodburn area, a welcoming, warm, and thriving, community where all neighbors, especially those working in agriculture, come together to form friendships while supporting and celebrating one another’s lives.",
+  "actions": [
+    {
+      "label": "Get Involved",
+      "type": "button",
+      "icon": "",
+      "link": "/get-involved"
+    }
+  ],
+  "image": [
+    {
+      "src": "/Meal-Prep.png"
+    }
+  ],
+  "_template": "hero"
+}
