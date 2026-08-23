@@ -66,6 +66,16 @@
       }
     },
     {
+      "icon": null,
+      "label": "pages",
+      "target": {
+        "name": "Project.Collection",
+        "params": {
+          "path": "/.mattrbld/collections/pages.json"
+        }
+      }
+    },
+    {
       "label": "Settings",
       "icon": "settings",
       "target": {
