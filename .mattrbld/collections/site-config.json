@@ -16,6 +16,6 @@
   "schemas": [
     "/.mattrbld/schemas/site-config.json"
   ],
-  "type": "md",
+  "type": "json",
   "urlTemplate": ""
 }

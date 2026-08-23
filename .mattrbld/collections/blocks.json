@@ -1,7 +1,7 @@
 {
   "allowedTypes": [],
   "defaultFilename": "collection",
-  "dir": null,
+  "dir": "/cms/content/blocks",
   "disableComments": false,
   "disablePreview": false,
   "draftByDefault": false,
