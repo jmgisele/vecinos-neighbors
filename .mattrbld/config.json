@@ -2,10 +2,21 @@
   "autoquotes": null,
   "brandColors": [],
   "corsProxy": "http://localhost:9999",
-  "name": "vecinos-neighbors",
+  "name": "Vecinos Neighbors",
   "sidebar": [
     {
-      "label": "The sidebar has not yet been configured for this project"
+      "icon": null,
+      "label": "Blog Posts",
+      "target": {
+        "name": "Project.Collection",
+        "params": {
+          "path": "/.mattrbld/collections/blog-post.json"
+        }
+      },
+      "showInDashboard": true
+    },
+    {
+      "separator": true
     },
     {
       "icon": "wrench-and-driver",
@@ -17,9 +28,6 @@
         }
       },
       "onlyPrivileged": true
-    },
-    {
-      "separator": true
     },
     {
       "label": "Dashboard",
@@ -36,6 +44,16 @@
         "name": "Project.MediaLibrary"
       },
       "protected": true
+    },
+    {
+      "icon": null,
+      "label": "blog post",
+      "target": {
+        "name": "Project.Collection",
+        "params": {
+          "path": "/.mattrbld/collections/blog-post.json"
+        }
+      }
     },
     {
       "label": "Settings",

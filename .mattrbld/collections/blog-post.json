@@ -1,0 +1,21 @@
+{
+  "allowedTypes": [],
+  "defaultFilename": "collection",
+  "dir": "/cms/content/blog",
+  "disableComments": false,
+  "disablePreview": false,
+  "draftByDefault": false,
+  "linkable": true,
+  "maxSize": null,
+  "permissions": {
+    "everybody": [
+      "everything"
+    ]
+  },
+  "rawEntityNames": false,
+  "schemas": [
+    "/.mattrbld/schemas/blog-posts.json"
+  ],
+  "type": "md",
+  "urlTemplate": "/blog/:title\\.md"
+}
