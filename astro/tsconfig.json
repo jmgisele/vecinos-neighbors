@@ -6,8 +6,7 @@
     "strictNullChecks": true,
 		"paths": {
       "@/components/*": ["./src/components/*"],
-      "@/content-files/*": ["./../mattrbld/content/*"],
-      "@/content/*": ["./src/content/*"],
+      "@/content/*": ["./src/cms/content/*"],
 			"@/layouts/*": ["./src/layouts/*"],
 			"@/lib/*": ["./src/lib/*"],
 			"@/pages/*": ["./src/pages/*"],

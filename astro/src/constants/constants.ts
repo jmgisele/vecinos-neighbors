@@ -1,5 +1,5 @@
 // DIRECTORIES
-export const ROOT_DIR = './../mattrbld';
+export const ROOT_DIR = './../cms';
 export const CONTENT_DIR = `${ROOT_DIR}/content`;
 export const BLOG_DIR = `${CONTENT_DIR}/blog`;
 export const PAGE_DIR = `${CONTENT_DIR}/page`;
