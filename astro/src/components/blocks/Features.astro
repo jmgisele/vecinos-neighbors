@@ -33,9 +33,7 @@ const items = (data.items ?? []).filter((it: any) => it !== null);
 												<h3  class="mt-6 font-medium text-lg">{item.title}</h3>
 										</CardHeader>
 										<CardContent class="text-base pb-8 text-muted-foreground">
-												<div >
 														<RichText additionalClasses="prose-sm" body={item.text} />
-												</div>
 										</CardContent>
 								</div>
 						</Card>

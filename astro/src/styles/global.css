@@ -82,22 +82,19 @@
 	--barely-white: #f4f4f5; /* 200 */
 	--muted-white: #e4e4e7; /* 300 */
 
-
-
-	--background: var(--tomato);
-	--foreground: var(--basically-white);
-	--card: color-mix(in hsl, var(--background), white 15%);
-	--card-foreground: var(--basically-white);
-	--border:  color-mix(in hsl, var(--background), white 40%);
+	--background: var(--muted-white);
+	--foreground: var(--teal);
+	--card: color-mix(in hsl, var(--background), black 2%);
+	--border:  color-mix(in hsl, var(--foreground), white 40%);
 
 
 	--popover-foreground: var(--muted-white);
 	--primary: color-mix(in hsl, var(--logo-purple), white 10%);
 	--primary-foreground: var(--barely-white);
 	--secondary: var(--sunflower);
-	--secondary-foreground: var(--barely-white);
+	--secondary-foreground: var(--golden);
 	--muted: var(--yellow-teal);
-	--muted-foreground: var(--muted-white);
+	--muted-foreground: var(--muted-teal);
 
 	--accent: color-mix(in hsl, var(--logo-green), black 10%);
 	--accent-hover: color-mix(in hsl, var(--logo-green), black 15%);
