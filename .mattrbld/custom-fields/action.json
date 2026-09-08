@@ -1,0 +1,131 @@
+{
+  "type": "group",
+  "displayField": null,
+  "icon": "group",
+  "key": "action",
+  "label": "Action",
+  "tab": null,
+  "value": [
+    {
+      "type": "text",
+      "default": null,
+      "icon": "text-input",
+      "key": "label",
+      "label": "Display Text",
+      "localised": false,
+      "options": {
+        "wrapping": true,
+        "multiline": false
+      },
+      "tab": null,
+      "validation": {
+        "enforceMinMax": true,
+        "max": null,
+        "min": null,
+        "regex": null,
+        "regexError": null,
+        "required": true,
+        "unit": "length"
+      },
+      "value": null,
+      "version": 1,
+      "visibility": {
+        "hidden": false,
+        "showByValue": {
+          "field": null
+        }
+      }
+    },
+    {
+      "type": "select",
+      "default": null,
+      "icon": "dropdown",
+      "key": "type",
+      "label": "Type",
+      "options": {
+        "filterable": false,
+        "removable": false,
+        "placeholder": "Select a value…",
+        "options": [
+          "button",
+          "link"
+        ]
+      },
+      "tab": null,
+      "validation": {
+        "required": true
+      },
+      "value": null,
+      "version": 1,
+      "visibility": {
+        "hidden": false,
+        "showByValue": {
+          "field": null
+        }
+      }
+    },
+    {
+      "type": "icon",
+      "default": null,
+      "icon": "mattrbld",
+      "key": "icon",
+      "label": "Icon",
+      "localised": false,
+      "options": {
+        "sourceDir": "/cms/icons",
+        "insertAs": "template",
+        "urlTemplate": "tabler::filename",
+        "preserveColor": false,
+        "prettyFilenames": false,
+        "removable": false
+      },
+      "tab": null,
+      "validation": {
+        "required": false
+      },
+      "value": null,
+      "version": 1,
+      "visibility": {
+        "hidden": false,
+        "showByValue": {
+          "field": null
+        }
+      }
+    },
+    {
+      "type": "link",
+      "default": null,
+      "icon": "link",
+      "key": "link",
+      "label": "Link",
+      "localised": false,
+      "options": {
+        "type": "both",
+        "byFilePath": false,
+        "urlSuffix": "/",
+        "urlTemplate": ""
+      },
+      "tab": null,
+      "validation": {
+        "required": false
+      },
+      "value": null,
+      "version": 1,
+      "visibility": {
+        "hidden": false,
+        "showByValue": {
+          "field": null
+        }
+      }
+    }
+  ],
+  "version": 1,
+  "visibility": {
+    "hidden": false,
+    "showByValue": {
+      "field": null
+    }
+  },
+  "description": "",
+  "group": ""
+}
