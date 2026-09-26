@@ -101,6 +101,29 @@ blocks:
 
       ~~Strikethrough~~
     ___mb_type: content
+    body: |-
+      More content goes here
+
+      -   bulleted
+          
+      -   list
+          
+      -   here
+          
+
+      ## Header 2
+
+      ### Header 3
+
+      #### Header 4
+
+      This is **bold** and *italic*
+
+      1.  first
+          
+      2.  second
+          
+      3.  third
   - title: Testimonials
     description: >-
       Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin at odio sit
