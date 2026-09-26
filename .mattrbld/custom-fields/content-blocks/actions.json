@@ -89,7 +89,7 @@
           "options": {
             "sourceDir": "/cms/icons",
             "insertAs": "filepath",
-            "urlTemplate": "tabler::filename",
+            "urlTemplate": "::filename",
             "preserveColor": false,
             "prettyFilenames": false,
             "removable": false
@@ -141,7 +141,7 @@
       }
     }
   ],
-  "version": 3,
+  "version": 4,
   "visibility": {
     "hidden": false,
     "showByValue": {
