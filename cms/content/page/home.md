@@ -74,6 +74,28 @@ blocks:
       - stat: '1000'
         type: lorem ipsum
     ___mb_type: statistics
+  - body: |-
+      You can add more text here
+
+      ## Header 1
+
+      ### Header 2
+
+      #### Header 3
+
+      This text is **bold** this is *italic*
+
+      -   bullet
+          
+      -   bullet
+          
+
+      1.  one
+          
+      2.  two
+          
+      3.  three
+    ___mb_type: content
   - title: Testimonials
     description: >-
       Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin at odio sit
