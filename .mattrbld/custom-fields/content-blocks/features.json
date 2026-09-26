@@ -191,7 +191,7 @@
               "type": "rich text",
               "default": null,
               "icon": "text",
-              "key": "body",
+              "key": "text",
               "label": "Body",
               "localised": false,
               "options": {
@@ -275,7 +275,7 @@
       }
     }
   ],
-  "version": 3,
+  "version": 4,
   "visibility": {
     "hidden": false,
     "showByValue": {

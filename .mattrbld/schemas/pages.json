@@ -359,8 +359,7 @@
                 "showByValue": {
                   "field": null
                 }
-              },
-              "tab": "ungrouped"
+              }
             },
             {
               "type": "rich text",
@@ -429,8 +428,7 @@
                 "showByValue": {
                   "field": null
                 }
-              },
-              "tab": "ungrouped"
+              }
             },
             {
               "type": "rows",
@@ -481,8 +479,7 @@
                         "showByValue": {
                           "field": null
                         }
-                      },
-                      "tab": "ungrouped"
+                      }
                     },
                     {
                       "type": "text",
@@ -511,14 +508,13 @@
                         "showByValue": {
                           "field": null
                         }
-                      },
-                      "tab": "ungrouped"
+                      }
                     },
                     {
                       "type": "rich text",
                       "default": null,
                       "icon": "text",
-                      "key": "body",
+                      "key": "text",
                       "label": "Body",
                       "localised": false,
                       "options": {
@@ -581,8 +577,7 @@
                         "showByValue": {
                           "field": null
                         }
-                      },
-                      "tab": "ungrouped"
+                      }
                     }
                   ],
                   "version": 1,
@@ -591,8 +586,7 @@
                     "showByValue": {
                       "field": null
                     }
-                  },
-                  "tab": "ungrouped"
+                  }
                 }
               ],
               "version": 1,
@@ -601,11 +595,10 @@
                 "showByValue": {
                   "field": null
                 }
-              },
-              "tab": "ungrouped"
+              }
             }
           ],
-          "version": 3,
+          "version": 4,
           "visibility": {
             "hidden": false,
             "showByValue": {
@@ -1467,25 +1460,68 @@
           }
         },
         {
-          "type": "reference",
+          "type": "rich text",
           "default": null,
-          "icon": "document-link",
-          "key": "reference",
-          "label": "Content Reference",
+          "icon": "text",
+          "key": "content",
+          "label": "Text Content",
           "localised": false,
           "options": {
-            "collections": [
-              "/.mattrbld/collections/blocks.json"
+            "outputFormat": "markdown",
+            "blockFormats": [
+              "blockquote",
+              "heading",
+              "hr",
+              "orderedList",
+              "unorderedList",
+              "image"
             ],
-            "field": "title",
-            "removable": true
+            "inlineFormats": [
+              "em",
+              "strong",
+              "link"
+            ],
+            "formatOptions": [
+              "allowQuoteFooters",
+              "allowNestedLists",
+              "allowImageCaptions"
+            ],
+            "inputRuleOptions": [
+              "autoquotes",
+              "dashes",
+              "ellipsis",
+              "noDoubleCaps",
+              "noDoubleSpace"
+            ],
+            "minHeading": 2,
+            "maxHeading": 4,
+            "codeLangs": [
+              "html",
+              "css",
+              "javascript",
+              "markdown"
+            ],
+            "allowRaw": false,
+            "urlTemplate": "",
+            "urlSuffix": "",
+            "linkOptions": [
+              "forceBlankTarget",
+              "allowExternal",
+              "allowInternal"
+            ]
           },
           "tab": "ungrouped",
           "validation": {
-            "required": false
+            "enforceMinMax": true,
+            "max": null,
+            "min": null,
+            "regex": null,
+            "regexError": null,
+            "required": false,
+            "unit": "length"
           },
           "value": null,
-          "version": 2,
+          "version": 1,
           "visibility": {
             "hidden": false,
             "showByValue": {
