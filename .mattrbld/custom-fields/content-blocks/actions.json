@@ -18,11 +18,10 @@
   "value": [
     {
       "type": "group",
-      "displayField": null,
+      "displayField": "label",
       "icon": "group",
       "key": "action",
       "label": "Action",
-      "tab": null,
       "value": [
         {
           "type": "text",
@@ -35,7 +34,6 @@
             "wrapping": true,
             "multiline": false
           },
-          "tab": null,
           "validation": {
             "enforceMinMax": true,
             "max": null,
@@ -69,7 +67,6 @@
               "link"
             ]
           },
-          "tab": null,
           "validation": {
             "required": true
           },
@@ -91,13 +88,12 @@
           "localised": false,
           "options": {
             "sourceDir": "/cms/icons",
-            "insertAs": "template",
+            "insertAs": "filepath",
             "urlTemplate": "tabler::filename",
             "preserveColor": false,
             "prettyFilenames": false,
             "removable": false
           },
-          "tab": null,
           "validation": {
             "required": false
           },
@@ -123,7 +119,6 @@
             "urlSuffix": "/",
             "urlTemplate": ""
           },
-          "tab": null,
           "validation": {
             "required": false
           },
@@ -143,11 +138,10 @@
         "showByValue": {
           "field": null
         }
-      },
-      "customField": "action.json"
+      }
     }
   ],
-  "version": 1,
+  "version": 3,
   "visibility": {
     "hidden": false,
     "showByValue": {
