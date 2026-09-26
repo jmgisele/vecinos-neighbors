@@ -27,16 +27,6 @@
     },
     {
       "icon": null,
-      "label": "Content Blocks",
-      "target": {
-        "name": "Project.Collection",
-        "params": {
-          "path": "/.mattrbld/collections/blocks.json"
-        }
-      }
-    },
-    {
-      "icon": null,
       "label": "Site Config",
       "target": {
         "name": "Project.Collection",

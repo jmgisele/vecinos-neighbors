@@ -2,8 +2,8 @@
   "type": "group",
   "displayField": "title",
   "icon": "group",
-  "key": "group",
-  "label": "Field Group",
+  "key": "split",
+  "label": "Split",
   "value": [
     {
       "type": "text",
@@ -33,7 +33,7 @@
         "min": null,
         "regex": null,
         "regexError": null,
-        "required": false,
+        "required": true,
         "unit": "length"
       }
     },
@@ -284,7 +284,7 @@
       "customField": "actions.json"
     }
   ],
-  "version": 4,
+  "version": 5,
   "visibility": {
     "hidden": false,
     "showByValue": {

@@ -464,7 +464,7 @@
                       "options": {
                         "sourceDir": "/cms/icons",
                         "insertAs": "template",
-                        "urlTemplate": "tabler::filename",
+                        "urlTemplate": "::filename",
                         "preserveColor": false,
                         "prettyFilenames": false,
                         "removable": false
@@ -598,7 +598,7 @@
               }
             }
           ],
-          "version": 4,
+          "version": 5,
           "visibility": {
             "hidden": false,
             "showByValue": {
@@ -1172,8 +1172,7 @@
                     "showByValue": {
                       "field": null
                     }
-                  },
-                  "tab": "ungrouped"
+                  }
                 },
                 {
                   "type": "select",
@@ -1200,8 +1199,7 @@
                     "showByValue": {
                       "field": null
                     }
-                  },
-                  "tab": "ungrouped"
+                  }
                 },
                 {
                   "type": "icon",
@@ -1213,7 +1211,7 @@
                   "options": {
                     "sourceDir": "/cms/icons",
                     "insertAs": "filepath",
-                    "urlTemplate": "tabler::filename",
+                    "urlTemplate": "::filename",
                     "preserveColor": false,
                     "prettyFilenames": false,
                     "removable": false
@@ -1228,8 +1226,7 @@
                     "showByValue": {
                       "field": null
                     }
-                  },
-                  "tab": "ungrouped"
+                  }
                 },
                 {
                   "type": "link",
@@ -1254,8 +1251,7 @@
                     "showByValue": {
                       "field": null
                     }
-                  },
-                  "tab": "ungrouped"
+                  }
                 }
               ],
               "version": 1,
@@ -1264,11 +1260,10 @@
                 "showByValue": {
                   "field": null
                 }
-              },
-              "tab": "ungrouped"
+              }
             }
           ],
-          "version": 3,
+          "version": 4,
           "visibility": {
             "hidden": false,
             "showByValue": {
@@ -1458,6 +1453,310 @@
               "field": null
             }
           }
+        },
+        {
+          "type": "group",
+          "displayField": "title",
+          "icon": "group",
+          "key": "split",
+          "label": "Split",
+          "value": [
+            {
+              "type": "text",
+              "description": "",
+              "group": "custom fields",
+              "icon": "text-input",
+              "key": "title",
+              "label": "Title",
+              "tab": "ungrouped",
+              "value": null,
+              "version": 1,
+              "visibility": {
+                "hidden": false,
+                "showByValue": {
+                  "field": null
+                }
+              },
+              "default": null,
+              "options": {
+                "wrapping": true,
+                "multiline": false
+              },
+              "localised": false,
+              "validation": {
+                "enforceMinMax": true,
+                "max": null,
+                "min": null,
+                "regex": null,
+                "regexError": null,
+                "required": true,
+                "unit": "length"
+              }
+            },
+            {
+              "type": "rich text",
+              "default": null,
+              "icon": "text",
+              "key": "body",
+              "label": "Body",
+              "localised": false,
+              "options": {
+                "outputFormat": "markdown",
+                "blockFormats": [
+                  "blockquote",
+                  "heading",
+                  "hr",
+                  "orderedList",
+                  "unorderedList",
+                  "image"
+                ],
+                "inlineFormats": [
+                  "em",
+                  "strong",
+                  "link"
+                ],
+                "formatOptions": [
+                  "allowQuoteFooters",
+                  "allowNestedLists",
+                  "allowImageCaptions"
+                ],
+                "inputRuleOptions": [
+                  "autoquotes",
+                  "dashes",
+                  "ellipsis",
+                  "noDoubleCaps",
+                  "noDoubleSpace"
+                ],
+                "minHeading": 2,
+                "maxHeading": 4,
+                "codeLangs": [
+                  "html",
+                  "css",
+                  "javascript",
+                  "markdown"
+                ],
+                "allowRaw": false,
+                "urlTemplate": "",
+                "urlSuffix": "",
+                "linkOptions": [
+                  "forceBlankTarget",
+                  "allowExternal",
+                  "allowInternal"
+                ]
+              },
+              "validation": {
+                "enforceMinMax": true,
+                "max": null,
+                "min": null,
+                "regex": null,
+                "regexError": null,
+                "required": true,
+                "unit": "length"
+              },
+              "value": null,
+              "version": 1,
+              "visibility": {
+                "hidden": false,
+                "showByValue": {
+                  "field": null
+                }
+              },
+              "tab": "ungrouped"
+            },
+            {
+              "type": "image",
+              "default": null,
+              "icon": "image",
+              "key": "image",
+              "label": "Image",
+              "options": {
+                "resolutionHint": "",
+                "removable": true,
+                "simple": false
+              },
+              "validation": {
+                "max": null,
+                "required": true,
+                "unit": "filesize (MB)"
+              },
+              "value": null,
+              "version": 1,
+              "visibility": {
+                "hidden": false,
+                "showByValue": {
+                  "field": null
+                }
+              },
+              "tab": "ungrouped"
+            },
+            {
+              "type": "rows",
+              "default": null,
+              "icon": "rows",
+              "key": "actions",
+              "label": "Actions",
+              "options": {
+                "compact": true,
+                "allowEditing": true,
+                "itemLabel": "Row"
+              },
+              "validation": {
+                "max": null,
+                "min": null,
+                "unit": "rows"
+              },
+              "value": [
+                {
+                  "type": "group",
+                  "displayField": null,
+                  "icon": "group",
+                  "key": "action",
+                  "label": "Action",
+                  "value": [
+                    {
+                      "type": "text",
+                      "default": null,
+                      "icon": "text-input",
+                      "key": "label",
+                      "label": "Display Text",
+                      "localised": false,
+                      "options": {
+                        "wrapping": true,
+                        "multiline": false
+                      },
+                      "validation": {
+                        "enforceMinMax": true,
+                        "max": null,
+                        "min": null,
+                        "regex": null,
+                        "regexError": null,
+                        "required": true,
+                        "unit": "length"
+                      },
+                      "value": null,
+                      "version": 1,
+                      "visibility": {
+                        "hidden": false,
+                        "showByValue": {
+                          "field": null
+                        }
+                      },
+                      "tab": "ungrouped"
+                    },
+                    {
+                      "type": "select",
+                      "default": null,
+                      "icon": "dropdown",
+                      "key": "type",
+                      "label": "Type",
+                      "options": {
+                        "filterable": false,
+                        "removable": false,
+                        "placeholder": "Select a value…",
+                        "options": [
+                          "button",
+                          "link"
+                        ]
+                      },
+                      "validation": {
+                        "required": true
+                      },
+                      "value": null,
+                      "version": 1,
+                      "visibility": {
+                        "hidden": false,
+                        "showByValue": {
+                          "field": null
+                        }
+                      },
+                      "tab": "ungrouped"
+                    },
+                    {
+                      "type": "icon",
+                      "default": null,
+                      "icon": "mattrbld",
+                      "key": "icon",
+                      "label": "Icon",
+                      "localised": false,
+                      "options": {
+                        "sourceDir": "/cms/icons",
+                        "insertAs": "template",
+                        "urlTemplate": "tabler::filename",
+                        "preserveColor": false,
+                        "prettyFilenames": false,
+                        "removable": false
+                      },
+                      "validation": {
+                        "required": false
+                      },
+                      "value": null,
+                      "version": 1,
+                      "visibility": {
+                        "hidden": false,
+                        "showByValue": {
+                          "field": null
+                        }
+                      },
+                      "tab": "ungrouped"
+                    },
+                    {
+                      "type": "link",
+                      "default": null,
+                      "icon": "link",
+                      "key": "link",
+                      "label": "Link",
+                      "localised": false,
+                      "options": {
+                        "type": "both",
+                        "byFilePath": false,
+                        "urlSuffix": "/",
+                        "urlTemplate": ""
+                      },
+                      "validation": {
+                        "required": false
+                      },
+                      "value": null,
+                      "version": 1,
+                      "visibility": {
+                        "hidden": false,
+                        "showByValue": {
+                          "field": null
+                        }
+                      },
+                      "tab": "ungrouped"
+                    }
+                  ],
+                  "version": 1,
+                  "visibility": {
+                    "hidden": false,
+                    "showByValue": {
+                      "field": null
+                    }
+                  },
+                  "customField": "action.json",
+                  "tab": "ungrouped"
+                }
+              ],
+              "version": 1,
+              "visibility": {
+                "hidden": false,
+                "showByValue": {
+                  "field": null
+                }
+              },
+              "customField": "actions.json",
+              "tab": "ungrouped"
+            }
+          ],
+          "version": 5,
+          "visibility": {
+            "hidden": false,
+            "showByValue": {
+              "field": null
+            }
+          },
+          "customField": "content-blocks/split.json",
+          "tab": "ungrouped"
         },
         {
           "type": "rich text",
