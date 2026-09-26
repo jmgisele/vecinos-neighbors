@@ -11,22 +11,23 @@ import Divider from '../space/Divider.astro';
 import type { CmsPage } from '../../lib/data';
 
 interface Props {
-	data?: CmsPage | null;
+		data?: CmsPage | null;
 }
+
 
 const { data } = Astro.props;
 const blocks = (data ?? []).filter((b: any) => b !== null);
 ---
 {blocks.map((block: any, i: number) => {
-	const rendered = (() => {
-switch (block._template) {
+const rendered = (() => {
+switch (block.___mb_type) {
 			case 'content': return <Content data={block} />;
 			case 'cta': return <Cta data={block} />;
 			case 'features': return <Features data={block} />;
 			case 'hero': return <Hero data={block} />;
 			case 'split': return <Split data={block} />;
-			case 'stats': return <Stats data={block} />;
-			case 'testimonial': return <Testimonial data={block} />;
+			case 'statistics': return <Stats data={block} />;
+			case 'testimonials': return <Testimonial data={block} />;
 			case 'video': return <Video data={block} />;
 		}
 	})();
