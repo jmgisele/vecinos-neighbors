@@ -55,7 +55,9 @@ export default defineConfig({
 	output: 'static',
 	adapter: await getAdapter(),
 	redirects: { '/home': '/' },
-	integrations: [mdx(), sitemap(), icon()],
+	integrations: [mdx(), sitemap(),     icon({
+    iconDir: "./../cms/icons",
+    })],
 	build: {
 		// Inline the (~10 KiB) bundled CSS into a <style> in <head> instead of a
 		// separate render-blocking <link>. Astro's default ('auto') only inlines
