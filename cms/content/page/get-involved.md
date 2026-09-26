@@ -17,7 +17,8 @@ blocks:
       alt: >-
         Picture of a bunch of Vecinos Neighbors volunteers in front of a trailer
         in the sunshine.
-    _template: split
+    actions: null
+    ___mb_type: split
 ___mb_schema: /.mattrbld/schemas/pages.json
 ---
 

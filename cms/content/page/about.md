@@ -1,8 +1,7 @@
 ---
 seoTitle: About
 blocks:
-  - _template: split
-    title: Editing that happens in context
+  - title: Editing that happens in context
     body: >
       TinaCMS renders your real site, then lets you click any heading,
       paragraph, or image and change it in place. What you edit is exactly what
@@ -19,23 +18,11 @@ blocks:
         type: button
         icon: player-play
         link: 'https://tina.io/docs/getting-started/overview/'
-  - _template: content
-    body: >
-      ## Content management, the way it should be
-
-
-      TinaCMS exists to settle an old argument. Developers want control, editors
-      want simplicity, and for years a CMS made you choose one or the other. We
-      never accepted that trade-off.
-
-
-      So we built a CMS on top of the tools developers already trust - Git and
-      Markdown - and gave content creators a live, visual way to work inside
-      them. No proprietary database. No content held hostage. Just your words,
-      in your repository, editable by anyone on the team.
-  - _template: features
-    title: What we stand for
-    description: A few convictions that shape every decision we make.
+    ___mb_type: split
+  - content: null
+    ___mb_type: content
+  - title: What we stand for
+    body: null
     items:
       - icon: code
         title: Developer-first
@@ -52,8 +39,8 @@ blocks:
         text: >
           Your content lives in your repo as plain Markdown. Walk away whenever
           you like and take all of it with you.
-  - _template: stats
-    title: 'Built on principles, not lock-in'
+    ___mb_type: features
+  - title: 'Built on principles, not lock-in'
     description: The numbers that actually matter to us.
     stats:
       - stat: 100%
@@ -62,11 +49,9 @@ blocks:
         type: Databases to manage or migrate
       - stat: Git
         type: Your single source of truth
-  - _template: cta
-    title: Help shape what comes next
-    description: >-
-      TinaCMS is open source and built in the open. Read the docs, join the
-      conversation, and help define the future of Git-based content.
+    ___mb_type: statistics
+  - title: Help shape what comes next
+    body: null
     actions:
       - label: Read the Docs
         type: button
@@ -76,6 +61,7 @@ blocks:
         type: link
         icon: brand-discord
         link: 'https://tina.io/discord'
+    ___mb_type: cta
 ___mb_schema: /.mattrbld/schemas/pages.json
 ---
 
