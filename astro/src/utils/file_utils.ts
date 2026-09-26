@@ -98,8 +98,15 @@ export function getPageContent(id: string): any {
 		const matterResult = matter(fileContents);
 		let frontmatter = matterResult.data;
 
-		console.log(matterResult)
 		const contentHtml = mdIt(matterResult.data.body);
+
+		frontmatter.blocks = frontmatter.blocks.map((e: any) => {
+			const copy = e;
+			if (!!copy.body) {
+				copy.content = mdIt(copy.body)
+			} // todo make me recursive
+			return copy;
+		})
 		return {
 			file: `${id}.md`,
 			content: contentHtml,

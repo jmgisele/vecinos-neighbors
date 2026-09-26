@@ -12,13 +12,6 @@ const slug = (Astro.params.slug ?? '').toString();
 const page = await getPageContent(slug);
 let data = page.blocks;
 if (!data) return new Response('Not Found', { status: 404 });
-data = page.blocks.map((e: any) => {
-		const copy = e;
-		if (!!copy.body) {
-				copy.content = mdIt(copy.body)
-		} // todo make me recursive
-		return copy;
-})
 
 const config = await getSiteConfig();
 ---
