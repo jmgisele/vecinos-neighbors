@@ -18,12 +18,12 @@ blocks:
   - title: Bringing families together
     body: null
     items:
-      - icon: 'tabler:gps-filled'
+      - icon: 'gps-filled'
         title: Vision
         text: |
           Lorem ipsum dolor sit amet, consectetur adipiscing elit.
         body: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.'
-      - icon: 'tabler:heart-filled'
+      - icon: 'heart-filled'
         title: Mission
         text: >
           We are committed to bringing together agricultural workers and their
@@ -33,7 +33,7 @@ blocks:
           We are committed to bringing together agricultural workers and their
           neighbors in Woodburn to foster relationships that strengthen
           community ties.
-      - icon: 'tabler:sunset-2-filled'
+      - icon: 'sunset-2-filled'
         title: What We Do
         text: |
           Engage with our Neighbors

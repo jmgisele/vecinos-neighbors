@@ -27,12 +27,12 @@
     {
       "title": "X",
       "link": "https://example.com",
-      "icon": "tabler:brand-x"
+      "icon": "brand-x"
     },
     {
       "title": "Facebook",
       "link": "https://www.example.com",
-      "icon": "tabler:brand-facebook"
+      "icon": "brand-facebook"
     }
   ],
   "___mb_schema": "/.mattrbld/schemas/site-config.json"
