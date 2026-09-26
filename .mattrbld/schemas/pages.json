@@ -1760,9 +1760,11 @@
         },
         {
           "type": "group",
+          "customField": "content-blocks/custom-rich-text.json",
+          "displayField": null,
           "icon": "group",
           "key": "content",
-          "label": "Text Content",
+          "label": "Rich Text",
           "tab": "ungrouped",
           "value": [
             {
@@ -1832,7 +1834,8 @@
                 "showByValue": {
                   "field": null
                 }
-              }
+              },
+              "tab": "ungrouped"
             }
           ],
           "version": 2,
@@ -1841,9 +1844,7 @@
             "showByValue": {
               "field": null
             }
-          },
-          "customField": "content-blocks/custom-rich-text.json",
-          "displayField": null
+          }
         }
       ],
       "version": 1,
