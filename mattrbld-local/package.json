@@ -9,8 +9,8 @@
     "lint": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs --fix --ignore-path .gitignore",
     "preview": "vite preview",
     "proxy": "cors-proxy run",
-    "prod:proxy": "cors-proxy run",
-    "prod:run": "http-server ./dist",
+    "prod:proxy": "cors-proxy run -p 9999",
+    "prod:run": "http-server ./dist --p=8080",
     "start": "npm-run-all --parallel --print-label prod:*"
   },
   "type": "module",
