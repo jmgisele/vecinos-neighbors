@@ -6,5 +6,5 @@ node_modules
 mattrbld
 astro/example-images
 astro/.astro
-
+.gitmodules
 *.org
