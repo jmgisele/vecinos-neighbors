@@ -150,7 +150,8 @@ export default {
     return {
       avatarCreationLoading: false,
       avatarUploaded: false,
-      corsProxy: process.env.NODE_ENV === 'production' ? '/corsprox' : 'http://localhost:9999', // Requires a /corsprox route configured on the server, or a CORSProx instance on 9999
+			//      corsProxy: process.env.NODE_ENV === 'production' ? '/corsprox' : 'http://localhost:9999', // Requires a /corsprox route configured on the server, or a CORSProx instance on 9999
+			corsProxy:  process.env.NODE_ENV === 'production' ?  (process.env.PROXY_URL ?? '/corsprox')  : 'http://localhost:9999',
       currentSlide: 0,
       errors: {
         corsProxy: '',
