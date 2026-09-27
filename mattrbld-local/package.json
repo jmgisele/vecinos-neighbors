@@ -2,11 +2,11 @@
   "name": "mattrbld",
   "version": "1.6.0",
   "private": true,
-	"engines": {
+  "engines": {
     "node": "24.13.1",
-		"npm": "11.8.0"
-	},
-	"packageManager": "npm@11.8.0",
+    "npm": "11.8.0"
+  },
+  "packageManager": "npm@11.8.0",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
@@ -47,14 +47,13 @@
     "tinycolor2": "^1.4.2",
     "turndown": "^7.0.0",
     "uuid": "^14.0.0",
-		"@vitejs/plugin-vue": "^6.0.0",
     "vue": "^3.0.5",
     "vue-router": "^5.0.2",
     "vuex": "^4.0.0"
   },
   "devDependencies": {
     "@isomorphic-git/cors-proxy": "^3.0.0",
-    "@vitejs/plugin-vue": "^6.0.0",
+    "@vitejs/plugin-vue": "^6.0.9",
     "eslint": "^8.57.0",
     "eslint-config-airbnb-base": "^15.0.0",
     "eslint-plugin-vue": "^10.0.0",
