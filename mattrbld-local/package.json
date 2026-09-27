@@ -10,7 +10,7 @@
     "preview": "vite preview",
     "proxy": "cors-proxy run",
     "prod:proxy": "cors-proxy run -p 9999",
-    "prod:run": "http-server ./dist --p=8080",
+    "prod:run": "vite",
     "start": "npm-run-all --parallel --print-label prod:*"
   },
   "type": "module",
