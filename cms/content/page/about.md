@@ -1,7 +1,7 @@
 ---
 seoTitle: About
 blocks:
-  - title: Editing that happens in context
+  - title: 'I have been edited from the cloud :)'
     body: >
       TinaCMS renders your real site, then lets you click any heading,
       paragraph, or image and change it in place. What you edit is exactly what
@@ -21,6 +21,7 @@ blocks:
     ___mb_type: split
   - content: null
     ___mb_type: content
+    body: blah blah blah
   - title: What we stand for
     body: null
     items:
