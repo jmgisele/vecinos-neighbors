@@ -1,0 +1,1 @@
+var e={computed:{isPrivilegedUser(){let{userInCurrentProject:e}=this.$store.getters,{customRoles:t}=this.$store.state.currentProject;if(!e)return!1;let n=`editor`;if(e.role===`dev`||e.role===`owner`)n=e.role;else if(t&&t.length>0){let r=t.find(t=>t.value===e.role);r&&(n=r.accessLevel)}return[`dev`,`owner`].includes(n)}}};export{e as t};

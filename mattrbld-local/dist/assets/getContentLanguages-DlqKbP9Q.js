@@ -1,0 +1,1 @@
+import{p as e}from"./pluralize-Crbd6DYH.js";import{t}from"./getFieldsByPredicate-D32_mgzg.js";function n(n={},r,i){if(!r.fields)return i;let[a]=t(r,e=>e.type===`languages`),o;return a&&(o=e(n,a.contentpath)),!o||o.length===0?i:o}export{n as t};
