@@ -1,7 +1,7 @@
 {
   "autoquotes": null,
   "brandColors": [],
-  "corsProxy": "http://localhost:9999",
+  "corsProxy": "https://vecinos-neighbors-proxy-lt9b6.ondigitalocean.app",
   "name": "Vecinos Neighbors",
   "sidebar": [
     {
