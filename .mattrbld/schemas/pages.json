@@ -1746,7 +1746,7 @@
           "customField": "content-blocks/image-gallery-split.json",
           "displayField": "title",
           "icon": "group",
-          "key": "imageGallerySplit",
+          "key": "image-gallery-split",
           "label": "Image Gallery Split",
           "tab": "ungrouped",
           "value": [
