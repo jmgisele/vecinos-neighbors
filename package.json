@@ -4,14 +4,14 @@
   "private": true,
   "workspaces": [
     "astro",
-    "mattrbld"
+    "mattrbld-local"
   ],
 	"type": "module",
   "scripts": {
     "dev": "npm-run-all --parallel --print-label dev:*",
     "dev:astro": "npm run dev --workspace=astro",
-    "dev:mattrbld": "npm run dev --workspace=mattrbld",
-		"dev:proxy": "npm run proxy --workspace=mattrbld",
+    "dev:mattrbld": "npm run dev --workspace=mattrbld-local",
+		"dev:proxy": "npm run proxy --workspace=mattrbld-local",
     "format": "prettier --cache --write .",
 		"prebuild": "node before-build.js"
   },
