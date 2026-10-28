@@ -119,20 +119,7 @@ blocks:
           aliquip ex ea commodo consequat. Duis aute irure dolor in
           reprehenderit in voluptate velit esse cillum
     ___mb_type: features
-  - title: 'Built on principles, not lock-in'
-    description: The numbers that actually matter to us.
-    stats:
-      - stat: 100%
-        type: Neighbors Fed
-        statistic: '1000'
-      - stat: '0'
-        type: Friendships made
-        statistic: '500'
-      - stat: Git
-        type: Meals Delivered
-        statistic: '2000'
-    ___mb_type: statistics
-  - title: Help shape what comes next
+  - title: Help us build a better world
     body: null
     actions:
       - label: Learn more!
