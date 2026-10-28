@@ -1,15 +1,15 @@
 ---
 seoTitle: About
 blocks:
-  - title: 'I have been edited from the cloud :)'
-    body: >
-      TinaCMS renders your real site, then lets you click any heading,
-      paragraph, or image and change it in place. What you edit is exactly what
-      visitors see - no separate preview, no guesswork.
-
-
-      Behind the scenes every change is a commit, so your content has the same
-      history, branches, and review as the rest of your codebase.
+  - title: Vecinos Neighbors
+    body: >-
+      Is a community organization. Lorem ipsum dolor sit amet. Lorem ipsum dolor
+      sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut
+      labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud
+      exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis
+      aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu
+      fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident,
+      sunt in culpa qui officia deserunt mollit anim id est laborum
     image:
       src: /blog-placeholder-about.jpg
       alt: The TinaCMS visual editor
