@@ -14,6 +14,8 @@ blocks:
         link: /get-involved
     image:
       src: /Meal-Prep.png
+      alt: null
+      credit: ''
     ___mb_type: hero
   - title: Bringing families together
     body: null
