@@ -2,7 +2,7 @@
 title: Example Post
 description: This is a description. It could be used for an event!
 pubDate: 2026-01-14T09:00:00.000Z
-heroImage: /blog-placeholder-3.jpg
+heroImage: /blog-placeholder-4.jpg
 updatedDate: '2026-10-27T21:37:25-04:00'
 body: >
   # Ante Nox
