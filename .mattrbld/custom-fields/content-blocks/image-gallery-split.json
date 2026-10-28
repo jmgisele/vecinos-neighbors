@@ -1,0 +1,186 @@
+{
+  "type": "group",
+  "customField": null,
+  "description": "",
+  "displayField": "title",
+  "group": "custom fields",
+  "icon": "group",
+  "key": "image-gallery-split",
+  "label": "Image Gallery Split",
+  "tab": null,
+  "value": [
+    {
+      "type": "text",
+      "default": "",
+      "icon": "text-input",
+      "key": "title",
+      "label": "Title",
+      "localised": false,
+      "options": {
+        "wrapping": true,
+        "multiline": false
+      },
+      "validation": {
+        "enforceMinMax": true,
+        "max": null,
+        "min": null,
+        "regex": null,
+        "regexError": null,
+        "required": false,
+        "unit": "length"
+      },
+      "value": null,
+      "version": 1,
+      "visibility": {
+        "hidden": false,
+        "showByValue": {
+          "field": null
+        }
+      }
+    },
+    {
+      "type": "group",
+      "customField": "content-blocks/custom-rich-text.json",
+      "displayField": "body",
+      "icon": "group",
+      "key": "content",
+      "label": "Rich Text",
+      "value": [
+        {
+          "type": "rich text",
+          "default": null,
+          "icon": "text",
+          "key": "body",
+          "label": "Body",
+          "localised": false,
+          "options": {
+            "outputFormat": "markdown",
+            "blockFormats": [
+              "blockquote",
+              "heading",
+              "hr",
+              "orderedList",
+              "unorderedList",
+              "image"
+            ],
+            "inlineFormats": [
+              "em",
+              "strong",
+              "link"
+            ],
+            "formatOptions": [
+              "allowQuoteFooters",
+              "allowNestedLists",
+              "allowImageCaptions"
+            ],
+            "inputRuleOptions": [
+              "autoquotes",
+              "dashes",
+              "ellipsis",
+              "noDoubleCaps",
+              "noDoubleSpace"
+            ],
+            "minHeading": 2,
+            "maxHeading": 4,
+            "codeLangs": [
+              "html",
+              "css",
+              "javascript",
+              "markdown"
+            ],
+            "allowRaw": true,
+            "urlTemplate": "",
+            "urlSuffix": "",
+            "linkOptions": [
+              "forceBlankTarget",
+              "allowExternal",
+              "allowInternal"
+            ]
+          },
+          "validation": {
+            "enforceMinMax": true,
+            "max": null,
+            "min": null,
+            "regex": null,
+            "regexError": null,
+            "required": true,
+            "unit": "length"
+          },
+          "value": null,
+          "version": 1,
+          "visibility": {
+            "hidden": false,
+            "showByValue": {
+              "field": null
+            }
+          }
+        }
+      ],
+      "version": 3,
+      "visibility": {
+        "hidden": false,
+        "showByValue": {
+          "field": null
+        }
+      }
+    },
+    {
+      "type": "rows",
+      "default": null,
+      "icon": "rows",
+      "key": "images",
+      "label": "Images",
+      "options": {
+        "compact": true,
+        "allowEditing": true,
+        "itemLabel": "Row"
+      },
+      "validation": {
+        "max": null,
+        "min": null,
+        "unit": "rows"
+      },
+      "value": [
+        {
+          "type": "image",
+          "default": null,
+          "icon": "image",
+          "key": "image",
+          "label": "Image",
+          "options": {
+            "resolutionHint": "",
+            "removable": true,
+            "simple": false
+          },
+          "validation": {
+            "max": null,
+            "required": true,
+            "unit": "filesize (MB)"
+          },
+          "value": null,
+          "version": 1,
+          "visibility": {
+            "hidden": false,
+            "showByValue": {
+              "field": null
+            }
+          }
+        }
+      ],
+      "version": 1,
+      "visibility": {
+        "hidden": false,
+        "showByValue": {
+          "field": null
+        }
+      }
+    }
+  ],
+  "version": 4,
+  "visibility": {
+    "hidden": false,
+    "showByValue": {
+      "field": null
+    }
+  }
+}

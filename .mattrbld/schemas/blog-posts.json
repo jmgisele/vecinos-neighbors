@@ -123,20 +123,19 @@
       }
     },
     {
-      "type": "file",
-      "default": null,
-      "icon": "attachment",
+      "type": "image",
+      "default": {
+        "src": "/blog-placeholder-5.jpg",
+        "alt": null,
+        "credit": ""
+      },
+      "icon": "image",
       "key": "heroImage",
       "label": "HeroImage",
-      "localised": false,
       "options": {
+        "resolutionHint": "",
         "removable": false,
-        "allowUpload": false,
-        "root": null,
-        "filetypes": [
-          "pdf",
-          "zip"
-        ]
+        "simple": false
       },
       "tab": "ungrouped",
       "validation": {
@@ -145,7 +144,7 @@
         "unit": "filesize (MB)"
       },
       "value": null,
-      "version": 2,
+      "version": 1,
       "visibility": {
         "hidden": false,
         "showByValue": {
@@ -156,12 +155,41 @@
     {
       "type": "group",
       "customField": "content-blocks/gallery.json",
-      "displayField": null,
+      "displayField": "images.image",
       "icon": "group",
       "key": "image-gallery",
       "label": "Image Gallery",
       "tab": "ungrouped",
       "value": [
+        {
+          "type": "text",
+          "default": null,
+          "icon": "text-input",
+          "key": "title",
+          "label": "Title (Optional)",
+          "localised": false,
+          "options": {
+            "wrapping": true,
+            "multiline": false
+          },
+          "validation": {
+            "enforceMinMax": true,
+            "max": null,
+            "min": null,
+            "regex": null,
+            "regexError": null,
+            "required": false,
+            "unit": "length"
+          },
+          "value": null,
+          "version": 1,
+          "visibility": {
+            "hidden": false,
+            "showByValue": {
+              "field": null
+            }
+          }
+        },
         {
           "type": "rows",
           "default": null,
@@ -202,8 +230,7 @@
                 "showByValue": {
                   "field": null
                 }
-              },
-              "tab": "ungrouped"
+              }
             }
           ],
           "version": 1,
@@ -212,11 +239,10 @@
             "showByValue": {
               "field": null
             }
-          },
-          "tab": "ungrouped"
+          }
         }
       ],
-      "version": 2,
+      "version": 4,
       "visibility": {
         "hidden": false,
         "showByValue": {

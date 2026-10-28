@@ -76,6 +76,17 @@ blocks:
       - stat: '1000'
         type: lorem ipsum
     ___mb_type: statistics
+  - images:
+      - src: /converted_0009.png
+        alt: null
+        credit: ''
+      - src: /Meal-Prep.png
+        alt: null
+        credit: ''
+      - src: /h-jpeg-image-3.jpeg
+        alt: Gathering of people eating a meal together
+        title: null
+    ___mb_type: image-gallery
   - body: |-
       You can add more text here
 

@@ -10,6 +10,35 @@
   "tab": null,
   "value": [
     {
+      "type": "text",
+      "default": null,
+      "icon": "text-input",
+      "key": "title",
+      "label": "Title (Optional)",
+      "localised": false,
+      "options": {
+        "wrapping": true,
+        "multiline": false
+      },
+      "validation": {
+        "enforceMinMax": true,
+        "max": null,
+        "min": null,
+        "regex": null,
+        "regexError": null,
+        "required": false,
+        "unit": "length"
+      },
+      "value": null,
+      "version": 1,
+      "visibility": {
+        "hidden": false,
+        "showByValue": {
+          "field": null
+        }
+      }
+    },
+    {
       "type": "rows",
       "default": null,
       "icon": "rows",
@@ -61,7 +90,7 @@
       }
     }
   ],
-  "version": 3,
+  "version": 4,
   "visibility": {
     "hidden": false,
     "showByValue": {
