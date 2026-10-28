@@ -39,17 +39,6 @@
       "separator": true
     },
     {
-      "icon": "wrench-and-driver",
-      "label": "Configure now",
-      "target": {
-        "name": "Project.Settings",
-        "query": {
-          "tab": "sidebar"
-        }
-      },
-      "onlyPrivileged": true
-    },
-    {
       "label": "Dashboard",
       "icon": "grid",
       "target": {

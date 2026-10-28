@@ -193,7 +193,7 @@
               "options": {
                 "sourceDir": "/cms/icons",
                 "insertAs": "filepath",
-                "urlTemplate": "tabler::filename",
+                "urlTemplate": "::filename",
                 "preserveColor": false,
                 "prettyFilenames": false,
                 "removable": false
@@ -245,17 +245,18 @@
           }
         }
       ],
-      "version": 3,
+      "version": 4,
       "visibility": {
         "hidden": false,
         "showByValue": {
           "field": null
         }
       },
-      "customField": "content-blocks/actions.json"
+      "customField": "content-blocks/actions.json",
+      "tab": null
     }
   ],
-  "version": 5,
+  "version": 6,
   "visibility": {
     "hidden": false,
     "showByValue": {

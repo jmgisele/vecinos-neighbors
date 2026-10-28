@@ -51,7 +51,7 @@
           "javascript",
           "markdown"
         ],
-        "allowRaw": false,
+        "allowRaw": true,
         "urlTemplate": "",
         "urlSuffix": "",
         "linkOptions": [
@@ -79,7 +79,7 @@
       }
     }
   ],
-  "version": 2,
+  "version": 3,
   "visibility": {
     "hidden": false,
     "showByValue": {
