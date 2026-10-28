@@ -76,7 +76,17 @@ blocks:
       - stat: '1000'
         type: lorem ipsum
     ___mb_type: statistics
-  - images:
+  - title: Check out what we've been up to!
+    content:
+      body: >-
+        Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod
+        tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim
+        veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea
+        commodo consequat. Duis aute irure dolor in reprehenderit in voluptate
+        velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint
+        occaecat cupidatat non proident, sunt in culpa qui officia deserunt
+        mollit anim id est laborum
+    images:
       - src: /converted_0009.png
         alt: null
         credit: ''
@@ -86,7 +96,7 @@ blocks:
       - src: /h-jpeg-image-3.jpeg
         alt: Gathering of people eating a meal together
         title: null
-    ___mb_type: image-gallery
+    ___mb_type: imageGallerySplit
   - body: |-
       You can add more text here
 
