@@ -112,10 +112,10 @@
       },
       {
         "type": "text",
-        "default": null,
+        "default": "",
         "icon": "text-input",
-        "key": "title",
-        "label": "Title",
+        "key": "credit",
+        "label": "Image Credit",
         "localised": false,
         "options": {
           "wrapping": true,

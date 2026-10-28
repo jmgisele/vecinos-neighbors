@@ -11,8 +11,10 @@ blocks:
       fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident,
       sunt in culpa qui officia deserunt mollit anim id est laborum
     image:
-      src: /blog-placeholder-about.jpg
-      alt: The TinaCMS visual editor
+      src: /cms/media/h-jpeg-image-3.jpeg
+      alt: Gathering of people eating a meal together
+      title: null
+      credit: Taken by So and So
     actions:
       - label: Get involved!
         type: button
