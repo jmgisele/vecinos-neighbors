@@ -141,7 +141,7 @@
               "options": {
                 "sourceDir": "/cms/icons",
                 "insertAs": "template",
-                "urlTemplate": ":filename",
+                "urlTemplate": "",
                 "preserveColor": false,
                 "prettyFilenames": false,
                 "removable": false
