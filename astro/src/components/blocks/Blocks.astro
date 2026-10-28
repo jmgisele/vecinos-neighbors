@@ -10,11 +10,11 @@ import Video from './Video.astro';
 import Divider from '../space/Divider.astro';
 import type { CmsPage } from '../../lib/data';
 import Gallery from './Gallery.astro';
+import GallerySplit from './GallerySplit.astro';
 
 interface Props {
 		data?: CmsPage | null;
 }
-
 
 const { data } = Astro.props;
 const blocks = (data ?? []).filter((b: any) => b !== null);
@@ -31,6 +31,7 @@ case 'statistics': return <Stats data={block} />;
 case 'testimonials': return <Testimonial data={block} />;
 case 'video': return <Video data={block} />;
 case 'image-gallery': 	return	<Gallery data={block} />
+case 'image-gallery-split': return <GallerySplit data={block} />
 }
 })();
 return (

@@ -4,7 +4,6 @@ interface Props { data: any }
 
 const { data } = Astro.props;
 const images = data.images ?? [];
-
 ---
 <section class="slider-container w-full">
 		{images?.length > 0 && images.map((_: any, i: number) => (
