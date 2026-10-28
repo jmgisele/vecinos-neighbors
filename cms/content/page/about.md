@@ -14,52 +14,36 @@ blocks:
       src: /blog-placeholder-about.jpg
       alt: The TinaCMS visual editor
     actions:
-      - label: See it in action
+      - label: Get involved!
         type: button
         icon: player-play
-        link: 'https://tina.io/docs/getting-started/overview/'
+        link: 'https://www.example.com'
     ___mb_type: split
   - content: null
     ___mb_type: content
-    body: >
+    body: >-
       Lorem ipsum dolor sit amet, *consectetur* adipisicing elit, sed do eiusmod
-
       tempor incididunt ut **labore et dolore magna aliqua**. Ut enim ad minim
-      veniam,
-
-      quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo
-
-      consequat. ***Duis aute irure dolor*** in reprehenderit in voluptate velit
-      esse
-
-      cillum dolore eu fugiat nulla pariatur. ~~Excepteur sint occaecat~~
-      cupidatat non
-
-      proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+      veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea
+      commodo consequat. ***Duis aute irure dolor*** in reprehenderit in
+      voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur
+      sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt
+      mollit anim id est laborum.
 
 
       ## H2
 
 
       Lorem ipsum dolor sit amet, *consectetur* adipisicing elit, sed do eiusmod
-
       tempor incididunt ut **labore et dolore magna aliqua**. Ut enim ad minim
-      veniam,
-
-      quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo
-
-      consequat. 
-
-
-      ---
+      veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea
+      commodo consequat.
 
 
       ***Duis aute irure dolor*** in reprehenderit in voluptate velit esse
-
-      cillum dolore eu fugiat nulla pariatur. ~~Excepteur sint occaecat~~
-      cupidatat non
-
-      proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+      cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat
+      non proident, sunt in culpa qui officia deserunt mollit anim id est
+      laborum.
 
 
       ### H3
@@ -68,67 +52,91 @@ blocks:
       unordered list:
 
 
-      * item-1
-        * sub-item-1
-        * sub-item-2
-      - item-2
-        - sub-item-3
-        - sub-item-4
-      + item-3
-        + sub-item-5
-        + sub-item-6
+      -   item-1
+          
+          -   sub-item-1
+              
+          -   sub-item-2
+              
 
+      -   item-2
+          
+          -   sub-item-3
+              
+          -   sub-item-4
+              
+
+      -   item-3
+          
+          -   sub-item-5
+              
+          -   sub-item-6
+              
 
       ordered list:
 
 
-      1. item-1
-         1. sub-item-1
-         2. sub-item-2
-      2. item-2
-         1. sub-item-3
-         2. sub-item-4
-      3. item-3
+      1.  item-1
+          
+          1.  sub-item-1
+              
+          2.  sub-item-2
+              
+      2.  item-2
+          
+          1.  sub-item-3
+              
+          2.  sub-item-4
+              
+      3.  item-3
   - title: What we stand for
     body: null
     items:
       - icon: code
-        title: Developer-first
-        text: >
-          Define your schema in TypeScript and wire up the editor exactly how
-          you want it. TinaCMS bends to your stack, not the other way around.
+        title: Community-First
+        text: >-
+          Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
+          eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad
+          minim veniam, quis nostrud exercitation ullamco laboris nisi ut
+          aliquip ex ea commodo consequat. Duis aute irure dolor in
+          reprehenderit in voluptate velit esse cillum
       - icon: wand
-        title: Editor-friendly
-        text: >
-          In-context visual editing means content creators see changes as they
-          make them - no config files, no guesswork.
-      - icon: lock-open
-        title: 'No lock-in, ever'
-        text: >
-          Your content lives in your repo as plain Markdown. Walk away whenever
-          you like and take all of it with you.
+        title: People-centered
+        text: >-
+          Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
+          eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad
+          minim veniam, quis nostrud exercitation ullamco laboris nisi ut
+          aliquip ex ea commodo consequat. Duis aute irure dolor in
+          reprehenderit in voluptate velit esse cillum
+      - icon: ':heart-handshake'
+        title: Open hearted
+        text: >-
+          Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
+          eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad
+          minim veniam, quis nostrud exercitation ullamco laboris nisi ut
+          aliquip ex ea commodo consequat. Duis aute irure dolor in
+          reprehenderit in voluptate velit esse cillum
     ___mb_type: features
   - title: 'Built on principles, not lock-in'
     description: The numbers that actually matter to us.
     stats:
       - stat: 100%
-        type: 'Open source, Apache 2.0 licensed'
+        type: Neighbors Fed
+        statistic: '1000'
       - stat: '0'
-        type: Databases to manage or migrate
+        type: Friendships made
+        statistic: '500'
       - stat: Git
-        type: Your single source of truth
+        type: Meals Delivered
+        statistic: '2000'
     ___mb_type: statistics
   - title: Help shape what comes next
     body: null
     actions:
-      - label: Read the Docs
-        type: button
-        icon: book
-        link: 'https://tina.io/docs/'
-      - label: Join the Community
+      - label: Learn more!
         type: link
-        icon: brand-discord
-        link: 'https://tina.io/discord'
+        icon: null
+        link: /blog/example-post.md
     ___mb_type: cta
 ___mb_schema: /.mattrbld/schemas/pages.json
 ---
