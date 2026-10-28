@@ -142,7 +142,7 @@
     ],
     "dir": "/cms/media",
     "maxSize": 500,
-    "outputPath": null,
+    "outputPath": "/",
     "permissions": {
       "everybody": [
         "everything"
