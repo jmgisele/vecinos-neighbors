@@ -2,12 +2,14 @@
 import type { CmsBlog } from '../../lib/data';
 import FormattedDate from '../FormattedDate.astro';
 import RichText from '../../components/blocks/RichText.astro';
+import Gallery from '../blocks/Gallery.astro';
 
 interface Props {
 		data?: CmsBlog | null;
 }
 
 const { data } = Astro.props;
+
 ---
 {data?.heroImage && (
 <div  class="mx-auto max-w-4xl px-6">
@@ -15,20 +17,27 @@ const { data } = Astro.props;
 </div>
 )}
 {data && (
-<div class="mx-auto max-w-3xl px-6 py-12">
-		<div class="mb-8 text-center">
-				{data.pubDate && (
-				<div  class="text-sm text-muted-foreground">
-						<FormattedDate date={new Date(data.pubDate)} />
-						{data.updatedDate && (
-						<span  class="italic"> · Last updated <FormattedDate date={new Date(data.updatedDate)} /></span>
+<div class="w-full flex flex-col items-center">
+		<div class="mx-auto max-w-3xl px-6 py-12">
+				<div class="mb-8 text-center">
+						{data.pubDate && (
+						<div  class="text-sm text-muted-foreground">
+								<FormattedDate date={new Date(data.pubDate)} />
+								{data.updatedDate && (
+								<span  class="italic"> · Last updated <FormattedDate date={new Date(data.updatedDate)} /></span>
+								)}
+						</div>
 						)}
+						{data.title && <h1  class="mt-2 text-4xl font-semibold tracking-tight lg:text-5xl">{data.title}</h1>}
 				</div>
-				)}
-				{data.title && <h1  class="mt-2 text-4xl font-semibold tracking-tight lg:text-5xl">{data.title}</h1>}
 		</div>
-		{data.body && (
-		<RichText body={data.content} ></RichText>
+		{data['image-gallery'] && data['image-gallery']['images'].length && (
+		<Gallery data={data['image-gallery']} />
 		)}
+		<div class="mx-auto max-w-3xl px-6 py-12">
+				{data.body && (
+				<RichText body={data.content} ></RichText>
+				)}
+		</div>
 </div>
 )}

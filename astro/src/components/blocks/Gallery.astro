@@ -1,0 +1,103 @@
+---
+
+interface Props { data: any }
+
+const { data } = Astro.props;
+const images = data.images ?? [];
+
+---
+<section class="slider-container w-full">
+		{images?.length > 0 && images.map((_: any, i: number) => (
+		<a href={`#slide-${i}`} class="control text-lg">{i}</a>))
+		}
+		<div class="slides w-full">
+				{images?.length > 0 && images.map((image, i: number) => (
+				<div  class="bg-background rounded-2xl border p-2 shadow-lg slide"
+							id={`slide-${i}`}
+				>
+						<img src={`/blog-placeholder-${i +4}.jpg`} alt={image?.alt ?? ''} class="aspect-[4/3] w-full rounded-xl border border-border/25 object-cover" />
+				</div>
+				))}
+		</div>
+		<div class="flex flex-row gap-3 w-full items-center w-full justify-center controls">
+		
+		</div>
+</section>
+
+<style>
+
+ .slider-container {
+		 min-width: 250px;
+		 max-width: 700px;
+		 text-align: center;
+		 overflow: hidden;
+ }
+
+ .slide {
+		 max-width: max(80vw, 800px);
+		 max-width: max(50vh, 500px);
+		 margin: 2rem 0rem; 
+ }
+
+ .slides {
+		 width: 100%;
+		 display: flex;
+		 overflow-x: auto;
+		 scroll-snap-type: x mandatory;
+		 scroll-behavior: smooth;
+		 -webkit-overflow-scrolling: touch;
+ }
+ .slides::-webkit-scrollbar {
+		 width: 10px;
+		 height: 10px;
+ }
+ .slides::-webkit-scrollbar-thumb {
+		 background: black;
+		 border-radius: 10px;
+ }
+ .slides::-webkit-scrollbar-track {
+		 background: transparent;
+ }
+
+ .slides .slide {
+		 scroll-snap-align: start;
+		 flex-shrink: 0;
+		 margin-right: 10px;
+		 border-radius: 10px;
+		 transform-origin: center center;
+		 transform: scale(1);
+		 transition: transform 0.5s;
+		 position: relative;
+ }
+ .slides > div:target {
+		 /*   transform: scale(0.8); */
+ }
+
+ .slider-container .control {
+		 display: inline-flex;
+		 width: 1.5rem;
+		 height: 1.5rem;
+		 text-decoration: none;
+		 align-items: center;
+		 justify-content: center;
+		 border-radius: 50%;
+		 margin: 0 0 0.5rem 0;
+		 position: relative;
+ }
+ .slider-container .control:active {
+		 top: 1px;
+		 /* background-color: var(--color-orange-700); */
+ }
+ .slider-container .control:focus {
+		 background: color-mix(in hsl, var(--foreground), white 40%);
+ }
+
+ /* Don't need button navigation */
+ @supports (scroll-snap-type) {
+		 .slider-container .control {
+				 display: none;
+		 }
+ }
+
+
+</style>
