@@ -1,0 +1,71 @@
+{
+  "type": "group",
+  "customField": null,
+  "description": "",
+  "displayField": null,
+  "group": "custom fields",
+  "icon": "group",
+  "key": "image-gallery",
+  "label": "Image Gallery",
+  "tab": null,
+  "value": [
+    {
+      "type": "rows",
+      "default": null,
+      "icon": "rows",
+      "key": "images",
+      "label": "images",
+      "options": {
+        "compact": true,
+        "allowEditing": true,
+        "itemLabel": "Image"
+      },
+      "validation": {
+        "max": null,
+        "min": 1,
+        "unit": "rows"
+      },
+      "value": [
+        {
+          "type": "image",
+          "default": null,
+          "icon": "image",
+          "key": "image",
+          "label": "Image",
+          "options": {
+            "resolutionHint": "",
+            "removable": true,
+            "simple": false
+          },
+          "validation": {
+            "max": null,
+            "required": false,
+            "unit": "filesize (MB)"
+          },
+          "value": null,
+          "version": 1,
+          "visibility": {
+            "hidden": false,
+            "showByValue": {
+              "field": null
+            }
+          }
+        }
+      ],
+      "version": 1,
+      "visibility": {
+        "hidden": false,
+        "showByValue": {
+          "field": null
+        }
+      }
+    }
+  ],
+  "version": 2,
+  "visibility": {
+    "hidden": false,
+    "showByValue": {
+      "field": null
+    }
+  }
+}

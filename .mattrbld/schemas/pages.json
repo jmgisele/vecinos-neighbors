@@ -448,7 +448,7 @@
                   "value": [
                     {
                       "type": "icon",
-                      "default": null,
+                      "default": "/heart-filled",
                       "icon": "mattrbld",
                       "key": "icon",
                       "label": "Icon",
@@ -456,7 +456,7 @@
                       "options": {
                         "sourceDir": "/cms/icons",
                         "insertAs": "template",
-                        "urlTemplate": "::filename",
+                        "urlTemplate": "/:filename",
                         "preserveColor": false,
                         "prettyFilenames": false,
                         "removable": false
@@ -590,7 +590,7 @@
               }
             }
           ],
-          "version": 5,
+          "version": 10,
           "visibility": {
             "hidden": false,
             "showByValue": {
@@ -1740,6 +1740,77 @@
           },
           "customField": "content-blocks/split.json",
           "tab": "ungrouped"
+        },
+        {
+          "type": "group",
+          "customField": "content-blocks/gallery.json",
+          "displayField": null,
+          "icon": "group",
+          "key": "image-gallery",
+          "label": "Image Gallery",
+          "tab": "ungrouped",
+          "value": [
+            {
+              "type": "rows",
+              "default": null,
+              "icon": "rows",
+              "key": "images",
+              "label": "images",
+              "options": {
+                "compact": true,
+                "allowEditing": true,
+                "itemLabel": "Image"
+              },
+              "validation": {
+                "max": null,
+                "min": 1,
+                "unit": "rows"
+              },
+              "value": [
+                {
+                  "type": "image",
+                  "default": null,
+                  "icon": "image",
+                  "key": "image",
+                  "label": "Image",
+                  "options": {
+                    "resolutionHint": "",
+                    "removable": true,
+                    "simple": false
+                  },
+                  "validation": {
+                    "max": null,
+                    "required": false,
+                    "unit": "filesize (MB)"
+                  },
+                  "value": null,
+                  "version": 1,
+                  "visibility": {
+                    "hidden": false,
+                    "showByValue": {
+                      "field": null
+                    }
+                  },
+                  "tab": "ungrouped"
+                }
+              ],
+              "version": 1,
+              "visibility": {
+                "hidden": false,
+                "showByValue": {
+                  "field": null
+                }
+              },
+              "tab": "ungrouped"
+            }
+          ],
+          "version": 2,
+          "visibility": {
+            "hidden": false,
+            "showByValue": {
+              "field": null
+            }
+          }
         },
         {
           "type": "group",
