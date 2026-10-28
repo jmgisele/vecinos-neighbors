@@ -1,5 +1,5 @@
 // @ts-check
-import { defineConfig } from 'astro/config';
+import { defineConfig,  fontProviders } from 'astro/config';
 import mdx from '@astrojs/mdx';
 import sitemap from '@astrojs/sitemap';
 import icon from 'astro-icon';
@@ -18,7 +18,7 @@ async function getAdapter() {
 	const nodeStandalone = async () =>
 		(await import('@astrojs/node')).default({ mode: 'standalone' });
 
-switch (process.env.DEPLOY_ADAPTER) {
+	switch (process.env.DEPLOY_ADAPTER) {
 		case 'vercel': return vercel();
 		case 'cloudflare': return cloudflare();
 		case 'netlify': return netlify();
@@ -57,7 +57,55 @@ export default defineConfig({
 	redirects: { '/home': '/' },
 	integrations: [mdx(), sitemap(),     icon({
     iconDir: "./../cms/icons",
-    })],
+  })],
+	fonts: [{
+    provider: fontProviders.local(),
+    name: "Urbanist",
+    cssVariable: "--font-urbanist",
+    options: {
+      variants: [{
+        src: ['./src/assets/fonts/Urbanist-VariableFont_wght.ttf'],
+        weight: 'normal',
+        style: 'normal'
+      },
+				{
+					src: ['./src/assets/fonts/Urbanist-Italic-VariableFont_wght.ttf'],
+					weight: 'normal',
+					style: 'italic'
+				}
+			]
+    }
+  },
+		{
+			provider: fontProviders.local(),
+			name: "Inter",
+			cssVariable: "--font-inter",
+			options: {
+				variants: [
+					{
+						src: ['./src/assets/fonts/Inter-Regular.woff2'],
+						weight: 'normal',
+						style: 'normal'
+					},
+					{
+						src: ['./src/assets/fonts/Inter-Italic.woff2'],
+						weight: 'normal',
+						style: 'italic'
+					},
+					{
+						src: ['./src/assets/fonts/Inter-Bold.woff'],
+						weight: 'bold',
+						style: 'normal'
+					},
+					{
+						src: ['./src/assets/fonts/Inter-BoldItalic.woff2'],
+						weight: 'bold',
+						style: 'italic'
+					}
+				]
+			}
+		}
+	],
 	build: {
 		// Inline the (~10 KiB) bundled CSS into a <style> in <head> instead of a
 		// separate render-blocking <link>. Astro's default ('auto') only inlines
@@ -74,21 +122,9 @@ export default defineConfig({
 	},
 	vite: {
 		plugins: [tailwindcss()],
-		// Bundle @tinacms/astro into the SSR build instead of resolving it
-		// per-module on every cold request — otherwise each
-		// `import TinaMarkdown from '@tinacms/astro/TinaMarkdown.astro'`
-		// triggers a full Vite resolve + Astro-plugin compile of the
-		// package's source `.astro` files on the first request.
-		ssr: {
-			//	noExternal: ['@tinacms/astro', '@tinacms/bridge'],
-		},
 		build: {
 			rollupOptions: {
 				onwarn(warning, warn) {
-					// if (warning.code === 'UNUSED_EXTERNAL_IMPORT' &&
-					// 	warning.exporter === 'tinacms/dist/client') {
-					// 	return;
-					// }
 					warn(warning);
 				}
 			}

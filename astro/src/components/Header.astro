@@ -1,10 +1,8 @@
 ---
 import { Icon } from 'astro-icon/components';
-import { tinaField } from "@tinacms/astro/tina-field";
+
 import type { CmsConfig } from '../lib/data';
 import IconLink from "./IconLink.astro";
-import ThemeToggle from './ThemeToggle.astro';
-import { Aurora } from './space/Aurora.astro';
 
 
 interface Props {
@@ -20,7 +18,7 @@ const contactLinks = (config?.contactLinks ?? []).filter(item => item !== null);
 <header class="fixed top-0 z-20 w-full border-b bg-background/50 backdrop-blur-xl">
 		<nav class="mx-auto flex w-full items-end justify-between px-5">
 
-				<a href="/" class="flex items-center gap-2 font-semibold bg-red-200/20 py-2 pl-2 pr-7 rounded-lg my-3"
+				<a href="/" class="flex items-center gap-2 font-semibold py-2 pl-2 pr-7 rounded-lg my-3"
 				>
 						{seo?.logo && <img src={seo.logo} alt="Logo" width="208" height="208"  class="w-[125px] lg:w-[208px]" />}
 						<span  class="hidden">{seo?.title}</span>

@@ -3,6 +3,6 @@ interface Props { body: any, additionalClasses?: string }
 
 const { body, additionalClasses = "" } = Astro.props;
 ---
-<section set:html={body} class={"prose prose prose-md max-w-none " + additionalClasses}>
+<section set:html={body} class={"font-text prose prose prose-md max-w-none " + additionalClasses}>
 </section>
 

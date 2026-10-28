@@ -6,7 +6,16 @@
    not the prefers-color-scheme media query. */
 @custom-variant dark (&:where(.dark, .dark *));
 
-/* Metric-matched Arial fallback so the Inter swap doesn't reflow text (CLS). */
+/* Metric-matched Arial fallback so the swap doesn't reflow text (CLS). */
+@font-face {
+	font-family: 'Urbanist Fallback';
+	src: local('Arial');
+	ascent-override: 90.44%;
+	descent-override: 22.52%;
+	line-gap-override: 0%;
+	size-adjust: 107.12%;
+}
+
 @font-face {
 	font-family: 'Inter Fallback';
 	src: local('Arial');
@@ -17,7 +26,8 @@
 }
 
 @theme inline {
-	--font-sans: 'Inter Variable', 'Inter Fallback', system-ui, sans-serif;
+	--font-sans: var(--font-urbanist), 'Urbanist', 'Urbanist Fallback', system-ui, sans-serif;
+	--font-text: var(--font-inter), "Inter", "Inter Fallback", system-ui, sans-serif;
 	--radius-sm: calc(var(--radius) - 4px);
 	--radius-md: calc(var(--radius) - 2px);
 	--radius-lg: var(--radius);
@@ -58,9 +68,9 @@
 
 :root {
 	--radius: 0.625rem;
-
-	--logo-purple:  #5f186a;
-	--logo-green: #00a850;
+	--logo-p-old: #5f186a;
+	--logo-purple:   #603b94;
+	--logo-green: #07AB54;
 	--logo-red: #db1f35;
 	--logo-orange: #ef6122;
 
@@ -82,7 +92,7 @@
 	--barely-white: #f4f4f5; /* 200 */
 	--muted-white: #e4e4e7; /* 300 */
 
-	--background: var(--muted-white);
+	--background: var(--barely-white);
 	--foreground: var(--teal);
 	--card: color-mix(in hsl, var(--background), black 2%);
 	--border:  color-mix(in hsl, var(--foreground), white 40%);

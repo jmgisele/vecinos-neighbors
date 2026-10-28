@@ -13,10 +13,10 @@ const { data } = Astro.props;
 const actions = (data.actions ?? []).filter(a => a !== null);
 ---
 <Section class="relative overflow-hidden">
-	<Aurora />
+		<!-- <Aurora /> -->
 	<div class="relative text-center sm:mx-auto lg:mr-auto">
-		{data.headline && <h1  class="mt-8 text-balance text-6xl md:text-7xl xl:text-[5.25rem] font-semibold tracking-tight">{data.headline}</h1>}
-			{data.tagline && <p  class="mx-auto my-8 max-w-2xl text-balance text-lg text-muted-foreground">{data.tagline}</p>}
+			{data.headline && <h1  class="mt-8 text-balance text-6xl md:text-7xl xl:text-[5.25rem] font-semibold tracking-tight">{data.headline}</h1>}
+			{data.tagline && <p  class="font-text mx-auto my-8 max-w-2xl text-balance text-lg text-muted-foreground">{data.tagline}</p>}
 			<div  class="max-w-full sm:max-w-2/3 mx-auto">
 					{data.image?.src
 					? <Image src={data.image.src} alt={data.image.alt ?? ''} width={911} height={606}  quality={100} fetchpriority="high" loading="eager" decoding="async" class="size-full object-cover" />
