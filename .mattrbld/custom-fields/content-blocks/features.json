@@ -133,7 +133,7 @@
           "value": [
             {
               "type": "icon",
-              "default": "heart-filled",
+              "default": "/heart-filled",
               "icon": "mattrbld",
               "key": "icon",
               "label": "Icon",
@@ -141,7 +141,7 @@
               "options": {
                 "sourceDir": "/cms/icons",
                 "insertAs": "template",
-                "urlTemplate": "",
+                "urlTemplate": "/:filename",
                 "preserveColor": false,
                 "prettyFilenames": false,
                 "removable": false
@@ -275,7 +275,7 @@
       }
     }
   ],
-  "version": 9,
+  "version": 10,
   "visibility": {
     "hidden": false,
     "showByValue": {

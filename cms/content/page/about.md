@@ -92,7 +92,7 @@ blocks:
   - title: What we stand for
     body: null
     items:
-      - icon: code
+      - icon: ':building-community'
         title: Community-First
         text: >-
           Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
@@ -100,7 +100,7 @@ blocks:
           minim veniam, quis nostrud exercitation ullamco laboris nisi ut
           aliquip ex ea commodo consequat. Duis aute irure dolor in
           reprehenderit in voluptate velit esse cillum
-      - icon: wand
+      - icon: ':hearts'
         title: People-centered
         text: >-
           Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
