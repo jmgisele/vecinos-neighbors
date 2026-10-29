@@ -85,7 +85,7 @@ body: >
 
   mirantis petit; terque quam.
 ___mb_schema: /.mattrbld/schemas/blog-posts.json
-image-gallery:
+imageGallery:
   images:
     - src: /blog-placeholder-4.jpg
       alt: null

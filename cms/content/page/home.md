@@ -96,7 +96,7 @@ blocks:
       - src: /h-jpeg-image-3.jpeg
         alt: Gathering of people eating a meal together
         title: null
-    ___mb_type: image-gallery-split
+    ___mb_type: imageGallerySplit
   - body: |-
       You can add more text here
 

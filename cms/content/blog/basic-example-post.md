@@ -85,17 +85,6 @@ body: >
 
   mirantis petit; terque quam.
 ___mb_schema: /.mattrbld/schemas/blog-posts.json
-image-gallery:
-  images:
-    - src: /blog-placeholder-4.jpg
-      alt: null
-      credit: ''
-    - src: /blog-placeholder-5.jpg
-      alt: null
-      credit: ''
-    - src: /converted_0009.png
-      alt: null
-      credit: ''
 ---
 Most content management systems ask you to make a trade. You either get a friendly editing interface and hand your content to a database you do not own, or you keep your content in the repo as Markdown and lose the visual editing your non-technical teammates need. TinaCMS refuses that trade.
 
