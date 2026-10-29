@@ -1,5 +1,5 @@
 ---
-title: Example Post
+title: Example Blog Post
 description: This is a description. It could be used for an event!
 pubDate: 2026-01-14T09:00:00.000Z
 heroImage: /blog-placeholder-4.jpg
@@ -85,6 +85,13 @@ body: >
 
   mirantis petit; terque quam.
 ___mb_schema: /.mattrbld/schemas/blog-posts.json
+hasImageGallery: false
+imageGallery:
+  title: null
+  images:
+    - src: /blog-placeholder-5.jpg
+      alt: null
+      credit: ''
 ---
 Most content management systems ask you to make a trade. You either get a friendly editing interface and hand your content to a database you do not own, or you keep your content in the repo as Markdown and lose the visual editing your non-technical teammates need. TinaCMS refuses that trade.
 

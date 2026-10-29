@@ -127,7 +127,7 @@
       "default": false,
       "icon": "toggle-on",
       "key": "hasImageGallery",
-      "label": "One image or multiple?",
+      "label": "More than one image?",
       "options": {
         "iconLeft": "image",
         "iconRight": "image-stack"
@@ -168,8 +168,9 @@
       "visibility": {
         "hidden": false,
         "showByValue": {
-          "field": "image-gallery-toggle",
-          "value": false
+          "field": "hasImageGallery",
+          "value": "matches",
+          "comparator": "^\"?(?:null|false|undefined)\"?$"
         }
       }
     },
