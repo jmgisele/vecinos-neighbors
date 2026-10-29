@@ -1746,7 +1746,7 @@
           "customField": "content-blocks/image-gallery-split.json",
           "displayField": "title",
           "icon": "group",
-          "key": "image-gallery-split",
+          "key": "imageGallerySplit",
           "label": "Image Gallery Split",
           "tab": "ungrouped",
           "value": [
@@ -1930,7 +1930,7 @@
           "customField": "content-blocks/gallery.json",
           "displayField": "images.image",
           "icon": "group",
-          "key": "image-gallery",
+          "key": "imageGallery",
           "label": "Image Gallery",
           "tab": "ungrouped",
           "value": [

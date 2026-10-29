@@ -123,6 +123,26 @@
       }
     },
     {
+      "type": "toggle",
+      "default": false,
+      "icon": "toggle-on",
+      "key": "hasImageGallery",
+      "label": "One image or multiple?",
+      "options": {
+        "iconLeft": "image",
+        "iconRight": "image-stack"
+      },
+      "tab": "ungrouped",
+      "value": null,
+      "version": 1,
+      "visibility": {
+        "hidden": false,
+        "showByValue": {
+          "field": null
+        }
+      }
+    },
+    {
       "type": "image",
       "default": {
         "src": "/blog-placeholder-5.jpg",
@@ -131,7 +151,7 @@
       },
       "icon": "image",
       "key": "heroImage",
-      "label": "HeroImage",
+      "label": "One Image",
       "options": {
         "resolutionHint": "",
         "removable": false,
@@ -148,7 +168,8 @@
       "visibility": {
         "hidden": false,
         "showByValue": {
-          "field": null
+          "field": "image-gallery-toggle",
+          "value": false
         }
       }
     },
@@ -157,8 +178,8 @@
       "customField": "content-blocks/gallery.json",
       "displayField": "images.image",
       "icon": "group",
-      "key": "image-gallery",
-      "label": "Image Gallery",
+      "key": "imageGallery",
+      "label": "Image Gallery (Multiple)",
       "tab": "ungrouped",
       "value": [
         {
@@ -246,7 +267,8 @@
       "visibility": {
         "hidden": false,
         "showByValue": {
-          "field": null
+          "field": "hasImageGallery",
+          "value": true
         }
       }
     },
