@@ -1,0 +1,63 @@
+---
+import {
+  Swiper,
+  SwiperWrapper,
+  SwiperSlide,
+  SwiperPagination,
+  SwiperButtonPrev,
+  SwiperButtonNext,
+} from "astro-swiper";
+interface Props {
+  data: any;
+}
+
+const { data } = Astro.props;
+const images = data.images ?? [];
+---
+
+<section class="slider-container w-full min-h-400px max-h-screen">
+  <Swiper
+    options={{
+      // check options at https://swiperjs.com/swiper-api
+      autoplay: {
+        delay: 7000,
+        disableOnInteraction: false,
+        waitForTransition: false,
+      },
+      loop: true,
+      pagination: {
+        el: ".swiper-pagination",
+      },
+      navigation: {
+        nextEl: ".swiper-button-next",
+        prevEl: ".swiper-button-prev",
+      },
+      mousewheel: true,
+      keyboard: true,
+    }}
+  >
+    <SwiperButtonPrev />
+    <SwiperWrapper>
+      {images?.length > 0 &&
+        images.map((image: any, i: number) => (
+          <SwiperSlide>
+            <img
+              src={image?.src}
+              alt={image?.alt ?? ""}
+              class="aspect-[4/3] w-full rounded-xl border border-border/25 object-cover"
+            />
+          </SwiperSlide>
+        ))}
+    </SwiperWrapper>
+    <SwiperButtonNext />
+    <SwiperPagination />
+  </Swiper>
+</section>
+<style>
+  section {
+    --swiper-navigation-size: 25px;
+    --swiper-navigation-top-offset: 50%;
+    --swiper-navigation-sides-offset: 10px;
+    --swiper-navigation-color: var(--carbon);
+  }
+</style>
