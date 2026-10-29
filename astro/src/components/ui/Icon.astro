@@ -9,7 +9,7 @@ interface Props {
 
 let { name, class: className } = Astro.props;
 name = name.replace("/", "").replace(":", "");
-console.log(name)
+
 const iconName = name ? `tabler:${name}` : null;
 ---
 {iconName && <Iconify name={iconName} class={className ?? 'size-5'} />}

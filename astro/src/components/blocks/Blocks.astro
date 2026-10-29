@@ -1,43 +1,54 @@
 ---
-import Content from './Content.astro';
-import Cta from './Cta.astro';
-import Features from './Features.astro';
-import Hero from './Hero.astro';
-import Split from './Split.astro';
-import Stats from './Stats.astro';
-import Testimonial from './Testimonial.astro';
-import Video from './Video.astro';
-import Divider from '../space/Divider.astro';
-import type { CmsPage } from '../../lib/data';
-import Gallery from './Gallery.astro';
-import GallerySplit from './GallerySplit.astro';
+import Content from "./Content.astro";
+import Cta from "./Cta.astro";
+import Features from "./Features.astro";
+import Hero from "./Hero.astro";
+import Split from "./Split.astro";
+import Stats from "./Stats.astro";
+import Testimonial from "./Testimonial.astro";
+import Video from "./Video.astro";
+import Divider from "../space/Divider.astro";
+import type { CmsPage } from "../../lib/data";
+import Gallery from "./Gallery.astro";
+import GallerySplit from "./GallerySplit.astro";
 
 interface Props {
-		data?: CmsPage | null;
+  data?: CmsPage | null;
 }
 
 const { data } = Astro.props;
 const blocks = (data ?? []).filter((b: any) => b !== null);
 ---
+
 {blocks.map((block: any, i: number) => {
-const rendered = (() => {
-switch (block.___mb_type) {
-case 'content': return <Content data={block} />;
-case 'cta': return <Cta data={block} />;
-case 'features': return <Features data={block} />;
-case 'hero': return <Hero data={block} />;
-case 'split': return <Split data={block} />;
-case 'statistics': return <Stats data={block} />;
-case 'testimonials': return <Testimonial data={block} />;
-case 'video': return <Video data={block} />;
-case 'image-gallery': 	return	<Gallery data={block} />
-case 'image-gallery-split': return <GallerySplit data={block} />
-}
-})();
-return (
-<>
-		<div>{rendered}</div>
-		{i < blocks.length - 1 && <Divider class="my-2" />}
-</>
-);
+  const rendered = (() => {
+    switch (block.___mb_type) {
+      case "content":
+        return <Content data={block} />;
+      case "cta":
+        return <Cta data={block} />;
+      case "features":
+        return <Features data={block} />;
+      case "hero":
+        return <Hero data={block} />;
+      case "split":
+        return <Split data={block} />;
+      case "statistics":
+        return <Stats data={block} />;
+      case "testimonials":
+        return <Testimonial data={block} />;
+      case "video":
+        return <Video data={block} />;
+      case "imageGallery":
+        return <Gallery data={block} />;
+      case "imageGallerySplit":
+        return <GallerySplit data={block} />;
+    }
+  })();
+  return (
+    <>
+      <div>{rendered}</div>
+      {i < blocks.length - 1 && <Divider class="my-2" />}
+    </>
+  );
 })}

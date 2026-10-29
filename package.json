@@ -12,7 +12,7 @@
     "dev:astro": "npm run dev --workspace=astro",
     "dev:mattrbld": "npm run dev --workspace=mattrbld-local",
 		"dev:proxy": "npm run proxy --workspace=mattrbld-local",
-    "format": "prettier --cache --write .",
+    "format": "prettier --cache --write ./astro",
 		"prebuild": "node before-build.js"
   },
   "devDependencies": {

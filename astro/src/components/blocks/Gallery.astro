@@ -4,6 +4,8 @@ interface Props { data: any }
 
 const { data } = Astro.props;
 const images = data.images ?? [];
+
+
 ---
 <section class="slider-container w-full">
 		{images?.length > 0 && images.map((_: any, i: number) => (
@@ -14,7 +16,7 @@ const images = data.images ?? [];
 				<div  class="bg-background rounded-2xl border p-2 shadow-lg slide"
 							id={`slide-${i}`}
 				>
-						<img src={`/blog-placeholder-${i +4}.jpg`} alt={image?.alt ?? ''} class="aspect-[4/3] w-full rounded-xl border border-border/25 object-cover" />
+						<img src={image?.src} alt={image?.alt ?? ''} class="aspect-[4/3] w-full rounded-xl border border-border/25 object-cover" />
 				</div>
 				))}
 		</div>
