@@ -10,24 +10,22 @@ interface Props {
 }
 
 const { data } = Astro.props;
+console.log(data);
 ---
 
-{data?.heroImage &&
-  !(data["imageGallery"] && data["imageGallery"]["images"].length) && (
-    <div class="mx-auto max-w-4xl px-6">
-      <img
-        width={1020}
-        height={510}
-        src={data.heroImage}
-        alt=""
-        class="w-full rounded-2xl border shadow-lg"
-      />
-    </div>
-  )}
-{data["imageGallery"] && data["imageGallery"]["images"].length && (
-  <section class="slider-container w-full mx-auto max-w-4xl px-6 w-[1000px] h-[500px]">
-    <NewGallery data={data["imageGallery"]} />
-  </section>
+{data?.heroImage && !data?.hasImageGallery && (
+  <img
+    width={1020}
+    height={510}
+    src={data.heroImage}
+    alt=""
+    class="w-full rounded-2xl border shadow-lg"
+  />
+)}
+{data?.hasImageGallery && data["imageGallery"]["images"].length && (
+  <div class="mx-auto max-w-4xl px-6">
+    <NewGallery data={data["imageGallery"]} height={"500px"} width={"600px"} />
+  </div>
 )}
 {data && (
   <div class="w-full flex flex-col items-center">

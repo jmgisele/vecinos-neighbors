@@ -1,21 +1,24 @@
 ---
 import {
-  Swiper,
-  SwiperWrapper,
-  SwiperSlide,
-  SwiperPagination,
-  SwiperButtonPrev,
-  SwiperButtonNext,
+		Swiper,
+		SwiperWrapper,
+		SwiperSlide,
+		SwiperPagination,
+		SwiperButtonPrev,
+		SwiperButtonNext,
 } from "astro-swiper";
 interface Props {
-  data: any;
+		data: any;
+		height: string;
+		width: string;
 }
 
-const { data } = Astro.props;
+const { data, height, width } = Astro.props;
+
 const images = data.images ?? [];
 ---
 
-<section class="slider-container w-full min-h-400px max-h-screen">
+<section class="w-full min-h-400px">
   <Swiper
     options={{
       // check options at https://swiperjs.com/swiper-api
@@ -40,24 +43,30 @@ const images = data.images ?? [];
     <SwiperWrapper>
       {images?.length > 0 &&
         images.map((image: any, i: number) => (
-          <SwiperSlide>
+        <SwiperSlide>
             <img
-              src={image?.src}
-              alt={image?.alt ?? ""}
-              class="aspect-[4/3] w-full rounded-xl border border-border/25 object-cover"
+								src={image?.src}
+								alt={image?.alt ?? ""}
+								class="aspect-[4/3] w-full rounded-xl border border-border/25 object-cover"
             />
-          </SwiperSlide>
+        </SwiperSlide>
         ))}
     </SwiperWrapper>
     <SwiperButtonNext />
     <SwiperPagination />
   </Swiper>
 </section>
-<style>
-  section {
-    --swiper-navigation-size: 25px;
-    --swiper-navigation-top-offset: 50%;
-    --swiper-navigation-sides-offset: 10px;
-    --swiper-navigation-color: var(--carbon);
-  }
+<style define:vars={{ height, width }}>
+ astro-swiper {
+		 height: var(--height);
+		 width: var(--width);
+ }
+
+ section {
+     --swiper-navigation-size: 25px;
+     --swiper-navigation-top-offset: 50%;
+     --swiper-navigation-sides-offset: 10px;
+     --swiper-navigation-color: var(--carbon);
+ }
 </style>
+
