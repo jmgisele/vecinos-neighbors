@@ -15,7 +15,7 @@
       "icon": "text-input",
       "key": "title",
       "label": "Title",
-      "localised": false,
+      "localised": true,
       "options": {
         "wrapping": true,
         "multiline": false
@@ -44,7 +44,7 @@
       "icon": "text-input",
       "key": "description",
       "label": "Description",
-      "localised": false,
+      "localised": true,
       "options": {
         "wrapping": true,
         "multiline": false
@@ -93,11 +93,14 @@
           "value": [
             {
               "type": "text",
-              "default": null,
+              "default": {
+                "english": "meals delivered",
+                "español": "comidas entregadas"
+              },
               "icon": "text-input",
               "key": "type",
               "label": "Type",
-              "localised": false,
+              "localised": true,
               "options": {
                 "wrapping": true,
                 "multiline": false
@@ -122,7 +125,7 @@
             },
             {
               "type": "text",
-              "default": null,
+              "default": "100",
               "icon": "text-input",
               "key": "statistic",
               "label": "Stat",
@@ -168,7 +171,7 @@
       }
     }
   ],
-  "version": 4,
+  "version": 5,
   "visibility": {
     "hidden": false,
     "showByValue": {

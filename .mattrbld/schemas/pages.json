@@ -6,7 +6,7 @@
       "icon": "text-input",
       "key": "seoTitle",
       "label": "SeoTitle",
-      "localised": false,
+      "localised": true,
       "options": {
         "wrapping": true,
         "multiline": false
@@ -61,7 +61,7 @@
               "icon": "text-input",
               "key": "title",
               "label": "Title",
-              "localised": false,
+              "localised": true,
               "options": {
                 "wrapping": true,
                 "multiline": false
@@ -90,7 +90,7 @@
               "icon": "text",
               "key": "body",
               "label": "Body",
-              "localised": false,
+              "localised": true,
               "options": {
                 "outputFormat": "markdown",
                 "blockFormats": [
@@ -306,7 +306,7 @@
               "tab": null
             }
           ],
-          "version": 6,
+          "version": 7,
           "visibility": {
             "hidden": false,
             "showByValue": {
@@ -330,7 +330,7 @@
               "icon": "text-input",
               "key": "title",
               "label": "Title",
-              "localised": false,
+              "localised": true,
               "options": {
                 "wrapping": true,
                 "multiline": false
@@ -359,7 +359,7 @@
               "icon": "text",
               "key": "body",
               "label": "Body",
-              "localised": false,
+              "localised": true,
               "options": {
                 "outputFormat": "html",
                 "blockFormats": [
@@ -479,7 +479,7 @@
                       "icon": "text-input",
                       "key": "title",
                       "label": "Title",
-                      "localised": false,
+                      "localised": true,
                       "options": {
                         "wrapping": true,
                         "multiline": false
@@ -508,7 +508,7 @@
                       "icon": "text",
                       "key": "text",
                       "label": "Body",
-                      "localised": false,
+                      "localised": true,
                       "options": {
                         "outputFormat": "markdown",
                         "blockFormats": [
@@ -590,7 +590,7 @@
               }
             }
           ],
-          "version": 10,
+          "version": 11,
           "visibility": {
             "hidden": false,
             "showByValue": {
@@ -613,7 +613,7 @@
               "icon": "text-input",
               "key": "headline",
               "label": "Headline",
-              "localised": false,
+              "localised": true,
               "options": {
                 "wrapping": true,
                 "multiline": false
@@ -642,7 +642,7 @@
               "icon": "text-input",
               "key": "tagline",
               "label": "Tagline",
-              "localised": false,
+              "localised": true,
               "options": {
                 "wrapping": true,
                 "multiline": false
@@ -695,7 +695,7 @@
                       "icon": "text-input",
                       "key": "label",
                       "label": "Display Text",
-                      "localised": false,
+                      "localised": true,
                       "options": {
                         "wrapping": true,
                         "multiline": false
@@ -778,7 +778,7 @@
                       "icon": "link",
                       "key": "link",
                       "label": "Link",
-                      "localised": false,
+                      "localised": true,
                       "options": {
                         "type": "both",
                         "byFilePath": false,
@@ -807,7 +807,7 @@
                   }
                 }
               ],
-              "version": 4,
+              "version": 5,
               "visibility": {
                 "hidden": false,
                 "showByValue": {
@@ -843,7 +843,7 @@
               }
             }
           ],
-          "version": 4,
+          "version": 6,
           "visibility": {
             "hidden": false,
             "showByValue": {
@@ -866,7 +866,7 @@
               "icon": "text-input",
               "key": "title",
               "label": "Title",
-              "localised": false,
+              "localised": true,
               "options": {
                 "wrapping": true,
                 "multiline": false
@@ -887,8 +887,7 @@
                 "showByValue": {
                   "field": null
                 }
-              },
-              "tab": "ungrouped"
+              }
             },
             {
               "type": "text",
@@ -896,7 +895,7 @@
               "icon": "text-input",
               "key": "description",
               "label": "Description",
-              "localised": false,
+              "localised": true,
               "options": {
                 "wrapping": true,
                 "multiline": false
@@ -917,8 +916,7 @@
                 "showByValue": {
                   "field": null
                 }
-              },
-              "tab": "ungrouped"
+              }
             },
             {
               "type": "rows",
@@ -950,7 +948,7 @@
                       "icon": "text",
                       "key": "body",
                       "label": "Body",
-                      "localised": false,
+                      "localised": true,
                       "options": {
                         "outputFormat": "html",
                         "blockFormats": [
@@ -1011,8 +1009,7 @@
                         "showByValue": {
                           "field": null
                         }
-                      },
-                      "tab": "ungrouped"
+                      }
                     },
                     {
                       "type": "text",
@@ -1020,7 +1017,7 @@
                       "icon": "text-input",
                       "key": "author",
                       "label": "Author",
-                      "localised": false,
+                      "localised": true,
                       "options": {
                         "wrapping": true,
                         "multiline": false
@@ -1041,8 +1038,7 @@
                         "showByValue": {
                           "field": null
                         }
-                      },
-                      "tab": "ungrouped"
+                      }
                     },
                     {
                       "type": "text",
@@ -1050,7 +1046,7 @@
                       "icon": "text-input",
                       "key": "role",
                       "label": "Role",
-                      "localised": false,
+                      "localised": true,
                       "options": {
                         "wrapping": true,
                         "multiline": false
@@ -1071,8 +1067,7 @@
                         "showByValue": {
                           "field": null
                         }
-                      },
-                      "tab": "ungrouped"
+                      }
                     }
                   ],
                   "version": 1,
@@ -1081,8 +1076,7 @@
                     "showByValue": {
                       "field": null
                     }
-                  },
-                  "tab": "ungrouped"
+                  }
                 }
               ],
               "version": 1,
@@ -1091,11 +1085,10 @@
                 "showByValue": {
                   "field": null
                 }
-              },
-              "tab": "ungrouped"
+              }
             }
           ],
-          "version": 2,
+          "version": 3,
           "visibility": {
             "hidden": false,
             "showByValue": {
@@ -1134,7 +1127,7 @@
                   "icon": "text-input",
                   "key": "label",
                   "label": "Display Text",
-                  "localised": false,
+                  "localised": true,
                   "options": {
                     "wrapping": true,
                     "multiline": false
@@ -1217,7 +1210,7 @@
                   "icon": "link",
                   "key": "link",
                   "label": "Link",
-                  "localised": false,
+                  "localised": true,
                   "options": {
                     "type": "both",
                     "byFilePath": false,
@@ -1246,7 +1239,7 @@
               }
             }
           ],
-          "version": 4,
+          "version": 5,
           "visibility": {
             "hidden": false,
             "showByValue": {
@@ -1270,7 +1263,7 @@
               "icon": "text-input",
               "key": "title",
               "label": "Title",
-              "localised": false,
+              "localised": true,
               "options": {
                 "wrapping": true,
                 "multiline": false
@@ -1291,8 +1284,7 @@
                 "showByValue": {
                   "field": null
                 }
-              },
-              "tab": "ungrouped"
+              }
             },
             {
               "type": "text",
@@ -1300,7 +1292,7 @@
               "icon": "text-input",
               "key": "description",
               "label": "Description",
-              "localised": false,
+              "localised": true,
               "options": {
                 "wrapping": true,
                 "multiline": false
@@ -1321,8 +1313,7 @@
                 "showByValue": {
                   "field": null
                 }
-              },
-              "tab": "ungrouped"
+              }
             },
             {
               "type": "rows",
@@ -1350,11 +1341,14 @@
                   "value": [
                     {
                       "type": "text",
-                      "default": null,
+                      "default": {
+                        "english": "meals delivered",
+                        "español": "comidas entregadas"
+                      },
                       "icon": "text-input",
                       "key": "type",
                       "label": "Type",
-                      "localised": false,
+                      "localised": true,
                       "options": {
                         "wrapping": true,
                         "multiline": false
@@ -1375,12 +1369,11 @@
                         "showByValue": {
                           "field": null
                         }
-                      },
-                      "tab": "ungrouped"
+                      }
                     },
                     {
                       "type": "text",
-                      "default": null,
+                      "default": "100",
                       "icon": "text-input",
                       "key": "statistic",
                       "label": "Stat",
@@ -1405,8 +1398,7 @@
                         "showByValue": {
                           "field": null
                         }
-                      },
-                      "tab": "ungrouped"
+                      }
                     }
                   ],
                   "version": 1,
@@ -1415,8 +1407,7 @@
                     "showByValue": {
                       "field": null
                     }
-                  },
-                  "tab": "ungrouped"
+                  }
                 }
               ],
               "version": 1,
@@ -1425,11 +1416,10 @@
                 "showByValue": {
                   "field": null
                 }
-              },
-              "tab": "ungrouped"
+              }
             }
           ],
-          "version": 4,
+          "version": 5,
           "visibility": {
             "hidden": false,
             "showByValue": {
@@ -1451,7 +1441,7 @@
               "icon": "text-input",
               "key": "title",
               "label": "Title",
-              "tab": "ungrouped",
+              "tab": null,
               "value": null,
               "version": 1,
               "visibility": {
@@ -1465,7 +1455,7 @@
                 "wrapping": true,
                 "multiline": false
               },
-              "localised": false,
+              "localised": true,
               "validation": {
                 "enforceMinMax": true,
                 "max": null,
@@ -1482,7 +1472,7 @@
               "icon": "text",
               "key": "body",
               "label": "Body",
-              "localised": false,
+              "localised": true,
               "options": {
                 "outputFormat": "markdown",
                 "blockFormats": [
@@ -1543,8 +1533,7 @@
                 "showByValue": {
                   "field": null
                 }
-              },
-              "tab": "ungrouped"
+              }
             },
             {
               "type": "image",
@@ -1569,8 +1558,7 @@
                 "showByValue": {
                   "field": null
                 }
-              },
-              "tab": "ungrouped"
+              }
             },
             {
               "type": "rows",
@@ -1623,8 +1611,7 @@
                         "showByValue": {
                           "field": null
                         }
-                      },
-                      "tab": "ungrouped"
+                      }
                     },
                     {
                       "type": "select",
@@ -1651,8 +1638,7 @@
                         "showByValue": {
                           "field": null
                         }
-                      },
-                      "tab": "ungrouped"
+                      }
                     },
                     {
                       "type": "icon",
@@ -1679,8 +1665,7 @@
                         "showByValue": {
                           "field": null
                         }
-                      },
-                      "tab": "ungrouped"
+                      }
                     },
                     {
                       "type": "link",
@@ -1705,8 +1690,7 @@
                         "showByValue": {
                           "field": null
                         }
-                      },
-                      "tab": "ungrouped"
+                      }
                     }
                   ],
                   "version": 1,
@@ -1716,8 +1700,7 @@
                       "field": null
                     }
                   },
-                  "customField": "action.json",
-                  "tab": "ungrouped"
+                  "customField": "action.json"
                 }
               ],
               "version": 1,
@@ -1727,19 +1710,17 @@
                   "field": null
                 }
               },
-              "customField": "actions.json",
-              "tab": "ungrouped"
+              "customField": "actions.json"
             }
           ],
-          "version": 5,
+          "version": 6,
           "visibility": {
             "hidden": false,
             "showByValue": {
               "field": null
             }
           },
-          "customField": "content-blocks/split.json",
-          "tab": "ungrouped"
+          "customField": "content-blocks/split.json"
         },
         {
           "type": "group",
@@ -1752,11 +1733,14 @@
           "value": [
             {
               "type": "text",
-              "default": "",
+              "default": {
+                "english": "",
+                "español": ""
+              },
               "icon": "text-input",
               "key": "title",
               "label": "Title",
-              "localised": false,
+              "localised": true,
               "options": {
                 "wrapping": true,
                 "multiline": false
@@ -1793,7 +1777,7 @@
                   "icon": "text",
                   "key": "body",
                   "label": "Body",
-                  "localised": false,
+                  "localised": true,
                   "options": {
                     "outputFormat": "markdown",
                     "blockFormats": [
@@ -1857,13 +1841,14 @@
                   }
                 }
               ],
-              "version": 3,
+              "version": 4,
               "visibility": {
                 "hidden": false,
                 "showByValue": {
                   "field": null
                 }
-              }
+              },
+              "tab": null
             },
             {
               "type": "rows",
@@ -1917,7 +1902,7 @@
               }
             }
           ],
-          "version": 4,
+          "version": 7,
           "visibility": {
             "hidden": false,
             "showByValue": {
@@ -1940,7 +1925,7 @@
               "icon": "text-input",
               "key": "title",
               "label": "Title (Optional)",
-              "localised": false,
+              "localised": true,
               "options": {
                 "wrapping": true,
                 "multiline": false
@@ -2015,7 +2000,7 @@
               }
             }
           ],
-          "version": 4,
+          "version": 5,
           "visibility": {
             "hidden": false,
             "showByValue": {
@@ -2038,7 +2023,7 @@
               "icon": "text",
               "key": "body",
               "label": "Body",
-              "localised": false,
+              "localised": true,
               "options": {
                 "outputFormat": "markdown",
                 "blockFormats": [
@@ -2102,7 +2087,7 @@
               }
             }
           ],
-          "version": 3,
+          "version": 4,
           "visibility": {
             "hidden": false,
             "showByValue": {

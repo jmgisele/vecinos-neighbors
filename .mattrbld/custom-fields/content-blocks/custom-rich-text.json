@@ -15,7 +15,7 @@
       "icon": "text",
       "key": "body",
       "label": "Body",
-      "localised": false,
+      "localised": true,
       "options": {
         "outputFormat": "markdown",
         "blockFormats": [
@@ -79,7 +79,7 @@
       }
     }
   ],
-  "version": 3,
+  "version": 4,
   "visibility": {
     "hidden": false,
     "showByValue": {

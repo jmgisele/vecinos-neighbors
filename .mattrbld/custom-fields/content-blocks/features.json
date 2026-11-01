@@ -15,7 +15,7 @@
       "icon": "text-input",
       "key": "title",
       "label": "Title",
-      "localised": false,
+      "localised": true,
       "options": {
         "wrapping": true,
         "multiline": false
@@ -44,7 +44,7 @@
       "icon": "text",
       "key": "body",
       "label": "Body",
-      "localised": false,
+      "localised": true,
       "options": {
         "outputFormat": "html",
         "blockFormats": [
@@ -164,7 +164,7 @@
               "icon": "text-input",
               "key": "title",
               "label": "Title",
-              "localised": false,
+              "localised": true,
               "options": {
                 "wrapping": true,
                 "multiline": false
@@ -193,7 +193,7 @@
               "icon": "text",
               "key": "text",
               "label": "Body",
-              "localised": false,
+              "localised": true,
               "options": {
                 "outputFormat": "markdown",
                 "blockFormats": [
@@ -275,7 +275,7 @@
       }
     }
   ],
-  "version": 10,
+  "version": 11,
   "visibility": {
     "hidden": false,
     "showByValue": {

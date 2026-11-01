@@ -14,7 +14,7 @@
           "icon": "text-input",
           "key": "title",
           "label": "Title",
-          "localised": false,
+          "localised": true,
           "options": {
             "wrapping": true,
             "multiline": false
@@ -44,7 +44,7 @@
           "icon": "text-input",
           "key": "description",
           "label": "Description",
-          "localised": false,
+          "localised": true,
           "options": {
             "wrapping": true,
             "multiline": false
@@ -74,7 +74,7 @@
           "icon": "text-input",
           "key": "siteOwner",
           "label": "SiteOwner",
-          "localised": false,
+          "localised": true,
           "options": {
             "wrapping": true,
             "multiline": false
@@ -165,7 +165,7 @@
               "icon": "text-input",
               "key": "title",
               "label": "Title",
-              "localised": false,
+              "localised": true,
               "options": {
                 "wrapping": true,
                 "multiline": false
@@ -265,7 +265,7 @@
               "icon": "text-input",
               "key": "title",
               "label": "Title",
-              "localised": false,
+              "localised": true,
               "options": {
                 "wrapping": true,
                 "multiline": false

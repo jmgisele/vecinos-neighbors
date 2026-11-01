@@ -15,7 +15,7 @@
       "icon": "text-input",
       "key": "title",
       "label": "Title",
-      "localised": false,
+      "localised": true,
       "options": {
         "wrapping": true,
         "multiline": false
@@ -44,7 +44,7 @@
       "icon": "text-input",
       "key": "description",
       "label": "Description",
-      "localised": false,
+      "localised": true,
       "options": {
         "wrapping": true,
         "multiline": false
@@ -97,7 +97,7 @@
               "icon": "text",
               "key": "body",
               "label": "Body",
-              "localised": false,
+              "localised": true,
               "options": {
                 "outputFormat": "html",
                 "blockFormats": [
@@ -166,7 +166,7 @@
               "icon": "text-input",
               "key": "author",
               "label": "Author",
-              "localised": false,
+              "localised": true,
               "options": {
                 "wrapping": true,
                 "multiline": false
@@ -195,7 +195,7 @@
               "icon": "text-input",
               "key": "role",
               "label": "Role",
-              "localised": false,
+              "localised": true,
               "options": {
                 "wrapping": true,
                 "multiline": false
@@ -237,7 +237,7 @@
       }
     }
   ],
-  "version": 2,
+  "version": 3,
   "visibility": {
     "hidden": false,
     "showByValue": {

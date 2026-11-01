@@ -77,7 +77,10 @@
   "customRoles": [],
   "draftsDir": null,
   "previewUrl": null,
-  "languages": [],
+  "languages": [
+    "english",
+    "español"
+  ],
   "media": {
     "advanced": true,
     "customFields": [

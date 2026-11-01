@@ -11,7 +11,7 @@
       "icon": "text-input",
       "key": "title",
       "label": "Title",
-      "localised": false,
+      "localised": true,
       "options": {
         "wrapping": true,
         "multiline": false
@@ -40,7 +40,7 @@
       "icon": "text",
       "key": "body",
       "label": "Body",
-      "localised": false,
+      "localised": true,
       "options": {
         "outputFormat": "markdown",
         "blockFormats": [
@@ -256,7 +256,7 @@
       "tab": null
     }
   ],
-  "version": 6,
+  "version": 7,
   "visibility": {
     "hidden": false,
     "showByValue": {

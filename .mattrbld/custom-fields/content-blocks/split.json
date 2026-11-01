@@ -26,7 +26,7 @@
         "wrapping": true,
         "multiline": false
       },
-      "localised": false,
+      "localised": true,
       "validation": {
         "enforceMinMax": true,
         "max": null,
@@ -43,7 +43,7 @@
       "icon": "text",
       "key": "body",
       "label": "Body",
-      "localised": false,
+      "localised": true,
       "options": {
         "outputFormat": "markdown",
         "blockFormats": [
@@ -284,7 +284,7 @@
       "customField": "actions.json"
     }
   ],
-  "version": 5,
+  "version": 6,
   "visibility": {
     "hidden": false,
     "showByValue": {
