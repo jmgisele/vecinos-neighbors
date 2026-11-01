@@ -183,7 +183,7 @@
                       "icon": "text-input",
                       "key": "label",
                       "label": "Display Text",
-                      "localised": false,
+                      "localised": true,
                       "options": {
                         "wrapping": true,
                         "multiline": false
@@ -266,7 +266,7 @@
                       "icon": "link",
                       "key": "link",
                       "label": "Link",
-                      "localised": false,
+                      "localised": true,
                       "options": {
                         "type": "both",
                         "byFilePath": false,
@@ -295,7 +295,7 @@
                   }
                 }
               ],
-              "version": 4,
+              "version": 5,
               "visibility": {
                 "hidden": false,
                 "showByValue": {
@@ -306,7 +306,7 @@
               "tab": null
             }
           ],
-          "version": 7,
+          "version": 8,
           "visibility": {
             "hidden": false,
             "showByValue": {
