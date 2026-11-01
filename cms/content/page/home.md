@@ -6,11 +6,17 @@ blocks:
   - headline:
       english: Food brings us together
       español: La comida nos une
-    tagline: >-
-      We envision in the greater Woodburn area, a welcoming, warm, and thriving,
-      community where all neighbors, especially those working in agriculture,
-      come together to form friendships while supporting and celebrating one
-      another’s lives.
+    tagline:
+      english: >-
+        We envision in the greater Woodburn area, a welcoming, warm, and
+        thriving, community where all neighbors, especially those working in
+        agriculture, come together to form friendships while supporting and
+        celebrating one another’s lives.
+      español: >-
+        Visualizamos en la zona metropolitana de Woodburn una comunidad
+        acogedora, cálida y próspera donde todos los vecinos, especialmente
+        aquellos que trabajan en la agricultura, se reúnan para entablar
+        amistades, apoyándose y celebrando la vida de los demás.
     actions:
       - label:
           english: Get Involved
