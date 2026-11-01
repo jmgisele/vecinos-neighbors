@@ -105,7 +105,9 @@ blocks:
       - stat: '1000'
         type: lorem ipsum
     ___mb_type: statistics
-  - title: Check out what we've been up to!
+  - title:
+      english: Check out what we've been up to!
+      español: ¡Mira lo que hemos estado haciendo!
     content:
       body:
         english: >-
