@@ -7,11 +7,11 @@ import {
 } from "astro-swiper";
 interface Props {
 	data: any;
-	height: string;
-	width: string;
+	height?: string;
+	width?: string;
 }
 
-const { data, height, width } = Astro.props;
+const { data, height = "500px", width = "100%" } = Astro.props;
 
 const images = data.images ?? [];
 ---
@@ -55,8 +55,10 @@ const images = data.images ?? [];
 </section>
 <style define:vars={{ height, width }}>
  astro-swiper {
-	 height: var(--height);
 	 width: var(--width);
+	 max-width: 100%;
+	 aspect-ratio: 4 / 3;
+	 max-height: var(--height);
  }
 
  section {
