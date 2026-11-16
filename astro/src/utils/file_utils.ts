@@ -32,10 +32,11 @@ export function getBlogContent(id: string): any {
     const fileContents = fs.readFileSync(fullPath, "utf8");
     const matterResult = matter(fileContents);
     let frontmatter = matterResult.data;
-    const contentHtml = mdIt(matterResult.data.body[getLangCode()]);
+    //    const contentHtml = mdIt(matterResult.data.body[getLangCode()]);
+    frontmatter = traverseLocalize(frontmatter);
+    frontmatter = traverseMdIt(frontmatter);
     return {
       file: `${id}.md`,
-      content: contentHtml,
       ...frontmatter,
       slug: "/blog/" + id,
     };
@@ -49,34 +50,49 @@ export function getLangCode() {
   return import.meta.env.LANGUAGE_CODE ?? "english";
 }
 
-export function traverse(anyObject: any) {
-  const content = anyObject;
-  if (anyObject !== null && typeof anyObject == "object") {
-    if (!!anyObject[getLangCode()]) {
-      // flatten into a leaf node
-      return anyObject[getLangCode()];
-    } else {
-      Object.entries(anyObject).forEach(([key, value]) => {
-        // key is either an array index or object key
-        content[key] = traverse(value);
-      });
-    }
-  }
+export function traverseLocalize(anyObject: any) {
+  if (anyObject === null || typeof anyObject != "object") return anyObject;
+  if (anyObject[getLangCode()]) return anyObject[getLangCode()];
+
+  const content = Array.isArray(anyObject) ? [...anyObject] : { ...anyObject };
+  if (anyObject.constructor !== Object && !Array.isArray(anyObject)) return anyObject; 
+
+  Object.entries(anyObject).forEach(([key, value]) => {
+    content[key] = traverseLocalize(value);
+  });
   return content;
+}
+
+export function traverseMdIt(anyObject: any) {
+  if (typeof anyObject !== "object" || !anyObject) return anyObject;
+  const newObj = Array.isArray(anyObject) ? [...anyObject] : { ...anyObject };
+
+  Object.entries(anyObject).forEach(([key, value]) => {
+    if (key == "content" && typeof value == "string") {
+      newObj["content"] = mdIt(value);
+    } else if (key == "body" && typeof value == "string") {
+      newObj["body"] = mdIt(value);
+    } else if (
+      value !== null &&
+      typeof value === "object" &&
+      (Array.isArray(value) || value.constructor === Object)
+    ) {
+      newObj[key] = traverseMdIt(value);
+    }
+  });
+  return newObj;
 }
 
 export function getPageContent(id: string): any {
   try {
     const fullPath = path.join(PAGE_DIR, `${id}.md`);
-
     const fileContents = fs.readFileSync(fullPath, "utf8");
-
     const matterResult = matter(fileContents);
-		console.log(matterResult.data.blocks)
+
     let frontmatter = matterResult.data;
 
-    frontmatter.blocks = traverse(frontmatter.blocks);
-
+    frontmatter.blocks = traverseLocalize(frontmatter.blocks);
+    frontmatter = traverseMdIt(frontmatter);
     return {
       file: `${id}.md`,
       ...frontmatter,

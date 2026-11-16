@@ -10,7 +10,6 @@ interface Props {
 }
 
 const { data } = Astro.props;
-console.log(data);
 ---
 
 {data?.heroImage && !data?.hasImageGallery && (
@@ -51,7 +50,7 @@ console.log(data);
       </div>
     </div>
     <div class="mx-auto max-w-3xl px-6 py-12">
-      {data.body && <RichText body={data.content} />}
+      {data.body && <RichText body={data.body} />}
     </div>
   </div>
 )}

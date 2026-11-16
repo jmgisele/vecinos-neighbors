@@ -1,8 +1,13 @@
 ---
-interface Props { body: any, additionalClasses?: string }
+interface Props {
+  body: any;
+  additionalClasses?: string;
+}
 
 const { body, additionalClasses = "" } = Astro.props;
 ---
-<section set:html={body} class={"font-text prose prose prose-md max-w-none " + additionalClasses}>
-</section>
 
+<section
+  set:html={body}
+  class={"font-text prose max-w-none " + additionalClasses}
+/>

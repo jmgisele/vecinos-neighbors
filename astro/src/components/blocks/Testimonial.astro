@@ -13,7 +13,7 @@ const { data } = Astro.props;
 const testimonials = (data.testimonials ?? []).filter(
   (t: any): t is TestimonialItem => t !== null,
 );
-console.log(testimonials);
+
 const initials = (b: any) => "anb";
 ---
 

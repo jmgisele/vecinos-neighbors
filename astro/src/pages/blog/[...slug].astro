@@ -1,26 +1,26 @@
 ---
-import BlogPost from '../../layouts/BlogPost.astro';
-import BlogBody from '../../components/islands/BlogBody.astro';
-import { getAllBlogSlugs, getBlogContent } from '@/utils/file_utils';
+import BlogPost from "../../layouts/BlogPost.astro";
+import BlogBody from "../../components/islands/BlogBody.astro";
+import { getAllBlogSlugs, getBlogContent } from "@/utils/file_utils";
 
 export async function getStaticPaths() {
-		return getAllBlogSlugs();
+  return getAllBlogSlugs();
 }
-const slug = (Astro.params.slug ?? '').toString();
+const slug = (Astro.params.slug ?? "").toString();
 
 const blog = await getBlogContent(slug);
 const data = blog;
-if (!data) return new Response('Not Found', { status: 404 });
+if (!data) return new Response("Not Found", { status: 404 });
 
 const layoutProps = {
-		title: data.title ?? '',
-		description: data.description ?? '',
-		pubDate: data.pubDate ? new Date(data.pubDate) : new Date(),
-		updatedDate: data.updatedDate ? new Date(data.updatedDate) : undefined,
-		heroImage: data.heroImage ?? null,
+  title: data.title ?? "",
+  description: data.description ?? "",
+  pubDate: data.pubDate ? new Date(data.pubDate) : new Date(),
+  updatedDate: data.updatedDate ? new Date(data.updatedDate) : undefined,
+  heroImage: data.heroImage ?? null,
 };
 ---
 
 <BlogPost {...layoutProps}>
-		<BlogBody data={data} />
+  <BlogBody data={data} />
 </BlogPost>
