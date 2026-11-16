@@ -1,15 +1,28 @@
 ---
 seoTitle: About
 blocks:
-  - title: Vecinos Neighbors
-    body: >-
-      Is a community organization. Lorem ipsum dolor sit amet. Lorem ipsum dolor
-      sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut
-      labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud
-      exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis
-      aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu
-      fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident,
-      sunt in culpa qui officia deserunt mollit anim id est laborum
+  - title:
+      english: Vecinos Neighbors
+      español: Vecinos Neighbors
+    body:
+      english: >-
+        Is a community organization. Lorem ipsum dolor sit amet. Lorem ipsum
+        dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor
+        incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam,
+        quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo
+        consequat. Duis aute irure dolor in reprehenderit in voluptate velit
+        esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat
+        cupidatat non proident, sunt in culpa qui officia deserunt mollit anim
+        id est laborum
+      español: >-
+        Is a community organization. Lorem ipsum dolor sit amet. Lorem ipsum
+        dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor
+        incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam,
+        quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo
+        consequat. Duis aute irure dolor in reprehenderit in voluptate velit
+        esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat
+        cupidatat non proident, sunt in culpa qui officia deserunt mollit anim
+        id est laborum
     image:
       src: /h-jpeg-image-3.jpeg
       alt: Gathering of people eating a meal together
@@ -23,106 +36,206 @@ blocks:
     ___mb_type: split
   - content: null
     ___mb_type: content
-    body: >-
-      Lorem ipsum dolor sit amet, *consectetur* adipisicing elit, sed do eiusmod
-      tempor incididunt ut **labore et dolore magna aliqua**. Ut enim ad minim
-      veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea
-      commodo consequat. ***Duis aute irure dolor*** in reprehenderit in
-      voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur
-      sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt
-      mollit anim id est laborum.
+    body:
+      english: >-
+        Lorem ipsum dolor sit amet, *consectetur* adipisicing elit, sed do
+        eiusmod tempor incididunt ut **labore et dolore magna aliqua**. Ut enim
+        ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut
+        aliquip ex ea commodo consequat. ***Duis aute irure dolor*** in
+        reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla
+        pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa
+        qui officia deserunt mollit anim id est laborum.
 
 
-      ## H2
+        ## H2
 
 
-      Lorem ipsum dolor sit amet, *consectetur* adipisicing elit, sed do eiusmod
-      tempor incididunt ut **labore et dolore magna aliqua**. Ut enim ad minim
-      veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea
-      commodo consequat.
+        Lorem ipsum dolor sit amet, *consectetur* adipisicing elit, sed do
+        eiusmod tempor incididunt ut **labore et dolore magna aliqua**. Ut enim
+        ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut
+        aliquip ex ea commodo consequat.
 
 
-      ***Duis aute irure dolor*** in reprehenderit in voluptate velit esse
-      cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat
-      non proident, sunt in culpa qui officia deserunt mollit anim id est
-      laborum.
+        ***Duis aute irure dolor*** in reprehenderit in voluptate velit esse
+        cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat
+        cupidatat non proident, sunt in culpa qui officia deserunt mollit anim
+        id est laborum.
 
 
-      ### H3
+        ### H3
 
 
-      unordered list:
+        unordered list:
 
 
-      -   item-1
-          
-          -   sub-item-1
-              
-          -   sub-item-2
-              
+        -   item-1
+            
+            -   sub-item-1
+                
+            -   sub-item-2
+                
 
-      -   item-2
-          
-          -   sub-item-3
-              
-          -   sub-item-4
-              
+        -   item-2
+            
+            -   sub-item-3
+                
+            -   sub-item-4
+                
 
-      -   item-3
-          
-          -   sub-item-5
-              
-          -   sub-item-6
-              
+        -   item-3
+            
+            -   sub-item-5
+                
+            -   sub-item-6
+                
 
-      ordered list:
+        ordered list:
 
 
-      1.  item-1
-          
-          1.  sub-item-1
-              
-          2.  sub-item-2
-              
-      2.  item-2
-          
-          1.  sub-item-3
-              
-          2.  sub-item-4
-              
-      3.  item-3
-  - title: What we stand for
+        1.  item-1
+            
+            1.  sub-item-1
+                
+            2.  sub-item-2
+                
+        2.  item-2
+            
+            1.  sub-item-3
+                
+            2.  sub-item-4
+                
+        3.  item-3
+      español: >-
+        Lorem ipsum dolor sit amet, *consectetur* adipisicing elit, sed do
+        eiusmod tempor incididunt ut **labore et dolore magna aliqua**. Ut enim
+        ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut
+        aliquip ex ea commodo consequat. ***Duis aute irure dolor*** in
+        reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla
+        pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa
+        qui officia deserunt mollit anim id est laborum.
+
+
+        ## H2
+
+
+        Lorem ipsum dolor sit amet, *consectetur* adipisicing elit, sed do
+        eiusmod tempor incididunt ut **labore et dolore magna aliqua**. Ut enim
+        ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut
+        aliquip ex ea commodo consequat.
+
+
+        ***Duis aute irure dolor*** in reprehenderit in voluptate velit esse
+        cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat
+        cupidatat non proident, sunt in culpa qui officia deserunt mollit anim
+        id est laborum.
+
+
+        ### H3
+
+
+        unordered list:
+
+
+        -   item-1
+            
+            -   sub-item-1
+                
+            -   sub-item-2
+                
+        -   item-2
+            
+            -   sub-item-3
+                
+            -   sub-item-4
+                
+        -   item-3
+            
+            -   sub-item-5
+                
+            -   sub-item-6
+                
+
+        ordered list:
+
+
+        1.  item-1
+            
+            1.  sub-item-1
+                
+            2.  sub-item-2
+                
+        2.  item-2
+            
+            1.  sub-item-3
+                
+            2.  sub-item-4
+                
+        3.  item-3
+  - title:
+      english: What we stand for
+      español: Lo que defendemos
     body: null
     items:
       - icon: ':building-community'
-        title: Community-First
-        text: >-
-          Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
-          eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad
-          minim veniam, quis nostrud exercitation ullamco laboris nisi ut
-          aliquip ex ea commodo consequat. Duis aute irure dolor in
-          reprehenderit in voluptate velit esse cillum
+        title:
+          english: Community-First
+          español: 'La comunidad, primero'
+        text:
+          english: >-
+            Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
+            eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim
+            ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut
+            aliquip ex ea commodo consequat. Duis aute irure dolor in
+            reprehenderit in voluptate velit esse cillum
+          español: >-
+            Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
+            eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim
+            ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut
+            aliquip ex ea commodo consequat. Duis aute irure dolor in
+            reprehenderit in voluptate velit esse cillum
       - icon: ':hearts'
-        title: People-centered
-        text: >-
-          Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
-          eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad
-          minim veniam, quis nostrud exercitation ullamco laboris nisi ut
-          aliquip ex ea commodo consequat. Duis aute irure dolor in
-          reprehenderit in voluptate velit esse cillum
+        title:
+          english: People-centered
+          español: Centrado en las personas
+        text:
+          english: >-
+            Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
+            eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim
+            ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut
+            aliquip ex ea commodo consequat. Duis aute irure dolor in
+            reprehenderit in voluptate velit esse cillum
+          español: >-
+            Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
+            eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim
+            ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut
+            aliquip ex ea commodo consequat. Duis aute irure dolor in
+            reprehenderit in voluptate velit esse cillum
       - icon: ':heart-handshake'
-        title: Open hearted
-        text: >-
-          Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
-          eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad
-          minim veniam, quis nostrud exercitation ullamco laboris nisi ut
-          aliquip ex ea commodo consequat. Duis aute irure dolor in
-          reprehenderit in voluptate velit esse cillum
+        title:
+          english: Open hearted
+          español: De corazón abierto
+        text:
+          english: >-
+            Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
+            eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim
+            ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut
+            aliquip ex ea commodo consequat. Duis aute irure dolor in
+            reprehenderit in voluptate velit esse cillum
+          español: >-
+            Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
+            eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim
+            ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut
+            aliquip ex ea commodo consequat. Duis aute irure dolor in
+            reprehenderit in voluptate velit esse cillum
     ___mb_type: features
-  - title: Help us build a better world
+  - title:
+      english: Help us build a better world
+      español: Ayúdanos a construir un mundo mejor
     body: null
     actions:
-      - label: Learn more!
+      - label:
+          english: Learn more!
+          español: ¡Más información!
         type: link
         icon: null
         link: /blog/example-post.md

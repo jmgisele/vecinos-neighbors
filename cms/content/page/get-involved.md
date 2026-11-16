@@ -1,17 +1,32 @@
 ---
-seoTitle: Get Involved
+seoTitle:
+  english: Get Involved
+  español: Involucarse
 blocks:
-  - title: Get Involved!
-    body: |
-      ### Address
+  - title:
+      english: Get Involved!
+      español: ¡Participa con nosotros!
+    body:
+      english: |
+        ### Address
 
-      1000 Example St
+        1000 Example St
 
-      Canby, OR 97013
+        Canby, OR 97013
 
-      ### Email
+        ### Email
 
-      Shoot us a line at [example@example.org](mailto\:example@example.org)
+        Shoot us a line at [example@example.org](mailto\:example@example.org)
+      español: |-
+        Dirección
+
+        1000 Example St
+
+        Canby, OR 97013
+
+        Correo electrónico
+
+        Escríbenos a example@example.org
     image:
       src: /converted_0009.png
       alt: >-
