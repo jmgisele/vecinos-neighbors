@@ -1,36 +1,60 @@
 {
   "seo": {
-    "title": "Vecinos Neighbors",
-    "description": "We are committed to bringing together agricultural workers and their neighbors in Woodburn to foster relationships that strengthen community ties.",
+    "title": {
+      "english": "Vecinos Neighbors",
+      "español": "Vecinos Neighbors"
+    },
+    "description": {
+      "english": "We are committed to bringing together agricultural workers and their neighbors in Woodburn to foster relationships that strengthen community ties.",
+      "español": "Estamos comprometidos a reunir a los trabajadores agrícolas y a sus vecinos en Woodburn para fomentar relaciones que fortalezcan los vínculos comunitarios."
+    },
     "siteOwner": "Vecinos Neighbors",
     "logo": "/vecinos_logo.webp"
   },
   "nav": [
     {
-      "title": "Home",
+      "title": {
+        "english": "Home",
+        "español": "Hogar"
+      },
       "link": "/"
     },
     {
-      "title": "About",
+      "title": {
+        "english": "About",
+        "español": "Sobre nosotros"
+      },
       "link": "/about"
     },
     {
-      "title": "Blog",
+      "title": {
+        "english": "Blog",
+        "español": "Blog"
+      },
       "link": "/blog"
     },
     {
-      "title": "Get Involved",
+      "title": {
+        "english": "Get Involved",
+        "español": "Involucrarse"
+      },
       "link": "/get-involved"
     }
   ],
   "contactLinks": [
     {
-      "title": "X",
+      "title": {
+        "english": "X",
+        "español": "X"
+      },
       "link": "https://example.com",
       "icon": "brand-x"
     },
     {
-      "title": "Facebook",
+      "title": {
+        "english": "Facebook",
+        "español": "Facebook"
+      },
       "link": "https://www.example.com",
       "icon": "brand-facebook"
     }
