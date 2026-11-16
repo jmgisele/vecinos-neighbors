@@ -3,32 +3,38 @@ import type { CmsBlog } from "../../lib/data";
 import FormattedDate from "../FormattedDate.astro";
 import RichText from "../../components/blocks/RichText.astro";
 
-import NewGallery from "../blocks/NewGallery.astro";
+import Gallery from "../blocks/Gallery.astro";
+import { getLangCode } from "@/utils/file_utils";
 
 interface Props {
   data?: CmsBlog | null;
 }
 
 const { data } = Astro.props;
+
+const lastUpdated =
+  getLangCode() == "english" ? "Last Updated" : "Última actualización";
 ---
 
 {data?.heroImage && !data?.hasImageGallery && (
-  <img
-    width={1020}
-    height={510}
-    src={data.heroImage}
-    alt=""
-    class="w-full rounded-2xl border shadow-lg"
-  />
+  <div class="w-full flex flex-row justify-center py-4">
+    <img
+      width={1020}
+      height={510}
+      src={data.heroImage}
+      alt=""
+      class="rounded-2xl border shadow-lg max-w-4xl"
+    />
+  </div>
 )}
 {data?.hasImageGallery && data["imageGallery"]["images"].length && (
   <div class="mx-auto max-w-4xl px-6">
-    <NewGallery data={data["imageGallery"]} height={"500px"} width={"600px"} />
+    <Gallery data={data["imageGallery"]} height={"500px"} width={"800px"} />
   </div>
 )}
 {data && (
   <div class="w-full flex flex-col items-center">
-    <div class="mx-auto max-w-3xl px-6 py-12">
+    <div class="mx-auto max-w-3xl px-6">
       <div class="mb-8 text-center">
         {data.pubDate && (
           <div class="text-sm text-muted-foreground">
@@ -36,7 +42,7 @@ const { data } = Astro.props;
             {data.updatedDate && (
               <span class="italic">
                 {" "}
-                · Last updated{" "}
+                · {lastUpdated}{" "}
                 <FormattedDate date={new Date(data.updatedDate)} />
               </span>
             )}

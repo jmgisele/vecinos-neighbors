@@ -4,7 +4,7 @@ import { cn } from "../../lib/cn";
 import type { SplitBlock } from "../../lib/data";
 import RichText from "./RichText.astro";
 
-import NewGallery from "./NewGallery.astro";
+import Gallery from "./Gallery.astro";
 
 interface Props {
   data: SplitBlock;
@@ -30,7 +30,7 @@ const actions = (data.actions ?? []).filter((a) => a !== null);
     </div>
     {data.images?.length > 0 && (
       <div class="bg-background overflow-hidden rounded-2xl">
-        <NewGallery data={data} />
+        <Gallery data={data} />
       </div>
     )}
   </div>

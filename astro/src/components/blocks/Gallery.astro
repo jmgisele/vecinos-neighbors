@@ -1,104 +1,102 @@
 ---
+import {
+	Swiper,
+	SwiperWrapper,
+	SwiperSlide,
+	SwiperPagination,
+} from "astro-swiper";
+interface Props {
+	data: any;
+	height: string;
+	width: string;
+}
 
-interface Props { data: any }
+const { data, height, width } = Astro.props;
 
-const { data } = Astro.props;
 const images = data.images ?? [];
-
-
 ---
-<section class="slider-container w-full">
-		{images?.length > 0 && images.map((_: any, i: number) => (
-		<a href={`#slide-${i}`} class="control text-lg">{i}</a>))
-		}
-		<div class="slides w-full">
-				{images?.length > 0 && images.map((image, i: number) => (
-				<div  class="bg-background rounded-2xl border p-2 shadow-lg slide"
-							id={`slide-${i}`}
-				>
-						<img src={image?.src} alt={image?.alt ?? ''} class="aspect-[4/3] w-full rounded-xl border border-border/25 object-cover" />
-				</div>
-				))}
-		</div>
-		<div class="flex flex-row gap-3 w-full items-center w-full justify-center controls">
-		
-		</div>
+
+<section class="w-full min-h-400px">
+  <Swiper
+    options={{
+      autoplay: {
+        delay: 7000,
+        disableOnInteraction: false,
+        waitForTransition: false,
+      },
+      loop: true,
+      pagination: {
+        el: ".swiper-pagination",
+      },
+      navigation: {
+        nextEl: ".gallery-nav.next",
+        prevEl: ".gallery-nav.prev",
+      },
+      mousewheel: true,
+      keyboard: true,
+    }}
+  >
+    <button type="button" class="gallery-nav prev" aria-label="Previous image">&#8249;</button>
+    <SwiperWrapper>
+      {images?.length > 0 &&
+        images.map((image: any, i: number) => (
+        <SwiperSlide>
+            <img
+								src={image?.src}
+								alt={image?.alt ?? ""}
+								class="h-full w-full rounded-xl border border-border/25 object-cover"
+            />
+        </SwiperSlide>
+        ))}
+    </SwiperWrapper>
+    <button type="button" class="gallery-nav next" aria-label="Next image">&#8250;</button>
+    <SwiperPagination />
+  </Swiper>
 </section>
-
-<style>
-
- .slider-container {
-		 min-width: 250px;
-		 max-width: 700px;
-		 text-align: center;
-		 overflow: hidden;
+<style define:vars={{ height, width }}>
+ astro-swiper {
+	 height: var(--height);
+	 width: var(--width);
  }
 
- .slide {
-		 max-width: max(80vw, 800px);
-		 max-width: max(50vh, 500px);
-		 margin: 2rem 0rem; 
+ section {
+     --swiper-navigation-size: 25px;
+     --swiper-navigation-top-offset: 50%;
+     --swiper-navigation-sides-offset: 10px;
+     --swiper-navigation-color: var(--carbon);
  }
 
- .slides {
-		 width: 100%;
-		 display: flex;
-		 overflow-x: auto;
-		 scroll-snap-type: x mandatory;
-		 scroll-behavior: smooth;
-		 -webkit-overflow-scrolling: touch;
+ .gallery-nav {
+	 position: absolute;
+	 top: 0;
+	 bottom: 0;
+	 width: 50%;
+	 border: 0;
+	 padding: 0;
+	 margin: 0;
+	 background: transparent;
+	 color: white;
+	 font-size: 2rem;
+	 line-height: 1;
+	 text-shadow: 0 1px 4px rgba(0, 0, 0, 0.6);
+	 opacity: 0;
+	 transition: opacity 0.2s;
+	 z-index: 10;
  }
- .slides::-webkit-scrollbar {
-		 width: 10px;
-		 height: 10px;
+ .gallery-nav.prev {
+	 left: 0;
+	 cursor: w-resize;
+	 text-align: left;
+	 padding-left: 0.75rem;
  }
- .slides::-webkit-scrollbar-thumb {
-		 background: black;
-		 border-radius: 10px;
+ .gallery-nav.next {
+	 right: 0;
+	 cursor: e-resize;
+	 text-align: right;
+	 padding-right: 0.75rem;
  }
- .slides::-webkit-scrollbar-track {
-		 background: transparent;
+ section:hover .gallery-nav,
+ .gallery-nav:focus-visible {
+	 opacity: 1;
  }
-
- .slides .slide {
-		 scroll-snap-align: start;
-		 flex-shrink: 0;
-		 margin-right: 10px;
-		 border-radius: 10px;
-		 transform-origin: center center;
-		 transform: scale(1);
-		 transition: transform 0.5s;
-		 position: relative;
- }
- .slides > div:target {
-		 /*   transform: scale(0.8); */
- }
-
- .slider-container .control {
-		 display: inline-flex;
-		 width: 1.5rem;
-		 height: 1.5rem;
-		 text-decoration: none;
-		 align-items: center;
-		 justify-content: center;
-		 border-radius: 50%;
-		 margin: 0 0 0.5rem 0;
-		 position: relative;
- }
- .slider-container .control:active {
-		 top: 1px;
-		 /* background-color: var(--color-orange-700); */
- }
- .slider-container .control:focus {
-		 background: color-mix(in hsl, var(--foreground), white 40%);
- }
-
- /* Don't need button navigation */
- @supports (scroll-snap-type) {
-		 .slider-container .control {
-				 display: none;
-		 }
- }
-
-
 </style>

@@ -18,7 +18,7 @@ export function mdIt(content: string): string {
 export async function getSiteConfig(): Promise<any> {
   try {
     const fullPath = path.join(CONFIG_DIR, `config.json`);
-    return await JSON.parse(fs.readFileSync(fullPath, "utf8"));
+    return traverseLocalize( await JSON.parse(fs.readFileSync(fullPath, "utf8")));
   } catch (err) {
     console.log(err);
   }
